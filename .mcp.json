@@ -1,0 +1,11 @@
+{
+  "mcpServers": {
+    "obsidian-mcp": {
+      "command": "npx",
+      "args": ["obsidian-mcp"],
+      "env": {
+        "OBSIDIAN_VAULT_PATH": "C:\\Users\\User\\Desktop\\boveda-claude"
+      }
+    }
+  }
+}
