@@ -26,7 +26,47 @@ El precio escala con el número de miembros activos del gym en todos los planes.
 
 ---
 
-## 2. ARQUITECTURA
+## 2. AUTENTICACIÓN Y ONBOARDING
+
+### 2.1 Registro de gym (onboarding)
+- Self-serve: el owner se registra directamente en la plataforma (nombre, email, contraseña, nombre del gym, ciudad)
+- Al registrarse se crea automáticamente el `Tenant` con el owner como primer usuario
+- Flujo de verificación de email (AWS SES) antes de acceder al dashboard
+- Selección de plan SaaS y configuración de pago via Wompi al finalizar el registro
+
+### 2.2 Autenticación
+- **Proveedor:** NextAuth con Credentials Provider (email + contraseña)
+- **Tokens:** JWT con claims: `user_id`, `tenant_id`, `role`
+- El `tenant_id` se propaga en cada request al backend — el backend lo valida y lo usa para filtrar todos los datos
+- **Password reset:** flujo via email con token de un solo uso (SES)
+- **Sesiones:** 8 horas de expiración, refresh automático
+
+### 2.3 Aislamiento multi-tenant
+- Cada endpoint del backend verifica que `tenant_id` del token coincida con el recurso solicitado
+- Middleware de FastAPI aplica el filtro de tenant automáticamente en todas las queries
+- Imposible acceder a datos de otro gym desde cualquier endpoint autenticado
+
+---
+
+## 3. MECANISMO DE CHECK-IN (MVP)</p>
+
+### Check-in manual por recepcionista
+- El recepcionista busca al miembro por nombre o cédula en el dashboard
+- Hace clic en "Registrar entrada" — se crea el registro de check-in con timestamp
+- La ocupación en tiempo real se calcula a partir de check-ins activos del día (entradas sin salida registrada)
+- El recepcionista también puede registrar la salida manualmente
+
+### Ocupación en tiempo real
+- WebSocket actualiza el contador de ocupación en el dashboard cada vez que se registra una entrada o salida
+- El cálculo es: `check-ins del día sin salida registrada / capacidad máxima de la sede`
+
+### Check-in por QR (Fase 2 — app móvil)
+- En el Plan Avanzado, el miembro genera QR desde la app y lo escanea en la entrada
+- El sistema registra el check-in automáticamente sin intervención del recepcionista
+
+---
+
+## 4. ARQUITECTURA
 
 ### 2.1 Stack Tecnológico
 
@@ -128,12 +168,12 @@ Tres roles jerárquicos por tenant. El Owner puede crear y asignar roles a su st
 
 ### 4.3 Pagos
 - Listado de pagos con filtros (estado, fecha, método)
-- Pagos pendientes con acción rápida de cobro
+- Pagos pendientes con acción rápida de cobro manual
 - Historial completo por miembro
-- Integración Wompi: pagos online desde app móvil
-- Suscripciones recurrentes automáticas
-- Webhooks de confirmación y fallo de pago
-- Notificación automática al miembro en pago fallido
+- **MVP:** registro manual de pagos (efectivo, transferencia) por el recepcionista
+- **Wompi en MVP:** solo para la suscripción SaaS del gym (Flujo 2)
+- **Wompi para miembros:** Fase 2 (requiere app móvil, Plan Avanzado)
+- Notificación automática al miembro cuando se registra su pago
 
 ### 4.4 Clases
 - Calendario semanal de clases
@@ -225,10 +265,13 @@ Miembro selecciona plan → Wompi checkout
 ```
 Owner registra gym → selecciona módulos
 → Wompi suscripción recurrente mensual
-→ Pago falla → acceso limitado (modo lectura)
-→ Pago exitoso → acceso completo restaurado
-→ Notificación por email en cada evento
+→ Pago falla → reintentos automáticos (días 1, 3, 7)
+→ Tras 7 días sin pago → acceso limitado (solo lectura)
+→ Pago exitoso → acceso completo restaurado automáticamente
+→ Notificación por email en cada evento (fallo, reintento, éxito)
 ```
+
+**Modo solo lectura:** el gym puede ver datos históricos pero no crear/editar miembros, registrar pagos ni check-ins. Suficiente para no perder información durante el período de gracia.
 
 ### Pasarela
 **Wompi** como pasarela principal para Colombia. MercadoPago como opción adicional en fase posterior.
