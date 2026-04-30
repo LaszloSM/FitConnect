@@ -48,7 +48,7 @@ El precio escala con el número de miembros activos del gym en todos los planes.
 
 ---
 
-## 3. MECANISMO DE CHECK-IN (MVP)</p>
+## 3. MECANISMO DE CHECK-IN (MVP)
 
 ### Check-in manual por recepcionista
 - El recepcionista busca al miembro por nombre o cédula en el dashboard
