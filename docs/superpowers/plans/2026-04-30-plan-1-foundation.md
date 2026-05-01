@@ -382,9 +382,8 @@ git commit -m "feat: initialize Next.js 14 frontend with shadcn/ui and api clien
 ```python
 # backend/app/db/base.py
 from datetime import datetime
-from sqlalchemy.orm import DeclarativeBase, mapped_column, MappedColumn
+from sqlalchemy.orm import DeclarativeBase, mapped_column, Mapped
 from sqlalchemy import func
-from typing import Optional
 
 
 class Base(DeclarativeBase):
@@ -392,12 +391,8 @@ class Base(DeclarativeBase):
 
 
 class TimestampMixin:
-    created_at: MappedColumn[datetime] = mapped_column(
-        default=None, server_default=func.now(), nullable=False
-    )
-    updated_at: MappedColumn[datetime] = mapped_column(
-        default=None, server_default=func.now(), onupdate=func.now(), nullable=False
-    )
+    created_at: Mapped[datetime] = mapped_column(server_default=func.now(), nullable=False)
+    updated_at: Mapped[datetime] = mapped_column(server_default=func.now(), onupdate=func.now(), nullable=False)
 ```
 
 - [ ] **Step 2: Crear app/db/session.py**
