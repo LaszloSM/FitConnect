@@ -280,6 +280,14 @@ alembic upgrade head
 
 Expected: tablas `members` y `memberships` creadas.
 
+- [ ] **Step 8: Confirmar que los tests aún fallan (los endpoints no existen todavía)**
+
+```bash
+pytest tests/test_members.py -v
+# Expected: FAILED — "404 Not Found" o "endpoint no existe"
+# Los modelos existen pero los endpoints se crean en Task 2
+```
+
 ---
 
 ### Task 2: Schemas y endpoints de miembros
@@ -582,6 +590,35 @@ async def test_occupancy_count(client: AsyncClient):
     assert response.status_code == 200
     data = response.json()
     assert data["current_count"] == 1
+
+
+async def test_get_checkin_by_id(client: AsyncClient):
+    token, member_id = await setup_gym(client, "owner5@gym.com")
+    created = await client.post("/api/v1/checkins/", json={"member_id": member_id, "type": "entry"},
+        headers={"Authorization": f"Bearer {token}"})
+    checkin_id = created.json()["id"]
+    response = await client.get(f"/api/v1/checkins/{checkin_id}", headers={"Authorization": f"Bearer {token}"})
+    assert response.status_code == 200
+    assert response.json()["id"] == checkin_id
+
+
+async def test_checkin_tenant_isolation(client: AsyncClient):
+    # Tenant 1 registra un check-in
+    token1, member_id1 = await setup_gym(client, "gym_ci_1@a.com")
+    created = await client.post("/api/v1/checkins/", json={"member_id": member_id1, "type": "entry"},
+        headers={"Authorization": f"Bearer {token1}"})
+    checkin_id = created.json()["id"]
+
+    # Tenant 2 no puede ver ese check-in por ID
+    await client.post("/api/v1/auth/register", json={
+        "email": "gym_ci_2@b.com", "password": "Pass123!", "full_name": "G2",
+        "gym_name": "Gym2", "city": "Riohacha",
+    })
+    r2 = await client.post("/api/v1/auth/login", json={"email": "gym_ci_2@b.com", "password": "Pass123!"})
+    token2 = r2.json()["access_token"]
+
+    response = await client.get(f"/api/v1/checkins/{checkin_id}", headers={"Authorization": f"Bearer {token2}"})
+    assert response.status_code == 404
 ```
 
 - [ ] **Step 2: Correr tests — deben fallar**
@@ -644,6 +681,7 @@ En `backend/app/models/location.py`, reemplazar el comentario:
 - [ ] **Step 6: Generar migración**
 
 ```bash
+# Prerequisito: docker compose up -d db
 alembic revision --autogenerate -m "add checkins"
 alembic upgrade head
 ```
@@ -685,6 +723,7 @@ class OccupancyResponse(BaseModel):
 
 ```python
 # backend/app/api/v1/checkins.py
+import uuid
 from datetime import date, datetime, time
 from fastapi import APIRouter, Depends
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -757,6 +796,22 @@ async def get_occupancy(
         current_count=max(0, total_entries - total_exits),
         total_entries_today=total_entries,
     )
+
+
+@router.get("/{checkin_id}", response_model=CheckInResponse)
+async def get_checkin(
+    checkin_id: uuid.UUID,
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
+    from fastapi import HTTPException
+    result = await db.execute(
+        select(CheckIn).where(CheckIn.id == checkin_id, CheckIn.tenant_id == current_user.tenant_id)
+    )
+    checkin = result.scalar_one_or_none()
+    if not checkin:
+        raise HTTPException(status_code=404, detail="Check-in no encontrado")
+    return checkin
 ```
 
 - [ ] **Step 9: Registrar router**
@@ -771,7 +826,7 @@ router.include_router(checkins.router)
 
 ```bash
 pytest tests/test_checkins.py -v
-# Expected: 4 tests PASSED
+# Expected: 6 tests PASSED
 ```
 
 - [ ] **Step 11: Commit**
@@ -891,6 +946,33 @@ async def test_mark_payment_paid_sets_method(client: AsyncClient):
     data = response.json()
     assert data["status"] == "paid"
     assert data["method"] == "transfer"
+
+
+async def test_cannot_access_other_tenant_payment(client: AsyncClient):
+    # Tenant 1 registra un pago
+    token1, member_id1 = await setup(client, "gym_pay_1@a.com")
+    r = await client.post("/api/v1/payments/", json={
+        "member_id": member_id1, "amount": "160000.00", "concept": "Mensualidad",
+    }, headers={"Authorization": f"Bearer {token1}"})
+    payment_id = r.json()["id"]
+
+    # Tenant 2 no puede acceder al pago de Tenant 1
+    await client.post("/api/v1/auth/register", json={
+        "email": "gym_pay_2@b.com", "password": "Pass123!", "full_name": "G2",
+        "gym_name": "Gym2", "city": "Riohacha",
+    })
+    r2 = await client.post("/api/v1/auth/login", json={"email": "gym_pay_2@b.com", "password": "Pass123!"})
+    token2 = r2.json()["access_token"]
+
+    # mark-paid con token de Tenant 2 → 404
+    response = await client.patch(f"/api/v1/payments/{payment_id}/mark-paid",
+        json={"method": "cash"}, headers={"Authorization": f"Bearer {token2}"})
+    assert response.status_code == 404
+
+    # list tampoco muestra pagos de otro tenant
+    list_r = await client.get("/api/v1/payments/", headers={"Authorization": f"Bearer {token2}"})
+    assert list_r.status_code == 200
+    assert len(list_r.json()) == 0
 ```
 
 - [ ] **Step 2: Correr tests — deben fallar**
@@ -937,7 +1019,7 @@ class Payment(Base, TimestampMixin):
     membership_id: Mapped[Optional[uuid.UUID]] = mapped_column(UUID(as_uuid=True), ForeignKey("memberships.id"), nullable=True)
     amount: Mapped[Decimal] = mapped_column(Numeric(12, 2), nullable=False)
     method: Mapped[Optional[PaymentMethod]] = mapped_column(SAEnum(PaymentMethod), nullable=True)
-    status: Mapped[PaymentStatus] = mapped_column(SAEnum(PaymentStatus), default=PaymentStatus.paid, nullable=False)
+    status: Mapped[PaymentStatus] = mapped_column(SAEnum(PaymentStatus), default=PaymentStatus.pending, nullable=False)
     concept: Mapped[str] = mapped_column(String(500), nullable=False)
     external_ref: Mapped[Optional[str]] = mapped_column(String(255), nullable=True)
 
@@ -956,6 +1038,7 @@ from app.models.payment import Payment, PaymentMethod, PaymentStatus
 - [ ] **Step 5: Generar migración**
 
 ```bash
+# Prerequisito: docker compose up -d db
 alembic revision --autogenerate -m "add payments"
 alembic upgrade head
 ```
@@ -1095,7 +1178,7 @@ router.include_router(payments.router)
 
 ```bash
 pytest tests/test_payments.py -v
-# Expected: 4 tests PASSED
+# Expected: 7 tests PASSED
 ```
 
 - [ ] **Step 10: Correr todos los tests acumulados**
@@ -1180,6 +1263,37 @@ async def test_update_class(client: AsyncClient):
         json={"max_capacity": 30}, headers={"Authorization": f"Bearer {token}"})
     assert response.status_code == 200
     assert response.json()["max_capacity"] == 30
+
+
+async def test_get_class_by_id(client: AsyncClient):
+    token = await get_token(client, "owner4@gym.com")
+    created = await client.post("/api/v1/classes/", json={
+        "name": "CrossFit", "instructor": "Luis", "schedule": "Jueves 7am",
+        "max_capacity": 12, "duration_minutes": 45,
+    }, headers={"Authorization": f"Bearer {token}"})
+    class_id = created.json()["id"]
+    response = await client.get(f"/api/v1/classes/{class_id}", headers={"Authorization": f"Bearer {token}"})
+    assert response.status_code == 200
+    assert response.json()["name"] == "CrossFit"
+
+
+async def test_classes_tenant_isolation(client: AsyncClient):
+    # Tenant 1 crea una clase
+    token1 = await get_token(client, "gym_cls_1@a.com")
+    created = await client.post("/api/v1/classes/", json={
+        "name": "Pilates", "instructor": "Sofia", "schedule": "Viernes 9am",
+        "max_capacity": 10, "duration_minutes": 50,
+    }, headers={"Authorization": f"Bearer {token1}"})
+    class_id = created.json()["id"]
+
+    # Tenant 2 no puede ver esa clase
+    token2 = await get_token(client, "gym_cls_2@b.com")
+    response = await client.get(f"/api/v1/classes/{class_id}", headers={"Authorization": f"Bearer {token2}"})
+    assert response.status_code == 404
+
+    # list de Tenant 2 está vacío
+    list_r = await client.get("/api/v1/classes/", headers={"Authorization": f"Bearer {token2}"})
+    assert len(list_r.json()) == 0
 ```
 
 - [ ] **Step 2: Correr tests — deben fallar**
@@ -1226,6 +1340,7 @@ from app.models.gym_class import GymClass
 - [ ] **Step 5: Generar migración**
 
 ```bash
+# Prerequisito: docker compose up -d db
 alembic revision --autogenerate -m "add gym_classes"
 alembic upgrade head
 ```
@@ -1314,6 +1429,21 @@ async def list_classes(
     return result.scalars().all()
 
 
+@router.get("/{class_id}", response_model=GymClassResponse)
+async def get_class(
+    class_id: uuid.UUID,
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
+    result = await db.execute(
+        select(GymClass).where(GymClass.id == class_id, GymClass.tenant_id == current_user.tenant_id)
+    )
+    gym_class = result.scalar_one_or_none()
+    if not gym_class:
+        raise HTTPException(status_code=404, detail="Clase no encontrada")
+    return gym_class
+
+
 @router.patch("/{class_id}", response_model=GymClassResponse)
 async def update_class(
     class_id: uuid.UUID,
@@ -1363,7 +1493,7 @@ router.include_router(classes.router)
 
 ```bash
 pytest tests/test_classes.py -v
-# Expected: 3 tests PASSED
+# Expected: 5 tests PASSED
 ```
 
 - [ ] **Step 10: Commit**
@@ -1466,6 +1596,34 @@ async def test_list_maintenance_history(client: AsyncClient):
         headers={"Authorization": f"Bearer {token}"})
     assert response.status_code == 200
     assert len(response.json()) == 1
+
+
+async def test_get_machine_by_id(client: AsyncClient):
+    token = await get_token(client, "owner6@gym.com")
+    created = await client.post("/api/v1/machines/", json={
+        "name": "Remo 1", "brand": "Concept2", "serial_number": "C2-001",
+    }, headers={"Authorization": f"Bearer {token}"})
+    machine_id = created.json()["id"]
+    response = await client.get(f"/api/v1/machines/{machine_id}", headers={"Authorization": f"Bearer {token}"})
+    assert response.status_code == 200
+    assert response.json()["name"] == "Remo 1"
+
+
+async def test_machines_tenant_isolation(client: AsyncClient):
+    # Tenant 1 crea una máquina
+    token1 = await get_token(client, "gym_mac_1@a.com")
+    created = await client.post("/api/v1/machines/", json={
+        "name": "Squat Rack", "brand": "Hammer", "serial_number": "HM-999",
+    }, headers={"Authorization": f"Bearer {token1}"})
+    machine_id = created.json()["id"]
+
+    # Tenant 2 no puede ver la máquina de Tenant 1
+    token2 = await get_token(client, "gym_mac_2@b.com")
+    response = await client.get(f"/api/v1/machines/{machine_id}", headers={"Authorization": f"Bearer {token2}"})
+    assert response.status_code == 404
+
+    list_r = await client.get("/api/v1/machines/", headers={"Authorization": f"Bearer {token2}"})
+    assert len(list_r.json()) == 0
 ```
 
 - [ ] **Step 2: Correr tests — deben fallar**
@@ -1549,6 +1707,7 @@ from app.models.maintenance import MaintenanceRecord
 - [ ] **Step 6: Generar migración**
 
 ```bash
+# Prerequisito: docker compose up -d db
 alembic revision --autogenerate -m "add machines maintenance_records"
 alembic upgrade head
 ```
@@ -1652,6 +1811,21 @@ async def list_machines(
     return result.scalars().all()
 
 
+@router.get("/{machine_id}", response_model=MachineResponse)
+async def get_machine(
+    machine_id: uuid.UUID,
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
+    result = await db.execute(
+        select(Machine).where(Machine.id == machine_id, Machine.tenant_id == current_user.tenant_id)
+    )
+    machine = result.scalar_one_or_none()
+    if not machine:
+        raise HTTPException(status_code=404, detail="Máquina no encontrada")
+    return machine
+
+
 @router.patch("/{machine_id}", response_model=MachineResponse)
 async def update_machine(
     machine_id: uuid.UUID,
@@ -1718,7 +1892,7 @@ router.include_router(machines.router)
 
 ```bash
 pytest tests/ -v
-# Expected: todos los tests PASSED
+# Expected: todos los tests PASSED (incluyendo 7 de test_machines.py)
 ```
 
 - [ ] **Step 11: Commit**
@@ -1743,6 +1917,15 @@ git commit -m "feat: add machines module with maintenance history"
 - Create: `frontend/components/members/MemberTable.tsx`
 - Create: `frontend/components/members/MemberForm.tsx`
 - Create: `frontend/hooks/useMembers.ts`
+
+- [ ] **Step 0: Instalar dependencias frontend**
+
+```bash
+cd frontend
+npm install @tanstack/react-query axios zod
+```
+
+> Nota: los formularios usan `useState` directamente — `react-hook-form` se agrega en una fase posterior cuando la complejidad de validaciones lo justifique.
 
 - [ ] **Step 1: Crear hooks/useMembers.ts**
 
@@ -2710,91 +2893,181 @@ export default function MachinesPage() {
 }
 ```
 
-- [ ] **Step 3: Agregar vista de historial de mantenimiento por máquina**
+- [ ] **Step 3: Reemplazar MachinesPage completa con versión que incluye panel de mantenimiento**
 
-Añadir al final de `MachinesPage`, después del listado de máquinas, un panel expandible de historial:
-
-```typescript
-// Agregar este estado y componente dentro de MachinesPage, después del listado de máquinas:
-
-// Estado para expandir historial
-const [expandedMachineId, setExpandedMachineId] = useState<string | null>(null);
-const [maintenanceForm, setMaintenanceForm] = useState({ description: "", technician: "", cost: "" });
-const addMaintenance = useAddMaintenance();
-
-// Query para historial de la máquina expandida
-const { data: maintenanceHistory } = useQuery({
-  queryKey: ["maintenance", expandedMachineId],
-  queryFn: () => apiClient(token).get(`/api/v1/machines/${expandedMachineId}/maintenance`).then((r) => r.data),
-  enabled: !!expandedMachineId && !!token,
-});
-
-// Añadir dentro del map de cada máquina, después del </div> del card principal:
-// (reemplazar el return del map con este JSX extendido)
-```
-
-Actualizar el bloque de la máquina en el map para incluir panel de mantenimiento:
+Reemplazar **todo** el contenido de `frontend/app/(dashboard)/machines/page.tsx` con la versión completa a continuación (incluye los estados de mantenimiento y el panel expandible integrado en el map):
 
 ```typescript
-// Dentro del .map((m: any) => ...) — agregar después del badge de estado:
-<div key={m.id} className="bg-zinc-900 border border-zinc-800 rounded-lg overflow-hidden">
-  <div className="p-4 flex items-center justify-between">
-    {/* ... contenido anterior del card ... */}
-    <Button variant="ghost" size="sm" className="text-zinc-400 hover:text-white text-xs"
-      onClick={() => setExpandedMachineId(expandedMachineId === m.id ? null : m.id)}>
-      <Wrench className="h-3 w-3 mr-1" />
-      {expandedMachineId === m.id ? "Cerrar" : "Mantenimiento"}
-    </Button>
-  </div>
-  {expandedMachineId === m.id && (
-    <div className="border-t border-zinc-800 p-4 bg-zinc-950 space-y-4">
-      <form onSubmit={async (e) => {
-        e.preventDefault();
-        await addMaintenance.mutateAsync({ machineId: m.id, data: { ...maintenanceForm, cost: maintenanceForm.cost || undefined } });
-        setMaintenanceForm({ description: "", technician: "", cost: "" });
-      }} className="grid grid-cols-3 gap-2">
-        <Input placeholder="Descripción" value={maintenanceForm.description}
-          onChange={(e) => setMaintenanceForm({ ...maintenanceForm, description: e.target.value })}
-          className="bg-zinc-800 border-zinc-700 text-white text-sm" required />
-        <Input placeholder="Técnico" value={maintenanceForm.technician}
-          onChange={(e) => setMaintenanceForm({ ...maintenanceForm, technician: e.target.value })}
-          className="bg-zinc-800 border-zinc-700 text-white text-sm" required />
-        <div className="flex gap-2">
-          <Input placeholder="Costo (COP)" type="number" value={maintenanceForm.cost}
-            onChange={(e) => setMaintenanceForm({ ...maintenanceForm, cost: e.target.value })}
-            className="bg-zinc-800 border-zinc-700 text-white text-sm" />
-          <Button type="submit" size="sm" className="bg-orange-500 hover:bg-orange-600 shrink-0">
-            Agregar
-          </Button>
-        </div>
-      </form>
-      <div className="space-y-2">
-        {(maintenanceHistory ?? []).map((r: any) => (
-          <div key={r.id} className="flex justify-between text-sm">
-            <div>
-              <span className="text-white">{r.description}</span>
-              <span className="text-zinc-400 ml-2">— {r.technician}</span>
-            </div>
-            <div className="text-zinc-400">
-              {r.cost ? `$${Number(r.cost).toLocaleString("es-CO")}` : "Sin costo"}
-            </div>
-          </div>
-        ))}
-        {(maintenanceHistory ?? []).length === 0 && (
-          <p className="text-zinc-500 text-sm">Sin registros de mantenimiento.</p>
-        )}
-      </div>
-    </div>
-  )}
-</div>
-```
-
-Agregar el import faltante al inicio del archivo:
-```typescript
+// frontend/app/(dashboard)/machines/page.tsx
+"use client";
+import { useState } from "react";
+import { Plus, Wrench, CheckCircle, AlertTriangle } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useQuery } from "@tanstack/react-query";
-import { apiClient } from "@/lib/api";
 import { useSession } from "next-auth/react";
-import { useAddMaintenance } from "@/hooks/useMachines";
+import { useMachines, useCreateMachine, useUpdateMachineStatus, useAddMaintenance } from "@/hooks/useMachines";
+import { apiClient } from "@/lib/api";
+import { Skeleton } from "@/components/ui/skeleton";
+
+const statusConfig = {
+  active: { label: "Activa", color: "bg-green-500/20 text-green-400", icon: CheckCircle },
+  maintenance: { label: "Mantenimiento", color: "bg-yellow-500/20 text-yellow-400", icon: Wrench },
+  damaged: { label: "Dañada", color: "bg-red-500/20 text-red-400", icon: AlertTriangle },
+  retired: { label: "Retirada", color: "bg-zinc-700 text-zinc-400", icon: AlertTriangle },
+};
+
+export default function MachinesPage() {
+  const { data: session } = useSession();
+  const token = (session as any)?.accessToken;
+  const { data: machines, isLoading } = useMachines();
+  const createMachine = useCreateMachine();
+  const updateStatus = useUpdateMachineStatus();
+  const addMaintenance = useAddMaintenance();
+  const [open, setOpen] = useState(false);
+  const [form, setForm] = useState({ name: "", brand: "", serial_number: "" });
+  const [expandedMachineId, setExpandedMachineId] = useState<string | null>(null);
+  const [maintenanceForm, setMaintenanceForm] = useState({ description: "", technician: "", cost: "" });
+
+  const { data: maintenanceHistory } = useQuery({
+    queryKey: ["maintenance", expandedMachineId],
+    queryFn: () =>
+      apiClient(token).get(`/api/v1/machines/${expandedMachineId}/maintenance`).then((r) => r.data),
+    enabled: !!expandedMachineId && !!token,
+  });
+
+  async function handleCreate(e: React.FormEvent) {
+    e.preventDefault();
+    await createMachine.mutateAsync(form);
+    setForm({ name: "", brand: "", serial_number: "" });
+    setOpen(false);
+  }
+
+  return (
+    <div>
+      <div className="flex items-center justify-between mb-6">
+        <h2 className="text-2xl font-bold text-white">Máquinas</h2>
+        <Dialog open={open} onOpenChange={setOpen}>
+          <DialogTrigger asChild>
+            <Button className="bg-orange-500 hover:bg-orange-600">
+              <Plus className="h-4 w-4 mr-2" /> Agregar máquina
+            </Button>
+          </DialogTrigger>
+          <DialogContent className="bg-zinc-900 border-zinc-800">
+            <DialogHeader><DialogTitle className="text-white">Nueva máquina</DialogTitle></DialogHeader>
+            <form onSubmit={handleCreate} className="space-y-4">
+              {[
+                { id: "name", label: "Nombre" },
+                { id: "brand", label: "Marca" },
+                { id: "serial_number", label: "Número de serie" },
+              ].map(({ id, label }) => (
+                <div key={id} className="space-y-1">
+                  <Label htmlFor={id} className="text-zinc-300 text-sm">{label}</Label>
+                  <Input id={id} value={(form as any)[id]}
+                    onChange={(e) => setForm({ ...form, [id]: e.target.value })}
+                    className="bg-zinc-800 border-zinc-700 text-white" />
+                </div>
+              ))}
+              <Button type="submit" disabled={createMachine.isPending} className="bg-orange-500 hover:bg-orange-600">
+                {createMachine.isPending ? "Guardando..." : "Agregar"}
+              </Button>
+            </form>
+          </DialogContent>
+        </Dialog>
+      </div>
+      {isLoading ? (
+        <div className="space-y-3">
+          {[...Array(5)].map((_, i) => <Skeleton key={i} className="h-16 w-full bg-zinc-800 rounded-lg" />)}
+        </div>
+      ) : (
+        <div className="space-y-3">
+          {(machines ?? []).map((m: any) => {
+            const config = statusConfig[m.status as keyof typeof statusConfig] ?? statusConfig.active;
+            const Icon = config.icon;
+            return (
+              <div key={m.id} className="bg-zinc-900 border border-zinc-800 rounded-lg overflow-hidden">
+                <div className="p-4 flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <Icon className="h-5 w-5 text-zinc-500" />
+                    <div>
+                      <p className="text-white font-medium">{m.name}</p>
+                      <p className="text-zinc-400 text-sm">{m.brand} · {m.serial_number}</p>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-3">
+                    <Badge className={config.color}>{config.label}</Badge>
+                    <Select value={m.status} onValueChange={(val) => updateStatus.mutate({ id: m.id, status: val })}>
+                      <SelectTrigger className="w-40 bg-zinc-800 border-zinc-700 text-zinc-300 h-8 text-xs">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent className="bg-zinc-800 border-zinc-700">
+                        {Object.entries(statusConfig).map(([val, { label }]) => (
+                          <SelectItem key={val} value={val} className="text-zinc-300">{label}</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    <Button variant="ghost" size="sm" className="text-zinc-400 hover:text-white text-xs"
+                      onClick={() => setExpandedMachineId(expandedMachineId === m.id ? null : m.id)}>
+                      <Wrench className="h-3 w-3 mr-1" />
+                      {expandedMachineId === m.id ? "Cerrar" : "Mantenimiento"}
+                    </Button>
+                  </div>
+                </div>
+                {expandedMachineId === m.id && (
+                  <div className="border-t border-zinc-800 p-4 bg-zinc-950 space-y-4">
+                    <form onSubmit={async (e) => {
+                      e.preventDefault();
+                      await addMaintenance.mutateAsync({
+                        machineId: m.id,
+                        data: { ...maintenanceForm, cost: maintenanceForm.cost || undefined },
+                      });
+                      setMaintenanceForm({ description: "", technician: "", cost: "" });
+                    }} className="grid grid-cols-3 gap-2">
+                      <Input placeholder="Descripción" value={maintenanceForm.description}
+                        onChange={(e) => setMaintenanceForm({ ...maintenanceForm, description: e.target.value })}
+                        className="bg-zinc-800 border-zinc-700 text-white text-sm" required />
+                      <Input placeholder="Técnico" value={maintenanceForm.technician}
+                        onChange={(e) => setMaintenanceForm({ ...maintenanceForm, technician: e.target.value })}
+                        className="bg-zinc-800 border-zinc-700 text-white text-sm" required />
+                      <div className="flex gap-2">
+                        <Input placeholder="Costo (COP)" type="number" value={maintenanceForm.cost}
+                          onChange={(e) => setMaintenanceForm({ ...maintenanceForm, cost: e.target.value })}
+                          className="bg-zinc-800 border-zinc-700 text-white text-sm" />
+                        <Button type="submit" size="sm" className="bg-orange-500 hover:bg-orange-600 shrink-0">
+                          Agregar
+                        </Button>
+                      </div>
+                    </form>
+                    <div className="space-y-2">
+                      {(maintenanceHistory ?? []).map((r: any) => (
+                        <div key={r.id} className="flex justify-between text-sm">
+                          <div>
+                            <span className="text-white">{r.description}</span>
+                            <span className="text-zinc-400 ml-2">— {r.technician}</span>
+                          </div>
+                          <div className="text-zinc-400">
+                            {r.cost ? `$${Number(r.cost).toLocaleString("es-CO")}` : "Sin costo"}
+                          </div>
+                        </div>
+                      ))}
+                      {(maintenanceHistory ?? []).length === 0 && (
+                        <p className="text-zinc-500 text-sm">Sin registros de mantenimiento.</p>
+                      )}
+                    </div>
+                  </div>
+                )}
+              </div>
+            );
+          })}
+        </div>
+      )}
+    </div>
+  );
+}
 ```
 
 - [ ] **Step 4: Probar manualmente**
