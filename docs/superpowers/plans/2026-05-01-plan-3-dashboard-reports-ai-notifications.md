@@ -2688,7 +2688,7 @@ export function MemberPlanCard({ plan }: { plan: MemberPlan }) {
 }
 ```
 
-- [ ] **Step 4: Crear app/(dashboard)/settings/page.tsx**
+- [ ] **Step 3: Crear app/(dashboard)/settings/page.tsx**
 
 > Importar `MemberPlanCard` para la grilla de planes.
 
@@ -2849,7 +2849,7 @@ export default function SettingsPage() {
 }
 ```
 
-- [ ] **Step 5: Probar manualmente**
+- [ ] **Step 4: Probar manualmente**
 
 ```
 1. Ir a /settings
@@ -2859,7 +2859,7 @@ export default function SettingsPage() {
 5. Refresh de página → datos persisten
 ```
 
-- [ ] **Step 6: Commit final del Plan 3**
+- [ ] **Step 5: Commit final del Plan 3**
 
 ```bash
 git add frontend/hooks/useSettings.ts \
