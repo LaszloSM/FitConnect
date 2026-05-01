@@ -730,6 +730,14 @@ echo "langchain>=0.2.0" >> requirements.txt
 echo "langchain-anthropic>=0.1.0" >> requirements.txt
 ```
 
+- [ ] **Step 4: Re-correr tests — confirmar que ahora fallan por razón correcta (no ImportError)**
+
+```bash
+pytest tests/test_chatbot.py -v
+# Expected: FAILED — "404 Not Found" o "cannot import name 'chatbot' from app.api.v1"
+# (el ImportError de langchain ya no aparece — los módulos están instalados)
+```
+
 - [ ] **Step 5: Crear schemas/chatbot.py**
 
 ```python
@@ -1136,7 +1144,7 @@ from app.models.notification import Notification
 
 ```bash
 cd backend
-# Prerequisito: docker compose up -d db
+docker compose up -d db
 alembic revision --autogenerate -m "add notifications"
 alembic upgrade head
 ```
@@ -1369,11 +1377,30 @@ async def test_settings_profile_tenant_isolation(client: AsyncClient):
     r1 = await client.get("/api/v1/settings/profile", headers={"Authorization": f"Bearer {token1}"})
     r2 = await client.get("/api/v1/settings/profile", headers={"Authorization": f"Bearer {token2}"})
 
-    # Cada tenant ve su propio perfil
+    # Cada tenant ve exactamente su propio perfil (directional)
     assert r1.json()["name"] == "GymUno"
     assert r2.json()["name"] == "GymDos"
-    # Los IDs son distintos — cada token ve su propio gym
+    # Los IDs son distintos — cada token ve su propio gym, no el del otro
     assert r1.json()["id"] != r2.json()["id"]
+    # Cross-tenant: Tenant 2 NO puede ver el nombre de Tenant 1 y viceversa
+    assert r2.json()["name"] != "GymUno"
+    assert r1.json()["name"] != "GymDos"
+
+
+async def test_member_plans_tenant_isolation(client: AsyncClient):
+    # Tenant 1 crea un plan
+    token1 = await get_owner_token(client, "gym_plan_1@a.com")
+    await client.post("/api/v1/settings/member-plans", json={
+        "name": "Plan Exclusivo", "price": "200000.00", "duration_days": 30,
+    }, headers={"Authorization": f"Bearer {token1}"})
+
+    # Tenant 2 no ve los planes de Tenant 1
+    token2 = await get_owner_token(client, "gym_plan_2@b.com")
+    list_r = await client.get("/api/v1/settings/member-plans", headers={"Authorization": f"Bearer {token2}"})
+    assert list_r.status_code == 200
+    plans = list_r.json()
+    assert len(plans) == 0
+    assert all(p["name"] != "Plan Exclusivo" for p in plans)
 ```
 
 - [ ] **Step 2: Correr tests — deben fallar**
@@ -1421,7 +1448,7 @@ from app.models.member_plan import MemberPlan
 
 ```bash
 cd backend
-# Prerequisito: docker compose up -d db
+docker compose up -d db
 alembic revision --autogenerate -m "add member_plans"
 alembic upgrade head
 ```
@@ -1494,11 +1521,11 @@ address: Mapped[Optional[str]] = mapped_column(String(500), nullable=True)
 logo_url: Mapped[Optional[str]] = mapped_column(String(500), nullable=True)
 ```
 
-Luego generar migración si los campos no existían (siempre correr para que Alembic detecte el estado actual):
+Luego generar migración (siempre correr para que Alembic detecte el estado actual):
 
 ```bash
 cd backend
-# Prerequisito: docker compose up -d db
+docker compose up -d db
 alembic revision --autogenerate -m "add tenant profile fields"
 alembic upgrade head
 # Si no hay cambios detectados, alembic genera una migración vacía — es seguro aplicarla igualmente
@@ -1621,7 +1648,7 @@ router.include_router(settings.router)
 
 ```bash
 pytest tests/test_settings.py -v
-# Expected: 5 tests PASSED
+# Expected: 6 tests PASSED
 ```
 
 - [ ] **Step 11: Correr todos los tests**
@@ -2522,6 +2549,7 @@ git commit -m "feat: add in-app notification bell with unread badge"
 
 **Files:**
 - Create: `frontend/hooks/useSettings.ts`
+- Create: `frontend/components/settings/MemberPlanCard.tsx`
 - Create: `frontend/app/(dashboard)/settings/page.tsx`
 
 - [ ] **Step 1: Crear hooks/useSettings.ts**
@@ -2576,13 +2604,45 @@ export function useCreateMemberPlan() {
 }
 ```
 
-- [ ] **Step 2: Crear app/(dashboard)/settings/page.tsx**
+- [ ] **Step 2: Crear components/settings/MemberPlanCard.tsx**
+
+```typescript
+// frontend/components/settings/MemberPlanCard.tsx
+type MemberPlan = {
+  id: string;
+  name: string;
+  price: string | number;
+  duration_days: number;
+  description?: string;
+};
+
+export function MemberPlanCard({ plan }: { plan: MemberPlan }) {
+  return (
+    <div className="bg-zinc-900 border border-zinc-800 rounded-xl p-5">
+      <h3 className="text-white font-semibold mb-1">{plan.name}</h3>
+      <p className="text-2xl font-bold text-orange-400">
+        ${Number(plan.price).toLocaleString("es-CO")}
+        <span className="text-zinc-400 text-sm font-normal"> COP</span>
+      </p>
+      <p className="text-zinc-400 text-sm mt-1">{plan.duration_days} días</p>
+      {plan.description && (
+        <p className="text-zinc-500 text-xs mt-2">{plan.description}</p>
+      )}
+    </div>
+  );
+}
+```
+
+- [ ] **Step 4: Crear app/(dashboard)/settings/page.tsx**
+
+> Importar `MemberPlanCard` para la grilla de planes.
 
 ```typescript
 // frontend/app/(dashboard)/settings/page.tsx
 "use client";
 import { useState } from "react";
 import { Plus, Save } from "lucide-react";
+import { MemberPlanCard } from "@/components/settings/MemberPlanCard";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -2724,15 +2784,7 @@ export default function SettingsPage() {
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             {(plans ?? []).map((plan: any) => (
-              <div key={plan.id} className="bg-zinc-900 border border-zinc-800 rounded-xl p-5">
-                <h3 className="text-white font-semibold mb-1">{plan.name}</h3>
-                <p className="text-2xl font-bold text-orange-400">
-                  ${Number(plan.price).toLocaleString("es-CO")}
-                  <span className="text-zinc-400 text-sm font-normal"> COP</span>
-                </p>
-                <p className="text-zinc-400 text-sm mt-1">{plan.duration_days} días</p>
-                {plan.description && <p className="text-zinc-500 text-xs mt-2">{plan.description}</p>}
-              </div>
+              <MemberPlanCard key={plan.id} plan={plan} />
             ))}
           </div>
         </div>
@@ -2742,20 +2794,21 @@ export default function SettingsPage() {
 }
 ```
 
-- [ ] **Step 3: Probar manualmente**
+- [ ] **Step 5: Probar manualmente**
 
 ```
 1. Ir a /settings
 2. Tab "Perfil del gym" → editar teléfono y dirección → guardar → verificar que persiste
 3. Tab "Planes de membresía" → click "Nuevo plan" → llenar formulario → crear
-4. Verificar que el plan aparece en la grilla
+4. Verificar que el plan aparece en tarjetas MemberPlanCard
 5. Refresh de página → datos persisten
 ```
 
-- [ ] **Step 4: Commit final del Plan 3**
+- [ ] **Step 6: Commit final del Plan 3**
 
 ```bash
 git add frontend/hooks/useSettings.ts \
+        frontend/components/settings/MemberPlanCard.tsx \
         frontend/app/(dashboard)/settings/page.tsx
 git commit -m "feat: add settings page with gym profile and member plans"
 ```
