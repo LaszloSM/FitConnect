@@ -111,10 +111,17 @@ async def test_kpi_tenant_isolation(client: AsyncClient):
     r2 = await client.post("/api/v1/auth/login", json={"email": "gym_kpi_2@b.com", "password": "Pass123!"})
     token2 = r2.json()["access_token"]
 
-    r = await client.get("/api/v1/dashboard/kpis", headers={"Authorization": f"Bearer {token2}"})
-    assert r.status_code == 200
-    assert r.json()["active_members"] == 0
-    assert float(r.json()["revenue_today"]) == 0.0
+    # Tenant 2 ve sus propios KPIs vacíos (no los de Tenant 1)
+    kpi2 = await client.get("/api/v1/dashboard/kpis", headers={"Authorization": f"Bearer {token2}"})
+    assert kpi2.status_code == 200
+    assert kpi2.json()["active_members"] == 0
+    assert float(kpi2.json()["revenue_today"]) == 0.0
+
+    # Tenant 1 sigue viendo sus propios datos (no afectado por Tenant 2)
+    kpi1 = await client.get("/api/v1/dashboard/kpis", headers={"Authorization": f"Bearer {token1}"})
+    assert kpi1.status_code == 200
+    assert kpi1.json()["active_members"] == 1
+    assert float(kpi1.json()["revenue_today"]) == 160000.0
 ```
 
 - [ ] **Step 2: Correr tests — deben fallar**
@@ -430,12 +437,22 @@ async def test_reports_tenant_isolation(client: AsyncClient):
     r2 = await client.post("/api/v1/auth/login", json={"email": "gym_rep_2@b.com", "password": "Pass123!"})
     token2 = r2.json()["access_token"]
     today = date.today().isoformat()
-    r = await client.get(
+
+    # Tenant 2 ve $0 — no accede a los $360,000 de Tenant 1
+    rep2 = await client.get(
         f"/api/v1/reports/revenue?start={today}&end={today}",
         headers={"Authorization": f"Bearer {token2}"},
     )
-    assert r.status_code == 200
-    assert float(r.json()["total"]) == 0.0
+    assert rep2.status_code == 200
+    assert float(rep2.json()["total"]) == 0.0
+
+    # Tenant 1 sigue viendo sus propios ingresos ($360,000)
+    rep1 = await client.get(
+        f"/api/v1/reports/revenue?start={today}&end={today}",
+        headers={"Authorization": f"Bearer {token1}"},
+    )
+    assert rep1.status_code == 200
+    assert float(rep1.json()["total"]) == 360000.0
 ```
 
 - [ ] **Step 2: Correr tests — deben fallar**
@@ -730,15 +747,36 @@ echo "langchain>=0.2.0" >> requirements.txt
 echo "langchain-anthropic>=0.1.0" >> requirements.txt
 ```
 
-- [ ] **Step 4: Re-correr tests — confirmar que ahora fallan por razón correcta (no ImportError)**
+- [ ] **Step 4: Crear stub de agents para desbloquear el ImportError del router**
+
+El endpoint `chatbot.py` importará `from app.agents.gym_agent import run_gym_agent`.
+Para que el re-run de tests falle por razón correcta (ruta no encontrada, no ImportError), crear el módulo stub ahora:
 
 ```bash
-pytest tests/test_chatbot.py -v
-# Expected: FAILED — "404 Not Found" o "cannot import name 'chatbot' from app.api.v1"
-# (el ImportError de langchain ya no aparece — los módulos están instalados)
+mkdir -p backend/app/agents
+touch backend/app/agents/__init__.py
 ```
 
-- [ ] **Step 5: Crear schemas/chatbot.py**
+```python
+# backend/app/agents/gym_agent.py  — stub temporal
+import uuid
+from sqlalchemy.ext.asyncio import AsyncSession
+
+
+async def run_gym_agent(message: str, tenant_id: uuid.UUID, db: AsyncSession) -> str:
+    raise NotImplementedError("Agent not implemented yet")
+```
+
+- [ ] **Step 5: Re-correr tests — confirmar que ahora fallan por razón correcta (no ImportError)**
+
+```bash
+cd backend
+pytest tests/test_chatbot.py -v
+# Expected: FAILED — el mock no parchea nada todavía (endpoint no existe → 404 o ModuleNotFoundError del router)
+# El ImportError de langchain/agents ya no aparece
+```
+
+- [ ] **Step 6: Crear schemas/chatbot.py**
 
 ```python
 # backend/app/schemas/chatbot.py
@@ -753,7 +791,7 @@ class ChatResponse(BaseModel):
     reply: str
 ```
 
-- [ ] **Step 6: Crear agents/tools.py**
+- [ ] **Step 7: Crear agents/tools.py**
 
 ```python
 # backend/app/agents/tools.py
@@ -894,7 +932,7 @@ def make_gym_tools(tenant_id: uuid.UUID, db: AsyncSession):
     return [get_revenue, get_expiring_members, get_checkin_stats, get_pending_payments, get_active_member_count]
 ```
 
-- [ ] **Step 7: Crear agents/gym_agent.py**
+- [ ] **Step 8: Reemplazar agents/gym_agent.py stub con implementación real**
 
 ```python
 # backend/app/agents/gym_agent.py
@@ -954,7 +992,7 @@ async def run_gym_agent(message: str, tenant_id: uuid.UUID, db: AsyncSession) ->
     return result.get("output", "No pude procesar la consulta.")
 ```
 
-- [ ] **Step 8: Crear api/v1/chatbot.py**
+- [ ] **Step 9: Crear api/v1/chatbot.py**
 
 ```python
 # backend/app/api/v1/chatbot.py
@@ -984,13 +1022,14 @@ async def chat(
     return ChatResponse(reply=reply)
 ```
 
-- [ ] **Step 9: Crear agents/__init__.py**
+- [ ] **Step 10: Verificar agents/__init__.py existe**
 
 ```bash
-touch backend/app/agents/__init__.py
+# Ya fue creado en Step 4. Solo verificar:
+cat backend/app/agents/__init__.py
 ```
 
-- [ ] **Step 10: Registrar router**
+- [ ] **Step 11: Registrar router**
 
 ```python
 # backend/app/api/v1/router.py — agregar:
@@ -998,7 +1037,7 @@ from app.api.v1 import auth, users, members, checkins, payments, classes, machin
 router.include_router(chatbot.router)
 ```
 
-- [ ] **Step 11: Correr tests — deben pasar**
+- [ ] **Step 12: Correr tests — deben pasar**
 
 ```bash
 pytest tests/test_chatbot.py -v
@@ -1006,7 +1045,7 @@ pytest tests/test_chatbot.py -v
 # (los tests mockean run_gym_agent — no llaman a la API de Anthropic)
 ```
 
-- [ ] **Step 12: Commit**
+- [ ] **Step 13: Commit**
 
 ```bash
 git add backend/app/agents/ backend/app/schemas/chatbot.py \
@@ -1094,11 +1133,20 @@ async def test_notification_tenant_isolation(client: AsyncClient):
         "title": "Privada", "message": "Solo mia", "type": "info",
     }, headers={"Authorization": f"Bearer {token1}"})
 
-    # Tenant 2 no la ve
+    # Tenant 2 no la ve (lista vacía)
     token2 = await get_token(client, "gym_notif_2@b.com")
-    list_r = await client.get("/api/v1/notifications/", headers={"Authorization": f"Bearer {token2}"})
-    assert list_r.status_code == 200
-    assert len(list_r.json()) == 0
+    list_r2 = await client.get("/api/v1/notifications/", headers={"Authorization": f"Bearer {token2}"})
+    assert list_r2.status_code == 200
+    notifs2 = list_r2.json()
+    assert len(notifs2) == 0
+    assert all(n["title"] != "Privada" for n in notifs2)
+
+    # Tenant 1 sigue viendo su propia notificación
+    list_r1 = await client.get("/api/v1/notifications/", headers={"Authorization": f"Bearer {token1}"})
+    assert list_r1.status_code == 200
+    notifs1 = list_r1.json()
+    assert len(notifs1) == 1
+    assert notifs1[0]["title"] == "Privada"
 ```
 
 - [ ] **Step 2: Correr tests — deben fallar**
@@ -1394,13 +1442,20 @@ async def test_member_plans_tenant_isolation(client: AsyncClient):
         "name": "Plan Exclusivo", "price": "200000.00", "duration_days": 30,
     }, headers={"Authorization": f"Bearer {token1}"})
 
-    # Tenant 2 no ve los planes de Tenant 1
+    # Tenant 2 no ve los planes de Tenant 1 (lista vacía)
     token2 = await get_owner_token(client, "gym_plan_2@b.com")
-    list_r = await client.get("/api/v1/settings/member-plans", headers={"Authorization": f"Bearer {token2}"})
-    assert list_r.status_code == 200
-    plans = list_r.json()
-    assert len(plans) == 0
-    assert all(p["name"] != "Plan Exclusivo" for p in plans)
+    list_r2 = await client.get("/api/v1/settings/member-plans", headers={"Authorization": f"Bearer {token2}"})
+    assert list_r2.status_code == 200
+    plans2 = list_r2.json()
+    assert len(plans2) == 0
+    assert all(p["name"] != "Plan Exclusivo" for p in plans2)
+
+    # Tenant 1 sigue viendo su propio plan
+    list_r1 = await client.get("/api/v1/settings/member-plans", headers={"Authorization": f"Bearer {token1}"})
+    assert list_r1.status_code == 200
+    plans1 = list_r1.json()
+    assert len(plans1) == 1
+    assert plans1[0]["name"] == "Plan Exclusivo"
 ```
 
 - [ ] **Step 2: Correr tests — deben fallar**
