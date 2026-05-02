@@ -30,10 +30,19 @@ async def test_list_staff_only_shows_same_tenant(client):
 
 async def test_receptionist_cannot_invite_staff(client):
     owner_token = await create_owner_token(client)
+    # Invite a receptionist
     await client.post(
         "/api/v1/users/invite",
         json={"email": "recep@gym.com", "full_name": "Recep", "role": "receptionist"},
         headers={"Authorization": f"Bearer {owner_token}"},
     )
-    # This test just verifies the owner can invite; full receptionist RBAC test deferred
-    assert True
+    # Login as receptionist
+    r = await client.post("/api/v1/auth/login", json={"email": "recep@gym.com", "password": "TempPass123!"})
+    recep_token = r.json()["access_token"]
+    # Attempt to invite another staff member — should be forbidden
+    response = await client.post(
+        "/api/v1/users/invite",
+        json={"email": "other@gym.com", "full_name": "Other", "role": "receptionist"},
+        headers={"Authorization": f"Bearer {recep_token}"},
+    )
+    assert response.status_code == 403
