@@ -8,7 +8,7 @@ from app.db.session import get_db
 from app.models.tenant import Tenant, SubscriptionPlan
 from app.models.user import User, UserRole
 from app.core.security import hash_password, verify_password, create_access_token
-from app.schemas.auth import RegisterRequest, LoginRequest, TokenResponse
+from app.schemas.auth import RegisterRequest, LoginRequest, TokenResponse, RegisterResponse
 
 router = APIRouter(prefix="/auth", tags=["auth"])
 
@@ -18,7 +18,7 @@ def slugify(name: str) -> str:
     return f"{slug}-{uuid.uuid4().hex[:6]}"
 
 
-@router.post("/register", status_code=201)
+@router.post("/register", status_code=201, response_model=RegisterResponse)
 async def register(payload: RegisterRequest, db: AsyncSession = Depends(get_db)):
     result = await db.execute(select(User).where(User.email == payload.email))
     if result.scalar_one_or_none():
@@ -54,6 +54,8 @@ async def login(payload: LoginRequest, db: AsyncSession = Depends(get_db)):
 
     if not user or not verify_password(payload.password, user.hashed_password):
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Credenciales incorrectas")
+    if not user.is_active:
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Cuenta desactivada")
 
     token = create_access_token(
         user_id=str(user.id),

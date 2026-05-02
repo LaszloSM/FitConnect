@@ -37,5 +37,5 @@ def decode_token(token: str) -> dict[str, Any]:
     except JWTError as exc:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Could not validate credentials",
+            detail="Token inválido o expirado",
         ) from exc
