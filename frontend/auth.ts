@@ -28,6 +28,9 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
     }),
   ],
   callbacks: {
+    authorized({ auth }) {
+      return !!auth?.user;
+    },
     async jwt({ token, user }) {
       if (user) {
         const u = user as { accessToken: string; role: string; tenantId: string } & typeof user;
