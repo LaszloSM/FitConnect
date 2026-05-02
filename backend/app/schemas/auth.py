@@ -23,6 +23,12 @@ class TokenResponse(BaseModel):
     full_name: str
 
 
+class RegisterResponse(BaseModel):
+    email: str
+    role: str
+    tenant_id: str
+
+
 class PasswordResetRequest(BaseModel):
     email: EmailStr
 
