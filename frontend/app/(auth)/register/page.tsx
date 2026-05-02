@@ -29,8 +29,12 @@ export default function RegisterPage() {
     });
     setLoading(false);
     if (!res.ok) {
-      const data = await res.json();
-      setError(data.detail || "Error al registrar");
+      try {
+        const data = await res.json();
+        setError(data.detail || "Error al registrar");
+      } catch {
+        setError("Error al registrar. Intenta nuevamente.");
+      }
       return;
     }
     router.push("/login?registered=1");

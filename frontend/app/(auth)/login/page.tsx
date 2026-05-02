@@ -2,6 +2,7 @@
 import { signIn } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -55,7 +56,7 @@ export default function LoginPage() {
         </form>
         <p className="mt-4 text-center text-zinc-400 text-sm">
           ¿No tienes cuenta?{" "}
-          <a href="/register" className="text-orange-400 hover:underline">Registra tu gym</a>
+          <Link href="/register" className="text-orange-400 hover:underline">Registra tu gym</Link>
         </p>
       </CardContent>
     </Card>
