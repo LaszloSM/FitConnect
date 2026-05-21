@@ -50,7 +50,8 @@ export default function RegisterPage() {
     if (!res.ok) {
       try {
         const data = await res.json();
-        setError(data.detail || "Error al registrar");
+        const detail = data.detail;
+        setError(typeof detail === "string" ? detail : JSON.stringify(detail));
       } catch {
         setError("Error al registrar. Intenta nuevamente.");
       }
