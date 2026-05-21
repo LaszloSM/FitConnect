@@ -1,5 +1,12 @@
-import NextAuth from "next-auth";
+import NextAuth, { CredentialsSignin } from "next-auth";
 import Credentials from "next-auth/providers/credentials";
+
+class BackendAuthError extends CredentialsSignin {
+  constructor(message: string) {
+    super(message);
+    this.code = message;
+  }
+}
 
 export const { handlers, signIn, signOut, auth } = NextAuth({
   trustHost: true,
@@ -18,7 +25,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         });
         if (!res.ok) {
           const err = await res.json().catch(() => ({}));
-          throw new Error(err.detail || "Credenciales incorrectas");
+          throw new BackendAuthError(err.detail || "Credenciales incorrectas");
         }
         const data = await res.json();
         return {

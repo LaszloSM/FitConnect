@@ -25,10 +25,13 @@ export default function LoginPage() {
     });
     setLoading(false);
     if (result?.error) {
+      // result.error is always "CredentialsSignin" for credentials provider in NextAuth v5
+      // result.code carries the message from BackendAuthError.code
+      const msg = result.code;
       setError(
-        result.error === "CredentialsSignin"
-          ? "Email o contraseña incorrectos"
-          : result.error
+        msg && msg !== "credentials"
+          ? msg
+          : "Email o contraseña incorrectos"
       );
       return;
     }
