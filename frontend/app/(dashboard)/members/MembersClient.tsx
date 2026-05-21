@@ -1,6 +1,4 @@
-﻿/* eslint-disable @typescript-eslint/no-explicit-any */
-/* eslint-disable react-hooks/exhaustive-deps */
-"use client";
+﻿"use client";
 
 import { useEffect, useState } from "react";
 import { useSession } from "next-auth/react";
@@ -59,6 +57,7 @@ export default function MembersClient() {
   const [statusFilter, setStatusFilter] = useState<"" | "active" | "inactive">("");
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editing, setEditing] = useState<Member | null>(null);
+  const [submitting, setSubmitting] = useState(false);
   const [form, setForm] = useState({
     full_name: "",
     email: "",
@@ -78,8 +77,9 @@ export default function MembersClient() {
       });
       setMembers(res.data);
       setError("");
-    } catch (err: any) {
-      const errorMsg = err.response?.data?.detail || "Error cargando miembros";
+    } catch (err: any) { // eslint-disable-line @typescript-eslint/no-explicit-any
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const errorMsg = (err as any).response?.data?.detail || "Error cargando miembros";
       setError(errorMsg);
     } finally {
       setLoading(false);
@@ -87,8 +87,24 @@ export default function MembersClient() {
   };
 
   useEffect(() => {
+    if (!session?.accessToken) return;
+    let cancelled = false;
     setLoading(true);
-    fetchMembers();
+    const client = apiClient(session.accessToken as string);
+    client.get("/api/v1/members", {
+      params: { q: search, ...(statusFilter ? { status: statusFilter } : {}) },
+    }).then((res) => {
+      if (!cancelled) {
+        setMembers(res.data);
+        setError("");
+      }
+    }).catch((err: any) => { // eslint-disable-line @typescript-eslint/no-explicit-any
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      if (!cancelled) setError((err as any).response?.data?.detail || "Error cargando miembros");
+    }).finally(() => {
+      if (!cancelled) setLoading(false);
+    });
+    return () => { cancelled = true; };
   }, [session, search, statusFilter]);
 
   const resetForm = () => {
@@ -133,6 +149,7 @@ export default function MembersClient() {
       return;
     }
 
+    setSubmitting(true);
     const client = apiClient(session.accessToken as string);
     try {
       if (editing) {
@@ -144,8 +161,9 @@ export default function MembersClient() {
       setDialogOpen(false);
       resetForm();
       fetchMembers();
-    } catch (err: any) {
-      const detail = err.response?.data?.detail;
+    } catch (err: any) { // eslint-disable-line @typescript-eslint/no-explicit-any
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const detail = (err as any).response?.data?.detail;
       const msg =
         typeof detail === "string"
           ? detail
@@ -153,6 +171,8 @@ export default function MembersClient() {
             ? detail[0]?.msg
             : "Error guardando miembro";
       toast.error(msg);
+    } finally {
+      setSubmitting(false);
     }
   };
 
@@ -164,8 +184,9 @@ export default function MembersClient() {
       await client.delete(`/api/v1/members/${id}`);
       toast.success("Miembro eliminado");
       fetchMembers();
-    } catch (err: any) {
-      const detail = err.response?.data?.detail;
+    } catch (err: any) { // eslint-disable-line @typescript-eslint/no-explicit-any
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const detail = (err as any).response?.data?.detail;
       const msg =
         typeof detail === "string"
           ? detail
@@ -184,11 +205,9 @@ export default function MembersClient() {
           <p className="text-muted text-sm mt-1">Gestiona los miembros de tu gym</p>
         </div>
         <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-          <DialogTrigger >
-            <Button onClick={openCreate} className="bg-primary text-bg-deep font-semibold hover:bg-primary/90">
-              <Plus className="h-4 w-4 mr-2" />
-              Nuevo miembro
-            </Button>
+          <DialogTrigger render={<Button onClick={openCreate} className="bg-primary text-bg-deep font-semibold hover:bg-primary/90" />}>
+            <Plus className="h-4 w-4 mr-2" />
+            Nuevo miembro
           </DialogTrigger>
           <DialogContent className="bg-surface border-border-dark text-white max-w-lg">
             <DialogHeader>
@@ -266,8 +285,8 @@ export default function MembersClient() {
                 <Button type="button" variant="ghost" onClick={() => setDialogOpen(false)} className="text-muted">
                   Cancelar
                 </Button>
-                <Button type="submit" className="bg-primary text-bg-deep font-semibold hover:bg-primary/90">
-                  {editing ? "Guardar cambios" : "Crear miembro"}
+                <Button type="submit" disabled={submitting} className="bg-primary text-bg-deep font-semibold hover:bg-primary/90">
+                  {submitting ? "Guardando..." : (editing ? "Guardar cambios" : "Crear miembro")}
                 </Button>
               </div>
             </form>
