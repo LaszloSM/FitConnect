@@ -1,5 +1,4 @@
 ﻿"use client";
-/* eslint-disable @typescript-eslint/no-explicit-any */
 
 import { useEffect, useState } from "react";
 import { signOut, useSession } from "next-auth/react";
@@ -18,27 +17,27 @@ interface Notification {
 }
 
 export function Header({ gymName }: { gymName?: string }) {
-  const sessionData = useSession(); const session = sessionData?.data;
+  const { data: session } = useSession();
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [showDropdown, setShowDropdown] = useState(false);
 
-  const fetchNotifications = async () => {
-    if (!session?.accessToken) return;
-    try {
-      const client = apiClient(session.accessToken as string);
-      const res = await client.get("/api/v1/notifications?unread_only=true&limit=5");
-      setNotifications(res.data);
-    } catch {
-      // ignore
-    }
-  };
-
   useEffect(() => {
+    if (!session?.accessToken) return;
+
+    const fetchNotifications = async () => {
+      try {
+        const client = apiClient(session.accessToken as string);
+        const res = await client.get("/api/v1/notifications?unread_only=true&limit=5");
+        setNotifications(res.data);
+      } catch {
+        // notification failures should not crash the page
+      }
+    };
+
     fetchNotifications();
     const interval = setInterval(fetchNotifications, 30000);
     return () => clearInterval(interval);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [session]);
+  }, [session?.accessToken]);
 
   const unreadCount = notifications.filter((n) => !n.is_read).length;
 
@@ -111,7 +110,7 @@ export function Header({ gymName }: { gymName?: string }) {
           variant="ghost"
           size="icon"
           className="text-[#94A3B8] hover:text-danger"
-          aria-label="Cerrar sesion"
+          aria-label="Cerrar sesión"
           onClick={() => signOut({ callbackUrl: "/login" })}
         >
           <LogOut className="h-5 w-5" />
@@ -120,5 +119,3 @@ export function Header({ gymName }: { gymName?: string }) {
     </header>
   );
 }
-
-
