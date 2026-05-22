@@ -69,6 +69,7 @@ export default function MembersClient() {
     status: "active",
     notes: "",
   });
+  const [deleteId, setDeleteId] = useState<string | null>(null);
 
   const fetchMembers = async () => {
     if (!session?.accessToken) return;
@@ -179,12 +180,12 @@ export default function MembersClient() {
   };
 
   const handleDelete = async (id: string) => {
-    if (!confirm("Eliminar miembro?")) return;
     if (!session?.accessToken) return;
     try {
       const client = apiClient(session.accessToken as string);
       await client.delete(`/api/v1/members/${id}`);
-      toast.success("Miembro eliminado");
+      toast.success("Miembro eliminado correctamente");
+      setDeleteId(null);
       fetchMembers();
     } catch (err: any) { // eslint-disable-line @typescript-eslint/no-explicit-any
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -394,7 +395,7 @@ export default function MembersClient() {
                           variant="ghost"
                           size="icon"
                           className="text-muted hover:text-danger"
-                          onClick={(e) => { e.stopPropagation(); handleDelete(m.id); }}
+                          onClick={(e) => { e.stopPropagation(); setDeleteId(m.id); }}
                         >
                           <Trash2 className="h-4 w-4" />
                         </Button>
@@ -407,6 +408,29 @@ export default function MembersClient() {
           </Table>
         </div>
       </GlassCard>
+
+      {deleteId && (
+        <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50" onClick={() => setDeleteId(null)}>
+          <div className="bg-surface border border-border-dark rounded-xl p-6 max-w-sm w-full mx-4 shadow-xl" onClick={e => e.stopPropagation()}>
+            <h3 className="text-white font-semibold mb-2">¿Eliminar?</h3>
+            <p className="text-muted text-sm mb-5">Esta acción no se puede deshacer.</p>
+            <div className="flex justify-end gap-3">
+              <button
+                onClick={() => setDeleteId(null)}
+                className="px-4 py-2 text-sm text-muted hover:text-white transition-colors"
+              >
+                Cancelar
+              </button>
+              <button
+                onClick={() => { handleDelete(deleteId); }}
+                className="px-4 py-2 text-sm bg-danger text-white rounded-md hover:bg-danger/90 transition-colors"
+              >
+                Eliminar
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
