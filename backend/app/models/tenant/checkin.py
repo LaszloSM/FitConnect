@@ -1,0 +1,23 @@
+import uuid
+import enum
+from sqlalchemy import String, ForeignKey, Enum as SAEnum
+from sqlalchemy.dialects.postgresql import UUID
+from sqlalchemy.orm import mapped_column, Mapped
+from typing import Optional
+from app.db.tenant_base import TenantBase, TenantTimestampMixin
+
+
+class CheckInType(str, enum.Enum):
+    entry = "entry"
+    exit = "exit"
+
+
+class CheckIn(TenantBase, TenantTimestampMixin):
+    """Registro de entradas y salidas de miembros al gym."""
+    __tablename__ = "checkins"
+
+    id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    member_id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), ForeignKey("members.id"), nullable=False, index=True)
+    location_id: Mapped[Optional[uuid.UUID]] = mapped_column(UUID(as_uuid=True), ForeignKey("locations.id"), nullable=True)
+    type: Mapped[CheckInType] = mapped_column(SAEnum(CheckInType), nullable=False)
+    notes: Mapped[Optional[str]] = mapped_column(String(255), nullable=True)

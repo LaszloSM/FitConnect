@@ -3,20 +3,30 @@ from logging.config import fileConfig
 from sqlalchemy.ext.asyncio import create_async_engine
 from alembic import context
 from app.core.config import settings
-from app.db.base import Base
-import app.models  # noqa: registers all models in Base.metadata — create models/__init__.py before running this file
+from app.db.master_base import MasterBase
+from app.db.tenant_base import TenantBase
+import app.models.master  # noqa: registers master models
+import app.models.tenant  # noqa: registers tenant models
 
 config = context.config
-config.set_main_option("sqlalchemy.url", settings.database_url)
+
+# Determine which migrations we're running based on alembic.ini script_location
+script_location = config.get_main_option("script_location", "")
+if "master" in script_location:
+    target_metadata = MasterBase.metadata
+    db_url = settings.master_database_url
+else:
+    target_metadata = TenantBase.metadata
+    db_url = settings.tenant_database_url_template.replace("{db_name}", "gymdb_template")
+
+config.set_main_option("sqlalchemy.url", db_url)
 
 if config.config_file_name is not None:
     fileConfig(config.config_file_name)
 
-target_metadata = Base.metadata
-
 
 def run_migrations_offline():
-    context.configure(url=settings.database_url, target_metadata=target_metadata, literal_binds=True)
+    context.configure(url=db_url, target_metadata=target_metadata, literal_binds=True)
     with context.begin_transaction():
         context.run_migrations()
 
@@ -28,7 +38,7 @@ def do_run_migrations(connection):
 
 
 async def run_async_migrations():
-    engine = create_async_engine(settings.database_url)
+    engine = create_async_engine(db_url)
     async with engine.begin() as conn:
         await conn.run_sync(do_run_migrations)
     await engine.dispose()
