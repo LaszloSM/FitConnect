@@ -1,7 +1,8 @@
 import uuid
 import enum
-from sqlalchemy import String, Boolean, ForeignKey, Enum as SAEnum, UniqueConstraint
-from sqlalchemy.dialects.postgresql import UUID
+from typing import Optional
+from sqlalchemy import String, Boolean, Enum as SAEnum, UniqueConstraint
+from sqlalchemy.dialects.postgresql import UUID, JSONB
 from sqlalchemy.orm import mapped_column, Mapped
 from app.db.tenant_base import TenantBase, TenantTimestampMixin
 
@@ -27,3 +28,4 @@ class UserStaff(TenantBase, TenantTimestampMixin):
     role: Mapped[UserRole] = mapped_column(SAEnum(UserRole), default=UserRole.receptionist, nullable=False)
     is_active: Mapped[bool] = mapped_column(Boolean, default=True, nullable=False)
     email_verified: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False)
+    notification_prefs: Mapped[Optional[dict]] = mapped_column(JSONB, nullable=True, default=None)
