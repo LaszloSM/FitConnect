@@ -14,7 +14,6 @@ import {
   DollarSign,
   Activity,
   AlertCircle,
-  TrendingUp,
   Calendar,
 } from "lucide-react";
 import {
@@ -23,8 +22,6 @@ import {
   subDays,
   startOfMonth,
   endOfMonth,
-  startOfDay,
-  endOfDay,
   startOfToday,
   endOfToday,
 } from "date-fns";
@@ -115,6 +112,7 @@ export default function DashboardPage() {
       return;
     }
 
+    const controller = new AbortController();
     setLoading(true);
     setError("");
 
@@ -124,15 +122,19 @@ export default function DashboardPage() {
     client
       .get("/api/v1/dashboard/kpis", {
         params: { from: dateFrom, to: dateTo },
+        signal: controller.signal,
       })
       .then((res) => {
         setData(res.data);
         setLoading(false);
       })
       .catch((err) => {
+        if (err.name === "CanceledError") return;
         setError(err.response?.data?.detail || "Error cargando dashboard");
         setLoading(false);
       });
+
+    return () => controller.abort();
   }, [session, status, dateFrom, dateTo]);
 
   if (loading) {
@@ -190,13 +192,14 @@ export default function DashboardPage() {
       <PageHeader title="Dashboard" subtitle="Resumen operativo del gym" />
 
       {/* Period pills */}
-      <div className="flex gap-2 flex-wrap mb-6">
+      <div className="flex gap-2 flex-wrap mb-6" role="group" aria-label="Seleccionar período">
         {PERIODS.map((period) => {
           const isActive = activePeriod === period.key;
           return (
             <button
               key={period.key}
               onClick={() => setActivePeriod(period.key)}
+              aria-pressed={isActive}
               className={
                 isActive
                   ? "rounded-full px-3 py-1 text-sm font-medium bg-orange-500 text-white transition-colors"
