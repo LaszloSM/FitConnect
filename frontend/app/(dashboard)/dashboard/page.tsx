@@ -7,6 +7,7 @@ import { KPICard } from "@/components/dashboard/KPICard";
 import { GlassCard } from "@/components/common/GlassCard";
 import { apiClient } from "@/lib/api";
 import { Users, DollarSign, Activity, AlertCircle, TrendingUp, Calendar } from "lucide-react";
+import { format, subMonths, startOfMonth, endOfMonth } from "date-fns";
 import {
   BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid,
 } from "recharts";
@@ -33,18 +34,26 @@ export default function DashboardPage() {
   const [data, setData] = useState<DashboardData | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const [dateFrom, setDateFrom] = useState(() =>
+    format(startOfMonth(subMonths(new Date(), 1)), "yyyy-MM-dd")
+  );
+  const [dateTo, setDateTo] = useState(() =>
+    format(endOfMonth(new Date()), "yyyy-MM-dd")
+  );
 
   useEffect(() => {
     if (status !== "authenticated" || !session?.accessToken) {
       if (status === "unauthenticated") setLoading(false);
       return;
     }
-    
+
     const token = session.accessToken as string;
     const client = apiClient(token);
-    
+
     client
-      .get("/api/v1/dashboard/kpis")
+      .get("/api/v1/dashboard/kpis", {
+        params: { from: dateFrom, to: dateTo },
+      })
       .then((res) => {
         setData(res.data);
         setLoading(false);
@@ -53,7 +62,7 @@ export default function DashboardPage() {
         setError(err.response?.data?.detail || "Error cargando dashboard");
         setLoading(false);
       });
-  }, [session, status]);
+  }, [session, status, dateFrom, dateTo]);
 
   if (loading) {
     return (
@@ -97,6 +106,27 @@ export default function DashboardPage() {
       <div>
         <h2 className="text-2xl font-bold text-white font-display">Dashboard</h2>
         <p className="text-muted text-sm mt-1">Resumen operativo del gym</p>
+      </div>
+
+      <div className="flex gap-3 items-center flex-wrap">
+        <div className="flex items-center gap-2">
+          <label className="text-muted text-sm">Desde</label>
+          <input
+            type="date"
+            value={dateFrom}
+            onChange={e => setDateFrom(e.target.value)}
+            className="h-9 rounded-md border border-border-dark bg-surface px-3 text-sm text-white"
+          />
+        </div>
+        <div className="flex items-center gap-2">
+          <label className="text-muted text-sm">Hasta</label>
+          <input
+            type="date"
+            value={dateTo}
+            onChange={e => setDateTo(e.target.value)}
+            className="h-9 rounded-md border border-border-dark bg-surface px-3 text-sm text-white"
+          />
+        </div>
       </div>
 
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
