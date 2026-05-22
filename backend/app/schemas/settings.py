@@ -44,3 +44,10 @@ class NotificationPreferences(BaseModel):
     payment_alerts: bool = True
     new_members: bool = True
     low_attendance: bool = False
+
+
+class NotificationPreferencesUpdate(BaseModel):
+    expiring_memberships: Optional[bool] = None
+    payment_alerts: Optional[bool] = None
+    new_members: Optional[bool] = None
+    low_attendance: Optional[bool] = None
