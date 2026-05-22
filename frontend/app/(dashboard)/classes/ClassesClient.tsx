@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
 import { useEffect, useState } from "react";
@@ -24,7 +24,8 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { Plus, AlertCircle, Users } from "lucide-react";
+import { Plus, AlertCircle, Users, ChevronDown, ChevronUp } from "lucide-react";
+import MemberSelect from "@/components/common/MemberSelect";
 
 interface GymClass {
   id: string;
@@ -35,6 +36,13 @@ interface GymClass {
   duration_minutes: number;
   is_active: boolean;
   description: string | null;
+}
+
+interface Enrollment {
+  id: string;
+  member_id: string;
+  member_name: string;
+  member_email: string;
 }
 
 export default function ClassesClient() {
@@ -51,6 +59,11 @@ export default function ClassesClient() {
     duration_minutes: "60",
     description: "",
   });
+
+  // Enrollment state
+  const [expandedClass, setExpandedClass] = useState<string | null>(null);
+  const [enrollments, setEnrollments] = useState<Record<string, Enrollment[]>>({});
+  const [enrollMemberId, setEnrollMemberId] = useState<Record<string, string>>({});
 
   const fetchClasses = async () => {
     if (!session?.accessToken) return;
@@ -86,6 +99,40 @@ export default function ClassesClient() {
       fetchClasses();
     } catch (err: any) {
       toast.error(err.response?.data?.detail || "Error guardando clase");
+    }
+  };
+
+  const toggleExpand = async (classId: string) => {
+    if (expandedClass === classId) {
+      setExpandedClass(null);
+      return;
+    }
+    setExpandedClass(classId);
+    if (!enrollments[classId] && session?.accessToken) {
+      try {
+        const client = apiClient(session.accessToken as string);
+        const res = await client.get(`/api/v1/classes/${classId}/enrollments`);
+        setEnrollments(prev => ({ ...prev, [classId]: res.data }));
+      } catch {
+        setEnrollments(prev => ({ ...prev, [classId]: [] }));
+      }
+    }
+  };
+
+  const handleEnroll = async (classId: string) => {
+    const memberId = enrollMemberId[classId];
+    if (!memberId || !session?.accessToken) return;
+    try {
+      const client = apiClient(session.accessToken as string);
+      await client.post(`/api/v1/classes/${classId}/enroll`, { member_id: memberId });
+      toast.success("Miembro inscrito");
+      setEnrollMemberId(prev => ({ ...prev, [classId]: "" }));
+      // Refresh enrollment list for this class
+      const res = await client.get(`/api/v1/classes/${classId}/enrollments`);
+      setEnrollments(prev => ({ ...prev, [classId]: res.data }));
+    } catch (err: any) {
+      const detail = err.response?.data?.detail;
+      toast.error(typeof detail === "string" ? detail : "Error al inscribir");
     }
   };
 
@@ -160,27 +207,86 @@ export default function ClassesClient() {
                 <TableHead className="text-muted">Capacidad</TableHead>
                 <TableHead className="text-muted">Duracion</TableHead>
                 <TableHead className="text-muted">Estado</TableHead>
+                <TableHead className="text-muted">Inscritos</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {loading ? (
-                <TableRow><TableCell colSpan={6} className="text-center text-muted py-8">Cargando...</TableCell></TableRow>
+                <TableRow><TableCell colSpan={7} className="text-center text-muted py-8">Cargando...</TableCell></TableRow>
               ) : classes.length === 0 ? (
-                <TableRow><TableCell colSpan={6} className="text-center text-muted py-8">No hay clases registradas</TableCell></TableRow>
+                <TableRow><TableCell colSpan={7} className="text-center text-muted py-8">No hay clases registradas</TableCell></TableRow>
               ) : (
-                classes.map((c) => (
-                  <TableRow key={c.id} className="border-border-dark">
-                    <TableCell className="text-white font-medium">{c.name}</TableCell>
-                    <TableCell className="text-muted">{c.instructor}</TableCell>
-                    <TableCell className="text-muted">{c.schedule}</TableCell>
-                    <TableCell className="text-white"><Users className="h-3 w-3 inline mr-1" />{c.max_capacity}</TableCell>
-                    <TableCell className="text-muted">{c.duration_minutes} min</TableCell>
-                    <TableCell>
-                      <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium ${c.is_active ? "bg-success/20 text-success" : "bg-danger/20 text-danger"}`}>
-                        {c.is_active ? "Activa" : "Inactiva"}
-                      </span>
-                    </TableCell>
-                  </TableRow>
+                classes.map((cls) => (
+                  <>
+                    <TableRow key={cls.id} className="border-border-dark">
+                      <TableCell className="text-white font-medium">{cls.name}</TableCell>
+                      <TableCell className="text-muted">{cls.instructor}</TableCell>
+                      <TableCell className="text-muted">{cls.schedule}</TableCell>
+                      <TableCell className="text-white"><Users className="h-3 w-3 inline mr-1" />{cls.max_capacity}</TableCell>
+                      <TableCell className="text-muted">{cls.duration_minutes} min</TableCell>
+                      <TableCell>
+                        <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium ${cls.is_active ? "bg-success/20 text-success" : "bg-danger/20 text-danger"}`}>
+                          {cls.is_active ? "Activa" : "Inactiva"}
+                        </span>
+                      </TableCell>
+                      <TableCell>
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => toggleExpand(cls.id)}
+                          className="text-muted hover:text-white text-xs flex items-center gap-1 px-2 py-1"
+                        >
+                          {expandedClass === cls.id ? (
+                            <><ChevronUp className="h-3 w-3" /> Ocultar</>
+                          ) : (
+                            <><ChevronDown className="h-3 w-3" /> Ver inscritos</>
+                          )}
+                        </Button>
+                      </TableCell>
+                    </TableRow>
+                    {expandedClass === cls.id && (
+                      <TableRow key={`${cls.id}-expanded`} className="border-border-dark">
+                        <TableCell colSpan={7} className="bg-white/2 p-4">
+                          <div className="space-y-3">
+                            <div className="flex items-center justify-between">
+                              <p className="text-sm font-medium text-white">
+                                Inscritos ({(enrollments[cls.id] || []).length}/{cls.max_capacity})
+                              </p>
+                            </div>
+                            {/* Enrolled member list */}
+                            <div className="space-y-1">
+                              {(enrollments[cls.id] || []).map((e) => (
+                                <div key={e.id} className="flex items-center justify-between text-sm py-1 px-2 bg-white/5 rounded">
+                                  <span className="text-white">{e.member_name}</span>
+                                  <span className="text-muted text-xs">{e.member_email}</span>
+                                </div>
+                              ))}
+                              {(enrollments[cls.id] || []).length === 0 && (
+                                <p className="text-muted text-xs">Sin inscritos</p>
+                              )}
+                            </div>
+                            {/* Enroll form */}
+                            <div className="flex gap-2 items-end pt-2 border-t border-border-dark">
+                              <div className="flex-1">
+                                <MemberSelect
+                                  value={enrollMemberId[cls.id] || ""}
+                                  onChange={(id) => setEnrollMemberId(prev => ({ ...prev, [cls.id]: id }))}
+                                />
+                              </div>
+                              <Button
+                                type="button"
+                                onClick={() => handleEnroll(cls.id)}
+                                className="bg-primary text-bg-deep font-semibold text-sm"
+                              >
+                                Inscribir
+                              </Button>
+                            </div>
+                          </div>
+                        </TableCell>
+                      </TableRow>
+                    )}
+                  </>
                 ))
               )}
             </TableBody>
@@ -190,5 +296,3 @@ export default function ClassesClient() {
     </div>
   );
 }
-
-
