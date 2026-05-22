@@ -1,25 +1,26 @@
-from pydantic import BaseModel, EmailStr
+from pydantic import BaseModel, ConfigDict, EmailStr, Field
 from typing import Optional
 
 
 class UserProfileResponse(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
     id: str
     full_name: str
     email: str
     role: str
-
-    class Config:
-        from_attributes = True
 
 
 class UserProfileUpdate(BaseModel):
     full_name: Optional[str] = None
     email: Optional[EmailStr] = None
     current_password: Optional[str] = None
-    new_password: Optional[str] = None
+    new_password: Optional[str] = Field(default=None, min_length=8)
 
 
 class GymSettingsResponse(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
     name: str
     phone: Optional[str] = None
     address: Optional[str] = None
@@ -37,6 +38,8 @@ class GymSettingsUpdate(BaseModel):
 
 
 class NotificationPreferences(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
     expiring_memberships: bool = True
     payment_alerts: bool = True
     new_members: bool = True
