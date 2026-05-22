@@ -166,12 +166,14 @@ export default function MembersClient() {
           title="Miembros"
           subtitle="Gestiona los socios de tu gym"
           action={
-            <DialogTrigger asChild>
-              <Button onClick={openCreate} className="bg-orange-500 text-white hover:bg-orange-600">
-                <Plus className="h-4 w-4 mr-2" />
-                Nuevo miembro
-              </Button>
-            </DialogTrigger>
+            <DialogTrigger
+              render={
+                <Button onClick={openCreate} className="bg-orange-500 text-white hover:bg-orange-600">
+                  <Plus className="h-4 w-4 mr-2" />
+                  Nuevo miembro
+                </Button>
+              }
+            />
           }
         />
         <DialogContent className="bg-[var(--bg-card)] border border-[var(--border-base)] text-[var(--text-base)] max-w-lg">
