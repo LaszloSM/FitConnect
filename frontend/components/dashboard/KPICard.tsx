@@ -1,17 +1,30 @@
 "use client";
-import { GlassCard } from "@/components/common/GlassCard";
+import { motion } from "framer-motion";
 import { AnimatedNumber } from "@/components/common/AnimatedNumber";
-import { NeonBadge } from "@/components/common/NeonBadge";
 import { TrendingUp, TrendingDown } from "lucide-react";
 
-const variantMap: Record<string, string> = {
-  primary: "#F97316",
-  success: "#22C55E",
-  warning: "#F59E0B",
-  danger:  "#EF4444",
-  blue:    "#3B82F6",
-  info:    "#3B82F6",
-  gold:    "#F59E0B",
+interface KPICardProps {
+  title: string;
+  value: number;
+  subtitle?: string;
+  prefix?: string;
+  suffix?: string;
+  decimals?: number;
+  trend?: number;
+  trendLabel?: string;
+  color?: "primary" | "success" | "warning" | "danger" | "blue" | "info" | "gold";
+  onClick?: () => void;
+  icon?: React.ReactNode;
+}
+
+const iconCircleStyles: Record<string, { bg: string; text: string }> = {
+  primary: { bg: "bg-orange-50", text: "text-orange-500" },
+  success: { bg: "bg-green-50", text: "text-green-600" },
+  warning: { bg: "bg-amber-50", text: "text-amber-500" },
+  gold:    { bg: "bg-amber-50", text: "text-amber-500" },
+  danger:  { bg: "bg-red-50", text: "text-red-500" },
+  blue:    { bg: "bg-blue-50", text: "text-blue-500" },
+  info:    { bg: "bg-blue-50", text: "text-blue-500" },
 };
 
 export function KPICard({
@@ -26,53 +39,68 @@ export function KPICard({
   color = "primary",
   onClick,
   icon,
-}: {
-  title: string;
-  value: number;
-  subtitle?: string;
-  prefix?: string;
-  suffix?: string;
-  decimals?: number;
-  trend?: number;
-  trendLabel?: string;
-  color?: string;
-  onClick?: () => void;
-  icon?: React.ReactNode;
-}) {
-  const colorHex = variantMap[color] ?? variantMap.primary;
+}: KPICardProps) {
+  const circleStyle = iconCircleStyles[color] ?? iconCircleStyles.primary;
 
   return (
-    <GlassCard onClick={onClick} className="p-5" glow={!!onClick}>
-      <div className="flex items-center justify-between mb-3">
-        <p className="text-text-muted text-sm font-medium">{title}</p>
-        {icon && <div className="text-text-subtle">{icon}</div>}
+    <motion.div
+      className={`surface-1 flex flex-col gap-1 p-5 ${onClick ? "cursor-pointer hover:shadow-card-hover transition-shadow duration-200" : ""}`}
+      initial={{ opacity: 0, y: 12 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ type: "spring", stiffness: 300, damping: 30 }}
+      onClick={onClick}
+      role={onClick ? "button" : undefined}
+      tabIndex={onClick ? 0 : undefined}
+      onKeyDown={
+        onClick
+          ? (e) => {
+              if (e.key === "Enter" || e.key === " ") onClick();
+            }
+          : undefined
+      }
+    >
+      {/* Top row: title + icon */}
+      <div className="flex items-start justify-between">
+        <p className="text-xs font-medium uppercase tracking-wide text-[var(--text-muted)]">
+          {title}
+        </p>
+        {icon && (
+          <div
+            className={`w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 ${circleStyle.bg} ${circleStyle.text}`}
+          >
+            {icon}
+          </div>
+        )}
       </div>
-      <div className="flex items-end justify-between gap-2">
-        <p className="font-display font-bold text-text-base text-3xl leading-none" style={{ color: colorHex }}>
+
+      {/* Value row: number + trend */}
+      <div className="flex items-baseline gap-2 mt-1">
+        <span className="text-3xl font-bold font-mono text-[var(--text-base)] leading-none">
           <AnimatedNumber
             value={typeof value === "number" ? value : 0}
             prefix={prefix}
             suffix={suffix}
             decimals={decimals}
           />
-        </p>
-        {trend !== undefined && (
-          <div
-            className={`flex items-center gap-1 text-xs font-medium ${
-              trend >= 0 ? "text-green-600" : "text-red-500"
+        </span>
+        {trend !== undefined && trend !== 0 && (
+          <span
+            className={`inline-flex items-center gap-0.5 text-xs font-medium ${
+              trend > 0 ? "text-green-600" : "text-red-500"
             }`}
+            aria-label={trendLabel ?? `${trend > 0 ? "up" : "down"} ${Math.abs(trend)}%`}
           >
-            {trend >= 0 ? <TrendingUp size={14} /> : <TrendingDown size={14} />}
-            <span>{Math.abs(trend)}%</span>
-          </div>
+            {trend > 0 ? <TrendingUp size={13} /> : <TrendingDown size={13} />}
+            {trend > 0 ? "+" : ""}
+            {trend}%
+          </span>
         )}
       </div>
-      {subtitle && <p className="text-text-subtle text-xs mt-2">{subtitle}</p>}
-      {trendLabel && (
-        <div className="mt-3">
-          <NeonBadge label={trendLabel} variant={trend && trend >= 0 ? "success" : "danger"} />
-        </div>
+
+      {/* Subtitle */}
+      {subtitle && (
+        <p className="text-xs text-[var(--text-muted)]">{subtitle}</p>
       )}
-    </GlassCard>
+    </motion.div>
   );
 }
