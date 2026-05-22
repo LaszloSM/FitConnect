@@ -15,5 +15,6 @@ test("can create and view a member", async ({ page }) => {
   await page.getByLabel("Nombre completo").fill("Test User Playwright");
   await page.getByLabel("Email").fill(`playwright-${Date.now()}@test.com`);
   await page.click("text=Crear miembro");
-  await expect(page.locator("text=Test User Playwright")).toBeVisible();
+  await expect(page.locator('[role="dialog"]')).not.toBeVisible({ timeout: 5000 });
+  await expect(page.locator(`text=Test User Playwright`)).toBeVisible();
 });

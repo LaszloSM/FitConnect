@@ -221,8 +221,9 @@ export default function MembersClient() {
             <form onSubmit={handleSubmit} className="space-y-4 mt-2">
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <Label className="text-muted text-sm">Nombre completo</Label>
+                  <Label htmlFor="full_name" className="text-muted text-sm">Nombre completo</Label>
                   <Input
+                    id="full_name"
                     value={form.full_name}
                     onChange={(e) => setForm({ ...form, full_name: e.target.value })}
                     required
@@ -230,8 +231,9 @@ export default function MembersClient() {
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label className="text-muted text-sm">Email</Label>
+                  <Label htmlFor="email" className="text-muted text-sm">Email</Label>
                   <Input
+                    id="email"
                     type="email"
                     value={form.email}
                     onChange={(e) => setForm({ ...form, email: e.target.value })}
