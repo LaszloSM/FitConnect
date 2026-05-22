@@ -12,19 +12,18 @@ interface KPICardProps {
   decimals?: number;
   trend?: number;
   trendLabel?: string;
-  color?: "primary" | "success" | "warning" | "danger" | "blue" | "info" | "gold";
+  color?: "primary" | "success" | "warning" | "danger" | "blue" | "info";
   onClick?: () => void;
   icon?: React.ReactNode;
 }
 
 const iconCircleStyles: Record<string, { bg: string; text: string }> = {
-  primary: { bg: "bg-orange-50", text: "text-orange-500" },
-  success: { bg: "bg-green-50", text: "text-green-600" },
-  warning: { bg: "bg-amber-50", text: "text-amber-500" },
-  gold:    { bg: "bg-amber-50", text: "text-amber-500" },
-  danger:  { bg: "bg-red-50", text: "text-red-500" },
-  blue:    { bg: "bg-blue-50", text: "text-blue-500" },
-  info:    { bg: "bg-blue-50", text: "text-blue-500" },
+  primary: { bg: "bg-orange-100 dark:bg-orange-950/30", text: "text-orange-500" },
+  success: { bg: "bg-green-100 dark:bg-green-950/30",  text: "text-green-600 dark:text-green-400" },
+  warning: { bg: "bg-amber-100 dark:bg-amber-950/30",  text: "text-amber-500" },
+  danger:  { bg: "bg-red-100 dark:bg-red-950/30",      text: "text-red-500" },
+  blue:    { bg: "bg-blue-100 dark:bg-blue-950/30",    text: "text-blue-500" },
+  info:    { bg: "bg-blue-100 dark:bg-blue-950/30",    text: "text-blue-500" },
 };
 
 export function KPICard({

@@ -10,7 +10,7 @@ const buttonVariants = cva(
     variants: {
       variant: {
         default:
-          "bg-primary text-primary-foreground [a]:hover:bg-primary/80 hover:scale-[1.01] active:scale-[0.97] transition-transform duration-150",
+          "bg-primary text-primary-foreground hover:bg-primary/90 hover:scale-[1.01] active:scale-[0.97] transition-transform duration-150",
         outline:
           "border-border bg-background hover:bg-muted hover:text-foreground aria-expanded:bg-muted aria-expanded:text-foreground dark:border-input dark:bg-input/30 dark:hover:bg-input/50 hover:scale-[1.01] active:scale-[0.97] transition-transform duration-150",
         secondary:
@@ -60,13 +60,17 @@ function Button({
       data-slot="button"
       className={cn(
         buttonVariants({ variant, size, className }),
-        isLoading && "cursor-wait pointer-events-none opacity-70"
+        isLoading && "cursor-wait pointer-events-none !opacity-70"
       )}
       disabled={disabled || isLoading}
+      aria-busy={isLoading || undefined}
       {...props}
     >
       {isLoading ? (
-        <Loader2 className="animate-spin" />
+        <>
+          <Loader2 className="animate-spin" aria-hidden="true" />
+          <span className="sr-only">Cargando…</span>
+        </>
       ) : (
         children
       )}
