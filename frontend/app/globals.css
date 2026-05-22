@@ -1,5 +1,32 @@
-@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&family=DM+Mono:wght@400;500&display=swap');
 @import "tailwindcss";
+
+/* ── Light mode CSS custom properties ── */
+:root {
+  --bg-base: oklch(0.98 0.003 264);
+  --bg-card: oklch(1.00 0.00 0);
+  --bg-sidebar: oklch(1.00 0.00 0);
+  --border-base: oklch(0.90 0.005 264);
+  --text-base: oklch(0.20 0.015 264);
+  --text-muted: oklch(0.50 0.010 264);
+  --text-subtle: oklch(0.65 0.008 264);
+  --shadow-card: 0 1px 3px 0 rgb(0 0 0 / 0.08), 0 1px 2px -1px rgb(0 0 0 / 0.06);
+  --transition-fast: 150ms cubic-bezier(0.16, 1, 0.3, 1);
+  --transition-base: 250ms cubic-bezier(0.16, 1, 0.3, 1);
+  --transition-slow: 350ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* ── Dark mode CSS custom properties ── */
+.dark {
+  --bg-base: oklch(0.12 0.010 264);
+  --bg-card: oklch(0.16 0.008 264);
+  --bg-sidebar: oklch(0.14 0.009 264);
+  --border-base: oklch(0.25 0.008 264);
+  --text-base: oklch(0.95 0.005 264);
+  --text-muted: oklch(0.65 0.008 264);
+  --text-subtle: oklch(0.50 0.006 264);
+  --shadow-card: 0 1px 3px 0 rgb(0 0 0 / 0.3), 0 1px 2px -1px rgb(0 0 0 / 0.2);
+}
 
 @layer base {
   html {
@@ -8,16 +35,74 @@
     -moz-osx-font-smoothing: grayscale;
   }
   body {
-    background-color: #F8FAFC;
-    color: #1E293B;
+    background-color: var(--bg-base);
+    color: var(--text-base);
+    transition: background-color var(--transition-base), color var(--transition-base);
+  }
+  * {
+    border-color: var(--border-base);
   }
 }
 
 @layer utilities {
-  .card {
-    background-color: #FFFFFF;
-    border: 1px solid #E2E8F0;
+  /* Card surfaces */
+  .surface-0 {
+    background-color: var(--bg-base);
+  }
+  .surface-1 {
+    background-color: var(--bg-card);
+    border: 1px solid var(--border-base);
     border-radius: 0.75rem;
-    box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.08), 0 1px 2px -1px rgb(0 0 0 / 0.06);
+    box-shadow: var(--shadow-card);
+  }
+  .surface-2 {
+    background-color: var(--bg-card);
+    border: 1px solid var(--border-base);
+    border-radius: 0.75rem;
+    box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.08), 0 2px 4px -2px rgb(0 0 0 / 0.06);
+  }
+
+  /* Legacy .card utility — keep for backward compat */
+  .card {
+    background-color: var(--bg-card);
+    border: 1px solid var(--border-base);
+    border-radius: 0.75rem;
+    box-shadow: var(--shadow-card);
+  }
+
+  /* Shimmer skeleton loader */
+  .skeleton {
+    background: linear-gradient(
+      90deg,
+      var(--border-base) 25%,
+      oklch(0.93 0.004 264) 50%,
+      var(--border-base) 75%
+    );
+    background-size: 200% 100%;
+    animation: shimmer 2s linear infinite;
+    border-radius: 0.5rem;
+  }
+  .dark .skeleton {
+    background: linear-gradient(
+      90deg,
+      oklch(0.22 0.008 264) 25%,
+      oklch(0.28 0.008 264) 50%,
+      oklch(0.22 0.008 264) 75%
+    );
+    background-size: 200% 100%;
+  }
+
+  /* Focus ring consistent */
+  .focus-ring {
+    outline: 2px solid oklch(0.70 0.20 47);
+    outline-offset: 2px;
+  }
+
+  /* Transition utilities */
+  .transition-premium {
+    transition: all var(--transition-base);
+  }
+  .transition-fast {
+    transition: all var(--transition-fast);
   }
 }
