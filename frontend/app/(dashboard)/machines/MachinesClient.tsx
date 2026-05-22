@@ -202,12 +202,14 @@ export default function MachinesClient() {
           title="Máquinas"
           subtitle="Inventario y estado de equipos"
           action={
-            <DialogTrigger asChild>
-              <Button className="bg-orange-500 text-white hover:bg-orange-600">
-                <Plus className="h-4 w-4 mr-2" />
-                Nueva máquina
-              </Button>
-            </DialogTrigger>
+            <DialogTrigger
+              render={
+                <Button className="bg-orange-500 text-white hover:bg-orange-600">
+                  <Plus className="h-4 w-4 mr-2" />
+                  Nueva máquina
+                </Button>
+              }
+            />
           }
         />
 

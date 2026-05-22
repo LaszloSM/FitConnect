@@ -184,12 +184,14 @@ export default function ClassesClient() {
           title="Clases"
           subtitle="Gestiona clases grupales del gym"
           action={
-            <DialogTrigger asChild>
-              <Button className="bg-orange-500 text-white hover:bg-orange-600">
-                <Plus className="h-4 w-4 mr-2" />
-                Nueva clase
-              </Button>
-            </DialogTrigger>
+            <DialogTrigger
+              render={
+                <Button className="bg-orange-500 text-white hover:bg-orange-600">
+                  <Plus className="h-4 w-4 mr-2" />
+                  Nueva clase
+                </Button>
+              }
+            />
           }
         />
 
