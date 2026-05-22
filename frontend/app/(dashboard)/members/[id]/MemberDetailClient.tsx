@@ -6,6 +6,7 @@ import { apiClient } from "@/lib/api";
 import { GlassCard } from "@/components/common/GlassCard";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft } from "lucide-react";
+import { toast } from "sonner";
 
 type Tab = "info" | "memberships" | "payments" | "checkins";
 
@@ -25,6 +26,10 @@ export default function MemberDetailClient({ memberId }: { memberId: string }) {
   const [checkins, setCheckins] = useState<any[]>([]); // eslint-disable-line @typescript-eslint/no-explicit-any
   const [memberships, setMemberships] = useState<any[]>([]); // eslint-disable-line @typescript-eslint/no-explicit-any
   const [loading, setLoading] = useState(true);
+  const [plans, setPlans] = useState<any[]>([]); // eslint-disable-line @typescript-eslint/no-explicit-any
+  const [selectedPlan, setSelectedPlan] = useState("");
+  const [startDate, setStartDate] = useState(new Date().toISOString().slice(0, 10));
+  const [assigning, setAssigning] = useState(false);
 
   useEffect(() => {
     if (!session?.accessToken) return;
@@ -41,7 +46,32 @@ export default function MemberDetailClient({ memberId }: { memberId: string }) {
       setMemberships(ms.data);
       setLoading(false);
     }).catch(() => setLoading(false));
+    client.get("/api/v1/member-plans").then(r => setPlans(r.data)).catch(() => {});
   }, [session?.accessToken, memberId]);
+
+  const handleAssign = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!session?.accessToken || !selectedPlan) return;
+    setAssigning(true);
+    try {
+      const client = apiClient(session.accessToken as string);
+      await client.post("/api/v1/member-plans/assign", {
+        member_id: memberId,
+        plan_id: selectedPlan,
+        start_date: startDate,
+      });
+      toast.success("Membresía asignada");
+      setSelectedPlan("");
+      // Refresh memberships list
+      const ms = await client.get(`/api/v1/members/${memberId}/memberships`);
+      setMemberships(ms.data);
+    } catch (err: any) { // eslint-disable-line @typescript-eslint/no-explicit-any
+      const detail = err.response?.data?.detail;
+      toast.error(typeof detail === "string" ? detail : "Error asignando membresía");
+    } finally {
+      setAssigning(false);
+    }
+  };
 
   if (loading) return (
     <div className="space-y-4">
@@ -130,6 +160,36 @@ export default function MemberDetailClient({ memberId }: { memberId: string }) {
                 </div>
               ))
             }
+            <div className="mt-4 pt-4 border-t border-border-dark">
+              <p className="text-muted text-xs mb-3 font-medium uppercase tracking-wide">Asignar membresía</p>
+              <form onSubmit={handleAssign} className="flex gap-3 flex-wrap items-end">
+                <div className="flex-1 min-w-48">
+                  <select
+                    value={selectedPlan}
+                    onChange={e => setSelectedPlan(e.target.value)}
+                    className="w-full h-9 rounded-md border border-border-dark bg-bg-deep px-3 text-sm text-white"
+                    required
+                  >
+                    <option value="">Seleccionar plan...</option>
+                    {plans.map((p: any) => ( // eslint-disable-line @typescript-eslint/no-explicit-any
+                      <option key={p.id} value={p.id}>
+                        {p.name} — ${Number(p.price).toLocaleString()} / {p.duration_days}d
+                      </option>
+                    ))}
+                  </select>
+                </div>
+                <input
+                  type="date"
+                  value={startDate}
+                  onChange={e => setStartDate(e.target.value)}
+                  className="h-9 rounded-md border border-border-dark bg-bg-deep px-3 text-sm text-white"
+                  required
+                />
+                <Button type="submit" disabled={assigning} className="bg-primary text-bg-deep font-semibold">
+                  {assigning ? "Asignando..." : "Asignar"}
+                </Button>
+              </form>
+            </div>
           </div>
         )}
 
