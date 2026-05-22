@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useSession } from "next-auth/react";
+import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { z } from "zod";
 import { GlassCard } from "@/components/common/GlassCard";
@@ -50,6 +51,7 @@ interface Member {
 
 export default function MembersClient() {
   const { data: session } = useSession();
+  const router = useRouter();
   const [members, setMembers] = useState<Member[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -355,7 +357,11 @@ export default function MembersClient() {
                 </TableRow>
               ) : (
                 members.map((m) => (
-                  <TableRow key={m.id} className="border-border-dark">
+                  <TableRow
+                    key={m.id}
+                    className="border-border-dark cursor-pointer hover:bg-white/5"
+                    onClick={() => router.push(`/members/${m.id}`)}
+                  >
                     <TableCell className="text-white font-medium">{m.full_name}</TableCell>
                     <TableCell className="text-muted">{m.email}</TableCell>
                     <TableCell className="text-muted">{m.phone || "-"}</TableCell>
@@ -380,7 +386,7 @@ export default function MembersClient() {
                           variant="ghost"
                           size="icon"
                           className="text-muted hover:text-white"
-                          onClick={() => openEdit(m)}
+                          onClick={(e) => { e.stopPropagation(); openEdit(m); }}
                         >
                           <Pencil className="h-4 w-4" />
                         </Button>
@@ -388,7 +394,7 @@ export default function MembersClient() {
                           variant="ghost"
                           size="icon"
                           className="text-muted hover:text-danger"
-                          onClick={() => handleDelete(m.id)}
+                          onClick={(e) => { e.stopPropagation(); handleDelete(m.id); }}
                         >
                           <Trash2 className="h-4 w-4" />
                         </Button>
