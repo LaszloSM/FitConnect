@@ -1,6 +1,7 @@
 'use client';
 
 import { motion } from 'framer-motion';
+import { cn } from '@/lib/utils';
 
 interface PageHeaderProps {
   title: string;
@@ -9,15 +10,10 @@ interface PageHeaderProps {
   className?: string;
 }
 
-export function PageHeader({
-  title,
-  subtitle,
-  action,
-  className = '',
-}: PageHeaderProps) {
+export function PageHeader({ title, subtitle, action, className }: PageHeaderProps) {
   return (
     <motion.div
-      className={`mb-6 ${className}`}
+      className={cn('mb-6', className)}
       initial={{ opacity: 0, y: -8 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ type: 'spring', stiffness: 300, damping: 30 }}
@@ -33,7 +29,7 @@ export function PageHeader({
             </p>
           )}
         </div>
-        {action && <div>{action}</div>}
+        {action && <div className="shrink-0">{action}</div>}
       </div>
     </motion.div>
   );
