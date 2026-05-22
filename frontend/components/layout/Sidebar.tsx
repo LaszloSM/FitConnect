@@ -167,7 +167,8 @@ export function Sidebar() {
           aria-label={effectiveCollapsed ? "Expand sidebar" : "Collapse sidebar"}
           className="absolute right-2 top-1/2 -translate-y-1/2
                      p-1 rounded-md text-white/80 hover:text-white
-                     hover:bg-white/20 transition-colors duration-150"
+                     hover:bg-white/20 transition-colors duration-150
+                     focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-1 focus-visible:ring-offset-[oklch(0.70_0.20_47)]"
         >
           <motion.div
             animate={{ rotate: effectiveCollapsed ? 180 : 0 }}
@@ -179,7 +180,7 @@ export function Sidebar() {
       </div>
 
       {/* ── Navigation ──────────────────────────────────────────────────── */}
-      <nav className="flex-1 overflow-y-auto overflow-x-hidden py-3 px-2">
+      <nav className="flex-1 overflow-y-auto overflow-x-hidden py-3 px-2" aria-label="Navegación principal">
         <motion.ul
           variants={containerVariants}
           initial="hidden"
@@ -193,6 +194,7 @@ export function Sidebar() {
                 <Tooltip label={label} show={effectiveCollapsed}>
                   <Link
                     href={href}
+                    aria-current={active ? "page" : undefined}
                     className="relative flex items-center gap-3 px-3 py-2.5 rounded-xl
                                text-sm font-medium transition-colors duration-150
                                focus-visible:outline-none focus-visible:ring-2
@@ -314,10 +316,11 @@ export function Sidebar() {
               <motion.button
                 whileHover={{ x: 2 }}
                 transition={{ type: "spring", stiffness: 400, damping: 25 }}
-                onClick={() => signOut()}
+                onClick={() => signOut({ callbackUrl: "/login" })}
                 className="flex items-center gap-2 w-full px-2 py-1.5 rounded-lg
                            text-xs font-medium text-danger
-                           hover:bg-danger-light transition-colors duration-150"
+                           hover:bg-danger-light transition-colors duration-150
+                           focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[oklch(0.85_0.15_47)] focus-visible:ring-offset-1"
               >
                 <LogOut className="h-3.5 w-3.5 shrink-0" />
                 <span>Cerrar sesión</span>
@@ -344,9 +347,10 @@ export function Sidebar() {
               {/* Logout icon only */}
               <Tooltip label="Cerrar sesión" show>
                 <button
-                  onClick={() => signOut()}
+                  onClick={() => signOut({ callbackUrl: "/login" })}
                   className="p-1.5 rounded-lg text-danger hover:bg-danger-light
-                             transition-colors duration-150"
+                             transition-colors duration-150
+                             focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[oklch(0.85_0.15_47)] focus-visible:ring-offset-1"
                   aria-label="Cerrar sesión"
                 >
                   <LogOut className="h-4 w-4" />
