@@ -7,6 +7,7 @@ from app.api.deps import (
     get_master_tenant,
     get_master_db,
     get_tenant_db_from_token,
+    check_tenant_active,
 )
 from app.core.security import hash_password, verify_password
 from app.models.master.tenant import Tenant
@@ -15,6 +16,7 @@ from app.schemas.settings import (
     GymSettingsResponse,
     GymSettingsUpdate,
     NotificationPreferences,
+    NotificationPreferencesUpdate,
     UserProfileResponse,
     UserProfileUpdate,
 )
@@ -32,13 +34,16 @@ async def get_profile(
         id=str(current_user.id),
         full_name=current_user.full_name,
         email=current_user.email,
-        role=current_user.role.value if hasattr(current_user.role, "value") else str(current_user.role),
+        role=current_user.role.value,
     )
 
 
 @router.patch("/profile", response_model=UserProfileResponse)
 async def update_profile(
     payload: UserProfileUpdate,
+    # Both get_current_staff and db resolve to the same get_tenant_db_from_token
+    # generator — FastAPI deduplicates by function identity, so current_user and
+    # db share one session and mutations on current_user are committed via db.
     current_user: UserStaff = Depends(get_current_staff),
     db: AsyncSession = Depends(get_tenant_db_from_token),
 ) -> UserProfileResponse:
@@ -71,7 +76,7 @@ async def update_profile(
         id=str(current_user.id),
         full_name=current_user.full_name,
         email=current_user.email,
-        role=current_user.role.value if hasattr(current_user.role, "value") else str(current_user.role),
+        role=current_user.role.value,
     )
 
 
@@ -94,7 +99,7 @@ async def get_gym_settings(
 @router.patch("/gym", response_model=GymSettingsResponse)
 async def update_gym_settings(
     payload: GymSettingsUpdate,
-    tenant: Tenant = Depends(get_master_tenant),
+    tenant: Tenant = Depends(check_tenant_active),
     master_db: AsyncSession = Depends(get_master_db),
 ) -> GymSettingsResponse:
     if payload.name is not None:
@@ -137,11 +142,16 @@ async def get_notification_prefs(
 
 @router.patch("/notifications", response_model=NotificationPreferences)
 async def update_notification_prefs(
-    payload: NotificationPreferences,
+    payload: NotificationPreferencesUpdate,
     current_user: UserStaff = Depends(get_current_staff),
     db: AsyncSession = Depends(get_tenant_db_from_token),
 ) -> NotificationPreferences:
-    current_user.notification_prefs = payload.model_dump()
+    # Merge partial update into existing prefs (preserves fields not in payload)
+    current = NotificationPreferences(**(current_user.notification_prefs or {}))
+    updates = payload.model_dump(exclude_none=True)
+    merged = current.model_dump()
+    merged.update(updates)
+    current_user.notification_prefs = merged
     await db.commit()
     await db.refresh(current_user)
     return NotificationPreferences(**current_user.notification_prefs)
