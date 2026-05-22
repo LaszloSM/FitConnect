@@ -6,6 +6,7 @@ import { useSession, signOut } from "next-auth/react";
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useSidebar } from "./SidebarContext";
+import { SIDEBAR_COLLAPSED_W, SIDEBAR_EXPANDED_W } from "@/lib/layout-constants";
 import {
   LayoutDashboard,
   Users,
@@ -132,7 +133,7 @@ export function Sidebar() {
 
   return (
     <motion.aside
-      animate={{ width: effectiveCollapsed ? 64 : 256 }}
+      animate={{ width: effectiveCollapsed ? SIDEBAR_COLLAPSED_W : SIDEBAR_EXPANDED_W }}
       transition={{ type: "spring", stiffness: 260, damping: 28 }}
       className="fixed left-0 top-0 h-screen z-40 flex flex-col overflow-hidden
                  bg-[var(--bg-sidebar)] border-r border-[var(--border-base)]"
