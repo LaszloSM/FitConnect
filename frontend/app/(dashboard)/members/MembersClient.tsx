@@ -166,12 +166,12 @@ export default function MembersClient() {
           title="Miembros"
           subtitle="Gestiona los socios de tu gym"
           action={
-            <DialogTrigger render={
+            <DialogTrigger asChild>
               <Button onClick={openCreate} className="bg-orange-500 text-white hover:bg-orange-600">
                 <Plus className="h-4 w-4 mr-2" />
                 Nuevo miembro
               </Button>
-            } />
+            </DialogTrigger>
           }
         />
         <DialogContent className="bg-[var(--bg-card)] border border-[var(--border-base)] text-[var(--text-base)] max-w-lg">
@@ -307,7 +307,7 @@ export default function MembersClient() {
                     <TableCell className="text-[var(--text-base)] font-medium">
                       <div className="flex items-center gap-2">
                         <span className="h-7 w-7 rounded-full bg-orange-500 text-white text-xs font-bold flex items-center justify-center shrink-0">
-                          {m.full_name[0].toUpperCase()}
+                          {(m.full_name?.[0] ?? "?").toUpperCase()}
                         </span>
                         {m.full_name}
                       </div>
