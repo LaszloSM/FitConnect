@@ -2,35 +2,41 @@
 Verifies that tenant A cannot see data from tenant B.
 Requires the test DB to be running.
 """
-import pytest
 
 
-@pytest.mark.asyncio
 async def test_tenant_data_isolation(client):
     """
     Register two separate tenants (GymA and GymB), create a member in GymA,
     and verify that GymB cannot see GymA's member data.
     """
-    # Register tenant A
-    r = await client.post("/api/v1/auth/register", json={
+    # Register and login tenant A
+    await client.post("/api/v1/auth/register", json={
         "gym_name": "GymA",
         "full_name": "Owner A",
         "email": "a_owner@test.com",
         "password": "testpass123",
         "city": "Test City A",
     })
-    assert r.status_code == 201
+    r = await client.post("/api/v1/auth/login", json={
+        "email": "a_owner@test.com",
+        "password": "testpass123",
+    })
+    assert r.status_code == 200
     token_a = r.json()["access_token"]
 
-    # Register tenant B
-    r = await client.post("/api/v1/auth/register", json={
+    # Register and login tenant B
+    await client.post("/api/v1/auth/register", json={
         "gym_name": "GymB",
         "full_name": "Owner B",
         "email": "b_owner@test.com",
         "password": "testpass123",
         "city": "Test City B",
     })
-    assert r.status_code == 201
+    r = await client.post("/api/v1/auth/login", json={
+        "email": "b_owner@test.com",
+        "password": "testpass123",
+    })
+    assert r.status_code == 200
     token_b = r.json()["access_token"]
 
     # Tenant A creates a member
@@ -45,7 +51,19 @@ async def test_tenant_data_isolation(client):
     )
     assert r.status_code == 201
 
-    # Tenant B lists members — should NOT see Member of A
+    # Tenant A lists members — should see Member of A (positive check)
+    r = await client.get(
+        "/api/v1/members",
+        headers={"Authorization": f"Bearer {token_a}"},
+    )
+    assert r.status_code == 200
+    members = r.json()
+    names = [m["full_name"] for m in members]
+    assert (
+        "Member of A" in names
+    ), "Member was not created successfully under Tenant A"
+
+    # Tenant B lists members — should NOT see Member of A (isolation check)
     r = await client.get(
         "/api/v1/members",
         headers={"Authorization": f"Bearer {token_b}"},
