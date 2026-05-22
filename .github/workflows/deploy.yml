@@ -31,6 +31,13 @@ jobs:
           node-version: "20"
       - run: cd frontend && npm ci
       - run: cd frontend && npm run build
+      - name: Install Playwright
+        run: cd frontend && npx playwright install --with-deps chromium
+      - name: Start services
+        run: docker compose up -d
+      - name: Wait for services
+        run: sleep 30
+      - run: cd frontend && npx playwright test
 
   deploy:
     needs: [test-backend, test-frontend]
