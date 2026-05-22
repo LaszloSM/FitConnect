@@ -7,6 +7,7 @@ import { GlassCard } from "@/components/common/GlassCard";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Zap } from "lucide-react";
 
 const registerSchema = z.object({
   gym_name: z.string().min(2, "El nombre del gym debe tener al menos 2 caracteres"),
@@ -61,12 +62,15 @@ export default function RegisterPage() {
   }
 
   return (
-    <GlassCard className="p-6" glow>
-      <div className="text-center mb-6">
-        <h1 className="text-2xl font-bold text-white font-display">Registra tu Gym</h1>
-        <p className="text-muted text-sm mt-1">Comienza gratis — Plan Basico</p>
+    <GlassCard className="p-8">
+      <div className="text-center mb-8">
+        <div className="flex items-center justify-center gap-2 mb-3">
+          <Zap className="h-7 w-7 text-orange-500" />
+          <span className="text-slate-800 font-bold text-2xl font-display">FitConnect</span>
+        </div>
+        <p className="text-slate-500 text-sm">Comienza gratis — Plan Básico</p>
       </div>
-      <form onSubmit={handleSubmit} className="space-y-4">
+      <form onSubmit={handleSubmit} className="space-y-5">
         {[
           { id: "gym_name", label: "Nombre del Gym", type: "text" },
           { id: "city", label: "Ciudad", type: "text" },
@@ -74,21 +78,21 @@ export default function RegisterPage() {
           { id: "email", label: "Email", type: "email" },
           { id: "password", label: "Contraseña", type: "password" },
         ].map(({ id, label, type }) => (
-          <div key={id} className="space-y-2">
-            <Label htmlFor={id} className="text-muted text-sm">{label}</Label>
+          <div key={id} className="space-y-1.5">
+            <Label htmlFor={id} className="text-slate-600 text-sm font-medium">{label}</Label>
             <Input id={id} name={id} type={type} required
-              className="bg-surface border-border-dark text-white placeholder:text-muted" />
+              className="bg-white border-slate-200 text-slate-800 placeholder:text-slate-400 focus:border-orange-400 focus:ring-orange-400" />
           </div>
         ))}
-        {error && <p className="text-danger text-sm">{error}</p>}
+        {error && <p className="text-red-500 text-sm">{error}</p>}
         <Button type="submit" disabled={loading}
-          className="w-full bg-primary text-bg-deep font-semibold hover:bg-primary/90">
+          className="w-full bg-orange-500 text-white font-semibold hover:bg-orange-600 transition-colors duration-150">
           {loading ? "Registrando..." : "Crear cuenta"}
         </Button>
       </form>
-      <p className="mt-4 text-center text-muted text-sm">
-        Ya tienes cuenta?{" "}
-        <Link href="/login" className="text-primary hover:underline">Inicia sesion</Link>
+      <p className="mt-5 text-center text-slate-500 text-sm">
+        ¿Ya tienes cuenta?{" "}
+        <Link href="/login" className="text-orange-500 font-medium hover:underline">Inicia sesión</Link>
       </p>
     </GlassCard>
   );

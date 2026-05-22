@@ -20,13 +20,8 @@ class TokenResponse(BaseModel):
     token_type: str = "bearer"
     role: str
     tenant_id: str
+    db_name: str
     full_name: str
-
-
-class RegisterResponse(BaseModel):
-    email: str
-    role: str
-    tenant_id: str
 
 
 class PasswordResetRequest(BaseModel):

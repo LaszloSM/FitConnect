@@ -5,6 +5,7 @@ declare module "next-auth" {
     accessToken: string;
     role: string;
     tenantId: string;
+    dbName: string;
   }
 }
 
@@ -13,5 +14,6 @@ declare module "next-auth/jwt" {
     accessToken: string;
     role: string;
     tenantId: string;
+    dbName: string;
   }
 }

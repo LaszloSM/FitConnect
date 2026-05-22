@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 export const dynamic = "force-dynamic";
 
 import { useEffect, useState } from "react";
@@ -68,12 +68,12 @@ export default function DashboardPage() {
     return (
       <div className="space-y-6">
         <div>
-          <h2 className="text-2xl font-bold text-white font-display">Dashboard</h2>
-          <p className="text-muted text-sm mt-1">Resumen operativo del gym</p>
+          <h2 className="text-2xl font-bold text-slate-800 font-display">Dashboard</h2>
+          <p className="text-slate-500 text-sm mt-1">Resumen operativo del gym</p>
         </div>
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
           {Array.from({ length: 4 }).map((_, i) => (
-            <GlassCard key={i} className="p-5 h-28 animate-pulse" />
+            <div key={i} className="bg-slate-200 rounded-xl h-28 animate-pulse" />
           ))}
         </div>
       </div>
@@ -83,7 +83,7 @@ export default function DashboardPage() {
   if (error) {
     return (
       <GlassCard className="p-6">
-        <div className="flex items-center gap-2 text-danger">
+        <div className="flex items-center gap-2 text-red-600">
           <AlertCircle className="h-5 w-5" />
           <p>{error}</p>
         </div>
@@ -94,7 +94,7 @@ export default function DashboardPage() {
   if (!data) {
     return (
       <GlassCard className="p-6">
-        <p className="text-muted">No hay datos disponibles</p>
+        <p className="text-slate-400">No hay datos disponibles</p>
       </GlassCard>
     );
   }
@@ -104,27 +104,27 @@ export default function DashboardPage() {
   return (
     <div className="space-y-6">
       <div>
-        <h2 className="text-2xl font-bold text-white font-display">Dashboard</h2>
-        <p className="text-muted text-sm mt-1">Resumen operativo del gym</p>
+        <h2 className="text-2xl font-bold text-slate-800 font-display">Dashboard</h2>
+        <p className="text-slate-500 text-sm mt-1">Resumen operativo del gym</p>
       </div>
 
       <div className="flex gap-3 items-center flex-wrap">
         <div className="flex items-center gap-2">
-          <label className="text-muted text-sm">Desde</label>
+          <label className="text-slate-500 text-sm">Desde</label>
           <input
             type="date"
             value={dateFrom}
             onChange={e => setDateFrom(e.target.value)}
-            className="h-9 rounded-md border border-border-dark bg-surface px-3 text-sm text-white"
+            className="h-9 rounded-lg border border-slate-200 bg-white px-3 text-sm text-slate-700 focus:outline-none focus:ring-2 focus:ring-orange-400 focus:border-orange-400"
           />
         </div>
         <div className="flex items-center gap-2">
-          <label className="text-muted text-sm">Hasta</label>
+          <label className="text-slate-500 text-sm">Hasta</label>
           <input
             type="date"
             value={dateTo}
             onChange={e => setDateTo(e.target.value)}
-            className="h-9 rounded-md border border-border-dark bg-surface px-3 text-sm text-white"
+            className="h-9 rounded-lg border border-slate-200 bg-white px-3 text-sm text-slate-700 focus:outline-none focus:ring-2 focus:ring-orange-400 focus:border-orange-400"
           />
         </div>
       </div>
@@ -134,7 +134,7 @@ export default function DashboardPage() {
           title="Miembros activos"
           value={kpis.active_members}
           subtitle={`${kpis.total_members} total`}
-          color="blue"
+          color="info"
           icon={<Users className="h-4 w-4" />}
         />
         <KPICard
@@ -162,17 +162,17 @@ export default function DashboardPage() {
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
         <GlassCard className="p-5">
           <div className="flex items-center gap-2 mb-4">
-            <TrendingUp className="h-4 w-4 text-primary" />
-            <h3 className="text-white font-semibold text-sm">Crecimiento de miembros</h3>
+            <TrendingUp className="h-4 w-4 text-orange-500" />
+            <h3 className="text-slate-700 font-semibold text-sm">Crecimiento de miembros</h3>
           </div>
           <ResponsiveContainer width="100%" height={200}>
             <BarChart data={data.member_growth} margin={{ top: 4, right: 0, left: -20, bottom: 0 }}>
-              <CartesianGrid strokeDasharray="3 3" stroke="#2D2D4A" vertical={false} />
-              <XAxis dataKey="month" tick={{ fill: "#6B7280", fontSize: 11 }} axisLine={false} tickLine={false} />
-              <YAxis tick={{ fill: "#6B7280", fontSize: 11 }} axisLine={false} tickLine={false} />
+              <CartesianGrid strokeDasharray="3 3" stroke="#F1F5F9" vertical={false} />
+              <XAxis dataKey="month" tick={{ fill: "#94A3B8", fontSize: 11 }} axisLine={false} tickLine={false} />
+              <YAxis tick={{ fill: "#94A3B8", fontSize: 11 }} axisLine={false} tickLine={false} />
               <Tooltip
-                contentStyle={{ background: "#1E1E35", border: "1px solid #2D2D4A", borderRadius: 8 }}
-                labelStyle={{ color: "#fff", fontSize: 12 }}
+                contentStyle={{ background: "#FFFFFF", border: "1px solid #E2E8F0", borderRadius: 8, boxShadow: "0 4px 6px -1px rgb(0 0 0 / 0.08)" }}
+                labelStyle={{ color: "#1E293B", fontSize: 12 }}
                 itemStyle={{ color: "#7C3AED" }}
               />
               <Bar dataKey="count" fill="#7C3AED" radius={[4, 4, 0, 0]} name="Miembros" />
@@ -182,38 +182,35 @@ export default function DashboardPage() {
 
         <GlassCard className="p-5">
           <div className="flex items-center gap-2 mb-4">
-            <Calendar className="h-4 w-4 text-success" />
-            <h3 className="text-white font-semibold text-sm">Ingresos por mes</h3>
+            <Calendar className="h-4 w-4 text-green-500" />
+            <h3 className="text-slate-700 font-semibold text-sm">Ingresos por mes</h3>
           </div>
           <ResponsiveContainer width="100%" height={200}>
             <BarChart data={data.revenue_history} margin={{ top: 4, right: 0, left: -20, bottom: 0 }}>
-              <CartesianGrid strokeDasharray="3 3" stroke="#2D2D4A" vertical={false} />
-              <XAxis dataKey="month" tick={{ fill: "#6B7280", fontSize: 11 }} axisLine={false} tickLine={false} />
-              <YAxis tick={{ fill: "#6B7280", fontSize: 11 }} axisLine={false} tickLine={false} />
+              <CartesianGrid strokeDasharray="3 3" stroke="#F1F5F9" vertical={false} />
+              <XAxis dataKey="month" tick={{ fill: "#94A3B8", fontSize: 11 }} axisLine={false} tickLine={false} />
+              <YAxis tick={{ fill: "#94A3B8", fontSize: 11 }} axisLine={false} tickLine={false} />
               <Tooltip
-                contentStyle={{ background: "#1E1E35", border: "1px solid #2D2D4A", borderRadius: 8 }}
-                labelStyle={{ color: "#fff", fontSize: 12 }}
-                itemStyle={{ color: "#10B981" }}
+                contentStyle={{ background: "#FFFFFF", border: "1px solid #E2E8F0", borderRadius: 8, boxShadow: "0 4px 6px -1px rgb(0 0 0 / 0.08)" }}
+                labelStyle={{ color: "#1E293B", fontSize: 12 }}
+                itemStyle={{ color: "#22C55E" }}
               />
-              <Bar dataKey="amount" fill="#10B981" radius={[4, 4, 0, 0]} name="Ingresos" />
+              <Bar dataKey="amount" fill="#22C55E" radius={[4, 4, 0, 0]} name="Ingresos" />
             </BarChart>
           </ResponsiveContainer>
         </GlassCard>
       </div>
 
       {kpis.expiring_memberships_7d > 0 && (
-        <GlassCard className="p-4 border-l-4 border-l-warning">
-          <div className="flex items-center gap-2 text-warning">
-            <Calendar className="h-4 w-4" />
-            <p className="text-sm font-medium">
-              {kpis.expiring_memberships_7d} membresias expiran en los proximos 7 dias
+        <div className="bg-amber-50 border border-amber-200 rounded-xl p-4">
+          <div className="flex items-center gap-2">
+            <Calendar className="h-4 w-4 text-amber-500 shrink-0" />
+            <p className="text-amber-700 text-sm font-medium">
+              {kpis.expiring_memberships_7d} membresías expiran en los próximos 7 días
             </p>
           </div>
-        </GlassCard>
+        </div>
       )}
     </div>
   );
 }
-
-
-

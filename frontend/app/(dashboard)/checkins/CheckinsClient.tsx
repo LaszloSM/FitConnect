@@ -1,4 +1,4 @@
-﻿/* eslint-disable @typescript-eslint/no-explicit-any */
+/* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable react-hooks/exhaustive-deps */
 "use client";
 
@@ -49,19 +49,14 @@ export default function CheckinsClient() {
     }
   };
 
-  useEffect(() => {
-    fetchCheckins();
-  }, [session]);
+  useEffect(() => { fetchCheckins(); }, [session]);
 
   const handleCheckin = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!session?.accessToken) return;
     const client = apiClient(session.accessToken as string);
     try {
-      await client.post("/api/v1/checkins", {
-        member_id: memberId,
-        type,
-      });
+      await client.post("/api/v1/checkins", { member_id: memberId, type });
       setMemberId("");
       fetchCheckins();
     } catch (err: any) {
@@ -72,38 +67,32 @@ export default function CheckinsClient() {
   return (
     <div className="space-y-6">
       <div>
-        <h2 className="text-2xl font-bold text-white font-display">Check-ins</h2>
-        <p className="text-muted text-sm mt-1">Registra entradas y salidas de miembros</p>
+        <h2 className="text-2xl font-bold text-slate-800 font-display">Check-ins</h2>
+        <p className="text-slate-500 text-sm mt-1">Registra entradas y salidas de miembros</p>
       </div>
 
       <GlassCard className="p-4">
         <form onSubmit={handleCheckin} className="flex items-end gap-3 mb-6">
           <div className="flex-1 space-y-2">
-            <Label className="text-muted text-sm">Miembro</Label>
-            <MemberSelect
-              value={memberId}
-              onChange={(id) => setMemberId(id)}
-            />
+            <Label className="text-slate-600 text-sm">Miembro</Label>
+            <MemberSelect value={memberId} onChange={(id) => setMemberId(id)} />
           </div>
           <div className="w-40 space-y-2">
-            <Label className="text-muted text-sm">Tipo</Label>
-            <select
-              value={type}
-              onChange={(e) => setType(e.target.value)}
-              className="w-full h-9 rounded-md border border-border-dark bg-bg-deep px-3 py-1 text-sm text-white"
-            >
+            <Label className="text-slate-600 text-sm">Tipo</Label>
+            <select value={type} onChange={(e) => setType(e.target.value)}
+              className="w-full h-9 rounded-md border border-slate-200 bg-white px-3 py-1 text-sm text-slate-800">
               <option value="entry">Entrada</option>
               <option value="exit">Salida</option>
             </select>
           </div>
-          <Button type="submit" className="bg-primary text-bg-deep font-semibold hover:bg-primary/90 h-9">
+          <Button type="submit" className="bg-orange-500 text-white font-semibold hover:bg-orange-600 h-9">
             <Activity className="h-4 w-4 mr-2" />
             Registrar
           </Button>
         </form>
 
         {error && (
-          <div className="flex items-center gap-2 text-danger mb-4">
+          <div className="flex items-center gap-2 text-red-600 mb-4">
             <AlertCircle className="h-4 w-4" />
             <p className="text-sm">{error}</p>
           </div>
@@ -112,43 +101,33 @@ export default function CheckinsClient() {
         <div className="overflow-x-auto">
           <Table>
             <TableHeader>
-              <TableRow className="border-border-dark hover:bg-transparent">
-                <TableHead className="text-muted">Miembro</TableHead>
-                <TableHead className="text-muted">Tipo</TableHead>
-                <TableHead className="text-muted">Fecha</TableHead>
+              <TableRow className="border-slate-200 hover:bg-transparent">
+                <TableHead className="text-slate-500">Miembro</TableHead>
+                <TableHead className="text-slate-500">Tipo</TableHead>
+                <TableHead className="text-slate-500">Fecha</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {loading ? (
                 <TableRow>
-                  <TableCell colSpan={3} className="text-center text-muted py-8">
-                    Cargando...
-                  </TableCell>
+                  <TableCell colSpan={3} className="text-center text-slate-400 py-8">Cargando...</TableCell>
                 </TableRow>
               ) : checkins.length === 0 ? (
                 <TableRow>
-                  <TableCell colSpan={3} className="text-center text-muted py-8">
-                    No hay check-ins registrados hoy
-                  </TableCell>
+                  <TableCell colSpan={3} className="text-center text-slate-400 py-8">No hay check-ins registrados hoy</TableCell>
                 </TableRow>
               ) : (
                 checkins.map((c) => (
-                  <TableRow key={c.id} className="border-border-dark">
-                    <TableCell className="text-white font-medium">{c.member_id.slice(0, 8)}...</TableCell>
+                  <TableRow key={c.id} className="border-slate-200">
+                    <TableCell className="text-slate-800 font-medium">{c.member_id.slice(0, 8)}...</TableCell>
                     <TableCell>
-                      <span
-                        className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium ${
-                          c.type === "entry"
-                            ? "bg-success/20 text-success"
-                            : "bg-danger/20 text-danger"
-                        }`}
-                      >
+                      <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium ${
+                        c.type === "entry" ? "bg-green-50 text-green-600" : "bg-red-50 text-red-600"
+                      }`}>
                         {c.type === "entry" ? "Entrada" : "Salida"}
                       </span>
                     </TableCell>
-                    <TableCell className="text-muted text-xs">
-                      {new Date(c.created_at).toLocaleString()}
-                    </TableCell>
+                    <TableCell className="text-slate-500 text-xs">{new Date(c.created_at).toLocaleString()}</TableCell>
                   </TableRow>
                 ))
               )}
@@ -159,5 +138,3 @@ export default function CheckinsClient() {
     </div>
   );
 }
-
-

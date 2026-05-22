@@ -1,9 +1,34 @@
-from app.models.tenant import Tenant, SubscriptionPlan, TenantStatus
-from app.models.user import User, UserRole
-from app.models.location import Location
+# Re-export master and tenant models
+from app.models.master import Tenant, SubscriptionPlan, TenantStatus, Owner
+from app.models.tenant import (
+    UserStaff, UserRole,
+    Location,
+    Member, MemberStatus,
+    Membership, MembershipStatus,
+    MemberPlan,
+    Payment, PaymentMethod, PaymentStatus,
+    CheckIn, CheckInType,
+    GymClass,
+    ClassEnrollment,
+    Machine, MachineStatus,
+    MaintenanceLog,
+    Notification,
+)
 
 __all__ = [
-    "Tenant", "SubscriptionPlan", "TenantStatus",
-    "User", "UserRole",
+    # Master
+    "Tenant", "SubscriptionPlan", "TenantStatus", "Owner",
+    # Tenant
+    "UserStaff", "UserRole",
     "Location",
+    "Member", "MemberStatus",
+    "Membership", "MembershipStatus",
+    "MemberPlan",
+    "Payment", "PaymentMethod", "PaymentStatus",
+    "CheckIn", "CheckInType",
+    "GymClass",
+    "ClassEnrollment",
+    "Machine", "MachineStatus",
+    "MaintenanceLog",
+    "Notification",
 ]
