@@ -18,6 +18,7 @@ import { es } from "date-fns/locale";
 import { Button } from "@/components/ui/button";
 import { apiClient } from "@/lib/api";
 import { useSidebar } from "@/components/layout/SidebarContext";
+import { SIDEBAR_COLLAPSED_W, SIDEBAR_EXPANDED_W } from "@/lib/layout-constants";
 
 interface Notification {
   id: string;
@@ -39,6 +40,13 @@ const routeMeta: Record<string, { title: string; subtitle: string }> = {
   "/settings": { title: "Configuración", subtitle: "Preferencias del sistema" },
 };
 
+// Module-level constant — defined once, not re-created on every render
+const dropdownVariants = {
+  hidden: { opacity: 0, y: -8, scale: 0.97 },
+  visible: { opacity: 1, y: 0, scale: 1, transition: { duration: 0.15 } },
+  exit: { opacity: 0, y: -8, scale: 0.97, transition: { duration: 0.1 } },
+};
+
 function getInitials(name?: string | null): string {
   if (!name) return "?";
   return name
@@ -51,8 +59,12 @@ function getInitials(name?: string | null): string {
 export function Header() {
   const { data: session } = useSession();
   const pathname = usePathname();
-  const { theme, setTheme } = useTheme();
+  const { resolvedTheme, setTheme } = useTheme();
   const { collapsed } = useSidebar();
+
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => { setMounted(true); }, []);
+  const effectiveCollapsed = mounted ? collapsed : false;
 
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [showBell, setShowBell] = useState(false);
@@ -113,6 +125,14 @@ export function Header() {
     return () => document.removeEventListener("mousedown", handler);
   }, [showBell]);
 
+  // Escape key for bell dropdown
+  useEffect(() => {
+    if (!showBell) return;
+    const onKey = (e: KeyboardEvent) => { if (e.key === "Escape") setShowBell(false); };
+    document.addEventListener("keydown", onKey);
+    return () => document.removeEventListener("keydown", onKey);
+  }, [showBell]);
+
   // Click-outside for user dropdown
   useEffect(() => {
     if (!showUser) return;
@@ -125,15 +145,17 @@ export function Header() {
     return () => document.removeEventListener("mousedown", handler);
   }, [showUser]);
 
-  const dropdownVariants = {
-    hidden: { opacity: 0, y: -8, scale: 0.97 },
-    visible: { opacity: 1, y: 0, scale: 1, transition: { duration: 0.15 } },
-    exit: { opacity: 0, y: -8, scale: 0.97, transition: { duration: 0.1 } },
-  };
+  // Escape key for user dropdown
+  useEffect(() => {
+    if (!showUser) return;
+    const onKey = (e: KeyboardEvent) => { if (e.key === "Escape") setShowUser(false); };
+    document.addEventListener("keydown", onKey);
+    return () => document.removeEventListener("keydown", onKey);
+  }, [showUser]);
 
   return (
     <motion.header
-      animate={{ left: collapsed ? 64 : 256 }}
+      animate={{ left: effectiveCollapsed ? SIDEBAR_COLLAPSED_W : SIDEBAR_EXPANDED_W }}
       transition={{ type: "spring", stiffness: 300, damping: 30 }}
       className="fixed top-0 right-0 h-16 z-20 flex items-center justify-between px-6"
       style={{
@@ -157,14 +179,14 @@ export function Header() {
         <Button
           variant="ghost"
           size="icon"
-          aria-label="Cambiar tema"
-          onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
+          aria-label={resolvedTheme === "dark" ? "Cambiar a modo claro" : "Cambiar a modo oscuro"}
+          onClick={() => setTheme(resolvedTheme === "dark" ? "light" : "dark")}
           className="text-[var(--text-muted)] hover:text-[var(--text-base)]"
         >
           <AnimatePresence mode="wait">
-            {theme === "dark" ? (
+            {resolvedTheme === "dark" ? (
               <motion.span
-                key="sun"
+                key="dark"
                 initial={{ rotate: -90, opacity: 0 }}
                 animate={{ rotate: 0, opacity: 1 }}
                 exit={{ rotate: 90, opacity: 0 }}
@@ -174,7 +196,7 @@ export function Header() {
               </motion.span>
             ) : (
               <motion.span
-                key="moon"
+                key="light"
                 initial={{ rotate: -90, opacity: 0 }}
                 animate={{ rotate: 0, opacity: 1 }}
                 exit={{ rotate: 90, opacity: 0 }}
@@ -192,6 +214,8 @@ export function Header() {
             variant="ghost"
             size="icon"
             aria-label="Notificaciones"
+            aria-expanded={showBell}
+            aria-haspopup="true"
             className="text-[var(--text-muted)] hover:text-[var(--text-base)] relative"
             onClick={() => setShowBell((v) => !v)}
           >
@@ -247,7 +271,7 @@ export function Header() {
                 </div>
 
                 {/* Items */}
-                <div className="max-h-72 overflow-y-auto">
+                <div className="max-h-72 overflow-y-auto" aria-live="polite" aria-label="Lista de notificaciones">
                   {notifications.length === 0 ? (
                     <div className="flex flex-col items-center gap-2 py-8">
                       <Bell
@@ -311,6 +335,8 @@ export function Header() {
           <button
             onClick={() => setShowUser((v) => !v)}
             aria-label="Cuenta"
+            aria-expanded={showUser}
+            aria-haspopup="true"
             className="h-8 w-8 rounded-full bg-orange-500 text-white text-xs font-bold flex items-center justify-center hover:bg-orange-600 transition-colors"
           >
             {getInitials(session?.user?.name)}
