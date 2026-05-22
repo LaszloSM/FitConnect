@@ -24,7 +24,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { Plus, AlertCircle, Wrench } from "lucide-react";
+import { Plus, AlertCircle, Wrench, ChevronDown } from "lucide-react";
 
 interface Machine {
   id: string;
@@ -35,12 +35,25 @@ interface Machine {
   notes: string | null;
 }
 
+interface MaintenanceLog {
+  id: string;
+  description: string;
+  technician: string;
+  cost: number | null;
+  resolved_at: string | null;
+  created_at: string;
+}
+
 export default function MachinesClient() {
   const sessionData = useSession(); const session = sessionData?.data;
   const [machines, setMachines] = useState<Machine[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [dialogOpen, setDialogOpen] = useState(false);
+  const [expandedMachine, setExpandedMachine] = useState<string | null>(null);
+  const [maintenanceLogs, setMaintenanceLogs] = useState<Record<string, MaintenanceLog[]>>({});
+  const [logForm, setLogForm] = useState({ description: "", technician: "", cost: "" });
+  const [addingLog, setAddingLog] = useState(false);
   const [form, setForm] = useState({
     name: "",
     brand: "",
@@ -98,6 +111,46 @@ export default function MachinesClient() {
       case "damaged": return "Danada";
       case "retired": return "Retirada";
       default: return status;
+    }
+  };
+
+  const toggleMachine = async (machineId: string) => {
+    if (expandedMachine === machineId) {
+      setExpandedMachine(null);
+      return;
+    }
+    setExpandedMachine(machineId);
+    if (!maintenanceLogs[machineId] && session?.accessToken) {
+      try {
+        const client = apiClient(session.accessToken as string);
+        const res = await client.get(`/api/v1/machines/${machineId}/maintenance`);
+        setMaintenanceLogs((prev) => ({ ...prev, [machineId]: res.data }));
+      } catch {
+        toast.error("Error cargando historial de mantenimiento");
+      }
+    }
+  };
+
+  const handleAddLog = async (machineId: string) => {
+    if (!session?.accessToken || !logForm.description.trim() || !logForm.technician.trim()) return;
+    setAddingLog(true);
+    try {
+      const client = apiClient(session.accessToken as string);
+      await client.post(`/api/v1/machines/${machineId}/maintenance`, {
+        description: logForm.description,
+        technician: logForm.technician,
+        cost: logForm.cost ? parseFloat(logForm.cost) : null,
+      });
+      toast.success("Mantenimiento registrado");
+      setLogForm({ description: "", technician: "", cost: "" });
+      // Refresh logs
+      const res = await client.get(`/api/v1/machines/${machineId}/maintenance`);
+      setMaintenanceLogs((prev) => ({ ...prev, [machineId]: res.data }));
+    } catch (err: any) {
+      const detail = err.response?.data?.detail;
+      toast.error(typeof detail === "string" ? detail : "Error registrando mantenimiento");
+    } finally {
+      setAddingLog(false);
     }
   };
 
@@ -167,20 +220,36 @@ export default function MachinesClient() {
           <Table>
             <TableHeader>
               <TableRow className="border-border-dark hover:bg-transparent">
+                <TableHead className="text-muted w-8"></TableHead>
                 <TableHead className="text-muted">Nombre</TableHead>
                 <TableHead className="text-muted">Marca</TableHead>
                 <TableHead className="text-muted">Serial</TableHead>
                 <TableHead className="text-muted">Estado</TableHead>
+                <TableHead className="text-muted">Acciones</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {loading ? (
-                <TableRow><TableCell colSpan={4} className="text-center text-muted py-8">Cargando...</TableCell></TableRow>
+                <TableRow><TableCell colSpan={6} className="text-center text-muted py-8">Cargando...</TableCell></TableRow>
               ) : machines.length === 0 ? (
-                <TableRow><TableCell colSpan={4} className="text-center text-muted py-8">No hay maquinas registradas</TableCell></TableRow>
+                <TableRow><TableCell colSpan={6} className="text-center text-muted py-8">No hay maquinas registradas</TableCell></TableRow>
               ) : (
-                machines.map((m) => (
+                machines.flatMap((m) => [
                   <TableRow key={m.id} className="border-border-dark">
+                    <TableCell className="p-3">
+                      <button
+                        type="button"
+                        onClick={() => toggleMachine(m.id)}
+                        className="p-1 hover:bg-white/10 rounded transition-colors"
+                        aria-label="Toggle maintenance history"
+                      >
+                        <ChevronDown
+                          className={`h-4 w-4 text-muted transition-transform ${
+                            expandedMachine === m.id ? "rotate-180" : ""
+                          }`}
+                        />
+                      </button>
+                    </TableCell>
                     <TableCell className="text-white font-medium flex items-center gap-2">
                       <Wrench className="h-4 w-4 text-muted" />
                       {m.name}
@@ -192,8 +261,87 @@ export default function MachinesClient() {
                         {statusLabel(m.status)}
                       </span>
                     </TableCell>
-                  </TableRow>
-                ))
+                    <TableCell>
+                      <Button
+                        type="button"
+                        size="sm"
+                        variant="ghost"
+                        onClick={() => toggleMachine(m.id)}
+                        className="text-muted hover:text-white text-xs"
+                      >
+                        {expandedMachine === m.id ? "Ocultar" : "Historial"}
+                      </Button>
+                    </TableCell>
+                  </TableRow>,
+                  expandedMachine === m.id && (
+                    <TableRow key={`${m.id}-maintenance`} className="border-border-dark">
+                      <TableCell colSpan={6} className="p-4 bg-white/2">
+                        <div className="space-y-3">
+                          <p className="text-sm font-medium text-white">Historial de mantenimiento</p>
+                          {/* Maintenance logs list */}
+                          <div className="space-y-2">
+                            {(maintenanceLogs[m.id] || []).map((log: MaintenanceLog) => (
+                              <div key={log.id} className="p-3 bg-white/5 rounded-lg text-sm">
+                                <p className="text-white">{log.description}</p>
+                                <div className="flex gap-4 mt-1 text-muted text-xs flex-wrap">
+                                  <span>Técnico: {log.technician}</span>
+                                  {log.cost && <span>Costo: ${Number(log.cost).toLocaleString("es-CO")}</span>}
+                                  <span>{new Date(log.created_at).toLocaleDateString("es-CO")}</span>
+                                </div>
+                              </div>
+                            ))}
+                            {(maintenanceLogs[m.id] || []).length === 0 && (
+                              <p className="text-muted text-xs">Sin registros de mantenimiento</p>
+                            )}
+                          </div>
+                          {/* Add log form */}
+                          <div className="pt-3 border-t border-border-dark space-y-2">
+                            <p className="text-muted text-xs font-medium uppercase tracking-wide">Registrar mantenimiento</p>
+                            <Input
+                              placeholder="Descripción del mantenimiento *"
+                              value={logForm.description}
+                              onChange={(e) =>
+                                setLogForm((prev) => ({ ...prev, description: e.target.value }))
+                              }
+                              className="bg-bg-deep border-border-dark text-white text-sm"
+                            />
+                            <div className="flex gap-2">
+                              <Input
+                                placeholder="Técnico *"
+                                value={logForm.technician}
+                                onChange={(e) =>
+                                  setLogForm((prev) => ({ ...prev, technician: e.target.value }))
+                                }
+                                className="bg-bg-deep border-border-dark text-white text-sm flex-1"
+                              />
+                              <Input
+                                type="number"
+                                placeholder="Costo"
+                                value={logForm.cost}
+                                onChange={(e) =>
+                                  setLogForm((prev) => ({ ...prev, cost: e.target.value }))
+                                }
+                                className="bg-bg-deep border-border-dark text-white text-sm w-32"
+                              />
+                            </div>
+                            <Button
+                              type="button"
+                              disabled={
+                                addingLog ||
+                                !logForm.description.trim() ||
+                                !logForm.technician.trim()
+                              }
+                              onClick={() => handleAddLog(m.id)}
+                              className="bg-primary text-bg-deep font-semibold text-sm hover:bg-primary/90"
+                            >
+                              {addingLog ? "Guardando..." : "Registrar"}
+                            </Button>
+                          </div>
+                        </div>
+                      </TableCell>
+                    </TableRow>
+                  ),
+                ])
               )}
             </TableBody>
           </Table>
