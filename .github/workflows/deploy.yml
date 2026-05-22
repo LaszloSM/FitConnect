@@ -35,8 +35,17 @@ jobs:
         run: cd frontend && npx playwright install --with-deps chromium
       - name: Start services
         run: docker compose up -d
+        env:
+          SECRET_KEY: ${{ secrets.SECRET_KEY }}
+          NEXTAUTH_SECRET: ${{ secrets.NEXTAUTH_SECRET }}
+          POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
       - name: Wait for services
-        run: sleep 30
+        run: |
+          for i in $(seq 1 30); do
+            curl -sf http://localhost:3000/api/health && echo "Frontend ready" && break
+            echo "Waiting... attempt $i"
+            sleep 3
+          done
       - run: cd frontend && npx playwright test
 
   deploy:
