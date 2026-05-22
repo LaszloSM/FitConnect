@@ -2,6 +2,7 @@ import uuid
 from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select, func, desc
+from sqlalchemy.exc import IntegrityError
 from typing import Optional
 
 from app.api.deps import get_tenant_db_from_token
@@ -168,11 +169,25 @@ async def enroll_member(
     if enrolled >= gym_class.max_capacity:
         raise HTTPException(status_code=400, detail="La clase está llena")
 
+    # Check for existing enrollment
+    existing_result = await db.execute(
+        select(ClassEnrollment).where(
+            ClassEnrollment.gym_class_id == class_id,
+            ClassEnrollment.member_id == payload.member_id,
+        )
+    )
+    if existing_result.scalar_one_or_none():
+        raise HTTPException(status_code=400, detail="El miembro ya está inscrito en esta clase")
+
     enrollment = ClassEnrollment(gym_class_id=class_id, member_id=payload.member_id)
-    db.add(enrollment)
-    await db.commit()
-    await db.refresh(enrollment)
-    return enrollment
+    try:
+        db.add(enrollment)
+        await db.commit()
+        await db.refresh(enrollment)
+        return enrollment
+    except IntegrityError:
+        await db.rollback()
+        raise HTTPException(status_code=400, detail="El miembro ya está inscrito en esta clase")
 
 
 @router.delete("/{class_id}/enrollments/{enrollment_id}", status_code=204)
