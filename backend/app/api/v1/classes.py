@@ -1,0 +1,195 @@
+import uuid
+from fastapi import APIRouter, Depends, HTTPException, Query
+from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy import select, func, desc
+from typing import Optional
+
+from app.api.deps import get_tenant_db_from_token
+from app.schemas.operations import (
+    GymClassCreate, GymClassUpdate, GymClassResponse,
+    ClassEnrollmentCreate, ClassEnrollmentResponse,
+    ClassEnrollmentDetailResponse, EnrollRequest,
+)
+from app.models.tenant.gym_class import GymClass
+from app.models.tenant.class_enrollment import ClassEnrollment
+from app.models.tenant.member import Member
+
+router = APIRouter(prefix="/classes", tags=["classes"])
+
+
+@router.get("", response_model=list[GymClassResponse])
+async def list_classes(
+    db: AsyncSession = Depends(get_tenant_db_from_token),
+    is_active: Optional[bool] = Query(None),
+    limit: int = Query(50, ge=1, le=100),
+    offset: int = Query(0, ge=0),
+):
+    stmt = select(GymClass)
+    if is_active is not None:
+        stmt = stmt.where(GymClass.is_active == is_active)
+    stmt = stmt.order_by(GymClass.name).limit(limit).offset(offset)
+    result = await db.execute(stmt)
+    return result.scalars().all()
+
+
+@router.post("", response_model=GymClassResponse, status_code=201)
+async def create_class(
+    payload: GymClassCreate,
+    db: AsyncSession = Depends(get_tenant_db_from_token),
+):
+    gym_class = GymClass(**payload.model_dump())
+    db.add(gym_class)
+    await db.commit()
+    await db.refresh(gym_class)
+    return gym_class
+
+
+@router.get("/{class_id}", response_model=GymClassResponse)
+async def get_class(
+    class_id: uuid.UUID,
+    db: AsyncSession = Depends(get_tenant_db_from_token),
+):
+    result = await db.execute(select(GymClass).where(GymClass.id == class_id))
+    gym_class = result.scalar_one_or_none()
+    if not gym_class:
+        raise HTTPException(status_code=404, detail="Clase no encontrada")
+    return gym_class
+
+
+@router.put("/{class_id}", response_model=GymClassResponse)
+async def update_class(
+    class_id: uuid.UUID,
+    payload: GymClassUpdate,
+    db: AsyncSession = Depends(get_tenant_db_from_token),
+):
+    result = await db.execute(select(GymClass).where(GymClass.id == class_id))
+    gym_class = result.scalar_one_or_none()
+    if not gym_class:
+        raise HTTPException(status_code=404, detail="Clase no encontrada")
+    for field, value in payload.model_dump(exclude_unset=True).items():
+        setattr(gym_class, field, value)
+    await db.commit()
+    await db.refresh(gym_class)
+    return gym_class
+
+
+@router.delete("/{class_id}", status_code=204)
+async def delete_class(
+    class_id: uuid.UUID,
+    db: AsyncSession = Depends(get_tenant_db_from_token),
+):
+    result = await db.execute(select(GymClass).where(GymClass.id == class_id))
+    gym_class = result.scalar_one_or_none()
+    if not gym_class:
+        raise HTTPException(status_code=404, detail="Clase no encontrada")
+    await db.delete(gym_class)
+    await db.commit()
+    return None
+
+
+# ─── Enrollments ───
+@router.get("/{class_id}/enrollments", response_model=list[ClassEnrollmentDetailResponse])
+async def list_enrollments(
+    class_id: uuid.UUID,
+    db: AsyncSession = Depends(get_tenant_db_from_token),
+):
+    result = await db.execute(
+        select(ClassEnrollment, Member)
+        .join(Member, ClassEnrollment.member_id == Member.id)
+        .where(ClassEnrollment.gym_class_id == class_id)
+    )
+    rows = result.all()
+    return [
+        ClassEnrollmentDetailResponse(
+            id=enrollment.id,
+            member_id=enrollment.member_id,
+            member_name=member.full_name,
+            member_email=member.email,
+        )
+        for enrollment, member in rows
+    ]
+
+
+@router.post("/{class_id}/enrollments", response_model=ClassEnrollmentResponse, status_code=201)
+async def create_enrollment(
+    class_id: uuid.UUID,
+    payload: ClassEnrollmentCreate,
+    db: AsyncSession = Depends(get_tenant_db_from_token),
+):
+    # Verify class exists
+    class_result = await db.execute(select(GymClass).where(GymClass.id == class_id))
+    gym_class = class_result.scalar_one_or_none()
+    if not gym_class:
+        raise HTTPException(status_code=404, detail="Clase no encontrada")
+    # Verify member exists
+    member_result = await db.execute(select(Member).where(Member.id == payload.member_id))
+    if not member_result.scalar_one_or_none():
+        raise HTTPException(status_code=404, detail="Miembro no encontrado")
+    # Check capacity
+    count_result = await db.execute(
+        select(func.count())
+        .select_from(ClassEnrollment)
+        .where(ClassEnrollment.gym_class_id == class_id)
+    )
+    enrolled = count_result.scalar() or 0
+    if enrolled >= gym_class.max_capacity:
+        raise HTTPException(status_code=400, detail="Clase llena")
+
+    enrollment = ClassEnrollment(gym_class_id=class_id, member_id=payload.member_id)
+    db.add(enrollment)
+    await db.commit()
+    await db.refresh(enrollment)
+    return enrollment
+
+
+@router.post("/{class_id}/enroll", response_model=ClassEnrollmentResponse, status_code=201)
+async def enroll_member(
+    class_id: uuid.UUID,
+    payload: EnrollRequest,
+    db: AsyncSession = Depends(get_tenant_db_from_token),
+):
+    """Shorthand enroll endpoint — accepts only member_id in body."""
+    # Verify class exists and has capacity
+    class_result = await db.execute(select(GymClass).where(GymClass.id == class_id))
+    gym_class = class_result.scalar_one_or_none()
+    if not gym_class:
+        raise HTTPException(status_code=404, detail="Clase no encontrada")
+    # Verify member exists
+    member_result = await db.execute(select(Member).where(Member.id == payload.member_id))
+    if not member_result.scalar_one_or_none():
+        raise HTTPException(status_code=404, detail="Miembro no encontrado")
+    # Check capacity
+    count_result = await db.execute(
+        select(func.count())
+        .select_from(ClassEnrollment)
+        .where(ClassEnrollment.gym_class_id == class_id)
+    )
+    enrolled = count_result.scalar() or 0
+    if enrolled >= gym_class.max_capacity:
+        raise HTTPException(status_code=400, detail="La clase está llena")
+
+    enrollment = ClassEnrollment(gym_class_id=class_id, member_id=payload.member_id)
+    db.add(enrollment)
+    await db.commit()
+    await db.refresh(enrollment)
+    return enrollment
+
+
+@router.delete("/{class_id}/enrollments/{enrollment_id}", status_code=204)
+async def delete_enrollment(
+    class_id: uuid.UUID,
+    enrollment_id: uuid.UUID,
+    db: AsyncSession = Depends(get_tenant_db_from_token),
+):
+    result = await db.execute(
+        select(ClassEnrollment).where(
+            ClassEnrollment.id == enrollment_id,
+            ClassEnrollment.gym_class_id == class_id,
+        )
+    )
+    enrollment = result.scalar_one_or_none()
+    if not enrollment:
+        raise HTTPException(status_code=404, detail="Inscripcion no encontrada")
+    await db.delete(enrollment)
+    await db.commit()
+    return None
