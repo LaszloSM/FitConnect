@@ -1,70 +1,75 @@
-import uuid
 import re
-from fastapi import APIRouter, Depends, HTTPException, status
+import uuid
+from fastapi import APIRouter, Depends, HTTPException, Request
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
 
-from app.db.session import get_db
-from app.models.tenant import Tenant, SubscriptionPlan
-from app.models.user import User, UserRole
 from app.core.security import hash_password, verify_password, create_access_token
-from app.schemas.auth import RegisterRequest, LoginRequest, TokenResponse, RegisterResponse
+from app.core.rate_limit import limiter
+from app.db.master_session import get_master_db
+from app.models.master.owner import Owner
+from app.models.master.tenant import Tenant
+from app.schemas.auth import RegisterRequest, LoginRequest, TokenResponse
+from app.services.tenant_service import create_tenant
 
 router = APIRouter(prefix="/auth", tags=["auth"])
 
 
-def slugify(name: str) -> str:
-    slug = re.sub(r"[^a-z0-9]+", "-", name.lower()).strip("-")
-    return f"{slug}-{uuid.uuid4().hex[:6]}"
-
-
-@router.post("/register", status_code=201, response_model=RegisterResponse)
-async def register(payload: RegisterRequest, db: AsyncSession = Depends(get_db)):
-    result = await db.execute(select(User).where(User.email == payload.email))
+@router.post("/register", status_code=201)
+@limiter.limit("5/minute")
+async def register(request: Request, payload: RegisterRequest, db: AsyncSession = Depends(get_master_db)):
+    # Verificar email único en Master DB
+    result = await db.execute(select(Owner).where(Owner.email == payload.email))
     if result.scalar_one_or_none():
         raise HTTPException(status_code=400, detail="Email ya registrado")
-
-    tenant = Tenant(
-        name=payload.gym_name,
-        slug=slugify(payload.gym_name),
-        plan=SubscriptionPlan.basic,
+    
+    # Crear tenant completo (Master DB + Tenant DB física + Alembic + UserStaff owner)
+    tenant = await create_tenant(
+        owner_email=payload.email,
+        gym_name=payload.gym_name,
+        city=payload.city,
+        owner_full_name=payload.full_name,
+        password=payload.password,
     )
-    db.add(tenant)
-    await db.flush()
-
-    user = User(
-        tenant_id=tenant.id,
-        email=payload.email,
-        hashed_password=hash_password(payload.password),
-        full_name=payload.full_name,
-        role=UserRole.owner,
-        email_verified=False,
-    )
-    db.add(user)
-    await db.commit()
-    await db.refresh(user)
-
-    return {"email": user.email, "role": user.role, "tenant_id": str(tenant.id)}
+    
+    return {
+        "email": payload.email,
+        "role": "owner",
+        "tenant_id": str(tenant.id),
+        "db_name": tenant.db_name,
+    }
 
 
 @router.post("/login", response_model=TokenResponse)
-async def login(payload: LoginRequest, db: AsyncSession = Depends(get_db)):
-    result = await db.execute(select(User).where(User.email == payload.email))
-    user = result.scalar_one_or_none()
-
-    if not user or not verify_password(payload.password, user.hashed_password):
-        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Credenciales incorrectas")
-    if not user.is_active:
-        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Cuenta desactivada")
-
+@limiter.limit("10/minute")
+async def login(request: Request, payload: LoginRequest, db: AsyncSession = Depends(get_master_db)):
+    result = await db.execute(select(Owner).where(Owner.email == payload.email))
+    owner = result.scalar_one_or_none()
+    
+    if not owner or not verify_password(payload.password, owner.hashed_password):
+        raise HTTPException(status_code=401, detail="Credenciales incorrectas")
+    if not owner.is_active:
+        raise HTTPException(status_code=401, detail="Cuenta desactivada")
+    
+    # Buscar tenant asociado
+    if not owner.tenant_id:
+        raise HTTPException(status_code=400, detail="Owner no tiene gym asignado")
+    
+    tenant_result = await db.execute(select(Tenant).where(Tenant.id == owner.tenant_id))
+    tenant = tenant_result.scalar_one_or_none()
+    if not tenant:
+        raise HTTPException(status_code=404, detail="Gym no encontrado")
+    
     token = create_access_token(
-        user_id=str(user.id),
-        tenant_id=str(user.tenant_id),
-        role=user.role,
+        owner_id=str(owner.id),
+        tenant_id=str(tenant.id),
+        db_name=tenant.db_name,
+        role="owner",
     )
     return TokenResponse(
         access_token=token,
-        role=user.role,
-        tenant_id=str(user.tenant_id),
-        full_name=user.full_name,
+        role="owner",
+        tenant_id=str(tenant.id),
+        db_name=tenant.db_name,
+        full_name=owner.full_name,
     )
