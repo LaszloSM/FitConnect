@@ -7,7 +7,6 @@ from app.api.deps import (
     get_master_tenant,
     get_master_db,
     get_tenant_db_from_token,
-    require_role,
 )
 from app.core.security import hash_password, verify_password
 from app.models.master.tenant import Tenant
@@ -95,7 +94,6 @@ async def get_gym_settings(
 @router.patch("/gym", response_model=GymSettingsResponse)
 async def update_gym_settings(
     payload: GymSettingsUpdate,
-    current_user: UserStaff = Depends(require_role(UserRole.owner)),
     tenant: Tenant = Depends(get_master_tenant),
     master_db: AsyncSession = Depends(get_master_db),
 ) -> GymSettingsResponse:
