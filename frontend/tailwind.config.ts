@@ -42,8 +42,7 @@ const config: Config = {
       boxShadow: {
         card: "0 1px 3px 0 rgb(0 0 0 / 0.08), 0 1px 2px -1px rgb(0 0 0 / 0.06)",
         "card-hover": "0 4px 6px -1px rgb(0 0 0 / 0.08), 0 2px 4px -2px rgb(0 0 0 / 0.06)",
-        "card-dark": "0 1px 3px 0 rgb(0 0 0 / 0.3), 0 1px 2px -1px rgb(0 0 0 / 0.2)",
-        glow: "0 0 20px oklch(0.70 0.20 47 / 0.25)",
+glow: "0 0 20px oklch(0.70 0.20 47 / 0.25)",
         "glow-lg": "0 0 40px oklch(0.70 0.20 47 / 0.30)",
         "glow-sm": "0 0 12px oklch(0.70 0.20 47 / 0.20)",
       },
