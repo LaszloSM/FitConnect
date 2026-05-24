@@ -9,11 +9,20 @@ import { motion } from "framer-motion";
 import { GlassCard } from "@/components/common/GlassCard";
 import { PageHeader } from "@/components/common/PageHeader";
 import { EmptyState } from "@/components/common/EmptyState";
+import { QRCodeDisplay } from "@/components/common/QRCodeDisplay";
+import { PARQForm } from "@/components/common/PARQForm";
 import { apiClient } from "@/lib/api";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import { PhoneInput } from "@/components/ui/phone-input";
+import { DatePicker } from "@/components/ui/date-picker";
+import { IdTypeSelect } from "@/components/ui/id-type-select";
+import { BloodTypeSelect } from "@/components/ui/blood-type-select";
+import { FileUpload } from "@/components/ui/file-upload";
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import {
   Table,
@@ -23,16 +32,27 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { Plus, Search, Pencil, Trash2, AlertCircle } from "lucide-react";
+import { Plus, Search, Pencil, Trash2, AlertCircle, QrCode, X } from "lucide-react";
 
 const memberSchema = z.object({
   full_name: z.string().min(2, "Nombre demasiado corto"),
   email: z.string().email("Email inválido"),
   phone: z.string().optional(),
   id_number: z.string().optional(),
+  id_type: z.enum(["CC", "NIT", "CE", "PP", "TI"]).optional(),
   birth_date: z.string().optional(),
   status: z.enum(["active", "inactive"]),
   notes: z.string().optional(),
+  gender: z.enum(["M", "F", "other"]).optional(),
+  address: z.string().optional(),
+  city: z.string().optional(),
+  emergency_contact_name: z.string().optional(),
+  emergency_contact_phone: z.string().optional(),
+  blood_type: z.string().optional(),
+  photo_url: z.string().optional(),
+  parq_answers: z.record(z.boolean()).optional(),
+  parq_completed_at: z.string().optional(),
+  training_goal: z.enum(["weight_loss", "muscle_gain", "endurance", "flexibility", "general_fitness"]).optional(),
 });
 
 interface Member {
@@ -41,16 +61,86 @@ interface Member {
   email: string;
   phone: string | null;
   id_number: string | null;
+  id_type: string | null;
   birth_date: string | null;
   status: string;
   notes: string | null;
   created_at: string;
+  gender: string | null;
+  address: string | null;
+  city: string | null;
+  emergency_contact_name: string | null;
+  emergency_contact_phone: string | null;
+  blood_type: string | null;
+  photo_url: string | null;
+  parq_answers: Record<string, boolean> | null;
+  parq_completed_at: string | null;
+  training_goal: string | null;
+  qr_code: string | null;
 }
 
 const inputCls =
   "bg-[var(--bg-base)] border-[var(--border-base)] text-[var(--text-base)] placeholder:text-[var(--text-muted)]";
 const selectCls =
   "w-full h-9 rounded-md border border-[var(--border-base)] bg-[var(--bg-base)] px-3 py-1 text-sm text-[var(--text-base)]";
+
+const TRAINING_GOALS = [
+  { value: "weight_loss", label: "Pérdida de peso" },
+  { value: "muscle_gain", label: "Ganancia muscular" },
+  { value: "endurance", label: "Resistencia" },
+  { value: "flexibility", label: "Flexibilidad" },
+  { value: "general_fitness", label: "Condición física general" },
+];
+
+function calcAge(birthDate: string): number | null {
+  if (!birthDate) return null;
+  const today = new Date();
+  const birth = new Date(birthDate);
+  let age = today.getFullYear() - birth.getFullYear();
+  const m = today.getMonth() - birth.getMonth();
+  if (m < 0 || (m === 0 && today.getDate() < birth.getDate())) age--;
+  return age;
+}
+
+type FormState = {
+  full_name: string;
+  email: string;
+  phone: string;
+  id_number: string;
+  id_type: string;
+  birth_date: string;
+  status: string;
+  notes: string;
+  gender: string;
+  address: string;
+  city: string;
+  emergency_contact_name: string;
+  emergency_contact_phone: string;
+  blood_type: string;
+  photo_url: string;
+  parq_answers: Record<string, boolean>;
+  training_goal: string;
+};
+
+const emptyForm: FormState = {
+  full_name: "",
+  email: "",
+  phone: "",
+  id_number: "",
+  id_type: "",
+  birth_date: "",
+  status: "active",
+  notes: "",
+  gender: "",
+  address: "",
+  city: "",
+  emergency_contact_name: "",
+  emergency_contact_phone: "",
+  blood_type: "",
+  photo_url: "",
+  parq_answers: {},
+  training_goal: "",
+};
 
 export default function MembersClient() {
   const { data: session } = useSession();
@@ -63,16 +153,9 @@ export default function MembersClient() {
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editing, setEditing] = useState<Member | null>(null);
   const [submitting, setSubmitting] = useState(false);
-  const [form, setForm] = useState({
-    full_name: "",
-    email: "",
-    phone: "",
-    id_number: "",
-    birth_date: "",
-    status: "active",
-    notes: "",
-  });
+  const [form, setForm] = useState<FormState>(emptyForm);
   const [deleteId, setDeleteId] = useState<string | null>(null);
+  const [qrMember, setQrMember] = useState<Member | null>(null);
 
   const fetchMembers = async () => {
     if (!session?.accessToken) return;
@@ -83,8 +166,9 @@ export default function MembersClient() {
       });
       setMembers(res.data);
       setError("");
-    } catch (err: any) { // eslint-disable-line @typescript-eslint/no-explicit-any
-      setError((err as any).response?.data?.detail || "Error cargando miembros"); // eslint-disable-line @typescript-eslint/no-explicit-any
+    } catch (err: unknown) {
+      const e = err as { response?: { data?: { detail?: string } } };
+      setError(e.response?.data?.detail || "Error cargando miembros");
     } finally {
       setLoading(false);
     }
@@ -99,8 +183,9 @@ export default function MembersClient() {
       params: { q: search, ...(statusFilter ? { status: statusFilter } : {}) },
     }).then((res) => {
       if (!cancelled) { setMembers(res.data); setError(""); }
-    }).catch((err: any) => { // eslint-disable-line @typescript-eslint/no-explicit-any
-      if (!cancelled) setError((err as any).response?.data?.detail || "Error cargando miembros"); // eslint-disable-line @typescript-eslint/no-explicit-any
+    }).catch((err: unknown) => {
+      const e = err as { response?: { data?: { detail?: string } } };
+      if (!cancelled) setError(e.response?.data?.detail || "Error cargando miembros");
     }).finally(() => {
       if (!cancelled) setLoading(false);
     });
@@ -108,7 +193,7 @@ export default function MembersClient() {
   }, [session, search, statusFilter]);
 
   const resetForm = () => {
-    setForm({ full_name: "", email: "", phone: "", id_number: "", birth_date: "", status: "active", notes: "" });
+    setForm(emptyForm);
     setEditing(null);
   };
 
@@ -116,9 +201,23 @@ export default function MembersClient() {
   const openEdit = (member: Member) => {
     setEditing(member);
     setForm({
-      full_name: member.full_name, email: member.email, phone: member.phone || "",
-      id_number: member.id_number || "", birth_date: member.birth_date || "",
-      status: member.status, notes: member.notes || "",
+      full_name: member.full_name,
+      email: member.email,
+      phone: member.phone || "",
+      id_number: member.id_number || "",
+      id_type: member.id_type || "",
+      birth_date: member.birth_date || "",
+      status: member.status,
+      notes: member.notes || "",
+      gender: member.gender || "",
+      address: member.address || "",
+      city: member.city || "",
+      emergency_contact_name: member.emergency_contact_name || "",
+      emergency_contact_phone: member.emergency_contact_phone || "",
+      blood_type: member.blood_type || "",
+      photo_url: member.photo_url || "",
+      parq_answers: member.parq_answers || {},
+      training_goal: member.training_goal || "",
     });
     setDialogOpen(true);
   };
@@ -126,17 +225,28 @@ export default function MembersClient() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!session?.accessToken) return;
-    const validation = memberSchema.safeParse(form);
+
+    const payload = {
+      ...form,
+      id_type: form.id_type || undefined,
+      gender: form.gender || undefined,
+      blood_type: form.blood_type || undefined,
+      training_goal: form.training_goal || undefined,
+      parq_completed_at: Object.keys(form.parq_answers).length > 0 ? new Date().toISOString() : undefined,
+    };
+
+    const validation = memberSchema.safeParse(payload);
     if (!validation.success) { toast.error(validation.error.issues[0].message); return; }
     setSubmitting(true);
     const client = apiClient(session.accessToken as string);
     try {
-      if (editing) { await client.put(`/api/v1/members/${editing.id}`, form); }
-      else { await client.post("/api/v1/members", form); }
+      if (editing) { await client.put(`/api/v1/members/${editing.id}`, payload); }
+      else { await client.post("/api/v1/members", payload); }
       toast.success(editing ? "Miembro actualizado" : "Miembro creado");
       setDialogOpen(false); resetForm(); fetchMembers();
-    } catch (err: any) { // eslint-disable-line @typescript-eslint/no-explicit-any
-      const detail = (err as any).response?.data?.detail; // eslint-disable-line @typescript-eslint/no-explicit-any
+    } catch (err: unknown) {
+      const e = err as { response?: { data?: { detail?: string | Array<{ msg: string }> } } };
+      const detail = e.response?.data?.detail;
       toast.error(typeof detail === "string" ? detail : Array.isArray(detail) ? detail[0]?.msg : "Error guardando miembro");
     } finally { setSubmitting(false); }
   };
@@ -148,11 +258,14 @@ export default function MembersClient() {
       await client.delete(`/api/v1/members/${id}`);
       toast.success("Miembro eliminado correctamente");
       setDeleteId(null); fetchMembers();
-    } catch (err: any) { // eslint-disable-line @typescript-eslint/no-explicit-any
-      const detail = (err as any).response?.data?.detail; // eslint-disable-line @typescript-eslint/no-explicit-any
+    } catch (err: unknown) {
+      const e = err as { response?: { data?: { detail?: string | Array<{ msg: string }> } } };
+      const detail = e.response?.data?.detail;
       toast.error(typeof detail === "string" ? detail : Array.isArray(detail) ? detail[0]?.msg : "Error eliminando");
     }
   };
+
+  const age = form.birth_date ? calcAge(form.birth_date) : null;
 
   return (
     <motion.div
@@ -176,47 +289,154 @@ export default function MembersClient() {
             />
           }
         />
-        <DialogContent className="bg-[var(--bg-card)] border border-[var(--border-base)] text-[var(--text-base)] max-w-lg">
+        <DialogContent className="bg-[var(--bg-card)] border border-[var(--border-base)] text-[var(--text-base)] sm:max-w-2xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle className="text-[var(--text-base)] font-display">
               {editing ? "Editar miembro" : "Nuevo miembro"}
             </DialogTitle>
           </DialogHeader>
-          <form onSubmit={handleSubmit} className="space-y-4 mt-2">
-            <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label htmlFor="full_name" className="text-[var(--text-muted)] text-sm">Nombre completo</Label>
-                <Input id="full_name" value={form.full_name} onChange={(e) => setForm({ ...form, full_name: e.target.value })} required className={inputCls} />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="email" className="text-[var(--text-muted)] text-sm">Email</Label>
-                <Input id="email" type="email" value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} required className={inputCls} />
-              </div>
-              <div className="space-y-2">
-                <Label className="text-[var(--text-muted)] text-sm">Teléfono</Label>
-                <Input value={form.phone} onChange={(e) => setForm({ ...form, phone: e.target.value })} className={inputCls} />
-              </div>
-              <div className="space-y-2">
-                <Label className="text-[var(--text-muted)] text-sm">Documento</Label>
-                <Input value={form.id_number} onChange={(e) => setForm({ ...form, id_number: e.target.value })} className={inputCls} />
-              </div>
-              <div className="space-y-2">
-                <Label className="text-[var(--text-muted)] text-sm">Fecha nacimiento</Label>
-                <Input type="date" value={form.birth_date} onChange={(e) => setForm({ ...form, birth_date: e.target.value })} className={inputCls} />
-              </div>
-              <div className="space-y-2">
-                <Label className="text-[var(--text-muted)] text-sm">Estado</Label>
-                <select value={form.status} onChange={(e) => setForm({ ...form, status: e.target.value })} className={selectCls}>
-                  <option value="active">Activo</option>
-                  <option value="inactive">Inactivo</option>
-                </select>
-              </div>
-            </div>
-            <div className="space-y-2">
-              <Label className="text-[var(--text-muted)] text-sm">Notas</Label>
-              <Input value={form.notes} onChange={(e) => setForm({ ...form, notes: e.target.value })} className={inputCls} />
-            </div>
-            <div className="flex justify-end gap-2 pt-2">
+          <form onSubmit={handleSubmit} className="mt-2">
+            <Tabs defaultValue="personal">
+              <TabsList>
+                <TabsTrigger value="personal">Personal</TabsTrigger>
+                <TabsTrigger value="salud">Salud</TabsTrigger>
+                <TabsTrigger value="membresia">Membresía</TabsTrigger>
+              </TabsList>
+
+              {/* TAB PERSONAL */}
+              <TabsContent value="personal" className="space-y-4">
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label className="text-[var(--text-muted)] text-sm">Tipo de documento</Label>
+                    <IdTypeSelect
+                      value={form.id_type}
+                      onChange={(v) => setForm({ ...form, id_type: v || "" })}
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label className="text-[var(--text-muted)] text-sm">Número de documento</Label>
+                    <Input value={form.id_number} onChange={(e) => setForm({ ...form, id_number: e.target.value })} className={inputCls} />
+                  </div>
+                  <div className="space-y-2 col-span-2">
+                    <Label htmlFor="full_name" className="text-[var(--text-muted)] text-sm">Nombre completo *</Label>
+                    <Input id="full_name" value={form.full_name} onChange={(e) => setForm({ ...form, full_name: e.target.value })} required className={inputCls} />
+                  </div>
+                  <div className="space-y-2 col-span-2">
+                    <Label className="text-[var(--text-muted)] text-sm">Género</Label>
+                    <div className="flex gap-3">
+                      {[{ value: "M", label: "Masculino" }, { value: "F", label: "Femenino" }, { value: "other", label: "Otro" }].map((g) => (
+                        <label key={g.value} className={cn(
+                          "flex items-center gap-2 cursor-pointer rounded-md px-3 py-1.5 text-sm font-medium border transition-colors select-none",
+                          form.gender === g.value
+                            ? "bg-orange-500/10 border-orange-500/40 text-orange-600 dark:text-orange-400"
+                            : "border-[var(--border-base)] text-[var(--text-muted)] hover:border-orange-400"
+                        )}>
+                          <input type="radio" name="gender" value={g.value} checked={form.gender === g.value} onChange={() => setForm({ ...form, gender: g.value })} className="sr-only" />
+                          {g.label}
+                        </label>
+                      ))}
+                    </div>
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="email" className="text-[var(--text-muted)] text-sm">Email *</Label>
+                    <Input id="email" type="email" value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} required className={inputCls} />
+                  </div>
+                  <div className="space-y-2">
+                    <Label className="text-[var(--text-muted)] text-sm">Teléfono</Label>
+                    <PhoneInput value={form.phone} onChange={(v) => setForm({ ...form, phone: v })} />
+                  </div>
+                  <div className="space-y-2">
+                    <Label className="text-[var(--text-muted)] text-sm">Fecha de nacimiento</Label>
+                    <DatePicker
+                      value={form.birth_date ? new Date(form.birth_date + "T12:00:00") : undefined}
+                      onChange={(d) => setForm({ ...form, birth_date: d.toISOString().split("T")[0] })}
+                      placeholder="Seleccionar fecha"
+                    />
+                    {age !== null && (
+                      <p className="text-xs text-[var(--text-muted)]">{age} años</p>
+                    )}
+                  </div>
+                  <div className="space-y-2">
+                    <Label className="text-[var(--text-muted)] text-sm">Ciudad</Label>
+                    <Input value={form.city} onChange={(e) => setForm({ ...form, city: e.target.value })} className={inputCls} />
+                  </div>
+                  <div className="space-y-2 col-span-2">
+                    <Label className="text-[var(--text-muted)] text-sm">Dirección</Label>
+                    <Input value={form.address} onChange={(e) => setForm({ ...form, address: e.target.value })} className={inputCls} />
+                  </div>
+                  <div className="col-span-2 space-y-2">
+                    <Label className="text-[var(--text-muted)] text-sm">Foto del miembro</Label>
+                    <FileUpload
+                      value={form.photo_url || undefined}
+                      onChange={(file) => {
+                        if (file) {
+                          const url = URL.createObjectURL(file);
+                          setForm({ ...form, photo_url: url });
+                        } else {
+                          setForm({ ...form, photo_url: "" });
+                        }
+                      }}
+                      shape="rect"
+                    />
+                  </div>
+                </div>
+              </TabsContent>
+
+              {/* TAB SALUD */}
+              <TabsContent value="salud" className="space-y-4">
+                <PARQForm
+                  value={form.parq_answers}
+                  onChange={(answers) => setForm({ ...form, parq_answers: answers })}
+                />
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label className="text-[var(--text-muted)] text-sm">Grupo sanguíneo</Label>
+                    <BloodTypeSelect
+                      value={form.blood_type}
+                      onChange={(v) => setForm({ ...form, blood_type: v || "" })}
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label className="text-[var(--text-muted)] text-sm">Objetivo de entrenamiento</Label>
+                    <select value={form.training_goal} onChange={(e) => setForm({ ...form, training_goal: e.target.value })} className={selectCls}>
+                      <option value="">Sin objetivo</option>
+                      {TRAINING_GOALS.map((g) => (
+                        <option key={g.value} value={g.value}>{g.label}</option>
+                      ))}
+                    </select>
+                  </div>
+                  <div className="space-y-2">
+                    <Label className="text-[var(--text-muted)] text-sm">Contacto de emergencia</Label>
+                    <Input value={form.emergency_contact_name} onChange={(e) => setForm({ ...form, emergency_contact_name: e.target.value })} placeholder="Nombre" className={inputCls} />
+                  </div>
+                  <div className="space-y-2">
+                    <Label className="text-[var(--text-muted)] text-sm">Teléfono emergencia</Label>
+                    <PhoneInput value={form.emergency_contact_phone} onChange={(v) => setForm({ ...form, emergency_contact_phone: v })} />
+                  </div>
+                </div>
+              </TabsContent>
+
+              {/* TAB MEMBRESÍA */}
+              <TabsContent value="membresia" className="space-y-4">
+                <div className="space-y-2">
+                  <Label className="text-[var(--text-muted)] text-sm">Estado</Label>
+                  <select value={form.status} onChange={(e) => setForm({ ...form, status: e.target.value })} className={selectCls}>
+                    <option value="active">Activo</option>
+                    <option value="inactive">Inactivo</option>
+                  </select>
+                </div>
+                <div className="space-y-2">
+                  <Label className="text-[var(--text-muted)] text-sm">Notas</Label>
+                  <Textarea
+                    value={form.notes}
+                    onChange={(e) => setForm({ ...form, notes: e.target.value })}
+                    placeholder="Notas adicionales sobre el miembro..."
+                  />
+                </div>
+              </TabsContent>
+            </Tabs>
+
+            <div className="flex justify-end gap-2 pt-4 mt-2 border-t border-[var(--border-base)]">
               <Button type="button" variant="ghost" onClick={() => setDialogOpen(false)} className="text-[var(--text-muted)]">Cancelar</Button>
               <Button type="submit" disabled={submitting} className="bg-orange-500 text-white font-semibold hover:bg-orange-600">
                 {submitting ? "Guardando..." : (editing ? "Guardar cambios" : "Crear miembro")}
@@ -272,6 +492,7 @@ export default function MembersClient() {
                 <TableHead className="text-[var(--text-muted)]">Documento</TableHead>
                 <TableHead className="text-[var(--text-muted)]">Estado</TableHead>
                 <TableHead className="text-[var(--text-muted)]">Fecha Registro</TableHead>
+                <TableHead className="text-[var(--text-muted)]">QR</TableHead>
                 <TableHead className="text-[var(--text-muted)] text-right">Acciones</TableHead>
               </TableRow>
             </TableHeader>
@@ -279,14 +500,14 @@ export default function MembersClient() {
               {loading ? (
                 Array.from({ length: 5 }).map((_, i) => (
                   <TableRow key={i} className="border-[var(--border-base)]">
-                    {Array.from({ length: 7 }).map((_, j) => (
+                    {Array.from({ length: 8 }).map((_, j) => (
                       <TableCell key={j}><div className="skeleton h-4 rounded" /></TableCell>
                     ))}
                   </TableRow>
                 ))
               ) : members.length === 0 ? (
                 <TableRow>
-                  <TableCell colSpan={7}>
+                  <TableCell colSpan={8}>
                     <EmptyState
                       title="Sin miembros"
                       description="Crea tu primer miembro para comenzar"
@@ -308,15 +529,23 @@ export default function MembersClient() {
                   >
                     <TableCell className="text-[var(--text-base)] font-medium">
                       <div className="flex items-center gap-2">
-                        <span className="h-7 w-7 rounded-full bg-orange-500 text-white text-xs font-bold flex items-center justify-center shrink-0">
-                          {(m.full_name?.[0] ?? "?").toUpperCase()}
-                        </span>
+                        {m.photo_url ? (
+                          // eslint-disable-next-line @next/next/no-img-element
+                          <img src={m.photo_url} alt={m.full_name} className="h-7 w-7 rounded-full object-cover shrink-0" />
+                        ) : (
+                          <span className="h-7 w-7 rounded-full bg-orange-500 text-white text-xs font-bold flex items-center justify-center shrink-0">
+                            {(m.full_name?.[0] ?? "?").toUpperCase()}
+                          </span>
+                        )}
                         {m.full_name}
                       </div>
                     </TableCell>
                     <TableCell className="text-[var(--text-muted)]">{m.email}</TableCell>
                     <TableCell className="text-[var(--text-muted)]">{m.phone || "-"}</TableCell>
-                    <TableCell className="text-[var(--text-muted)]">{m.id_number || "-"}</TableCell>
+                    <TableCell className="text-[var(--text-muted)]">
+                      {m.id_type && <span className="text-xs font-medium text-orange-500 mr-1">{m.id_type}</span>}
+                      {m.id_number || "-"}
+                    </TableCell>
                     <TableCell>
                       <span className={cn(
                         "inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium",
@@ -329,6 +558,21 @@ export default function MembersClient() {
                     </TableCell>
                     <TableCell className="text-[var(--text-muted)] text-sm">
                       {new Date(m.created_at).toLocaleDateString("es-ES")}
+                    </TableCell>
+                    <TableCell>
+                      {m.qr_code ? (
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="text-[var(--text-muted)] hover:text-orange-500"
+                          onClick={(e) => { e.stopPropagation(); setQrMember(m); }}
+                          title="Ver QR"
+                        >
+                          <QrCode className="h-4 w-4" />
+                        </Button>
+                      ) : (
+                        <span className="text-[var(--text-muted)] text-xs">-</span>
+                      )}
                     </TableCell>
                     <TableCell className="text-right">
                       <div className="flex items-center justify-end gap-2">
@@ -357,6 +601,23 @@ export default function MembersClient() {
           </Table>
         </div>
       </GlassCard>
+
+      {/* QR Popover */}
+      {qrMember && qrMember.qr_code && (
+        <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50" onClick={() => setQrMember(null)}>
+          <div className="relative" onClick={(e) => e.stopPropagation()}>
+            <Button
+              variant="ghost"
+              size="icon"
+              className="absolute -top-3 -right-3 z-10 bg-[var(--bg-card)] border border-[var(--border-base)] rounded-full h-7 w-7 text-[var(--text-muted)] hover:text-[var(--text-base)] shadow-md"
+              onClick={() => setQrMember(null)}
+            >
+              <X className="h-3.5 w-3.5" />
+            </Button>
+            <QRCodeDisplay qrCode={qrMember.qr_code} memberName={qrMember.full_name} />
+          </div>
+        </div>
+      )}
 
       {deleteId && (
         <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50" onClick={() => setDeleteId(null)}>

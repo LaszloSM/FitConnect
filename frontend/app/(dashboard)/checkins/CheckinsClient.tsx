@@ -7,10 +7,14 @@ import { motion } from "framer-motion";
 import { GlassCard } from "@/components/common/GlassCard";
 import { PageHeader } from "@/components/common/PageHeader";
 import { EmptyState } from "@/components/common/EmptyState";
+import { MembershipStatusBadge } from "@/components/common/MembershipStatusBadge";
 import MemberSelect from "@/components/common/MemberSelect";
+import { Alert } from "@/components/ui/alert";
+import { Textarea } from "@/components/ui/textarea";
 import { apiClient } from "@/lib/api";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
   Table,
@@ -20,7 +24,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { Activity, AlertCircle, LogIn, LogOut } from "lucide-react";
+import { Activity, AlertCircle, LogIn, LogOut, QrCode } from "lucide-react";
 import { toast } from "sonner";
 import { formatDistanceToNow } from "date-fns";
 import { es } from "date-fns/locale";
@@ -32,6 +36,11 @@ interface CheckIn {
   type: string;
   notes: string | null;
   created_at: string;
+}
+
+interface MemberMembership {
+  status: "ok" | "expired" | "no_membership";
+  end_date?: string;
 }
 
 type TypeFilter = "" | "entry" | "exit";
@@ -53,7 +62,13 @@ export default function CheckinsClient() {
   const [typeFilter, setTypeFilter] = useState<TypeFilter>("");
   const [memberId, setMemberId] = useState("");
   const [type, setType] = useState("entry");
+  const [notes, setNotes] = useState("");
   const [submitting, setSubmitting] = useState(false);
+  const [membershipStatus, setMembershipStatus] = useState<MemberMembership | null>(null);
+  const [membershipLoading, setMembershipLoading] = useState(false);
+  const [showQrInput, setShowQrInput] = useState(false);
+  const [qrCode, setQrCode] = useState("");
+  const [submittingQr, setSubmittingQr] = useState(false);
 
   const fetchCheckins = async () => {
     if (!session?.accessToken) return;
@@ -95,15 +110,53 @@ export default function CheckinsClient() {
     return () => { cancelled = true; };
   }, [session]);
 
+  // Fetch membership status when member changes
+  useEffect(() => {
+    if (!memberId || !session?.accessToken) {
+      setMembershipStatus(null);
+      return;
+    }
+    setMembershipLoading(true);
+    const client = apiClient(session.accessToken as string);
+    client
+      .get(`/api/v1/members/${memberId}/memberships`)
+      .then((res) => {
+        // The API might return an array or an object; normalize
+        const data = res.data;
+        if (Array.isArray(data) && data.length > 0) {
+          const latest = data[0];
+          const now = new Date();
+          const end = latest.end_date ? new Date(latest.end_date) : null;
+          const status: MemberMembership = {
+            status: !end ? "ok" : end < now ? "expired" : "ok",
+            end_date: latest.end_date,
+          };
+          setMembershipStatus(status);
+        } else if (Array.isArray(data) && data.length === 0) {
+          setMembershipStatus({ status: "no_membership" });
+        } else if (data?.status) {
+          setMembershipStatus(data as MemberMembership);
+        } else {
+          setMembershipStatus(null);
+        }
+      })
+      .catch(() => {
+        setMembershipStatus(null);
+      })
+      .finally(() => setMembershipLoading(false));
+  }, [memberId, session]);
+
   const handleCheckin = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!session?.accessToken || !memberId) return;
     setSubmitting(true);
     const client = apiClient(session.accessToken as string);
     try {
-      await client.post("/api/v1/checkins", { member_id: memberId, type });
+      await client.post("/api/v1/checkins", { member_id: memberId, type, notes: notes || undefined });
       toast.success(type === "entry" ? "Entrada registrada" : "Salida registrada");
       setMemberId("");
+      setNotes("");
+      setMembershipStatus(null);
       fetchCheckins();
     } catch (err: any) {
       const detail = err.response?.data?.detail;
@@ -119,9 +172,35 @@ export default function CheckinsClient() {
     }
   };
 
+  const handleQrCheckin = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!session?.accessToken || !qrCode.trim()) return;
+    setSubmittingQr(true);
+    const client = apiClient(session.accessToken as string);
+    try {
+      await client.post(`/api/v1/checkins/qr/${qrCode.trim()}`);
+      toast.success("Check-in por QR registrado");
+      setQrCode("");
+      setShowQrInput(false);
+      fetchCheckins();
+    } catch (err: any) {
+      const detail = err.response?.data?.detail;
+      toast.error(
+        typeof detail === "string"
+          ? detail
+          : "Error registrando check-in por QR"
+      );
+    } finally {
+      setSubmittingQr(false);
+    }
+  };
+
   const filtered = typeFilter
     ? checkins.filter((c) => c.type === typeFilter)
     : checkins;
+
+  const showMembershipWarning =
+    membershipStatus?.status === "expired" || membershipStatus?.status === "no_membership";
 
   return (
     <motion.div
@@ -137,31 +216,95 @@ export default function CheckinsClient() {
 
       <GlassCard className="p-4">
         {/* Quick-register form */}
-        <form onSubmit={handleCheckin} className="flex flex-wrap items-end gap-3 mb-6 pb-5 border-b border-[var(--border-base)]">
-          <div className="flex-1 min-w-[200px] space-y-2">
-            <Label className="text-[var(--text-muted)] text-sm">Miembro</Label>
-            <MemberSelect value={memberId} onChange={(id) => setMemberId(id)} />
-          </div>
-          <div className="w-36 space-y-2">
-            <Label className="text-[var(--text-muted)] text-sm">Tipo</Label>
-            <select
-              value={type}
-              onChange={(e) => setType(e.target.value)}
-              className={selectCls}
+        <form onSubmit={handleCheckin} className="space-y-3 mb-6 pb-5 border-b border-[var(--border-base)]">
+          <div className="flex flex-wrap items-end gap-3">
+            <div className="flex-1 min-w-[200px] space-y-2">
+              <Label className="text-[var(--text-muted)] text-sm">Miembro</Label>
+              <MemberSelect value={memberId} onChange={(id) => setMemberId(id)} />
+            </div>
+            <div className="w-36 space-y-2">
+              <Label className="text-[var(--text-muted)] text-sm">Tipo</Label>
+              <select
+                value={type}
+                onChange={(e) => setType(e.target.value)}
+                className={selectCls}
+              >
+                <option value="entry">Entrada</option>
+                <option value="exit">Salida</option>
+              </select>
+            </div>
+            <Button
+              type="submit"
+              disabled={submitting || !memberId}
+              className="bg-orange-500 text-white font-semibold hover:bg-orange-600 h-9"
             >
-              <option value="entry">Entrada</option>
-              <option value="exit">Salida</option>
-            </select>
+              <Activity className="h-4 w-4 mr-2" />
+              {submitting ? "Registrando..." : "Registrar"}
+            </Button>
+            <Button
+              type="button"
+              variant="ghost"
+              onClick={() => setShowQrInput((v) => !v)}
+              className="h-9 border border-[var(--border-base)] text-[var(--text-muted)] hover:text-[var(--text-base)]"
+            >
+              <QrCode className="h-4 w-4 mr-2" />
+              QR Check-in
+            </Button>
           </div>
-          <Button
-            type="submit"
-            disabled={submitting || !memberId}
-            className="bg-orange-500 text-white font-semibold hover:bg-orange-600 h-9"
-          >
-            <Activity className="h-4 w-4 mr-2" />
-            {submitting ? "Registrando..." : "Registrar"}
-          </Button>
+
+          {/* Membership status */}
+          {memberId && !membershipLoading && membershipStatus && (
+            <div className="flex items-center gap-2">
+              <MembershipStatusBadge
+                status={membershipStatus.status}
+                endDate={membershipStatus.end_date}
+              />
+            </div>
+          )}
+
+          {/* Membership warning */}
+          {showMembershipWarning && (
+            <Alert variant="warning">
+              {membershipStatus?.status === "no_membership"
+                ? "El miembro no tiene membresía activa."
+                : "La membresía del miembro está vencida."
+              } ¿Desea registrar el ingreso de todas formas?
+            </Alert>
+          )}
+
+          {/* Notes */}
+          <div className="space-y-2">
+            <Label className="text-[var(--text-muted)] text-sm">Notas (opcional)</Label>
+            <Textarea
+              value={notes}
+              onChange={(e) => setNotes(e.target.value)}
+              placeholder="Observaciones del check-in..."
+            />
+          </div>
         </form>
+
+        {/* QR input */}
+        {showQrInput && (
+          <form onSubmit={handleQrCheckin} className="flex gap-2 items-end mb-5 pb-5 border-b border-[var(--border-base)]">
+            <div className="flex-1 space-y-2">
+              <Label className="text-[var(--text-muted)] text-sm">Código QR del miembro</Label>
+              <Input
+                value={qrCode}
+                onChange={(e) => setQrCode(e.target.value)}
+                placeholder="Ingresa o escanea el código QR..."
+                autoFocus
+                className="bg-[var(--bg-base)] border-[var(--border-base)] text-[var(--text-base)] placeholder:text-[var(--text-muted)]"
+              />
+            </div>
+            <Button
+              type="submit"
+              disabled={submittingQr || !qrCode.trim()}
+              className="bg-orange-500 text-white font-semibold hover:bg-orange-600 h-9"
+            >
+              {submittingQr ? "Registrando..." : "Registrar"}
+            </Button>
+          </form>
+        )}
 
         {/* Type filter pills */}
         <div
@@ -239,7 +382,7 @@ export default function CheckinsClient() {
                           "inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-xs font-medium",
                           c.type === "entry"
                             ? "bg-green-100 dark:bg-green-950/30 text-green-700 dark:text-green-400"
-                            : "bg-red-100 dark:bg-red-950/30 text-red-700 dark:text-red-400"
+                            : "bg-gray-100 dark:bg-gray-800/30 text-gray-600 dark:text-gray-400"
                         )}
                       >
                         {c.type === "entry" ? (

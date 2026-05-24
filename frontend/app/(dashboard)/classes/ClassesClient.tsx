@@ -13,6 +13,8 @@ import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { WeekdayPicker } from "@/components/ui/weekday-picker";
+import { TimePicker } from "@/components/ui/time-picker";
 import {
   Dialog,
   DialogContent,
@@ -35,11 +37,16 @@ interface GymClass {
   id: string;
   name: string;
   instructor: string;
-  schedule: string;
+  schedule: string | null;
   max_capacity: number;
   duration_minutes: number;
   is_active: boolean;
   description: string | null;
+  category: string | null;
+  difficulty: string | null;
+  weekdays: number[] | null;
+  start_time: string | null;
+  color: string | null;
 }
 
 interface Enrollment {
@@ -51,6 +58,48 @@ interface Enrollment {
 
 const inputCls =
   "bg-[var(--bg-base)] border-[var(--border-base)] text-[var(--text-base)] placeholder:text-[var(--text-muted)]";
+const selectCls =
+  "w-full h-9 rounded-md border border-[var(--border-base)] bg-[var(--bg-base)] px-3 py-1 text-sm text-[var(--text-base)]";
+
+const CATEGORIES = [
+  "Yoga", "Crossfit", "Spinning", "Pilates", "Funcional", "Zumba", "Boxeo", "Natación", "Otro",
+];
+
+const DIFFICULTIES = [
+  { value: "beginner", label: "Principiante" },
+  { value: "intermediate", label: "Intermedio" },
+  { value: "advanced", label: "Avanzado" },
+];
+
+const DURATION_OPTIONS = [30, 45, 60, 90, 120];
+
+const DAY_LABELS = ["Lun", "Mar", "Mié", "Jue", "Vie", "Sáb", "Dom"];
+
+const COLOR_OPTIONS = [
+  { value: "orange", bg: "bg-orange-500", label: "Naranja" },
+  { value: "blue", bg: "bg-blue-500", label: "Azul" },
+  { value: "green", bg: "bg-green-500", label: "Verde" },
+  { value: "red", bg: "bg-red-500", label: "Rojo" },
+  { value: "purple", bg: "bg-purple-500", label: "Morado" },
+  { value: "pink", bg: "bg-pink-500", label: "Rosa" },
+  { value: "cyan", bg: "bg-cyan-500", label: "Cian" },
+  { value: "yellow", bg: "bg-yellow-400", label: "Amarillo" },
+];
+
+function buildSchedulePreview(weekdays: number[], startTime: string, durationMinutes: string): string {
+  if (weekdays.length === 0 && !startTime) return "";
+  const days = weekdays.map((d) => DAY_LABELS[d]).join(", ");
+  const time = startTime
+    ? (() => {
+        const [h, m] = startTime.split(":").map(Number);
+        const period = h >= 12 ? "pm" : "am";
+        const hour12 = h % 12 || 12;
+        return `${hour12}:${String(m).padStart(2, "0")}${period}`;
+      })()
+    : "";
+  const dur = durationMinutes ? `${durationMinutes} min` : "";
+  return [days, time, dur].filter(Boolean).join(" · ");
+}
 
 export default function ClassesClient() {
   const sessionData = useSession();
@@ -67,6 +116,11 @@ export default function ClassesClient() {
     max_capacity: "20",
     duration_minutes: "60",
     description: "",
+    category: "",
+    difficulty: "",
+    weekdays: [] as number[],
+    start_time: "",
+    color: "",
   });
   const [expandedClass, setExpandedClass] = useState<string | null>(null);
   const [enrollments, setEnrollments] = useState<Record<string, Enrollment[]>>({});
@@ -118,15 +172,27 @@ export default function ClassesClient() {
     if (!session?.accessToken) return;
     setSubmitting(true);
     const client = apiClient(session.accessToken as string);
+
+    // Build schedule string for compatibility
+    const schedulePreview = buildSchedulePreview(form.weekdays, form.start_time, form.duration_minutes);
+
     try {
       await client.post("/api/v1/classes", {
-        ...form,
+        name: form.name,
+        instructor: form.instructor,
+        schedule: schedulePreview || form.schedule || "",
         max_capacity: parseInt(form.max_capacity),
         duration_minutes: parseInt(form.duration_minutes),
+        description: form.description || undefined,
+        category: form.category || undefined,
+        difficulty: form.difficulty || undefined,
+        weekdays: form.weekdays.length > 0 ? form.weekdays : undefined,
+        start_time: form.start_time || undefined,
+        color: form.color || undefined,
       });
       toast.success("Clase creada correctamente");
       setDialogOpen(false);
-      setForm({ name: "", instructor: "", schedule: "", max_capacity: "20", duration_minutes: "60", description: "" });
+      setForm({ name: "", instructor: "", schedule: "", max_capacity: "20", duration_minutes: "60", description: "", category: "", difficulty: "", weekdays: [], start_time: "", color: "" });
       fetchClasses();
     } catch (err: any) {
       const detail = err.response?.data?.detail;
@@ -172,6 +238,8 @@ export default function ClassesClient() {
     }
   };
 
+  const schedulePreview = buildSchedulePreview(form.weekdays, form.start_time, form.duration_minutes);
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 8 }}
@@ -195,7 +263,7 @@ export default function ClassesClient() {
           }
         />
 
-        <DialogContent className="bg-[var(--bg-card)] border border-[var(--border-base)] text-[var(--text-base)] max-w-lg">
+        <DialogContent className="bg-[var(--bg-card)] border border-[var(--border-base)] text-[var(--text-base)] max-w-lg max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle className="text-[var(--text-base)] font-display">
               Nueva clase
@@ -222,14 +290,37 @@ export default function ClassesClient() {
                 />
               </div>
               <div className="space-y-2">
-                <Label className="text-[var(--text-muted)] text-sm">Horario</Label>
-                <Input
-                  value={form.schedule}
-                  onChange={(e) => setForm({ ...form, schedule: e.target.value })}
-                  required
-                  placeholder="Lun/Mie 18:00"
-                  className={inputCls}
-                />
+                <Label className="text-[var(--text-muted)] text-sm">Categoría</Label>
+                <select
+                  value={form.category}
+                  onChange={(e) => setForm({ ...form, category: e.target.value })}
+                  className={selectCls}
+                >
+                  <option value="">Sin categoría</option>
+                  {CATEGORIES.map((c) => (
+                    <option key={c} value={c}>{c}</option>
+                  ))}
+                </select>
+              </div>
+              <div className="space-y-2">
+                <Label className="text-[var(--text-muted)] text-sm">Dificultad</Label>
+                <div className="flex gap-2">
+                  {DIFFICULTIES.map((d) => (
+                    <button
+                      key={d.value}
+                      type="button"
+                      onClick={() => setForm({ ...form, difficulty: form.difficulty === d.value ? "" : d.value })}
+                      className={cn(
+                        "flex-1 py-1.5 rounded-md text-xs font-medium border transition-colors",
+                        form.difficulty === d.value
+                          ? "bg-orange-500 text-white border-orange-500"
+                          : "border-[var(--border-base)] text-[var(--text-muted)] hover:border-orange-400"
+                      )}
+                    >
+                      {d.label}
+                    </button>
+                  ))}
+                </div>
               </div>
               <div className="space-y-2">
                 <Label className="text-[var(--text-muted)] text-sm">Capacidad</Label>
@@ -242,18 +333,65 @@ export default function ClassesClient() {
                   className={inputCls}
                 />
               </div>
+              <div className="space-y-2">
+                <Label className="text-[var(--text-muted)] text-sm">Duración</Label>
+                <select
+                  value={form.duration_minutes}
+                  onChange={(e) => setForm({ ...form, duration_minutes: e.target.value })}
+                  className={selectCls}
+                >
+                  {DURATION_OPTIONS.map((d) => (
+                    <option key={d} value={d}>{d} min</option>
+                  ))}
+                </select>
+              </div>
             </div>
+
             <div className="space-y-2">
-              <Label className="text-[var(--text-muted)] text-sm">Duración (min)</Label>
-              <Input
-                type="number"
-                min="1"
-                value={form.duration_minutes}
-                onChange={(e) => setForm({ ...form, duration_minutes: e.target.value })}
-                required
-                className={inputCls}
+              <Label className="text-[var(--text-muted)] text-sm">Días de la semana</Label>
+              <WeekdayPicker
+                value={form.weekdays}
+                onChange={(days) => setForm({ ...form, weekdays: days })}
               />
             </div>
+
+            <div className="space-y-2">
+              <Label className="text-[var(--text-muted)] text-sm">Hora de inicio</Label>
+              <TimePicker
+                value={form.start_time}
+                onChange={(t) => setForm({ ...form, start_time: t })}
+              />
+            </div>
+
+            {/* Schedule preview */}
+            {schedulePreview && (
+              <div className="flex items-center gap-2 px-3 py-2 rounded-lg bg-orange-500/10 border border-orange-500/20 text-orange-600 dark:text-orange-400">
+                <span className="text-xs font-medium">{schedulePreview}</span>
+              </div>
+            )}
+
+            {/* Color picker */}
+            <div className="space-y-2">
+              <Label className="text-[var(--text-muted)] text-sm">Color de la clase</Label>
+              <div className="flex gap-2 flex-wrap">
+                {COLOR_OPTIONS.map((c) => (
+                  <button
+                    key={c.value}
+                    type="button"
+                    onClick={() => setForm({ ...form, color: form.color === c.value ? "" : c.value })}
+                    title={c.label}
+                    className={cn(
+                      "h-7 w-7 rounded-full transition-all",
+                      c.bg,
+                      form.color === c.value ? "ring-2 ring-offset-2 ring-[var(--color-primary)] scale-110" : "opacity-70 hover:opacity-100 hover:scale-105"
+                    )}
+                    aria-label={c.label}
+                    aria-pressed={form.color === c.value}
+                  />
+                ))}
+              </div>
+            </div>
+
             <div className="space-y-2">
               <Label className="text-[var(--text-muted)] text-sm">Descripción</Label>
               <Input
@@ -337,15 +475,30 @@ export default function ClassesClient() {
                   <>
                     <TableRow key={cls.id} className="border-[var(--border-base)] hover:bg-[var(--bg-base)]">
                       <TableCell className="text-[var(--text-base)] font-medium">
-                        {cls.name}
-                        {cls.description && (
-                          <p className="text-xs text-[var(--text-muted)] font-normal mt-0.5 line-clamp-1">
-                            {cls.description}
-                          </p>
-                        )}
+                        <div className="flex items-center gap-2">
+                          {cls.color && (
+                            <span className={cn(
+                              "h-2.5 w-2.5 rounded-full shrink-0",
+                              COLOR_OPTIONS.find((c) => c.value === cls.color)?.bg ?? "bg-gray-400"
+                            )} />
+                          )}
+                          <div>
+                            {cls.name}
+                            {cls.category && (
+                              <span className="ml-1.5 text-xs text-[var(--text-muted)] font-normal">· {cls.category}</span>
+                            )}
+                            {cls.description && (
+                              <p className="text-xs text-[var(--text-muted)] font-normal mt-0.5 line-clamp-1">
+                                {cls.description}
+                              </p>
+                            )}
+                          </div>
+                        </div>
                       </TableCell>
                       <TableCell className="text-[var(--text-muted)]">{cls.instructor}</TableCell>
-                      <TableCell className="text-[var(--text-muted)]">{cls.schedule}</TableCell>
+                      <TableCell className="text-[var(--text-muted)] text-xs">
+                        {cls.schedule || "-"}
+                      </TableCell>
                       <TableCell className="text-[var(--text-base)]">
                         <span className="inline-flex items-center gap-1">
                           <Users className="h-3 w-3 text-[var(--text-muted)]" aria-hidden="true" />

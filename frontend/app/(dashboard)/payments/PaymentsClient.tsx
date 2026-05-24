@@ -8,6 +8,7 @@ import { GlassCard } from "@/components/common/GlassCard";
 import { PageHeader } from "@/components/common/PageHeader";
 import { EmptyState } from "@/components/common/EmptyState";
 import MemberSelect from "@/components/common/MemberSelect";
+import { CurrencyInput } from "@/components/ui/currency-input";
 import { apiClient } from "@/lib/api";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
@@ -39,6 +40,7 @@ interface Payment {
   method: string | null;
   status: string;
   concept: string;
+  external_ref?: string | null;
   created_at: string;
 }
 
@@ -53,18 +55,24 @@ const STATUS_LABELS: Record<string, string> = {
   paid: "Pagado",
   pending: "Pendiente",
   overdue: "Vencido",
+  failed: "Fallido",
+  refunded: "Reembolsado",
 };
 
 const STATUS_DOT: Record<string, string> = {
   paid: "bg-green-500",
   pending: "bg-amber-400",
   overdue: "bg-red-500",
+  failed: "bg-red-500",
+  refunded: "bg-gray-400",
 };
 
 const STATUS_BADGE: Record<string, string> = {
-  paid:    "bg-green-100 dark:bg-green-950/30 text-green-700 dark:text-green-400",
-  pending: "bg-amber-100 dark:bg-amber-950/30 text-amber-700 dark:text-amber-400",
-  overdue: "bg-red-100 dark:bg-red-950/30 text-red-700 dark:text-red-400",
+  paid:     "bg-green-100 dark:bg-green-950/30 text-green-700 dark:text-green-400",
+  pending:  "bg-amber-100 dark:bg-amber-950/30 text-amber-700 dark:text-amber-400",
+  overdue:  "bg-red-100 dark:bg-red-950/30 text-red-700 dark:text-red-400",
+  failed:   "bg-red-100 dark:bg-red-950/30 text-red-700 dark:text-red-400",
+  refunded: "bg-gray-100 dark:bg-gray-800/30 text-gray-600 dark:text-gray-400",
 };
 
 const METHOD_LABELS: Record<string, string> = {
@@ -73,6 +81,18 @@ const METHOD_LABELS: Record<string, string> = {
   card: "Tarjeta",
   wompi: "Wompi",
 };
+
+const CONCEPT_OPTIONS = [
+  "Cuota mensual",
+  "Cuota bimestral",
+  "Cuota trimestral",
+  "Cuota semestral",
+  "Cuota anual",
+  "Inscripción",
+  "Clase especial",
+  "Producto/Suplemento",
+  "Otro",
+];
 
 export default function PaymentsClient() {
   const { data: session } = useSession();
@@ -84,9 +104,12 @@ export default function PaymentsClient() {
   const [submitting, setSubmitting] = useState(false);
   const [form, setForm] = useState({
     member_id: "",
-    amount: "",
+    amount: 0,
     method: "cash",
     concept: "",
+    concept_other: "",
+    external_ref: "",
+    send_receipt: false,
   });
 
   const fetchPayments = async () => {
@@ -134,14 +157,22 @@ export default function PaymentsClient() {
     if (!session?.accessToken) return;
     setSubmitting(true);
     const client = apiClient(session.accessToken as string);
+
+    const finalConcept = form.concept === "Otro" ? form.concept_other : form.concept;
+    const showExternalRef = form.method === "transfer" || form.method === "wompi";
+
     try {
       await client.post("/api/v1/payments", {
-        ...form,
-        amount: parseFloat(form.amount),
+        member_id: form.member_id,
+        amount: form.amount,
+        method: form.method,
+        concept: finalConcept,
+        ...(showExternalRef && form.external_ref ? { external_ref: form.external_ref } : {}),
+        send_receipt: form.send_receipt,
       });
       toast.success("Pago registrado correctamente");
       setDialogOpen(false);
-      setForm({ member_id: "", amount: "", method: "cash", concept: "" });
+      setForm({ member_id: "", amount: 0, method: "cash", concept: "", concept_other: "", external_ref: "", send_receipt: false });
       fetchPayments();
     } catch (err: any) {
       const detail = err.response?.data?.detail;
@@ -176,6 +207,8 @@ export default function PaymentsClient() {
     { key: "pending", label: "Pendientes" },
     { key: "overdue", label: "Vencidos" },
   ];
+
+  const showExternalRef = form.method === "transfer" || form.method === "wompi";
 
   return (
     <motion.div
@@ -216,15 +249,10 @@ export default function PaymentsClient() {
             </div>
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
-                <Label className="text-[var(--text-muted)] text-sm">Monto</Label>
-                <Input
-                  type="number"
-                  step="0.01"
-                  min="0"
+                <Label className="text-[var(--text-muted)] text-sm">Monto (COP)</Label>
+                <CurrencyInput
                   value={form.amount}
-                  onChange={(e) => setForm({ ...form, amount: e.target.value })}
-                  required
-                  className={inputCls}
+                  onChange={(v) => setForm({ ...form, amount: v })}
                 />
               </div>
               <div className="space-y-2">
@@ -243,13 +271,47 @@ export default function PaymentsClient() {
             </div>
             <div className="space-y-2">
               <Label className="text-[var(--text-muted)] text-sm">Concepto</Label>
-              <Input
+              <select
                 value={form.concept}
                 onChange={(e) => setForm({ ...form, concept: e.target.value })}
                 required
-                className={inputCls}
-              />
+                className={selectCls}
+              >
+                <option value="">Seleccionar concepto...</option>
+                {CONCEPT_OPTIONS.map((c) => (
+                  <option key={c} value={c}>{c}</option>
+                ))}
+              </select>
+              {form.concept === "Otro" && (
+                <Input
+                  value={form.concept_other}
+                  onChange={(e) => setForm({ ...form, concept_other: e.target.value })}
+                  placeholder="Describe el concepto..."
+                  required
+                  className={inputCls}
+                />
+              )}
             </div>
+            {showExternalRef && (
+              <div className="space-y-2">
+                <Label className="text-[var(--text-muted)] text-sm">Referencia externa</Label>
+                <Input
+                  value={form.external_ref}
+                  onChange={(e) => setForm({ ...form, external_ref: e.target.value })}
+                  placeholder="Número de transacción o referencia"
+                  className={inputCls}
+                />
+              </div>
+            )}
+            <label className="flex items-center gap-2 cursor-pointer select-none">
+              <input
+                type="checkbox"
+                checked={form.send_receipt}
+                onChange={(e) => setForm({ ...form, send_receipt: e.target.checked })}
+                className="h-4 w-4 rounded border-[var(--border-base)] accent-orange-500"
+              />
+              <span className="text-sm text-[var(--text-muted)]">Enviar recibo por email al miembro</span>
+            </label>
             <div className="flex justify-end gap-2 pt-2">
               <Button
                 type="button"
