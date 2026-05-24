@@ -63,22 +63,22 @@ export default function MemberSelect({ value, onChange }: Props) {
         onFocus={() => setOpen(true)}
         onBlur={() => setTimeout(() => setOpen(false), 150)}
         placeholder="Buscar miembro por nombre..."
-        className="bg-white border-slate-200 text-slate-800 placeholder:text-slate-400"
+        className="bg-[var(--bg-input)] border-[var(--border-base)] text-[var(--text-base)] placeholder:text-[var(--text-muted)]"
       />
       {open && members.length > 0 && (
-        <div className="absolute z-50 w-full mt-1 bg-white border border-slate-200 rounded-lg shadow-card-hover max-h-48 overflow-y-auto">
+        <div className="absolute z-50 w-full mt-1 bg-[var(--bg-card)] border border-[var(--border-base)] rounded-lg shadow-card-hover max-h-48 overflow-y-auto">
           {members.map((m) => (
             <button
               key={m.id}
               type="button"
-              className="w-full text-left px-3 py-2 text-sm text-slate-800 hover:bg-slate-50 flex flex-col transition-colors"
+              className="w-full text-left px-3 py-2 text-sm text-[var(--text-base)] hover:bg-[var(--bg-muted)] flex flex-col transition-colors"
               onMouseDown={(e) => {
                 e.preventDefault();
                 handleSelect(m);
               }}
             >
               <span className="font-medium">{m.full_name}</span>
-              <span className="text-slate-400 text-xs">{m.email}</span>
+              <span className="text-[var(--text-muted)] text-xs">{m.email}</span>
             </button>
           ))}
         </div>

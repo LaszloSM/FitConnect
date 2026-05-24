@@ -189,8 +189,6 @@ export default function DashboardPage() {
       animate={{ opacity: 1, y: 0 }}
       transition={{ ease: [0.16, 1, 0.3, 1], duration: 0.35 }}
     >
-      <PageHeader title="Dashboard" subtitle="Resumen operativo del gym" />
-
       {/* Period pills */}
       <div className="flex gap-2 flex-wrap mb-6" role="group" aria-label="Seleccionar período">
         {PERIODS.map((period) => {

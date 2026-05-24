@@ -33,6 +33,7 @@ const routeMeta: Record<string, { title: string; subtitle: string }> = {
   "/dashboard": { title: "Dashboard", subtitle: "Resumen operativo" },
   "/members": { title: "Miembros", subtitle: "Gestión de socios" },
   "/payments": { title: "Pagos", subtitle: "Control de cobros" },
+  "/plans": { title: "Planes", subtitle: "Membresías del gimnasio" },
   "/checkins": { title: "Check-ins", subtitle: "Registro de asistencia" },
   "/classes": { title: "Clases", subtitle: "Programación de actividades" },
   "/machines": { title: "Máquinas", subtitle: "Inventario de equipos" },

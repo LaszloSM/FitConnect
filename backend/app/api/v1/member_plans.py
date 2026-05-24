@@ -17,6 +17,14 @@ class PlanCreate(BaseModel):
     is_active: bool = True
 
 
+class PlanUpdate(BaseModel):
+    name: str | None = None
+    price: float | None = None
+    duration_days: int | None = None
+    description: str | None = None
+    is_active: bool | None = None
+
+
 class AssignMembership(BaseModel):
     member_id: str
     plan_id: str
@@ -38,6 +46,38 @@ async def create_plan(data: PlanCreate, db: AsyncSession = Depends(get_tenant_db
     await db.commit()
     await db.refresh(plan)
     return plan
+
+
+@router.put("/{plan_id}")
+async def update_plan(plan_id: str, data: PlanUpdate, db: AsyncSession = Depends(get_tenant_db_from_token)):
+    from app.models.tenant.member_plan import MemberPlan
+    result = await db.execute(select(MemberPlan).where(MemberPlan.id == uuid.UUID(plan_id)))
+    plan = result.scalar_one_or_none()
+    if not plan:
+        raise HTTPException(status_code=404, detail="Plan no encontrado")
+    for field, val in data.model_dump(exclude_none=True).items():
+        setattr(plan, field, val)
+    await db.commit()
+    await db.refresh(plan)
+    return plan
+
+
+@router.delete("/{plan_id}", status_code=204)
+async def delete_plan(plan_id: str, db: AsyncSession = Depends(get_tenant_db_from_token)):
+    from app.models.tenant.member_plan import MemberPlan
+    from app.models.tenant.membership import Membership
+    result = await db.execute(select(MemberPlan).where(MemberPlan.id == uuid.UUID(plan_id)))
+    plan = result.scalar_one_or_none()
+    if not plan:
+        raise HTTPException(status_code=404, detail="Plan no encontrado")
+    active = await db.execute(
+        select(Membership).where(Membership.plan_name == plan.name)
+    )
+    if active.scalar_one_or_none():
+        plan.is_active = False
+    else:
+        await db.delete(plan)
+    await db.commit()
 
 
 @router.post("/assign")

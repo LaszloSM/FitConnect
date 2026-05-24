@@ -19,6 +19,7 @@ import {
   Activity,
   ChevronLeft,
   LogOut,
+  Tag,
 } from "lucide-react";
 
 // ── Nav items ──────────────────────────────────────────────────────────────
@@ -26,6 +27,7 @@ const navItems = [
   { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
   { href: "/members", label: "Miembros", icon: Users },
   { href: "/payments", label: "Pagos", icon: CreditCard },
+  { href: "/plans", label: "Planes", icon: Tag },
   { href: "/checkins", label: "Check-ins", icon: Activity },
   { href: "/classes", label: "Clases", icon: Calendar },
   { href: "/machines", label: "Máquinas", icon: Dumbbell },

@@ -32,7 +32,8 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { Plus, Search, Pencil, Trash2, AlertCircle, QrCode, X } from "lucide-react";
+import { Plus, Search, Pencil, Trash2, AlertCircle, QrCode, X, Tag, Clock, CheckCircle2 } from "lucide-react";
+import { MembershipStatusBadge } from "@/components/common/MembershipStatusBadge";
 
 const memberSchema = z.object({
   full_name: z.string().min(2, "Nombre demasiado corto"),
@@ -157,6 +158,14 @@ export default function MembersClient() {
   const [deleteId, setDeleteId] = useState<string | null>(null);
   const [qrMember, setQrMember] = useState<Member | null>(null);
 
+  // Membership tab state
+  const [availablePlans, setAvailablePlans] = useState<{ id: string; name: string; price: number; duration_days: number }[]>([]);
+  const [currentMembership, setCurrentMembership] = useState<{ plan_name: string; start_date: string; end_date: string; status: string } | null>(null);
+  const [assignPlanId, setAssignPlanId] = useState("");
+  const [assignStartDate, setAssignStartDate] = useState("");
+  const [assigningMembership, setAssigningMembership] = useState(false);
+  const [membershipTabActive, setMembershipTabActive] = useState(false);
+
   const fetchMembers = async () => {
     if (!session?.accessToken) return;
     try {
@@ -192,9 +201,55 @@ export default function MembersClient() {
     return () => { cancelled = true; };
   }, [session, search, statusFilter]);
 
+  // Lazy-load plans + current membership when membership tab activates
+  useEffect(() => {
+    if (!membershipTabActive || !session?.accessToken) return;
+    const client = apiClient(session.accessToken as string);
+    client.get("/api/v1/member-plans/").then((res) => setAvailablePlans(res.data)).catch(() => {});
+    if (editing?.id) {
+      client.get(`/api/v1/members/${editing.id}/memberships`).then((res) => {
+        const data = res.data;
+        if (Array.isArray(data) && data.length > 0) {
+          setCurrentMembership(data[0]);
+        } else {
+          setCurrentMembership(null);
+        }
+      }).catch(() => setCurrentMembership(null));
+    }
+  }, [membershipTabActive, session, editing]);
+
+  const handleAssignMembership = async () => {
+    if (!session?.accessToken || !editing || !assignPlanId || !assignStartDate) return;
+    setAssigningMembership(true);
+    const client = apiClient(session.accessToken as string);
+    try {
+      await client.post("/api/v1/member-plans/assign", {
+        member_id: editing.id,
+        plan_id: assignPlanId,
+        start_date: assignStartDate,
+      });
+      toast.success("Membresía asignada correctamente");
+      setAssignPlanId("");
+      setAssignStartDate("");
+      // Refresh current membership
+      const res = await client.get(`/api/v1/members/${editing.id}/memberships`);
+      const data = res.data;
+      setCurrentMembership(Array.isArray(data) && data.length > 0 ? data[0] : null);
+    } catch (err: unknown) {
+      const e = err as { response?: { data?: { detail?: string } } };
+      toast.error(e.response?.data?.detail || "Error asignando membresía");
+    } finally {
+      setAssigningMembership(false);
+    }
+  };
+
   const resetForm = () => {
     setForm(emptyForm);
     setEditing(null);
+    setMembershipTabActive(false);
+    setCurrentMembership(null);
+    setAssignPlanId("");
+    setAssignStartDate("");
   };
 
   const openCreate = () => { resetForm(); setDialogOpen(true); };
@@ -296,7 +351,7 @@ export default function MembersClient() {
             </DialogTitle>
           </DialogHeader>
           <form onSubmit={handleSubmit} className="mt-2">
-            <Tabs defaultValue="personal">
+            <Tabs defaultValue="personal" onValueChange={(v) => setMembershipTabActive(v === "membresia")}>
               <TabsList>
                 <TabsTrigger value="personal">Personal</TabsTrigger>
                 <TabsTrigger value="salud">Salud</TabsTrigger>
@@ -418,20 +473,90 @@ export default function MembersClient() {
 
               {/* TAB MEMBRESÍA */}
               <TabsContent value="membresia" className="space-y-4">
-                <div className="space-y-2">
-                  <Label className="text-[var(--text-muted)] text-sm">Estado</Label>
-                  <select value={form.status} onChange={(e) => setForm({ ...form, status: e.target.value })} className={selectCls}>
-                    <option value="active">Activo</option>
-                    <option value="inactive">Inactivo</option>
-                  </select>
+                {/* Membresía activa */}
+                <div className="rounded-xl border border-[var(--border-base)] bg-[var(--bg-base)] p-4 space-y-3">
+                  <p className="text-xs font-semibold uppercase tracking-wider text-[var(--text-muted)]">Membresía activa</p>
+                  {currentMembership ? (
+                    <div className="space-y-2">
+                      <div className="flex items-center gap-2">
+                        <Tag className="h-4 w-4 text-[var(--color-primary)]" />
+                        <span className="font-semibold text-[var(--text-base)]">{currentMembership.plan_name}</span>
+                        <MembershipStatusBadge
+                          status={new Date(currentMembership.end_date) >= new Date() ? "ok" : "expired"}
+                          endDate={currentMembership.end_date}
+                        />
+                      </div>
+                      <div className="flex items-center gap-1.5 text-sm text-[var(--text-muted)]">
+                        <Clock className="h-3.5 w-3.5" />
+                        {new Date(currentMembership.start_date).toLocaleDateString("es-CO")}
+                        {" → "}
+                        {new Date(currentMembership.end_date).toLocaleDateString("es-CO")}
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="flex items-center gap-2 text-[var(--text-muted)] text-sm">
+                      <CheckCircle2 className="h-4 w-4 opacity-40" />
+                      Sin membresía activa
+                    </div>
+                  )}
                 </div>
-                <div className="space-y-2">
-                  <Label className="text-[var(--text-muted)] text-sm">Notas</Label>
-                  <Textarea
-                    value={form.notes}
-                    onChange={(e) => setForm({ ...form, notes: e.target.value })}
-                    placeholder="Notas adicionales sobre el miembro..."
-                  />
+
+                {/* Asignar nueva membresía */}
+                {editing && (
+                  <div className="rounded-xl border border-[var(--border-base)] bg-[var(--bg-base)] p-4 space-y-3">
+                    <p className="text-xs font-semibold uppercase tracking-wider text-[var(--text-muted)]">Asignar membresía</p>
+                    <div className="space-y-2">
+                      <Label className="text-[var(--text-muted)] text-sm">Plan</Label>
+                      <select
+                        value={assignPlanId}
+                        onChange={(e) => setAssignPlanId(e.target.value)}
+                        className={selectCls}
+                      >
+                        <option value="">Selecciona un plan...</option>
+                        {availablePlans.map((p) => (
+                          <option key={p.id} value={p.id}>
+                            {p.name} — {new Intl.NumberFormat("es-CO", { style: "currency", currency: "COP", minimumFractionDigits: 0 }).format(p.price)} / {p.duration_days} días
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+                    <div className="space-y-2">
+                      <Label className="text-[var(--text-muted)] text-sm">Fecha de inicio</Label>
+                      <Input
+                        type="date"
+                        value={assignStartDate}
+                        onChange={(e) => setAssignStartDate(e.target.value)}
+                        className={inputCls}
+                      />
+                    </div>
+                    <Button
+                      type="button"
+                      disabled={assigningMembership || !assignPlanId || !assignStartDate}
+                      onClick={handleAssignMembership}
+                      className="w-full bg-[var(--color-primary)] text-white font-semibold hover:opacity-90 transition-opacity"
+                    >
+                      {assigningMembership ? "Asignando..." : "Asignar membresía"}
+                    </Button>
+                  </div>
+                )}
+
+                {/* Estado y notas del miembro */}
+                <div className="space-y-3 pt-1">
+                  <div className="space-y-2">
+                    <Label className="text-[var(--text-muted)] text-sm">Estado del miembro</Label>
+                    <select value={form.status} onChange={(e) => setForm({ ...form, status: e.target.value })} className={selectCls}>
+                      <option value="active">Activo</option>
+                      <option value="inactive">Inactivo</option>
+                    </select>
+                  </div>
+                  <div className="space-y-2">
+                    <Label className="text-[var(--text-muted)] text-sm">Notas</Label>
+                    <Textarea
+                      value={form.notes}
+                      onChange={(e) => setForm({ ...form, notes: e.target.value })}
+                      placeholder="Notas adicionales sobre el miembro..."
+                    />
+                  </div>
                 </div>
               </TabsContent>
             </Tabs>
