@@ -1,0 +1,1053 @@
+{
+  "communities": {
+    "0": [
+      "checkins_checkinsclient_checkin",
+      "checkins_checkinsclient_checkinsclient",
+      "checkins_checkinsclient_typefilter",
+      "checkins_page_checkinspage",
+      "classes_classesclient_classesclient",
+      "classes_classesclient_enrollment",
+      "classes_classesclient_gymclass",
+      "classes_page_classespage",
+      "common_emptystate_defaultemptystateicon",
+      "common_emptystate_emptystate",
+      "common_glasscard_glasscard",
+      "common_glasscard_glasscardprops",
+      "common_memberselect_member",
+      "common_memberselect_memberselect",
+      "common_memberselect_props",
+      "common_pageheader_pageheader",
+      "common_pageheader_pageheaderprops",
+      "dashboard_page_dashboarddata",
+      "dashboard_page_dashboardpage",
+      "dashboard_page_period",
+      "dashboard_page_periodkey",
+      "dashboard_page_periods",
+      "frontend_app_auth_login_page_tsx",
+      "frontend_app_auth_register_page_tsx",
+      "frontend_app_dashboard_checkins_page_tsx",
+      "frontend_app_dashboard_classes_page_tsx",
+      "frontend_app_dashboard_dashboard_page_tsx",
+      "frontend_app_dashboard_machines_page_tsx",
+      "frontend_app_dashboard_members_page_tsx",
+      "frontend_app_dashboard_payments_page_tsx",
+      "frontend_app_dashboard_reports_page_tsx",
+      "frontend_components_common_glasscard_tsx",
+      "frontend_components_common_pageheader_tsx",
+      "frontend_components_settings_gymsection_tsx",
+      "frontend_components_ui_button_tsx",
+      "frontend_components_ui_dialog_tsx",
+      "frontend_components_ui_input_tsx",
+      "frontend_components_ui_label_tsx",
+      "frontend_components_ui_table_tsx",
+      "frontend_lib_api_ts",
+      "frontend_lib_utils_ts",
+      "id_memberdetailclient_memberdetailclient",
+      "id_memberdetailclient_tab",
+      "id_memberdetailclient_tab_labels",
+      "lib_api_apiclient",
+      "lib_api_apiserver",
+      "login_page_loginpage",
+      "machines_machinesclient_machine",
+      "machines_machinesclient_machinesclient",
+      "machines_machinesclient_maintenancelog",
+      "machines_machinesclient_status_badge",
+      "machines_machinesclient_status_label",
+      "machines_page_machinespage",
+      "members_membersclient_member",
+      "members_membersclient_memberschema",
+      "members_membersclient_membersclient",
+      "members_page_memberspage",
+      "payments_page_paymentspage",
+      "payments_paymentsclient_method_labels",
+      "payments_paymentsclient_payment",
+      "payments_paymentsclient_paymentsclient",
+      "payments_paymentsclient_status_badge",
+      "payments_paymentsclient_status_dot",
+      "payments_paymentsclient_statusfilter",
+      "register_page_registerpage",
+      "register_page_registerschema",
+      "reports_page_reportspage",
+      "reports_reportsclient_cardvariants",
+      "reports_reportsclient_charttooltipstyle",
+      "reports_reportsclient_containervariants",
+      "reports_reportsclient_reportsclient",
+      "settings_gymsection_gymdata",
+      "settings_gymsection_gymsection",
+      "settings_plansection_gymdata",
+      "settings_plansection_planconfig",
+      "settings_plansection_plans",
+      "settings_plansection_plansection",
+      "settings_profilesection_profiledata",
+      "settings_profilesection_profilesection",
+      "settings_settingsclient_profilesection",
+      "ui_button_button",
+      "ui_button_buttonprops",
+      "ui_button_buttonvariants",
+      "ui_dialog_dialog",
+      "ui_dialog_dialogclose",
+      "ui_dialog_dialogcontent",
+      "ui_dialog_dialogheader",
+      "ui_dialog_dialogportal",
+      "ui_dialog_dialogtitle",
+      "ui_dialog_dialogtrigger",
+      "ui_input_input",
+      "ui_label_label",
+      "ui_table_table",
+      "ui_table_tablebody",
+      "ui_table_tablecell",
+      "ui_table_tablehead",
+      "ui_table_tableheader",
+      "ui_table_tablerow"
+    ],
+    "1": [
+      "backend_app_api_v1_dashboard_py",
+      "backend_app_models_tenant_checkin_py",
+      "backend_app_models_tenant_location_py",
+      "backend_app_models_tenant_machine_py",
+      "backend_app_models_tenant_member_py",
+      "backend_app_models_tenant_membership_py",
+      "backend_app_models_tenant_payment_py",
+      "backend_app_schemas_auth_py",
+      "backend_app_schemas_member_py",
+      "basemodel",
+      "db_tenant_base_rationale_7",
+      "db_tenant_base_tenantbase",
+      "db_tenant_base_tenanttimestampmixin",
+      "schemas_auth_loginrequest",
+      "schemas_auth_passwordresetconfirm",
+      "schemas_auth_passwordresetrequest",
+      "schemas_auth_registerrequest",
+      "schemas_member_checkinbase",
+      "schemas_member_checkincreate",
+      "schemas_member_checkinresponse",
+      "schemas_member_config",
+      "schemas_member_dashboardkpis",
+      "schemas_member_dashboardoverview",
+      "schemas_member_memberbase",
+      "schemas_member_membercreate",
+      "schemas_member_membergrowthpoint",
+      "schemas_member_memberresponse",
+      "schemas_member_membershipbase",
+      "schemas_member_membershipcreate",
+      "schemas_member_membershipresponse",
+      "schemas_member_memberupdate",
+      "schemas_member_paymentbase",
+      "schemas_member_paymentcreate",
+      "schemas_member_paymentresponse",
+      "schemas_member_paymentupdate",
+      "schemas_member_revenuepoint",
+      "str",
+      "tenant_checkin_checkin",
+      "tenant_checkin_checkintype",
+      "tenant_checkin_rationale_16",
+      "tenant_gym_class_gymclass",
+      "tenant_gym_class_rationale_10",
+      "tenant_location_location",
+      "tenant_location_rationale_10",
+      "tenant_machine_machine",
+      "tenant_machine_machinestatus",
+      "tenant_member_member",
+      "tenant_member_memberstatus",
+      "tenant_member_plan_memberplan",
+      "tenant_member_plan_rationale_11",
+      "tenant_membership_membership",
+      "tenant_membership_membershipstatus",
+      "tenant_membership_rationale_19",
+      "tenant_payment_payment",
+      "tenant_payment_paymentmethod",
+      "tenant_payment_paymentstatus",
+      "tenant_payment_rationale_26",
+      "tenant_user_staff_rationale_17",
+      "tenant_user_staff_userrole",
+      "tenant_user_staff_userstaff",
+      "v1_dashboard_get_dashboard_kpis",
+      "v1_member_plans_assignmembership",
+      "v1_member_plans_create_plan",
+      "v1_member_plans_list_plans",
+      "v1_member_plans_plancreate"
+    ],
+    "2": [
+      "frontend_eslint_config_compat",
+      "frontend_eslint_config_dirname",
+      "frontend_eslint_config_filename",
+      "frontend_eslint_config_mjs",
+      "frontend_package_dependencies",
+      "frontend_package_dependencies_auth_core",
+      "frontend_package_dependencies_axios",
+      "frontend_package_dependencies_base_ui_react",
+      "frontend_package_dependencies_class_variance_authority",
+      "frontend_package_dependencies_clsx",
+      "frontend_package_dependencies_date_fns",
+      "frontend_package_dependencies_framer_motion",
+      "frontend_package_dependencies_hookform_resolvers",
+      "frontend_package_dependencies_lucide_react",
+      "frontend_package_dependencies_next",
+      "frontend_package_dependencies_next_themes",
+      "frontend_package_dependencies_radix_ui_react_label",
+      "frontend_package_dependencies_radix_ui_react_slot",
+      "frontend_package_dependencies_react",
+      "frontend_package_dependencies_react_dom",
+      "frontend_package_dependencies_react_hook_form",
+      "frontend_package_dependencies_recharts",
+      "frontend_package_dependencies_sonner",
+      "frontend_package_dependencies_tailwind_merge",
+      "frontend_package_dependencies_tanstack_react_query",
+      "frontend_package_dependencies_tw_animate_css",
+      "frontend_package_dependencies_zod",
+      "frontend_package_devdependencies",
+      "frontend_package_devdependencies_eslint",
+      "frontend_package_devdependencies_playwright_test",
+      "frontend_package_devdependencies_shadcn",
+      "frontend_package_devdependencies_tailwindcss",
+      "frontend_package_devdependencies_tailwindcss_postcss",
+      "frontend_package_devdependencies_types_node",
+      "frontend_package_devdependencies_types_react",
+      "frontend_package_devdependencies_typescript",
+      "frontend_package_json",
+      "frontend_package_name",
+      "frontend_package_private",
+      "frontend_package_scripts",
+      "frontend_package_scripts_build",
+      "frontend_package_scripts_dev",
+      "frontend_package_scripts_lint",
+      "frontend_package_scripts_start",
+      "frontend_package_scripts_test_e2e",
+      "frontend_package_version",
+      "frontend_types_next_auth_d_ts",
+      "types_next_auth_d_jwt",
+      "types_next_auth_d_session"
+    ],
+    "3": [
+      "backend_app_api_v1_classes_py",
+      "backend_app_models_tenant_maintenance_py",
+      "backend_app_schemas_operations_py",
+      "schemas_operations_classenrollmentdetailresponse",
+      "schemas_operations_classenrollmentresponse",
+      "schemas_operations_config",
+      "schemas_operations_enrollrequest",
+      "schemas_operations_gymclassbase",
+      "schemas_operations_gymclasscreate",
+      "schemas_operations_gymclassresponse",
+      "schemas_operations_gymclassupdate",
+      "schemas_operations_locationbase",
+      "schemas_operations_locationcreate",
+      "schemas_operations_locationresponse",
+      "schemas_operations_machinebase",
+      "schemas_operations_machinecreate",
+      "schemas_operations_machineresponse",
+      "schemas_operations_machineupdate",
+      "schemas_operations_maintenancelogcreate",
+      "schemas_operations_maintenancelogresponse",
+      "schemas_operations_notificationbase",
+      "schemas_operations_notificationcreate",
+      "schemas_operations_notificationresponse",
+      "tenant_class_enrollment_classenrollment",
+      "tenant_class_enrollment_rationale_9",
+      "tenant_maintenance_maintenancelog",
+      "tenant_maintenance_rationale_12",
+      "v1_classes_create_class",
+      "v1_classes_create_enrollment",
+      "v1_classes_delete_class",
+      "v1_classes_delete_enrollment",
+      "v1_classes_enroll_member",
+      "v1_classes_get_class",
+      "v1_classes_list_classes",
+      "v1_classes_list_enrollments",
+      "v1_classes_rationale_152",
+      "v1_classes_update_class"
+    ],
+    "4": [
+      "frontend_app_dashboard_settings_page_tsx",
+      "layout_header_notification",
+      "settings_appearancesection_appearancesection",
+      "settings_appearancesection_themechoice",
+      "settings_appearancesection_themeoption",
+      "settings_appearancesection_themes",
+      "settings_notificationssection_notif_items",
+      "settings_notificationssection_notificationssection",
+      "settings_notificationssection_notifitem",
+      "settings_notificationssection_toggle",
+      "settings_page_settingspage",
+      "settings_settingsclient_appearancesection",
+      "settings_settingsclient_gymsection",
+      "settings_settingsclient_notificationssection",
+      "settings_settingsclient_section_map",
+      "settings_settingsclient_settingsclient",
+      "settings_settingsclient_tab",
+      "settings_settingsclient_tabkey",
+      "settings_settingsclient_tabs",
+      "tenant_notification_rationale_10",
+      "v1_notifications_create_notification",
+      "v1_notifications_list_notifications",
+      "v1_notifications_mark_all_read",
+      "v1_notifications_mark_read"
+    ],
+    "5": [
+      "frontend_components_aliases",
+      "frontend_components_aliases_components",
+      "frontend_components_aliases_hooks",
+      "frontend_components_aliases_lib",
+      "frontend_components_aliases_ui",
+      "frontend_components_aliases_utils",
+      "frontend_components_iconlibrary",
+      "frontend_components_json",
+      "frontend_components_menuaccent",
+      "frontend_components_menucolor",
+      "frontend_components_registries",
+      "frontend_components_rsc",
+      "frontend_components_rtl",
+      "frontend_components_schema",
+      "frontend_components_style",
+      "frontend_components_tailwind",
+      "frontend_components_tailwind_basecolor",
+      "frontend_components_tailwind_config",
+      "frontend_components_tailwind_css",
+      "frontend_components_tailwind_cssvariables",
+      "frontend_components_tailwind_prefix",
+      "frontend_components_tsx"
+    ],
+    "6": [
+      "backend_app_db_base_py",
+      "backend_app_models_location_py",
+      "backend_app_models_tenant_py",
+      "backend_app_models_user_py",
+      "backend_app_schemas_user_py",
+      "backend_tests_test_models_py",
+      "db_base_base",
+      "db_base_timestampmixin",
+      "models_location_location",
+      "models_tenant_subscriptionplan",
+      "models_tenant_tenant",
+      "models_tenant_tenantstatus",
+      "models_user_user",
+      "models_user_userrole",
+      "schemas_user_inviteuserrequest",
+      "schemas_user_updateuserrolerequest",
+      "schemas_user_userresponse",
+      "tests_test_models_db_session",
+      "tests_test_models_test_location_creation",
+      "tests_test_models_test_tenant_creation",
+      "tests_test_models_test_user_creation"
+    ],
+    "7": [
+      "frontend_tsconfig_compileroptions",
+      "frontend_tsconfig_compileroptions_allowjs",
+      "frontend_tsconfig_compileroptions_esmoduleinterop",
+      "frontend_tsconfig_compileroptions_incremental",
+      "frontend_tsconfig_compileroptions_isolatedmodules",
+      "frontend_tsconfig_compileroptions_jsx",
+      "frontend_tsconfig_compileroptions_lib",
+      "frontend_tsconfig_compileroptions_module",
+      "frontend_tsconfig_compileroptions_moduleresolution",
+      "frontend_tsconfig_compileroptions_noemit",
+      "frontend_tsconfig_compileroptions_paths",
+      "frontend_tsconfig_compileroptions_plugins",
+      "frontend_tsconfig_compileroptions_resolvejsonmodule",
+      "frontend_tsconfig_compileroptions_skiplibcheck",
+      "frontend_tsconfig_compileroptions_strict",
+      "frontend_tsconfig_compileroptions_target",
+      "frontend_tsconfig_exclude",
+      "frontend_tsconfig_include",
+      "frontend_tsconfig_json",
+      "frontend_tsconfig_paths"
+    ],
+    "8": [
+      "dashboard_layout_dashboardlayout",
+      "dashboard_layout_dashboardshell",
+      "frontend_app_dashboard_layout_tsx",
+      "frontend_components_layout_header_tsx",
+      "frontend_components_layout_sidebar_tsx",
+      "frontend_lib_layout_constants_ts",
+      "layout_header_dropdownvariants",
+      "layout_header_getinitials",
+      "layout_header_header",
+      "layout_header_routemeta",
+      "layout_sidebar_containervariants",
+      "layout_sidebar_getinitials",
+      "layout_sidebar_itemvariants",
+      "layout_sidebar_navitems",
+      "layout_sidebar_sidebar",
+      "layout_sidebar_tooltip",
+      "layout_sidebarcontext_sidebarcontext",
+      "layout_sidebarcontext_sidebarcontextvalue",
+      "layout_sidebarcontext_sidebarprovider",
+      "layout_sidebarcontext_usesidebar"
+    ],
+    "9": [
+      "frontend_components_ui_select_tsx",
+      "frontend_components_ui_separator_tsx",
+      "lib_utils_cn",
+      "ui_dialog_dialogdescription",
+      "ui_dialog_dialogfooter",
+      "ui_dialog_dialogoverlay",
+      "ui_select_selectcontent",
+      "ui_select_selectgroup",
+      "ui_select_selectitem",
+      "ui_select_selectlabel",
+      "ui_select_selectscrolldownbutton",
+      "ui_select_selectscrollupbutton",
+      "ui_select_selectseparator",
+      "ui_select_selecttrigger",
+      "ui_select_selectvalue",
+      "ui_separator_separator",
+      "ui_skeleton_skeleton",
+      "ui_table_tablecaption",
+      "ui_table_tablefooter"
+    ],
+    "10": [
+      "scripts_e2e_test_main",
+      "scripts_e2e_test_py",
+      "scripts_e2e_test_rationale_27",
+      "scripts_e2e_test_rationale_47",
+      "scripts_e2e_test_test_checkins",
+      "scripts_e2e_test_test_classes",
+      "scripts_e2e_test_test_dashboard_kpis",
+      "scripts_e2e_test_test_frontend_build",
+      "scripts_e2e_test_test_health",
+      "scripts_e2e_test_test_login",
+      "scripts_e2e_test_test_machines",
+      "scripts_e2e_test_test_members_crud",
+      "scripts_e2e_test_test_payments",
+      "scripts_e2e_test_test_register",
+      "scripts_e2e_test_test_reports"
+    ],
+    "11": [
+      "ui_dropdown_menu_dropdownmenu",
+      "ui_dropdown_menu_dropdownmenucheckboxitem",
+      "ui_dropdown_menu_dropdownmenucontent",
+      "ui_dropdown_menu_dropdownmenugroup",
+      "ui_dropdown_menu_dropdownmenuportal",
+      "ui_dropdown_menu_dropdownmenuradiogroup",
+      "ui_dropdown_menu_dropdownmenuradioitem",
+      "ui_dropdown_menu_dropdownmenuseparator",
+      "ui_dropdown_menu_dropdownmenushortcut",
+      "ui_dropdown_menu_dropdownmenusub",
+      "ui_dropdown_menu_dropdownmenusubcontent",
+      "ui_dropdown_menu_dropdownmenusubtrigger",
+      "ui_dropdown_menu_dropdownmenutrigger"
+    ],
+    "12": [
+      "api_deps_check_tenant_active",
+      "api_deps_get_current_owner",
+      "api_deps_get_current_staff",
+      "api_deps_get_master_tenant",
+      "api_deps_get_tenant_db_from_token",
+      "api_deps_rationale_23",
+      "api_deps_rationale_41",
+      "api_deps_rationale_54",
+      "api_deps_rationale_77",
+      "api_deps_require_role",
+      "backend_app_api_deps_py",
+      "core_security_decode_token"
+    ],
+    "13": [
+      "backend_app_models_master_owner_py",
+      "backend_app_models_master_tenant_py",
+      "db_master_base_masterbase",
+      "db_master_base_mastertimestampmixin",
+      "db_master_base_rationale_7",
+      "declarativebase",
+      "master_owner_owner",
+      "master_owner_rationale_9",
+      "master_tenant_rationale_22",
+      "master_tenant_subscriptionplan",
+      "master_tenant_tenant",
+      "master_tenant_tenantstatus"
+    ],
+    "14": [
+      "backend_app_services_tenant_service_py",
+      "scripts_create_tenant_db_main",
+      "scripts_create_tenant_db_py",
+      "services_tenant_service_create_database",
+      "services_tenant_service_create_tenant",
+      "services_tenant_service_get_tenant_connection_string",
+      "services_tenant_service_rationale_30",
+      "services_tenant_service_rationale_35",
+      "services_tenant_service_rationale_49",
+      "services_tenant_service_rationale_65",
+      "services_tenant_service_run_tenant_migrations",
+      "services_tenant_service_slugify"
+    ],
+    "15": [
+      "backend_app_api_v1_settings_py",
+      "backend_app_schemas_settings_py",
+      "schemas_settings_gymsettingsresponse",
+      "schemas_settings_gymsettingsupdate",
+      "schemas_settings_notificationpreferences",
+      "schemas_settings_userprofileresponse",
+      "schemas_settings_userprofileupdate",
+      "v1_settings_get_gym_settings",
+      "v1_settings_get_notification_prefs",
+      "v1_settings_get_profile",
+      "v1_settings_update_gym_settings",
+      "v1_settings_update_notification_prefs"
+    ],
+    "16": [
+      "backend_app_api_v1_auth_py",
+      "backend_app_core_security_py",
+      "core_security_create_access_token",
+      "core_security_create_staff_token",
+      "core_security_rationale_24",
+      "core_security_rationale_38",
+      "core_security_verify_password",
+      "schemas_auth_tokenresponse",
+      "v1_auth_login",
+      "v1_auth_register",
+      "v1_settings_update_profile"
+    ],
+    "17": [
+      "frontend_components_ui_sheet_tsx",
+      "ui_sheet_sheet",
+      "ui_sheet_sheetclose",
+      "ui_sheet_sheetcontent",
+      "ui_sheet_sheetdescription",
+      "ui_sheet_sheetfooter",
+      "ui_sheet_sheetheader",
+      "ui_sheet_sheetoverlay",
+      "ui_sheet_sheetportal",
+      "ui_sheet_sheettitle",
+      "ui_sheet_sheettrigger"
+    ],
+    "18": [
+      "frontend_components_ui_form_tsx",
+      "ui_form_formcontrol",
+      "ui_form_formdescription",
+      "ui_form_formfield",
+      "ui_form_formfieldcontext",
+      "ui_form_formfieldcontextvalue",
+      "ui_form_formitem",
+      "ui_form_formitemcontext",
+      "ui_form_formlabel",
+      "ui_form_formmessage",
+      "ui_form_useformfield"
+    ],
+    "19": [
+      "backend_app_api_v1_members_py",
+      "v1_members_create_member",
+      "v1_members_delete_member",
+      "v1_members_get_member",
+      "v1_members_get_member_checkins",
+      "v1_members_get_member_memberships",
+      "v1_members_get_member_payments",
+      "v1_members_list_members",
+      "v1_members_update_member"
+    ],
+    "20": [
+      "backend_app_api_v1_machines_py",
+      "v1_machines_create_machine",
+      "v1_machines_create_maintenance",
+      "v1_machines_delete_machine",
+      "v1_machines_get_machine",
+      "v1_machines_list_machines",
+      "v1_machines_list_maintenance",
+      "v1_machines_update_machine"
+    ],
+    "21": [
+      "frontend_components_ui_card_tsx",
+      "ui_card_card",
+      "ui_card_cardaction",
+      "ui_card_cardcontent",
+      "ui_card_carddescription",
+      "ui_card_cardfooter",
+      "ui_card_cardheader",
+      "ui_card_cardtitle"
+    ],
+    "22": [
+      "frontend_app_api_auth_nextauth_route_ts",
+      "frontend_auth_backendautherror",
+      "frontend_auth_backendautherror_constructor",
+      "frontend_auth_handlers_signin_signout_auth",
+      "frontend_auth_ts",
+      "frontend_middleware_config",
+      "frontend_middleware_ts"
+    ],
+    "23": [
+      "frontend_components_ui_avatar_tsx",
+      "ui_avatar_avatar",
+      "ui_avatar_avatarbadge",
+      "ui_avatar_avatarfallback",
+      "ui_avatar_avatargroup",
+      "ui_avatar_avatargroupcount",
+      "ui_avatar_avatarimage"
+    ],
+    "24": [
+      "mcp_json",
+      "saas_gym_mcp_env_obsidian_vault_path",
+      "saas_gym_mcp_mcpservers",
+      "saas_gym_mcp_mcpservers_obsidian_mcp",
+      "saas_gym_mcp_obsidian_mcp_args",
+      "saas_gym_mcp_obsidian_mcp_command",
+      "saas_gym_mcp_obsidian_mcp_env"
+    ],
+    "25": [
+      "backend_app_api_v1_users_py",
+      "core_security_hash_password",
+      "v1_users_deactivate_user",
+      "v1_users_invite_staff",
+      "v1_users_list_staff",
+      "v1_users_update_user_role"
+    ],
+    "26": [
+      "scripts_verify_project_check_backend_imports",
+      "scripts_verify_project_check_frontend_pages",
+      "scripts_verify_project_check_required_files",
+      "scripts_verify_project_check_syntax",
+      "scripts_verify_project_main",
+      "scripts_verify_project_py"
+    ],
+    "27": [
+      "backend_tests_test_rate_limit_py",
+      "tests_test_rate_limit_rationale_1",
+      "tests_test_rate_limit_rationale_13",
+      "tests_test_rate_limit_rationale_19",
+      "tests_test_rate_limit_test_limiter_is_configured",
+      "tests_test_rate_limit_test_limiter_uses_remote_address"
+    ],
+    "28": [
+      "app_layout_metadata",
+      "app_layout_rootlayout",
+      "components_providers_providers",
+      "frontend_app_layout_tsx",
+      "frontend_components_ui_sonner_tsx",
+      "ui_sonner_toaster"
+    ],
+    "29": [
+      "backend_app_api_v1_payments_py",
+      "v1_payments_create_payment",
+      "v1_payments_delete_payment",
+      "v1_payments_get_payment",
+      "v1_payments_list_payments",
+      "v1_payments_update_payment"
+    ],
+    "30": [
+      "backend_app_api_v1_reports_py",
+      "v1_reports_attendance_today_report",
+      "v1_reports_expiring_memberships_report",
+      "v1_reports_member_status_report",
+      "v1_reports_payment_methods_report"
+    ],
+    "31": [
+      "backend_migrations_master_env_py",
+      "master_env_do_run_migrations",
+      "master_env_run_async_migrations",
+      "master_env_run_migrations_offline",
+      "master_env_run_migrations_online"
+    ],
+    "32": [
+      "backend_tests_test_auth_py",
+      "tests_test_auth_test_login_returns_token",
+      "tests_test_auth_test_login_wrong_password_fails",
+      "tests_test_auth_test_register_duplicate_email_fails",
+      "tests_test_auth_test_register_gym_owner"
+    ],
+    "33": [
+      "backend_tests_test_users_py",
+      "tests_test_users_create_owner_token",
+      "tests_test_users_test_list_staff_only_shows_same_tenant",
+      "tests_test_users_test_owner_can_invite_staff",
+      "tests_test_users_test_receptionist_cannot_invite_staff"
+    ],
+    "34": [
+      "backend_app_db_tenant_session_py",
+      "db_tenant_session_get_tenant_db",
+      "db_tenant_session_get_tenant_engine",
+      "db_tenant_session_rationale_13",
+      "services_tenant_service_rationale_24"
+    ],
+    "35": [
+      "common_animatednumber_animatednumber",
+      "dashboard_kpicard_iconcirclestyles",
+      "dashboard_kpicard_kpicard",
+      "dashboard_kpicard_kpicardprops",
+      "frontend_components_dashboard_kpicard_tsx"
+    ],
+    "36": [
+      "backend_migrations_env_py",
+      "migrations_env_do_run_migrations",
+      "migrations_env_run_async_migrations",
+      "migrations_env_run_migrations_offline",
+      "migrations_env_run_migrations_online"
+    ],
+    "37": [
+      "backend_migrations_tenant_env_py",
+      "tenant_env_do_run_migrations",
+      "tenant_env_run_async_migrations",
+      "tenant_env_run_migrations_offline",
+      "tenant_env_run_migrations_online"
+    ],
+    "38": [
+      "backend_app_api_v1_checkins_py",
+      "v1_checkins_create_checkin",
+      "v1_checkins_list_checkins",
+      "v1_checkins_list_today_checkins"
+    ],
+    "39": [
+      "backend_tests_test_tenant_isolation_py",
+      "tests_test_tenant_isolation_rationale_1",
+      "tests_test_tenant_isolation_rationale_8",
+      "tests_test_tenant_isolation_test_tenant_data_isolation"
+    ],
+    "40": [
+      "plan_1_foundation",
+      "plan_2_core_modules",
+      "plan_3_dashboard",
+      "spec_platform_design"
+    ],
+    "41": [
+      "claude_project_rules",
+      "deploy_guide",
+      "github_workflow_deploy",
+      "readme_main"
+    ],
+    "42": [
+      "backend_tests_conftest_py",
+      "tests_conftest_client",
+      "tests_conftest_override_get_db",
+      "tests_conftest_setup_db"
+    ],
+    "43": [
+      "backend_app_db_master_session_py",
+      "db_master_session_get_master_db",
+      "db_master_session_rationale_10"
+    ],
+    "44": [
+      "backend_migrations_tenant_versions_ef77a9a26fa3_add_notification_prefs_to_user_py",
+      "versions_ef77a9a26fa3_add_notification_prefs_to_user_downgrade",
+      "versions_ef77a9a26fa3_add_notification_prefs_to_user_upgrade"
+    ],
+    "45": [
+      "claude_settings_local_json",
+      "claude_settings_local_permissions",
+      "claude_settings_local_permissions_allow"
+    ],
+    "46": [
+      "backend_app_core_config_py",
+      "basesettings",
+      "core_config_settings"
+    ],
+    "47": [
+      "frontend_components_ui_badge_tsx",
+      "ui_badge_badge",
+      "ui_badge_badgevariants"
+    ],
+    "48": [
+      "frontend_app_dashboard_members_id_page_tsx",
+      "id_page_memberdetailpage",
+      "id_page_props"
+    ],
+    "49": [
+      "admin_sidebar_modules",
+      "admin_sidebar_sidebar",
+      "src_components_admin_sidebar_jsx"
+    ],
+    "50": [
+      "backend_tests_test_connection_cleanup_py",
+      "tests_test_connection_cleanup_rationale_6",
+      "tests_test_connection_cleanup_test_get_tenant_db_from_token_is_async_generator"
+    ],
+    "51": [
+      "backend_migrations_versions_3160b8771ce5_initial_migration_py",
+      "versions_3160b8771ce5_initial_migration_downgrade",
+      "versions_3160b8771ce5_initial_migration_upgrade"
+    ],
+    "52": [
+      "auth_layout_authlayout",
+      "frontend_app_auth_layout_tsx"
+    ],
+    "53": [
+      "app_main_health",
+      "backend_app_main_py"
+    ],
+    "54": [
+      "backend_requirements",
+      "docker_compose"
+    ],
+    "55": [
+      "common_neonbadge_neonbadge",
+      "common_neonbadge_variants"
+    ],
+    "56": [
+      "backend_app_core_rate_limit_py",
+      "core_rate_limit_rationale_1"
+    ],
+    "57": [
+      "backend_app_db_session_py",
+      "db_session_get_db"
+    ],
+    "58": [
+      "app_page_home",
+      "frontend_app_page_tsx"
+    ],
+    "59": [
+      "frontend_postcss_config_config",
+      "frontend_postcss_config_mjs"
+    ],
+    "60": [
+      "frontend_design_system",
+      "frontend_product_context"
+    ],
+    "61": [
+      "frontend_tailwind_config_config",
+      "frontend_tailwind_config_ts"
+    ],
+    "62": [
+      "frontend_app_api_health_route_ts",
+      "health_route_get"
+    ],
+    "63": [
+      "backend_app_init_py"
+    ],
+    "64": [
+      "backend_app_api_init_py"
+    ],
+    "65": [
+      "backend_app_api_v1_router_py"
+    ],
+    "66": [
+      "backend_app_api_v1_init_py"
+    ],
+    "67": [
+      "backend_app_core_init_py"
+    ],
+    "68": [
+      "backend_app_db_init_py"
+    ],
+    "69": [
+      "backend_app_models_init_py"
+    ],
+    "70": [
+      "backend_app_models_master_init_py"
+    ],
+    "71": [
+      "backend_app_models_tenant_init_py"
+    ],
+    "72": [
+      "backend_app_schemas_init_py"
+    ],
+    "73": [
+      "backend_app_services_init_py"
+    ],
+    "74": [
+      "backend_migrations_init_py"
+    ],
+    "75": [
+      "backend_tests_init_py"
+    ],
+    "76": [
+      "frontend_next_config_ts"
+    ],
+    "77": [
+      "frontend_playwright_config_ts"
+    ],
+    "78": [
+      "frontend_e2e_auth_spec_ts"
+    ],
+    "79": [
+      "frontend_e2e_members_spec_ts"
+    ],
+    "80": [
+      "nextauth_route_get_post"
+    ],
+    "81": [
+      "spec_mvp_prototype"
+    ]
+  },
+  "cohesion": {
+    "0": 0.05954134231011993,
+    "1": 0.10384615384615385,
+    "2": 0.04081632653061224,
+    "3": 0.07207207207207207,
+    "4": 0.08333333333333333,
+    "5": 0.09090909090909091,
+    "6": 0.14761904761904762,
+    "7": 0.1,
+    "8": 0.1736842105263158,
+    "9": 0.16374269005847952,
+    "10": 0.23809523809523808,
+    "11": 0.15384615384615385,
+    "12": 0.19696969696969696,
+    "13": 0.25757575757575757,
+    "14": 0.22727272727272727,
+    "15": 0.22727272727272727,
+    "16": 0.2,
+    "17": 0.18181818181818182,
+    "18": 0.2545454545454545,
+    "19": 0.2222222222222222,
+    "20": 0.25,
+    "21": 0.25,
+    "22": 0.2857142857142857,
+    "23": 0.2857142857142857,
+    "24": 0.2857142857142857,
+    "25": 0.3333333333333333,
+    "26": 0.6,
+    "27": 0.3333333333333333,
+    "28": 0.4,
+    "29": 0.3333333333333333,
+    "30": 0.4,
+    "31": 0.5,
+    "32": 0.4,
+    "33": 0.7,
+    "34": 0.5,
+    "35": 0.4,
+    "36": 0.5,
+    "37": 0.5,
+    "38": 0.5,
+    "39": 0.5,
+    "40": 0.5,
+    "41": 0.5,
+    "42": 0.5,
+    "43": 0.6666666666666666,
+    "44": 0.6666666666666666,
+    "45": 0.6666666666666666,
+    "46": 0.6666666666666666,
+    "47": 1.0,
+    "48": 0.6666666666666666,
+    "49": 0.6666666666666666,
+    "50": 0.6666666666666666,
+    "51": 0.6666666666666666,
+    "52": 1.0,
+    "53": 1.0,
+    "54": 1.0,
+    "55": 1.0,
+    "56": 1.0,
+    "57": 1.0,
+    "58": 1.0,
+    "59": 1.0,
+    "60": 1.0,
+    "61": 1.0,
+    "62": 1.0,
+    "63": 1.0,
+    "64": 1.0,
+    "65": 1.0,
+    "66": 1.0,
+    "67": 1.0,
+    "68": 1.0,
+    "69": 1.0,
+    "70": 1.0,
+    "71": 1.0,
+    "72": 1.0,
+    "73": 1.0,
+    "74": 1.0,
+    "75": 1.0,
+    "76": 1.0,
+    "77": 1.0,
+    "78": 1.0,
+    "79": 1.0,
+    "80": 1.0,
+    "81": 1.0
+  },
+  "gods": [
+    {
+      "id": "lib_utils_cn",
+      "label": "cn()",
+      "degree": 87
+    },
+    {
+      "id": "payments_paymentsclient_paymentsclient",
+      "label": "PaymentsClient()",
+      "degree": 36
+    },
+    {
+      "id": "machines_machinesclient_machinesclient",
+      "label": "MachinesClient()",
+      "degree": 33
+    },
+    {
+      "id": "classes_classesclient_classesclient",
+      "label": "ClassesClient()",
+      "degree": 32
+    },
+    {
+      "id": "members_membersclient_membersclient",
+      "label": "MembersClient()",
+      "degree": 31
+    },
+    {
+      "id": "tenant_membership_membershipstatus",
+      "label": "MembershipStatus",
+      "degree": 25
+    },
+    {
+      "id": "checkins_checkinsclient_checkinsclient",
+      "label": "CheckinsClient()",
+      "degree": 24
+    },
+    {
+      "id": "tenant_checkin_checkintype",
+      "label": "CheckInType",
+      "degree": 23
+    },
+    {
+      "id": "tenant_member_memberstatus",
+      "label": "MemberStatus",
+      "degree": 23
+    },
+    {
+      "id": "tenant_payment_paymentmethod",
+      "label": "PaymentMethod",
+      "degree": 23
+    }
+  ],
+  "surprises": [
+    {
+      "source": "main()",
+      "target": "create_tenant()",
+      "source_files": [
+        "scripts/create_tenant_db.py",
+        "backend/app/services/tenant_service.py"
+      ],
+      "confidence": "INFERRED",
+      "relation": "calls",
+      "why": "inferred connection - not explicitly stated in source; connects across different repos/directories; peripheral node `main()` unexpectedly reaches hub `create_tenant()`"
+    },
+    {
+      "source": "register()",
+      "target": "create_tenant()",
+      "source_files": [
+        "backend/app/api/v1/auth.py",
+        "backend/app/services/tenant_service.py"
+      ],
+      "confidence": "INFERRED",
+      "relation": "calls",
+      "why": "inferred connection - not explicitly stated in source; bridges separate communities; peripheral node `register()` unexpectedly reaches hub `create_tenant()`"
+    },
+    {
+      "source": "Notificaciones in-app para el staff del gym.",
+      "target": "Notification",
+      "source_files": [
+        "backend/app/models/tenant/notification.py",
+        "frontend/components/layout/Header.tsx"
+      ],
+      "confidence": "EXTRACTED",
+      "relation": "rationale_for",
+      "why": "connects across different repos/directories; peripheral node `Notificaciones in-app para el staff del gym.` unexpectedly reaches hub `Notification`"
+    },
+    {
+      "source": "CI/CD Workflow",
+      "target": "Deploy Guide",
+      "source_files": [
+        ".github/workflows/deploy.yml",
+        "DEPLOY.md"
+      ],
+      "confidence": "INFERRED",
+      "relation": "implements",
+      "why": "inferred connection - not explicitly stated in source; connects across different repos/directories"
+    },
+    {
+      "source": "get_tenant_db_from_token()",
+      "target": "get_tenant_engine()",
+      "source_files": [
+        "backend/app/api/deps.py",
+        "backend/app/db/tenant_session.py"
+      ],
+      "confidence": "INFERRED",
+      "relation": "calls",
+      "why": "inferred connection - not explicitly stated in source; bridges separate communities"
+    }
+  ],
+  "tokens": {
+    "input": 38091,
+    "output": 2170
+  }
+}
