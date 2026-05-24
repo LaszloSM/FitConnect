@@ -220,6 +220,7 @@ export default function DashboardPage() {
           subtitle={`${kpis.total_members} total`}
           color="blue"
           icon={<Users className="h-4 w-4" />}
+          sparklineData={data.member_growth.map((m) => m.count)}
         />
         <KPICard
           title="Ingresos del mes"
@@ -227,6 +228,9 @@ export default function DashboardPage() {
           prefix="$"
           color="success"
           icon={<DollarSign className="h-4 w-4" />}
+          sparklineData={data.revenue_history.map((r) =>
+            typeof r.amount === "number" ? r.amount : parseFloat(r.amount) || 0
+          )}
         />
         <KPICard
           title="Check-ins hoy"
@@ -340,16 +344,20 @@ export default function DashboardPage() {
         </GlassCard>
       </div>
 
-      {/* Expiring memberships banner */}
+      {/* Expiring memberships notice */}
       {kpis.expiring_memberships_7d > 0 && (
-        <div className="surface-1 border-l-4 border-amber-400 p-4 flex items-center gap-3">
-          <Calendar className="h-5 w-5 text-amber-500 shrink-0" />
+        <div className="rounded-xl border border-amber-200 dark:border-amber-800/40 bg-amber-50 dark:bg-amber-950/20 p-4 flex items-center gap-3">
+          <div className="w-9 h-9 rounded-full bg-amber-100 dark:bg-amber-900/40 flex items-center justify-center shrink-0">
+            <Calendar className="h-4 w-4 text-amber-600 dark:text-amber-400" />
+          </div>
           <div>
-            <p className="text-sm font-semibold text-[var(--text-base)]">
+            <p className="text-sm font-semibold text-amber-800 dark:text-amber-300">
               Membresías por vencer
             </p>
-            <p className="text-xs text-[var(--text-muted)] mt-0.5">
-              {kpis.expiring_memberships_7d} membresías expiran en los próximos 7 días
+            <p className="text-xs text-amber-700/80 dark:text-amber-400/80 mt-0.5">
+              {kpis.expiring_memberships_7d}{" "}
+              {kpis.expiring_memberships_7d === 1 ? "membresía expira" : "membresías expiran"} en
+              los próximos 7 días
             </p>
           </div>
         </div>

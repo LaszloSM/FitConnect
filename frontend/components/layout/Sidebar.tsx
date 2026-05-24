@@ -141,11 +141,16 @@ export function Sidebar() {
     >
       {/* ── Logo area ───────────────────────────────────────────────────── */}
       <div
-        className="relative flex items-center h-[72px] shrink-0
-                   bg-[oklch(0.70_0.20_47)] border-b border-[oklch(0.63_0.21_47)]"
+        className="relative flex items-center h-[72px] shrink-0 border-b border-[oklch(0.60_0.22_47)]"
+        style={{
+          background:
+            "linear-gradient(135deg, oklch(0.66 0.22 47) 0%, oklch(0.73 0.19 52) 100%)",
+        }}
       >
-        <div className="flex items-center gap-2 px-4 overflow-hidden min-w-0">
-          <Zap className="h-6 w-6 text-white shrink-0" />
+        <div className="flex items-center gap-2.5 px-4 overflow-hidden min-w-0">
+          <div className="h-7 w-7 rounded-lg bg-white/15 flex items-center justify-center shrink-0 shadow-sm">
+            <Zap className="h-4 w-4 text-white" fill="currentColor" />
+          </div>
           <AnimatePresence initial={false}>
             {!effectiveCollapsed && (
               <motion.span

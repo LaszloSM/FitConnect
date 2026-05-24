@@ -56,3 +56,59 @@ const variants: Variants = { hidden: {}, visible: {} };
 // transition NO va dentro de los variants — ponlo en el motion element
 <motion.div variants={variants} transition={{ duration: 0.35 }} />
 ```
+
+---
+
+## Graphify — Mapa del proyecto
+
+Usamos [graphify](https://github.com/safishamsi/graphify) para generar un knowledge graph del repo y evitar releer todo el código en cada sesión.
+
+**Setup (una sola vez):**
+```bash
+uv tool install graphifyy
+graphify install   # registra en Claude Code
+```
+
+**Uso habitual:**
+```bash
+graphify .                              # genera el grafo del proyecto
+graphify query "autenticación tenants"  # búsqueda semántica
+graphify path "AuthMiddleware" "MemberRouter"  # traza conexiones
+```
+
+Antes de explorar código desconocido, ejecuta `graphify query "<concepto>"` para ubicarte sin leer archivos manualmente.
+
+---
+
+## Aprendizaje de errores
+
+Cuando cometas un error durante una sesión, agrégalo aquí antes de terminar:
+
+| Error | Causa | Regla aprendida |
+|-------|-------|-----------------|
+| `DialogTrigger asChild` rompía en Base UI | Base UI usa `render` prop, no Radix UI | Siempre usar `render={<Component />}` |
+| `type Variants` no importado | Framer Motion v12 requiere import explícito | `import { motion, type Variants } from "framer-motion"` |
+| imports sin uso en Dashboard | React 19 es estricto con tree-shaking | Revisar imports al terminar cada archivo |
+
+**Protocolo:** Al detectar un error que no estaba documentado, añade una fila a la tabla antes del commit.
+
+---
+
+## Preferencias del usuario
+
+- **Idioma de respuesta:** español (código en inglés, comunicación en español)
+- **Estilo de código:** sin comentarios salvo que el WHY sea no obvio; sin abstracciones prematuras
+- **Commits:** español, convencionales (`feat`, `fix`, `refactor`…) — ver sección arriba
+- **UI:** premium, dark mode first, Framer Motion para animaciones de entrada (stagger en listas)
+- **Respuestas:** concisas — sin repetir lo que el usuario ya sabe, sin resúmenes al final
+- **CLAUDE.md como documento vivo:** actualizar al final de cada sesión con errores encontrados o reglas nuevas que funcionen
+
+## graphify
+
+This project has a knowledge graph at graphify-out/ with god nodes, community structure, and cross-file relationships.
+
+Rules:
+- For codebase questions, first run `graphify query "<question>"` when graphify-out/graph.json exists. Use `graphify path "<A>" "<B>"` for relationships and `graphify explain "<concept>"` for focused concepts. These return a scoped subgraph, usually much smaller than GRAPH_REPORT.md or raw grep output.
+- If graphify-out/wiki/index.md exists, use it for broad navigation instead of raw source browsing.
+- Read graphify-out/GRAPH_REPORT.md only for broad architecture review or when query/path/explain do not surface enough context.
+- After modifying code, run `graphify update .` to keep the graph current (AST-only, no API cost).

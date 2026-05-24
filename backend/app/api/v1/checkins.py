@@ -1,15 +1,38 @@
 import uuid
 from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import select, func, desc
+from sqlalchemy import select, desc
 from datetime import date, datetime, timedelta
 
 from app.api.deps import get_tenant_db_from_token
 from app.schemas.member import CheckInCreate, CheckInResponse
 from app.models.tenant.checkin import CheckIn, CheckInType
 from app.models.tenant.member import Member
+from app.models.tenant.membership import Membership, MembershipStatus
 
 router = APIRouter(prefix="/checkins", tags=["checkins"])
+
+
+async def _get_membership_status(member_id: uuid.UUID, db: AsyncSession) -> str:
+    """Retorna 'ok', 'expired' o 'no_membership'."""
+    today = date.today()
+    stmt = (
+        select(Membership)
+        .where(
+            Membership.member_id == member_id,
+            Membership.status == MembershipStatus.active,
+            Membership.end_date >= today,
+        )
+        .limit(1)
+    )
+    result = await db.execute(stmt)
+    if result.scalar_one_or_none():
+        return "ok"
+
+    # Verificar si tiene membresía pero vencida
+    any_stmt = select(Membership).where(Membership.member_id == member_id).limit(1)
+    any_result = await db.execute(any_stmt)
+    return "expired" if any_result.scalar_one_or_none() else "no_membership"
 
 
 @router.get("", response_model=list[CheckInResponse])
@@ -35,16 +58,44 @@ async def create_checkin(
     payload: CheckInCreate,
     db: AsyncSession = Depends(get_tenant_db_from_token),
 ):
-    # Verificar que el miembro existe
     member_result = await db.execute(select(Member).where(Member.id == payload.member_id))
     if not member_result.scalar_one_or_none():
         raise HTTPException(status_code=404, detail="Miembro no encontrado")
-    
+
     checkin = CheckIn(**payload.model_dump())
     db.add(checkin)
     await db.commit()
     await db.refresh(checkin)
-    return checkin
+
+    # Adjuntar estado de membresía al response para alertas en frontend
+    membership_status = await _get_membership_status(payload.member_id, db)
+    response = CheckInResponse.model_validate(checkin)
+    response.membership_status = membership_status
+    return response
+
+
+@router.post("/qr/{qr_code}", response_model=CheckInResponse, status_code=201)
+async def checkin_by_qr(
+    qr_code: str,
+    type: CheckInType = Query(CheckInType.entry),
+    notes: str | None = Query(None),
+    db: AsyncSession = Depends(get_tenant_db_from_token),
+):
+    """Check-in rápido por código QR del miembro."""
+    member_result = await db.execute(select(Member).where(Member.qr_code == qr_code))
+    member = member_result.scalar_one_or_none()
+    if not member:
+        raise HTTPException(status_code=404, detail="QR no válido o miembro no encontrado")
+
+    checkin = CheckIn(member_id=member.id, type=type, notes=notes)
+    db.add(checkin)
+    await db.commit()
+    await db.refresh(checkin)
+
+    membership_status = await _get_membership_status(member.id, db)
+    response = CheckInResponse.model_validate(checkin)
+    response.membership_status = membership_status
+    return response
 
 
 @router.get("/today", response_model=list[CheckInResponse])

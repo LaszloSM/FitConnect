@@ -1,8 +1,10 @@
 import uuid
-from datetime import date, datetime
+from datetime import date, datetime, time
 from decimal import Decimal
 from typing import Optional
 from pydantic import BaseModel, Field
+
+from app.models.tenant.gym_class import ClassCategory, ClassDifficulty
 
 
 # ─── Location ───
@@ -31,7 +33,12 @@ class LocationResponse(LocationBase):
 class GymClassBase(BaseModel):
     name: str = Field(min_length=1, max_length=255)
     instructor: str = Field(min_length=1, max_length=255)
-    schedule: str = Field(min_length=1, max_length=255)
+    schedule: Optional[str] = Field(default=None, max_length=255)  # legado — usar weekdays+start_time
+    weekdays: Optional[list[int]] = None  # [0=Lun..6=Dom]
+    start_time: Optional[time] = None
+    category: Optional[ClassCategory] = None
+    difficulty: Optional[ClassDifficulty] = None
+    color: Optional[str] = Field(default=None, max_length=7)  # hex: "#F97316"
     max_capacity: int = Field(ge=1)
     duration_minutes: int = Field(ge=1)
     location_id: Optional[uuid.UUID] = None
@@ -46,7 +53,12 @@ class GymClassCreate(GymClassBase):
 class GymClassUpdate(BaseModel):
     name: Optional[str] = Field(default=None, min_length=1, max_length=255)
     instructor: Optional[str] = Field(default=None, min_length=1, max_length=255)
-    schedule: Optional[str] = Field(default=None, min_length=1, max_length=255)
+    schedule: Optional[str] = Field(default=None, max_length=255)
+    weekdays: Optional[list[int]] = None
+    start_time: Optional[time] = None
+    category: Optional[ClassCategory] = None
+    difficulty: Optional[ClassDifficulty] = None
+    color: Optional[str] = Field(default=None, max_length=7)
     max_capacity: Optional[int] = Field(default=None, ge=1)
     duration_minutes: Optional[int] = Field(default=None, ge=1)
     location_id: Optional[uuid.UUID] = None

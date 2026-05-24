@@ -50,7 +50,7 @@ const memberSchema = z.object({
   emergency_contact_phone: z.string().optional(),
   blood_type: z.string().optional(),
   photo_url: z.string().optional(),
-  parq_answers: z.record(z.boolean()).optional(),
+  parq_answers: z.record(z.string(), z.boolean()).optional(),
   parq_completed_at: z.string().optional(),
   training_goal: z.enum(["weight_loss", "muscle_gain", "endurance", "flexibility", "general_fitness"]).optional(),
 });
@@ -524,7 +524,7 @@ export default function MembersClient() {
                 members.map((m) => (
                   <TableRow
                     key={m.id}
-                    className="border-[var(--border-base)] cursor-pointer hover:bg-[var(--bg-base)]"
+                    className="group border-[var(--border-base)] cursor-pointer hover:bg-[var(--bg-muted)]"
                     onClick={() => router.push(`/members/${m.id}`)}
                   >
                     <TableCell className="text-[var(--text-base)] font-medium">
@@ -575,22 +575,24 @@ export default function MembersClient() {
                       )}
                     </TableCell>
                     <TableCell className="text-right">
-                      <div className="flex items-center justify-end gap-2">
+                      <div className="flex items-center justify-end gap-1 opacity-0 group-hover:opacity-100 transition-opacity duration-150">
                         <Button
                           variant="ghost"
                           size="icon"
-                          className="text-[var(--text-muted)] hover:text-[var(--text-base)]"
+                          className="h-7 w-7 text-[var(--text-muted)] hover:text-[var(--text-base)] hover:bg-[var(--bg-muted)]"
                           onClick={(e) => { e.stopPropagation(); openEdit(m); }}
+                          title="Editar"
                         >
-                          <Pencil className="h-4 w-4" />
+                          <Pencil className="h-3.5 w-3.5" />
                         </Button>
                         <Button
                           variant="ghost"
                           size="icon"
-                          className="text-[var(--text-muted)] hover:text-red-500"
+                          className="h-7 w-7 text-[var(--text-muted)] hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-950/30"
                           onClick={(e) => { e.stopPropagation(); setDeleteId(m.id); }}
+                          title="Eliminar"
                         >
-                          <Trash2 className="h-4 w-4" />
+                          <Trash2 className="h-3.5 w-3.5" />
                         </Button>
                       </div>
                     </TableCell>

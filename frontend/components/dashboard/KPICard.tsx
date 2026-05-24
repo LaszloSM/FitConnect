@@ -1,8 +1,109 @@
 "use client";
+import { useId } from "react";
 import { motion } from "framer-motion";
-import { AnimatedNumber } from "@/components/common/AnimatedNumber";
+import { type Variants } from "framer-motion";
 import { TrendingUp, TrendingDown } from "lucide-react";
+import { AnimatedNumber } from "@/components/common/AnimatedNumber";
 
+// ── Inline sparkline ───────────────────────────────────────────────────────
+function Sparkline({ data, color }: { data: number[]; color: string }) {
+  const gradId = useId();
+  if (data.length < 2) return null;
+
+  const W = 72;
+  const H = 30;
+  const min = Math.min(...data);
+  const max = Math.max(...data);
+  const range = max - min || 1;
+
+  const pts = data.map((v, i) => {
+    const x = (i / (data.length - 1)) * W;
+    const y = H - ((v - min) / range) * (H - 6) - 3;
+    return [x, y] as [number, number];
+  });
+
+  const line = `M ${pts.map(([x, y]) => `${x} ${y}`).join(" L ")}`;
+  const area = `${line} L ${W} ${H} L 0 ${H} Z`;
+
+  return (
+    <svg
+      width={W}
+      height={H}
+      viewBox={`0 0 ${W} ${H}`}
+      fill="none"
+      aria-hidden="true"
+    >
+      <defs>
+        <linearGradient id={gradId} x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stopColor={color} stopOpacity="0.25" />
+          <stop offset="100%" stopColor={color} stopOpacity="0" />
+        </linearGradient>
+      </defs>
+      <path d={area} fill={`url(#${gradId})`} />
+      <path
+        d={line}
+        stroke={color}
+        strokeWidth="1.5"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </svg>
+  );
+}
+
+// ── Color map ──────────────────────────────────────────────────────────────
+const colorMap = {
+  primary: {
+    icon: "bg-orange-100 dark:bg-orange-950/30 text-orange-500",
+    spark: "oklch(0.70 0.20 47)",
+    trend: {
+      up: "bg-green-100 dark:bg-green-950/30 text-green-700 dark:text-green-400",
+      down: "bg-red-100 dark:bg-red-950/30 text-red-600 dark:text-red-400",
+    },
+  },
+  success: {
+    icon: "bg-green-100 dark:bg-green-950/30 text-green-600 dark:text-green-400",
+    spark: "#22C55E",
+    trend: {
+      up: "bg-green-100 dark:bg-green-950/30 text-green-700 dark:text-green-400",
+      down: "bg-red-100 dark:bg-red-950/30 text-red-600 dark:text-red-400",
+    },
+  },
+  warning: {
+    icon: "bg-amber-100 dark:bg-amber-950/30 text-amber-500",
+    spark: "#F59E0B",
+    trend: {
+      up: "bg-green-100 dark:bg-green-950/30 text-green-700 dark:text-green-400",
+      down: "bg-red-100 dark:bg-red-950/30 text-red-600 dark:text-red-400",
+    },
+  },
+  danger: {
+    icon: "bg-red-100 dark:bg-red-950/30 text-red-500",
+    spark: "#EF4444",
+    trend: {
+      up: "bg-green-100 dark:bg-green-950/30 text-green-700 dark:text-green-400",
+      down: "bg-red-100 dark:bg-red-950/30 text-red-600 dark:text-red-400",
+    },
+  },
+  blue: {
+    icon: "bg-blue-100 dark:bg-blue-950/30 text-blue-500",
+    spark: "#3B82F6",
+    trend: {
+      up: "bg-green-100 dark:bg-green-950/30 text-green-700 dark:text-green-400",
+      down: "bg-red-100 dark:bg-red-950/30 text-red-600 dark:text-red-400",
+    },
+  },
+  info: {
+    icon: "bg-blue-100 dark:bg-blue-950/30 text-blue-500",
+    spark: "#3B82F6",
+    trend: {
+      up: "bg-green-100 dark:bg-green-950/30 text-green-700 dark:text-green-400",
+      down: "bg-red-100 dark:bg-red-950/30 text-red-600 dark:text-red-400",
+    },
+  },
+} as const;
+
+// ── Props ──────────────────────────────────────────────────────────────────
 interface KPICardProps {
   title: string;
   value: number;
@@ -12,20 +113,22 @@ interface KPICardProps {
   decimals?: number;
   trend?: number;
   trendLabel?: string;
-  color?: "primary" | "success" | "warning" | "danger" | "blue" | "info";
+  color?: keyof typeof colorMap;
   onClick?: () => void;
   icon?: React.ReactNode;
+  sparklineData?: number[];
 }
 
-const iconCircleStyles: Record<string, { bg: string; text: string }> = {
-  primary: { bg: "bg-orange-100 dark:bg-orange-950/30", text: "text-orange-500" },
-  success: { bg: "bg-green-100 dark:bg-green-950/30",  text: "text-green-600 dark:text-green-400" },
-  warning: { bg: "bg-amber-100 dark:bg-amber-950/30",  text: "text-amber-500" },
-  danger:  { bg: "bg-red-100 dark:bg-red-950/30",      text: "text-red-500" },
-  blue:    { bg: "bg-blue-100 dark:bg-blue-950/30",    text: "text-blue-500" },
-  info:    { bg: "bg-blue-100 dark:bg-blue-950/30",    text: "text-blue-500" },
+const cardVariants: Variants = {
+  hidden: { opacity: 0, y: 14 },
+  visible: {
+    opacity: 1,
+    y: 0,
+    transition: { type: "spring", stiffness: 280, damping: 28 },
+  },
 };
 
+// ── Component ──────────────────────────────────────────────────────────────
 export function KPICard({
   title,
   value,
@@ -38,15 +141,24 @@ export function KPICard({
   color = "primary",
   onClick,
   icon,
+  sparklineData,
 }: KPICardProps) {
-  const circleStyle = iconCircleStyles[color] ?? iconCircleStyles.primary;
+  const style = colorMap[color] ?? colorMap.primary;
+  const hasSpark = sparklineData && sparklineData.length >= 2;
 
   return (
     <motion.div
-      className={`surface-1 flex flex-col gap-1 p-5 ${onClick ? "cursor-pointer hover:shadow-card-hover transition-shadow duration-200" : ""}`}
-      initial={{ opacity: 0, y: 12 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ type: "spring", stiffness: 300, damping: 30 }}
+      variants={cardVariants}
+      initial="hidden"
+      animate="visible"
+      className={[
+        "surface-1 flex flex-col overflow-hidden",
+        onClick
+          ? "cursor-pointer hover:shadow-[var(--shadow-card-elevated)] transition-shadow duration-200"
+          : "",
+      ]
+        .filter(Boolean)
+        .join(" ")}
       onClick={onClick}
       role={onClick ? "button" : undefined}
       tabIndex={onClick ? 0 : undefined}
@@ -58,47 +170,69 @@ export function KPICard({
           : undefined
       }
     >
-      {/* Top row: title + icon */}
-      <div className="flex items-start justify-between">
-        <p className="text-xs font-medium uppercase tracking-wide text-[var(--text-muted)]">
-          {title}
-        </p>
-        {icon && (
-          <div
-            className={`w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 ${circleStyle.bg} ${circleStyle.text}`}
-          >
-            {icon}
+      {/* Main content */}
+      <div className="p-5 flex-1">
+        {/* Header: label + icon */}
+        <div className="flex items-start justify-between gap-2 mb-4">
+          <p className="text-[11px] font-semibold uppercase tracking-widest text-[var(--text-muted)] leading-none">
+            {title}
+          </p>
+          {icon && (
+            <div
+              className={`w-8 h-8 rounded-full flex items-center justify-center shrink-0 ${style.icon}`}
+            >
+              {icon}
+            </div>
+          )}
+        </div>
+
+        {/* Value row + sparkline */}
+        <div className="flex items-end justify-between gap-3">
+          <div className="min-w-0">
+            <div className="text-[1.75rem] font-bold font-mono text-[var(--text-base)] leading-none tabular-nums">
+              <AnimatedNumber
+                value={typeof value === "number" ? value : 0}
+                prefix={prefix}
+                suffix={suffix}
+                decimals={decimals}
+              />
+            </div>
+            {subtitle && (
+              <p className="text-xs text-[var(--text-muted)] mt-1.5">{subtitle}</p>
+            )}
           </div>
-        )}
+
+          {hasSpark && (
+            <div className="shrink-0 opacity-80">
+              <Sparkline data={sparklineData} color={style.spark} />
+            </div>
+          )}
+        </div>
       </div>
 
-      {/* Value row: number + trend */}
-      <div className="flex items-baseline gap-2 mt-1">
-        <span className="text-3xl font-bold font-mono text-[var(--text-base)] leading-none">
-          <AnimatedNumber
-            value={typeof value === "number" ? value : 0}
-            prefix={prefix}
-            suffix={suffix}
-            decimals={decimals}
-          />
-        </span>
-        {trend !== undefined && trend !== 0 && (
+      {/* Trend footer — only when trend data present */}
+      {trend !== undefined && trend !== 0 && (
+        <div className="px-5 py-2.5 border-t border-[var(--border-base)] bg-[var(--bg-muted)]/40 flex items-center gap-2">
           <span
-            className={`inline-flex items-center gap-0.5 text-xs font-medium ${
-              trend > 0 ? "text-green-600" : "text-red-500"
+            className={`inline-flex items-center gap-0.5 text-[11px] font-semibold px-1.5 py-0.5 rounded-md ${
+              trend > 0 ? style.trend.up : style.trend.down
             }`}
-            aria-label={trendLabel ?? `${trend > 0 ? "up" : "down"} ${Math.abs(trend)}%`}
+            aria-label={
+              trendLabel ?? `${trend > 0 ? "Subió" : "Bajó"} ${Math.abs(trend)}%`
+            }
           >
-            {trend > 0 ? <TrendingUp size={13} /> : <TrendingDown size={13} />}
+            {trend > 0 ? (
+              <TrendingUp size={11} className="shrink-0" />
+            ) : (
+              <TrendingDown size={11} className="shrink-0" />
+            )}
             {trend > 0 ? "+" : ""}
             {trend}%
           </span>
-        )}
-      </div>
-
-      {/* Subtitle */}
-      {subtitle && (
-        <p className="text-xs text-[var(--text-muted)]">{subtitle}</p>
+          {trendLabel && (
+            <span className="text-[11px] text-[var(--text-muted)]">{trendLabel}</span>
+          )}
+        </div>
       )}
     </motion.div>
   );
