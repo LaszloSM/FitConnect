@@ -96,6 +96,10 @@ Cuando cometas un error durante una sesión, agrégalo aquí antes de terminar:
 | Filtros de fecha en pagos sin `alias` en FastAPI | `from` es palabra reservada en Python | Usar `Query(None, alias="from")` en parámetros de fecha |
 | `Promise.all` con N resultados — agregar más rompe destructuring | Agregar endpoint extra sin actualizar el `.then(([...])` | Siempre actualizar la desestructuración al agregar a `Promise.all` |
 | JS weekday (0=Dom) ≠ gym weekday (0=Lun) en clases | Diferentes convenciones de índice | Convertir: `gymWeekday = jsWeekday === 0 ? 6 : jsWeekday - 1` |
+| Token de owner sin `staff_id` → 500 en todo endpoint con `require_role`/`get_current_staff` | `create_access_token` no incluía `staff_id` pero `get_current_staff` lo leía con `payload["staff_id"]` | El owner es también `UserStaff` en su tenant DB: el login resuelve esa fila y mete `staff_id` en el token. Usar `payload.get("staff_id")` con guard 401, nunca `payload[...]` |
+| Router `users.py` no registrado en `router.py` → endpoints 404 silenciosos | Se reescribió el router pero nunca se agregó al agregador | Al crear/editar un router, verificar que esté en `app/api/v1/router.py` |
+| Login de staff en multi-tenant no sabe qué tenant DB consultar | El email del staff no revela su gym | Índice global `staff_directory` (email→tenant_id/db_name/staff_id) en Master DB; escribir al invitar y al crear owner |
+| Tests/imports stale tras refactor multi-tenant (`from app.models.tenant import Tenant`) | `Tenant` vive en `app.models.master.tenant`, no en el paquete `tenant` | Tras refactor de modelos, actualizar imports de tests; correr `pytest` dentro del contenedor `saasgym-backend-1` con `TEST_DB_URL` apuntando a `db:5432` |
 
 **Protocolo:** Al detectar un error que no estaba documentado, añade una fila a la tabla antes del commit.
 

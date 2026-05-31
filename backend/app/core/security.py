@@ -20,14 +20,25 @@ def verify_password(plain: str, hashed: str) -> bool:
     return bcrypt.checkpw(password_bytes, hashed.encode("utf-8"))
 
 
-def create_access_token(owner_id: str, tenant_id: str | None, db_name: str | None, role: str = "owner") -> str:
-    """Genera JWT con contexto de owner + tenant para multi-tenant DB dinámica."""
+def create_access_token(
+    owner_id: str,
+    tenant_id: str | None,
+    db_name: str | None,
+    role: str = "owner",
+    staff_id: str | None = None,
+) -> str:
+    """Genera JWT con contexto de owner + tenant para multi-tenant DB dinámica.
+
+    `staff_id` apunta a la fila UserStaff del owner en su tenant DB, para que el
+    owner pueda pasar por get_current_staff/require_role igual que el resto del staff.
+    """
     expire = datetime.now(timezone.utc) + timedelta(minutes=settings.access_token_expire_minutes)
     payload = {
         "sub": owner_id,
         "tenant_id": tenant_id,
         "db_name": db_name,
         "role": role,
+        "staff_id": staff_id,
         "exp": expire,
         "jti": str(uuid.uuid4()),
     }

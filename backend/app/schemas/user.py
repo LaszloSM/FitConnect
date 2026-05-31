@@ -1,6 +1,6 @@
 import uuid
 from pydantic import BaseModel, EmailStr
-from app.models.user import UserRole
+from app.models.tenant.user_staff import UserRole
 
 
 class InviteUserRequest(BaseModel):

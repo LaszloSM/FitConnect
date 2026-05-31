@@ -11,6 +11,7 @@ from app.db.tenant_session import get_tenant_engine
 from app.db.tenant_base import TenantBase
 from app.models.master.tenant import Tenant, TenantStatus, SubscriptionPlan
 from app.models.master.owner import Owner
+from app.models.master.staff_directory import StaffDirectory
 from app.models.tenant.user_staff import UserStaff, UserRole
 from sqlalchemy import select, text
 
@@ -124,6 +125,18 @@ async def create_tenant(owner_email: str, gym_name: str, city: str, owner_full_n
         )
         tenant_db.add(staff_owner)
         await tenant_db.commit()
+        await tenant_db.refresh(staff_owner)
+        staff_owner_id = staff_owner.id
     await tenant_engine.dispose()
-    
+
+    # 6. Registrar al owner en el índice global staff_directory (login de staff)
+    async with MasterSessionLocal() as master_db:
+        master_db.add(StaffDirectory(
+            email=owner_email,
+            tenant_id=tenant.id,
+            db_name=db_name,
+            staff_id=staff_owner_id,
+        ))
+        await master_db.commit()
+
     return tenant
