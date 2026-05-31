@@ -7,7 +7,9 @@ from decimal import Decimal
 
 from app.api.deps import get_tenant_db_from_token
 from app.schemas.member import PaymentCreate, PaymentUpdate, PaymentResponse
-from app.models.tenant.payment import Payment, PaymentStatus
+from app.models.tenant.payment import Payment, PaymentStatus, PaymentMethod
+from app.models.tenant.member import Member
+from app.models.tenant.membership import Membership
 
 router = APIRouter(prefix="/payments", tags=["payments"])
 
@@ -41,11 +43,60 @@ async def create_payment(
     payload: PaymentCreate,
     db: AsyncSession = Depends(get_tenant_db_from_token),
 ):
+    member_result = await db.execute(select(Member).where(Member.id == payload.member_id))
+    if not member_result.scalar_one_or_none():
+        raise HTTPException(status_code=404, detail="Miembro no encontrado")
+
+    if payload.membership_id is not None:
+        mem_result = await db.execute(
+            select(Membership).where(Membership.id == payload.membership_id)
+        )
+        membership = mem_result.scalar_one_or_none()
+        if not membership:
+            raise HTTPException(status_code=404, detail="Membresía no encontrada")
+        if membership.member_id != payload.member_id:
+            raise HTTPException(
+                status_code=400,
+                detail="La membresía no pertenece a este miembro",
+            )
+
     payment = Payment(**payload.model_dump())
     db.add(payment)
     await db.commit()
     await db.refresh(payment)
     return payment
+
+
+@router.get("/cash")
+async def cash_box(
+    db: AsyncSession = Depends(get_tenant_db_from_token),
+):
+    """Caja: ingresos pagados de hoy y del mes, con desglose por método."""
+    now = datetime.now()
+    today_start = now.replace(hour=0, minute=0, second=0, microsecond=0)
+    month_start = today_start.replace(day=1)
+
+    async def _totals(since: datetime) -> dict:
+        stmt = (
+            select(Payment.method, func.coalesce(func.sum(Payment.amount), 0), func.count())
+            .where(Payment.status == PaymentStatus.paid, Payment.created_at >= since)
+            .group_by(Payment.method)
+        )
+        result = await db.execute(stmt)
+        by_method: dict[str, float] = {}
+        total = Decimal(0)
+        count = 0
+        for method, amount, n in result.all():
+            key = method.value if method else "unknown"
+            by_method[key] = float(amount)
+            total += amount
+            count += n
+        return {"total": float(total), "count": count, "by_method": by_method}
+
+    return {
+        "today": await _totals(today_start),
+        "month": await _totals(month_start),
+    }
 
 
 @router.get("/{payment_id}", response_model=PaymentResponse)
