@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useSession } from "next-auth/react";
 import { motion, AnimatePresence } from "framer-motion";
 import { GlassCard } from "@/components/common/GlassCard";
@@ -10,6 +10,8 @@ import { EmptyState } from "@/components/common/EmptyState";
 import MemberSelect from "@/components/common/MemberSelect";
 import { Textarea } from "@/components/ui/textarea";
 import { apiClient } from "@/lib/api";
+import { useApiResource } from "@/hooks/useApiResource";
+import type { CheckIn, CheckinResult, MembershipStatus } from "@/types/models";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -26,22 +28,6 @@ import { AlertCircle, CheckCircle2, QrCode, ScanLine, User, XCircle } from "luci
 import { toast } from "sonner";
 import { formatDistanceToNow } from "date-fns";
 import { es } from "date-fns/locale";
-
-type MembershipStatus = "ok" | "expired" | "no_membership";
-
-interface CheckIn {
-  id: string;
-  member_id: string;
-  member_name?: string | null;
-  notes: string | null;
-  created_at: string;
-}
-
-interface CheckinResult {
-  member_name: string | null;
-  membership_status: MembershipStatus;
-  created_at: string;
-}
 
 type ActiveTab = "qr" | "manual";
 
@@ -85,9 +71,12 @@ function ConfirmationCard({ result }: { result: CheckinResult }) {
 
 export default function CheckinsClient() {
   const { data: session } = useSession();
-  const [checkins, setCheckins] = useState<CheckIn[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState("");
+  const {
+    data: checkins,
+    loading,
+    error,
+    refetch: fetchToday,
+  } = useApiResource<CheckIn[]>("/api/v1/checkins/today", []);
   const [activeTab, setActiveTab] = useState<ActiveTab>("qr");
   const [result, setResult] = useState<CheckinResult | null>(null);
 
@@ -98,34 +87,9 @@ export default function CheckinsClient() {
   const [notes, setNotes] = useState("");
   const [submitting, setSubmitting] = useState(false);
 
-  const fetchToday = async () => {
-    if (!session?.accessToken) return;
-    try {
-      const client = apiClient(session.accessToken as string);
-      const res = await client.get("/api/v1/checkins/today");
-      setCheckins(res.data);
-      setError("");
-    } catch (err: any) {
-      setError(
-        typeof err.response?.data?.detail === "string"
-          ? err.response.data.detail
-          : "Error cargando check-ins"
-      );
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    if (!session?.accessToken) return;
-    setLoading(true);
-    fetchToday();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [session]);
-
   const handleResult = (data: CheckinResult) => {
     setResult(data);
-    fetchToday();
+    void fetchToday();
   };
 
   const handleError = (err: any, fallback: string) => {
