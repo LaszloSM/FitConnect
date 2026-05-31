@@ -120,6 +120,8 @@ class MembershipResponse(MembershipBase):
     id: uuid.UUID
     created_at: datetime
     updated_at: datetime
+    # Derivado de end_date/status en tiempo de lectura (no persiste un status stale)
+    effective_status: Optional[Literal["active", "expired", "cancelled"]] = None
 
     class Config:
         from_attributes = True

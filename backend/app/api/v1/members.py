@@ -6,7 +6,7 @@ from datetime import date, datetime, timedelta
 from decimal import Decimal
 
 from app.api.deps import get_tenant_db_from_token
-from app.schemas.member import MemberCreate, MemberUpdate, MemberResponse
+from app.schemas.member import MemberCreate, MemberUpdate, MemberResponse, MembershipResponse
 from app.models.tenant.member import Member, MemberStatus
 from app.models.tenant.membership import Membership
 
@@ -127,16 +127,23 @@ async def get_member_checkins(
     return result.scalars().all()
 
 
-@router.get("/{member_id}/memberships")
+@router.get("/{member_id}/memberships", response_model=list[MembershipResponse])
 async def get_member_memberships(
     member_id: uuid.UUID,
     db: AsyncSession = Depends(get_tenant_db_from_token),
 ):
     from app.models.tenant.membership import Membership
+    from app.services.membership_status import effective_status
     result = await db.execute(
         select(Membership).where(Membership.member_id == member_id).order_by(Membership.start_date.desc())
     )
-    return result.scalars().all()
+    memberships = result.scalars().all()
+    responses = []
+    for m in memberships:
+        data = MembershipResponse.model_validate(m)
+        data.effective_status = effective_status(m)
+        responses.append(data)
+    return responses
 
 
 @router.get("/{member_id}", response_model=MemberResponse)

@@ -84,10 +84,15 @@ async def delete_plan(plan_id: str, db: AsyncSession = Depends(get_tenant_db_fro
 
 @router.post("/assign")
 async def assign_membership(data: AssignMembership, db: AsyncSession = Depends(get_tenant_db_from_token)):
+    from app.models.tenant.member import Member
     from app.models.tenant.member_plan import MemberPlan
     from app.models.tenant.membership import Membership, MembershipStatus
     from app.models.tenant.payment import Payment, PaymentMethod, PaymentStatus
     from decimal import Decimal
+
+    member_result = await db.execute(select(Member).where(Member.id == uuid.UUID(data.member_id)))
+    if not member_result.scalar_one_or_none():
+        raise HTTPException(status_code=404, detail="Miembro no encontrado")
 
     plan_result = await db.execute(select(MemberPlan).where(MemberPlan.id == uuid.UUID(data.plan_id)))
     plan = plan_result.scalar_one_or_none()
