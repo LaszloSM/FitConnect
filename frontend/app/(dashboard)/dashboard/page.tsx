@@ -142,6 +142,9 @@ export default function DashboardPage() {
     const token = session.accessToken as string;
     const client = apiClient(token);
 
+    // Fire-and-forget: generate expiry notifications once on load
+    client.post("/api/v1/reports/generate-expiry-notifications").catch(() => {});
+
     client
       .get("/api/v1/dashboard/kpis", {
         params: { from: dateFrom, to: dateTo },
