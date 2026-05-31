@@ -388,6 +388,41 @@ export default function MemberDetailClient({ memberId }: { memberId: string }) {
                 </div>
               )}
 
+              {/* Renewal alert + quick pre-fill */}
+              {(() => {
+                if (!activeMembership?.end_date) return null;
+                const daysLeft = Math.ceil(
+                  (new Date(activeMembership.end_date).getTime() - Date.now()) / 86_400_000
+                );
+                if (daysLeft > 7) return null;
+                const activePlanObj = plans.find((p: any) => p.name === activeMembership.plan_name);
+                const renewDate = activeMembership.end_date; // start day after current end
+                return (
+                  <div className="rounded-lg border border-amber-200 dark:border-amber-800/40 bg-amber-50 dark:bg-amber-950/20 p-3 flex items-center justify-between gap-3">
+                    <div>
+                      <p className="text-xs font-semibold text-amber-800 dark:text-amber-300">
+                        {daysLeft <= 0 ? "Membresía vencida" : `Vence en ${daysLeft} día${daysLeft !== 1 ? "s" : ""}`}
+                      </p>
+                      <p className="text-[11px] text-amber-700/80 dark:text-amber-400/80">
+                        Plan actual: {activeMembership.plan_name}
+                      </p>
+                    </div>
+                    {activePlanObj && (
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setSelectedPlan(activePlanObj.id);
+                          setStartDate(renewDate);
+                        }}
+                        className="shrink-0 text-xs font-semibold text-amber-700 dark:text-amber-300 border border-amber-300 dark:border-amber-700/60 rounded-lg px-3 py-1.5 hover:bg-amber-100 dark:hover:bg-amber-900/30 transition-colors"
+                      >
+                        Renovar →
+                      </button>
+                    )}
+                  </div>
+                );
+              })()}
+
               {/* Asignar nueva */}
               <div className="pt-4 border-t border-[var(--border-base)]">
                 <p className="text-[var(--text-muted)] text-[10px] uppercase tracking-wider mb-3 font-medium">
