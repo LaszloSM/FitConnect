@@ -1,6 +1,6 @@
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, Query
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import select, func, extract
+from sqlalchemy import select, func, extract, not_, exists
 from datetime import date, datetime, timedelta
 from decimal import Decimal
 
@@ -128,3 +128,59 @@ async def revenue_history_report(
             "amount": float(total),
         })
     return results
+
+
+@router.get("/inactive-members")
+async def inactive_members_report(
+    days: int = Query(14, ge=1, le=365, description="Días sin visita"),
+    db: AsyncSession = Depends(get_tenant_db_from_token),
+):
+    """Active members who haven't checked in for the last N days."""
+    today = date.today()
+    cutoff = datetime.combine(today - timedelta(days=days), datetime.min.time())
+
+    # Subquery: member_ids that have a check-in after cutoff
+    recent_checkins = (
+        select(CheckIn.member_id)
+        .where(CheckIn.created_at >= cutoff)
+        .distinct()
+        .scalar_subquery()
+    )
+
+    # Active members not in recent check-ins
+    stmt = (
+        select(Member)
+        .where(
+            Member.status == MemberStatus.active,
+            Member.id.not_in(recent_checkins),
+        )
+        .order_by(Member.full_name)
+        .limit(50)
+    )
+    result = await db.execute(stmt)
+    members = result.scalars().all()
+
+    # For each, get their last check-in date
+    member_ids = [m.id for m in members]
+    last_checkin_map: dict = {}
+    if member_ids:
+        last_stmt = (
+            select(CheckIn.member_id, func.max(CheckIn.created_at).label("last_checkin"))
+            .where(CheckIn.member_id.in_(member_ids))
+            .group_by(CheckIn.member_id)
+        )
+        lr = await db.execute(last_stmt)
+        for row in lr.all():
+            last_checkin_map[row[0]] = row[1]
+
+    return [
+        {
+            "id": str(m.id),
+            "full_name": m.full_name,
+            "email": m.email,
+            "phone": m.phone,
+            "last_checkin": last_checkin_map.get(m.id).isoformat() if last_checkin_map.get(m.id) else None,
+            "days_inactive": (today - last_checkin_map[m.id].date()).days if last_checkin_map.get(m.id) else None,
+        }
+        for m in members
+    ]

@@ -8,7 +8,7 @@ import { GlassCard } from "@/components/common/GlassCard";
 import { PageHeader } from "@/components/common/PageHeader";
 import { EmptyState } from "@/components/common/EmptyState";
 import { apiClient } from "@/lib/api";
-import { AlertCircle, Users, CreditCard, Activity, Calendar, TrendingUp } from "lucide-react";
+import { AlertCircle, Users, CreditCard, Activity, Calendar, TrendingUp, UserX, Phone } from "lucide-react";
 import {
   BarChart,
   Bar,
@@ -57,6 +57,7 @@ export default function ReportsClient() {
   const [attendance, setAttendance] = useState<{ total_checkins: number; date: string } | null>(null);
   const [expiring, setExpiring] = useState<any[]>([]);
   const [revenueHistory, setRevenueHistory] = useState<{ month: string; amount: number }[]>([]);
+  const [inactive, setInactive] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
@@ -71,14 +72,16 @@ export default function ReportsClient() {
       client.get("/api/v1/reports/attendance-today"),
       client.get("/api/v1/reports/expiring-memberships"),
       client.get("/api/v1/reports/revenue-history"),
+      client.get("/api/v1/reports/inactive-members?days=14"),
     ])
-      .then(([ms, pm, at, em, rh]) => {
+      .then(([ms, pm, at, em, rh, im]) => {
         if (!cancelled) {
           setMemberStatus(ms.data);
           setPaymentMethods(pm.data);
           setAttendance(at.data);
           setExpiring(em.data);
           setRevenueHistory(rh.data);
+          setInactive(im.data);
           setError("");
         }
       })
@@ -103,8 +106,8 @@ export default function ReportsClient() {
           <div className="skeleton h-4 w-48 rounded" />
         </div>
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-          {Array.from({ length: 6 }).map((_, i) => (
-            <div key={i} className="skeleton h-56 rounded-xl" />
+          {Array.from({ length: 8 }).map((_, i) => (
+            <div key={i} className={`skeleton rounded-xl ${i === 0 ? "h-48 lg:col-span-2" : "h-56"}`} />
           ))}
         </div>
       </div>
@@ -275,6 +278,55 @@ export default function ReportsClient() {
                   check-ins registrados
                 </p>
               </div>
+            </div>
+          </GlassCard>
+        </motion.div>
+
+        {/* Inactive members (retention) */}
+        <motion.div variants={cardVariants}>
+          <GlassCard className="p-5 h-full">
+            <div className="flex items-center justify-between mb-4">
+              <div className="flex items-center gap-2">
+                <UserX className="h-4 w-4 text-purple-500" aria-hidden="true" />
+                <h3 className="text-[var(--text-base)] font-semibold text-sm">
+                  Sin visita — 14 días
+                </h3>
+              </div>
+              {inactive.length > 0 && (
+                <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-purple-50 dark:bg-purple-950/40 text-purple-700 dark:text-purple-400 ring-1 ring-purple-200 dark:ring-purple-800/60">
+                  {inactive.length} miembro{inactive.length !== 1 ? "s" : ""}
+                </span>
+              )}
+            </div>
+            <div className="space-y-1.5 max-h-44 overflow-y-auto pr-1">
+              {inactive.length === 0 ? (
+                <p className="text-[var(--text-muted)] text-xs text-center py-6">
+                  Todos los miembros activos han visitado esta semana
+                </p>
+              ) : (
+                inactive.map((item) => (
+                  <Link
+                    key={item.id}
+                    href={`/members/${item.id}`}
+                    className="flex items-center justify-between py-2 px-3 surface-1 rounded-lg hover:bg-[var(--bg-muted)] transition-colors group"
+                  >
+                    <div className="min-w-0 flex-1">
+                      <p className="text-[var(--text-base)] text-xs font-medium truncate group-hover:text-purple-500 transition-colors">
+                        {item.full_name}
+                      </p>
+                      {item.phone && (
+                        <p className="text-[var(--text-muted)] text-[10px] flex items-center gap-1 truncate">
+                          <Phone className="h-2.5 w-2.5 shrink-0" />
+                          {item.phone}
+                        </p>
+                      )}
+                    </div>
+                    <span className="text-purple-600 dark:text-purple-400 text-xs font-medium ml-3 shrink-0 tabular-nums">
+                      {item.days_inactive !== null ? `${item.days_inactive}d` : "Nunca"}
+                    </span>
+                  </Link>
+                ))
+              )}
             </div>
           </GlassCard>
         </motion.div>

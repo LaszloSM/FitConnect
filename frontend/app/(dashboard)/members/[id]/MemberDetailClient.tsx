@@ -20,21 +20,23 @@ import {
   Tag,
   CheckCircle2,
   Clock,
-  AlertTriangle,
   BadgeX,
   Loader2,
+  QrCode,
 } from "lucide-react";
+import { QRCodeDisplay } from "@/components/common/QRCodeDisplay";
 import { toast } from "sonner";
 import { formatDistanceToNow, format } from "date-fns";
 import { es } from "date-fns/locale";
 
-type Tab = "info" | "memberships" | "payments" | "checkins";
+type Tab = "info" | "memberships" | "payments" | "checkins" | "qr";
 
 const TAB_CONFIG: { key: Tab; label: string; icon: React.ReactNode }[] = [
   { key: "info",        label: "Perfil",       icon: <User className="h-3.5 w-3.5" /> },
   { key: "memberships", label: "Membresías",   icon: <Tag className="h-3.5 w-3.5" /> },
   { key: "payments",    label: "Pagos",         icon: <CreditCard className="h-3.5 w-3.5" /> },
   { key: "checkins",    label: "Check-ins",     icon: <Activity className="h-3.5 w-3.5" /> },
+  { key: "qr",          label: "Carné QR",      icon: <QrCode className="h-3.5 w-3.5" /> },
 ];
 
 function formatCOP(amount: number) {
@@ -357,6 +359,25 @@ export default function MemberDetailClient({ memberId }: { memberId: string }) {
                     </div>
                   ))}
                 </>
+              )}
+            </div>
+          )}
+
+          {/* QR CARNÉ */}
+          {tab === "qr" && (
+            <div className="flex flex-col items-center gap-4 py-4">
+              {member.qr_code ? (
+                <QRCodeDisplay qrCode={member.qr_code} memberName={member.full_name} />
+              ) : (
+                <div className="text-center py-8 space-y-2">
+                  <QrCode className="h-10 w-10 text-[var(--text-muted)] mx-auto" />
+                  <p className="text-[var(--text-muted)] text-sm">
+                    Este miembro no tiene código QR asignado.
+                  </p>
+                  <p className="text-[var(--text-muted)] text-xs">
+                    El QR se genera automáticamente para nuevos miembros.
+                  </p>
+                </div>
               )}
             </div>
           )}
