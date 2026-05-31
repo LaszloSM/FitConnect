@@ -162,6 +162,11 @@ export default function MembersClient() {
   const [deleteId, setDeleteId] = useState<string | null>(null);
   const [qrMember, setQrMember] = useState<Member | null>(null);
 
+  // Pagination
+  const [page, setPage] = useState(0);
+  const [hasMore, setHasMore] = useState(true);
+  const PAGE_SIZE = 50;
+
   // Membership tab state
   const [availablePlans, setAvailablePlans] = useState<{ id: string; name: string; price: number; duration_days: number }[]>([]);
   const [currentMembership, setCurrentMembership] = useState<{ plan_name: string; start_date: string; end_date: string; status: string } | null>(null);
@@ -196,14 +201,20 @@ export default function MembersClient() {
     URL.revokeObjectURL(url);
   };
 
-  const fetchMembers = async () => {
+  const fetchMembers = async (currentPage = page) => {
     if (!session?.accessToken) return;
     try {
       const client = apiClient(session.accessToken as string);
       const res = await client.get("/api/v1/members", {
-        params: { q: search, ...(statusFilter ? { status: statusFilter } : {}) },
+        params: {
+          q: search,
+          limit: PAGE_SIZE,
+          offset: currentPage * PAGE_SIZE,
+          ...(statusFilter ? { status: statusFilter } : {}),
+        },
       });
       setMembers(res.data);
+      setHasMore(res.data.length === PAGE_SIZE);
       setError("");
     } catch (err: unknown) {
       const e = err as { response?: { data?: { detail?: string } } };
@@ -217,11 +228,17 @@ export default function MembersClient() {
     if (!session?.accessToken) return;
     let cancelled = false;
     setLoading(true);
+    // Reset to page 0 when filters change
+    setPage(0);
     const client = apiClient(session.accessToken as string);
     client.get("/api/v1/members", {
-      params: { q: search, ...(statusFilter ? { status: statusFilter } : {}) },
+      params: { q: search, limit: PAGE_SIZE, offset: 0, ...(statusFilter ? { status: statusFilter } : {}) },
     }).then((res) => {
-      if (!cancelled) { setMembers(res.data); setError(""); }
+      if (!cancelled) {
+        setMembers(res.data);
+        setHasMore(res.data.length === PAGE_SIZE);
+        setError("");
+      }
     }).catch((err: unknown) => {
       const e = err as { response?: { data?: { detail?: string } } };
       if (!cancelled) setError(e.response?.data?.detail || "Error cargando miembros");
@@ -229,7 +246,7 @@ export default function MembersClient() {
       if (!cancelled) setLoading(false);
     });
     return () => { cancelled = true; };
-  }, [session, search, statusFilter]);
+  }, [session, search, statusFilter]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // Lazy-load plans + current membership when membership tab activates
   useEffect(() => {
@@ -785,6 +802,31 @@ export default function MembersClient() {
             </TableBody>
           </Table>
         </div>
+
+        {/* Pagination */}
+        {(page > 0 || hasMore) && (
+          <div className="flex items-center justify-between pt-3 mt-3 border-t border-[var(--border-base)]">
+            <p className="text-xs text-[var(--text-muted)]">
+              Página {page + 1} · {members.length} resultado{members.length !== 1 ? "s" : ""}
+            </p>
+            <div className="flex gap-2">
+              <button
+                disabled={page === 0 || loading}
+                onClick={() => { const p = page - 1; setPage(p); fetchMembers(p); }}
+                className="px-3 py-1.5 text-xs font-medium rounded-md border border-[var(--border-base)] bg-[var(--bg-base)] text-[var(--text-muted)] hover:text-[var(--text-base)] disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+              >
+                ← Anterior
+              </button>
+              <button
+                disabled={!hasMore || loading}
+                onClick={() => { const p = page + 1; setPage(p); fetchMembers(p); }}
+                className="px-3 py-1.5 text-xs font-medium rounded-md border border-[var(--border-base)] bg-[var(--bg-base)] text-[var(--text-muted)] hover:text-[var(--text-base)] disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+              >
+                Siguiente →
+              </button>
+            </div>
+          </div>
+        )}
       </GlassCard>
 
       {/* QR Popover */}
