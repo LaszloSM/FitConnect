@@ -79,6 +79,7 @@ export default function MemberDetailClient({ memberId }: { memberId: string }) {
   const [plans, setPlans] = useState<any[]>([]);
   const [selectedPlan, setSelectedPlan] = useState("");
   const [startDate, setStartDate] = useState(new Date().toISOString().slice(0, 10));
+  const [paymentMethod, setPaymentMethod] = useState("");
   const [assigning, setAssigning] = useState(false);
 
   useEffect(() => {
@@ -110,9 +111,11 @@ export default function MemberDetailClient({ memberId }: { memberId: string }) {
         member_id: memberId,
         plan_id: selectedPlan,
         start_date: startDate,
+        payment_method: paymentMethod || null,
       });
-      toast.success("Membresía asignada correctamente");
+      toast.success(paymentMethod ? "Membresía asignada y pago generado" : "Membresía asignada correctamente");
       setSelectedPlan("");
+      setPaymentMethod("");
       const ms = await client.get(`/api/v1/members/${memberId}/memberships`);
       setMemberships(ms.data);
     } catch (err: any) {
@@ -310,6 +313,22 @@ export default function MemberDetailClient({ memberId }: { memberId: string }) {
                         className="w-full h-9 rounded-md border border-[var(--border-base)] bg-[var(--bg-base)] px-3 text-sm text-[var(--text-base)] outline-none focus:ring-2 focus:ring-orange-500/30 focus:border-orange-500"
                         required
                       />
+                    </div>
+                    <div className="sm:col-span-2">
+                      <label className="text-[var(--text-muted)] text-xs mb-1 block">
+                        Método de pago <span className="opacity-60">(opcional — genera pago pendiente)</span>
+                      </label>
+                      <select
+                        value={paymentMethod}
+                        onChange={(e) => setPaymentMethod(e.target.value)}
+                        className="w-full h-9 rounded-md border border-[var(--border-base)] bg-[var(--bg-base)] px-3 text-sm text-[var(--text-base)] outline-none focus:ring-2 focus:ring-orange-500/30 focus:border-orange-500"
+                      >
+                        <option value="">No generar pago ahora</option>
+                        <option value="cash">Efectivo</option>
+                        <option value="transfer">Transferencia</option>
+                        <option value="card">Tarjeta</option>
+                        <option value="wompi">Wompi</option>
+                      </select>
                     </div>
                   </div>
                   <Button

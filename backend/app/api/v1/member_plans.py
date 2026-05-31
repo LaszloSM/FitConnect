@@ -29,6 +29,8 @@ class AssignMembership(BaseModel):
     member_id: str
     plan_id: str
     start_date: date
+    # Si se provee, genera un pago pendiente por el monto del plan
+    payment_method: str | None = None  # "cash" | "transfer" | "card" | None
 
 
 @router.get("/")
@@ -84,10 +86,14 @@ async def delete_plan(plan_id: str, db: AsyncSession = Depends(get_tenant_db_fro
 async def assign_membership(data: AssignMembership, db: AsyncSession = Depends(get_tenant_db_from_token)):
     from app.models.tenant.member_plan import MemberPlan
     from app.models.tenant.membership import Membership, MembershipStatus
+    from app.models.tenant.payment import Payment, PaymentMethod, PaymentStatus
+    from decimal import Decimal
+
     plan_result = await db.execute(select(MemberPlan).where(MemberPlan.id == uuid.UUID(data.plan_id)))
     plan = plan_result.scalar_one_or_none()
     if not plan:
         raise HTTPException(status_code=404, detail="Plan no encontrado")
+
     membership = Membership(
         member_id=uuid.UUID(data.member_id),
         plan_name=plan.name,
@@ -98,6 +104,25 @@ async def assign_membership(data: AssignMembership, db: AsyncSession = Depends(g
         status=MembershipStatus.active,
     )
     db.add(membership)
+
+    # Auto-generar pago pendiente si se indica método de pago
+    if data.payment_method:
+        method_map = {
+            "cash": PaymentMethod.cash,
+            "transfer": PaymentMethod.transfer,
+            "card": PaymentMethod.card,
+            "wompi": PaymentMethod.wompi,
+        }
+        method = method_map.get(data.payment_method, PaymentMethod.cash)
+        payment = Payment(
+            member_id=uuid.UUID(data.member_id),
+            amount=Decimal(str(plan.price)),
+            method=method,
+            status=PaymentStatus.pending,
+            concept=f"Membresía {plan.name}",
+        )
+        db.add(payment)
+
     await db.commit()
     await db.refresh(membership)
     return membership
