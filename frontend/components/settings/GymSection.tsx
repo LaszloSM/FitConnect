@@ -127,7 +127,7 @@ export default function GymSection() {
     setSavingHours(true);
     try {
       const client = apiClient(session.accessToken as string);
-      await client.put("/api/v1/settings/gym", { operating_hours: operatingHours });
+      await client.patch("/api/v1/settings/gym", { operating_hours: operatingHours });
       toast.success("Horarios de atención guardados");
     } catch (err: any) {
       const detail = err.response?.data?.detail;

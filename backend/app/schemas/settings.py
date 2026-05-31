@@ -27,6 +27,7 @@ class GymSettingsResponse(BaseModel):
     city: Optional[str] = None
     logo_url: Optional[str] = None
     plan: Optional[str] = None
+    operating_hours: Optional[dict] = None
 
 
 class GymSettingsUpdate(BaseModel):
@@ -35,6 +36,7 @@ class GymSettingsUpdate(BaseModel):
     address: Optional[str] = None
     city: Optional[str] = None
     logo_url: Optional[str] = None
+    operating_hours: Optional[dict] = None
 
 
 class NotificationPreferences(BaseModel):

@@ -1,7 +1,8 @@
 import uuid
 import enum
+from typing import Optional
 from sqlalchemy import String, Enum as SAEnum
-from sqlalchemy.dialects.postgresql import UUID
+from sqlalchemy.dialects.postgresql import UUID, JSONB
 from sqlalchemy.orm import mapped_column, Mapped
 from app.db.master_base import MasterBase, MasterTimestampMixin
 
@@ -36,3 +37,4 @@ class Tenant(MasterBase, MasterTimestampMixin):
     phone: Mapped[str | None] = mapped_column(String(50), nullable=True)
     address: Mapped[str | None] = mapped_column(String(500), nullable=True)
     city: Mapped[str | None] = mapped_column(String(100), nullable=True)
+    operating_hours: Mapped[Optional[dict]] = mapped_column(JSONB, nullable=True, default=None)
