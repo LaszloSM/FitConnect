@@ -100,6 +100,9 @@ Cuando cometas un error durante una sesión, agrégalo aquí antes de terminar:
 | Router `users.py` no registrado en `router.py` → endpoints 404 silenciosos | Se reescribió el router pero nunca se agregó al agregador | Al crear/editar un router, verificar que esté en `app/api/v1/router.py` |
 | Login de staff en multi-tenant no sabe qué tenant DB consultar | El email del staff no revela su gym | Índice global `staff_directory` (email→tenant_id/db_name/staff_id) en Master DB; escribir al invitar y al crear owner |
 | Tests/imports stale tras refactor multi-tenant (`from app.models.tenant import Tenant`) | `Tenant` vive en `app.models.master.tenant`, no en el paquete `tenant` | Tras refactor de modelos, actualizar imports de tests; correr `pytest` dentro del contenedor `saasgym-backend-1` con `TEST_DB_URL` apuntando a `db:5432` |
+| Feature fantasma: el front llamaba `PUT /settings/gym` que no existía (solo PATCH) y `operating_hours` no estaba en schema ni DB | Contrato frontend↔backend desalineado; el botón fallaba siempre | Al tocar una pantalla, verificar que el endpoint/método/campo exista en el backend (probar el contrato en vivo) |
+| Agregado de ingresos sumaba pagos de cualquier estado | `total_payments_month` sin filtro `status` mientras caja/revenue sí filtran `paid` | Todo agregado de ingresos filtra `Payment.status == paid`; lo pendiente se reporta aparte |
+| Frontend corre como build standalone (`node server.js`, sin volumen ni HMR) | Editar el source no se refleja sin `docker compose build frontend` | Verificar frontend con `tsc --noEmit` (host tiene node_modules); para ver en navegador, rebuild |
 
 **Protocolo:** Al detectar un error que no estaba documentado, añade una fila a la tabla antes del commit.
 
