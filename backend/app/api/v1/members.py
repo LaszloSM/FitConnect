@@ -1,13 +1,14 @@
 import uuid
 from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import select, func, or_
+from sqlalchemy import select, func, or_, and_
 from datetime import date, datetime, timedelta
 from decimal import Decimal
 
 from app.api.deps import get_tenant_db_from_token
 from app.schemas.member import MemberCreate, MemberUpdate, MemberResponse
 from app.models.tenant.member import Member, MemberStatus
+from app.models.tenant.membership import Membership
 
 router = APIRouter(prefix="/members", tags=["members"])
 
@@ -30,7 +31,60 @@ async def list_members(
         stmt = stmt.where(Member.status == status)
     stmt = stmt.order_by(Member.created_at.desc()).limit(limit).offset(offset)
     result = await db.execute(stmt)
-    return result.scalars().all()
+    members = result.scalars().all()
+
+    # Bulk-fetch memberships for all returned members in 2 queries (no N+1)
+    if members:
+        member_ids = [m.id for m in members]
+        today = date.today()
+
+        # Query 1: all active memberships
+        active_stmt = select(Membership).where(
+            and_(
+                Membership.member_id.in_(member_ids),
+                Membership.end_date >= today,
+                Membership.status == "active",
+            )
+        ).order_by(Membership.end_date.desc())
+        active_result = await db.execute(active_stmt)
+        active_memberships = active_result.scalars().all()
+        active_map: dict = {}
+        for mem in active_memberships:
+            if mem.member_id not in active_map:
+                active_map[mem.member_id] = mem
+
+        # Query 2: most recent membership for members without active one (for expired status)
+        without_active = [mid for mid in member_ids if mid not in active_map]
+        last_map: dict = {}
+        if without_active:
+            last_stmt = select(Membership).where(
+                Membership.member_id.in_(without_active)
+            ).order_by(Membership.member_id, Membership.end_date.desc())
+            last_result = await db.execute(last_stmt)
+            for mem in last_result.scalars().all():
+                if mem.member_id not in last_map:
+                    last_map[mem.member_id] = mem
+
+        responses = []
+        for m in members:
+            data = MemberResponse.model_validate(m)
+            active = active_map.get(m.id)
+            if active:
+                data.membership_status = "active"
+                data.membership_end_date = active.end_date
+                data.membership_plan_name = active.plan_name
+            else:
+                last = last_map.get(m.id)
+                if last:
+                    data.membership_status = "expired"
+                    data.membership_end_date = last.end_date
+                    data.membership_plan_name = last.plan_name
+                else:
+                    data.membership_status = "none"
+            responses.append(data)
+        return responses
+
+    return []
 
 
 @router.post("", response_model=MemberResponse, status_code=201)

@@ -91,6 +91,10 @@ class MemberResponse(MemberBase):
     qr_code: Optional[str] = None
     created_at: datetime
     updated_at: datetime
+    # Populated by list endpoint via JOIN — None if no membership
+    membership_status: Optional[str] = None
+    membership_end_date: Optional[date] = None
+    membership_plan_name: Optional[str] = None
 
     class Config:
         from_attributes = True

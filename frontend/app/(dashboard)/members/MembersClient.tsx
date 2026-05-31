@@ -78,6 +78,10 @@ interface Member {
   parq_completed_at: string | null;
   training_goal: string | null;
   qr_code: string | null;
+  // Populated by backend list endpoint
+  membership_status: "active" | "expired" | "none" | null;
+  membership_end_date: string | null;
+  membership_plan_name: string | null;
 }
 
 const inputCls =
@@ -615,8 +619,8 @@ export default function MembersClient() {
                 <TableHead className="text-[var(--text-muted)]">Email</TableHead>
                 <TableHead className="text-[var(--text-muted)]">Teléfono</TableHead>
                 <TableHead className="text-[var(--text-muted)]">Documento</TableHead>
-                <TableHead className="text-[var(--text-muted)]">Estado</TableHead>
-                <TableHead className="text-[var(--text-muted)]">Fecha Registro</TableHead>
+                <TableHead className="text-[var(--text-muted)]">Membresía</TableHead>
+                <TableHead className="text-[var(--text-muted)]">Registro</TableHead>
                 <TableHead className="text-[var(--text-muted)]">QR</TableHead>
                 <TableHead className="text-[var(--text-muted)] text-right">Acciones</TableHead>
               </TableRow>
@@ -671,15 +675,34 @@ export default function MembersClient() {
                       {m.id_type && <span className="text-xs font-medium text-orange-500 mr-1">{m.id_type}</span>}
                       {m.id_number || "-"}
                     </TableCell>
-                    <TableCell>
-                      <span className={cn(
-                        "inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium",
-                        m.status === "active"
-                          ? "bg-green-100 dark:bg-green-950/30 text-green-700 dark:text-green-400"
-                          : "bg-red-100 dark:bg-red-950/30 text-red-700 dark:text-red-400"
-                      )}>
-                        {m.status === "active" ? "Activo" : "Inactivo"}
-                      </span>
+                    <TableCell onClick={(e) => e.stopPropagation()}>
+                      {m.membership_status === "active" ? (
+                        <div className="flex flex-col gap-0.5">
+                          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium bg-green-100 dark:bg-green-950/30 text-green-700 dark:text-green-400 w-fit">
+                            <span className="h-1.5 w-1.5 rounded-full bg-green-500 inline-block" />
+                            {m.membership_plan_name || "Activa"}
+                          </span>
+                          {m.membership_end_date && (
+                            <span className="text-[10px] text-[var(--text-muted)] pl-1">
+                              Vence {new Date(m.membership_end_date).toLocaleDateString("es-CO")}
+                            </span>
+                          )}
+                        </div>
+                      ) : m.membership_status === "expired" ? (
+                        <div className="flex flex-col gap-0.5">
+                          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium bg-red-100 dark:bg-red-950/30 text-red-700 dark:text-red-400 w-fit">
+                            <span className="h-1.5 w-1.5 rounded-full bg-red-500 inline-block" />
+                            Vencida
+                          </span>
+                          {m.membership_end_date && (
+                            <span className="text-[10px] text-[var(--text-muted)] pl-1">
+                              {new Date(m.membership_end_date).toLocaleDateString("es-CO")}
+                            </span>
+                          )}
+                        </div>
+                      ) : (
+                        <span className="text-[var(--text-muted)] text-xs">Sin membresía</span>
+                      )}
                     </TableCell>
                     <TableCell className="text-[var(--text-muted)] text-sm">
                       {new Date(m.created_at).toLocaleDateString("es-ES")}

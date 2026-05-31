@@ -4,17 +4,19 @@ export const dynamic = "force-dynamic";
 import { useEffect, useState } from "react";
 import { useSession } from "next-auth/react";
 import { motion } from "framer-motion";
-import { KPICard } from "@/components/dashboard/KPICard";
+import { KpiCard } from "@/components/ui/kpi-card";
 import { GlassCard } from "@/components/common/GlassCard";
-import { PageHeader } from "@/components/common/PageHeader";
 import { EmptyState } from "@/components/common/EmptyState";
 import { apiClient } from "@/lib/api";
+import Link from "next/link";
 import {
   Users,
   DollarSign,
   Activity,
   AlertCircle,
   Calendar,
+  TrendingUp,
+  ArrowRight,
 } from "lucide-react";
 import {
   format,
@@ -26,6 +28,8 @@ import {
   endOfToday,
 } from "date-fns";
 import {
+  AreaChart,
+  Area,
   BarChart,
   Bar,
   XAxis,
@@ -93,6 +97,25 @@ const PERIODS: Period[] = [
   },
 ];
 
+function formatCOP(amount: number) {
+  return new Intl.NumberFormat("es-CO", {
+    style: "currency",
+    currency: "COP",
+    minimumFractionDigits: 0,
+    maximumFractionDigits: 0,
+  }).format(amount);
+}
+
+const tooltipStyle = {
+  contentStyle: {
+    background: "var(--bg-card)",
+    border: "1px solid var(--border-base)",
+    borderRadius: 8,
+    fontSize: 12,
+  },
+  labelStyle: { color: "var(--text-base)" },
+};
+
 export default function DashboardPage() {
   const sessionData = useSession();
   const session = sessionData?.data;
@@ -140,10 +163,6 @@ export default function DashboardPage() {
   if (loading) {
     return (
       <div className="space-y-6">
-        <div className="mb-6">
-          <div className="skeleton h-8 w-40 rounded-lg mb-2" />
-          <div className="skeleton h-4 w-56 rounded" />
-        </div>
         <div className="flex gap-2 flex-wrap mb-6">
           {PERIODS.map((p) => (
             <div key={p.key} className="skeleton h-7 w-24 rounded-full" />
@@ -173,15 +192,14 @@ export default function DashboardPage() {
   }
 
   if (!data) {
-    return (
-      <EmptyState
-        title="Sin datos"
-        description="No hay datos para este período"
-      />
-    );
+    return <EmptyState title="Sin datos" description="No hay datos para este período" />;
   }
 
   const kpis = data.kpis;
+  const activeRate =
+    kpis.total_members > 0
+      ? Math.round((kpis.active_members / kpis.total_members) * 100)
+      : 0;
 
   return (
     <motion.div
@@ -200,8 +218,8 @@ export default function DashboardPage() {
               aria-pressed={isActive}
               className={
                 isActive
-                  ? "rounded-full px-3 py-1 text-sm font-medium bg-orange-500 text-white transition-colors"
-                  : "rounded-full px-3 py-1 text-sm font-medium bg-[var(--bg-base)] border border-[var(--border-base)] text-[var(--text-muted)] hover:text-[var(--text-base)] transition-colors"
+                  ? "rounded-full px-3 py-1 text-sm font-medium bg-[var(--color-primary)] text-white transition-colors"
+                  : "rounded-full px-3 py-1 text-sm font-medium bg-[var(--bg-muted)] border border-[var(--border-base)] text-[var(--text-muted)] hover:text-[var(--text-base)] transition-colors"
               }
             >
               {period.label}
@@ -210,46 +228,106 @@ export default function DashboardPage() {
         })}
       </div>
 
-      {/* KPI grid */}
+      {/* KPI grid — 21st Magic KpiCard */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
-        <KPICard
-          title="Miembros activos"
+        <KpiCard
+          label="Miembros activos"
           value={kpis.active_members}
-          subtitle={`${kpis.total_members} total`}
-          color="blue"
-          icon={<Users className="h-4 w-4" />}
-          sparklineData={data.member_growth.map((m) => m.count)}
+          caption={`${activeRate}% del total (${kpis.total_members})`}
+          tone="primary"
+          icon={<Users className="h-4 w-4 text-orange-500" />}
         />
-        <KPICard
-          title="Ingresos del mes"
-          value={kpis.total_payments_month}
-          prefix="$"
-          color="success"
-          icon={<DollarSign className="h-4 w-4" />}
-          sparklineData={data.revenue_history.map((r) =>
-            typeof r.amount === "number" ? r.amount : parseFloat(r.amount) || 0
-          )}
+        <KpiCard
+          label="Ingresos del mes"
+          value={formatCOP(kpis.total_payments_month)}
+          caption={
+            kpis.pending_payments_month > 0
+              ? `${formatCOP(kpis.pending_payments_month)} pendiente`
+              : "Sin pagos pendientes"
+          }
+          trend={kpis.total_payments_month > 0 ? "up" : "flat"}
+          tone="success"
+          icon={<DollarSign className="h-4 w-4 text-emerald-600 dark:text-emerald-400" />}
         />
-        <KPICard
-          title="Check-ins hoy"
+        <KpiCard
+          label="Check-ins hoy"
           value={kpis.checkins_today}
-          color="primary"
-          icon={<Activity className="h-4 w-4" />}
+          caption="Asistencia del día"
+          tone="default"
+          icon={<Activity className="h-4 w-4 text-[var(--text-muted)]" />}
         />
-        <KPICard
-          title="Pagos pendientes"
-          value={kpis.pending_payments_month}
-          prefix="$"
-          color="danger"
-          icon={<AlertCircle className="h-4 w-4" />}
+        <KpiCard
+          label="Nuevos este mes"
+          value={kpis.new_members_this_month}
+          caption="Miembros registrados"
+          trend={kpis.new_members_this_month > 0 ? "up" : "flat"}
+          delta={kpis.new_members_this_month > 0 ? kpis.new_members_this_month : undefined}
+          tone="warning"
+          icon={<TrendingUp className="h-4 w-4 text-amber-600 dark:text-amber-400" />}
         />
       </div>
 
       {/* Charts row */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-6">
+        {/* Revenue — AreaChart */}
+        <GlassCard className="p-5">
+          <div className="flex items-center justify-between mb-4">
+            <div className="flex items-center gap-2">
+              <span className="h-2 w-2 rounded-full bg-emerald-500 inline-block" />
+              <h3 className="text-sm font-semibold text-[var(--text-base)]">
+                Ingresos por mes
+              </h3>
+            </div>
+          </div>
+          <ResponsiveContainer width="100%" height={200}>
+            <AreaChart
+              data={data.revenue_history}
+              margin={{ top: 4, right: 0, left: -20, bottom: 0 }}
+            >
+              <CartesianGrid
+                strokeDasharray="3 3"
+                stroke="var(--border-base)"
+                vertical={false}
+              />
+              <XAxis
+                dataKey="month"
+                tick={{ fill: "var(--text-muted)", fontSize: 11 }}
+                axisLine={false}
+                tickLine={false}
+              />
+              <YAxis
+                tick={{ fill: "var(--text-muted)", fontSize: 11 }}
+                axisLine={false}
+                tickLine={false}
+                tickFormatter={(v) =>
+                  new Intl.NumberFormat("es-CO", {
+                    notation: "compact",
+                    compactDisplay: "short",
+                  }).format(v)
+                }
+              />
+              <Tooltip
+                {...tooltipStyle}
+                itemStyle={{ color: "#22C55E" }}
+                formatter={(value) => [formatCOP(Number(value) || 0), "Ingresos"]}
+              />
+              <Area
+                type="monotone"
+                dataKey="amount"
+                stroke="#22C55E"
+                strokeWidth={2}
+                fill="#22C55E"
+                fillOpacity={0.12}
+                name="Ingresos"
+              />
+            </AreaChart>
+          </ResponsiveContainer>
+        </GlassCard>
+
+        {/* Member growth — BarChart */}
         <GlassCard className="p-5">
           <div className="flex items-center gap-2 mb-4">
-            <span className="h-2 w-2 rounded-full bg-orange-500 inline-block" />
+            <span className="h-2 w-2 rounded-full bg-[var(--color-primary)] inline-block" />
             <h3 className="text-sm font-semibold text-[var(--text-base)]">
               Crecimiento de miembros
             </h3>
@@ -276,12 +354,7 @@ export default function DashboardPage() {
                 tickLine={false}
               />
               <Tooltip
-                contentStyle={{
-                  background: "var(--bg-card)",
-                  border: "1px solid var(--border-base)",
-                  borderRadius: 8,
-                }}
-                labelStyle={{ color: "var(--text-base)", fontSize: 12 }}
+                {...tooltipStyle}
                 itemStyle={{ color: "oklch(0.70 0.20 47)" }}
               />
               <Bar
@@ -293,72 +366,28 @@ export default function DashboardPage() {
             </BarChart>
           </ResponsiveContainer>
         </GlassCard>
-
-        <GlassCard className="p-5">
-          <div className="flex items-center gap-2 mb-4">
-            <span className="h-2 w-2 rounded-full bg-green-500 inline-block" />
-            <h3 className="text-sm font-semibold text-[var(--text-base)]">
-              Ingresos por mes
-            </h3>
-          </div>
-          <ResponsiveContainer width="100%" height={200}>
-            <BarChart
-              data={data.revenue_history}
-              margin={{ top: 4, right: 0, left: -20, bottom: 0 }}
-            >
-              <CartesianGrid
-                strokeDasharray="3 3"
-                stroke="var(--border-base)"
-                vertical={false}
-              />
-              <XAxis
-                dataKey="month"
-                tick={{ fill: "var(--text-muted)", fontSize: 11 }}
-                axisLine={false}
-                tickLine={false}
-              />
-              <YAxis
-                tick={{ fill: "var(--text-muted)", fontSize: 11 }}
-                axisLine={false}
-                tickLine={false}
-              />
-              <Tooltip
-                contentStyle={{
-                  background: "var(--bg-card)",
-                  border: "1px solid var(--border-base)",
-                  borderRadius: 8,
-                }}
-                labelStyle={{ color: "var(--text-base)", fontSize: 12 }}
-                itemStyle={{ color: "#22C55E" }}
-              />
-              <Bar
-                dataKey="amount"
-                fill="#22C55E"
-                radius={[4, 4, 0, 0]}
-                name="Ingresos"
-              />
-            </BarChart>
-          </ResponsiveContainer>
-        </GlassCard>
       </div>
 
-      {/* Expiring memberships notice */}
+      {/* Expiring memberships alert */}
       {kpis.expiring_memberships_7d > 0 && (
-        <div className="rounded-xl border border-amber-200 dark:border-amber-800/40 bg-amber-50 dark:bg-amber-950/20 p-4 flex items-center gap-3">
-          <div className="w-9 h-9 rounded-full bg-amber-100 dark:bg-amber-900/40 flex items-center justify-center shrink-0">
-            <Calendar className="h-4 w-4 text-amber-600 dark:text-amber-400" />
+        <Link href="/members" className="block">
+          <div className="rounded-xl border border-amber-200 dark:border-amber-800/40 bg-amber-50 dark:bg-amber-950/20 p-4 flex items-center gap-3 hover:border-amber-300 dark:hover:border-amber-700/60 transition-colors cursor-pointer group">
+            <div className="w-9 h-9 rounded-full bg-amber-100 dark:bg-amber-900/40 flex items-center justify-center shrink-0">
+              <Calendar className="h-4 w-4 text-amber-600 dark:text-amber-400" />
+            </div>
+            <div className="flex-1">
+              <p className="text-sm font-semibold text-amber-800 dark:text-amber-300">
+                Membresías por vencer
+              </p>
+              <p className="text-xs text-amber-700/80 dark:text-amber-400/80 mt-0.5">
+                {kpis.expiring_memberships_7d}{" "}
+                {kpis.expiring_memberships_7d === 1 ? "membresía expira" : "membresías expiran"} en
+                los próximos 7 días — ir a Miembros
+              </p>
+            </div>
+            <ArrowRight className="h-4 w-4 text-amber-600 dark:text-amber-400 group-hover:translate-x-0.5 transition-transform" />
           </div>
-          <div>
-            <p className="text-sm font-semibold text-amber-800 dark:text-amber-300">
-              Membresías por vencer
-            </p>
-            <p className="text-xs text-amber-700/80 dark:text-amber-400/80 mt-0.5">
-              {kpis.expiring_memberships_7d}{" "}
-              {kpis.expiring_memberships_7d === 1 ? "membresía expira" : "membresías expiran"} en
-              los próximos 7 días
-            </p>
-          </div>
-        </div>
+        </Link>
       )}
     </motion.div>
   );

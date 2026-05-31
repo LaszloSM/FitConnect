@@ -15,7 +15,14 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import * as PricingCard from "@/components/ui/pricing-card";
 import {
   Plus,
   Pencil,
@@ -65,12 +72,18 @@ function formatCOP(amount: number) {
 }
 
 function durationLabel(days: number) {
+  if (days === 15) return "15 días";
   if (days === 30) return "1 mes";
   if (days === 60) return "2 meses";
   if (days === 90) return "3 meses";
   if (days === 180) return "6 meses";
   if (days === 365) return "1 año";
   return `${days} días`;
+}
+
+function perMonthPrice(price: number, days: number) {
+  const perMonth = (price / days) * 30;
+  return formatCOP(Math.round(perMonth));
 }
 
 const cardVariants = {
@@ -80,76 +93,92 @@ const cardVariants = {
 
 const containerVariants = {
   hidden: {},
-  visible: { transition: { staggerChildren: 0.07 } },
+  visible: { transition: { staggerChildren: 0.08 } },
 };
 
-interface PlanCardProps {
+interface PlanCardItemProps {
   plan: Plan;
   onEdit: (plan: Plan) => void;
   onDelete: (plan: Plan) => void;
 }
 
-function PlanCard({ plan, onEdit, onDelete }: PlanCardProps) {
+function PlanCardItem({ plan, onEdit, onDelete }: PlanCardItemProps) {
+  const duration = durationLabel(plan.duration_days);
+  const features = [
+    `Acceso por ${duration}`,
+    ...(plan.description ? [plan.description] : []),
+  ];
+
   return (
     <motion.div
       variants={cardVariants}
       transition={{ type: "spring", stiffness: 280, damping: 28 }}
-      className="group relative flex flex-col rounded-2xl border border-[var(--border-base)] bg-[var(--bg-card)] p-5 transition-shadow duration-200 hover:shadow-card-hover"
+      className="flex"
     >
-      {/* Status badge top-right */}
-      <div className="absolute top-4 right-4">
-        {plan.is_active ? (
-          <span className="inline-flex items-center gap-1 rounded-full bg-green-100 dark:bg-green-950/40 px-2 py-0.5 text-xs font-medium text-green-700 dark:text-green-400">
-            <CheckCircle2 className="h-3 w-3" />
-            Activo
-          </span>
-        ) : (
-          <span className="inline-flex items-center gap-1 rounded-full bg-[var(--bg-muted)] border border-[var(--border-base)] px-2 py-0.5 text-xs font-medium text-[var(--text-muted)]">
-            <XCircle className="h-3 w-3" />
-            Inactivo
-          </span>
-        )}
-      </div>
+      <PricingCard.Card className="max-w-none w-full flex flex-col">
+        <PricingCard.Header>
+          {/* Plan name + status badge */}
+          <PricingCard.Plan>
+            <PricingCard.PlanName>
+              <Tag className="h-4 w-4 text-[var(--color-primary)]" />
+              <span className="text-[var(--text-base)] font-semibold">{plan.name}</span>
+            </PricingCard.PlanName>
+            {plan.is_active ? (
+              <PricingCard.Badge>Activo</PricingCard.Badge>
+            ) : (
+              <span className="inline-flex items-center gap-1 rounded-full border border-[var(--border-base)] px-2 py-0.5 text-[10px] font-medium text-[var(--text-muted)]">
+                <XCircle className="h-3 w-3" />
+                Inactivo
+              </span>
+            )}
+          </PricingCard.Plan>
 
-      {/* Plan icon */}
-      <div className="mb-4 w-10 h-10 rounded-xl bg-[oklch(0.70_0.20_47)/0.15] flex items-center justify-center">
-        <Tag className="h-5 w-5 text-[var(--color-primary)]" />
-      </div>
+          {/* Price */}
+          <PricingCard.Price>
+            <PricingCard.MainPrice>{formatCOP(plan.price)}</PricingCard.MainPrice>
+          </PricingCard.Price>
 
-      {/* Name */}
-      <h3 className="text-base font-semibold text-[var(--text-base)] mb-1 pr-16">{plan.name}</h3>
+          <div className="flex items-center gap-1 text-xs text-[var(--text-muted)] mb-3">
+            <Clock className="h-3 w-3" />
+            {duration}
+            {plan.duration_days !== 30 && (
+              <span className="ml-1 opacity-60">
+                · {perMonthPrice(plan.price, plan.duration_days)}/mes aprox.
+              </span>
+            )}
+          </div>
 
-      {/* Description */}
-      {plan.description && (
-        <p className="text-xs text-[var(--text-muted)] mb-3 line-clamp-2">{plan.description}</p>
-      )}
+          {/* Actions */}
+          <div className="flex gap-2 pt-1">
+            <button
+              onClick={() => onEdit(plan)}
+              className="flex-1 flex items-center justify-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium border border-[var(--border-base)] text-[var(--text-muted)] hover:text-[var(--text-base)] hover:bg-[var(--bg-muted)] transition-colors"
+            >
+              <Pencil className="h-3.5 w-3.5" />
+              Editar
+            </button>
+            <button
+              onClick={() => onDelete(plan)}
+              className="flex-1 flex items-center justify-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium text-red-500 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-950/20 border border-transparent hover:border-red-200 dark:hover:border-red-900/40 transition-colors"
+            >
+              <Trash2 className="h-3.5 w-3.5" />
+              Eliminar
+            </button>
+          </div>
+        </PricingCard.Header>
 
-      {/* Price */}
-      <p className="text-2xl font-bold text-[var(--text-base)] mb-1">{formatCOP(plan.price)}</p>
-
-      {/* Duration */}
-      <div className="flex items-center gap-1.5 text-sm text-[var(--text-muted)] mb-4">
-        <Clock className="h-3.5 w-3.5" />
-        {durationLabel(plan.duration_days)}
-      </div>
-
-      {/* Divider */}
-      <div className="mt-auto pt-4 border-t border-[var(--border-base)] flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity duration-150">
-        <button
-          onClick={() => onEdit(plan)}
-          className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium text-[var(--text-muted)] hover:text-[var(--text-base)] hover:bg-[var(--bg-muted)] transition-colors"
-        >
-          <Pencil className="h-3.5 w-3.5" />
-          Editar
-        </button>
-        <button
-          onClick={() => onDelete(plan)}
-          className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium text-red-500 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-950/20 transition-colors"
-        >
-          <Trash2 className="h-3.5 w-3.5" />
-          Eliminar
-        </button>
-      </div>
+        {/* Features */}
+        <PricingCard.Body>
+          <PricingCard.List>
+            {features.map((feature) => (
+              <PricingCard.ListItem key={feature}>
+                <CheckCircle2 className="h-3.5 w-3.5 text-[var(--color-primary)] shrink-0 mt-0.5" />
+                <span>{feature}</span>
+              </PricingCard.ListItem>
+            ))}
+          </PricingCard.List>
+        </PricingCard.Body>
+      </PricingCard.Card>
     </motion.div>
   );
 }
@@ -293,6 +322,7 @@ export default function PlansClient() {
                   value={form.name}
                   onChange={(e) => setForm({ ...form, name: e.target.value })}
                   placeholder="Ej: Mensual, Trimestral..."
+                  className="bg-[var(--bg-base)] border-[var(--border-base)] text-[var(--text-base)]"
                 />
                 {errors.name && <p className="text-xs text-red-500">{errors.name}</p>}
               </div>
@@ -306,6 +336,7 @@ export default function PlansClient() {
                     value={form.price || ""}
                     onChange={(e) => setForm({ ...form, price: Number(e.target.value) })}
                     placeholder="90000"
+                    className="bg-[var(--bg-base)] border-[var(--border-base)] text-[var(--text-base)]"
                   />
                   {errors.price && <p className="text-xs text-red-500">{errors.price}</p>}
                 </div>
@@ -319,10 +350,15 @@ export default function PlansClient() {
                     {DURATION_PRESETS.map((p) => (
                       <option key={p.value} value={p.value}>{p.label}</option>
                     ))}
-                    <option value={form.duration_days}>{`${form.duration_days} días`}</option>
                   </select>
                 </div>
               </div>
+
+              {form.price > 0 && (
+                <p className="text-xs text-[var(--text-muted)] -mt-1">
+                  ≈ {perMonthPrice(form.price, form.duration_days)} / mes
+                </p>
+              )}
 
               <div className="space-y-1.5">
                 <Label>Descripción (opcional)</Label>
@@ -331,6 +367,7 @@ export default function PlansClient() {
                   onChange={(e) => setForm({ ...form, description: e.target.value })}
                   placeholder="Acceso ilimitado, clases incluidas..."
                   rows={2}
+                  className="bg-[var(--bg-base)] border-[var(--border-base)] text-[var(--text-base)]"
                 />
               </div>
 
@@ -352,7 +389,10 @@ export default function PlansClient() {
                     )}
                   />
                 </button>
-                <Label className="cursor-pointer" onClick={() => setForm({ ...form, is_active: !form.is_active })}>
+                <Label
+                  className="cursor-pointer"
+                  onClick={() => setForm({ ...form, is_active: !form.is_active })}
+                >
                   Plan activo
                 </Label>
               </div>
@@ -384,10 +424,10 @@ export default function PlansClient() {
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
           {Array.from({ length: 3 }).map((_, i) => (
             <div key={i} className="rounded-2xl border border-[var(--border-base)] bg-[var(--bg-card)] p-5 space-y-3">
-              <div className="skeleton h-10 w-10 rounded-xl" />
-              <div className="skeleton h-5 w-3/4 rounded" />
+              <div className="skeleton h-4 w-2/3 rounded" />
               <div className="skeleton h-8 w-1/2 rounded" />
               <div className="skeleton h-4 w-1/3 rounded" />
+              <div className="skeleton h-8 w-full rounded-lg mt-2" />
             </div>
           ))}
         </div>
@@ -406,7 +446,7 @@ export default function PlansClient() {
           className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4"
         >
           {plans.map((plan) => (
-            <PlanCard
+            <PlanCardItem
               key={plan.id}
               plan={plan}
               onEdit={openEdit}
@@ -417,7 +457,10 @@ export default function PlansClient() {
       )}
 
       {/* Delete confirmation dialog */}
-      <Dialog open={!!deleteTarget} onOpenChange={(open) => { if (!open) setDeleteTarget(null); }}>
+      <Dialog
+        open={!!deleteTarget}
+        onOpenChange={(open) => { if (!open) setDeleteTarget(null); }}
+      >
         <DialogContent className="max-w-sm">
           <DialogHeader>
             <DialogTitle>Eliminar plan</DialogTitle>
