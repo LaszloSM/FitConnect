@@ -18,6 +18,7 @@ import {
   TrendingUp,
   ArrowRight,
   Wrench,
+  Dumbbell,
 } from "lucide-react";
 import {
   format,
@@ -120,6 +121,10 @@ const tooltipStyle = {
   labelStyle: { color: "var(--text-base)" },
 };
 
+const WEEKDAY_MAP: Record<number, string> = {
+  0: "Dom", 1: "Lun", 2: "Mar", 3: "Mié", 4: "Jue", 5: "Vie", 6: "Sáb",
+};
+
 export default function DashboardPage() {
   const sessionData = useSession();
   const session = sessionData?.data;
@@ -129,6 +134,7 @@ export default function DashboardPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [activePeriod, setActivePeriod] = useState<PeriodKey>("last_30");
+  const [todayClasses, setTodayClasses] = useState<any[]>([]);
 
   const { from: dateFrom, to: dateTo } =
     PERIODS.find((p) => p.key === activePeriod)?.getRange() ?? PERIODS[2].getRange();
@@ -148,6 +154,21 @@ export default function DashboardPage() {
 
     // Fire-and-forget: generate expiry notifications once on load
     client.post("/api/v1/reports/generate-expiry-notifications").catch(() => {});
+
+    // Fetch today's classes (filter by weekday on frontend)
+    const todayWeekday = new Date().getDay(); // 0=Sun...6=Sat
+    client.get("/api/v1/classes", { params: { is_active: true, limit: 50 } })
+      .then((res) => {
+        const classes = res.data as any[];
+        // GymClass.weekdays: number[] where 0=Mon...6=Sun (adjusted from JS 0=Sun)
+        // JS getDay(): 0=Sun, 1=Mon...6=Sat → convert to 0=Mon...6=Sun for matching
+        const gymWeekday = todayWeekday === 0 ? 6 : todayWeekday - 1;
+        const filtered = classes.filter((c: any) =>
+          Array.isArray(c.weekdays) && c.weekdays.includes(gymWeekday)
+        );
+        setTodayClasses(filtered);
+      })
+      .catch(() => {});
 
     client
       .get("/api/v1/dashboard/kpis", {
@@ -374,6 +395,38 @@ export default function DashboardPage() {
           </ResponsiveContainer>
         </GlassCard>
       </div>
+
+      {/* Today's classes */}
+      {todayClasses.length > 0 && (
+        <GlassCard className="p-4">
+          <div className="flex items-center gap-2 mb-3">
+            <Dumbbell className="h-4 w-4 text-[var(--color-primary)]" />
+            <h3 className="text-sm font-semibold text-[var(--text-base)]">
+              Clases de hoy — {WEEKDAY_MAP[new Date().getDay()]}
+            </h3>
+          </div>
+          <div className="flex flex-wrap gap-2">
+            {todayClasses.map((c: any) => (
+              <Link key={c.id} href="/classes">
+                <div
+                  className="flex items-center gap-2 px-3 py-2 rounded-lg border border-[var(--border-base)] bg-[var(--bg-base)] hover:border-orange-300 dark:hover:border-orange-700 transition-colors cursor-pointer"
+                  style={c.color ? { borderLeftColor: c.color, borderLeftWidth: 3 } : {}}
+                >
+                  <div>
+                    <p className="text-xs font-medium text-[var(--text-base)]">{c.name}</p>
+                    <p className="text-[10px] text-[var(--text-muted)]">
+                      {c.start_time ? c.start_time.slice(0, 5) : "—"} · {c.instructor}
+                    </p>
+                  </div>
+                  <span className="ml-2 text-[10px] text-[var(--text-muted)] border border-[var(--border-base)] rounded px-1.5 py-0.5 shrink-0">
+                    {c.duration_minutes}min
+                  </span>
+                </div>
+              </Link>
+            ))}
+          </div>
+        </GlassCard>
+      )}
 
       {/* Machine health widget — only if there are machines and some in trouble */}
       {kpis.machines_total > 0 && kpis.machines_maintenance > 0 && (

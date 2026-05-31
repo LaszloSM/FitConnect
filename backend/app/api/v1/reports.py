@@ -230,6 +230,70 @@ async def birthdays_report(
     return unique[:50]
 
 
+@router.get("/revenue-by-plan")
+async def revenue_by_plan_report(
+    months: int = Query(1, ge=1, le=12, description="Últimos N meses"),
+    db: AsyncSession = Depends(get_tenant_db_from_token),
+):
+    """Revenue grouped by payment concept for the last N months."""
+    today = date.today()
+    # Go back N months
+    m = today.month - months
+    y = today.year
+    while m <= 0:
+        m += 12
+        y -= 1
+    start = date(y, m, 1)
+    start_dt = datetime.combine(start, datetime.min.time())
+    end_dt = datetime.combine(today, datetime.min.time()) + timedelta(days=1)
+
+    stmt = (
+        select(Payment.concept, func.coalesce(func.sum(Payment.amount), 0).label("total"))
+        .where(
+            Payment.created_at >= start_dt,
+            Payment.created_at < end_dt,
+            Payment.status == PaymentStatus.paid,
+        )
+        .group_by(Payment.concept)
+        .order_by(func.sum(Payment.amount).desc())
+    )
+    result = await db.execute(stmt)
+    return [
+        {"concept": row[0] or "Sin concepto", "total": float(row[1])}
+        for row in result.all()
+    ]
+
+
+@router.get("/checkin-trend")
+async def checkin_trend_report(
+    weeks: int = Query(8, ge=2, le=16, description="Últimas N semanas"),
+    db: AsyncSession = Depends(get_tenant_db_from_token),
+):
+    """Weekly check-in counts for the last N weeks."""
+    today = date.today()
+    results = []
+    for i in range(weeks - 1, -1, -1):
+        week_start = today - timedelta(days=today.weekday() + i * 7)
+        week_end = week_start + timedelta(days=7)
+        start_dt = datetime.combine(week_start, datetime.min.time())
+        end_dt = datetime.combine(week_end, datetime.min.time())
+        stmt = (
+            select(func.count())
+            .select_from(CheckIn)
+            .where(
+                CheckIn.created_at >= start_dt,
+                CheckIn.created_at < end_dt,
+                CheckIn.type == "entry",
+            )
+        )
+        row = await db.execute(stmt)
+        results.append({
+            "week": week_start.strftime("%d %b"),
+            "count": row.scalar() or 0,
+        })
+    return results
+
+
 @router.post("/generate-expiry-notifications")
 async def generate_expiry_notifications(
     days: int = Query(7, ge=1, le=30, description="Notificar membresías que vencen en N días"),

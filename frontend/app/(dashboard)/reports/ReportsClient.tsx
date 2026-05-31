@@ -59,6 +59,8 @@ export default function ReportsClient() {
   const [revenueHistory, setRevenueHistory] = useState<{ month: string; amount: number }[]>([]);
   const [inactive, setInactive] = useState<any[]>([]);
   const [birthdays, setBirthdays] = useState<any[]>([]);
+  const [revenueByPlan, setRevenueByPlan] = useState<{ concept: string; total: number }[]>([]);
+  const [checkinTrend, setCheckinTrend] = useState<{ week: string; count: number }[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
@@ -75,8 +77,10 @@ export default function ReportsClient() {
       client.get("/api/v1/reports/revenue-history"),
       client.get("/api/v1/reports/inactive-members?days=14"),
       client.get("/api/v1/reports/birthdays"),
+      client.get("/api/v1/reports/revenue-by-plan"),
+      client.get("/api/v1/reports/checkin-trend"),
     ])
-      .then(([ms, pm, at, em, rh, im, bd]) => {
+      .then(([ms, pm, at, em, rh, im, bd, rbp, ct]) => {
         if (!cancelled) {
           setMemberStatus(ms.data);
           setPaymentMethods(pm.data);
@@ -85,6 +89,8 @@ export default function ReportsClient() {
           setRevenueHistory(rh.data);
           setInactive(im.data);
           setBirthdays(bd.data);
+          setRevenueByPlan(rbp.data);
+          setCheckinTrend(ct.data);
           setError("");
         }
       })
@@ -198,6 +204,73 @@ export default function ReportsClient() {
                   fillOpacity={0.12}
                   name="Ingresos"
                 />
+              </AreaChart>
+            </ResponsiveContainer>
+          </GlassCard>
+        </motion.div>
+
+        {/* Revenue by plan/concept */}
+        <motion.div variants={cardVariants}>
+          <GlassCard className="p-5 h-full">
+            <div className="flex items-center gap-2 mb-4">
+              <CreditCard className="h-4 w-4 text-violet-500" aria-hidden="true" />
+              <h3 className="text-[var(--text-base)] font-semibold text-sm">
+                Ingresos por concepto (mes actual)
+              </h3>
+            </div>
+            {revenueByPlan.length === 0 ? (
+              <p className="text-[var(--text-muted)] text-xs text-center py-8">Sin ingresos registrados este mes</p>
+            ) : (
+              <ResponsiveContainer width="100%" height={200}>
+                <BarChart data={revenueByPlan} margin={{ top: 4, right: 0, left: -20, bottom: 0 }} layout="vertical">
+                  <CartesianGrid strokeDasharray="3 3" stroke="var(--border-base)" horizontal={false} />
+                  <XAxis
+                    type="number"
+                    tick={{ fill: "var(--text-muted)", fontSize: 10 }}
+                    axisLine={false}
+                    tickLine={false}
+                    tickFormatter={(v) => new Intl.NumberFormat("es-CO", { notation: "compact", compactDisplay: "short" }).format(v)}
+                  />
+                  <YAxis
+                    type="category"
+                    dataKey="concept"
+                    tick={{ fill: "var(--text-muted)", fontSize: 10 }}
+                    axisLine={false}
+                    tickLine={false}
+                    width={90}
+                  />
+                  <Tooltip
+                    {...chartTooltipStyle}
+                    itemStyle={{ color: "oklch(0.65 0.22 300)" }}
+                    formatter={(value) => [formatCOP(Number(value) || 0), "Ingresos"]}
+                  />
+                  <Bar dataKey="total" fill="oklch(0.65 0.22 300)" radius={[0, 4, 4, 0]} name="Total" />
+                </BarChart>
+              </ResponsiveContainer>
+            )}
+          </GlassCard>
+        </motion.div>
+
+        {/* Check-in trend */}
+        <motion.div variants={cardVariants}>
+          <GlassCard className="p-5 h-full">
+            <div className="flex items-center gap-2 mb-4">
+              <Activity className="h-4 w-4 text-blue-500" aria-hidden="true" />
+              <h3 className="text-[var(--text-base)] font-semibold text-sm">
+                Tendencia de asistencia (8 semanas)
+              </h3>
+            </div>
+            <ResponsiveContainer width="100%" height={200}>
+              <AreaChart data={checkinTrend} margin={{ top: 4, right: 0, left: -20, bottom: 0 }}>
+                <CartesianGrid strokeDasharray="3 3" stroke="var(--border-base)" vertical={false} />
+                <XAxis dataKey="week" tick={{ fill: "var(--text-muted)", fontSize: 10 }} axisLine={false} tickLine={false} />
+                <YAxis tick={{ fill: "var(--text-muted)", fontSize: 10 }} axisLine={false} tickLine={false} />
+                <Tooltip
+                  {...chartTooltipStyle}
+                  itemStyle={{ color: "#3B82F6" }}
+                  formatter={(v) => [v, "Check-ins"]}
+                />
+                <Area type="monotone" dataKey="count" stroke="#3B82F6" strokeWidth={2} fill="#3B82F6" fillOpacity={0.1} name="Check-ins" />
               </AreaChart>
             </ResponsiveContainer>
           </GlassCard>
