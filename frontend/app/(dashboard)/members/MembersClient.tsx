@@ -32,7 +32,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { Plus, Search, Pencil, Trash2, AlertCircle, QrCode, X, Tag, Clock, CheckCircle2 } from "lucide-react";
+import { Plus, Search, Pencil, Trash2, AlertCircle, QrCode, X, Tag, Clock, CheckCircle2, Download } from "lucide-react";
 import { MembershipStatusBadge } from "@/components/common/MembershipStatusBadge";
 
 const memberSchema = z.object({
@@ -169,6 +169,32 @@ export default function MembersClient() {
   const [assignStartDate, setAssignStartDate] = useState("");
   const [assigningMembership, setAssigningMembership] = useState(false);
   const [membershipTabActive, setMembershipTabActive] = useState(false);
+
+  const exportCSV = () => {
+    if (members.length === 0) return;
+    const headers = ["Nombre", "Email", "Teléfono", "Tipo Doc", "Documento", "Estado", "Membresía", "Vence", "Fecha registro"];
+    const rows = members.map((m) => [
+      m.full_name,
+      m.email,
+      m.phone ?? "",
+      m.id_type ?? "",
+      m.id_number ?? "",
+      m.status === "active" ? "Activo" : "Inactivo",
+      m.membership_plan_name ?? "",
+      m.membership_end_date ?? "",
+      new Date(m.created_at).toLocaleDateString("es-CO"),
+    ]);
+    const csv = [headers, ...rows]
+      .map((r) => r.map((v) => `"${String(v).replace(/"/g, '""')}"`).join(","))
+      .join("\n");
+    const blob = new Blob(["﻿" + csv], { type: "text/csv;charset=utf-8;" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `miembros-${new Date().toISOString().slice(0, 10)}.csv`;
+    a.click();
+    URL.revokeObjectURL(url);
+  };
 
   const fetchMembers = async () => {
     if (!session?.accessToken) return;
@@ -586,7 +612,7 @@ export default function MembersClient() {
               className={cn("pl-9", inputCls)}
             />
           </div>
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 flex-wrap">
             {(["", "active", "inactive"] as const).map((s) => (
               <button
                 key={s}
@@ -601,6 +627,15 @@ export default function MembersClient() {
                 {s === "" ? "Todos" : s === "active" ? "Activos" : "Inactivos"}
               </button>
             ))}
+            <button
+              onClick={exportCSV}
+              disabled={members.length === 0}
+              title="Exportar a CSV"
+              className="flex items-center gap-1.5 rounded-full px-3 py-1 text-sm font-medium bg-[var(--bg-base)] border border-[var(--border-base)] text-[var(--text-muted)] hover:text-[var(--text-base)] disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+            >
+              <Download className="h-3.5 w-3.5" />
+              CSV
+            </button>
           </div>
         </div>
 
