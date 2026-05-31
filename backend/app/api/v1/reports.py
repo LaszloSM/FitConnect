@@ -56,27 +56,75 @@ async def attendance_today_report(db: AsyncSession = Depends(get_tenant_db_from_
 
 
 @router.get("/expiring-memberships")
-async def expiring_memberships_report(db: AsyncSession = Depends(get_tenant_db_from_token)):
+async def expiring_memberships_report(
+    days: int = 7,
+    db: AsyncSession = Depends(get_tenant_db_from_token),
+):
     today = date.today()
-    seven_days = today + timedelta(days=7)
+    cutoff = today + timedelta(days=days)
     stmt = (
-        select(Membership)
+        select(Membership, Member.full_name)
+        .join(Member, Member.id == Membership.member_id)
         .where(
-            Membership.end_date <= seven_days,
+            Membership.end_date <= cutoff,
             Membership.end_date >= today,
             Membership.status == MembershipStatus.active,
         )
         .order_by(Membership.end_date)
     )
     result = await db.execute(stmt)
-    memberships = result.scalars().all()
+    rows = result.all()
     return [
         {
             "id": str(m.id),
             "member_id": str(m.member_id),
+            "member_name": full_name,
             "plan_name": m.plan_name,
             "end_date": m.end_date.isoformat(),
             "days_remaining": (m.end_date - today).days,
         }
-        for m in memberships
+        for m, full_name in rows
     ]
+
+
+@router.get("/revenue-history")
+async def revenue_history_report(
+    months: int = 6,
+    db: AsyncSession = Depends(get_tenant_db_from_token),
+):
+    """Monthly revenue for the last N months."""
+    from sqlalchemy import case
+    today = date.today()
+    results = []
+    for i in range(months - 1, -1, -1):
+        target = date(today.year, today.month, 1)
+        # go back i months
+        month_date = date(target.year - (i // 12), target.month - (i % 12) or 12, 1) if (target.month - i % 12) <= 0 else date(target.year, target.month - i % 12, 1)
+        # Simpler: subtract months
+        m = today.month - i
+        y = today.year
+        while m <= 0:
+            m += 12
+            y -= 1
+        month_start = date(y, m, 1)
+        if m == 12:
+            month_end = date(y + 1, 1, 1)
+        else:
+            month_end = date(y, m + 1, 1)
+        month_start_dt = datetime.combine(month_start, datetime.min.time())
+        month_end_dt = datetime.combine(month_end, datetime.min.time())
+        stmt = (
+            select(func.coalesce(func.sum(Payment.amount), Decimal("0")))
+            .where(
+                Payment.created_at >= month_start_dt,
+                Payment.created_at < month_end_dt,
+                Payment.status == PaymentStatus.paid,
+            )
+        )
+        row = await db.execute(stmt)
+        total = row.scalar() or Decimal("0")
+        results.append({
+            "month": month_start.strftime("%b %Y"),
+            "amount": float(total),
+        })
+    return results

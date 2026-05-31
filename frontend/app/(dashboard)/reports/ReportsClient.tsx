@@ -8,16 +8,28 @@ import { GlassCard } from "@/components/common/GlassCard";
 import { PageHeader } from "@/components/common/PageHeader";
 import { EmptyState } from "@/components/common/EmptyState";
 import { apiClient } from "@/lib/api";
-import { AlertCircle, Users, CreditCard, Activity, Calendar } from "lucide-react";
+import { AlertCircle, Users, CreditCard, Activity, Calendar, TrendingUp } from "lucide-react";
 import {
   BarChart,
   Bar,
+  AreaChart,
+  Area,
   XAxis,
   YAxis,
   Tooltip,
   ResponsiveContainer,
   CartesianGrid,
 } from "recharts";
+import Link from "next/link";
+
+function formatCOP(amount: number) {
+  return new Intl.NumberFormat("es-CO", {
+    style: "currency",
+    currency: "COP",
+    minimumFractionDigits: 0,
+    maximumFractionDigits: 0,
+  }).format(amount);
+}
 
 const chartTooltipStyle = {
   contentStyle: {
@@ -44,6 +56,7 @@ export default function ReportsClient() {
   const [paymentMethods, setPaymentMethods] = useState<Record<string, number>>({});
   const [attendance, setAttendance] = useState<{ total_checkins: number; date: string } | null>(null);
   const [expiring, setExpiring] = useState<any[]>([]);
+  const [revenueHistory, setRevenueHistory] = useState<{ month: string; amount: number }[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
@@ -57,13 +70,15 @@ export default function ReportsClient() {
       client.get("/api/v1/reports/payment-methods"),
       client.get("/api/v1/reports/attendance-today"),
       client.get("/api/v1/reports/expiring-memberships"),
+      client.get("/api/v1/reports/revenue-history"),
     ])
-      .then(([ms, pm, at, em]) => {
+      .then(([ms, pm, at, em, rh]) => {
         if (!cancelled) {
           setMemberStatus(ms.data);
           setPaymentMethods(pm.data);
           setAttendance(at.data);
           setExpiring(em.data);
+          setRevenueHistory(rh.data);
           setError("");
         }
       })
@@ -88,7 +103,7 @@ export default function ReportsClient() {
           <div className="skeleton h-4 w-48 rounded" />
         </div>
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-          {Array.from({ length: 4 }).map((_, i) => (
+          {Array.from({ length: 6 }).map((_, i) => (
             <div key={i} className="skeleton h-56 rounded-xl" />
           ))}
         </div>
@@ -134,6 +149,54 @@ export default function ReportsClient() {
         initial="hidden"
         animate="visible"
       >
+        {/* Revenue history */}
+        <motion.div variants={cardVariants} className="lg:col-span-2">
+          <GlassCard className="p-5">
+            <div className="flex items-center gap-2 mb-4">
+              <TrendingUp className="h-4 w-4 text-emerald-500" aria-hidden="true" />
+              <h3 className="text-[var(--text-base)] font-semibold text-sm">
+                Ingresos últimos 6 meses
+              </h3>
+            </div>
+            <ResponsiveContainer width="100%" height={200}>
+              <AreaChart data={revenueHistory} margin={{ top: 4, right: 0, left: -20, bottom: 0 }}>
+                <CartesianGrid strokeDasharray="3 3" stroke="var(--border-base)" vertical={false} />
+                <XAxis
+                  dataKey="month"
+                  tick={{ fill: "var(--text-muted)", fontSize: 11 }}
+                  axisLine={false}
+                  tickLine={false}
+                />
+                <YAxis
+                  tick={{ fill: "var(--text-muted)", fontSize: 11 }}
+                  axisLine={false}
+                  tickLine={false}
+                  tickFormatter={(v) =>
+                    new Intl.NumberFormat("es-CO", {
+                      notation: "compact",
+                      compactDisplay: "short",
+                    }).format(v)
+                  }
+                />
+                <Tooltip
+                  {...chartTooltipStyle}
+                  itemStyle={{ color: "#22C55E" }}
+                  formatter={(value) => [formatCOP(Number(value) || 0), "Ingresos"]}
+                />
+                <Area
+                  type="monotone"
+                  dataKey="amount"
+                  stroke="#22C55E"
+                  strokeWidth={2}
+                  fill="#22C55E"
+                  fillOpacity={0.12}
+                  name="Ingresos"
+                />
+              </AreaChart>
+            </ResponsiveContainer>
+          </GlassCard>
+        </motion.div>
+
         {/* Member status chart */}
         <motion.div variants={cardVariants}>
           <GlassCard className="p-5 h-full">
@@ -232,27 +295,33 @@ export default function ReportsClient() {
                 </p>
               ) : (
                 expiring.map((item) => (
-                  <div
+                  <Link
                     key={item.id}
-                    className="flex items-center justify-between py-2 px-3 surface-1 rounded-lg"
+                    href={`/members/${item.member_id}`}
+                    className="flex items-center justify-between py-2 px-3 surface-1 rounded-lg hover:bg-[var(--bg-muted)] transition-colors group"
                   >
-                    <span className="text-[var(--text-base)] text-xs font-medium">
-                      {item.plan_name}
-                    </span>
+                    <div className="min-w-0 flex-1">
+                      <p className="text-[var(--text-base)] text-xs font-medium truncate group-hover:text-orange-500 transition-colors">
+                        {item.member_name}
+                      </p>
+                      <p className="text-[var(--text-muted)] text-[10px] truncate">
+                        {item.plan_name}
+                      </p>
+                    </div>
                     <span
                       className={
                         item.days_remaining <= 2
-                          ? "text-red-500 text-xs font-semibold"
-                          : "text-amber-600 dark:text-amber-400 text-xs font-medium"
+                          ? "text-red-500 text-xs font-semibold ml-3 shrink-0"
+                          : "text-amber-600 dark:text-amber-400 text-xs font-medium ml-3 shrink-0"
                       }
                     >
                       {item.days_remaining === 0
                         ? "Hoy"
                         : item.days_remaining === 1
                         ? "Mañana"
-                        : `${item.days_remaining} días`}
+                        : `${item.days_remaining}d`}
                     </span>
-                  </div>
+                  </Link>
                 ))
               )}
             </div>
