@@ -29,7 +29,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { Plus, AlertCircle, DollarSign } from "lucide-react";
+import { Plus, AlertCircle, DollarSign, CheckCircle2, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 
 interface Payment {
@@ -102,6 +102,7 @@ export default function PaymentsClient() {
   const [statusFilter, setStatusFilter] = useState<StatusFilter>("");
   const [dialogOpen, setDialogOpen] = useState(false);
   const [submitting, setSubmitting] = useState(false);
+  const [markingPaid, setMarkingPaid] = useState<string | null>(null);
   const [form, setForm] = useState({
     member_id: "",
     amount: 0,
@@ -151,6 +152,23 @@ export default function PaymentsClient() {
       .finally(() => { if (!cancelled) setLoading(false); });
     return () => { cancelled = true; };
   }, [session]);
+
+  const markAsPaid = async (paymentId: string) => {
+    if (!session?.accessToken) return;
+    setMarkingPaid(paymentId);
+    try {
+      const client = apiClient(session.accessToken as string);
+      await client.patch(`/api/v1/payments/${paymentId}/mark-paid`);
+      toast.success("Pago marcado como pagado");
+      setPayments((prev) =>
+        prev.map((p) => (p.id === paymentId ? { ...p, status: "paid" } : p))
+      );
+    } catch (err: any) {
+      toast.error(err.response?.data?.detail ?? "Error actualizando pago");
+    } finally {
+      setMarkingPaid(null);
+    }
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -414,13 +432,14 @@ export default function PaymentsClient() {
                 <TableHead className="text-[var(--text-muted)]">Método</TableHead>
                 <TableHead className="text-[var(--text-muted)]">Estado</TableHead>
                 <TableHead className="text-[var(--text-muted)]">Fecha</TableHead>
+                <TableHead className="text-[var(--text-muted)] w-10" />
               </TableRow>
             </TableHeader>
             <TableBody>
               {loading ? (
                 Array.from({ length: 5 }).map((_, i) => (
                   <TableRow key={i} className="border-[var(--border-base)]">
-                    {Array.from({ length: 7 }).map((_, j) => (
+                    {Array.from({ length: 8 }).map((_, j) => (
                       <TableCell key={j}>
                         <div className="skeleton h-4 rounded" />
                       </TableCell>
@@ -429,7 +448,7 @@ export default function PaymentsClient() {
                 ))
               ) : filtered.length === 0 ? (
                 <TableRow>
-                  <TableCell colSpan={7}>
+                  <TableCell colSpan={8}>
                     <EmptyState
                       title={statusFilter ? "Sin pagos en este estado" : "Sin pagos registrados"}
                       description={
@@ -489,6 +508,21 @@ export default function PaymentsClient() {
                     </TableCell>
                     <TableCell className="text-[var(--text-muted)] text-sm">
                       {new Date(p.created_at).toLocaleDateString("es-ES")}
+                    </TableCell>
+                    <TableCell>
+                      {(p.status === "pending" || p.status === "overdue") && (
+                        <button
+                          onClick={() => markAsPaid(p.id)}
+                          disabled={markingPaid === p.id}
+                          title="Marcar como pagado"
+                          className="h-7 w-7 rounded-lg flex items-center justify-center text-[var(--text-muted)] hover:text-emerald-600 hover:bg-emerald-50 dark:hover:bg-emerald-950/30 transition-colors disabled:opacity-50"
+                        >
+                          {markingPaid === p.id
+                            ? <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                            : <CheckCircle2 className="h-3.5 w-3.5" />
+                          }
+                        </button>
+                      )}
                     </TableCell>
                   </TableRow>
                 ))

@@ -85,3 +85,21 @@ async def delete_payment(
     await db.delete(payment)
     await db.commit()
     return None
+
+
+@router.patch("/{payment_id}/mark-paid", response_model=PaymentResponse)
+async def mark_payment_paid(
+    payment_id: uuid.UUID,
+    db: AsyncSession = Depends(get_tenant_db_from_token),
+):
+    """Marcar un pago como pagado (estado: paid)."""
+    result = await db.execute(select(Payment).where(Payment.id == payment_id))
+    payment = result.scalar_one_or_none()
+    if not payment:
+        raise HTTPException(status_code=404, detail="Pago no encontrado")
+    if payment.status == PaymentStatus.paid:
+        raise HTTPException(status_code=400, detail="El pago ya está marcado como pagado")
+    payment.status = PaymentStatus.paid
+    await db.commit()
+    await db.refresh(payment)
+    return payment
