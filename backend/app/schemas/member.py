@@ -160,22 +160,20 @@ class PaymentResponse(PaymentBase):
 
 
 # ─── CheckIn ───
-class CheckInBase(BaseModel):
+class CheckInCreate(BaseModel):
+    # Evento único de asistencia: solo se necesita el miembro (+ nota opcional)
     member_id: uuid.UUID
-    location_id: Optional[uuid.UUID] = None
-    type: CheckInType
     notes: Optional[str] = Field(default=None, max_length=255)
 
 
-class CheckInCreate(CheckInBase):
-    pass
-
-
-class CheckInResponse(CheckInBase):
+class CheckInResponse(BaseModel):
     id: uuid.UUID
+    member_id: uuid.UUID
+    notes: Optional[str] = None
     created_at: datetime
     updated_at: datetime
-    # Inyectado por el endpoint — no viene de la BD
+    # Inyectados por el endpoint — no vienen directo de la tabla checkins
+    member_name: Optional[str] = None
     membership_status: Optional[Literal["ok", "expired", "no_membership"]] = None
 
     class Config:

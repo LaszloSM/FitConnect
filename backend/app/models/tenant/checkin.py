@@ -19,5 +19,7 @@ class CheckIn(TenantBase, TenantTimestampMixin):
     id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     member_id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), ForeignKey("members.id"), nullable=False, index=True)
     location_id: Mapped[Optional[uuid.UUID]] = mapped_column(UUID(as_uuid=True), ForeignKey("locations.id"), nullable=True)
-    type: Mapped[CheckInType] = mapped_column(SAEnum(CheckInType), nullable=False)
+    # Conservado por compatibilidad; el check-in es un evento único de asistencia
+    # (siempre 'entry'). La UI ya no distingue entrada/salida.
+    type: Mapped[CheckInType] = mapped_column(SAEnum(CheckInType), nullable=False, default=CheckInType.entry)
     notes: Mapped[Optional[str]] = mapped_column(String(255), nullable=True)
