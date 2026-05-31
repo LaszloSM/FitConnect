@@ -1,11 +1,15 @@
 import uuid
 import enum
 from datetime import date
-from sqlalchemy import String, Enum as SAEnum, Date, Text
+from sqlalchemy import String, Enum as SAEnum, Date, Text, UniqueConstraint
 from sqlalchemy.dialects.postgresql import UUID, JSONB
 from sqlalchemy.orm import mapped_column, Mapped
 from typing import Optional
 from app.db.tenant_base import TenantBase, TenantTimestampMixin
+
+
+def _generate_qr_code() -> str:
+    return str(uuid.uuid4())
 
 
 class MemberStatus(str, enum.Enum):
@@ -37,6 +41,7 @@ class TrainingGoal(str, enum.Enum):
 
 class Member(TenantBase, TenantTimestampMixin):
     __tablename__ = "members"
+    __table_args__ = (UniqueConstraint("email", name="uq_member_email"),)
 
     id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     full_name: Mapped[str] = mapped_column(String(255), nullable=False)
@@ -57,7 +62,9 @@ class Member(TenantBase, TenantTimestampMixin):
     parq_answers: Mapped[Optional[dict]] = mapped_column(JSONB, nullable=True)
     parq_completed_at: Mapped[Optional[date]] = mapped_column(Date, nullable=True)
     training_goal: Mapped[Optional[TrainingGoal]] = mapped_column(SAEnum(TrainingGoal), nullable=True)
-    # UUID único para QR de check-in rápido
-    qr_code: Mapped[Optional[str]] = mapped_column(String(36), nullable=True, unique=True, index=True)
+    # UUID único para QR de check-in rápido — autogenerado al crear el miembro
+    qr_code: Mapped[str] = mapped_column(
+        String(36), nullable=False, unique=True, index=True, default=_generate_qr_code
+    )
     status: Mapped[MemberStatus] = mapped_column(SAEnum(MemberStatus), default=MemberStatus.active, nullable=False)
     notes: Mapped[Optional[str]] = mapped_column(String(1000), nullable=True)
