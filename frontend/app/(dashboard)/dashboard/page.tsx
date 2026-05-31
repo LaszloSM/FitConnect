@@ -17,6 +17,7 @@ import {
   Calendar,
   TrendingUp,
   ArrowRight,
+  Wrench,
 } from "lucide-react";
 import {
   format,
@@ -49,6 +50,9 @@ interface DashboardData {
     pending_payments_month: number;
     checkins_today: number;
     expiring_memberships_7d: number;
+    machines_total: number;
+    machines_active: number;
+    machines_maintenance: number;
   };
   member_growth: { month: string; count: number }[];
   revenue_history: { month: string; amount: number }[];
@@ -370,6 +374,31 @@ export default function DashboardPage() {
           </ResponsiveContainer>
         </GlassCard>
       </div>
+
+      {/* Machine health widget — only if there are machines and some in trouble */}
+      {kpis.machines_total > 0 && kpis.machines_maintenance > 0 && (
+        <Link href="/machines" className="block">
+          <div className="rounded-xl border border-red-200 dark:border-red-800/40 bg-red-50 dark:bg-red-950/20 p-4 flex items-center gap-3 hover:border-red-300 dark:hover:border-red-700/60 transition-colors cursor-pointer group">
+            <div className="w-9 h-9 rounded-full bg-red-100 dark:bg-red-900/40 flex items-center justify-center shrink-0">
+              <Wrench className="h-4 w-4 text-red-600 dark:text-red-400" />
+            </div>
+            <div className="flex-1">
+              <p className="text-sm font-semibold text-red-800 dark:text-red-300">
+                Equipos fuera de servicio
+              </p>
+              <p className="text-xs text-red-700/80 dark:text-red-400/80 mt-0.5">
+                {kpis.machines_maintenance} de {kpis.machines_total}{" "}
+                {kpis.machines_maintenance === 1 ? "equipo en mantenimiento o dañado" : "equipos en mantenimiento o dañados"}{" "}
+                — ir a Máquinas
+              </p>
+            </div>
+            <div className="text-sm font-bold text-red-600 dark:text-red-400 shrink-0">
+              {kpis.machines_active}/{kpis.machines_total}
+            </div>
+            <ArrowRight className="h-4 w-4 text-red-600 dark:text-red-400 group-hover:translate-x-0.5 transition-transform" />
+          </div>
+        </Link>
+      )}
 
       {/* Expiring memberships alert */}
       {kpis.expiring_memberships_7d > 0 && (

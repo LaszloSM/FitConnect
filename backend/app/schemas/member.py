@@ -190,6 +190,9 @@ class DashboardKPIs(BaseModel):
     pending_payments_month: Decimal
     checkins_today: int
     expiring_memberships_7d: int
+    machines_total: int = 0
+    machines_active: int = 0
+    machines_maintenance: int = 0
 
 
 class MemberGrowthPoint(BaseModel):

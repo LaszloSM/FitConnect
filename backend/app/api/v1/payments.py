@@ -2,7 +2,7 @@ import uuid
 from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select, func, desc
-from datetime import date
+from datetime import date, datetime, timedelta
 from decimal import Decimal
 
 from app.api.deps import get_tenant_db_from_token
@@ -17,6 +17,8 @@ async def list_payments(
     db: AsyncSession = Depends(get_tenant_db_from_token),
     member_id: uuid.UUID | None = Query(None),
     status: PaymentStatus | None = Query(None),
+    from_date: date | None = Query(None, alias="from"),
+    to_date: date | None = Query(None, alias="to"),
     limit: int = Query(50, ge=1, le=100),
     offset: int = Query(0, ge=0),
 ):
@@ -25,6 +27,10 @@ async def list_payments(
         stmt = stmt.where(Payment.member_id == member_id)
     if status:
         stmt = stmt.where(Payment.status == status)
+    if from_date:
+        stmt = stmt.where(Payment.created_at >= datetime.combine(from_date, datetime.min.time()))
+    if to_date:
+        stmt = stmt.where(Payment.created_at < datetime.combine(to_date, datetime.min.time()) + timedelta(days=1))
     stmt = stmt.order_by(desc(Payment.created_at)).limit(limit).offset(offset)
     result = await db.execute(stmt)
     return result.scalars().all()

@@ -29,7 +29,8 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { Plus, AlertCircle, DollarSign, CheckCircle2, Loader2 } from "lucide-react";
+import { Plus, AlertCircle, DollarSign, CheckCircle2, Loader2, Download, Filter } from "lucide-react";
+import { format, startOfMonth, endOfMonth } from "date-fns";
 import { toast } from "sonner";
 
 interface Payment {
@@ -103,6 +104,8 @@ export default function PaymentsClient() {
   const [dialogOpen, setDialogOpen] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [markingPaid, setMarkingPaid] = useState<string | null>(null);
+  const [dateFrom, setDateFrom] = useState(() => format(startOfMonth(new Date()), "yyyy-MM-dd"));
+  const [dateTo, setDateTo] = useState(() => format(endOfMonth(new Date()), "yyyy-MM-dd"));
   const [form, setForm] = useState({
     member_id: "",
     amount: 0,
@@ -113,11 +116,13 @@ export default function PaymentsClient() {
     send_receipt: false,
   });
 
-  const fetchPayments = async () => {
+  const fetchPayments = async (from = dateFrom, to = dateTo) => {
     if (!session?.accessToken) return;
     try {
       const client = apiClient(session.accessToken as string);
-      const res = await client.get("/api/v1/payments");
+      const res = await client.get("/api/v1/payments", {
+        params: { from, to, limit: 200 },
+      });
       setPayments(res.data);
       setError("");
     } catch (err: any) {
@@ -137,7 +142,7 @@ export default function PaymentsClient() {
     setLoading(true);
     const client = apiClient(session.accessToken as string);
     client
-      .get("/api/v1/payments")
+      .get("/api/v1/payments", { params: { from: dateFrom, to: dateTo, limit: 200 } })
       .then((res) => {
         if (!cancelled) { setPayments(res.data); setError(""); }
       })
@@ -151,7 +156,7 @@ export default function PaymentsClient() {
       })
       .finally(() => { if (!cancelled) setLoading(false); });
     return () => { cancelled = true; };
-  }, [session]);
+  }, [session, dateFrom, dateTo]);
 
   const markAsPaid = async (paymentId: string) => {
     if (!session?.accessToken) return;
@@ -168,6 +173,29 @@ export default function PaymentsClient() {
     } finally {
       setMarkingPaid(null);
     }
+  };
+
+  const exportCSV = () => {
+    const rows = [
+      ["Miembro", "Concepto", "Monto COP", "Método", "Estado", "Referencia", "Fecha"],
+      ...filtered.map((p) => [
+        p.member_name ?? p.member_id,
+        p.concept,
+        String(p.amount),
+        METHOD_LABELS[p.method ?? ""] ?? p.method ?? "",
+        STATUS_LABELS[p.status] ?? p.status,
+        p.external_ref ?? "",
+        new Date(p.created_at).toLocaleDateString("es-CO"),
+      ]),
+    ];
+    const csv = rows.map((r) => r.map((v) => `"${String(v).replace(/"/g, '""')}"`).join(",")).join("\n");
+    const blob = new Blob(["﻿" + csv], { type: "text/csv;charset=utf-8;" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `pagos-${dateFrom}-al-${dateTo}.csv`;
+    a.click();
+    URL.revokeObjectURL(url);
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -391,6 +419,36 @@ export default function PaymentsClient() {
       )}
 
       <GlassCard className="p-4">
+        {/* Date range + export controls */}
+        <div className="flex flex-col sm:flex-row gap-3 mb-4 pb-4 border-b border-[var(--border-base)]">
+          <div className="flex items-center gap-2 flex-1">
+            <Filter className="h-3.5 w-3.5 text-[var(--text-muted)] shrink-0" />
+            <div className="flex items-center gap-2 flex-1">
+              <input
+                type="date"
+                value={dateFrom}
+                onChange={(e) => setDateFrom(e.target.value)}
+                className="flex-1 min-w-0 h-8 rounded-md border border-[var(--border-base)] bg-[var(--bg-base)] px-3 text-xs text-[var(--text-base)] outline-none focus:ring-2 focus:ring-orange-500/30 focus:border-orange-500"
+              />
+              <span className="text-[var(--text-muted)] text-xs shrink-0">hasta</span>
+              <input
+                type="date"
+                value={dateTo}
+                onChange={(e) => setDateTo(e.target.value)}
+                className="flex-1 min-w-0 h-8 rounded-md border border-[var(--border-base)] bg-[var(--bg-base)] px-3 text-xs text-[var(--text-base)] outline-none focus:ring-2 focus:ring-orange-500/30 focus:border-orange-500"
+              />
+            </div>
+          </div>
+          <button
+            onClick={exportCSV}
+            disabled={filtered.length === 0}
+            className="flex items-center gap-2 px-3 py-1.5 rounded-lg border border-[var(--border-base)] text-xs text-[var(--text-muted)] hover:text-[var(--text-base)] hover:bg-[var(--bg-base)] transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+          >
+            <Download className="h-3.5 w-3.5" />
+            Exportar CSV
+          </button>
+        </div>
+
         {/* Status filter pills */}
         <div
           className="flex gap-2 flex-wrap mb-4"

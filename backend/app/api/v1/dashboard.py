@@ -10,6 +10,7 @@ from app.models.tenant.member import Member, MemberStatus
 from app.models.tenant.payment import Payment, PaymentStatus
 from app.models.tenant.checkin import CheckIn
 from app.models.tenant.membership import Membership, MembershipStatus
+from app.models.tenant.machine import Machine, MachineStatus
 
 router = APIRouter(prefix="/dashboard", tags=["dashboard"])
 
@@ -92,6 +93,22 @@ async def get_dashboard_kpis(
     )
     expiring_memberships_7d = expiring_result.scalar() or 0
 
+    # Machine health counts
+    machines_total_result = await db.execute(select(func.count()).select_from(Machine))
+    machines_total = machines_total_result.scalar() or 0
+
+    machines_active_result = await db.execute(
+        select(func.count()).select_from(Machine).where(Machine.status == MachineStatus.active)
+    )
+    machines_active = machines_active_result.scalar() or 0
+
+    machines_maintenance_result = await db.execute(
+        select(func.count()).select_from(Machine).where(
+            Machine.status.in_([MachineStatus.maintenance, MachineStatus.damaged])
+        )
+    )
+    machines_maintenance = machines_maintenance_result.scalar() or 0
+
     kpis = DashboardKPIs(
         total_members=total_members,
         active_members=active_members,
@@ -101,6 +118,9 @@ async def get_dashboard_kpis(
         pending_payments_month=pending_payments_month,
         checkins_today=checkins_today,
         expiring_memberships_7d=expiring_memberships_7d,
+        machines_total=machines_total,
+        machines_active=machines_active,
+        machines_maintenance=machines_maintenance,
     )
 
     # Helper to get month start/end

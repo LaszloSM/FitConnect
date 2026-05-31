@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Depends, Query
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import select, func, extract, not_, exists
+from sqlalchemy import select, func, extract, not_, exists, cast, Integer
 from datetime import date, datetime, timedelta
 from decimal import Decimal
 
@@ -184,6 +184,50 @@ async def inactive_members_report(
         }
         for m in members
     ]
+
+
+@router.get("/birthdays")
+async def birthdays_report(
+    months_ahead: int = Query(1, ge=1, le=3, description="Meses hacia adelante"),
+    db: AsyncSession = Depends(get_tenant_db_from_token),
+):
+    """Members with birthdays in the next N months (by day/month, ignoring year)."""
+    today = date.today()
+    results = []
+    # Check across the next `months_ahead` months
+    for offset in range(months_ahead * 31 + 1):
+        check_date = today + timedelta(days=offset)
+        stmt = (
+            select(Member)
+            .where(
+                Member.birth_date.is_not(None),
+                Member.status == MemberStatus.active,
+                extract("month", Member.birth_date) == check_date.month,
+                extract("day", Member.birth_date) == check_date.day,
+            )
+        )
+        result = await db.execute(stmt)
+        members = result.scalars().all()
+        for m in members:
+            days_until = offset
+            results.append({
+                "id": str(m.id),
+                "full_name": m.full_name,
+                "email": m.email,
+                "phone": m.phone,
+                "birth_date": m.birth_date.isoformat() if m.birth_date else None,
+                "days_until": days_until,
+            })
+    # Deduplicate (a member might match twice in multi-month windows)
+    seen = set()
+    unique = []
+    for r in results:
+        if r["id"] not in seen:
+            seen.add(r["id"])
+            unique.append(r)
+    # Sort by days_until
+    unique.sort(key=lambda x: x["days_until"])
+    return unique[:50]
 
 
 @router.post("/generate-expiry-notifications")

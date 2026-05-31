@@ -23,8 +23,18 @@ import {
   BadgeX,
   Loader2,
   QrCode,
+  Pencil,
 } from "lucide-react";
 import { QRCodeDisplay } from "@/components/common/QRCodeDisplay";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
 import { formatDistanceToNow, format } from "date-fns";
 import { es } from "date-fns/locale";
@@ -81,6 +91,8 @@ export default function MemberDetailClient({ memberId }: { memberId: string }) {
   const [startDate, setStartDate] = useState(new Date().toISOString().slice(0, 10));
   const [paymentMethod, setPaymentMethod] = useState("");
   const [assigning, setAssigning] = useState(false);
+  const [editOpen, setEditOpen] = useState(false);
+  const [editSaving, setEditSaving] = useState(false);
 
   useEffect(() => {
     if (!session?.accessToken) return;
@@ -123,6 +135,29 @@ export default function MemberDetailClient({ memberId }: { memberId: string }) {
       toast.error(typeof detail === "string" ? detail : "Error asignando membresía");
     } finally {
       setAssigning(false);
+    }
+  };
+
+  const handleEditSave = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    if (!session?.accessToken) return;
+    const fd = new FormData(e.currentTarget);
+    const payload: Record<string, string> = {};
+    for (const [k, v] of fd.entries()) {
+      if (typeof v === "string" && v.trim() !== "") payload[k] = v.trim();
+    }
+    setEditSaving(true);
+    try {
+      const client = apiClient(session.accessToken as string);
+      const res = await client.put(`/api/v1/members/${memberId}`, payload);
+      setMember(res.data);
+      setEditOpen(false);
+      toast.success("Datos actualizados correctamente");
+    } catch (err: any) {
+      const detail = err.response?.data?.detail;
+      toast.error(typeof detail === "string" ? detail : "Error guardando cambios");
+    } finally {
+      setEditSaving(false);
     }
   };
 
@@ -172,6 +207,78 @@ export default function MemberDetailClient({ memberId }: { memberId: string }) {
             <h2 className="text-xl font-bold text-[var(--text-base)] font-display truncate">
               {member.full_name}
             </h2>
+            <Dialog open={editOpen} onOpenChange={setEditOpen}>
+              <DialogTrigger
+                render={
+                  <button
+                    className="flex items-center gap-1 px-2 py-1 rounded-lg border border-[var(--border-base)] text-xs text-[var(--text-muted)] hover:text-[var(--text-base)] hover:bg-[var(--bg-base)] transition-colors"
+                    title="Editar miembro"
+                  >
+                    <Pencil className="h-3 w-3" />
+                    Editar
+                  </button>
+                }
+              />
+              <DialogContent className="bg-[var(--bg-card)] border border-[var(--border-base)] text-[var(--text-base)] max-w-lg">
+                <DialogHeader>
+                  <DialogTitle className="text-[var(--text-base)] font-display">
+                    Editar miembro
+                  </DialogTitle>
+                </DialogHeader>
+                <form onSubmit={handleEditSave} className="space-y-3 mt-2">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <div className="space-y-1 sm:col-span-2">
+                      <Label className="text-[var(--text-muted)] text-xs">Nombre completo</Label>
+                      <Input name="full_name" defaultValue={member.full_name} required className="bg-[var(--bg-base)] border-[var(--border-base)] text-[var(--text-base)]" />
+                    </div>
+                    <div className="space-y-1">
+                      <Label className="text-[var(--text-muted)] text-xs">Correo</Label>
+                      <Input name="email" type="email" defaultValue={member.email ?? ""} className="bg-[var(--bg-base)] border-[var(--border-base)] text-[var(--text-base)]" />
+                    </div>
+                    <div className="space-y-1">
+                      <Label className="text-[var(--text-muted)] text-xs">Teléfono</Label>
+                      <Input name="phone" defaultValue={member.phone ?? ""} className="bg-[var(--bg-base)] border-[var(--border-base)] text-[var(--text-base)]" />
+                    </div>
+                    <div className="space-y-1">
+                      <Label className="text-[var(--text-muted)] text-xs">Ciudad</Label>
+                      <Input name="city" defaultValue={member.city ?? ""} className="bg-[var(--bg-base)] border-[var(--border-base)] text-[var(--text-base)]" />
+                    </div>
+                    <div className="space-y-1">
+                      <Label className="text-[var(--text-muted)] text-xs">Estado</Label>
+                      <select name="status" defaultValue={member.status} className="w-full h-9 rounded-md border border-[var(--border-base)] bg-[var(--bg-base)] px-3 text-sm text-[var(--text-base)]">
+                        <option value="active">Activo</option>
+                        <option value="inactive">Inactivo</option>
+                      </select>
+                    </div>
+                    <div className="space-y-1">
+                      <Label className="text-[var(--text-muted)] text-xs">Contacto emergencia</Label>
+                      <Input name="emergency_contact_name" defaultValue={member.emergency_contact_name ?? ""} className="bg-[var(--bg-base)] border-[var(--border-base)] text-[var(--text-base)]" />
+                    </div>
+                    <div className="space-y-1">
+                      <Label className="text-[var(--text-muted)] text-xs">Tel. emergencia</Label>
+                      <Input name="emergency_contact_phone" defaultValue={member.emergency_contact_phone ?? ""} className="bg-[var(--bg-base)] border-[var(--border-base)] text-[var(--text-base)]" />
+                    </div>
+                    <div className="space-y-1 sm:col-span-2">
+                      <Label className="text-[var(--text-muted)] text-xs">Notas</Label>
+                      <textarea
+                        name="notes"
+                        defaultValue={member.notes ?? ""}
+                        rows={2}
+                        className="w-full rounded-md border border-[var(--border-base)] bg-[var(--bg-base)] px-3 py-2 text-sm text-[var(--text-base)] resize-none outline-none focus:ring-2 focus:ring-orange-500/30 focus:border-orange-500"
+                      />
+                    </div>
+                  </div>
+                  <div className="flex justify-end gap-2 pt-1">
+                    <Button type="button" variant="ghost" onClick={() => setEditOpen(false)} className="text-[var(--text-muted)]">
+                      Cancelar
+                    </Button>
+                    <Button type="submit" disabled={editSaving} className="bg-orange-500 text-white hover:bg-orange-600">
+                      {editSaving ? <Loader2 className="h-4 w-4 animate-spin" /> : "Guardar cambios"}
+                    </Button>
+                  </div>
+                </form>
+              </DialogContent>
+            </Dialog>
             <span
               className={
                 member.status === "active"

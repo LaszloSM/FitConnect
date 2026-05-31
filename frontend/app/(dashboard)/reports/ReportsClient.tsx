@@ -8,7 +8,7 @@ import { GlassCard } from "@/components/common/GlassCard";
 import { PageHeader } from "@/components/common/PageHeader";
 import { EmptyState } from "@/components/common/EmptyState";
 import { apiClient } from "@/lib/api";
-import { AlertCircle, Users, CreditCard, Activity, Calendar, TrendingUp, UserX, Phone } from "lucide-react";
+import { AlertCircle, Users, CreditCard, Activity, Calendar, TrendingUp, UserX, Phone, Cake } from "lucide-react";
 import {
   BarChart,
   Bar,
@@ -58,6 +58,7 @@ export default function ReportsClient() {
   const [expiring, setExpiring] = useState<any[]>([]);
   const [revenueHistory, setRevenueHistory] = useState<{ month: string; amount: number }[]>([]);
   const [inactive, setInactive] = useState<any[]>([]);
+  const [birthdays, setBirthdays] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
@@ -73,8 +74,9 @@ export default function ReportsClient() {
       client.get("/api/v1/reports/expiring-memberships"),
       client.get("/api/v1/reports/revenue-history"),
       client.get("/api/v1/reports/inactive-members?days=14"),
+      client.get("/api/v1/reports/birthdays"),
     ])
-      .then(([ms, pm, at, em, rh, im]) => {
+      .then(([ms, pm, at, em, rh, im, bd]) => {
         if (!cancelled) {
           setMemberStatus(ms.data);
           setPaymentMethods(pm.data);
@@ -82,6 +84,7 @@ export default function ReportsClient() {
           setExpiring(em.data);
           setRevenueHistory(rh.data);
           setInactive(im.data);
+          setBirthdays(bd.data);
           setError("");
         }
       })
@@ -323,6 +326,61 @@ export default function ReportsClient() {
                     </div>
                     <span className="text-purple-600 dark:text-purple-400 text-xs font-medium ml-3 shrink-0 tabular-nums">
                       {item.days_inactive !== null ? `${item.days_inactive}d` : "Nunca"}
+                    </span>
+                  </Link>
+                ))
+              )}
+            </div>
+          </GlassCard>
+        </motion.div>
+
+        {/* Birthdays this month */}
+        <motion.div variants={cardVariants}>
+          <GlassCard className="p-5 h-full">
+            <div className="flex items-center justify-between mb-4">
+              <div className="flex items-center gap-2">
+                <Cake className="h-4 w-4 text-pink-500" aria-hidden="true" />
+                <h3 className="text-[var(--text-base)] font-semibold text-sm">
+                  Cumpleaños próximos
+                </h3>
+              </div>
+              {birthdays.length > 0 && (
+                <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-pink-50 dark:bg-pink-950/40 text-pink-700 dark:text-pink-400 ring-1 ring-pink-200 dark:ring-pink-800/60">
+                  {birthdays.length} este mes
+                </span>
+              )}
+            </div>
+            <div className="space-y-1.5 max-h-44 overflow-y-auto pr-1">
+              {birthdays.length === 0 ? (
+                <p className="text-[var(--text-muted)] text-xs text-center py-6">
+                  Sin cumpleaños en los próximos 30 días
+                </p>
+              ) : (
+                birthdays.map((item) => (
+                  <Link
+                    key={item.id}
+                    href={`/members/${item.id}`}
+                    className="flex items-center justify-between py-2 px-3 surface-1 rounded-lg hover:bg-[var(--bg-muted)] transition-colors group"
+                  >
+                    <div className="min-w-0 flex-1">
+                      <p className="text-[var(--text-base)] text-xs font-medium truncate group-hover:text-pink-500 transition-colors">
+                        {item.full_name}
+                      </p>
+                      {item.phone && (
+                        <p className="text-[var(--text-muted)] text-[10px] flex items-center gap-1 truncate">
+                          <Phone className="h-2.5 w-2.5 shrink-0" />
+                          {item.phone}
+                        </p>
+                      )}
+                    </div>
+                    <span
+                      className={
+                        item.days_until === 0
+                          ? "text-pink-600 dark:text-pink-400 text-xs font-bold ml-3 shrink-0"
+                          : "text-[var(--text-muted)] text-xs ml-3 shrink-0 tabular-nums"
+                      }
+                    >
+                      {item.days_until === 0 ? "¡Hoy!" : `en ${item.days_until}d`}
                     </span>
                   </Link>
                 ))
