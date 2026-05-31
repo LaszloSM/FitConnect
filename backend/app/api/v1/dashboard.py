@@ -54,12 +54,14 @@ async def get_dashboard_kpis(
     )
     new_members_this_month = new_members_result.scalar() or 0
 
-    # Payments in date range
+    # Payments in date range — solo pagos efectivamente pagados (consistente con
+    # revenue_history y con la caja). Lo pendiente se reporta aparte.
     payments_month_result = await db.execute(
         select(func.coalesce(func.sum(Payment.amount), Decimal("0")))
         .where(
             Payment.created_at >= start_dt,
             Payment.created_at < end_dt,
+            Payment.status == PaymentStatus.paid,
         )
     )
     total_payments_month = payments_month_result.scalar() or Decimal("0")
