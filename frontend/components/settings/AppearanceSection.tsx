@@ -60,8 +60,8 @@ export default function AppearanceSection() {
               className={cn(
                 "relative flex flex-col items-center gap-3 p-4 rounded-xl border transition-all duration-200 text-center",
                 isActive
-                  ? "border-orange-500 bg-orange-50 dark:bg-orange-950/20 shadow-sm"
-                  : "border-[var(--border-base)] bg-[var(--bg-base)] hover:border-orange-400"
+                  ? "border-[var(--color-primary)] bg-[var(--color-primary-muted)] dark:bg-[var(--color-primary)]/20 shadow-sm"
+                  : "border-[var(--border-base)] bg-[var(--bg-base)] hover:border-[var(--color-primary)]"
               )}
             >
               <AnimatePresence mode="wait">
@@ -74,7 +74,7 @@ export default function AppearanceSection() {
                   className={cn(
                     "h-10 w-10 rounded-full flex items-center justify-center",
                     isActive
-                      ? "bg-orange-500 text-white"
+                      ? "bg-[var(--color-primary)] text-[var(--color-primary-contrast)]"
                       : "bg-[var(--bg-card)] border border-[var(--border-base)] text-[var(--text-muted)]"
                   )}
                 >
@@ -86,7 +86,7 @@ export default function AppearanceSection() {
                 <p
                   className={cn(
                     "text-sm font-semibold",
-                    isActive ? "text-orange-600 dark:text-orange-400" : "text-[var(--text-base)]"
+                    isActive ? "text-[var(--color-primary-hover)] dark:text-[var(--color-primary)]" : "text-[var(--text-base)]"
                   )}
                 >
                   {t.label}
@@ -97,7 +97,7 @@ export default function AppearanceSection() {
               </div>
 
               {isActive && (
-                <span className="absolute top-2 right-2 h-2 w-2 rounded-full bg-orange-500" />
+                <span className="absolute top-2 right-2 h-2 w-2 rounded-full bg-[var(--color-primary)]" />
               )}
             </button>
           );

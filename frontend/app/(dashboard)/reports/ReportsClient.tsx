@@ -126,7 +126,7 @@ export default function ReportsClient() {
   if (error) {
     return (
       <div className="space-y-6">
-        <PageHeader title="Reportes" subtitle="Análisis operativo del gym" />
+        <PageHeader module="reports" title="Reportes" subtitle="Análisis operativo del gym" />
         <EmptyState
           icon={<AlertCircle className="h-10 w-10 text-red-500" />}
           title="Error cargando reportes"
@@ -153,7 +153,7 @@ export default function ReportsClient() {
       transition={{ ease: [0.16, 1, 0.3, 1], duration: 0.35 }}
       className="space-y-6"
     >
-      <PageHeader title="Reportes" subtitle="Análisis operativo del gym" />
+      <PageHeader module="reports" title="Reportes" subtitle="Análisis operativo del gym" />
 
       <motion.div
         className="grid grid-cols-1 lg:grid-cols-2 gap-4"
@@ -280,7 +280,7 @@ export default function ReportsClient() {
         <motion.div variants={cardVariants}>
           <GlassCard className="p-5 h-full">
             <div className="flex items-center gap-2 mb-4">
-              <Users className="h-4 w-4 text-orange-500" aria-hidden="true" />
+              <Users className="h-4 w-4 text-[var(--color-primary)]" aria-hidden="true" />
               <h3 className="text-[var(--text-base)] font-semibold text-sm">
                 Miembros por estado
               </h3>
@@ -299,8 +299,8 @@ export default function ReportsClient() {
                   axisLine={false}
                   tickLine={false}
                 />
-                <Tooltip {...chartTooltipStyle} itemStyle={{ color: "oklch(0.70 0.20 47)" }} />
-                <Bar dataKey="value" fill="oklch(0.70 0.20 47)" radius={[4, 4, 0, 0]} name="Miembros" />
+                <Tooltip {...chartTooltipStyle} itemStyle={{ color: "var(--color-primary)" }} />
+                <Bar dataKey="value" fill="var(--color-primary)" radius={[4, 4, 0, 0]} name="Miembros" />
               </BarChart>
             </ResponsiveContainer>
           </GlassCard>
@@ -484,7 +484,7 @@ export default function ReportsClient() {
                     className="flex items-center justify-between py-2 px-3 surface-1 rounded-lg hover:bg-[var(--bg-muted)] transition-colors group"
                   >
                     <div className="min-w-0 flex-1">
-                      <p className="text-[var(--text-base)] text-xs font-medium truncate group-hover:text-orange-500 transition-colors">
+                      <p className="text-[var(--text-base)] text-xs font-medium truncate group-hover:text-[var(--color-primary)] transition-colors">
                         {item.member_name}
                       </p>
                       <p className="text-[var(--text-muted)] text-[10px] truncate">

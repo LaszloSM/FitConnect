@@ -6,19 +6,14 @@ import { usePathname } from "next/navigation";
 import { useTheme } from "next-themes";
 import Link from "next/link";
 import { AnimatePresence, motion } from "framer-motion";
-import {
-  Bell,
-  LogOut,
-  Moon,
-  Settings,
-  Sun,
-} from "lucide-react";
+import { Bell, LogOut, Moon, Settings, Sun } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
 import { es } from "date-fns/locale";
 import { Button } from "@/components/ui/button";
 import { apiClient } from "@/lib/api";
 import { useSidebar } from "@/components/layout/SidebarContext";
 import { SIDEBAR_COLLAPSED_W, SIDEBAR_EXPANDED_W } from "@/lib/layout-constants";
+import { MODULE_ACCENTS, moduleFromPath } from "@/lib/module-accents";
 
 interface Notification {
   id: string;
@@ -28,18 +23,6 @@ interface Notification {
   is_read: boolean;
   created_at: string;
 }
-
-const routeMeta: Record<string, { title: string; subtitle: string }> = {
-  "/dashboard": { title: "Dashboard", subtitle: "Resumen operativo" },
-  "/members": { title: "Miembros", subtitle: "Gestión de socios" },
-  "/payments": { title: "Pagos", subtitle: "Control de cobros" },
-  "/plans": { title: "Planes", subtitle: "Membresías del gimnasio" },
-  "/checkins": { title: "Check-ins", subtitle: "Registro de asistencia" },
-  "/classes": { title: "Clases", subtitle: "Programación de actividades" },
-  "/machines": { title: "Máquinas", subtitle: "Inventario de equipos" },
-  "/reports": { title: "Reportes", subtitle: "Análisis y métricas" },
-  "/settings": { title: "Configuración", subtitle: "Preferencias del sistema" },
-};
 
 // Module-level constant — defined once, not re-created on every render
 const dropdownVariants = {
@@ -68,17 +51,26 @@ export function Header() {
   const effectiveCollapsed = mounted ? collapsed : false;
 
   const [notifications, setNotifications] = useState<Notification[]>([]);
+  const [gymName, setGymName] = useState<string | null>(null);
   const [showBell, setShowBell] = useState(false);
   const [showUser, setShowUser] = useState(false);
 
   const bellRef = useRef<HTMLDivElement>(null);
   const userRef = useRef<HTMLDivElement>(null);
 
-  // Resolve breadcrumb
-  const meta =
-    routeMeta[pathname] ??
-    Object.entries(routeMeta).find(([key]) => pathname.startsWith(key))?.[1] ??
-    { title: "FitConnect", subtitle: "" };
+  // Wayfinding context — the breadcrumb orients, it does not title the page.
+  const moduleKey = moduleFromPath(pathname);
+  const moduleMeta = moduleKey ? MODULE_ACCENTS[moduleKey] : null;
+
+  // Gym name for the breadcrumb (fetched once per session)
+  useEffect(() => {
+    if (!session?.accessToken) return;
+    const client = apiClient(session.accessToken as string);
+    client
+      .get("/api/v1/settings/gym")
+      .then((res) => setGymName(res.data?.name ?? null))
+      .catch(() => {});
+  }, [session?.accessToken]);
 
   // Notification fetching
   useEffect(() => {
@@ -164,17 +156,27 @@ export function Header() {
         borderBottom: "1px solid var(--border-base)",
       }}
     >
-      {/* Left: Breadcrumb */}
-      <div className="flex flex-col">
-        <span className="text-base font-semibold font-display text-[var(--text-base)]">
-          {meta.title}
+      {/* Left: wayfinding breadcrumb — gym context, NOT a page title */}
+      <nav aria-label="Ubicación" className="flex items-center gap-2 min-w-0">
+        <span className="text-sm font-medium text-[var(--text-base)] truncate max-w-[12rem]">
+          {gymName ?? "FitConnect"}
         </span>
-        {meta.subtitle && (
-          <span className="text-xs text-[var(--text-muted)]">{meta.subtitle}</span>
+        {moduleMeta && (
+          <>
+            <span className="text-[var(--text-subtle)] select-none">/</span>
+            <span className="flex items-center gap-1.5 text-sm text-[var(--text-muted)] truncate">
+              <span
+                className="h-1.5 w-1.5 rounded-full shrink-0"
+                style={{ background: `var(${moduleMeta.cssVar})` }}
+                aria-hidden
+              />
+              {moduleMeta.label}
+            </span>
+          </>
         )}
-      </div>
+      </nav>
 
-      {/* Right: actions */}
+      {/* Right: global actions */}
       <div className="flex items-center gap-2">
         {/* Dark mode toggle */}
         <Button
@@ -228,7 +230,7 @@ export function Header() {
                   initial={{ scale: 0 }}
                   animate={{ scale: 1 }}
                   exit={{ scale: 0 }}
-                  className="absolute -top-1 -right-1 bg-red-500 text-white text-[10px] font-bold px-1.5 py-0.5 rounded-full leading-none"
+                  className="absolute -top-1 -right-1 bg-[var(--color-primary)] text-[var(--color-primary-contrast)] text-[10px] font-bold px-1.5 py-0.5 rounded-full leading-none"
                 >
                   {unreadCount}
                 </motion.span>
@@ -264,7 +266,7 @@ export function Header() {
                   {unreadCount > 0 && (
                     <button
                       onClick={markAllRead}
-                      className="text-xs text-orange-500 hover:underline"
+                      className="text-xs text-[var(--color-primary)] hover:underline"
                     >
                       Marcar leído
                     </button>
@@ -299,7 +301,7 @@ export function Header() {
                         }}
                       >
                         <span
-                          className="mt-1.5 h-2 w-2 shrink-0 rounded-full bg-orange-500"
+                          className="mt-1.5 h-2 w-2 shrink-0 rounded-full bg-[var(--color-primary)]"
                           style={{ opacity: n.is_read ? 0.3 : 1 }}
                         />
                         <div className="min-w-0">
@@ -315,7 +317,7 @@ export function Header() {
                           >
                             {n.message}
                           </p>
-                          <p className="text-[10px] mt-1 text-orange-400">
+                          <p className="text-[10px] mt-1 text-[var(--text-subtle)]">
                             {formatDistanceToNow(new Date(n.created_at), {
                               addSuffix: true,
                               locale: es,
@@ -338,7 +340,7 @@ export function Header() {
             aria-label="Cuenta"
             aria-expanded={showUser}
             aria-haspopup="true"
-            className="h-8 w-8 rounded-full bg-orange-500 text-white text-xs font-bold flex items-center justify-center hover:bg-orange-600 transition-colors"
+            className="h-8 w-8 rounded-full bg-[var(--color-primary)] text-[var(--color-primary-contrast)] text-xs font-bold flex items-center justify-center hover:bg-[var(--color-primary-hover)] transition-colors"
           >
             {getInitials(session?.user?.name)}
           </button>

@@ -35,9 +35,22 @@ interface DatePickerProps {
   minDate?: Date
   maxDate?: Date
   className?: string
+  /** Earliest selectable year in the dropdown (default 1920). */
+  fromYear?: number
+  /** Latest selectable year in the dropdown (default current year + 5). */
+  toYear?: number
 }
 
-function DatePicker({ value, onChange, placeholder = "Seleccionar fecha", minDate, maxDate, className }: DatePickerProps) {
+function DatePicker({
+  value,
+  onChange,
+  placeholder = "Seleccionar fecha",
+  minDate,
+  maxDate,
+  className,
+  fromYear = 1920,
+  toYear = new Date().getFullYear() + 5,
+}: DatePickerProps) {
   const [open, setOpen] = React.useState(false)
   const [viewDate, setViewDate] = React.useState(() => {
     const d = value ?? new Date()
@@ -73,6 +86,13 @@ function DatePicker({ value, onChange, placeholder = "Seleccionar fecha", minDat
       return { year, month: month + 1 }
     })
   }
+
+  const years = React.useMemo(() => {
+    const lo = Math.min(fromYear, toYear)
+    const hi = Math.max(fromYear, toYear)
+    // Newest first — birth dates and recent dates are reached fastest.
+    return Array.from({ length: hi - lo + 1 }, (_, i) => hi - i)
+  }, [fromYear, toYear])
 
   function selectDay(day: number) {
     const selected = new Date(viewDate.year, viewDate.month, day)
@@ -111,21 +131,43 @@ function DatePicker({ value, onChange, placeholder = "Seleccionar fecha", minDat
 
       {open && (
         <div className="absolute left-0 top-10 z-50 w-72 rounded-lg border border-[var(--border-base)] bg-[var(--bg-card)] shadow-[var(--shadow-md)] p-4">
-          <div className="flex items-center justify-between mb-4">
+          <div className="flex items-center gap-1.5 mb-4">
             <button
               type="button"
               onClick={prevMonth}
-              className="flex size-7 items-center justify-center rounded-md text-[var(--text-muted)] hover:bg-[var(--bg-muted)] hover:text-[var(--text-base)] transition-colors"
+              aria-label="Mes anterior"
+              className="flex size-7 shrink-0 items-center justify-center rounded-md text-[var(--text-muted)] hover:bg-[var(--bg-muted)] hover:text-[var(--text-base)] transition-colors"
             >
               <ChevronLeft className="size-4" />
             </button>
-            <span className="text-sm font-semibold text-[var(--text-base)]">
-              {MONTHS_ES[viewDate.month]} {viewDate.year}
-            </span>
+
+            <select
+              aria-label="Mes"
+              value={viewDate.month}
+              onChange={(e) => setViewDate((v) => ({ ...v, month: Number(e.target.value) }))}
+              className="flex-1 min-w-0 h-7 rounded-md border border-[var(--border-base)] bg-[var(--bg-input)] px-2 text-sm font-medium text-[var(--text-base)] outline-none focus-visible:border-[var(--color-primary)] cursor-pointer"
+            >
+              {MONTHS_ES.map((m, i) => (
+                <option key={m} value={i}>{m}</option>
+              ))}
+            </select>
+
+            <select
+              aria-label="Año"
+              value={viewDate.year}
+              onChange={(e) => setViewDate((v) => ({ ...v, year: Number(e.target.value) }))}
+              className="w-[4.5rem] shrink-0 h-7 rounded-md border border-[var(--border-base)] bg-[var(--bg-input)] px-2 text-sm font-medium text-[var(--text-base)] outline-none focus-visible:border-[var(--color-primary)] cursor-pointer"
+            >
+              {years.map((y) => (
+                <option key={y} value={y}>{y}</option>
+              ))}
+            </select>
+
             <button
               type="button"
               onClick={nextMonth}
-              className="flex size-7 items-center justify-center rounded-md text-[var(--text-muted)] hover:bg-[var(--bg-muted)] hover:text-[var(--text-base)] transition-colors"
+              aria-label="Mes siguiente"
+              className="flex size-7 shrink-0 items-center justify-center rounded-md text-[var(--text-muted)] hover:bg-[var(--bg-muted)] hover:text-[var(--text-base)] transition-colors"
             >
               <ChevronRight className="size-4" />
             </button>
@@ -154,7 +196,7 @@ function DatePicker({ value, onChange, placeholder = "Seleccionar fecha", minDat
                   onClick={() => selectDay(day)}
                   className={cn(
                     "flex size-8 mx-auto items-center justify-center rounded-full text-sm transition-colors",
-                    selected && "bg-[var(--color-primary)] text-white font-semibold",
+                    selected && "bg-[var(--color-primary)] text-[var(--color-primary-contrast)] font-semibold",
                     !selected && todayDay && "border-2 border-[var(--color-primary)] text-[var(--color-primary)] font-semibold",
                     !selected && !todayDay && !disabled && "text-[var(--text-base)] hover:bg-[var(--bg-muted)]",
                     disabled && "opacity-30 cursor-not-allowed"

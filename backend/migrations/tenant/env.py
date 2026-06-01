@@ -7,7 +7,10 @@ from app.db.tenant_base import TenantBase
 import app.models.tenant  # noqa: registers tenant models
 
 config = context.config
-db_url = settings.tenant_database_url_template.replace("{db_name}", "gymdb_template")
+# run_tenant_migrations inyecta la URL real de cada tenant vía set_main_option.
+# Si no hay (uso directo del CLI), caer al template como fallback.
+db_url = config.get_main_option("sqlalchemy.url") or \
+    settings.tenant_database_url_template.replace("{db_name}", "gymdb_template")
 config.set_main_option("sqlalchemy.url", db_url)
 
 target_metadata = TenantBase.metadata

@@ -8,9 +8,7 @@ import { motion } from "framer-motion";
 import { GlassCard } from "@/components/common/GlassCard";
 import { PageHeader } from "@/components/common/PageHeader";
 import { EmptyState } from "@/components/common/EmptyState";
-import { Alert } from "@/components/ui/alert";
 import { DatePicker } from "@/components/ui/date-picker";
-import { CurrencyInput } from "@/components/ui/currency-input";
 import { FileUpload } from "@/components/ui/file-upload";
 import { apiClient } from "@/lib/api";
 import { cn } from "@/lib/utils";
@@ -37,17 +35,22 @@ import { Plus, AlertCircle, Wrench, ChevronDown } from "lucide-react";
 interface Machine {
   id: string;
   name: string;
-  brand: string | null;
-  serial_number: string | null;
-  status: string;
-  notes: string | null;
   area: string | null;
-  purchase_date: string | null;
-  purchase_cost: number | null;
-  warranty_expiry: string | null;
-  next_maintenance_date: string | null;
+  status: string;
+  last_maintenance_date: string | null;
+  notes: string | null;
   photo_url: string | null;
 }
+
+const AREA_OPTIONS = [
+  "Cardio",
+  "Fuerza",
+  "Peso libre",
+  "Funcional",
+  "Cross-training",
+  "Estiramiento",
+  "Otra",
+];
 
 interface MaintenanceLog {
   id: string;
@@ -77,24 +80,6 @@ const STATUS_LABEL: Record<string, string> = {
   retired:     "Retirada",
 };
 
-function getDaysUntil(dateStr: string): number {
-  const target = new Date(dateStr);
-  const now = new Date();
-  target.setHours(0, 0, 0, 0);
-  now.setHours(0, 0, 0, 0);
-  return Math.round((target.getTime() - now.getTime()) / (1000 * 60 * 60 * 24));
-}
-
-function isWarrantyActive(dateStr: string | null): boolean | null {
-  if (!dateStr) return null;
-  return getDaysUntil(dateStr) >= 0;
-}
-
-function isMaintenanceSoon(dateStr: string | null): boolean {
-  if (!dateStr) return false;
-  const days = getDaysUntil(dateStr);
-  return days >= 0 && days <= 7;
-}
 
 export default function MachinesClient() {
   const sessionData = useSession();
@@ -110,15 +95,10 @@ export default function MachinesClient() {
   const [addingLog, setAddingLog] = useState(false);
   const [form, setForm] = useState({
     name: "",
-    brand: "",
-    serial_number: "",
-    status: "active",
-    notes: "",
     area: "",
-    purchase_date: "" as string,
-    purchase_cost: 0,
-    warranty_expiry: "" as string,
-    next_maintenance_date: "" as string,
+    status: "active",
+    last_maintenance_date: "" as string,
+    notes: "",
     photo_url: "",
   });
 
@@ -171,20 +151,16 @@ export default function MachinesClient() {
     try {
       await client.post("/api/v1/machines", {
         name: form.name,
-        brand: form.brand || undefined,
-        serial_number: form.serial_number || undefined,
-        status: form.status,
-        notes: form.notes || undefined,
         area: form.area || undefined,
-        purchase_date: form.purchase_date || undefined,
-        purchase_cost: form.purchase_cost || undefined,
-        warranty_expiry: form.warranty_expiry || undefined,
-        next_maintenance_date: form.next_maintenance_date || undefined,
-        photo_url: form.photo_url || undefined,
+        status: form.status,
+        last_maintenance_date: form.last_maintenance_date || undefined,
+        notes: form.notes || undefined,
+        // No enviar blobs locales (URL.createObjectURL no persiste)
+        photo_url: form.photo_url.startsWith("blob:") ? undefined : form.photo_url || undefined,
       });
       toast.success("Máquina creada correctamente");
       setDialogOpen(false);
-      setForm({ name: "", brand: "", serial_number: "", status: "active", notes: "", area: "", purchase_date: "", purchase_cost: 0, warranty_expiry: "", next_maintenance_date: "", photo_url: "" });
+      setForm({ name: "", area: "", status: "active", last_maintenance_date: "", notes: "", photo_url: "" });
       fetchMachines();
     } catch (err: any) {
       const detail = err.response?.data?.detail;
@@ -237,8 +213,6 @@ export default function MachinesClient() {
     }
   };
 
-  const warrantyActive = form.warranty_expiry ? isWarrantyActive(form.warranty_expiry) : null;
-
   return (
     <motion.div
       initial={{ opacity: 0, y: 8 }}
@@ -248,12 +222,13 @@ export default function MachinesClient() {
     >
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
         <PageHeader
+          module="machines"
           title="Máquinas"
           subtitle="Inventario y estado de equipos"
           action={
             <DialogTrigger
               render={
-                <Button className="bg-orange-500 text-white hover:bg-orange-600">
+                <Button className="bg-[var(--color-primary)] text-[var(--color-primary-contrast)] hover:bg-[var(--color-primary-hover)]">
                   <Plus className="h-4 w-4 mr-2" />
                   Nueva máquina
                 </Button>
@@ -269,112 +244,70 @@ export default function MachinesClient() {
             </DialogTitle>
           </DialogHeader>
           <form onSubmit={handleSubmit} className="space-y-4 mt-2">
-            <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label className="text-[var(--text-muted)] text-sm">Nombre</Label>
-                <Input
-                  value={form.name}
-                  onChange={(e) => setForm({ ...form, name: e.target.value })}
-                  required
-                  className={inputCls}
-                />
-              </div>
-              <div className="space-y-2">
-                <Label className="text-[var(--text-muted)] text-sm">Marca</Label>
-                <Input
-                  value={form.brand}
-                  onChange={(e) => setForm({ ...form, brand: e.target.value })}
-                  className={inputCls}
-                />
-              </div>
-              <div className="space-y-2">
-                <Label className="text-[var(--text-muted)] text-sm">Serial</Label>
-                <Input
-                  value={form.serial_number}
-                  onChange={(e) => setForm({ ...form, serial_number: e.target.value })}
-                  className={inputCls}
-                />
-              </div>
-              <div className="space-y-2">
-                <Label className="text-[var(--text-muted)] text-sm">Área</Label>
-                <Input
-                  value={form.area}
-                  onChange={(e) => setForm({ ...form, area: e.target.value })}
-                  placeholder="Cardio, Pesas libres..."
-                  className={inputCls}
-                />
-              </div>
-            </div>
-
             <div className="space-y-2">
-              <Label className="text-[var(--text-muted)] text-sm">Estado</Label>
-              <select
-                value={form.status}
-                onChange={(e) => setForm({ ...form, status: e.target.value })}
-                className={selectCls}
-              >
-                <option value="active">Activa</option>
-                <option value="maintenance">Mantenimiento</option>
-                <option value="damaged">Dañada</option>
-                <option value="retired">Retirada</option>
-              </select>
-            </div>
-
-            <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label className="text-[var(--text-muted)] text-sm">Fecha de compra</Label>
-                <DatePicker
-                  value={form.purchase_date ? new Date(form.purchase_date + "T12:00:00") : undefined}
-                  onChange={(d) => setForm({ ...form, purchase_date: d.toISOString().split("T")[0] })}
-                  placeholder="Seleccionar fecha"
-                />
-              </div>
-              <div className="space-y-2">
-                <Label className="text-[var(--text-muted)] text-sm">Costo de compra (COP)</Label>
-                <CurrencyInput
-                  value={form.purchase_cost}
-                  onChange={(v) => setForm({ ...form, purchase_cost: v })}
-                />
-              </div>
-              <div className="space-y-2">
-                <Label className="text-[var(--text-muted)] text-sm">Vencimiento garantía</Label>
-                <DatePicker
-                  value={form.warranty_expiry ? new Date(form.warranty_expiry + "T12:00:00") : undefined}
-                  onChange={(d) => setForm({ ...form, warranty_expiry: d.toISOString().split("T")[0] })}
-                  placeholder="Seleccionar fecha"
-                />
-                {warrantyActive !== null && (
-                  <span className={cn(
-                    "inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium",
-                    warrantyActive
-                      ? "bg-green-100 dark:bg-green-950/30 text-green-700 dark:text-green-400"
-                      : "bg-red-100 dark:bg-red-950/30 text-red-700 dark:text-red-400"
-                  )}>
-                    {warrantyActive ? "Garantía activa" : "Garantía vencida"}
-                  </span>
-                )}
-              </div>
-              <div className="space-y-2">
-                <Label className="text-[var(--text-muted)] text-sm">Próximo mantenimiento</Label>
-                <DatePicker
-                  value={form.next_maintenance_date ? new Date(form.next_maintenance_date + "T12:00:00") : undefined}
-                  onChange={(d) => setForm({ ...form, next_maintenance_date: d.toISOString().split("T")[0] })}
-                  placeholder="Seleccionar fecha"
-                />
-              </div>
-            </div>
-
-            <div className="space-y-2">
-              <Label className="text-[var(--text-muted)] text-sm">Notas</Label>
+              <Label className="text-[var(--text-muted)] text-sm">Nombre *</Label>
               <Input
-                value={form.notes}
-                onChange={(e) => setForm({ ...form, notes: e.target.value })}
+                value={form.name}
+                onChange={(e) => setForm({ ...form, name: e.target.value })}
+                required
+                placeholder="Caminadora #2"
                 className={inputCls}
               />
             </div>
 
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label className="text-[var(--text-muted)] text-sm">Área *</Label>
+                <select
+                  value={form.area}
+                  onChange={(e) => setForm({ ...form, area: e.target.value })}
+                  required
+                  className={selectCls}
+                >
+                  <option value="" disabled>Seleccionar área</option>
+                  {AREA_OPTIONS.map((a) => (
+                    <option key={a} value={a}>{a}</option>
+                  ))}
+                </select>
+              </div>
+              <div className="space-y-2">
+                <Label className="text-[var(--text-muted)] text-sm">Estado *</Label>
+                <select
+                  value={form.status}
+                  onChange={(e) => setForm({ ...form, status: e.target.value })}
+                  className={selectCls}
+                >
+                  <option value="active">Disponible</option>
+                  <option value="maintenance">Mantenimiento</option>
+                  <option value="damaged">Dañada</option>
+                  <option value="retired">Retirada</option>
+                </select>
+              </div>
+            </div>
+
             <div className="space-y-2">
-              <Label className="text-[var(--text-muted)] text-sm">Foto de la máquina</Label>
+              <Label className="text-[var(--text-muted)] text-sm">Último mantenimiento</Label>
+              <DatePicker
+                value={form.last_maintenance_date ? new Date(form.last_maintenance_date + "T12:00:00") : undefined}
+                onChange={(d) => setForm({ ...form, last_maintenance_date: d.toISOString().split("T")[0] })}
+                placeholder="Seleccionar fecha"
+                maxDate={new Date()}
+                fromYear={2000}
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label className="text-[var(--text-muted)] text-sm">Observaciones</Label>
+              <textarea
+                value={form.notes}
+                onChange={(e) => setForm({ ...form, notes: e.target.value })}
+                rows={3}
+                className={cn(selectCls, "h-auto py-2 resize-none")}
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label className="text-[var(--text-muted)] text-sm">Foto (opcional)</Label>
               <FileUpload
                 value={form.photo_url || undefined}
                 onChange={(file) => {
@@ -401,7 +334,7 @@ export default function MachinesClient() {
               <Button
                 type="submit"
                 disabled={submitting}
-                className="bg-orange-500 text-white font-semibold hover:bg-orange-600"
+                className="bg-[var(--color-primary)] text-[var(--color-primary-contrast)] font-semibold hover:bg-[var(--color-primary-hover)]"
               >
                 {submitting ? "Creando..." : "Crear máquina"}
               </Button>
@@ -424,8 +357,6 @@ export default function MachinesClient() {
                 <TableHead className="text-[var(--text-muted)] w-8" />
                 <TableHead className="text-[var(--text-muted)]">Nombre</TableHead>
                 <TableHead className="text-[var(--text-muted)]">Área</TableHead>
-                <TableHead className="text-[var(--text-muted)]">Marca</TableHead>
-                <TableHead className="text-[var(--text-muted)]">Serial</TableHead>
                 <TableHead className="text-[var(--text-muted)]">Estado</TableHead>
                 <TableHead className="text-[var(--text-muted)]">Historial</TableHead>
               </TableRow>
@@ -434,7 +365,7 @@ export default function MachinesClient() {
               {loading ? (
                 Array.from({ length: 4 }).map((_, i) => (
                   <TableRow key={i} className="border-[var(--border-base)]">
-                    {Array.from({ length: 7 }).map((_, j) => (
+                    {Array.from({ length: 5 }).map((_, j) => (
                       <TableCell key={j}>
                         <div className="skeleton h-4 rounded" />
                       </TableCell>
@@ -443,14 +374,14 @@ export default function MachinesClient() {
                 ))
               ) : machines.length === 0 ? (
                 <TableRow>
-                  <TableCell colSpan={7}>
+                  <TableCell colSpan={5}>
                     <EmptyState
                       title="Sin máquinas registradas"
                       description="Agrega el inventario de equipos del gym"
                       action={
                         <Button
                           onClick={() => setDialogOpen(true)}
-                          className="bg-orange-500 text-white hover:bg-orange-600"
+                          className="bg-[var(--color-primary)] text-[var(--color-primary-contrast)] hover:bg-[var(--color-primary-hover)]"
                         >
                           <Plus className="h-4 w-4 mr-2" />
                           Nueva máquina
@@ -488,11 +419,6 @@ export default function MachinesClient() {
                         )}
                         <div>
                           {m.name}
-                          {isMaintenanceSoon(m.next_maintenance_date) && (
-                            <span className="ml-1.5 inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-semibold bg-amber-100 dark:bg-amber-950/30 text-amber-700 dark:text-amber-400">
-                              Mantenimiento próximo
-                            </span>
-                          )}
                           {m.notes && (
                             <p className="text-xs text-[var(--text-muted)] font-normal line-clamp-1">{m.notes}</p>
                           )}
@@ -500,8 +426,6 @@ export default function MachinesClient() {
                       </div>
                     </TableCell>
                     <TableCell className="text-[var(--text-muted)] text-sm">{m.area || "-"}</TableCell>
-                    <TableCell className="text-[var(--text-muted)]">{m.brand || "-"}</TableCell>
-                    <TableCell className="text-[var(--text-muted)] font-mono text-xs">{m.serial_number || "-"}</TableCell>
                     <TableCell>
                       <span
                         className={cn(
@@ -527,28 +451,11 @@ export default function MachinesClient() {
 
                   expandedMachine === m.id && (
                     <TableRow key={`${m.id}-maintenance`} className="border-[var(--border-base)]">
-                      <TableCell colSpan={7} className="p-4 bg-[var(--bg-base)]">
+                      <TableCell colSpan={5} className="p-4 bg-[var(--bg-base)]">
                         <div className="space-y-3">
-                          {/* Maintenance soon alert */}
-                          {isMaintenanceSoon(m.next_maintenance_date) && m.next_maintenance_date && (
-                            <Alert variant="warning">
-                              Próximo mantenimiento programado: {new Date(m.next_maintenance_date + "T12:00:00").toLocaleDateString("es-ES")} (en {getDaysUntil(m.next_maintenance_date)} días)
-                            </Alert>
-                          )}
-
-                          {/* Warranty and purchase info */}
-                          {(m.warranty_expiry || m.purchase_date || m.purchase_cost) && (
+                          {m.last_maintenance_date && (
                             <div className="flex flex-wrap gap-3 text-xs text-[var(--text-muted)]">
-                              {m.purchase_date && <span>Compra: {new Date(m.purchase_date + "T12:00:00").toLocaleDateString("es-ES")}</span>}
-                              {m.purchase_cost && <span>Costo: ${Number(m.purchase_cost).toLocaleString("es-CO")}</span>}
-                              {m.warranty_expiry && (
-                                <span className={cn(
-                                  "font-medium",
-                                  isWarrantyActive(m.warranty_expiry) ? "text-green-600 dark:text-green-400" : "text-red-600 dark:text-red-400"
-                                )}>
-                                  Garantía: {isWarrantyActive(m.warranty_expiry) ? "activa" : "vencida"} ({new Date(m.warranty_expiry + "T12:00:00").toLocaleDateString("es-ES")})
-                                </span>
-                              )}
+                              <span>Último mantenimiento: {new Date(m.last_maintenance_date + "T12:00:00").toLocaleDateString("es-ES")}</span>
                             </div>
                           )}
 
@@ -609,7 +516,7 @@ export default function MachinesClient() {
                               type="button"
                               disabled={addingLog || !logForm.description.trim() || !logForm.technician.trim()}
                               onClick={() => handleAddLog(m.id)}
-                              className="bg-orange-500 text-white font-semibold text-sm hover:bg-orange-600"
+                              className="bg-[var(--color-primary)] text-[var(--color-primary-contrast)] font-semibold text-sm hover:bg-[var(--color-primary-hover)]"
                             >
                               {addingLog ? "Guardando..." : "Registrar"}
                             </Button>

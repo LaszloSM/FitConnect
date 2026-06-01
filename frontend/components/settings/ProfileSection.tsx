@@ -80,14 +80,14 @@ export default function ProfileSection() {
   return (
     <GlassCard className="p-6">
       <div className="flex items-center gap-4 mb-6">
-        <div className="h-14 w-14 rounded-full bg-orange-500 text-white text-lg font-bold flex items-center justify-center shrink-0 select-none">
+        <div className="h-14 w-14 rounded-full bg-[var(--color-primary)] text-[var(--color-primary-contrast)] text-lg font-bold flex items-center justify-center shrink-0 select-none">
           {initials}
         </div>
         <div>
           <p className="text-[var(--text-base)] font-semibold">{profile?.full_name ?? "—"}</p>
           <p className="text-[var(--text-muted)] text-sm">{profile?.email ?? "—"}</p>
           {profile?.role && (
-            <span className="inline-block mt-1 px-2 py-0.5 bg-orange-100 dark:bg-orange-950/30 text-orange-700 dark:text-orange-400 text-xs rounded-full font-medium capitalize">
+            <span className="inline-block mt-1 px-2 py-0.5 bg-[var(--color-primary-muted)] dark:bg-[var(--color-primary)]/30 text-[var(--color-primary)] dark:text-[var(--color-primary)] text-xs rounded-full font-medium capitalize">
               {profile.role}
             </span>
           )}
@@ -149,7 +149,7 @@ export default function ProfileSection() {
           <Button
             type="submit"
             disabled={saving}
-            className="bg-orange-500 text-white font-semibold hover:bg-orange-600"
+            className="bg-[var(--color-primary)] text-[var(--color-primary-contrast)] font-semibold hover:bg-[var(--color-primary-hover)]"
           >
             {saving ? "Guardando..." : "Guardar cambios"}
           </Button>

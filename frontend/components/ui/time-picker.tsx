@@ -100,7 +100,7 @@ function TimePicker({ value, onChange, placeholder = "Seleccionar hora" }: TimeP
                     className={cn(
                       "w-full px-3 py-1.5 text-left text-sm transition-colors",
                       t === value
-                        ? "bg-[var(--color-primary)] text-white font-medium"
+                        ? "bg-[var(--color-primary)] text-[var(--color-primary-contrast)] font-medium"
                         : "text-[var(--text-base)] hover:bg-[var(--bg-muted)]"
                     )}
                   >

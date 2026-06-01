@@ -3,13 +3,12 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { z } from "zod";
-import { GlassCard } from "@/components/common/GlassCard";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { PasswordInput } from "@/components/ui/password-input";
 import { PhoneInput } from "@/components/ui/phone-input";
-import { Zap } from "lucide-react";
+import { BrandMark } from "@/components/common/BrandMark";
 
 const registerSchema = z
   .object({
@@ -86,13 +85,14 @@ export default function RegisterPage() {
   }
 
   return (
-    <GlassCard className="p-8">
-      <div className="text-center mb-8">
-        <div className="flex items-center justify-center gap-2 mb-3">
-          <Zap className="h-7 w-7 text-orange-500" />
-          <span className="text-slate-800 font-bold text-2xl font-display">FitConnect</span>
+    <div className="rounded-2xl bg-white p-8 shadow-[0_20px_60px_-10px_rgb(0_0_0/0.5)]">
+      <div className="mb-8">
+        <div className="flex items-center gap-2.5 mb-4">
+          <BrandMark size={32} />
+          <span className="text-slate-900 font-extrabold text-xl tracking-tight">FitConnect</span>
         </div>
-        <p className="text-slate-500 text-sm">Comienza gratis — Plan Básico</p>
+        <h2 className="text-slate-900 font-bold text-lg">Crea tu cuenta</h2>
+        <p className="text-slate-500 text-sm mt-0.5">Comienza gratis — Plan Básico</p>
       </div>
       <form onSubmit={handleSubmit} className="space-y-5">
         {/* Gym name */}
@@ -103,7 +103,7 @@ export default function RegisterPage() {
             name="gym_name"
             type="text"
             required
-            className="bg-white border-slate-200 text-slate-800 placeholder:text-slate-400 focus:border-orange-400 focus:ring-orange-400"
+            className="bg-white border-slate-200 text-slate-800 placeholder:text-slate-400 focus:border-[var(--color-primary)] focus:ring-[var(--color-primary)]"
           />
         </div>
 
@@ -115,7 +115,7 @@ export default function RegisterPage() {
             name="city"
             type="text"
             required
-            className="bg-white border-slate-200 text-slate-800 placeholder:text-slate-400 focus:border-orange-400 focus:ring-orange-400"
+            className="bg-white border-slate-200 text-slate-800 placeholder:text-slate-400 focus:border-[var(--color-primary)] focus:ring-[var(--color-primary)]"
           />
         </div>
 
@@ -127,7 +127,7 @@ export default function RegisterPage() {
             name="full_name"
             type="text"
             required
-            className="bg-white border-slate-200 text-slate-800 placeholder:text-slate-400 focus:border-orange-400 focus:ring-orange-400"
+            className="bg-white border-slate-200 text-slate-800 placeholder:text-slate-400 focus:border-[var(--color-primary)] focus:ring-[var(--color-primary)]"
           />
         </div>
 
@@ -139,14 +139,14 @@ export default function RegisterPage() {
             name="email"
             type="email"
             required
-            className="bg-white border-slate-200 text-slate-800 placeholder:text-slate-400 focus:border-orange-400 focus:ring-orange-400"
+            className="bg-white border-slate-200 text-slate-800 placeholder:text-slate-400 focus:border-[var(--color-primary)] focus:ring-[var(--color-primary)]"
           />
         </div>
 
         {/* Phone (optional) */}
         <div className="space-y-1.5">
           <Label className="text-slate-600 text-sm font-medium">Teléfono (opcional)</Label>
-          <PhoneInput value={phone} onChange={setPhone} />
+          <PhoneInput value={phone} onChange={setPhone} surface="on-light" />
         </div>
 
         {/* Password with strength */}
@@ -154,6 +154,7 @@ export default function RegisterPage() {
           <Label className="text-slate-600 text-sm font-medium">Contraseña</Label>
           <PasswordInput
             showStrength
+            surface="on-light"
             value={password}
             onChange={(e) => setPassword((e.target as HTMLInputElement).value)}
             required
@@ -165,6 +166,7 @@ export default function RegisterPage() {
         <div className="space-y-1.5">
           <Label className="text-slate-600 text-sm font-medium">Confirmar contraseña</Label>
           <PasswordInput
+            surface="on-light"
             value={confirmPassword}
             onChange={(e) => setConfirmPassword((e.target as HTMLInputElement).value)}
             required
@@ -178,13 +180,13 @@ export default function RegisterPage() {
             type="checkbox"
             checked={termsAccepted}
             onChange={(e) => setTermsAccepted(e.target.checked)}
-            className="mt-0.5 h-4 w-4 rounded border-slate-300 accent-orange-500"
+            className="mt-0.5 h-4 w-4 rounded border-slate-300 accent-[var(--color-primary)]"
           />
           <span className="text-sm text-slate-500">
             Acepto los{" "}
-            <a href="#" className="text-orange-500 hover:underline font-medium">términos de servicio</a>
+            <a href="#" className="text-lime-700 hover:underline font-medium">términos de servicio</a>
             {" "}y la{" "}
-            <a href="#" className="text-orange-500 hover:underline font-medium">política de privacidad</a>
+            <a href="#" className="text-lime-700 hover:underline font-medium">política de privacidad</a>
           </span>
         </label>
 
@@ -192,15 +194,15 @@ export default function RegisterPage() {
         <Button
           type="submit"
           disabled={loading}
-          className="w-full bg-orange-500 text-white font-semibold hover:bg-orange-600 transition-colors duration-150"
+          className="w-full bg-[var(--color-primary)] text-[var(--color-primary-contrast)] font-semibold hover:bg-[var(--color-primary-hover)] transition-colors duration-150"
         >
           {loading ? "Registrando..." : "Crear cuenta"}
         </Button>
       </form>
       <p className="mt-5 text-center text-slate-500 text-sm">
         ¿Ya tienes cuenta?{" "}
-        <Link href="/login" className="text-orange-500 font-medium hover:underline">Inicia sesión</Link>
+        <Link href="/login" className="text-lime-700 font-semibold hover:underline">Inicia sesión</Link>
       </p>
-    </GlassCard>
+    </div>
   );
 }

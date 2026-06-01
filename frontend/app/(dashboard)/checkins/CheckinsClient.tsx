@@ -8,6 +8,7 @@ import { GlassCard } from "@/components/common/GlassCard";
 import { PageHeader } from "@/components/common/PageHeader";
 import { EmptyState } from "@/components/common/EmptyState";
 import MemberSelect from "@/components/common/MemberSelect";
+import { QrScanner } from "@/components/common/QrScanner";
 import { Textarea } from "@/components/ui/textarea";
 import { apiClient } from "@/lib/api";
 import { useApiResource } from "@/hooks/useApiResource";
@@ -24,7 +25,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { AlertCircle, CheckCircle2, QrCode, ScanLine, User, XCircle } from "lucide-react";
+import { AlertCircle, CheckCircle2, QrCode, User, XCircle } from "lucide-react";
 import { toast } from "sonner";
 import { formatDistanceToNow } from "date-fns";
 import { es } from "date-fns/locale";
@@ -97,13 +98,13 @@ export default function CheckinsClient() {
     toast.error(typeof detail === "string" ? detail : fallback);
   };
 
-  const handleQrCheckin = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!session?.accessToken || !qrCode.trim()) return;
+  const submitQrCode = async (code: string) => {
+    const trimmed = code.trim();
+    if (!session?.accessToken || !trimmed || submittingQr) return;
     setSubmittingQr(true);
     try {
       const client = apiClient(session.accessToken as string);
-      const res = await client.post(`/api/v1/checkins/qr/${qrCode.trim()}`);
+      const res = await client.post(`/api/v1/checkins/qr/${trimmed}`);
       handleResult(res.data);
       setQrCode("");
     } catch (err: any) {
@@ -111,6 +112,11 @@ export default function CheckinsClient() {
     } finally {
       setSubmittingQr(false);
     }
+  };
+
+  const handleQrCheckin = async (e: React.FormEvent) => {
+    e.preventDefault();
+    await submitQrCode(qrCode);
   };
 
   const handleCheckin = async (e: React.FormEvent) => {
@@ -140,7 +146,7 @@ export default function CheckinsClient() {
       transition={{ ease: [0.16, 1, 0.3, 1], duration: 0.35 }}
       className="space-y-6"
     >
-      <PageHeader title="Check-ins" subtitle="Registra la asistencia de los miembros" />
+      <PageHeader module="checkins" title="Check-ins" subtitle="Registra la asistencia de los miembros" />
 
       <GlassCard className="p-0 overflow-hidden">
         <div className="flex border-b border-[var(--border-base)]">
@@ -178,32 +184,31 @@ export default function CheckinsClient() {
             transition={{ duration: 0.2 }}
             className="p-6"
           >
-            <form onSubmit={handleQrCheckin} className="flex flex-col items-center gap-6 max-w-sm mx-auto py-4">
-              <div className="flex flex-col items-center gap-3">
-                <div className="w-24 h-24 rounded-2xl bg-[var(--bg-muted)] border-2 border-dashed border-[var(--border-base)] flex items-center justify-center">
-                  <ScanLine className="h-12 w-12 text-[var(--color-primary)] opacity-80" strokeWidth={1.5} />
-                </div>
-                <p className="text-[var(--text-muted)] text-sm text-center leading-relaxed">
-                  Escanea o ingresa el código QR del carné del miembro
-                </p>
-              </div>
+            <div className="flex flex-col items-center gap-5 max-w-sm mx-auto py-2">
+              <QrScanner onDecode={submitQrCode} paused={submittingQr} />
 
-              <Input
-                value={qrCode}
-                onChange={(e) => setQrCode(e.target.value)}
-                placeholder="Código QR del miembro..."
-                autoFocus
-                className="text-center text-base h-12 bg-[var(--bg-input)] border-[var(--border-base)] text-[var(--text-base)] placeholder:text-[var(--text-muted)] tracking-widest"
-              />
+              <p className="text-[var(--text-muted)] text-sm text-center leading-relaxed">
+                Escanea el QR del carné con la cámara, o ingrésalo manualmente
+                <br />
+                <span className="text-xs opacity-80">(también compatible con lectores USB)</span>
+              </p>
 
-              <Button
-                type="submit"
-                disabled={submittingQr || !qrCode.trim()}
-                className="w-full h-11 bg-[var(--color-primary)] text-white font-semibold hover:opacity-90 transition-opacity"
-              >
-                {submittingQr ? "Registrando..." : "Registrar asistencia"}
-              </Button>
-            </form>
+              <form onSubmit={handleQrCheckin} className="w-full flex flex-col gap-3">
+                <Input
+                  value={qrCode}
+                  onChange={(e) => setQrCode(e.target.value)}
+                  placeholder="Código QR del miembro..."
+                  className="text-center text-base h-12 bg-[var(--bg-input)] border-[var(--border-base)] text-[var(--text-base)] placeholder:text-[var(--text-muted)] tracking-widest"
+                />
+                <Button
+                  type="submit"
+                  disabled={submittingQr || !qrCode.trim()}
+                  className="w-full h-11 bg-[var(--color-primary)] text-[var(--color-primary-contrast)] font-semibold hover:opacity-90 transition-opacity"
+                >
+                  {submittingQr ? "Registrando..." : "Registrar asistencia"}
+                </Button>
+              </form>
+            </div>
           </motion.div>
         )}
 
@@ -224,7 +229,7 @@ export default function CheckinsClient() {
                 <Button
                   type="submit"
                   disabled={submitting || !memberId}
-                  className="bg-[var(--color-primary)] text-white font-semibold hover:opacity-90 transition-opacity h-9"
+                  className="bg-[var(--color-primary)] text-[var(--color-primary-contrast)] font-semibold hover:opacity-90 transition-opacity h-9"
                 >
                   {submitting ? "Registrando..." : "Registrar asistencia"}
                 </Button>

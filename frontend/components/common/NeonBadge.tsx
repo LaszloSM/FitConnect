@@ -1,7 +1,7 @@
 "use client";
 
 const variants: Record<string, string> = {
-  primary: "bg-orange-50 text-orange-600 border-orange-200",
+  primary: "bg-[var(--color-primary-muted)] text-[var(--color-primary-hover)] border-[var(--color-primary)]/30",
   accent:  "bg-amber-50 text-amber-600 border-amber-200",
   gold:    "bg-amber-50 text-amber-600 border-amber-200",
   blue:    "bg-blue-50 text-blue-600 border-blue-200",

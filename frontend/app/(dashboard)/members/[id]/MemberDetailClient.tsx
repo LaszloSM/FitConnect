@@ -179,7 +179,7 @@ export default function MemberDetailClient({ memberId }: { memberId: string }) {
       <div className="flex flex-col items-center justify-center py-20 gap-3">
         <BadgeX className="h-10 w-10 text-[var(--text-muted)]" />
         <p className="text-[var(--text-muted)] text-sm">Miembro no encontrado</p>
-        <button onClick={() => router.back()} className="text-xs text-orange-500 hover:underline">Volver</button>
+        <button onClick={() => router.back()} className="text-xs text-[var(--color-primary)] hover:underline">Volver</button>
       </div>
     );
   }
@@ -264,7 +264,7 @@ export default function MemberDetailClient({ memberId }: { memberId: string }) {
                         name="notes"
                         defaultValue={member.notes ?? ""}
                         rows={2}
-                        className="w-full rounded-md border border-[var(--border-base)] bg-[var(--bg-base)] px-3 py-2 text-sm text-[var(--text-base)] resize-none outline-none focus:ring-2 focus:ring-orange-500/30 focus:border-orange-500"
+                        className="w-full rounded-md border border-[var(--border-base)] bg-[var(--bg-base)] px-3 py-2 text-sm text-[var(--text-base)] resize-none outline-none focus:ring-2 focus:ring-[var(--color-primary)]/30 focus:border-[var(--color-primary)]"
                       />
                     </div>
                   </div>
@@ -272,7 +272,7 @@ export default function MemberDetailClient({ memberId }: { memberId: string }) {
                     <Button type="button" variant="ghost" onClick={() => setEditOpen(false)} className="text-[var(--text-muted)]">
                       Cancelar
                     </Button>
-                    <Button type="submit" disabled={editSaving} className="bg-orange-500 text-white hover:bg-orange-600">
+                    <Button type="submit" disabled={editSaving} className="bg-[var(--color-primary)] text-[var(--color-primary-contrast)] hover:bg-[var(--color-primary-hover)]">
                       {editSaving ? <Loader2 className="h-4 w-4 animate-spin" /> : "Guardar cambios"}
                     </Button>
                   </div>
@@ -307,7 +307,7 @@ export default function MemberDetailClient({ memberId }: { memberId: string }) {
             onClick={() => setTab(key)}
             className={`flex items-center gap-1.5 px-4 py-2 text-xs font-medium border-b-2 -mb-px transition-colors ${
               tab === key
-                ? "border-orange-500 text-orange-500"
+                ? "border-[var(--color-primary)] text-[var(--color-primary)]"
                 : "border-transparent text-[var(--text-muted)] hover:text-[var(--text-base)]"
             }`}
           >
@@ -340,7 +340,6 @@ export default function MemberDetailClient({ memberId }: { memberId: string }) {
                   { label: "Contacto emergencia", value: member.emergency_contact_name, icon: null },
                   { label: "Tel. emergencia", value: member.emergency_contact_phone, icon: null },
                   { label: "Grupo sanguíneo", value: member.blood_type, icon: null },
-                  { label: "Objetivo", value: member.training_goal, icon: null },
                   { label: "Miembro desde", value: format(new Date(member.created_at), "d MMM yyyy", { locale: es }), icon: null },
                 ] as { label: string; value: string | null | undefined; icon: React.ReactNode }[])
                   .filter(({ value }) => value)
@@ -435,7 +434,7 @@ export default function MemberDetailClient({ memberId }: { memberId: string }) {
                       <select
                         value={selectedPlan}
                         onChange={(e) => setSelectedPlan(e.target.value)}
-                        className="w-full h-9 rounded-md border border-[var(--border-base)] bg-[var(--bg-base)] px-3 text-sm text-[var(--text-base)] outline-none focus:ring-2 focus:ring-orange-500/30 focus:border-orange-500"
+                        className="w-full h-9 rounded-md border border-[var(--border-base)] bg-[var(--bg-base)] px-3 text-sm text-[var(--text-base)] outline-none focus:ring-2 focus:ring-[var(--color-primary)]/30 focus:border-[var(--color-primary)]"
                         required
                       >
                         <option value="">Seleccionar plan...</option>
@@ -452,7 +451,7 @@ export default function MemberDetailClient({ memberId }: { memberId: string }) {
                         type="date"
                         value={startDate}
                         onChange={(e) => setStartDate(e.target.value)}
-                        className="w-full h-9 rounded-md border border-[var(--border-base)] bg-[var(--bg-base)] px-3 text-sm text-[var(--text-base)] outline-none focus:ring-2 focus:ring-orange-500/30 focus:border-orange-500"
+                        className="w-full h-9 rounded-md border border-[var(--border-base)] bg-[var(--bg-base)] px-3 text-sm text-[var(--text-base)] outline-none focus:ring-2 focus:ring-[var(--color-primary)]/30 focus:border-[var(--color-primary)]"
                         required
                       />
                     </div>
@@ -463,7 +462,7 @@ export default function MemberDetailClient({ memberId }: { memberId: string }) {
                       <select
                         value={paymentMethod}
                         onChange={(e) => setPaymentMethod(e.target.value)}
-                        className="w-full h-9 rounded-md border border-[var(--border-base)] bg-[var(--bg-base)] px-3 text-sm text-[var(--text-base)] outline-none focus:ring-2 focus:ring-orange-500/30 focus:border-orange-500"
+                        className="w-full h-9 rounded-md border border-[var(--border-base)] bg-[var(--bg-base)] px-3 text-sm text-[var(--text-base)] outline-none focus:ring-2 focus:ring-[var(--color-primary)]/30 focus:border-[var(--color-primary)]"
                       >
                         <option value="">No generar pago ahora</option>
                         <option value="cash">Efectivo</option>
@@ -476,7 +475,7 @@ export default function MemberDetailClient({ memberId }: { memberId: string }) {
                   <Button
                     type="submit"
                     disabled={assigning || !selectedPlan}
-                    className="bg-orange-500 hover:bg-orange-600 text-white font-semibold text-sm h-9 px-5 disabled:opacity-50"
+                    className="bg-[var(--color-primary)] hover:bg-[var(--color-primary-hover)] text-[var(--color-primary-contrast)] font-semibold text-sm h-9 px-5 disabled:opacity-50"
                   >
                     {assigning ? <><Loader2 className="h-3.5 w-3.5 animate-spin mr-2" />Asignando...</> : "Asignar membresía"}
                   </Button>

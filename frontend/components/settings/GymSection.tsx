@@ -224,7 +224,7 @@ export default function GymSection() {
         {gymData?.plan && (
           <div className="pt-4 border-t border-[var(--border-base)]">
             <p className="text-[var(--text-muted)] text-xs mb-1">Plan activo</p>
-            <span className="inline-flex items-center px-3 py-1 bg-orange-100 dark:bg-orange-950/30 text-orange-700 dark:text-orange-400 text-xs font-semibold rounded-full capitalize">
+            <span className="inline-flex items-center px-3 py-1 bg-[var(--color-primary-muted)] dark:bg-[var(--color-primary)]/30 text-[var(--color-primary)] dark:text-[var(--color-primary)] text-xs font-semibold rounded-full capitalize">
               {gymData.plan}
             </span>
           </div>
@@ -235,7 +235,7 @@ export default function GymSection() {
             <Button
               type="submit"
               disabled={saving}
-              className="bg-orange-500 text-white font-semibold hover:bg-orange-600"
+              className="bg-[var(--color-primary)] text-[var(--color-primary-contrast)] font-semibold hover:bg-[var(--color-primary-hover)]"
             >
               {saving ? "Guardando..." : "Guardar cambios"}
             </Button>
@@ -298,7 +298,7 @@ export default function GymSection() {
               type="button"
               onClick={handleSaveHours}
               disabled={savingHours}
-              className="bg-orange-500 text-white font-semibold hover:bg-orange-600"
+              className="bg-[var(--color-primary)] text-[var(--color-primary-contrast)] font-semibold hover:bg-[var(--color-primary-hover)]"
             >
               {savingHours ? "Guardando..." : "Guardar horarios"}
             </Button>

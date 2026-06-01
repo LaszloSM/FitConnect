@@ -13,7 +13,7 @@ product
 
 ## Brand
 - **Name:** FitConnect
-- **Color:** Orange (oklch ~0.70 0.20 47) as brand primary accent — kept as identity, not overused.
+- **Color:** Volt (oklch ~0.70 0.20 47) as brand primary accent — kept as identity, not overused.
 - **Tone:** Professional, trustworthy, energetic. Not casual. Not startup-cute. Like a tool a serious gym owner pays for.
 - **Typography:** Plus Jakarta Sans (already set up) — clean, modern, readable.
 

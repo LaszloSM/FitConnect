@@ -15,13 +15,13 @@ product
 Professional but energetic. Confident without being aggressive. The gym world expects strength and clarity — not corporate blandness.
 
 ## Anti-References
-- Generic SaaS beige (Notion-style cream with tiny orange accents)
+- Generic SaaS beige (Notion-style cream with tiny Volt accents)
 - Dark "hacker" aesthetic (terminal green on black)
 - Fitness-bro loudness (neon colors everywhere, aggressive gradients)
 - Medical/clinical white (sterile, no personality)
 
 ## Strategic Principles
-- Orange is the identity color — use it with commitment, not as a 10% accent
+- Volt is the identity color — use it with commitment, not as a 10% accent
 - Every screen should feel fast and purposeful — no decorative filler
 - Data must be readable at a glance — hierarchy before aesthetics
 - The app runs on desktop in well-lit gym environments — light mode is default

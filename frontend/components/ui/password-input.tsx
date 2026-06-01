@@ -26,9 +26,12 @@ const strengthConfig = {
 
 interface PasswordInputProps extends React.ComponentProps<"input"> {
   showStrength?: boolean
+  /** "on-light" forces a white surface for use on light cards (e.g. auth). */
+  surface?: "default" | "on-light"
 }
 
-function PasswordInput({ className, showStrength = false, value, onChange, ...props }: PasswordInputProps) {
+function PasswordInput({ className, showStrength = false, surface = "default", value, onChange, ...props }: PasswordInputProps) {
+  const onLight = surface === "on-light"
   const [visible, setVisible] = React.useState(false)
   const [internalValue, setInternalValue] = React.useState("")
 
@@ -50,8 +53,10 @@ function PasswordInput({ className, showStrength = false, value, onChange, ...pr
           value={currentValue}
           onChange={handleChange}
           className={cn(
-            "h-9 w-full min-w-0 rounded-lg border border-[var(--border-base)] bg-[var(--bg-input)] px-3 py-1.5 pr-10 text-sm text-[var(--text-base)] transition-colors outline-none",
-            "placeholder:text-[var(--text-placeholder)]",
+            "h-9 w-full min-w-0 rounded-lg border px-3 py-1.5 pr-10 text-sm transition-colors outline-none",
+            onLight
+              ? "border-slate-200 bg-white text-slate-800 placeholder:text-slate-400"
+              : "border-[var(--border-base)] bg-[var(--bg-input)] text-[var(--text-base)] placeholder:text-[var(--text-placeholder)]",
             "focus-visible:border-[var(--color-primary)] focus-visible:ring-2 focus-visible:ring-[var(--color-primary)]/20",
             "disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50",
             className

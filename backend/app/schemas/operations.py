@@ -109,10 +109,13 @@ class ClassEnrollmentDetailResponse(BaseModel):
 # ─── Machine ───
 class MachineBase(BaseModel):
     name: str = Field(min_length=1, max_length=255)
+    area: Optional[str] = Field(default=None, max_length=50)
     brand: Optional[str] = Field(default=None, max_length=100)
     serial_number: Optional[str] = Field(default=None, max_length=100)
     location_id: Optional[uuid.UUID] = None
     status: str = "active"
+    last_maintenance_date: Optional[date] = None
+    photo_url: Optional[str] = Field(default=None, max_length=500)
     notes: Optional[str] = Field(default=None, max_length=1000)
 
 
@@ -122,10 +125,13 @@ class MachineCreate(MachineBase):
 
 class MachineUpdate(BaseModel):
     name: Optional[str] = Field(default=None, min_length=1, max_length=255)
+    area: Optional[str] = Field(default=None, max_length=50)
     brand: Optional[str] = Field(default=None, max_length=100)
     serial_number: Optional[str] = Field(default=None, max_length=100)
     location_id: Optional[uuid.UUID] = None
     status: Optional[str] = None
+    last_maintenance_date: Optional[date] = None
+    photo_url: Optional[str] = Field(default=None, max_length=500)
     notes: Optional[str] = Field(default=None, max_length=1000)
 
 

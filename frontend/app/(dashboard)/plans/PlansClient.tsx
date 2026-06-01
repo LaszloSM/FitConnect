@@ -277,8 +277,13 @@ export default function PlansClient() {
     setDeleting(true);
     const client = apiClient(session.accessToken as string);
     try {
-      await client.delete(`/api/v1/member-plans/${deleteTarget.id}`);
-      toast.success("Plan eliminado");
+      const res = await client.delete(`/api/v1/member-plans/${deleteTarget.id}`);
+      // El backend archiva (soft-delete) si el plan tiene membresías asociadas
+      if (res.data?.archived) {
+        toast.success("Plan archivado: tiene membresías asociadas y se conservan los cobros");
+      } else {
+        toast.success("Plan eliminado");
+      }
       setDeleteTarget(null);
       fetchPlans();
     } catch (err: any) {
@@ -298,6 +303,7 @@ export default function PlansClient() {
     >
       <div className="flex items-start justify-between">
         <PageHeader
+          module="plans"
           title="Planes de membresía"
           subtitle="Crea y gestiona los planes disponibles para tus miembros"
         />
@@ -305,7 +311,7 @@ export default function PlansClient() {
           <DialogTrigger render={
             <Button
               onClick={openCreate}
-              className="bg-[var(--color-primary)] text-white font-semibold hover:opacity-90 transition-opacity shrink-0"
+              className="bg-[var(--color-primary)] text-[var(--color-primary-contrast)] font-semibold hover:opacity-90 transition-opacity shrink-0"
             >
               <Plus className="h-4 w-4 mr-2" />
               Nuevo plan
@@ -409,7 +415,7 @@ export default function PlansClient() {
                 <Button
                   type="submit"
                   disabled={saving}
-                  className="bg-[var(--color-primary)] text-white font-semibold hover:opacity-90"
+                  className="bg-[var(--color-primary)] text-[var(--color-primary-contrast)] font-semibold hover:opacity-90"
                 >
                   {saving ? "Guardando..." : editing ? "Actualizar" : "Crear plan"}
                 </Button>

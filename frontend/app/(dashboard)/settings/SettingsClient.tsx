@@ -49,7 +49,7 @@ export default function SettingsClient() {
       transition={{ ease: [0.16, 1, 0.3, 1], duration: 0.35 }}
       className="space-y-6"
     >
-      <PageHeader title="Configuración" subtitle="Ajustes del gym y tu cuenta" />
+      <PageHeader module="settings" title="Configuración" subtitle="Ajustes del gym y tu cuenta" />
 
       <div className="flex flex-col lg:flex-row gap-6">
         {/* Sidebar tabs */}
@@ -68,7 +68,7 @@ export default function SettingsClient() {
                 className={cn(
                   "flex items-center gap-2.5 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors whitespace-nowrap",
                   isActive
-                    ? "bg-orange-500 text-white shadow-sm"
+                    ? "bg-[var(--color-primary)] text-[var(--color-primary-contrast)] shadow-sm"
                     : "text-[var(--text-muted)] hover:text-[var(--text-base)] hover:bg-[var(--bg-base)]"
                 )}
               >

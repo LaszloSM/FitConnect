@@ -62,7 +62,10 @@ class MemberBase(BaseModel):
 
 
 class MemberCreate(MemberBase):
-    pass
+    # Asignación opcional de membresía en el mismo paso del alta
+    plan_id: Optional[uuid.UUID] = None
+    membership_start_date: Optional[date] = None
+    payment_method: Optional[str] = None  # "cash" | "transfer" | "card" | None
 
 
 class MemberUpdate(BaseModel):

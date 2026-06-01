@@ -38,7 +38,7 @@ const PLANS: PlanConfig[] = [
     key: "advanced",
     label: "Advanced",
     icon: Star,
-    color: "text-orange-500",
+    color: "text-[var(--color-primary)]",
     features: [
       "Miembros ilimitados",
       "Todo lo de Basic",
@@ -86,7 +86,7 @@ export default function PlanSection() {
             key={plan.key}
             className={cn(
               "p-5 transition-all duration-200",
-              isActive && "ring-2 ring-orange-500"
+              isActive && "ring-2 ring-[var(--color-primary)]"
             )}
           >
             <div className="flex items-start justify-between gap-4">
@@ -95,17 +95,17 @@ export default function PlanSection() {
                   className={cn(
                     "h-9 w-9 rounded-lg flex items-center justify-center shrink-0",
                     isActive
-                      ? "bg-orange-500 text-white"
+                      ? "bg-[var(--color-primary)] text-[var(--color-primary-contrast)]"
                       : "bg-[var(--bg-base)] border border-[var(--border-base)]"
                   )}
                 >
-                  <Icon className={cn("h-4 w-4", isActive ? "text-white" : plan.color)} aria-hidden="true" />
+                  <Icon className={cn("h-4 w-4", isActive ? "text-[var(--color-primary-contrast)]" : plan.color)} aria-hidden="true" />
                 </span>
                 <div>
                   <div className="flex items-center gap-2">
                     <p className="text-[var(--text-base)] font-semibold">{plan.label}</p>
                     {isActive && (
-                      <span className="px-2 py-0.5 bg-orange-100 dark:bg-orange-950/30 text-orange-700 dark:text-orange-400 text-xs rounded-full font-medium">
+                      <span className="px-2 py-0.5 bg-[var(--color-primary-muted)] dark:bg-[var(--color-primary)]/30 text-[var(--color-primary)] dark:text-[var(--color-primary)] text-xs rounded-full font-medium">
                         Activo
                       </span>
                     )}
@@ -125,7 +125,7 @@ export default function PlanSection() {
                 <Button
                   variant="outline"
                   size="sm"
-                  className="shrink-0 border-[var(--border-base)] text-[var(--text-muted)] hover:text-[var(--text-base)] hover:border-orange-500 hover:text-orange-500"
+                  className="shrink-0 border-[var(--border-base)] text-[var(--text-muted)] hover:text-[var(--text-base)] hover:border-[var(--color-primary)] hover:text-[var(--color-primary)]"
                   onClick={() => {
                     // Placeholder — upgrade flow would open here
                   }}

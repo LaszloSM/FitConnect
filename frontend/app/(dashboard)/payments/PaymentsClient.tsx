@@ -265,12 +265,13 @@ export default function PaymentsClient() {
     >
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
         <PageHeader
+          module="payments"
           title="Pagos"
           subtitle="Registra y gestiona pagos de miembros"
           action={
             <DialogTrigger
               render={
-                <Button className="bg-orange-500 text-white hover:bg-orange-600">
+                <Button className="bg-[var(--color-primary)] text-[var(--color-primary-contrast)] hover:bg-[var(--color-primary-hover)]">
                   <Plus className="h-4 w-4 mr-2" />
                   Nuevo pago
                 </Button>
@@ -354,7 +355,7 @@ export default function PaymentsClient() {
                 type="checkbox"
                 checked={form.send_receipt}
                 onChange={(e) => setForm({ ...form, send_receipt: e.target.checked })}
-                className="h-4 w-4 rounded border-[var(--border-base)] accent-orange-500"
+                className="h-4 w-4 rounded border-[var(--border-base)] accent-[var(--color-primary)]"
               />
               <span className="text-sm text-[var(--text-muted)]">Enviar recibo por email al miembro</span>
             </label>
@@ -370,7 +371,7 @@ export default function PaymentsClient() {
               <Button
                 type="submit"
                 disabled={submitting}
-                className="bg-orange-500 text-white font-semibold hover:bg-orange-600"
+                className="bg-[var(--color-primary)] text-[var(--color-primary-contrast)] font-semibold hover:bg-[var(--color-primary-hover)]"
               >
                 {submitting ? "Registrando..." : "Registrar pago"}
               </Button>
@@ -428,14 +429,14 @@ export default function PaymentsClient() {
                 type="date"
                 value={dateFrom}
                 onChange={(e) => setDateFrom(e.target.value)}
-                className="flex-1 min-w-0 h-8 rounded-md border border-[var(--border-base)] bg-[var(--bg-base)] px-3 text-xs text-[var(--text-base)] outline-none focus:ring-2 focus:ring-orange-500/30 focus:border-orange-500"
+                className="flex-1 min-w-0 h-8 rounded-md border border-[var(--border-base)] bg-[var(--bg-base)] px-3 text-xs text-[var(--text-base)] outline-none focus:ring-2 focus:ring-[var(--color-primary)]/30 focus:border-[var(--color-primary)]"
               />
               <span className="text-[var(--text-muted)] text-xs shrink-0">hasta</span>
               <input
                 type="date"
                 value={dateTo}
                 onChange={(e) => setDateTo(e.target.value)}
-                className="flex-1 min-w-0 h-8 rounded-md border border-[var(--border-base)] bg-[var(--bg-base)] px-3 text-xs text-[var(--text-base)] outline-none focus:ring-2 focus:ring-orange-500/30 focus:border-orange-500"
+                className="flex-1 min-w-0 h-8 rounded-md border border-[var(--border-base)] bg-[var(--bg-base)] px-3 text-xs text-[var(--text-base)] outline-none focus:ring-2 focus:ring-[var(--color-primary)]/30 focus:border-[var(--color-primary)]"
               />
             </div>
           </div>
@@ -463,7 +464,7 @@ export default function PaymentsClient() {
               className={cn(
                 "rounded-full px-3 py-1 text-sm font-medium transition-colors",
                 statusFilter === key
-                  ? "bg-orange-500 text-white"
+                  ? "bg-[var(--color-primary)] text-[var(--color-primary-contrast)]"
                   : "bg-[var(--bg-base)] border border-[var(--border-base)] text-[var(--text-muted)] hover:text-[var(--text-base)]"
               )}
             >
@@ -518,7 +519,7 @@ export default function PaymentsClient() {
                         !statusFilter ? (
                           <Button
                             onClick={() => setDialogOpen(true)}
-                            className="bg-orange-500 text-white hover:bg-orange-600"
+                            className="bg-[var(--color-primary)] text-[var(--color-primary-contrast)] hover:bg-[var(--color-primary-hover)]"
                           >
                             <Plus className="h-4 w-4 mr-2" />
                             Nuevo pago

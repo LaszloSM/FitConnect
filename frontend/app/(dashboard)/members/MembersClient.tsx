@@ -53,7 +53,6 @@ const memberSchema = z.object({
   photo_url: z.string().optional(),
   parq_answers: z.record(z.string(), z.boolean()).optional(),
   parq_completed_at: z.string().optional(),
-  training_goal: z.enum(["weight_loss", "muscle_gain", "endurance", "flexibility", "general_fitness"]).optional(),
 });
 
 interface Member {
@@ -76,7 +75,6 @@ interface Member {
   photo_url: string | null;
   parq_answers: Record<string, boolean> | null;
   parq_completed_at: string | null;
-  training_goal: string | null;
   qr_code: string | null;
   // Populated by backend list endpoint
   membership_status: "active" | "expired" | "none" | null;
@@ -88,14 +86,6 @@ const inputCls =
   "bg-[var(--bg-base)] border-[var(--border-base)] text-[var(--text-base)] placeholder:text-[var(--text-muted)]";
 const selectCls =
   "w-full h-9 rounded-md border border-[var(--border-base)] bg-[var(--bg-base)] px-3 py-1 text-sm text-[var(--text-base)]";
-
-const TRAINING_GOALS = [
-  { value: "weight_loss", label: "Pérdida de peso" },
-  { value: "muscle_gain", label: "Ganancia muscular" },
-  { value: "endurance", label: "Resistencia" },
-  { value: "flexibility", label: "Flexibilidad" },
-  { value: "general_fitness", label: "Condición física general" },
-];
 
 function calcAge(birthDate: string): number | null {
   if (!birthDate) return null;
@@ -124,7 +114,6 @@ type FormState = {
   blood_type: string;
   photo_url: string;
   parq_answers: Record<string, boolean>;
-  training_goal: string;
 };
 
 const emptyForm: FormState = {
@@ -144,7 +133,6 @@ const emptyForm: FormState = {
   blood_type: "",
   photo_url: "",
   parq_answers: {},
-  training_goal: "",
 };
 
 export default function MembersClient() {
@@ -172,6 +160,7 @@ export default function MembersClient() {
   const [currentMembership, setCurrentMembership] = useState<{ plan_name: string; start_date: string; end_date: string; status: string } | null>(null);
   const [assignPlanId, setAssignPlanId] = useState("");
   const [assignStartDate, setAssignStartDate] = useState("");
+  const [assignPaymentMethod, setAssignPaymentMethod] = useState("");
   const [assigningMembership, setAssigningMembership] = useState(false);
   const [membershipTabActive, setMembershipTabActive] = useState(false);
 
@@ -297,6 +286,7 @@ export default function MembersClient() {
     setCurrentMembership(null);
     setAssignPlanId("");
     setAssignStartDate("");
+    setAssignPaymentMethod("");
   };
 
   const openCreate = () => { resetForm(); setDialogOpen(true); };
@@ -319,7 +309,6 @@ export default function MembersClient() {
       blood_type: member.blood_type || "",
       photo_url: member.photo_url || "",
       parq_answers: member.parq_answers || {},
-      training_goal: member.training_goal || "",
     });
     setDialogOpen(true);
   };
@@ -333,8 +322,9 @@ export default function MembersClient() {
       id_type: form.id_type || undefined,
       gender: form.gender || undefined,
       blood_type: form.blood_type || undefined,
-      training_goal: form.training_goal || undefined,
-      parq_completed_at: Object.keys(form.parq_answers).length > 0 ? new Date().toISOString() : undefined,
+      // No persistir blobs locales (URL.createObjectURL no sobrevive)
+      photo_url: form.photo_url.startsWith("blob:") ? undefined : form.photo_url || undefined,
+      parq_completed_at: Object.keys(form.parq_answers).length > 0 ? new Date().toISOString().split("T")[0] : undefined,
     };
 
     const validation = memberSchema.safeParse(payload);
@@ -342,8 +332,17 @@ export default function MembersClient() {
     setSubmitting(true);
     const client = apiClient(session.accessToken as string);
     try {
-      if (editing) { await client.put(`/api/v1/members/${editing.id}`, payload); }
-      else { await client.post("/api/v1/members", payload); }
+      if (editing) {
+        await client.put(`/api/v1/members/${editing.id}`, payload);
+      } else {
+        // Alta con membresía opcional en un solo paso
+        await client.post("/api/v1/members", {
+          ...payload,
+          plan_id: assignPlanId || undefined,
+          membership_start_date: assignPlanId ? (assignStartDate || undefined) : undefined,
+          payment_method: assignPlanId ? (assignPaymentMethod || undefined) : undefined,
+        });
+      }
       toast.success(editing ? "Miembro actualizado" : "Miembro creado");
       setDialogOpen(false); resetForm(); fetchMembers();
     } catch (err: unknown) {
@@ -378,12 +377,13 @@ export default function MembersClient() {
     >
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
         <PageHeader
+          module="members"
           title="Miembros"
           subtitle="Gestiona los socios de tu gym"
           action={
             <DialogTrigger
               render={
-                <Button onClick={openCreate} className="bg-orange-500 text-white hover:bg-orange-600">
+                <Button onClick={openCreate} className="bg-[var(--color-primary)] text-[var(--color-primary-contrast)] hover:bg-[var(--color-primary-hover)]">
                   <Plus className="h-4 w-4 mr-2" />
                   Nuevo miembro
                 </Button>
@@ -430,8 +430,8 @@ export default function MembersClient() {
                         <label key={g.value} className={cn(
                           "flex items-center gap-2 cursor-pointer rounded-md px-3 py-1.5 text-sm font-medium border transition-colors select-none",
                           form.gender === g.value
-                            ? "bg-orange-500/10 border-orange-500/40 text-orange-600 dark:text-orange-400"
-                            : "border-[var(--border-base)] text-[var(--text-muted)] hover:border-orange-400"
+                            ? "bg-[var(--color-primary)]/10 border-[var(--color-primary)]/40 text-[var(--color-primary-hover)] dark:text-[var(--color-primary)]"
+                            : "border-[var(--border-base)] text-[var(--text-muted)] hover:border-[var(--color-primary)]"
                         )}>
                           <input type="radio" name="gender" value={g.value} checked={form.gender === g.value} onChange={() => setForm({ ...form, gender: g.value })} className="sr-only" />
                           {g.label}
@@ -453,6 +453,9 @@ export default function MembersClient() {
                       value={form.birth_date ? new Date(form.birth_date + "T12:00:00") : undefined}
                       onChange={(d) => setForm({ ...form, birth_date: d.toISOString().split("T")[0] })}
                       placeholder="Seleccionar fecha"
+                      maxDate={new Date()}
+                      fromYear={1920}
+                      toYear={new Date().getFullYear()}
                     />
                     {age !== null && (
                       <p className="text-xs text-[var(--text-muted)]">{age} años</p>
@@ -499,15 +502,6 @@ export default function MembersClient() {
                     />
                   </div>
                   <div className="space-y-2">
-                    <Label className="text-[var(--text-muted)] text-sm">Objetivo de entrenamiento</Label>
-                    <select value={form.training_goal} onChange={(e) => setForm({ ...form, training_goal: e.target.value })} className={selectCls}>
-                      <option value="">Sin objetivo</option>
-                      {TRAINING_GOALS.map((g) => (
-                        <option key={g.value} value={g.value}>{g.label}</option>
-                      ))}
-                    </select>
-                  </div>
-                  <div className="space-y-2">
                     <Label className="text-[var(--text-muted)] text-sm">Contacto de emergencia</Label>
                     <Input value={form.emergency_contact_name} onChange={(e) => setForm({ ...form, emergency_contact_name: e.target.value })} placeholder="Nombre" className={inputCls} />
                   </div>
@@ -520,7 +514,8 @@ export default function MembersClient() {
 
               {/* TAB MEMBRESÍA */}
               <TabsContent value="membresia" className="space-y-4">
-                {/* Membresía activa */}
+                {/* Membresía activa — solo al editar */}
+                {editing && (
                 <div className="rounded-xl border border-[var(--border-base)] bg-[var(--bg-base)] p-4 space-y-3">
                   <p className="text-xs font-semibold uppercase tracking-wider text-[var(--text-muted)]">Membresía activa</p>
                   {currentMembership ? (
@@ -547,45 +542,64 @@ export default function MembersClient() {
                     </div>
                   )}
                 </div>
+                )}
 
-                {/* Asignar nueva membresía */}
-                {editing && (
-                  <div className="rounded-xl border border-[var(--border-base)] bg-[var(--bg-base)] p-4 space-y-3">
-                    <p className="text-xs font-semibold uppercase tracking-wider text-[var(--text-muted)]">Asignar membresía</p>
+                {/* Asignar membresía — al editar (endpoint /assign) o al crear (va en el alta) */}
+                <div className="rounded-xl border border-[var(--border-base)] bg-[var(--bg-base)] p-4 space-y-3">
+                  <p className="text-xs font-semibold uppercase tracking-wider text-[var(--text-muted)]">
+                    {editing ? "Asignar membresía" : "Membresía inicial (opcional)"}
+                  </p>
+                  <div className="space-y-2">
+                    <Label className="text-[var(--text-muted)] text-sm">Plan</Label>
+                    <select
+                      value={assignPlanId}
+                      onChange={(e) => setAssignPlanId(e.target.value)}
+                      className={selectCls}
+                    >
+                      <option value="">{editing ? "Selecciona un plan..." : "Sin membresía por ahora"}</option>
+                      {availablePlans.map((p) => (
+                        <option key={p.id} value={p.id}>
+                          {p.name} — {new Intl.NumberFormat("es-CO", { style: "currency", currency: "COP", minimumFractionDigits: 0 }).format(p.price)} / {p.duration_days} días
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                  <div className="space-y-2">
+                    <Label className="text-[var(--text-muted)] text-sm">Fecha de inicio</Label>
+                    <Input
+                      type="date"
+                      value={assignStartDate}
+                      onChange={(e) => setAssignStartDate(e.target.value)}
+                      className={inputCls}
+                    />
+                  </div>
+                  {!editing && assignPlanId && (
                     <div className="space-y-2">
-                      <Label className="text-[var(--text-muted)] text-sm">Plan</Label>
+                      <Label className="text-[var(--text-muted)] text-sm">Método de pago (opcional)</Label>
                       <select
-                        value={assignPlanId}
-                        onChange={(e) => setAssignPlanId(e.target.value)}
+                        value={assignPaymentMethod}
+                        onChange={(e) => setAssignPaymentMethod(e.target.value)}
                         className={selectCls}
                       >
-                        <option value="">Selecciona un plan...</option>
-                        {availablePlans.map((p) => (
-                          <option key={p.id} value={p.id}>
-                            {p.name} — {new Intl.NumberFormat("es-CO", { style: "currency", currency: "COP", minimumFractionDigits: 0 }).format(p.price)} / {p.duration_days} días
-                          </option>
-                        ))}
+                        <option value="">Sin cobro por ahora</option>
+                        <option value="cash">Efectivo</option>
+                        <option value="transfer">Transferencia</option>
+                        <option value="card">Tarjeta</option>
                       </select>
+                      <p className="text-xs text-[var(--text-muted)]">Genera un pago pendiente por el valor del plan.</p>
                     </div>
-                    <div className="space-y-2">
-                      <Label className="text-[var(--text-muted)] text-sm">Fecha de inicio</Label>
-                      <Input
-                        type="date"
-                        value={assignStartDate}
-                        onChange={(e) => setAssignStartDate(e.target.value)}
-                        className={inputCls}
-                      />
-                    </div>
+                  )}
+                  {editing && (
                     <Button
                       type="button"
                       disabled={assigningMembership || !assignPlanId || !assignStartDate}
                       onClick={handleAssignMembership}
-                      className="w-full bg-[var(--color-primary)] text-white font-semibold hover:opacity-90 transition-opacity"
+                      className="w-full bg-[var(--color-primary)] text-[var(--color-primary-contrast)] font-semibold hover:opacity-90 transition-opacity"
                     >
                       {assigningMembership ? "Asignando..." : "Asignar membresía"}
                     </Button>
-                  </div>
-                )}
+                  )}
+                </div>
 
                 {/* Estado y notas del miembro */}
                 <div className="space-y-3 pt-1">
@@ -610,7 +624,7 @@ export default function MembersClient() {
 
             <div className="flex justify-end gap-2 pt-4 mt-2 border-t border-[var(--border-base)]">
               <Button type="button" variant="ghost" onClick={() => setDialogOpen(false)} className="text-[var(--text-muted)]">Cancelar</Button>
-              <Button type="submit" disabled={submitting} className="bg-orange-500 text-white font-semibold hover:bg-orange-600">
+              <Button type="submit" disabled={submitting} className="bg-[var(--color-primary)] text-[var(--color-primary-contrast)] font-semibold hover:bg-[var(--color-primary-hover)]">
                 {submitting ? "Guardando..." : (editing ? "Guardar cambios" : "Crear miembro")}
               </Button>
             </div>
@@ -637,7 +651,7 @@ export default function MembersClient() {
                 className={cn(
                   "rounded-full px-3 py-1 text-sm font-medium transition-colors",
                   statusFilter === s
-                    ? "bg-orange-500 text-white"
+                    ? "bg-[var(--color-primary)] text-[var(--color-primary-contrast)]"
                     : "bg-[var(--bg-base)] border border-[var(--border-base)] text-[var(--text-muted)] hover:text-[var(--text-base)]"
                 )}
               >
@@ -693,7 +707,7 @@ export default function MembersClient() {
                       title="Sin miembros"
                       description="Crea tu primer miembro para comenzar"
                       action={
-                        <Button onClick={openCreate} className="bg-orange-500 text-white hover:bg-orange-600">
+                        <Button onClick={openCreate} className="bg-[var(--color-primary)] text-[var(--color-primary-contrast)] hover:bg-[var(--color-primary-hover)]">
                           <Plus className="h-4 w-4 mr-2" />
                           Nuevo miembro
                         </Button>
@@ -714,7 +728,7 @@ export default function MembersClient() {
                           // eslint-disable-next-line @next/next/no-img-element
                           <img src={m.photo_url} alt={m.full_name} className="h-7 w-7 rounded-full object-cover shrink-0" />
                         ) : (
-                          <span className="h-7 w-7 rounded-full bg-orange-500 text-white text-xs font-bold flex items-center justify-center shrink-0">
+                          <span className="h-7 w-7 rounded-full bg-[var(--color-primary)] text-[var(--color-primary-contrast)] text-xs font-bold flex items-center justify-center shrink-0">
                             {(m.full_name?.[0] ?? "?").toUpperCase()}
                           </span>
                         )}
@@ -724,7 +738,7 @@ export default function MembersClient() {
                     <TableCell className="text-[var(--text-muted)]">{m.email}</TableCell>
                     <TableCell className="text-[var(--text-muted)]">{m.phone || "-"}</TableCell>
                     <TableCell className="text-[var(--text-muted)]">
-                      {m.id_type && <span className="text-xs font-medium text-orange-500 mr-1">{m.id_type}</span>}
+                      {m.id_type && <span className="text-xs font-medium text-[var(--color-primary)] mr-1">{m.id_type}</span>}
                       {m.id_number || "-"}
                     </TableCell>
                     <TableCell onClick={(e) => e.stopPropagation()}>
@@ -764,7 +778,7 @@ export default function MembersClient() {
                         <Button
                           variant="ghost"
                           size="icon"
-                          className="text-[var(--text-muted)] hover:text-orange-500"
+                          className="text-[var(--text-muted)] hover:text-[var(--color-primary)]"
                           onClick={(e) => { e.stopPropagation(); setQrMember(m); }}
                           title="Ver QR"
                         >

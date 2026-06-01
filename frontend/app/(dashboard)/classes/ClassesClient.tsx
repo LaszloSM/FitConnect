@@ -249,12 +249,13 @@ export default function ClassesClient() {
     >
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
         <PageHeader
+          module="classes"
           title="Clases"
           subtitle="Gestiona clases grupales del gym"
           action={
             <DialogTrigger
               render={
-                <Button className="bg-orange-500 text-white hover:bg-orange-600">
+                <Button className="bg-[var(--color-primary)] text-[var(--color-primary-contrast)] hover:bg-[var(--color-primary-hover)]">
                   <Plus className="h-4 w-4 mr-2" />
                   Nueva clase
                 </Button>
@@ -313,8 +314,8 @@ export default function ClassesClient() {
                       className={cn(
                         "flex-1 py-1.5 rounded-md text-xs font-medium border transition-colors",
                         form.difficulty === d.value
-                          ? "bg-orange-500 text-white border-orange-500"
-                          : "border-[var(--border-base)] text-[var(--text-muted)] hover:border-orange-400"
+                          ? "bg-[var(--color-primary)] text-[var(--color-primary-contrast)] border-[var(--color-primary)]"
+                          : "border-[var(--border-base)] text-[var(--text-muted)] hover:border-[var(--color-primary)]"
                       )}
                     >
                       {d.label}
@@ -365,7 +366,7 @@ export default function ClassesClient() {
 
             {/* Schedule preview */}
             {schedulePreview && (
-              <div className="flex items-center gap-2 px-3 py-2 rounded-lg bg-orange-500/10 border border-orange-500/20 text-orange-600 dark:text-orange-400">
+              <div className="flex items-center gap-2 px-3 py-2 rounded-lg bg-[var(--color-primary)]/10 border border-[var(--color-primary)]/20 text-[var(--color-primary-hover)] dark:text-[var(--color-primary)]">
                 <span className="text-xs font-medium">{schedulePreview}</span>
               </div>
             )}
@@ -412,7 +413,7 @@ export default function ClassesClient() {
               <Button
                 type="submit"
                 disabled={submitting}
-                className="bg-orange-500 text-white font-semibold hover:bg-orange-600"
+                className="bg-[var(--color-primary)] text-[var(--color-primary-contrast)] font-semibold hover:bg-[var(--color-primary-hover)]"
               >
                 {submitting ? "Creando..." : "Crear clase"}
               </Button>
@@ -461,7 +462,7 @@ export default function ClassesClient() {
                       action={
                         <Button
                           onClick={() => setDialogOpen(true)}
-                          className="bg-orange-500 text-white hover:bg-orange-600"
+                          className="bg-[var(--color-primary)] text-[var(--color-primary-contrast)] hover:bg-[var(--color-primary-hover)]"
                         >
                           <Plus className="h-4 w-4 mr-2" />
                           Nueva clase
@@ -546,7 +547,7 @@ export default function ClassesClient() {
                           <div className="space-y-3">
                             <p className="text-sm font-medium text-[var(--text-base)]">
                               Inscritos (
-                              <span className="text-orange-500 font-bold">
+                              <span className="text-[var(--color-primary)] font-bold">
                                 {(enrollments[cls.id] || []).length}
                               </span>
                               /{cls.max_capacity})
@@ -580,7 +581,7 @@ export default function ClassesClient() {
                                 type="button"
                                 onClick={() => handleEnroll(cls.id)}
                                 disabled={!enrollMemberId[cls.id]}
-                                className="bg-orange-500 text-white font-semibold text-sm hover:bg-orange-600"
+                                className="bg-[var(--color-primary)] text-[var(--color-primary-contrast)] font-semibold text-sm hover:bg-[var(--color-primary-hover)]"
                               >
                                 Inscribir
                               </Button>

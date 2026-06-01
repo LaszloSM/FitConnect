@@ -1,18 +1,18 @@
 # FitConnect — Design System
 
 ## Visual Style
-Athletic Premium — geometric structure, bold typography, committed orange identity, purposeful animations via Framer Motion.
+Athletic Premium — geometric structure, bold typography, committed Volt identity, purposeful animations via Framer Motion.
 
 ## Color Strategy
-Committed (30-60% orange surface weight on primary surfaces). Orange is THE identity, not a 10% accent.
+Committed (30-60% Volt surface weight on primary surfaces). Volt is THE identity, not a 10% accent.
 
 ## Color Palette
 
 ### Brand
-- Primary: `oklch(0.70 0.20 47)` (#F97316) — main orange
-- Primary Hover: `oklch(0.63 0.21 47)` (#EA580C)
-- Primary Light: `oklch(0.97 0.02 47)` (#FFF7ED) — tinted backgrounds
-- Primary Dark: `oklch(0.58 0.22 47)` — pressed states
+- Primary: `oklch(0.78 0.19 128)` (Volt (lime)) — main Volt
+- Primary Hover: `oklch(0.72 0.20 128)` (Volt hover)
+- Primary Light: `oklch(0.96 0.05 128)` (Volt tint) — tinted backgrounds
+- Primary Dark: `oklch(0.66 0.20 128)` — pressed states
 
 ### Status
 - Success: #22C55E (green)
@@ -52,7 +52,7 @@ Committed (30-60% orange surface weight on primary surfaces). Orange is THE iden
 surface-0: no shadow (page background)
 surface-1: var(--shadow-card) — cards, panels
 surface-2: var(--shadow-card-elevated) — elevated cards, dropdowns
-glow: 0 0 20px oklch(0.70 0.20 47 / 0.25) — orange elements
+glow: 0 0 20px oklch(0.70 0.20 47 / 0.25) — Volt elements
 ```
 
 ## Animations (Framer Motion)
@@ -66,8 +66,8 @@ glow: 0 0 20px oklch(0.70 0.20 47 / 0.25) — orange elements
 ## Components
 
 ### Buttons
-- Primary: orange fill, white text, hover scale(1.01)
-- Ghost: transparent, orange text/border on hover
+- Primary: Volt fill, white text, hover scale(1.01)
+- Ghost: transparent, Volt text/border on hover
 - Destructive: red, visually separated from primary actions
 - Loading: spinner replaces icon while async
 
@@ -77,8 +77,8 @@ glow: 0 0 20px oklch(0.70 0.20 47 / 0.25) — orange elements
 - Rounded-xl (12px radius)
 
 ### Navigation
-- Sidebar: 256px wide, fixed, orange filled pill for active item
-- Active state: full orange background + white text (NOT subtle bg-orange-50)
+- Sidebar: 256px wide, fixed, Volt filled pill for active item
+- Active state: full Volt background + white text (NOT subtle bg-Volt-50)
 - User footer at bottom of sidebar
 
 ### Forms

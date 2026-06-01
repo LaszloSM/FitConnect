@@ -2,7 +2,7 @@
 
 ## Colors
 
-Strategy: **Restrained** with committed orange accent on primary actions and active states.
+Strategy: **Restrained** with committed Volt accent on primary actions and active states.
 
 ### CSS Variables (already defined in globals.css)
 - `--bg-base`: oklch(0.98 0.003 264) / dark: oklch(0.12 0.010 264)
@@ -13,9 +13,9 @@ Strategy: **Restrained** with committed orange accent on primary actions and act
 - `--border-base`: oklch(0.90 0.005 264) / dark: oklch(0.25 0.008 264)
 - `--text-base`: oklch(0.20 0.015 264) / dark: oklch(0.95 0.005 264)
 - `--text-muted`: oklch(0.50 0.010 264) / dark: oklch(0.65 0.008 264)
-- `--color-primary`: oklch(0.70 0.20 47) — orange brand accent
-- `--color-primary-hover`: oklch(0.63 0.21 47)
-- `--color-primary-muted`: oklch(0.97 0.02 47) / dark: oklch(0.20 0.05 47)
+- `--color-primary`: oklch(0.78 0.19 128) — Volt brand accent
+- `--color-primary-hover`: oklch(0.72 0.20 128)
+- `--color-primary-muted`: oklch(0.96 0.05 128) / dark: oklch(0.20 0.05 47)
 
 ### Tailwind semantic colors (tailwind.config.ts)
 - `primary`, `primary-hover`, `primary-light`, `primary-dark`

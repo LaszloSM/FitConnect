@@ -3,11 +3,10 @@ import { signIn } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import Link from "next/link";
-import { GlassCard } from "@/components/common/GlassCard";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Zap } from "lucide-react";
+import { BrandMark } from "@/components/common/BrandMark";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -38,35 +37,36 @@ export default function LoginPage() {
   }
 
   return (
-    <GlassCard className="p-8">
-      <div className="text-center mb-8">
-        <div className="flex items-center justify-center gap-2 mb-3">
-          <Zap className="h-7 w-7 text-orange-500" />
-          <span className="text-slate-800 font-bold text-2xl font-display">FitConnect</span>
+    <div className="rounded-2xl bg-white p-8 shadow-[0_20px_60px_-10px_rgb(0_0_0/0.5)]">
+      <div className="mb-8">
+        <div className="flex items-center gap-2.5 mb-4">
+          <BrandMark size={32} />
+          <span className="text-slate-900 font-extrabold text-xl tracking-tight">FitConnect</span>
         </div>
-        <p className="text-slate-500 text-sm">Inicia sesión en tu plataforma</p>
+        <h2 className="text-slate-900 font-bold text-lg">Inicia sesión</h2>
+        <p className="text-slate-500 text-sm mt-0.5">Accede a tu plataforma de gestión</p>
       </div>
       <form onSubmit={handleSubmit} className="space-y-5">
         <div className="space-y-1.5">
           <Label htmlFor="email" className="text-slate-600 text-sm font-medium">Email</Label>
           <Input id="email" name="email" type="email" required
-            className="bg-white border-slate-200 text-slate-800 placeholder:text-slate-400 focus:border-orange-400 focus:ring-orange-400" />
+            className="bg-white border-slate-200 text-slate-800 placeholder:text-slate-400 focus:border-[var(--color-primary)] focus:ring-[var(--color-primary)]" />
         </div>
         <div className="space-y-1.5">
           <Label htmlFor="password" className="text-slate-600 text-sm font-medium">Contraseña</Label>
           <Input id="password" name="password" type="password" required
-            className="bg-white border-slate-200 text-slate-800 placeholder:text-slate-400 focus:border-orange-400 focus:ring-orange-400" />
+            className="bg-white border-slate-200 text-slate-800 placeholder:text-slate-400 focus:border-[var(--color-primary)] focus:ring-[var(--color-primary)]" />
         </div>
         {error && <p className="text-red-500 text-sm">{error}</p>}
         <Button type="submit" disabled={loading}
-          className="w-full bg-orange-500 text-white font-semibold hover:bg-orange-600 transition-colors duration-150">
+          className="w-full bg-[var(--color-primary)] text-[var(--color-primary-contrast)] font-semibold hover:bg-[var(--color-primary-hover)] transition-colors duration-150">
           {loading ? "Ingresando..." : "Ingresar"}
         </Button>
       </form>
       <p className="mt-5 text-center text-slate-500 text-sm">
         ¿No tienes cuenta?{" "}
-        <Link href="/register" className="text-orange-500 font-medium hover:underline">Registra tu gym</Link>
+        <Link href="/register" className="text-lime-700 font-semibold hover:underline">Registra tu gym</Link>
       </p>
-    </GlassCard>
+    </div>
   );
 }

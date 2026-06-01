@@ -95,9 +95,33 @@ async def create_member(
     existing = await db.execute(select(Member).where(Member.email == payload.email))
     if existing.scalar_one_or_none():
         raise HTTPException(status_code=400, detail="Email ya registrado")
-    
-    member = Member(**payload.model_dump())
+
+    # Separar los campos de membresía opcional del payload del miembro
+    member_data = payload.model_dump(
+        exclude={"plan_id", "membership_start_date", "payment_method"}
+    )
+    member = Member(**member_data)
     db.add(member)
+    await db.flush()  # obtener member.id sin cerrar la transacción
+
+    if payload.plan_id:
+        from app.models.tenant.member_plan import MemberPlan
+        from app.api.v1.member_plans import _create_membership
+
+        plan_result = await db.execute(
+            select(MemberPlan).where(MemberPlan.id == payload.plan_id)
+        )
+        plan = plan_result.scalar_one_or_none()
+        if not plan:
+            raise HTTPException(status_code=404, detail="Plan no encontrado")
+        await _create_membership(
+            db,
+            member.id,
+            plan,
+            payload.membership_start_date or date.today(),
+            payload.payment_method,
+        )
+
     await db.commit()
     await db.refresh(member)
     return member

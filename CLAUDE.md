@@ -103,8 +103,34 @@ Cuando cometas un error durante una sesión, agrégalo aquí antes de terminar:
 | Feature fantasma: el front llamaba `PUT /settings/gym` que no existía (solo PATCH) y `operating_hours` no estaba en schema ni DB | Contrato frontend↔backend desalineado; el botón fallaba siempre | Al tocar una pantalla, verificar que el endpoint/método/campo exista en el backend (probar el contrato en vivo) |
 | Agregado de ingresos sumaba pagos de cualquier estado | `total_payments_month` sin filtro `status` mientras caja/revenue sí filtran `paid` | Todo agregado de ingresos filtra `Payment.status == paid`; lo pendiente se reporta aparte |
 | Frontend corre como build standalone (`node server.js`, sin volumen ni HMR) | Editar el source no se refleja sin `docker compose build frontend` | Verificar frontend con `tsc --noEmit` (host tiene node_modules); para ver en navegador, rebuild |
+| Screenshots del preview mostraban el login viejo | El navegador del preview seguía en `localhost:3000` (build viejo) mientras el dev server estaba en `localhost:3001` | Verificar `location.origin`/puerto antes de confiar en un screenshot; navegar con URL absoluta del puerto correcto |
+| `globals.css`/tokens no se reflejaban (color seguía naranja) en dev | Caché de Turbopack/`.next` de una sesión previa | Tras cambiar tokens de color, borrar `frontend/.next` y reiniciar el dev server |
+| `bg-primary` del `Button` seguía naranja pese a cambiar `globals.css` | `primary` también está en `tailwind.config.ts` (theme.colors) | Al rebrandear, actualizar `tailwind.config.ts` (`primary`, `primary-foreground`, glow) junto con las CSS vars |
+| Texto blanco sobre relleno Volt = bajo contraste | Volt (lima) es color claro | Usar `--color-primary-contrast` (casi-negro) como ink sobre rellenos Volt; `text-white` solo sobre rojo/oscuro |
+| Inputs de distinto color en card blanca (auth) | `PhoneInput`/`PasswordInput` hardcodean `bg-[var(--bg-input)]` (oscuro en dark) | Prop `surface="on-light"` para forzar superficie blanca sobre cards claras |
+| CORS preflight `OPTIONS` daba 400 en el navegador | El preview cargó la página en un origin no permitido (`:3001`); el backend solo permite `:3000` (`cors_origins`) | La app real corre en `:3000`; verificar siempre desde ahí. Para añadir orígenes, editar `cors_origins` en `backend/app/core/config.py` |
+| Migraciones tenant fallaban: `gymdb_template` no existe / `DuplicateColumnError` | `migrations/tenant/env.py` hardcodeaba la URL e ignoraba la inyectada; las tenant DBs se crean con `create_all` (sin `alembic_version`) | `env.py` debe leer `config.get_main_option("sqlalchemy.url")`; para DBs creadas con `create_all`, `alembic stamp <rev_previa>` y luego `upgrade head` |
+| Relación plan↔membresía por `plan_name` (string) era frágil | Renombrar/borrar plan rompía el vínculo con cobros | `Membership.plan_id` (FK) + snapshot de `plan_name`/`price`; borrar plan en uso = soft-delete (`is_active=False`, 200 `{archived:true}`, nunca 500) |
+| `URL.createObjectURL` (blob) se guardaba como `photo_url` | El blob local no persiste tras recargar | No enviar `photo_url` si empieza con `blob:`; la subida real de imágenes es fase posterior |
+| 422 al crear miembro: "Datetimes provided to dates should have zero time" | `parq_completed_at` se enviaba con `toISOString()` (datetime) pero el schema lo tipa como `date` | Para campos `date` del backend enviar `toISOString().split("T")[0]` (fecha pura), nunca el datetime completo |
+| `html5-qrcode`: "Cannot stop, scanner is not running or paused" | El cleanup llamaba `stop()` aunque la cámara nunca arrancó | Verificar `getState()` (2=SCANNING, 3=PAUSED) antes de `stop()`; si no, solo `clear()` |
 
 **Protocolo:** Al detectar un error que no estaba documentado, añade una fila a la tabla antes del commit.
+
+---
+
+## Flujo de trabajo gstack (OBLIGATORIO)
+
+gstack es la caja de herramientas profesional del repo. **Úsala siempre**, no improvises equivalentes:
+
+- **`/browse`** — toda navegación/QA visual en el navegador (nunca Claude-in-Chrome). Verificar en `localhost:3000` (app real), no en el dev server.
+- **`/qa`** — test + fix iterativo de una pantalla antes de darla por lista (tiers Quick/Standard/Exhaustive).
+- **`/review`** — revisar el diff antes de cada commit (SQL safety, trust boundaries, side effects).
+- **`/design-review`** — auditoría visual con evidencia antes/después tras cambios de UI.
+- **`/ship`** + **`/land-and-deploy`** — crear PR (commits en español) y desplegar.
+- **`/investigate`** — debugging sistemático con causa raíz (no parchar sin entender).
+
+Regla: ningún cambio de UI se considera terminado sin verificación en vivo (`/browse`), y ningún commit sale sin `/review`.
 
 ---
 

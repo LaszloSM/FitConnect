@@ -78,7 +78,7 @@ function Badge({ className, ...props }: React.ComponentProps<'span'>) {
   return (
     <span
       className={cn(
-        'border border-[oklch(0.70_0.20_47)/0.4] text-[var(--color-primary)] bg-orange-50 dark:bg-orange-950/20 rounded-full px-2 py-0.5 text-[10px] font-semibold',
+        'border border-[var(--color-primary)]/40 text-[var(--color-primary)] bg-[var(--color-primary-muted)] rounded-full px-2 py-0.5 text-[10px] font-semibold',
         className,
       )}
       {...props}

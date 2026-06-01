@@ -21,6 +21,9 @@ class Membership(TenantBase, TenantTimestampMixin):
 
     id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     member_id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), ForeignKey("members.id"), nullable=False, index=True)
+    # FK al catálogo de planes. plan_name/price/duration son snapshot histórico
+    # del momento del cobro: si el plan cambia o se archiva, el cobro no se altera.
+    plan_id: Mapped[Optional[uuid.UUID]] = mapped_column(UUID(as_uuid=True), ForeignKey("member_plans.id"), nullable=True, index=True)
     plan_name: Mapped[str] = mapped_column(String(100), nullable=False)
     price: Mapped[Decimal] = mapped_column(Numeric(12, 2), nullable=False)
     start_date: Mapped[date] = mapped_column(Date, nullable=False)
