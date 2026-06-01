@@ -114,6 +114,7 @@ Cuando cometas un error durante una sesión, agrégalo aquí antes de terminar:
 | `URL.createObjectURL` (blob) se guardaba como `photo_url` | El blob local no persiste tras recargar | No enviar `photo_url` si empieza con `blob:`; la subida real de imágenes es fase posterior |
 | 422 al crear miembro: "Datetimes provided to dates should have zero time" | `parq_completed_at` se enviaba con `toISOString()` (datetime) pero el schema lo tipa como `date` | Para campos `date` del backend enviar `toISOString().split("T")[0]` (fecha pura), nunca el datetime completo |
 | `html5-qrcode`: "Cannot stop, scanner is not running or paused" | El cleanup llamaba `stop()` aunque la cámara nunca arrancó | Verificar `getState()` (2=SCANNING, 3=PAUSED) antes de `stop()`; si no, solo `clear()` |
+| Imágenes de `/public` (logo) daban 307 → /login | El `matcher` del middleware de auth no excluía archivos estáticos con extensión | Añadir `.*\.[\w]+$` a la negación del matcher en `frontend/middleware.ts` para dejar pasar `.png/.svg/...` sin sesión |
 
 **Protocolo:** Al detectar un error que no estaba documentado, añade una fila a la tabla antes del commit.
 
