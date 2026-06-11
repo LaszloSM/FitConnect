@@ -24,6 +24,8 @@ import {
   Loader2,
   QrCode,
   Pencil,
+  Snowflake,
+  Play,
 } from "lucide-react";
 import { QRCodeDisplay } from "@/components/common/QRCodeDisplay";
 import {
@@ -58,16 +60,39 @@ function formatCOP(amount: number) {
   }).format(amount);
 }
 
+const STATUS_PILL: Record<string, { label: string; cls: string; icon: React.ReactNode }> = {
+  active: {
+    label: "Activa",
+    cls: "bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-400 ring-emerald-200 dark:ring-emerald-800/60",
+    icon: <CheckCircle2 className="h-3 w-3" />,
+  },
+  frozen: {
+    label: "Congelada",
+    cls: "bg-sky-50 dark:bg-sky-950/40 text-sky-700 dark:text-sky-400 ring-sky-200 dark:ring-sky-800/60",
+    icon: <Snowflake className="h-3 w-3" />,
+  },
+  in_grace: {
+    label: "En gracia",
+    cls: "bg-amber-50 dark:bg-amber-950/40 text-amber-700 dark:text-amber-400 ring-amber-200 dark:ring-amber-800/60",
+    icon: <Clock className="h-3 w-3" />,
+  },
+  expired: {
+    label: "Vencida",
+    cls: "bg-red-50 dark:bg-red-950/40 text-red-600 dark:text-red-400 ring-red-200 dark:ring-red-800/60",
+    icon: <Clock className="h-3 w-3" />,
+  },
+  cancelled: {
+    label: "Cancelada",
+    cls: "bg-[var(--bg-muted)] text-[var(--text-muted)] ring-[var(--border-base)]",
+    icon: <BadgeX className="h-3 w-3" />,
+  },
+};
+
 function MembershipStatusPill({ status }: { status: string }) {
-  if (status === "active")
-    return (
-      <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-semibold bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-400 ring-1 ring-emerald-200 dark:ring-emerald-800/60">
-        <CheckCircle2 className="h-3 w-3" /> Activa
-      </span>
-    );
+  const pill = STATUS_PILL[status] ?? STATUS_PILL.expired;
   return (
-    <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-semibold bg-amber-50 dark:bg-amber-950/40 text-amber-700 dark:text-amber-400 ring-1 ring-amber-200 dark:ring-amber-800/60">
-      <Clock className="h-3 w-3" /> Vencida
+    <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-semibold ring-1 ${pill.cls}`}>
+      {pill.icon} {pill.label}
     </span>
   );
 }
@@ -93,6 +118,68 @@ export default function MemberDetailClient({ memberId }: { memberId: string }) {
   const [assigning, setAssigning] = useState(false);
   const [editOpen, setEditOpen] = useState(false);
   const [editSaving, setEditSaving] = useState(false);
+  const [showDiscount, setShowDiscount] = useState(false);
+  const [promoCode, setPromoCode] = useState("");
+  const [discountAmount, setDiscountAmount] = useState("");
+  const [discountReason, setDiscountReason] = useState("");
+  const [freezeFor, setFreezeFor] = useState<string | null>(null);
+  const [freezeReason, setFreezeReason] = useState("");
+  const [actionBusy, setActionBusy] = useState(false);
+  const [renewalBusy, setRenewalBusy] = useState(false);
+
+  const sendRenewalLink = async (planId: string) => {
+    if (!session?.accessToken) return;
+    setRenewalBusy(true);
+    try {
+      const client = apiClient(session.accessToken as string);
+      const { data } = await client.post(`/api/v1/members/${memberId}/renewal-link`, { plan_id: planId });
+      if (!data.checkout_url) {
+        toast.error("Wompi no está configurado en Ajustes › Integraciones");
+        return;
+      }
+      await navigator.clipboard.writeText(data.checkout_url).catch(() => {});
+      const phone = (member?.phone ?? "").replace(/\D/g, "");
+      if (phone) {
+        const text = encodeURIComponent(`Hola ${member.full_name}, renueva tu membresía aquí: ${data.checkout_url}`);
+        window.open(`https://wa.me/${phone}?text=${text}`, "_blank");
+      }
+      toast.success("Link de pago creado y copiado");
+    } catch (err: any) {
+      toast.error(err.response?.data?.detail ?? "No se pudo generar el link");
+    } finally {
+      setRenewalBusy(false);
+    }
+  };
+
+  const refreshMemberships = async () => {
+    if (!session?.accessToken) return;
+    const client = apiClient(session.accessToken as string);
+    const ms = await client.get(`/api/v1/members/${memberId}/memberships`);
+    setMemberships(ms.data);
+  };
+
+  const membershipAction = async (
+    membershipId: string,
+    action: "freeze" | "unfreeze" | "cancel",
+    body: Record<string, unknown> = {},
+    okMessage = "Listo"
+  ) => {
+    if (!session?.accessToken) return;
+    setActionBusy(true);
+    try {
+      const client = apiClient(session.accessToken as string);
+      await client.post(`/api/v1/memberships/${membershipId}/${action}`, body);
+      toast.success(okMessage);
+      setFreezeFor(null);
+      setFreezeReason("");
+      await refreshMemberships();
+    } catch (err: any) {
+      const detail = err.response?.data?.detail;
+      toast.error(typeof detail === "string" ? detail : "No se pudo completar la acción");
+    } finally {
+      setActionBusy(false);
+    }
+  };
 
   useEffect(() => {
     if (!session?.accessToken) return;
@@ -124,10 +211,17 @@ export default function MemberDetailClient({ memberId }: { memberId: string }) {
         plan_id: selectedPlan,
         start_date: startDate,
         payment_method: paymentMethod || null,
+        promo_code: promoCode.trim() || null,
+        discount_amount: discountAmount ? Number(discountAmount) : null,
+        discount_reason: discountReason.trim() || null,
       });
       toast.success(paymentMethod ? "Membresía asignada y pago generado" : "Membresía asignada correctamente");
       setSelectedPlan("");
       setPaymentMethod("");
+      setPromoCode("");
+      setDiscountAmount("");
+      setDiscountReason("");
+      setShowDiscount(false);
       const ms = await client.get(`/api/v1/members/${memberId}/memberships`);
       setMemberships(ms.data);
     } catch (err: any) {
@@ -184,7 +278,9 @@ export default function MemberDetailClient({ memberId }: { memberId: string }) {
     );
   }
 
-  const activeMembership = memberships.find((m: any) => m.status === "active");
+  const activeMembership = memberships.find((m: any) =>
+    ["active", "in_grace", "frozen"].includes(m.effective_status ?? m.status)
+  );
 
   return (
     <motion.div
@@ -370,20 +466,90 @@ export default function MemberDetailClient({ memberId }: { memberId: string }) {
                 <p className="text-[var(--text-muted)] text-sm py-4 text-center">Sin membresías registradas</p>
               ) : (
                 <div className="space-y-2">
-                  {memberships.map((m: any) => (
-                    <div
-                      key={m.id}
-                      className="flex items-center justify-between p-3 rounded-lg border border-[var(--border-base)] bg-[var(--bg-muted)]"
-                    >
-                      <div>
-                        <p className="text-[var(--text-base)] text-sm font-medium">{m.plan_name}</p>
-                        <p className="text-[var(--text-muted)] text-[11px] mt-0.5">
-                          {m.start_date} → {m.end_date}
-                        </p>
+                  {memberships.map((m: any) => {
+                    const st = m.effective_status ?? m.status;
+                    const canFreeze = st === "active" || st === "in_grace";
+                    const canUnfreeze = st === "frozen";
+                    const canCancel = st === "active" || st === "frozen" || st === "in_grace";
+                    return (
+                      <div
+                        key={m.id}
+                        className="p-3 rounded-lg border border-[var(--border-base)] bg-[var(--bg-muted)] space-y-2"
+                      >
+                        <div className="flex items-center justify-between gap-3">
+                          <div className="min-w-0">
+                            <p className="text-[var(--text-base)] text-sm font-medium">{m.plan_name}</p>
+                            <p className="text-[var(--text-muted)] text-[11px] mt-0.5">
+                              {m.start_date} → {m.end_date}
+                              {m.discount_amount && Number(m.discount_amount) > 0 && (
+                                <span className="ml-2 text-emerald-600 dark:text-emerald-400">
+                                  −{formatCOP(Number(m.discount_amount))}{m.discount_reason ? ` (${m.discount_reason})` : ""}
+                                </span>
+                              )}
+                            </p>
+                          </div>
+                          <div className="flex items-center gap-2 shrink-0">
+                            <MembershipStatusPill status={st} />
+                            {canFreeze && (
+                              <button
+                                type="button"
+                                title="Congelar membresía"
+                                disabled={actionBusy}
+                                onClick={() => { setFreezeFor(freezeFor === m.id ? null : m.id); setFreezeReason(""); }}
+                                className="flex items-center gap-1 px-2 py-1 rounded-lg border border-[var(--border-base)] text-[11px] text-sky-600 dark:text-sky-400 hover:bg-sky-50 dark:hover:bg-sky-950/30 transition-colors"
+                              >
+                                <Snowflake className="h-3 w-3" /> Congelar
+                              </button>
+                            )}
+                            {canUnfreeze && (
+                              <button
+                                type="button"
+                                title="Reactivar membresía (corre la fecha de fin)"
+                                disabled={actionBusy}
+                                onClick={() => membershipAction(m.id, "unfreeze", {}, "Membresía reactivada — fecha de fin extendida")}
+                                className="flex items-center gap-1 px-2 py-1 rounded-lg border border-[var(--border-base)] text-[11px] text-emerald-600 dark:text-emerald-400 hover:bg-emerald-50 dark:hover:bg-emerald-950/30 transition-colors"
+                              >
+                                <Play className="h-3 w-3" /> Reactivar
+                              </button>
+                            )}
+                            {canCancel && (
+                              <button
+                                type="button"
+                                title="Cancelar membresía"
+                                disabled={actionBusy}
+                                onClick={() => {
+                                  if (window.confirm(`¿Cancelar la membresía ${m.plan_name}? Esta acción no se puede deshacer.`)) {
+                                    membershipAction(m.id, "cancel", undefined, "Membresía cancelada");
+                                  }
+                                }}
+                                className="flex items-center gap-1 px-2 py-1 rounded-lg border border-[var(--border-base)] text-[11px] text-red-500 hover:bg-red-50 dark:hover:bg-red-950/30 transition-colors"
+                              >
+                                <BadgeX className="h-3 w-3" /> Cancelar
+                              </button>
+                            )}
+                          </div>
+                        </div>
+                        {freezeFor === m.id && (
+                          <div className="flex items-center gap-2 pt-2 border-t border-[var(--border-base)]">
+                            <Input
+                              value={freezeReason}
+                              onChange={(e) => setFreezeReason(e.target.value)}
+                              placeholder="Motivo (vacaciones, lesión...)"
+                              className="h-8 text-xs bg-[var(--bg-base)] border-[var(--border-base)] text-[var(--text-base)]"
+                            />
+                            <Button
+                              type="button"
+                              disabled={actionBusy}
+                              onClick={() => membershipAction(m.id, "freeze", { reason: freezeReason.trim() || null }, "Membresía congelada")}
+                              className="h-8 text-xs bg-sky-600 hover:bg-sky-700 text-white shrink-0"
+                            >
+                              {actionBusy ? <Loader2 className="h-3 w-3 animate-spin" /> : "Confirmar"}
+                            </Button>
+                          </div>
+                        )}
                       </div>
-                      <MembershipStatusPill status={m.status} />
-                    </div>
-                  ))}
+                    );
+                  })}
                 </div>
               )}
 
@@ -407,16 +573,26 @@ export default function MemberDetailClient({ memberId }: { memberId: string }) {
                       </p>
                     </div>
                     {activePlanObj && (
-                      <button
-                        type="button"
-                        onClick={() => {
-                          setSelectedPlan(activePlanObj.id);
-                          setStartDate(renewDate);
-                        }}
-                        className="shrink-0 text-xs font-semibold text-amber-700 dark:text-amber-300 border border-amber-300 dark:border-amber-700/60 rounded-lg px-3 py-1.5 hover:bg-amber-100 dark:hover:bg-amber-900/30 transition-colors"
-                      >
-                        Renovar →
-                      </button>
+                      <div className="flex items-center gap-2 shrink-0">
+                        <button
+                          type="button"
+                          onClick={() => sendRenewalLink(activePlanObj.id)}
+                          disabled={renewalBusy}
+                          className="text-xs font-semibold text-emerald-700 dark:text-emerald-300 border border-emerald-300 dark:border-emerald-700/60 rounded-lg px-3 py-1.5 hover:bg-emerald-100 dark:hover:bg-emerald-900/30 transition-colors disabled:opacity-50"
+                        >
+                          {renewalBusy ? "…" : "Cobrar en línea"}
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setSelectedPlan(activePlanObj.id);
+                            setStartDate(renewDate);
+                          }}
+                          className="text-xs font-semibold text-amber-700 dark:text-amber-300 border border-amber-300 dark:border-amber-700/60 rounded-lg px-3 py-1.5 hover:bg-amber-100 dark:hover:bg-amber-900/30 transition-colors"
+                        >
+                          Renovar →
+                        </button>
+                      </div>
                     )}
                   </div>
                 );
@@ -470,6 +646,51 @@ export default function MemberDetailClient({ memberId }: { memberId: string }) {
                         <option value="card">Tarjeta</option>
                         <option value="wompi">Wompi</option>
                       </select>
+                    </div>
+                    <div className="sm:col-span-2">
+                      <button
+                        type="button"
+                        onClick={() => setShowDiscount(!showDiscount)}
+                        className="text-xs text-[var(--color-primary)] hover:underline"
+                      >
+                        {showDiscount ? "− Quitar descuento" : "+ Aplicar descuento o código promo"}
+                      </button>
+                      {showDiscount && (
+                        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mt-2">
+                          <div>
+                            <label className="text-[var(--text-muted)] text-xs mb-1 block">Código promo</label>
+                            <input
+                              value={promoCode}
+                              onChange={(e) => { setPromoCode(e.target.value.toUpperCase()); if (e.target.value) { setDiscountAmount(""); setDiscountReason(""); } }}
+                              placeholder="VERANO25"
+                              className="w-full h-9 rounded-md border border-[var(--border-base)] bg-[var(--bg-base)] px-3 text-sm text-[var(--text-base)] outline-none focus:ring-2 focus:ring-[var(--color-primary)]/30 focus:border-[var(--color-primary)]"
+                            />
+                          </div>
+                          <div>
+                            <label className="text-[var(--text-muted)] text-xs mb-1 block">Descuento manual (COP)</label>
+                            <input
+                              type="number"
+                              min="0"
+                              value={discountAmount}
+                              onChange={(e) => { setDiscountAmount(e.target.value); if (e.target.value) setPromoCode(""); }}
+                              disabled={!!promoCode}
+                              placeholder="10000"
+                              className="w-full h-9 rounded-md border border-[var(--border-base)] bg-[var(--bg-base)] px-3 text-sm text-[var(--text-base)] outline-none focus:ring-2 focus:ring-[var(--color-primary)]/30 focus:border-[var(--color-primary)] disabled:opacity-40"
+                            />
+                          </div>
+                          <div>
+                            <label className="text-[var(--text-muted)] text-xs mb-1 block">Motivo del descuento</label>
+                            <input
+                              value={discountReason}
+                              onChange={(e) => setDiscountReason(e.target.value)}
+                              disabled={!!promoCode}
+                              placeholder="Convenio empresa"
+                              required={!!discountAmount}
+                              className="w-full h-9 rounded-md border border-[var(--border-base)] bg-[var(--bg-base)] px-3 text-sm text-[var(--text-base)] outline-none focus:ring-2 focus:ring-[var(--color-primary)]/30 focus:border-[var(--color-primary)] disabled:opacity-40"
+                            />
+                          </div>
+                        </div>
+                      )}
                     </div>
                   </div>
                   <Button

@@ -1,0 +1,44 @@
+import logging
+
+from apscheduler.schedulers.asyncio import AsyncIOScheduler
+from apscheduler.triggers.cron import CronTrigger
+
+from apscheduler.triggers.interval import IntervalTrigger
+
+from app.core.timeutil import BOGOTA
+from app.services.jobs import expire_memberships_job, reconcile_payments_job, process_outbox_job
+
+logger = logging.getLogger(__name__)
+
+scheduler = AsyncIOScheduler(timezone=BOGOTA)
+
+
+def start_scheduler() -> None:
+    scheduler.add_job(
+        expire_memberships_job,
+        CronTrigger(hour=0, minute=10, timezone=BOGOTA),
+        id="expire_memberships",
+        replace_existing=True,
+        misfire_grace_time=3600,
+    )
+    scheduler.add_job(
+        reconcile_payments_job,
+        IntervalTrigger(minutes=30),
+        id="reconcile_payments",
+        replace_existing=True,
+        misfire_grace_time=600,
+    )
+    scheduler.add_job(
+        process_outbox_job,
+        IntervalTrigger(seconds=60),
+        id="process_outbox",
+        replace_existing=True,
+        misfire_grace_time=120,
+    )
+    scheduler.start()
+    logger.info("Scheduler iniciado (%d jobs)", len(scheduler.get_jobs()))
+
+
+def stop_scheduler() -> None:
+    if scheduler.running:
+        scheduler.shutdown(wait=False)

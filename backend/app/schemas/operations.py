@@ -115,6 +115,7 @@ class MachineBase(BaseModel):
     location_id: Optional[uuid.UUID] = None
     status: str = "active"
     last_maintenance_date: Optional[date] = None
+    maintenance_interval_days: Optional[int] = Field(default=None, ge=1)
     photo_url: Optional[str] = Field(default=None, max_length=500)
     notes: Optional[str] = Field(default=None, max_length=1000)
 
@@ -131,6 +132,7 @@ class MachineUpdate(BaseModel):
     location_id: Optional[uuid.UUID] = None
     status: Optional[str] = None
     last_maintenance_date: Optional[date] = None
+    maintenance_interval_days: Optional[int] = Field(default=None, ge=1)
     photo_url: Optional[str] = Field(default=None, max_length=500)
     notes: Optional[str] = Field(default=None, max_length=1000)
 

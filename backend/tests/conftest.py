@@ -4,8 +4,13 @@ from httpx import AsyncClient, ASGITransport
 from sqlalchemy.ext.asyncio import create_async_engine, async_sessionmaker
 
 from app.main import app
+from app.core.rate_limit import limiter
 from app.db.base import Base
 from app.db.session import get_db
+
+# La suite completa hace decenas de register/login en segundos; sin esto el
+# rate limit de /auth (5/min) tumba en cascada los últimos archivos de test.
+limiter.enabled = False
 
 TEST_DATABASE_URL = os.environ.get(
     "TEST_DB_URL",
@@ -28,6 +33,18 @@ async def setup_db():
 async def override_get_db():
     async with TestSessionLocal() as session:
         yield session
+
+
+@pytest_asyncio.fixture(autouse=True)
+async def _dispose_tenant_engines():
+    """Los engines tenant quedan atados al event loop del test que los creó;
+    sin esto, el siguiente test que reutilice el mismo tenant revienta con
+    'Event loop is closed'."""
+    yield
+    from app.db.tenant_session import dispose_tenant_engines
+    from app.db.master_session import master_engine
+    await dispose_tenant_engines()
+    await master_engine.dispose()
 
 
 @pytest_asyncio.fixture

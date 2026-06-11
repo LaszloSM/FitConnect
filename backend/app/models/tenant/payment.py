@@ -34,3 +34,5 @@ class Payment(TenantBase, TenantTimestampMixin):
     status: Mapped[PaymentStatus] = mapped_column(SAEnum(PaymentStatus), default=PaymentStatus.pending, nullable=False)
     concept: Mapped[str] = mapped_column(String(500), nullable=False)
     external_ref: Mapped[Optional[str]] = mapped_column(String(255), nullable=True)
+    shift_id: Mapped[Optional[uuid.UUID]] = mapped_column(UUID(as_uuid=True), ForeignKey("cash_shifts.id"), nullable=True, index=True)
+    received_by: Mapped[Optional[uuid.UUID]] = mapped_column(UUID(as_uuid=True), ForeignKey("users.id"), nullable=True)

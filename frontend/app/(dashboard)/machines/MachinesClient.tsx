@@ -38,8 +38,17 @@ interface Machine {
   area: string | null;
   status: string;
   last_maintenance_date: string | null;
+  maintenance_interval_days: number | null;
   notes: string | null;
   photo_url: string | null;
+}
+
+function maintenanceOverdue(m: Machine): boolean {
+  if (!m.maintenance_interval_days) return false;
+  if (!m.last_maintenance_date) return true;
+  const due = new Date(m.last_maintenance_date + "T12:00:00");
+  due.setDate(due.getDate() + m.maintenance_interval_days);
+  return due.getTime() <= Date.now();
 }
 
 const AREA_OPTIONS = [
@@ -98,6 +107,7 @@ export default function MachinesClient() {
     area: "",
     status: "active",
     last_maintenance_date: "" as string,
+    maintenance_interval_days: "",
     notes: "",
     photo_url: "",
   });
@@ -154,13 +164,14 @@ export default function MachinesClient() {
         area: form.area || undefined,
         status: form.status,
         last_maintenance_date: form.last_maintenance_date || undefined,
+        maintenance_interval_days: form.maintenance_interval_days ? Number(form.maintenance_interval_days) : undefined,
         notes: form.notes || undefined,
         // No enviar blobs locales (URL.createObjectURL no persiste)
         photo_url: form.photo_url.startsWith("blob:") ? undefined : form.photo_url || undefined,
       });
       toast.success("Máquina creada correctamente");
       setDialogOpen(false);
-      setForm({ name: "", area: "", status: "active", last_maintenance_date: "", notes: "", photo_url: "" });
+      setForm({ name: "", area: "", status: "active", last_maintenance_date: "", maintenance_interval_days: "", notes: "", photo_url: "" });
       fetchMachines();
     } catch (err: any) {
       const detail = err.response?.data?.detail;
@@ -285,15 +296,30 @@ export default function MachinesClient() {
               </div>
             </div>
 
-            <div className="space-y-2">
-              <Label className="text-[var(--text-muted)] text-sm">Último mantenimiento</Label>
-              <DatePicker
-                value={form.last_maintenance_date ? new Date(form.last_maintenance_date + "T12:00:00") : undefined}
-                onChange={(d) => setForm({ ...form, last_maintenance_date: d.toISOString().split("T")[0] })}
-                placeholder="Seleccionar fecha"
-                maxDate={new Date()}
-                fromYear={2000}
-              />
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label className="text-[var(--text-muted)] text-sm">Último mantenimiento</Label>
+                <DatePicker
+                  value={form.last_maintenance_date ? new Date(form.last_maintenance_date + "T12:00:00") : undefined}
+                  onChange={(d) => setForm({ ...form, last_maintenance_date: d.toISOString().split("T")[0] })}
+                  placeholder="Seleccionar fecha"
+                  maxDate={new Date()}
+                  fromYear={2000}
+                />
+              </div>
+              <div className="space-y-2">
+                <Label className="text-[var(--text-muted)] text-sm">
+                  Preventivo cada (días) <span className="opacity-60">opcional</span>
+                </Label>
+                <Input
+                  type="number"
+                  min={1}
+                  value={form.maintenance_interval_days}
+                  onChange={(e) => setForm({ ...form, maintenance_interval_days: e.target.value })}
+                  placeholder="90"
+                  className={inputCls}
+                />
+              </div>
             </div>
 
             <div className="space-y-2">
@@ -427,14 +453,21 @@ export default function MachinesClient() {
                     </TableCell>
                     <TableCell className="text-[var(--text-muted)] text-sm">{m.area || "-"}</TableCell>
                     <TableCell>
-                      <span
-                        className={cn(
-                          "inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium",
-                          STATUS_BADGE[m.status] ?? "bg-[var(--bg-base)] text-[var(--text-muted)]"
+                      <div className="flex items-center gap-1.5 flex-wrap">
+                        <span
+                          className={cn(
+                            "inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium",
+                            STATUS_BADGE[m.status] ?? "bg-[var(--bg-base)] text-[var(--text-muted)]"
+                          )}
+                        >
+                          {STATUS_LABEL[m.status] ?? m.status}
+                        </span>
+                        {maintenanceOverdue(m) && (
+                          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-semibold bg-orange-100 dark:bg-orange-950/30 text-orange-700 dark:text-orange-400">
+                            <Wrench className="h-3 w-3" /> Preventivo vencido
+                          </span>
                         )}
-                      >
-                        {STATUS_LABEL[m.status] ?? m.status}
-                      </span>
+                      </div>
                     </TableCell>
                     <TableCell>
                       <Button

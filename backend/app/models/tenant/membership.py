@@ -1,8 +1,8 @@
 import uuid
 import enum
-from datetime import date
+from datetime import date, datetime
 from decimal import Decimal
-from sqlalchemy import String, ForeignKey, Enum as SAEnum, Date, Numeric, Integer
+from sqlalchemy import String, ForeignKey, Date, DateTime, Numeric, Integer
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import mapped_column, Mapped
 from typing import Optional
@@ -11,6 +11,7 @@ from app.db.tenant_base import TenantBase, TenantTimestampMixin
 
 class MembershipStatus(str, enum.Enum):
     active = "active"
+    frozen = "frozen"
     expired = "expired"
     cancelled = "cancelled"
 
@@ -25,9 +26,17 @@ class Membership(TenantBase, TenantTimestampMixin):
     # del momento del cobro: si el plan cambia o se archiva, el cobro no se altera.
     plan_id: Mapped[Optional[uuid.UUID]] = mapped_column(UUID(as_uuid=True), ForeignKey("member_plans.id"), nullable=True, index=True)
     plan_name: Mapped[str] = mapped_column(String(100), nullable=False)
+    # price es el precio NETO cobrado (con descuento ya aplicado);
+    # discount_amount/reason/promo_code_id documentan el descuento.
     price: Mapped[Decimal] = mapped_column(Numeric(12, 2), nullable=False)
+    discount_amount: Mapped[Optional[Decimal]] = mapped_column(Numeric(12, 2), nullable=True)
+    discount_reason: Mapped[Optional[str]] = mapped_column(String(255), nullable=True)
+    promo_code_id: Mapped[Optional[uuid.UUID]] = mapped_column(UUID(as_uuid=True), ForeignKey("promo_codes.id"), nullable=True)
     start_date: Mapped[date] = mapped_column(Date, nullable=False)
     end_date: Mapped[date] = mapped_column(Date, nullable=False)
     duration_days: Mapped[int] = mapped_column(Integer, nullable=False)
-    status: Mapped[MembershipStatus] = mapped_column(SAEnum(MembershipStatus), default=MembershipStatus.active, nullable=False)
+    # String en vez de enum nativo de Postgres para poder agregar estados sin ALTER TYPE.
+    status: Mapped[str] = mapped_column(String(20), default=MembershipStatus.active.value, nullable=False)
+    # Cuándo la marcó expirada el job diario (None si expiró por backfill o sigue activa)
+    expired_at: Mapped[Optional[datetime]] = mapped_column(DateTime(timezone=True), nullable=True)
     notes: Mapped[Optional[str]] = mapped_column(String(500), nullable=True)

@@ -36,20 +36,35 @@ const STATUS_UI: Record<
   MembershipStatus,
   { label: string; tone: "ok" | "warn" | "bad"; icon: typeof CheckCircle2 }
 > = {
-  ok:            { label: "Membresía activa",       tone: "ok",   icon: CheckCircle2 },
-  expired:       { label: "Membresía vencida",      tone: "bad",  icon: XCircle },
-  no_membership: { label: "Sin membresía activa",   tone: "warn", icon: AlertCircle },
+  ok:            { label: "Membresía activa",                tone: "ok",   icon: CheckCircle2 },
+  in_grace:      { label: "Vencida — en período de gracia",  tone: "warn", icon: AlertCircle },
+  frozen:        { label: "Membresía congelada",             tone: "bad",  icon: XCircle },
+  expired:       { label: "Membresía vencida",               tone: "bad",  icon: XCircle },
+  no_membership: { label: "Sin membresía activa",            tone: "bad",  icon: XCircle },
 };
 
-function ConfirmationCard({ result }: { result: CheckinResult }) {
-  const ui = STATUS_UI[result.membership_status];
+function ConfirmationCard({
+  result,
+  onOverride,
+  overriding,
+}: {
+  result: CheckinResult;
+  onOverride: (reason: string) => void;
+  overriding: boolean;
+}) {
+  const ui = STATUS_UI[result.membership_status] ?? STATUS_UI.no_membership;
   const Icon = ui.icon;
-  const toneCls =
-    ui.tone === "ok"
-      ? "bg-green-50 dark:bg-green-950/20 border-green-200 dark:border-green-900/40 text-green-700 dark:text-green-400"
-      : ui.tone === "warn"
-      ? "bg-amber-50 dark:bg-amber-950/20 border-amber-200 dark:border-amber-900/40 text-amber-700 dark:text-amber-400"
-      : "bg-red-50 dark:bg-red-950/20 border-red-200 dark:border-red-900/40 text-red-700 dark:text-red-400";
+  const denied = result.decision === "denied";
+  const isOverride = result.decision === "override";
+  const [reason, setReason] = useState("");
+
+  const toneCls = denied
+    ? "bg-red-50 dark:bg-red-950/20 border-red-300 dark:border-red-900/50 text-red-700 dark:text-red-400"
+    : ui.tone === "ok"
+    ? "bg-green-50 dark:bg-green-950/20 border-green-200 dark:border-green-900/40 text-green-700 dark:text-green-400"
+    : ui.tone === "warn"
+    ? "bg-amber-50 dark:bg-amber-950/20 border-amber-200 dark:border-amber-900/40 text-amber-700 dark:text-amber-400"
+    : "bg-red-50 dark:bg-red-950/20 border-red-200 dark:border-red-900/40 text-red-700 dark:text-red-400";
 
   return (
     <motion.div
@@ -57,16 +72,72 @@ function ConfirmationCard({ result }: { result: CheckinResult }) {
       animate={{ opacity: 1, y: 0, scale: 1 }}
       exit={{ opacity: 0, y: -8 }}
       transition={{ ease: [0.16, 1, 0.3, 1], duration: 0.3 }}
-      className={cn("flex items-center gap-3 rounded-xl border p-4", toneCls)}
+      className={cn("rounded-xl border p-4 space-y-3", toneCls)}
     >
-      <Icon className="h-7 w-7 shrink-0" strokeWidth={2} />
-      <div className="min-w-0">
-        <p className="text-sm font-semibold leading-tight">
-          Entró {result.member_name ?? "el miembro"}
-        </p>
-        <p className="text-xs opacity-80">{ui.label}</p>
+      <div className="flex items-center gap-3">
+        <Icon className="h-8 w-8 shrink-0" strokeWidth={2} />
+        <div className="min-w-0">
+          <p className="text-base font-bold leading-tight">
+            {denied ? "ACCESO DENEGADO" : isOverride ? "Entrada autorizada" : "Entrada registrada"}
+            {" — "}
+            {result.member_name ?? "el miembro"}
+          </p>
+          <p className="text-xs opacity-80">{ui.label}</p>
+        </div>
       </div>
+      {denied && (
+        <div className="flex items-center gap-2 pt-1">
+          <Input
+            value={reason}
+            onChange={(e) => setReason(e.target.value)}
+            placeholder="Motivo para autorizar la entrada..."
+            className="h-9 text-sm bg-white/70 dark:bg-black/20 border-red-200 dark:border-red-900/50"
+          />
+          <Button
+            type="button"
+            disabled={overriding || !reason.trim()}
+            onClick={() => onOverride(reason.trim())}
+            className="h-9 shrink-0 bg-red-600 hover:bg-red-700 text-white font-semibold"
+          >
+            {overriding ? "Autorizando..." : "Autorizar entrada"}
+          </Button>
+        </div>
+      )}
     </motion.div>
+  );
+}
+
+const DENIAL_LABELS: Record<string, string> = {
+  expired: "vencida",
+  frozen: "congelada",
+  no_membership: "sin membresía",
+};
+
+function DecisionBadge({
+  decision,
+  denialReason,
+}: {
+  decision?: string | null;
+  denialReason?: string | null;
+}) {
+  if (decision === "denied") {
+    return (
+      <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-semibold bg-red-50 dark:bg-red-950/40 text-red-600 dark:text-red-400 ring-1 ring-red-200 dark:ring-red-800/60">
+        Denegado{denialReason ? ` · ${DENIAL_LABELS[denialReason] ?? denialReason}` : ""}
+      </span>
+    );
+  }
+  if (decision === "override") {
+    return (
+      <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-semibold bg-amber-50 dark:bg-amber-950/40 text-amber-700 dark:text-amber-400 ring-1 ring-amber-200 dark:ring-amber-800/60">
+        Autorizado
+      </span>
+    );
+  }
+  return (
+    <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-semibold bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-400 ring-1 ring-emerald-200 dark:ring-emerald-800/60">
+      Permitido
+    </span>
   );
 }
 
@@ -87,10 +158,33 @@ export default function CheckinsClient() {
   const [memberId, setMemberId] = useState("");
   const [notes, setNotes] = useState("");
   const [submitting, setSubmitting] = useState(false);
+  const [overriding, setOverriding] = useState(false);
 
   const handleResult = (data: CheckinResult) => {
     setResult(data);
+    if (data.decision === "denied") {
+      toast.error(`Acceso denegado: ${data.member_name ?? "miembro"}`);
+    }
     void fetchToday();
+  };
+
+  const handleOverride = async (reason: string) => {
+    if (!session?.accessToken || !result?.member_id) return;
+    setOverriding(true);
+    try {
+      const client = apiClient(session.accessToken as string);
+      const res = await client.post("/api/v1/checkins/override", {
+        member_id: result.member_id,
+        reason,
+      });
+      setResult(res.data);
+      toast.success("Entrada autorizada");
+      void fetchToday();
+    } catch (err: any) {
+      handleError(err, "Error autorizando la entrada");
+    } finally {
+      setOverriding(false);
+    }
   };
 
   const handleError = (err: any, fallback: string) => {
@@ -249,7 +343,14 @@ export default function CheckinsClient() {
 
         <div className="px-6 pb-6">
           <AnimatePresence mode="wait">
-            {result && <ConfirmationCard key={result.created_at} result={result} />}
+            {result && (
+              <ConfirmationCard
+                key={result.created_at}
+                result={result}
+                onOverride={handleOverride}
+                overriding={overriding}
+              />
+            )}
           </AnimatePresence>
         </div>
       </GlassCard>
@@ -269,7 +370,7 @@ export default function CheckinsClient() {
             <TableHeader>
               <TableRow className="border-[var(--border-base)] hover:bg-transparent">
                 <TableHead className="text-[var(--text-muted)]">Miembro</TableHead>
-                <TableHead className="text-[var(--text-muted)]">Nota</TableHead>
+                <TableHead className="text-[var(--text-muted)]">Acceso</TableHead>
                 <TableHead className="text-[var(--text-muted)]">Hora</TableHead>
               </TableRow>
             </TableHeader>
@@ -299,7 +400,9 @@ export default function CheckinsClient() {
                     <TableCell className="text-[var(--text-base)] font-medium">
                       {c.member_name ?? `${c.member_id.slice(0, 8)}…`}
                     </TableCell>
-                    <TableCell className="text-[var(--text-muted)] text-sm">{c.notes || "-"}</TableCell>
+                    <TableCell className="text-sm">
+                      <DecisionBadge decision={c.decision} denialReason={c.denial_reason} />
+                    </TableCell>
                     <TableCell className="text-[var(--text-muted)] text-sm">
                       <span title={new Date(c.created_at).toLocaleString("es-ES")}>
                         {formatDistanceToNow(new Date(c.created_at), { addSuffix: true, locale: es })}

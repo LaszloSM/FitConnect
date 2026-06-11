@@ -104,3 +104,24 @@ def check_tenant_active(tenant: Tenant = Depends(get_master_tenant)):
     if tenant.status == TenantStatus.suspended:
         raise HTTPException(status_code=403, detail="Cuenta suspendida")
     return tenant
+
+
+async def get_tenant_slug(
+    credentials: HTTPAuthorizationCredentials = Depends(security),
+    master_db: AsyncSession = Depends(get_master_db),
+) -> str:
+    """Resuelve el slug del tenant desde el db_name del JWT (lo necesita Wompi
+    para construir la reference; sirve a owner y staff por igual)."""
+    try:
+        payload = decode_token(credentials.credentials)
+    except JWTError:
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Token inválido")
+    db_name = payload.get("db_name")
+    if not db_name:
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Token sin contexto de tenant")
+    tenant = (await master_db.execute(
+        select(Tenant).where(Tenant.db_name == db_name)
+    )).scalar_one_or_none()
+    if not tenant:
+        raise HTTPException(status_code=404, detail="Tenant no encontrado")
+    return tenant.slug

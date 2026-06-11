@@ -5,13 +5,26 @@ from sqlalchemy import select, func, desc
 from datetime import date, datetime, timedelta
 from decimal import Decimal
 
-from app.api.deps import get_tenant_db_from_token
+from app.api.deps import get_tenant_db_from_token, get_current_staff, get_tenant_slug
 from app.schemas.member import PaymentCreate, PaymentUpdate, PaymentResponse
 from app.models.tenant.payment import Payment, PaymentStatus, PaymentMethod
 from app.models.tenant.member import Member
 from app.models.tenant.membership import Membership
+from app.models.tenant.cash_shift import CashShift
+from app.models.tenant.receipt import Receipt
+from app.models.tenant.user_staff import UserStaff
+from app.services.audit import audit
+from app.services.receipts import issue_receipt
+from app.services.payment_links import create_payment_link_for
 
 router = APIRouter(prefix="/payments", tags=["payments"])
+
+
+async def _open_cash_shift(db: AsyncSession) -> CashShift | None:
+    """Turno de caja abierto de la sede única (location_id NULL)."""
+    return (await db.execute(
+        select(CashShift).where(CashShift.status == "open", CashShift.location_id.is_(None)).limit(1)
+    )).scalar_one_or_none()
 
 
 @router.get("", response_model=list[PaymentResponse])
@@ -42,6 +55,7 @@ async def list_payments(
 async def create_payment(
     payload: PaymentCreate,
     db: AsyncSession = Depends(get_tenant_db_from_token),
+    current_user: UserStaff = Depends(get_current_staff),
 ):
     member_result = await db.execute(select(Member).where(Member.id == payload.member_id))
     if not member_result.scalar_one_or_none():
@@ -60,8 +74,28 @@ async def create_payment(
                 detail="La membresía no pertenece a este miembro",
             )
 
-    payment = Payment(**payload.model_dump())
+    # El efectivo cobrado (paid) requiere un turno abierto para que cuadre la caja.
+    # Un cash pendiente es una promesa de pago: no entra a caja todavía.
+    shift = await _open_cash_shift(db)
+    is_cash_paid = payload.method == PaymentMethod.cash and payload.status == PaymentStatus.paid
+    if is_cash_paid and shift is None:
+        raise HTTPException(
+            status_code=400,
+            detail="Abre un turno de caja antes de cobrar en efectivo",
+        )
+
+    payment = Payment(**payload.model_dump(), received_by=current_user.id)
+    if is_cash_paid:
+        payment.shift_id = shift.id
     db.add(payment)
+    await db.flush()
+
+    if payment.status == PaymentStatus.paid:
+        await issue_receipt(db, payment)
+    audit(db, current_user, "payment.create", "payment", payment.id, {
+        "amount": str(payment.amount), "method": payment.method.value if payment.method else None,
+        "status": payment.status.value,
+    })
     await db.commit()
     await db.refresh(payment)
     return payment
@@ -148,15 +182,65 @@ async def delete_payment(
 async def mark_payment_paid(
     payment_id: uuid.UUID,
     db: AsyncSession = Depends(get_tenant_db_from_token),
+    current_user: UserStaff = Depends(get_current_staff),
 ):
-    """Marcar un pago como pagado (estado: paid)."""
+    """Marcar un pago como pagado (estado: paid). Genera el recibo y, si es
+    efectivo, lo asocia al turno abierto."""
     result = await db.execute(select(Payment).where(Payment.id == payment_id))
     payment = result.scalar_one_or_none()
     if not payment:
         raise HTTPException(status_code=404, detail="Pago no encontrado")
     if payment.status == PaymentStatus.paid:
         raise HTTPException(status_code=400, detail="El pago ya está marcado como pagado")
+
+    if payment.method == PaymentMethod.cash and payment.shift_id is None:
+        shift = await _open_cash_shift(db)
+        if shift is None:
+            raise HTTPException(status_code=400, detail="Abre un turno de caja antes de cobrar en efectivo")
+        payment.shift_id = shift.id
+
     payment.status = PaymentStatus.paid
+    await db.flush()
+    await issue_receipt(db, payment)
+    audit(db, current_user, "payment.mark_paid", "payment", payment.id, {"amount": str(payment.amount)})
     await db.commit()
     await db.refresh(payment)
     return payment
+
+
+@router.post("/{payment_id}/payment-link")
+async def create_payment_link(
+    payment_id: uuid.UUID,
+    db: AsyncSession = Depends(get_tenant_db_from_token),
+    slug: str = Depends(get_tenant_slug),
+):
+    """Genera un link de pago Wompi para un pago pendiente."""
+    payment = (await db.execute(select(Payment).where(Payment.id == payment_id))).scalar_one_or_none()
+    if not payment:
+        raise HTTPException(status_code=404, detail="Pago no encontrado")
+    if payment.status != PaymentStatus.pending:
+        raise HTTPException(status_code=400, detail="Solo se generan links para pagos pendientes")
+    member = (await db.execute(select(Member).where(Member.id == payment.member_id))).scalar_one_or_none()
+    link = await create_payment_link_for(
+        db, payment, slug, member_name=member.full_name if member else "Miembro",
+    )
+    await db.commit()
+    await db.refresh(link)
+    return {"checkout_url": link.checkout_url, "reference": link.reference, "status": link.status}
+
+
+@router.get("/{payment_id}/receipt")
+async def get_receipt(
+    payment_id: uuid.UUID,
+    db: AsyncSession = Depends(get_tenant_db_from_token),
+):
+    receipt = (await db.execute(
+        select(Receipt).where(Receipt.payment_id == payment_id)
+    )).scalar_one_or_none()
+    if not receipt:
+        raise HTTPException(status_code=404, detail="Este pago aún no tiene recibo (solo los pagados lo generan)")
+    return {
+        "number": receipt.snapshot.get("receipt_number"),
+        "issued_at": receipt.issued_at,
+        **receipt.snapshot,
+    }

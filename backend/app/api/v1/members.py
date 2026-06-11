@@ -1,16 +1,24 @@
 import uuid
 from fastapi import APIRouter, Depends, HTTPException, Query
+from pydantic import BaseModel
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select, func, or_, and_
 from datetime import date, datetime, timedelta
 from decimal import Decimal
 
-from app.api.deps import get_tenant_db_from_token
+from app.api.deps import get_tenant_db_from_token, get_current_staff, get_tenant_slug
 from app.schemas.member import MemberCreate, MemberUpdate, MemberResponse, MembershipResponse
 from app.models.tenant.member import Member, MemberStatus
 from app.models.tenant.membership import Membership
+from app.core.timeutil import today_bogota
+from app.services.gym_settings import get_gym_settings
+from app.services.membership_status import effective_status
 
 router = APIRouter(prefix="/members", tags=["members"])
+
+
+class RenewalLinkRequest(BaseModel):
+    plan_id: uuid.UUID
 
 
 @router.get("", response_model=list[MemberResponse])
@@ -33,54 +41,38 @@ async def list_members(
     result = await db.execute(stmt)
     members = result.scalars().all()
 
-    # Bulk-fetch memberships for all returned members in 2 queries (no N+1)
+    # Bulk-fetch memberships y derivar estado real (active/frozen/in_grace/expired)
     if members:
         member_ids = [m.id for m in members]
-        today = date.today()
+        gym = await get_gym_settings(db)
 
-        # Query 1: all active memberships
-        active_stmt = select(Membership).where(
-            and_(
-                Membership.member_id.in_(member_ids),
-                Membership.end_date >= today,
-                Membership.status == "active",
-            )
+        all_stmt = select(Membership).where(
+            Membership.member_id.in_(member_ids)
         ).order_by(Membership.end_date.desc())
-        active_result = await db.execute(active_stmt)
-        active_memberships = active_result.scalars().all()
-        active_map: dict = {}
-        for mem in active_memberships:
-            if mem.member_id not in active_map:
-                active_map[mem.member_id] = mem
+        memberships = (await db.execute(all_stmt)).scalars().all()
 
-        # Query 2: most recent membership for members without active one (for expired status)
-        without_active = [mid for mid in member_ids if mid not in active_map]
-        last_map: dict = {}
-        if without_active:
-            last_stmt = select(Membership).where(
-                Membership.member_id.in_(without_active)
-            ).order_by(Membership.member_id, Membership.end_date.desc())
-            last_result = await db.execute(last_stmt)
-            for mem in last_result.scalars().all():
-                if mem.member_id not in last_map:
-                    last_map[mem.member_id] = mem
+        # Por miembro: preferir la membresía vigente (activa/congelada/en gracia);
+        # si no hay, mostrar la más reciente (expirada/cancelada).
+        best_map: dict = {}
+        latest_map: dict = {}
+        for mem in memberships:
+            if mem.member_id not in latest_map:
+                latest_map[mem.member_id] = mem
+            if mem.member_id not in best_map and effective_status(
+                mem, grace_days=gym.grace_days
+            ) in ("active", "frozen", "in_grace"):
+                best_map[mem.member_id] = mem
 
         responses = []
         for m in members:
             data = MemberResponse.model_validate(m)
-            active = active_map.get(m.id)
-            if active:
-                data.membership_status = "active"
-                data.membership_end_date = active.end_date
-                data.membership_plan_name = active.plan_name
+            mem = best_map.get(m.id) or latest_map.get(m.id)
+            if mem:
+                data.membership_status = effective_status(mem, grace_days=gym.grace_days)
+                data.membership_end_date = mem.end_date
+                data.membership_plan_name = mem.plan_name
             else:
-                last = last_map.get(m.id)
-                if last:
-                    data.membership_status = "expired"
-                    data.membership_end_date = last.end_date
-                    data.membership_plan_name = last.plan_name
-                else:
-                    data.membership_status = "none"
+                data.membership_status = "none"
             responses.append(data)
         return responses
 
@@ -118,7 +110,7 @@ async def create_member(
             db,
             member.id,
             plan,
-            payload.membership_start_date or date.today(),
+            payload.membership_start_date or today_bogota(),
             payload.payment_method,
         )
 
@@ -156,18 +148,58 @@ async def get_member_memberships(
     member_id: uuid.UUID,
     db: AsyncSession = Depends(get_tenant_db_from_token),
 ):
-    from app.models.tenant.membership import Membership
-    from app.services.membership_status import effective_status
     result = await db.execute(
         select(Membership).where(Membership.member_id == member_id).order_by(Membership.start_date.desc())
     )
     memberships = result.scalars().all()
+    gym = await get_gym_settings(db)
     responses = []
     for m in memberships:
         data = MembershipResponse.model_validate(m)
-        data.effective_status = effective_status(m)
+        data.effective_status = effective_status(m, grace_days=gym.grace_days)
         responses.append(data)
     return responses
+
+
+@router.post("/{member_id}/renewal-link")
+async def create_renewal_link(
+    member_id: uuid.UUID,
+    payload: RenewalLinkRequest,
+    db: AsyncSession = Depends(get_tenant_db_from_token),
+    current_user=Depends(get_current_staff),
+    slug: str = Depends(get_tenant_slug),
+):
+    """Crea un pago pendiente Wompi + link, con intent de renovar la membresía
+    del plan elegido cuando el pago se confirme."""
+    from decimal import Decimal
+    from app.models.tenant.member_plan import MemberPlan
+    from app.models.tenant.payment import Payment, PaymentMethod, PaymentStatus
+    from app.services.payment_links import create_payment_link_for
+
+    member = (await db.execute(select(Member).where(Member.id == member_id))).scalar_one_or_none()
+    if not member:
+        raise HTTPException(status_code=404, detail="Miembro no encontrado")
+    plan = (await db.execute(select(MemberPlan).where(MemberPlan.id == payload.plan_id))).scalar_one_or_none()
+    if not plan:
+        raise HTTPException(status_code=404, detail="Plan no encontrado")
+
+    payment = Payment(
+        member_id=member_id,
+        amount=Decimal(str(plan.price)),
+        method=PaymentMethod.wompi,
+        status=PaymentStatus.pending,
+        concept=f"Renovación {plan.name}",
+        received_by=current_user.id,
+    )
+    db.add(payment)
+    await db.flush()
+    link = await create_payment_link_for(
+        db, payment, slug, member_name=member.full_name,
+        membership_intent={"member_id": str(member_id), "plan_id": str(plan.id)},
+    )
+    await db.commit()
+    await db.refresh(link)
+    return {"checkout_url": link.checkout_url, "reference": link.reference, "payment_id": str(payment.id)}
 
 
 @router.get("/{member_id}", response_model=MemberResponse)

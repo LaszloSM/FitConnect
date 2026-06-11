@@ -123,8 +123,10 @@ class MembershipResponse(MembershipBase):
     id: uuid.UUID
     created_at: datetime
     updated_at: datetime
+    discount_amount: Optional[Decimal] = None
+    discount_reason: Optional[str] = None
     # Derivado de end_date/status en tiempo de lectura (no persiste un status stale)
-    effective_status: Optional[Literal["active", "expired", "cancelled"]] = None
+    effective_status: Optional[Literal["active", "frozen", "in_grace", "expired", "cancelled"]] = None
 
     class Config:
         from_attributes = True
@@ -173,11 +175,13 @@ class CheckInResponse(BaseModel):
     id: uuid.UUID
     member_id: uuid.UUID
     notes: Optional[str] = None
+    decision: Optional[Literal["allowed", "denied", "override"]] = None
+    denial_reason: Optional[str] = None
     created_at: datetime
     updated_at: datetime
     # Inyectados por el endpoint — no vienen directo de la tabla checkins
     member_name: Optional[str] = None
-    membership_status: Optional[Literal["ok", "expired", "no_membership"]] = None
+    membership_status: Optional[Literal["ok", "in_grace", "expired", "frozen", "no_membership"]] = None
 
     class Config:
         from_attributes = True

@@ -1,8 +1,10 @@
 // Tipos de dominio compartidos — única fuente de verdad para el frontend.
 // Reemplazan las interfaces inline duplicadas en cada *Client.tsx.
 
-export type MembershipStatus = "ok" | "expired" | "no_membership";
-export type MembershipEffectiveStatus = "active" | "expired" | "cancelled";
+export type MembershipStatus = "ok" | "in_grace" | "expired" | "frozen" | "no_membership";
+export type MembershipEffectiveStatus =
+  | "active" | "frozen" | "in_grace" | "expired" | "cancelled";
+export type CheckinDecision = "allowed" | "denied" | "override";
 export type MemberStatus = "active" | "inactive";
 export type PaymentMethod = "cash" | "transfer" | "card" | "wompi";
 export type PaymentStatus = "paid" | "pending" | "failed" | "refunded";
@@ -49,11 +51,16 @@ export interface CheckIn {
   member_id: string;
   member_name?: string | null;
   notes: string | null;
+  decision?: CheckinDecision | null;
+  denial_reason?: string | null;
   created_at: string;
 }
 
 export interface CheckinResult {
+  member_id: string;
   member_name: string | null;
   membership_status: MembershipStatus;
+  decision: CheckinDecision;
+  denial_reason: string | null;
   created_at: string;
 }

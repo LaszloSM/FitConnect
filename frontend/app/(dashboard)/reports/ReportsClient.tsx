@@ -61,6 +61,8 @@ export default function ReportsClient() {
   const [birthdays, setBirthdays] = useState<any[]>([]);
   const [revenueByPlan, setRevenueByPlan] = useState<{ concept: string; total: number }[]>([]);
   const [checkinTrend, setCheckinTrend] = useState<{ week: string; count: number }[]>([]);
+  const [revenueCompare, setRevenueCompare] = useState<{ current: number; previous: number; delta_pct: number | null } | null>(null);
+  const [profit, setProfit] = useState<{ month: string; income: number; expenses: number; profit: number }[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
@@ -79,8 +81,10 @@ export default function ReportsClient() {
       client.get("/api/v1/reports/birthdays"),
       client.get("/api/v1/reports/revenue-by-plan"),
       client.get("/api/v1/reports/checkin-trend"),
+      client.get("/api/v1/reports/revenue-compare"),
+      client.get("/api/v1/reports/profit"),
     ])
-      .then(([ms, pm, at, em, rh, im, bd, rbp, ct]) => {
+      .then(([ms, pm, at, em, rh, im, bd, rbp, ct, rc, pf]) => {
         if (!cancelled) {
           setMemberStatus(ms.data);
           setPaymentMethods(pm.data);
@@ -91,6 +95,8 @@ export default function ReportsClient() {
           setBirthdays(bd.data);
           setRevenueByPlan(rbp.data);
           setCheckinTrend(ct.data);
+          setRevenueCompare(rc.data);
+          setProfit(pf.data);
           setError("");
         }
       })
@@ -154,6 +160,47 @@ export default function ReportsClient() {
       className="space-y-6"
     >
       <PageHeader module="reports" title="Reportes" subtitle="Análisis operativo del gym" />
+
+      {revenueCompare && (
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+          <GlassCard className="p-4">
+            <p className="text-[10px] uppercase tracking-wider text-[var(--text-muted)]">Ingresos este mes</p>
+            <p className="text-lg font-bold text-[var(--text-base)]">{formatCOP(revenueCompare.current)}</p>
+          </GlassCard>
+          <GlassCard className="p-4">
+            <p className="text-[10px] uppercase tracking-wider text-[var(--text-muted)]">Mes anterior</p>
+            <p className="text-lg font-bold text-[var(--text-muted)]">{formatCOP(revenueCompare.previous)}</p>
+          </GlassCard>
+          <GlassCard className="p-4">
+            <p className="text-[10px] uppercase tracking-wider text-[var(--text-muted)]">Variación</p>
+            <p className={`text-lg font-bold ${revenueCompare.delta_pct === null ? "text-[var(--text-muted)]" : revenueCompare.delta_pct >= 0 ? "text-emerald-600 dark:text-emerald-400" : "text-red-500"}`}>
+              {revenueCompare.delta_pct === null ? "—" : `${revenueCompare.delta_pct >= 0 ? "↑" : "↓"} ${Math.abs(revenueCompare.delta_pct)}%`}
+            </p>
+          </GlassCard>
+        </div>
+      )}
+
+      {profit.length > 0 && profit.some((p) => p.expenses > 0) && (
+        <GlassCard className="p-5">
+          <div className="flex items-center gap-2 mb-3">
+            <TrendingUp className="h-4 w-4 text-[var(--color-primary)]" aria-hidden="true" />
+            <h3 className="text-[var(--text-base)] font-semibold text-sm">Utilidad (ingresos − egresos)</h3>
+          </div>
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
+            {profit.map((p) => (
+              <div key={p.month} className="rounded-lg border border-[var(--border-base)] bg-[var(--bg-muted)] p-3">
+                <p className="text-[10px] text-[var(--text-muted)] uppercase">{p.month}</p>
+                <p className={`text-sm font-bold ${p.profit >= 0 ? "text-emerald-600 dark:text-emerald-400" : "text-red-500"}`}>
+                  {formatCOP(p.profit)}
+                </p>
+                <p className="text-[10px] text-[var(--text-muted)]">
+                  +{formatCOP(p.income)} / −{formatCOP(p.expenses)}
+                </p>
+              </div>
+            ))}
+          </div>
+        </GlassCard>
+      )}
 
       <motion.div
         className="grid grid-cols-1 lg:grid-cols-2 gap-4"

@@ -4,16 +4,18 @@ import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { PageHeader } from "@/components/common/PageHeader";
 import { cn } from "@/lib/utils";
-import { User, Building2, Bell, CreditCard, Palette } from "lucide-react";
+import { User, Building2, Bell, CreditCard, Palette, SlidersHorizontal, Plug } from "lucide-react";
 import dynamic from "next/dynamic";
 
 const ProfileSection      = dynamic(() => import("@/components/settings/ProfileSection"));
 const GymSection          = dynamic(() => import("@/components/settings/GymSection"));
+const OperationsSection   = dynamic(() => import("@/components/settings/OperationsSection"));
+const IntegrationsSection = dynamic(() => import("@/components/settings/IntegrationsSection"));
 const NotificationsSection = dynamic(() => import("@/components/settings/NotificationsSection"));
 const PlanSection         = dynamic(() => import("@/components/settings/PlanSection"));
 const AppearanceSection   = dynamic(() => import("@/components/settings/AppearanceSection"));
 
-type TabKey = "profile" | "gym" | "notifications" | "plan" | "appearance";
+type TabKey = "profile" | "gym" | "operations" | "integrations" | "notifications" | "plan" | "appearance";
 
 interface Tab {
   key: TabKey;
@@ -24,6 +26,8 @@ interface Tab {
 const TABS: Tab[] = [
   { key: "profile",       label: "Perfil",          icon: User },
   { key: "gym",           label: "Gimnasio",         icon: Building2 },
+  { key: "operations",    label: "Operación",        icon: SlidersHorizontal },
+  { key: "integrations",  label: "Integraciones",    icon: Plug },
   { key: "notifications", label: "Notificaciones",   icon: Bell },
   { key: "plan",          label: "Plan",             icon: CreditCard },
   { key: "appearance",    label: "Apariencia",       icon: Palette },
@@ -32,6 +36,8 @@ const TABS: Tab[] = [
 const SECTION_MAP: Record<TabKey, React.ComponentType> = {
   profile:       ProfileSection,
   gym:           GymSection,
+  operations:    OperationsSection,
+  integrations:  IntegrationsSection,
   notifications: NotificationsSection,
   plan:          PlanSection,
   appearance:    AppearanceSection,

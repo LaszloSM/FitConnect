@@ -29,8 +29,9 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { Plus, AlertCircle, DollarSign, CheckCircle2, Loader2, Download, Filter } from "lucide-react";
+import { Plus, AlertCircle, DollarSign, CheckCircle2, Loader2, Download, Filter, Wallet, Receipt } from "lucide-react";
 import { format, startOfMonth, endOfMonth } from "date-fns";
+import Link from "next/link";
 import { toast } from "sonner";
 
 interface Payment {
@@ -175,6 +176,38 @@ export default function PaymentsClient() {
     }
   };
 
+  const openReceipt = async (paymentId: string) => {
+    if (!session?.accessToken) return;
+    try {
+      const client = apiClient(session.accessToken as string);
+      const { data } = await client.get(`/api/v1/payments/${paymentId}/receipt`);
+      const html = `<!doctype html><html><head><meta charset="utf-8"><title>Recibo ${data.number}</title>
+        <style>
+          @page { size: 80mm auto; margin: 4mm; }
+          body { font-family: -apple-system, system-ui, sans-serif; width: 72mm; margin: 0 auto; color: #111; }
+          h1 { font-size: 14px; text-align: center; margin: 0 0 2px; }
+          .num { text-align: center; font-size: 12px; color: #555; margin-bottom: 8px; }
+          .row { display: flex; justify-content: space-between; font-size: 12px; padding: 2px 0; }
+          .total { border-top: 1px dashed #999; margin-top: 6px; padding-top: 6px; font-weight: 700; font-size: 14px; }
+          .foot { text-align: center; font-size: 10px; color: #888; margin-top: 10px; }
+        </style></head><body>
+        <h1>Recibo de pago</h1>
+        <div class="num">${data.number}</div>
+        <div class="row"><span>Miembro</span><span>${data.member_name ?? "-"}</span></div>
+        ${data.member_document ? `<div class="row"><span>Documento</span><span>${data.member_document}</span></div>` : ""}
+        <div class="row"><span>Concepto</span><span>${data.concept}</span></div>
+        <div class="row"><span>Método</span><span>${METHOD_LABELS[data.method] ?? data.method ?? "-"}</span></div>
+        <div class="row total"><span>Total</span><span>$${Number(data.amount).toLocaleString("es-CO")}</span></div>
+        <div class="foot">${new Date(data.issued_at).toLocaleString("es-CO")}</div>
+        <script>window.onload = () => window.print();</script>
+        </body></html>`;
+      const w = window.open("", "_blank", "width=380,height=600");
+      if (w) { w.document.write(html); w.document.close(); }
+    } catch (err: any) {
+      toast.error(err.response?.data?.detail ?? "No se pudo abrir el recibo");
+    }
+  };
+
   const exportCSV = () => {
     const rows = [
       ["Miembro", "Concepto", "Monto COP", "Método", "Estado", "Referencia", "Fecha"],
@@ -269,14 +302,23 @@ export default function PaymentsClient() {
           title="Pagos"
           subtitle="Registra y gestiona pagos de miembros"
           action={
-            <DialogTrigger
-              render={
-                <Button className="bg-[var(--color-primary)] text-[var(--color-primary-contrast)] hover:bg-[var(--color-primary-hover)]">
-                  <Plus className="h-4 w-4 mr-2" />
-                  Nuevo pago
-                </Button>
-              }
-            />
+            <div className="flex items-center gap-2">
+              <Link
+                href="/payments/cash"
+                className="flex items-center gap-1.5 px-3 py-2 rounded-lg border border-[var(--border-base)] text-sm font-medium text-[var(--text-muted)] hover:text-[var(--text-base)] hover:bg-[var(--bg-base)] transition-colors"
+              >
+                <Wallet className="h-4 w-4" />
+                Caja
+              </Link>
+              <DialogTrigger
+                render={
+                  <Button className="bg-[var(--color-primary)] text-[var(--color-primary-contrast)] hover:bg-[var(--color-primary-hover)]">
+                    <Plus className="h-4 w-4 mr-2" />
+                    Nuevo pago
+                  </Button>
+                }
+              />
+            </div>
           }
         />
 
@@ -569,19 +611,30 @@ export default function PaymentsClient() {
                       {new Date(p.created_at).toLocaleDateString("es-ES")}
                     </TableCell>
                     <TableCell>
-                      {(p.status === "pending" || p.status === "overdue") && (
-                        <button
-                          onClick={() => markAsPaid(p.id)}
-                          disabled={markingPaid === p.id}
-                          title="Marcar como pagado"
-                          className="h-7 w-7 rounded-lg flex items-center justify-center text-[var(--text-muted)] hover:text-emerald-600 hover:bg-emerald-50 dark:hover:bg-emerald-950/30 transition-colors disabled:opacity-50"
-                        >
-                          {markingPaid === p.id
-                            ? <Loader2 className="h-3.5 w-3.5 animate-spin" />
-                            : <CheckCircle2 className="h-3.5 w-3.5" />
-                          }
-                        </button>
-                      )}
+                      <div className="flex items-center gap-1">
+                        {(p.status === "pending" || p.status === "overdue") && (
+                          <button
+                            onClick={() => markAsPaid(p.id)}
+                            disabled={markingPaid === p.id}
+                            title="Marcar como pagado"
+                            className="h-7 w-7 rounded-lg flex items-center justify-center text-[var(--text-muted)] hover:text-emerald-600 hover:bg-emerald-50 dark:hover:bg-emerald-950/30 transition-colors disabled:opacity-50"
+                          >
+                            {markingPaid === p.id
+                              ? <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                              : <CheckCircle2 className="h-3.5 w-3.5" />
+                            }
+                          </button>
+                        )}
+                        {p.status === "paid" && (
+                          <button
+                            onClick={() => openReceipt(p.id)}
+                            title="Ver recibo"
+                            className="h-7 w-7 rounded-lg flex items-center justify-center text-[var(--text-muted)] hover:text-[var(--color-primary)] hover:bg-[var(--bg-base)] transition-colors"
+                          >
+                            <Receipt className="h-3.5 w-3.5" />
+                          </button>
+                        )}
+                      </div>
                     </TableCell>
                   </TableRow>
                 ))

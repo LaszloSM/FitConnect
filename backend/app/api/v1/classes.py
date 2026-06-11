@@ -42,6 +42,9 @@ async def create_class(
     db.add(gym_class)
     await db.commit()
     await db.refresh(gym_class)
+    # Generar las sesiones futuras de inmediato para que la agenda no salga vacía
+    from app.services.class_sessions import materialize_sessions
+    await materialize_sessions(db, horizon_days=14, gym_class_id=gym_class.id)
     return gym_class
 
 

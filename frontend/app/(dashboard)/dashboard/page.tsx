@@ -9,6 +9,7 @@ import { GlassCard } from "@/components/common/GlassCard";
 import { AreaChartCard } from "@/components/common/AreaChartCard";
 import { EmptyState } from "@/components/common/EmptyState";
 import { PageHeader } from "@/components/common/PageHeader";
+import { OperationsToday } from "@/components/dashboard/OperationsToday";
 import { apiClient } from "@/lib/api";
 import Link from "next/link";
 import {
@@ -295,6 +296,8 @@ export default function DashboardPage() {
           icon={<TrendingUp className="h-full w-full" />}
         />
       </div>
+
+      <OperationsToday />
 
       {/* Charts row */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-6">

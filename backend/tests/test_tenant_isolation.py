@@ -2,6 +2,7 @@
 Verifies that tenant A cannot see data from tenant B.
 Requires the test DB to be running.
 """
+import uuid
 
 
 async def test_tenant_data_isolation(client):
@@ -39,17 +40,17 @@ async def test_tenant_data_isolation(client):
     assert r.status_code == 200
     token_b = r.json()["access_token"]
 
-    # Tenant A creates a member
+    # Tenant A creates a member (email único: la tenant DB persiste entre corridas)
     r = await client.post(
         "/api/v1/members",
         json={
             "full_name": "Member of A",
-            "email": "member@gyma.com",
+            "email": f"member-{uuid.uuid4().hex[:8]}@gyma.com",
             "status": "active",
         },
         headers={"Authorization": f"Bearer {token_a}"},
     )
-    assert r.status_code == 201
+    assert r.status_code == 201, r.text
 
     # Tenant A lists members — should see Member of A (positive check)
     r = await client.get(

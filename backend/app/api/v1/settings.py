@@ -2,13 +2,18 @@ from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
 
+from pydantic import BaseModel, Field
+
 from app.api.deps import (
     get_current_staff,
     get_master_tenant,
     get_master_db,
     get_tenant_db_from_token,
     check_tenant_active,
+    require_role,
 )
+# Alias: en este módulo hay un handler de ruta que también se llama get_gym_settings
+from app.services.gym_settings import get_gym_settings as load_gym_settings
 from app.core.security import hash_password, verify_password
 from app.models.master.tenant import Tenant
 from app.models.tenant.user_staff import UserStaff, UserRole
@@ -22,6 +27,52 @@ from app.schemas.settings import (
 )
 
 router = APIRouter(prefix="/settings", tags=["settings"])
+
+
+# ─── Operations (config operativa por tenant: gracia, zona horaria) ──────────
+
+class OperationsSettingsResponse(BaseModel):
+    grace_days: int
+    timezone: str
+    receipt_prefix: str
+
+
+class OperationsSettingsUpdate(BaseModel):
+    grace_days: int | None = Field(default=None, ge=0, le=30)
+    receipt_prefix: str | None = Field(default=None, min_length=1, max_length=10)
+
+
+@router.get("/operations", response_model=OperationsSettingsResponse)
+async def get_operations_settings(
+    db: AsyncSession = Depends(get_tenant_db_from_token),
+    _: UserStaff = Depends(get_current_staff),
+) -> OperationsSettingsResponse:
+    gym = await load_gym_settings(db)
+    return OperationsSettingsResponse(
+        grace_days=gym.grace_days,
+        timezone=gym.timezone,
+        receipt_prefix=gym.receipt_prefix,
+    )
+
+
+@router.patch("/operations", response_model=OperationsSettingsResponse)
+async def update_operations_settings(
+    payload: OperationsSettingsUpdate,
+    db: AsyncSession = Depends(get_tenant_db_from_token),
+    current_user: UserStaff = Depends(require_role(UserRole.owner)),
+) -> OperationsSettingsResponse:
+    gym = await load_gym_settings(db)
+    if payload.grace_days is not None:
+        gym.grace_days = payload.grace_days
+    if payload.receipt_prefix is not None:
+        gym.receipt_prefix = payload.receipt_prefix
+    await db.commit()
+    await db.refresh(gym)
+    return OperationsSettingsResponse(
+        grace_days=gym.grace_days,
+        timezone=gym.timezone,
+        receipt_prefix=gym.receipt_prefix,
+    )
 
 
 # ─── Profile ─────────────────────────────────────────────────────────────────
@@ -128,6 +179,64 @@ async def update_gym_settings(
         plan=tenant.plan.value if tenant.plan else None,
         operating_hours=tenant.operating_hours,
     )
+
+
+# ─── Integraciones (Wompi, WhatsApp) — secretos cifrados ─────────────────────
+
+class IntegrationsResponse(BaseModel):
+    wompi_public_key: str | None
+    wompi_configured: bool
+    whatsapp_phone_number_id: str | None
+    whatsapp_configured: bool
+
+
+class IntegrationsUpdate(BaseModel):
+    wompi_public_key: str | None = None
+    wompi_private_key: str | None = None
+    wompi_events_secret: str | None = None
+    wompi_integrity_secret: str | None = None
+    whatsapp_phone_number_id: str | None = None
+    whatsapp_access_token: str | None = None
+
+
+def _integrations_response(gym) -> "IntegrationsResponse":
+    return IntegrationsResponse(
+        wompi_public_key=gym.wompi_public_key,
+        wompi_configured=bool(gym.wompi_public_key and gym.wompi_private_key and gym.wompi_events_secret),
+        whatsapp_phone_number_id=gym.whatsapp_phone_number_id,
+        whatsapp_configured=bool(gym.whatsapp_phone_number_id and gym.whatsapp_access_token),
+    )
+
+
+@router.get("/integrations", response_model=IntegrationsResponse)
+async def get_integrations(
+    db: AsyncSession = Depends(get_tenant_db_from_token),
+    _: UserStaff = Depends(require_role(UserRole.owner)),
+) -> IntegrationsResponse:
+    gym = await load_gym_settings(db)
+    return _integrations_response(gym)
+
+
+@router.patch("/integrations", response_model=IntegrationsResponse)
+async def update_integrations(
+    payload: IntegrationsUpdate,
+    db: AsyncSession = Depends(get_tenant_db_from_token),
+    _: UserStaff = Depends(require_role(UserRole.owner)),
+) -> IntegrationsResponse:
+    from app.services.gym_settings import set_secret
+    gym = await load_gym_settings(db)
+    # Claves públicas/ids en claro; secretos cifrados.
+    if payload.wompi_public_key is not None:
+        gym.wompi_public_key = payload.wompi_public_key
+    if payload.whatsapp_phone_number_id is not None:
+        gym.whatsapp_phone_number_id = payload.whatsapp_phone_number_id
+    for field in ("wompi_private_key", "wompi_events_secret", "wompi_integrity_secret", "whatsapp_access_token"):
+        value = getattr(payload, field)
+        if value is not None:
+            set_secret(gym, field, value)
+    await db.commit()
+    await db.refresh(gym)
+    return _integrations_response(gym)
 
 
 # ─── Notifications ────────────────────────────────────────────────────────────

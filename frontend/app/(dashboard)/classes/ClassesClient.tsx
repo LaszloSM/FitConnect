@@ -30,7 +30,8 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { Plus, AlertCircle, Users, ChevronDown, ChevronUp } from "lucide-react";
+import { Plus, AlertCircle, Users, ChevronDown, ChevronUp, CalendarClock } from "lucide-react";
+import Link from "next/link";
 import MemberSelect from "@/components/common/MemberSelect";
 
 interface GymClass {
@@ -253,14 +254,23 @@ export default function ClassesClient() {
           title="Clases"
           subtitle="Gestiona clases grupales del gym"
           action={
-            <DialogTrigger
-              render={
-                <Button className="bg-[var(--color-primary)] text-[var(--color-primary-contrast)] hover:bg-[var(--color-primary-hover)]">
-                  <Plus className="h-4 w-4 mr-2" />
-                  Nueva clase
-                </Button>
-              }
-            />
+            <div className="flex items-center gap-2">
+              <Link
+                href="/classes/agenda"
+                className="flex items-center gap-1.5 px-3 py-2 rounded-lg border border-[var(--border-base)] text-sm font-medium text-[var(--text-muted)] hover:text-[var(--text-base)] hover:bg-[var(--bg-base)] transition-colors"
+              >
+                <CalendarClock className="h-4 w-4" />
+                Agenda
+              </Link>
+              <DialogTrigger
+                render={
+                  <Button className="bg-[var(--color-primary)] text-[var(--color-primary-contrast)] hover:bg-[var(--color-primary-hover)]">
+                    <Plus className="h-4 w-4 mr-2" />
+                    Nueva clase
+                  </Button>
+                }
+              />
+            </div>
           }
         />
 

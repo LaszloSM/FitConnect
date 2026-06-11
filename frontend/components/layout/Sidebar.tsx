@@ -19,11 +19,12 @@ import {
   ChevronLeft,
   LogOut,
   Tag,
+  ScrollText,
 } from "lucide-react";
 import { BrandMark } from "@/components/common/BrandMark";
 
 // ── Nav structure — grouped by purpose so modules feel organized, not cloned ──
-type NavItem = { href: string; label: string; icon: typeof Users };
+type NavItem = { href: string; label: string; icon: typeof Users; ownerOnly?: boolean };
 type NavGroup = { label: string; items: NavItem[] };
 
 const navGroups: NavGroup[] = [
@@ -47,7 +48,10 @@ const navGroups: NavGroup[] = [
   },
   {
     label: "Sistema",
-    items: [{ href: "/settings", label: "Configuración", icon: Settings }],
+    items: [
+      { href: "/audit", label: "Auditoría", icon: ScrollText, ownerOnly: true },
+      { href: "/settings", label: "Configuración", icon: Settings },
+    ],
   },
 ];
 
@@ -192,7 +196,9 @@ export function Sidebar() {
               </AnimatePresence>
 
               <ul className="flex flex-col gap-0.5 list-none m-0 p-0">
-                {group.items.map(({ href, label, icon: Icon }) => {
+                {group.items
+                  .filter((item) => !item.ownerOnly || userRole === "owner")
+                  .map(({ href, label, icon: Icon }) => {
                   const active = isActive(href);
                   return (
                     <li key={href}>

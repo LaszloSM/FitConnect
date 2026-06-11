@@ -53,20 +53,81 @@ export interface Payment {
   updated_at: string;
 }
 
-export type MembershipStatus = "active" | "expired" | "cancelled";
+export type MembershipStatus = "active" | "frozen" | "expired" | "cancelled";
+// Estado derivado en lectura (incluye gracia) — el que muestra la UI
+export type EffectiveMembershipStatus =
+  | "active"
+  | "frozen"
+  | "in_grace"
+  | "expired"
+  | "cancelled";
 
 export interface Membership {
   id: string;
   member_id: string;
   plan_name: string;
   price: string;
+  discount_amount: string | null;
+  discount_reason: string | null;
   start_date: string;
   end_date: string;
   duration_days: number;
   status: MembershipStatus;
+  effective_status: EffectiveMembershipStatus | null;
   notes: string | null;
   created_at: string;
   updated_at: string;
+}
+
+export interface MembershipFreeze {
+  id: string;
+  membership_id: string;
+  start_date: string;
+  end_date: string | null;
+  days_applied: number | null;
+  reason: string | null;
+  created_at: string;
+}
+
+export interface PromoCode {
+  id: string;
+  code: string;
+  discount_type: "percent" | "fixed";
+  value: string;
+  valid_from: string | null;
+  valid_until: string | null;
+  max_uses: number | null;
+  times_used: number;
+  is_active: boolean;
+  description: string | null;
+  created_at: string;
+}
+
+export interface Location {
+  id: string;
+  name: string;
+  address: string;
+  phone: string | null;
+  max_capacity: number;
+  is_active: boolean;
+  created_at: string;
+}
+
+export interface AuditLogEntry {
+  id: string;
+  actor_staff_id: string | null;
+  actor_name: string;
+  action: string;
+  entity_type: string | null;
+  entity_id: string | null;
+  details: Record<string, unknown> | null;
+  created_at: string;
+}
+
+export interface OperationsSettings {
+  grace_days: number;
+  timezone: string;
+  receipt_prefix: string;
 }
 
 export type CheckInType = "entry" | "exit";

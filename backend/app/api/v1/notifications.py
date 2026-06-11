@@ -3,11 +3,35 @@ from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select, func, desc
 
-from app.api.deps import get_tenant_db_from_token
+from app.api.deps import get_tenant_db_from_token, require_role
 from app.schemas.operations import NotificationCreate, NotificationResponse
 from app.models.tenant.notification import Notification
+from app.models.tenant.notification_outbox import NotificationOutbox
+from app.models.tenant.user_staff import UserRole
 
 router = APIRouter(prefix="/notifications", tags=["notifications"])
+
+
+@router.get("/outbox", dependencies=[Depends(require_role(UserRole.owner))])
+async def list_outbox(
+    db: AsyncSession = Depends(get_tenant_db_from_token),
+    limit: int = Query(50, ge=1, le=200),
+):
+    """Log de envíos externos (WhatsApp) con su estado — solo owner."""
+    rows = (await db.execute(
+        select(NotificationOutbox)
+        .where(NotificationOutbox.channel == "whatsapp")
+        .order_by(desc(NotificationOutbox.created_at))
+        .limit(limit)
+    )).scalars().all()
+    return [
+        {
+            "id": str(o.id), "event_type": o.event_type, "recipient_phone": o.recipient_phone,
+            "status": o.status, "attempts": o.attempts, "last_error": o.last_error,
+            "created_at": o.created_at, "sent_at": o.sent_at,
+        }
+        for o in rows
+    ]
 
 
 @router.get("", response_model=list[NotificationResponse])

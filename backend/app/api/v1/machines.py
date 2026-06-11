@@ -105,11 +105,14 @@ async def create_maintenance(
     payload: MaintenanceLogCreate,
     db: AsyncSession = Depends(get_tenant_db_from_token),
 ):
-    result = await db.execute(select(Machine).where(Machine.id == machine_id))
-    if not result.scalar_one_or_none():
+    machine = (await db.execute(select(Machine).where(Machine.id == machine_id))).scalar_one_or_none()
+    if not machine:
         raise HTTPException(status_code=404, detail="Maquina no encontrada")
     log = MaintenanceLog(machine_id=machine_id, **payload.model_dump(exclude={"machine_id"}))
     db.add(log)
+    # Registrar mantenimiento reinicia el contador del preventivo
+    from app.core.timeutil import today_bogota
+    machine.last_maintenance_date = today_bogota()
     await db.commit()
     await db.refresh(log)
     return log

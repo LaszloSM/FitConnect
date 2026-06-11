@@ -5,12 +5,76 @@ from datetime import date, datetime, timedelta
 from decimal import Decimal
 
 from app.api.deps import get_tenant_db_from_token
+from app.core.timeutil import today_bogota
 from app.models.tenant.member import Member, MemberStatus
 from app.models.tenant.payment import Payment, PaymentMethod, PaymentStatus
+from app.models.tenant.expense import Expense
 from app.models.tenant.checkin import CheckIn
 from app.models.tenant.membership import Membership, MembershipStatus
 
 router = APIRouter(prefix="/reports", tags=["reports"])
+
+
+def _month_bounds(year: int, month: int) -> tuple[datetime, datetime]:
+    start = date(year, month, 1)
+    end = date(year + 1, 1, 1) if month == 12 else date(year, month + 1, 1)
+    return datetime.combine(start, datetime.min.time()), datetime.combine(end, datetime.min.time())
+
+
+@router.get("/profit")
+async def profit_report(
+    months: int = Query(6, ge=1, le=24),
+    db: AsyncSession = Depends(get_tenant_db_from_token),
+):
+    """Utilidad mensual: ingresos pagados − egresos, por mes."""
+    today = today_bogota()
+    results = []
+    for i in range(months - 1, -1, -1):
+        m, y = today.month - i, today.year
+        while m <= 0:
+            m += 12
+            y -= 1
+        start_dt, end_dt = _month_bounds(y, m)
+        income = (await db.execute(
+            select(func.coalesce(func.sum(Payment.amount), Decimal("0"))).where(
+                Payment.created_at >= start_dt, Payment.created_at < end_dt,
+                Payment.status == PaymentStatus.paid,
+            )
+        )).scalar() or Decimal("0")
+        expenses = (await db.execute(
+            select(func.coalesce(func.sum(Expense.amount), Decimal("0"))).where(
+                Expense.created_at >= start_dt, Expense.created_at < end_dt,
+            )
+        )).scalar() or Decimal("0")
+        results.append({
+            "month": date(y, m, 1).strftime("%b %Y"),
+            "income": float(income),
+            "expenses": float(expenses),
+            "profit": float(income - expenses),
+        })
+    return results
+
+
+@router.get("/revenue-compare")
+async def revenue_compare_report(db: AsyncSession = Depends(get_tenant_db_from_token)):
+    """Ingresos del mes actual vs mes anterior, con delta porcentual."""
+    today = today_bogota()
+    cur_start, cur_end = _month_bounds(today.year, today.month)
+    pm, py = (12, today.year - 1) if today.month == 1 else (today.month - 1, today.year)
+    prev_start, prev_end = _month_bounds(py, pm)
+
+    async def _sum(start, end):
+        return (await db.execute(
+            select(func.coalesce(func.sum(Payment.amount), Decimal("0"))).where(
+                Payment.created_at >= start, Payment.created_at < end,
+                Payment.status == PaymentStatus.paid,
+            )
+        )).scalar() or Decimal("0")
+
+    current = float(await _sum(cur_start, cur_end))
+    previous = float(await _sum(prev_start, prev_end))
+    delta_pct = round(((current - previous) / previous * 100), 1) if previous else None
+    return {"current": current, "previous": previous, "delta_pct": delta_pct}
 
 
 @router.get("/member-status")
@@ -68,7 +132,7 @@ async def expiring_memberships_report(
         .where(
             Membership.end_date <= cutoff,
             Membership.end_date >= today,
-            Membership.status == MembershipStatus.active,
+            Membership.status == MembershipStatus.active.value,
         )
         .order_by(Membership.end_date)
     )
@@ -310,7 +374,7 @@ async def generate_expiry_notifications(
         .where(
             Membership.end_date <= cutoff,
             Membership.end_date >= today,
-            Membership.status == MembershipStatus.active,
+            Membership.status == MembershipStatus.active.value,
         )
         .order_by(Membership.end_date)
     )

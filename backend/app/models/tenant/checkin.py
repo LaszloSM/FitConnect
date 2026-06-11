@@ -23,3 +23,10 @@ class CheckIn(TenantBase, TenantTimestampMixin):
     # (siempre 'entry'). La UI ya no distingue entrada/salida.
     type: Mapped[CheckInType] = mapped_column(SAEnum(CheckInType), nullable=False, default=CheckInType.entry)
     notes: Mapped[Optional[str]] = mapped_column(String(255), nullable=True)
+    # allowed | denied | override — registramos también los intentos denegados.
+    decision: Mapped[str] = mapped_column(String(20), nullable=False, default="allowed")
+    # Por qué se denegó: expired | frozen | no_membership (None si allowed)
+    denial_reason: Mapped[Optional[str]] = mapped_column(String(50), nullable=True)
+    # Quién autorizó un override (recepcionista) y con qué motivo
+    override_by: Mapped[Optional[uuid.UUID]] = mapped_column(UUID(as_uuid=True), ForeignKey("users.id"), nullable=True)
+    override_reason: Mapped[Optional[str]] = mapped_column(String(255), nullable=True)

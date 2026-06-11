@@ -105,13 +105,22 @@ async def create_tenant(owner_email: str, gym_name: str, city: str, owner_full_n
     # 3. Crear DB física
     await create_database(db_name)
     
-    # 4. Crear tablas en tenant DB (migraciones)
-    # Para MVP simplificado, usamos create_all directo en lugar de Alembic para tenant
-    # Luego en producción usaremos Alembic tenant
+    # 4. Crear tablas en tenant DB (create_all refleja el estado actual de los
+    # modelos) y stampear Alembic en head para que las migraciones futuras
+    # apliquen limpio sin DuplicateColumnError.
     tenant_engine = create_async_engine(connection_string)
     async with tenant_engine.begin() as conn:
         await conn.run_sync(TenantBase.metadata.create_all)
     await tenant_engine.dispose()
+
+    def _stamp_head():
+        alembic_cfg = Config("alembic.ini")
+        alembic_cfg.set_main_option("sqlalchemy.url", connection_string)
+        alembic_cfg.set_main_option("script_location", "migrations/tenant")
+        command.stamp(alembic_cfg, "head")
+
+    loop = asyncio.get_event_loop()
+    await loop.run_in_executor(None, _stamp_head)
     
     # 5. Crear UserStaff (owner) en Tenant DB
     tenant_engine = create_async_engine(connection_string)
