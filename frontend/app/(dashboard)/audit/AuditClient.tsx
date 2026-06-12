@@ -7,12 +7,14 @@ import { apiClient } from "@/lib/api";
 import { GlassCard } from "@/components/common/GlassCard";
 import { PageHeader } from "@/components/common/PageHeader";
 import type { AuditLogEntry } from "@/lib/types";
+import { parseUTC } from "@/lib/format";
 import { ScrollText, ShieldAlert, Loader2 } from "lucide-react";
-import { formatDistanceToNow, format } from "date-fns";
+import { formatDistanceToNow, format, isToday, isYesterday } from "date-fns";
 import { es } from "date-fns/locale";
 
 const ACTION_LABELS: Record<string, string> = {
   "membership.assign": "Asignó membresía",
+  "membership.charge": "Cobró renovación",
   "membership.freeze": "Congeló membresía",
   "membership.unfreeze": "Reactivó membresía",
   "membership.cancel": "Canceló membresía",
@@ -24,7 +26,28 @@ const ACTION_LABELS: Record<string, string> = {
   "payment.wompi_confirmed": "Pago Wompi confirmado",
   "cash.open": "Abrió caja",
   "cash.close": "Cerró caja",
+  "product.create": "Creó producto",
+  "product.update": "Editó producto",
+  "product.archive": "Archivó producto",
+  "product.delete": "Eliminó producto",
+  "kiosk.device_create": "Vinculó dispositivo kiosko",
+  "kiosk.device_revoke": "Revocó dispositivo kiosko",
 };
+
+const ACTION_DOT: Record<string, string> = {
+  membership: "bg-fuchsia-500",
+  checkin: "bg-red-500",
+  payment: "bg-emerald-500",
+  cash: "bg-amber-500",
+  product: "bg-sky-500",
+  kiosk: "bg-violet-500",
+};
+
+function dayLabel(date: Date): string {
+  if (isToday(date)) return "Hoy";
+  if (isYesterday(date)) return "Ayer";
+  return format(date, "EEEE d 'de' MMMM", { locale: es });
+}
 
 const ACTION_FILTERS = [
   { value: "", label: "Todas las acciones" },
@@ -125,30 +148,45 @@ export default function AuditClient() {
             <p className="text-[var(--text-muted)] text-sm">Sin registros de auditoría todavía</p>
           </div>
         ) : (
-          <div className="space-y-1.5">
-            {items.map((entry) => (
-              <div
-                key={entry.id}
-                className="flex items-center gap-3 p-3 rounded-lg border border-[var(--border-base)] bg-[var(--bg-muted)]"
-              >
-                <div className="flex-1 min-w-0">
-                  <p className="text-sm text-[var(--text-base)]">
-                    <span className="font-semibold">{entry.actor_name}</span>{" "}
-                    <span className="text-[var(--text-muted)]">{actionLabel(entry.action).toLowerCase()}</span>
-                  </p>
-                  {detailsSummary(entry.details) && (
-                    <p className="text-[11px] text-[var(--text-muted)] truncate mt-0.5">
-                      {detailsSummary(entry.details)}
-                    </p>
-                  )}
-                </div>
-                <div className="text-right shrink-0">
-                  <p className="text-xs text-[var(--text-muted)]">
-                    {formatDistanceToNow(new Date(entry.created_at), { addSuffix: true, locale: es })}
-                  </p>
-                  <p className="text-[10px] text-[var(--text-muted)]">
-                    {format(new Date(entry.created_at), "d MMM yyyy, HH:mm", { locale: es })}
-                  </p>
+          <div className="space-y-5">
+            {Object.entries(
+              items.reduce<Record<string, AuditLogEntry[]>>((acc, entry) => {
+                const key = format(parseUTC(entry.created_at), "yyyy-MM-dd");
+                (acc[key] ??= []).push(entry);
+                return acc;
+              }, {})
+            ).map(([day, dayItems]) => (
+              <div key={day}>
+                <p className="text-xs font-semibold uppercase tracking-wider text-[var(--text-muted)] mb-2 capitalize">
+                  {dayLabel(parseUTC(day + "T12:00:00Z"))}
+                </p>
+                <div className="relative pl-5 space-y-3">
+                  <span className="absolute left-1.5 top-1 bottom-1 w-px bg-[var(--border-base)]" />
+                  {dayItems.map((entry) => {
+                    const dot = ACTION_DOT[entry.action.split(".")[0]] ?? "bg-slate-400";
+                    return (
+                      <div key={entry.id} className="relative">
+                        <span className={`absolute -left-[0.95rem] top-1.5 h-2 w-2 rounded-full ring-2 ring-[var(--bg-card)] ${dot}`} />
+                        <div className="flex items-baseline justify-between gap-3">
+                          <p className="text-sm text-[var(--text-base)] min-w-0">
+                            <span className="font-semibold">{entry.actor_name}</span>{" "}
+                            <span className="text-[var(--text-muted)]">{actionLabel(entry.action).toLowerCase()}</span>
+                          </p>
+                          <p
+                            className="text-[11px] text-[var(--text-muted)] shrink-0 tabular-nums"
+                            title={formatDistanceToNow(parseUTC(entry.created_at), { addSuffix: true, locale: es })}
+                          >
+                            {format(parseUTC(entry.created_at), "HH:mm")}
+                          </p>
+                        </div>
+                        {detailsSummary(entry.details) && (
+                          <p className="text-[11px] text-[var(--text-muted)] truncate">
+                            {detailsSummary(entry.details)}
+                          </p>
+                        )}
+                      </div>
+                    );
+                  })}
                 </div>
               </div>
             ))}

@@ -6,7 +6,7 @@ import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { motion, type Variants } from "framer-motion";
 import { apiClient } from "@/lib/api";
-import { formatCOP } from "@/lib/format";
+import { formatCOP, formatTimeAgo } from "@/lib/format";
 import { GlassCard } from "@/components/common/GlassCard";
 import { Button } from "@/components/ui/button";
 import {
@@ -42,15 +42,22 @@ import { toast } from "sonner";
 import { formatDistanceToNow, format } from "date-fns";
 import { es } from "date-fns/locale";
 
-type Tab = "info" | "memberships" | "payments" | "checkins" | "qr";
+type Tab = "info" | "timeline" | "memberships" | "payments" | "checkins" | "qr";
 
 const TAB_CONFIG: { key: Tab; label: string; icon: React.ReactNode }[] = [
   { key: "info",        label: "Perfil",       icon: <User className="h-3.5 w-3.5" /> },
+  { key: "timeline",    label: "Actividad",    icon: <Activity className="h-3.5 w-3.5" /> },
   { key: "memberships", label: "Membresías",   icon: <Tag className="h-3.5 w-3.5" /> },
   { key: "payments",    label: "Pagos",         icon: <CreditCard className="h-3.5 w-3.5" /> },
   { key: "checkins",    label: "Check-ins",     icon: <Activity className="h-3.5 w-3.5" /> },
   { key: "qr",          label: "Carné QR",      icon: <QrCode className="h-3.5 w-3.5" /> },
 ];
+
+interface TimelineEvent {
+  type: "checkin" | "payment" | "membership" | "booking";
+  at: string;
+  [key: string]: any;
+}
 
 const STATUS_PILL: Record<string, { label: string; cls: string; icon: React.ReactNode }> = {
   active: {
@@ -118,6 +125,16 @@ export default function MemberDetailClient({ memberId }: { memberId: string }) {
   const [freezeReason, setFreezeReason] = useState("");
   const [actionBusy, setActionBusy] = useState(false);
   const [renewalBusy, setRenewalBusy] = useState(false);
+  const [timeline, setTimeline] = useState<TimelineEvent[] | null>(null);
+
+  useEffect(() => {
+    if (tab !== "timeline" || timeline !== null || !session?.accessToken) return;
+    const client = apiClient(session.accessToken as string);
+    client.get(`/api/v1/members/${memberId}/timeline`)
+      .then((res) => setTimeline(res.data))
+      .catch(() => setTimeline([]));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [tab, session?.accessToken]);
 
   const sendRenewalLink = async (planId: string) => {
     if (!session?.accessToken) return;
@@ -290,6 +307,18 @@ export default function MemberDetailClient({ memberId }: { memberId: string }) {
           <ArrowLeft className="h-4 w-4" />
           Volver
         </button>
+        {member.photo_url ? (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img
+            src={member.photo_url}
+            alt={member.full_name}
+            className="h-14 w-14 rounded-full object-cover shrink-0 ring-2 ring-[var(--border-base)]"
+          />
+        ) : (
+          <span className="h-14 w-14 rounded-full bg-[var(--color-primary)] text-[var(--color-primary-contrast)] text-lg font-bold flex items-center justify-center shrink-0">
+            {(member.full_name?.[0] ?? "?").toUpperCase()}
+          </span>
+        )}
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-3 flex-wrap">
             <h2 className="text-xl font-bold text-[var(--text-base)] font-display truncate">
@@ -383,7 +412,34 @@ export default function MemberDetailClient({ memberId }: { memberId: string }) {
               </span>
             )}
           </div>
-          <p className="text-[var(--text-muted)] text-sm mt-0.5">{member.email}</p>
+          <p className="text-[var(--text-muted)] text-sm mt-0.5">
+            {member.email}
+            {member.id_number && (
+              <span className="ml-2 font-mono text-xs">
+                {member.id_type ?? "CC"} {member.id_number}
+              </span>
+            )}
+          </p>
+        </div>
+        <div className="flex items-center gap-2 shrink-0">
+          {member.phone && (
+            <a
+              href={`https://wa.me/${member.phone.replace(/\D/g, "")}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              title="WhatsApp"
+              className="h-9 w-9 rounded-lg border border-[var(--border-base)] flex items-center justify-center text-[var(--text-muted)] hover:text-emerald-600 hover:border-emerald-300 transition-colors"
+            >
+              <Phone className="h-4 w-4" />
+            </a>
+          )}
+          <button
+            onClick={() => router.push(`/payments?member=${memberId}`)}
+            className="flex items-center gap-1.5 h-9 px-3 rounded-lg bg-[var(--color-primary)] text-[var(--color-primary-contrast)] text-sm font-semibold hover:bg-[var(--color-primary-hover)] transition-colors"
+          >
+            <CreditCard className="h-4 w-4" />
+            Cobrar
+          </button>
         </div>
       </div>
 
@@ -750,6 +806,68 @@ export default function MemberDetailClient({ memberId }: { memberId: string }) {
                   <p className="text-[var(--text-muted)] text-xs">
                     El QR se genera automáticamente para nuevos miembros.
                   </p>
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* ACTIVIDAD — timeline unificado */}
+          {tab === "timeline" && (
+            <div className="space-y-0">
+              {timeline === null ? (
+                <div className="space-y-2">
+                  {Array.from({ length: 5 }).map((_, i) => (
+                    <div key={i} className="skeleton h-12 rounded-lg" />
+                  ))}
+                </div>
+              ) : timeline.length === 0 ? (
+                <p className="text-[var(--text-muted)] text-sm py-4 text-center">Sin actividad registrada</p>
+              ) : (
+                <div className="relative pl-6">
+                  <span className="absolute left-2 top-2 bottom-2 w-px bg-[var(--border-base)]" />
+                  {timeline.map((ev, i) => {
+                    const dot =
+                      ev.type === "payment"
+                        ? "bg-emerald-500"
+                        : ev.type === "membership"
+                        ? "bg-fuchsia-500"
+                        : ev.type === "booking"
+                        ? "bg-violet-500"
+                        : ev.decision === "denied"
+                        ? "bg-red-500"
+                        : "bg-sky-500";
+                    let title = "";
+                    let detail = "";
+                    if (ev.type === "checkin") {
+                      title =
+                        ev.decision === "denied"
+                          ? "Acceso denegado"
+                          : ev.decision === "override"
+                          ? "Entrada autorizada por recepción"
+                          : "Entró al gym";
+                      detail = ev.source === "kiosk" ? "Kiosko" : ev.source === "qr" ? "QR" : "Recepción";
+                    } else if (ev.type === "payment") {
+                      title = `${ev.concept} — ${formatCOP(ev.amount)}`;
+                      detail = ev.status === "paid" ? "Pagado" : ev.status === "pending" ? "Pendiente" : ev.status;
+                    } else if (ev.type === "membership") {
+                      title = `Membresía ${ev.plan_name}`;
+                      detail = `${format(new Date(ev.start_date + "T12:00"), "d MMM", { locale: es })} → ${format(new Date(ev.end_date + "T12:00"), "d MMM yyyy", { locale: es })} · ${formatCOP(ev.price)}`;
+                    } else if (ev.type === "booking") {
+                      title = `Reserva: ${ev.class_name}`;
+                      detail = `${format(new Date(ev.session_date + "T12:00"), "d MMM", { locale: es })}${ev.start_time ? ` ${ev.start_time.slice(0, 5)}` : ""} · ${
+                        ev.status === "attended" ? "asistió" : ev.status === "no_show" ? "no vino" : ev.status === "cancelled" ? "cancelada" : ev.status === "waitlisted" ? "lista de espera" : "reservada"
+                      }`;
+                    }
+                    return (
+                      <div key={`${ev.type}-${ev.at}-${i}`} className="relative pb-4">
+                        <span className={`absolute -left-[1.18rem] top-1.5 h-2.5 w-2.5 rounded-full ring-2 ring-[var(--bg-card)] ${dot}`} />
+                        <p className="text-sm font-medium text-[var(--text-base)] leading-tight">{title}</p>
+                        <p className="text-xs text-[var(--text-muted)]">
+                          {detail} · {formatTimeAgo(ev.at)}
+                        </p>
+                      </div>
+                    );
+                  })}
                 </div>
               )}
             </div>

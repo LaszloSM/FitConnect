@@ -208,6 +208,84 @@ async def get_billing_summary(
     return summary
 
 
+@router.get("/{member_id}/timeline")
+async def get_member_timeline(
+    member_id: uuid.UUID,
+    db: AsyncSession = Depends(get_tenant_db_from_token),
+    limit: int = Query(60, ge=1, le=200),
+):
+    """Actividad unificada del miembro: check-ins, pagos, membresías y reservas,
+    en orden cronológico inverso — la vista CRM del perfil."""
+    from app.models.tenant.checkin import CheckIn
+    from app.models.tenant.payment import Payment
+    from app.models.tenant.class_session import ClassSession
+    from app.models.tenant.gym_class import GymClass
+    from app.models.tenant.session_booking import SessionBooking
+
+    events: list[dict] = []
+
+    checkins = (await db.execute(
+        select(CheckIn).where(CheckIn.member_id == member_id)
+        .order_by(CheckIn.created_at.desc()).limit(limit)
+    )).scalars().all()
+    for c in checkins:
+        events.append({
+            "type": "checkin",
+            "at": c.created_at.isoformat(),
+            "decision": c.decision,
+            "denial_reason": c.denial_reason,
+            "source": c.source,
+        })
+
+    payments = (await db.execute(
+        select(Payment).where(Payment.member_id == member_id)
+        .order_by(Payment.created_at.desc()).limit(limit)
+    )).scalars().all()
+    for p in payments:
+        events.append({
+            "type": "payment",
+            "at": p.created_at.isoformat(),
+            "amount": str(p.amount),
+            "concept": p.concept,
+            "status": p.status.value,
+            "method": p.method.value if p.method else None,
+        })
+
+    memberships = (await db.execute(
+        select(Membership).where(Membership.member_id == member_id)
+        .order_by(Membership.created_at.desc()).limit(limit)
+    )).scalars().all()
+    for m in memberships:
+        events.append({
+            "type": "membership",
+            "at": m.created_at.isoformat(),
+            "plan_name": m.plan_name,
+            "start_date": m.start_date.isoformat(),
+            "end_date": m.end_date.isoformat(),
+            "price": str(m.price),
+        })
+
+    bookings = (await db.execute(
+        select(SessionBooking, ClassSession, GymClass.name)
+        .join(ClassSession, ClassSession.id == SessionBooking.session_id)
+        .join(GymClass, GymClass.id == ClassSession.gym_class_id)
+        .where(SessionBooking.member_id == member_id)
+        .order_by(SessionBooking.created_at.desc()).limit(limit)
+    )).all()
+    for b, s, class_name in bookings:
+        events.append({
+            "type": "booking",
+            "at": b.created_at.isoformat(),
+            "class_name": class_name,
+            "session_date": s.session_date.isoformat(),
+            "start_time": s.start_time.isoformat() if s.start_time else None,
+            "status": b.status,
+        })
+
+    events.sort(key=lambda e: e["at"], reverse=True)
+    return events[:limit]
+
+
 @router.get("/missing-id-number/count")
 async def count_missing_id_number(
     db: AsyncSession = Depends(get_tenant_db_from_token),
