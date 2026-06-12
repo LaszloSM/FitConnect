@@ -319,22 +319,31 @@ async def charge_membership(
         discount_reason=data.discount_reason,
         promo_code=data.promo_code,
     )
-    payment.status = PaymentStatus.paid
     payment.received_by = current_user.id
-    if shift is not None:
-        payment.shift_id = shift.id
+    receipt_number = None
+    if data.method == "transfer":
+        # Queda pendiente: el recibo se emite cuando el staff confirma la plata
+        payment.status = PaymentStatus.pending
+    else:
+        payment.status = PaymentStatus.paid
+        if shift is not None:
+            payment.shift_id = shift.id
+        await db.flush()
+        receipt = await issue_receipt(db, payment)
+        receipt_number = receipt.snapshot.get("receipt_number")
     await db.flush()
-    receipt = await issue_receipt(db, payment)
     audit(db, current_user, "membership.charge", "membership", membership.id, {
         "member_id": str(member.id), "plan_name": plan.name,
         "price": str(membership.price), "method": data.method,
+        "payment_status": payment.status.value,
     })
     await db.commit()
     await db.refresh(membership)
     return {
         "membership_id": str(membership.id),
         "payment_id": str(payment.id),
-        "receipt_number": receipt.snapshot.get("receipt_number"),
+        "payment_status": payment.status.value,
+        "receipt_number": receipt_number,
         "start_date": membership.start_date.isoformat(),
         "end_date": membership.end_date.isoformat(),
         "amount": str(payment.amount),

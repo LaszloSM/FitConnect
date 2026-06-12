@@ -18,9 +18,20 @@ import { useApiResource } from "@/hooks/useApiResource";
 import { cn } from "@/lib/utils";
 import { openReceipt } from "./shared";
 import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import type { TransferAccount } from "@/components/settings/BillingSection";
+import {
   Banknote,
+  CheckCircle2,
+  Copy,
   CreditCard,
   Landmark,
+  Link2,
   Loader2,
   Minus,
   Package,
@@ -28,6 +39,7 @@ import {
   Printer,
   Search,
   ShoppingCart,
+  Smartphone,
   Trash2,
   UserRound,
   Zap,
@@ -69,6 +81,115 @@ const METHODS: { key: Method; label: string; icon: typeof Banknote }[] = [
   { key: "transfer", label: "Transferencia", icon: Landmark },
   { key: "card", label: "Tarjeta", icon: CreditCard },
 ];
+
+function TransferPendingDialog({
+  open,
+  onClose,
+  accounts,
+  amount,
+  paymentId,
+  onConfirmed,
+}: {
+  open: boolean;
+  onClose: () => void;
+  accounts: TransferAccount[];
+  amount: number;
+  paymentId: string | null;
+  onConfirmed: () => void;
+}) {
+  const { data: session } = useSession();
+  const [confirming, setConfirming] = useState(false);
+
+  const confirmReceived = async () => {
+    if (!session?.accessToken || !paymentId) return;
+    setConfirming(true);
+    try {
+      const client = apiClient(session.accessToken as string);
+      await client.patch(`/api/v1/payments/${paymentId}/mark-paid`);
+      toast.success("Transferencia confirmada — recibo emitido", {
+        action: { label: "Imprimir", onClick: () => openReceipt(client, paymentId) },
+        duration: 8000,
+      });
+      onConfirmed();
+      onClose();
+    } catch (err: any) {
+      toast.error(err.response?.data?.detail ?? "Error confirmando el pago");
+    } finally {
+      setConfirming(false);
+    }
+  };
+
+  return (
+    <Dialog open={open} onOpenChange={(o) => !o && onClose()}>
+      <DialogContent>
+        <DialogHeader>
+          <DialogTitle>Transferencia por {formatCOP(amount)}</DialogTitle>
+          <DialogDescription>
+            El pago quedó <strong>pendiente</strong>. Muestra estas cuentas al cliente y confirma
+            cuando veas la plata. También queda en Historial para confirmarla después.
+          </DialogDescription>
+        </DialogHeader>
+
+        {accounts.length === 0 ? (
+          <p className="text-sm text-amber-600 dark:text-amber-400">
+            No hay cuentas de recaudo registradas — agrégalas en Ajustes › Recaudo.
+          </p>
+        ) : (
+          <div className="space-y-2">
+            {accounts.map((acc) => (
+              <div
+                key={`${acc.type}-${acc.account_number}`}
+                className="flex items-center gap-3 p-3 rounded-lg border border-[var(--border-base)] bg-[var(--bg-base)]"
+              >
+                {acc.type === "nequi" || acc.type === "daviplata" ? (
+                  <Smartphone className="h-4 w-4 text-[var(--text-muted)] shrink-0" />
+                ) : (
+                  <Landmark className="h-4 w-4 text-[var(--text-muted)] shrink-0" />
+                )}
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm font-medium text-[var(--text-base)] truncate">{acc.label}</p>
+                  <p className="text-xs text-[var(--text-muted)] font-mono truncate">
+                    {acc.account_number} · {acc.holder_name}
+                  </p>
+                </div>
+                <button
+                  type="button"
+                  title="Copiar número"
+                  onClick={() => {
+                    navigator.clipboard.writeText(acc.account_number).catch(() => {});
+                    toast.success("Número copiado");
+                  }}
+                  className="h-7 w-7 rounded-lg flex items-center justify-center text-[var(--text-muted)] hover:text-[var(--text-base)] hover:bg-[var(--bg-muted)] transition-colors"
+                >
+                  <Copy className="h-3.5 w-3.5" />
+                </button>
+              </div>
+            ))}
+          </div>
+        )}
+
+        <div className="flex gap-2 justify-end">
+          <Button variant="outline" onClick={onClose} className="text-[var(--text-muted)]">
+            Dejar pendiente
+          </Button>
+          <Button
+            onClick={confirmReceived}
+            disabled={confirming || !paymentId}
+            className="bg-emerald-600 hover:bg-emerald-700 text-white font-semibold"
+          >
+            {confirming ? (
+              <Loader2 className="h-4 w-4 animate-spin" />
+            ) : (
+              <>
+                <CheckCircle2 className="h-4 w-4 mr-1.5" /> Ya llegó — confirmar
+              </>
+            )}
+          </Button>
+        </div>
+      </DialogContent>
+    </Dialog>
+  );
+}
 
 function MethodPicker({ value, onChange }: { value: Method; onChange: (m: Method) => void }) {
   return (
@@ -114,6 +235,47 @@ export function PosTab({
   const [cart, setCart] = useState<Record<string, number>>({});
   const [selling, setSelling] = useState(false);
 
+  const [transferAccounts, setTransferAccounts] = useState<TransferAccount[]>([]);
+  const [transferDialog, setTransferDialog] = useState<{ amount: number; paymentId: string } | null>(null);
+  const [sendingWompi, setSendingWompi] = useState(false);
+
+  useEffect(() => {
+    if (!session?.accessToken) return;
+    const client = apiClient(session.accessToken as string);
+    client
+      .get("/api/v1/settings/billing")
+      .then((res) => setTransferAccounts(res.data.transfer_accounts ?? []))
+      .catch(() => {});
+  }, [session]);
+
+  const sendWompiLink = async () => {
+    if (!session?.accessToken || !summary?.renewal?.plan_id) return;
+    setSendingWompi(true);
+    const client = apiClient(session.accessToken as string);
+    try {
+      const { data } = await client.post(`/api/v1/members/${summary.member_id}/renewal-link`, {
+        plan_id: summary.renewal.plan_id,
+      });
+      if (!data.checkout_url) {
+        toast.error("Wompi no está configurado en Ajustes › Integraciones");
+        return;
+      }
+      await navigator.clipboard.writeText(data.checkout_url).catch(() => {});
+      const phone = (summary.phone ?? "").replace(/\D/g, "");
+      if (phone) {
+        const text = encodeURIComponent(
+          `Hola ${summary.member_name.split(" ")[0]}, renueva tu membresía aquí: ${data.checkout_url}`
+        );
+        window.open(`https://wa.me/${phone}?text=${text}`, "_blank");
+      }
+      toast.success("Link de pago Wompi creado y copiado");
+    } catch (err: any) {
+      toast.error(err.response?.data?.detail ?? "No se pudo generar el link");
+    } finally {
+      setSendingWompi(false);
+    }
+  };
+
   useEffect(() => {
     if (preselectedMember) setMemberId(preselectedMember);
   }, [preselectedMember]);
@@ -151,10 +313,14 @@ export function PosTab({
         plan_id: summary.renewal.plan_id,
         method,
       });
-      toast.success(`Cobrado ${formatCOP(data.amount)} — recibo ${data.receipt_number}`, {
-        action: { label: "Imprimir", onClick: () => openReceipt(client, data.payment_id) },
-        duration: 8000,
-      });
+      if (data.payment_status === "pending") {
+        setTransferDialog({ amount: Number(data.amount), paymentId: data.payment_id });
+      } else {
+        toast.success(`Cobrado ${formatCOP(data.amount)} — recibo ${data.receipt_number}`, {
+          action: { label: "Imprimir", onClick: () => openReceipt(client, data.payment_id) },
+          duration: 8000,
+        });
+      }
       await refreshSummary();
       onCharged?.();
     } catch (err: any) {
@@ -177,10 +343,14 @@ export function PosTab({
         status: "paid",
         concept: `Abono ${summary.membership.plan_name}`,
       });
-      toast.success(`Abono de ${formatCOP(partialAmount)} registrado`, {
-        action: { label: "Imprimir", onClick: () => openReceipt(client, data.id) },
-        duration: 8000,
-      });
+      if (data.status === "pending") {
+        setTransferDialog({ amount: Number(data.amount), paymentId: data.id });
+      } else {
+        toast.success(`Abono de ${formatCOP(partialAmount)} registrado`, {
+          action: { label: "Imprimir", onClick: () => openReceipt(client, data.id) },
+          duration: 8000,
+        });
+      }
       setPartialAmount(0);
       await refreshSummary();
       onCharged?.();
@@ -232,10 +402,14 @@ export function PosTab({
         concept: "Venta de productos",
         items: cartItems.map(({ product, qty }) => ({ product_id: product.id, quantity: qty })),
       });
-      toast.success(`Venta de ${formatCOP(data.amount)} registrada`, {
-        action: { label: "Imprimir", onClick: () => openReceipt(client, data.id) },
-        duration: 8000,
-      });
+      if (data.status === "pending") {
+        setTransferDialog({ amount: Number(data.amount), paymentId: data.id });
+      } else {
+        toast.success(`Venta de ${formatCOP(data.amount)} registrada`, {
+          action: { label: "Imprimir", onClick: () => openReceipt(client, data.id) },
+          duration: 8000,
+        });
+      }
       setCart({});
       await products.refetch();
       onCharged?.();
@@ -254,6 +428,17 @@ export function PosTab({
 
   return (
     <div className="grid gap-4 lg:grid-cols-5">
+      <TransferPendingDialog
+        open={transferDialog !== null}
+        onClose={() => setTransferDialog(null)}
+        accounts={transferAccounts}
+        amount={transferDialog?.amount ?? 0}
+        paymentId={transferDialog?.paymentId ?? null}
+        onConfirmed={() => {
+          void refreshSummary();
+          onCharged?.();
+        }}
+      />
       {/* Cobro rápido */}
       <GlassCard className="p-4 lg:col-span-2 space-y-4 self-start">
         <div className="flex items-center gap-2">
@@ -319,19 +504,35 @@ export function PosTab({
               <MethodPicker value={method} onChange={setMethod} />
 
               {summary.renewal && (
-                <Button
-                  onClick={chargeRenewal}
-                  disabled={charging || !summary.renewal.plan_id}
-                  className="w-full h-12 text-base bg-[var(--color-primary)] text-[var(--color-primary-contrast)] font-bold hover:bg-[var(--color-primary-hover)]"
-                >
-                  {charging ? (
-                    <Loader2 className="h-4 w-4 animate-spin" />
-                  ) : (
-                    <>
-                      Cobrar {summary.renewal.plan_name} · {formatCOP(summary.renewal.price)}
-                    </>
-                  )}
-                </Button>
+                <>
+                  <Button
+                    onClick={chargeRenewal}
+                    disabled={charging || !summary.renewal.plan_id}
+                    className="w-full h-12 text-base bg-[var(--color-primary)] text-[var(--color-primary-contrast)] font-bold hover:bg-[var(--color-primary-hover)]"
+                  >
+                    {charging ? (
+                      <Loader2 className="h-4 w-4 animate-spin" />
+                    ) : (
+                      <>
+                        Cobrar {summary.renewal.plan_name} · {formatCOP(summary.renewal.price)}
+                      </>
+                    )}
+                  </Button>
+                  <Button
+                    variant="outline"
+                    onClick={sendWompiLink}
+                    disabled={sendingWompi || !summary.renewal.plan_id}
+                    className="w-full h-9 text-sm text-[var(--text-muted)] hover:text-[var(--text-base)]"
+                  >
+                    {sendingWompi ? (
+                      <Loader2 className="h-4 w-4 animate-spin" />
+                    ) : (
+                      <>
+                        <Link2 className="h-3.5 w-3.5 mr-1.5" /> Enviar link de pago Wompi
+                      </>
+                    )}
+                  </Button>
+                </>
               )}
 
               {ms && Number(ms.balance_due) > 0 && (

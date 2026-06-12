@@ -95,6 +95,7 @@ class ReceivableOut(BaseModel):
     member_id: uuid.UUID
     member_name: str
     phone: Optional[str] = None
+    plan_id: Optional[uuid.UUID] = None  # None si el plan fue archivado/borrado
     plan_name: str
     end_date: date
     effective_status: str

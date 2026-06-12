@@ -12,7 +12,7 @@ import { formatCOP, formatDate } from "@/lib/format";
 import { cn } from "@/lib/utils";
 import { METHOD_LABELS, openReceipt, type PaymentRow } from "./shared";
 import { format, startOfMonth, endOfMonth } from "date-fns";
-import { CheckCircle2, Download, Filter, Loader2, Receipt } from "lucide-react";
+import { CheckCircle2, Download, Filter, Loader2, Receipt, XCircle } from "lucide-react";
 
 type StatusFilter = "" | "paid" | "pending" | "failed";
 
@@ -74,6 +74,19 @@ export function HistoryTab({ refreshSignal }: { refreshSignal: number }) {
       toast.error(err.response?.data?.detail ?? "Error actualizando pago");
     } finally {
       setMarkingPaid(null);
+    }
+  };
+
+  const voidPayment = async (paymentId: string) => {
+    if (!session?.accessToken) return;
+    if (!window.confirm("¿Anular este pago pendiente? Úsalo cuando la transferencia nunca llegó.")) return;
+    try {
+      const client = apiClient(session.accessToken as string);
+      await client.post(`/api/v1/payments/${paymentId}/void`);
+      toast.success("Pago anulado");
+      setPayments((prev) => prev.map((p) => (p.id === paymentId ? { ...p, status: "failed" } : p)));
+    } catch (err: any) {
+      toast.error(err.response?.data?.detail ?? "Error anulando el pago");
     }
   };
 
@@ -144,18 +157,27 @@ export function HistoryTab({ refreshSignal }: { refreshSignal: number }) {
       cell: (p) => (
         <div className="flex items-center justify-end gap-1">
           {p.status === "pending" && (
-            <button
-              onClick={() => markAsPaid(p.id)}
-              disabled={markingPaid === p.id}
-              title="Marcar como pagado"
-              className="h-7 w-7 rounded-lg flex items-center justify-center text-[var(--text-muted)] hover:text-emerald-600 hover:bg-emerald-50 dark:hover:bg-emerald-950/30 transition-colors disabled:opacity-50"
-            >
-              {markingPaid === p.id ? (
-                <Loader2 className="h-3.5 w-3.5 animate-spin" />
-              ) : (
-                <CheckCircle2 className="h-3.5 w-3.5" />
-              )}
-            </button>
+            <>
+              <button
+                onClick={() => markAsPaid(p.id)}
+                disabled={markingPaid === p.id}
+                title="Confirmar pago recibido"
+                className="h-7 w-7 rounded-lg flex items-center justify-center text-[var(--text-muted)] hover:text-emerald-600 hover:bg-emerald-50 dark:hover:bg-emerald-950/30 transition-colors disabled:opacity-50"
+              >
+                {markingPaid === p.id ? (
+                  <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                ) : (
+                  <CheckCircle2 className="h-3.5 w-3.5" />
+                )}
+              </button>
+              <button
+                onClick={() => voidPayment(p.id)}
+                title="Anular pago (la plata nunca llegó)"
+                className="h-7 w-7 rounded-lg flex items-center justify-center text-[var(--text-muted)] hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-950/30 transition-colors"
+              >
+                <XCircle className="h-3.5 w-3.5" />
+              </button>
+            </>
           )}
           {p.status === "paid" && session?.accessToken && (
             <button

@@ -1,6 +1,6 @@
 import uuid
 from sqlalchemy import String, Integer
-from sqlalchemy.dialects.postgresql import UUID
+from sqlalchemy.dialects.postgresql import UUID, JSONB
 from sqlalchemy.orm import mapped_column, Mapped
 from typing import Optional
 from app.db.tenant_base import TenantBase, TenantTimestampMixin
@@ -26,3 +26,12 @@ class GymSettings(TenantBase, TenantTimestampMixin):
 
     whatsapp_phone_number_id: Mapped[Optional[str]] = mapped_column(String(100), nullable=True)
     whatsapp_access_token: Mapped[Optional[str]] = mapped_column(String(1000), nullable=True)
+
+    # Cuentas de recaudo para transferencias manuales (Nequi, Daviplata, bancos):
+    # lista de {type, label, account_number, holder_name}
+    transfer_accounts: Mapped[Optional[list]] = mapped_column(JSONB, nullable=True)
+
+    # Datos fiscales — base para facturación electrónica DIAN (fase posterior)
+    legal_name: Mapped[Optional[str]] = mapped_column(String(200), nullable=True)
+    nit: Mapped[Optional[str]] = mapped_column(String(30), nullable=True)
+    tax_regime: Mapped[Optional[str]] = mapped_column(String(50), nullable=True)

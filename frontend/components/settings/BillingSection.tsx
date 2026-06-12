@@ -1,0 +1,289 @@
+"use client";
+/* eslint-disable @typescript-eslint/no-explicit-any */
+
+import { useEffect, useState } from "react";
+import { useSession } from "next-auth/react";
+import { toast } from "sonner";
+import { GlassCard } from "@/components/common/GlassCard";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { apiClient } from "@/lib/api";
+import { Landmark, Lock, Plus, Smartphone, Trash2, Loader2, FileText } from "lucide-react";
+
+const inputCls =
+  "bg-[var(--bg-base)] border-[var(--border-base)] text-[var(--text-base)] placeholder:text-[var(--text-muted)]";
+
+export interface TransferAccount {
+  type: "nequi" | "daviplata" | "bancolombia" | "bank";
+  label: string;
+  account_number: string;
+  holder_name: string;
+}
+
+export const ACCOUNT_TYPES: { key: TransferAccount["type"]; label: string }[] = [
+  { key: "nequi", label: "Nequi" },
+  { key: "daviplata", label: "Daviplata" },
+  { key: "bancolombia", label: "Bancolombia" },
+  { key: "bank", label: "Otro banco" },
+];
+
+const EMPTY_ACCOUNT: TransferAccount = { type: "nequi", label: "", account_number: "", holder_name: "" };
+
+export default function BillingSection() {
+  const { data: session } = useSession();
+  const [accounts, setAccounts] = useState<TransferAccount[]>([]);
+  const [legalName, setLegalName] = useState("");
+  const [nit, setNit] = useState("");
+  const [taxRegime, setTaxRegime] = useState("");
+  const [newAccount, setNewAccount] = useState<TransferAccount>(EMPTY_ACCOUNT);
+  const [showNew, setShowNew] = useState(false);
+  const [saving, setSaving] = useState(false);
+
+  const isOwner = (session as any)?.role === "owner" || (session?.user as any)?.role === "owner";
+
+  useEffect(() => {
+    if (!session?.accessToken) return;
+    const client = apiClient(session.accessToken as string);
+    client
+      .get("/api/v1/settings/billing")
+      .then((res) => {
+        setAccounts(res.data.transfer_accounts ?? []);
+        setLegalName(res.data.legal_name ?? "");
+        setNit(res.data.nit ?? "");
+        setTaxRegime(res.data.tax_regime ?? "");
+      })
+      .catch(() => toast.error("Error cargando configuración de recaudo"));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [session]);
+
+  const persist = async (nextAccounts: TransferAccount[], okMessage: string) => {
+    if (!session?.accessToken) return;
+    setSaving(true);
+    try {
+      const client = apiClient(session.accessToken as string);
+      const res = await client.patch("/api/v1/settings/billing", { transfer_accounts: nextAccounts });
+      setAccounts(res.data.transfer_accounts ?? []);
+      toast.success(okMessage);
+    } catch (err: any) {
+      const detail = err.response?.data?.detail;
+      toast.error(typeof detail === "string" ? detail : "Error guardando cuentas");
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const handleAddAccount = async (e: React.FormEvent) => {
+    e.preventDefault();
+    await persist([...accounts, newAccount], "Cuenta de recaudo agregada");
+    setNewAccount(EMPTY_ACCOUNT);
+    setShowNew(false);
+  };
+
+  const handleRemoveAccount = async (idx: number) => {
+    const acc = accounts[idx];
+    if (!window.confirm(`¿Quitar la cuenta "${acc.label || acc.account_number}"?`)) return;
+    await persist(accounts.filter((_, i) => i !== idx), "Cuenta eliminada");
+  };
+
+  const handleSaveFiscal = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!session?.accessToken) return;
+    setSaving(true);
+    try {
+      const client = apiClient(session.accessToken as string);
+      await client.patch("/api/v1/settings/billing", {
+        legal_name: legalName || null,
+        nit: nit || null,
+        tax_regime: taxRegime || null,
+      });
+      toast.success("Datos fiscales guardados");
+    } catch (err: any) {
+      const detail = err.response?.data?.detail;
+      toast.error(typeof detail === "string" ? detail : "Error guardando datos fiscales");
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  return (
+    <GlassCard className="p-6 space-y-8">
+      {!isOwner && (
+        <div className="flex items-center gap-2 px-3 py-2.5 bg-amber-50 dark:bg-amber-950/20 border border-amber-200 dark:border-amber-900/40 rounded-lg">
+          <Lock className="h-4 w-4 text-amber-500 shrink-0" aria-hidden="true" />
+          <p className="text-sm text-amber-700 dark:text-amber-400">
+            Solo el propietario puede editar las cuentas de recaudo.
+          </p>
+        </div>
+      )}
+
+      <div className="space-y-4">
+        <div className="flex items-center justify-between">
+          <div>
+            <h3 className="text-sm font-semibold text-[var(--text-base)]">Cuentas para transferencias</h3>
+            <p className="text-xs text-[var(--text-muted)] mt-0.5">
+              Recepción las muestra al cliente cuando cobra por transferencia (Nequi, Daviplata, banco)
+            </p>
+          </div>
+          {isOwner && (
+            <Button
+              type="button"
+              onClick={() => setShowNew(!showNew)}
+              className="bg-[var(--color-primary)] text-[var(--color-primary-contrast)] font-semibold hover:bg-[var(--color-primary-hover)] h-8 text-xs"
+            >
+              <Plus className="h-3.5 w-3.5 mr-1" /> Agregar cuenta
+            </Button>
+          )}
+        </div>
+
+        {showNew && (
+          <form
+            onSubmit={handleAddAccount}
+            className="grid grid-cols-1 sm:grid-cols-2 gap-3 p-4 rounded-lg border border-[var(--border-base)] bg-[var(--bg-base)]"
+          >
+            <div className="space-y-1">
+              <Label className="text-[var(--text-muted)] text-xs">Tipo</Label>
+              <div className="flex gap-1.5 flex-wrap">
+                {ACCOUNT_TYPES.map((t) => (
+                  <button
+                    key={t.key}
+                    type="button"
+                    onClick={() => setNewAccount({ ...newAccount, type: t.key })}
+                    className={
+                      newAccount.type === t.key
+                        ? "px-2.5 py-1.5 rounded-lg text-xs font-semibold bg-[var(--color-primary)] text-[var(--color-primary-contrast)]"
+                        : "px-2.5 py-1.5 rounded-lg text-xs border border-[var(--border-base)] text-[var(--text-muted)] hover:text-[var(--text-base)]"
+                    }
+                  >
+                    {t.label}
+                  </button>
+                ))}
+              </div>
+            </div>
+            <div className="space-y-1">
+              <Label className="text-[var(--text-muted)] text-xs">Nombre visible</Label>
+              <Input
+                value={newAccount.label}
+                onChange={(e) => setNewAccount({ ...newAccount, label: e.target.value })}
+                placeholder="Nequi del gym"
+                required
+                className={inputCls}
+              />
+            </div>
+            <div className="space-y-1">
+              <Label className="text-[var(--text-muted)] text-xs">Número de cuenta / celular</Label>
+              <Input
+                value={newAccount.account_number}
+                onChange={(e) => setNewAccount({ ...newAccount, account_number: e.target.value })}
+                placeholder="3001234567"
+                required
+                className={inputCls}
+              />
+            </div>
+            <div className="space-y-1">
+              <Label className="text-[var(--text-muted)] text-xs">Titular</Label>
+              <Input
+                value={newAccount.holder_name}
+                onChange={(e) => setNewAccount({ ...newAccount, holder_name: e.target.value })}
+                placeholder="Nombre del titular"
+                required
+                className={inputCls}
+              />
+            </div>
+            <div className="sm:col-span-2 flex justify-end gap-2">
+              <Button type="button" variant="ghost" onClick={() => setShowNew(false)} className="text-[var(--text-muted)]">
+                Cancelar
+              </Button>
+              <Button
+                type="submit"
+                disabled={saving}
+                className="bg-[var(--color-primary)] text-[var(--color-primary-contrast)] font-semibold hover:bg-[var(--color-primary-hover)]"
+              >
+                {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : "Guardar cuenta"}
+              </Button>
+            </div>
+          </form>
+        )}
+
+        {accounts.length === 0 ? (
+          <p className="text-[var(--text-muted)] text-sm py-3 text-center">
+            Sin cuentas registradas — agrégalas para cobrar por transferencia en el POS.
+          </p>
+        ) : (
+          <div className="space-y-2">
+            {accounts.map((acc, idx) => (
+              <div
+                key={`${acc.type}-${acc.account_number}`}
+                className="flex items-center gap-3 p-3 rounded-lg border border-[var(--border-base)] bg-[var(--bg-base)]"
+              >
+                {acc.type === "nequi" || acc.type === "daviplata" ? (
+                  <Smartphone className="h-4 w-4 text-[var(--text-muted)] shrink-0" />
+                ) : (
+                  <Landmark className="h-4 w-4 text-[var(--text-muted)] shrink-0" />
+                )}
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm font-medium text-[var(--text-base)] truncate">
+                    {acc.label}{" "}
+                    <span className="text-[11px] text-[var(--text-muted)] uppercase">
+                      · {ACCOUNT_TYPES.find((t) => t.key === acc.type)?.label ?? acc.type}
+                    </span>
+                  </p>
+                  <p className="text-[11px] text-[var(--text-muted)] truncate font-mono">
+                    {acc.account_number} · {acc.holder_name}
+                  </p>
+                </div>
+                {isOwner && (
+                  <button
+                    type="button"
+                    onClick={() => handleRemoveAccount(idx)}
+                    title="Quitar cuenta"
+                    className="p-1.5 rounded-lg text-[var(--text-muted)] hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-950/30 transition-colors"
+                  >
+                    <Trash2 className="h-3.5 w-3.5" />
+                  </button>
+                )}
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+
+      <form onSubmit={handleSaveFiscal} className="pt-6 border-t border-[var(--border-base)] space-y-4">
+        <div className="flex items-center gap-2">
+          <FileText className="h-4 w-4 text-[var(--color-primary)]" />
+          <div>
+            <h3 className="text-sm font-semibold text-[var(--text-base)]">Datos fiscales</h3>
+            <p className="text-xs text-[var(--text-muted)] mt-0.5">
+              Base para facturación electrónica DIAN (próximamente)
+            </p>
+          </div>
+        </div>
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+          <div className="space-y-2">
+            <Label className="text-[var(--text-muted)] text-sm">Razón social</Label>
+            <Input value={legalName} onChange={(e) => setLegalName(e.target.value)} disabled={!isOwner} className={inputCls} />
+          </div>
+          <div className="space-y-2">
+            <Label className="text-[var(--text-muted)] text-sm">NIT</Label>
+            <Input value={nit} onChange={(e) => setNit(e.target.value)} placeholder="900123456-7" disabled={!isOwner} className={inputCls} />
+          </div>
+          <div className="space-y-2">
+            <Label className="text-[var(--text-muted)] text-sm">Régimen</Label>
+            <Input value={taxRegime} onChange={(e) => setTaxRegime(e.target.value)} placeholder="Simple / Común" disabled={!isOwner} className={inputCls} />
+          </div>
+        </div>
+        {isOwner && (
+          <div className="flex justify-end">
+            <Button
+              type="submit"
+              disabled={saving}
+              className="bg-[var(--color-primary)] text-[var(--color-primary-contrast)] font-semibold hover:bg-[var(--color-primary-hover)]"
+            >
+              {saving ? "Guardando..." : "Guardar datos fiscales"}
+            </Button>
+          </div>
+        )}
+      </form>
+    </GlassCard>
+  );
+}

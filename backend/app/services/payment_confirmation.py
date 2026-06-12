@@ -20,19 +20,12 @@ async def _apply_membership_intent(db: AsyncSession, intent: dict) -> None:
     plan = (await db.execute(select(MemberPlan).where(MemberPlan.id == plan_id))).scalar_one_or_none()
     if not plan:
         return
-    # Renovación: si hay una membresía vigente del mismo plan, arranca al día siguiente.
+    # Renovación: encadena tras la vigente/congelada/programada (misma regla que assign/charge)
+    from app.services.gym_settings import get_gym_settings
+    from app.services.membership_status import next_chain_start
     today = today_bogota()
-    active = (await db.execute(
-        select(Membership)
-        .where(
-            Membership.member_id == member_id,
-            Membership.status == MembershipStatus.active.value,
-            Membership.end_date >= today,
-        )
-        .order_by(Membership.end_date.desc())
-        .limit(1)
-    )).scalar_one_or_none()
-    start = (active.end_date + timedelta(days=1)) if active else today
+    gym = await get_gym_settings(db)
+    start = await next_chain_start(db, member_id, gym.grace_days, today, today=today)
     db.add(Membership(
         member_id=member_id,
         plan_id=plan.id,

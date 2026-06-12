@@ -128,10 +128,11 @@ async def test_billing_summary_with_balance_and_renewal(client):
     assert summary["renewal"]["plan_id"] == plan["id"]
     assert float(summary["renewal"]["price"]) == 80000
 
-    # Abono parcial: el saldo baja
+    # Abono parcial con tarjeta (paid inmediato): el saldo baja.
+    # Una transferencia quedaría pendiente y NO bajaría el saldo hasta confirmarse.
     pay = await client.post("/api/v1/payments", json={
         "member_id": member_id, "membership_id": summary["membership"]["id"],
-        "amount": 30000, "method": "transfer", "status": "paid", "concept": "Abono",
+        "amount": 30000, "method": "card", "status": "paid", "concept": "Abono",
     }, headers=_auth(token))
     assert pay.status_code == 201, pay.text
     summary = (await client.get(f"/api/v1/members/{member_id}/billing-summary", headers=_auth(token))).json()
@@ -164,7 +165,7 @@ async def test_charge_renewal_extends_from_current_end(client):
     }, headers=_auth(token))).json()
 
     r1 = await client.post("/api/v1/member-plans/charge", json={
-        "member_id": member_id, "plan_id": plan["id"], "method": "transfer",
+        "member_id": member_id, "plan_id": plan["id"], "method": "card",
     }, headers=_auth(token))
     assert r1.status_code == 200, r1.text
     body1 = r1.json()
@@ -173,7 +174,7 @@ async def test_charge_renewal_extends_from_current_end(client):
 
     # Segundo cobro: renueva DESDE el fin de la vigente, sin perder días
     r2 = await client.post("/api/v1/member-plans/charge", json={
-        "member_id": member_id, "plan_id": plan["id"], "method": "transfer",
+        "member_id": member_id, "plan_id": plan["id"], "method": "card",
     }, headers=_auth(token))
     assert r2.status_code == 200, r2.text
     body2 = r2.json()

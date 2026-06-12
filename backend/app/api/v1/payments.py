@@ -162,6 +162,10 @@ async def create_payment(
     if items:
         # El total de una venta con items siempre es la suma de sus renglones
         payment.amount = items_total
+    if payment.method == PaymentMethod.transfer:
+        # Una transferencia no es plata en la mano: queda pendiente hasta que
+        # el staff confirme que llegó a la cuenta (POST /payments/{id}/confirm)
+        payment.status = PaymentStatus.pending
     if is_cash_paid:
         payment.shift_id = shift.id
     db.add(payment)
@@ -183,6 +187,28 @@ async def create_payment(
         select(PaymentItem).where(PaymentItem.payment_id == payment.id)
     )).scalars().all()]
     return response
+
+
+@router.post("/{payment_id}/void", response_model=PaymentResponse)
+async def void_pending_payment(
+    payment_id: uuid.UUID,
+    db: AsyncSession = Depends(get_tenant_db_from_token),
+    current_user: UserStaff = Depends(get_current_staff),
+):
+    """Anula un pago pendiente que nunca se concretó (la transferencia no llegó)."""
+    payment = (await db.execute(select(Payment).where(Payment.id == payment_id))).scalar_one_or_none()
+    if not payment:
+        raise HTTPException(status_code=404, detail="Pago no encontrado")
+    if payment.status != PaymentStatus.pending:
+        raise HTTPException(status_code=400, detail=f"Solo se anulan pagos pendientes (está {payment.status.value})")
+    payment.status = PaymentStatus.failed
+    audit(db, current_user, "payment.void", "payment", payment.id, {
+        "amount": str(payment.amount), "method": payment.method.value if payment.method else None,
+    })
+    await db.commit()
+    await db.refresh(payment)
+    names = await _member_names([payment.member_id], db)
+    return _payment_response(payment, names.get(payment.member_id))
 
 
 @router.get("/cash")
@@ -268,7 +294,7 @@ async def list_receivables(
         if st in ("in_grace", "expired") and days_overdue <= 30:
             results.append(ReceivableOut(
                 member_id=member_id, member_name=name, phone=phone,
-                plan_name=m.plan_name, end_date=m.end_date,
+                plan_id=m.plan_id, plan_name=m.plan_name, end_date=m.end_date,
                 effective_status=st, days_overdue=days_overdue,
                 amount_due=m.price, kind="renewal",
             ))
@@ -379,6 +405,7 @@ async def mark_payment_paid(
         payment.shift_id = shift.id
 
     payment.status = PaymentStatus.paid
+    payment.received_by = current_user.id
     await db.flush()
     await issue_receipt(db, payment)
     audit(db, current_user, "payment.mark_paid", "payment", payment.id, {"amount": str(payment.amount)})

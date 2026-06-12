@@ -1,17 +1,23 @@
 "use client";
+/* eslint-disable @typescript-eslint/no-explicit-any */
 
+import { useState } from "react";
+import { useSession } from "next-auth/react";
+import { toast } from "sonner";
 import { GlassCard } from "@/components/common/GlassCard";
 import { DataTable, type DataTableColumn } from "@/components/ui/data-table";
 import { StatusBadge } from "@/components/ui/status-badge";
 import { Button } from "@/components/ui/button";
+import { apiClient } from "@/lib/api";
 import { formatCOP, formatDate } from "@/lib/format";
 import { useApiResource } from "@/hooks/useApiResource";
-import { HandCoins, MessageCircle, Wallet } from "lucide-react";
+import { HandCoins, Link2, Loader2, MessageCircle, Wallet } from "lucide-react";
 
 interface Receivable {
   member_id: string;
   member_name: string;
   phone: string | null;
+  plan_id: string | null;
   plan_name: string;
   end_date: string;
   effective_status: string;
@@ -31,9 +37,39 @@ function whatsappLink(r: Receivable): string | null {
 }
 
 export function ReceivablesTab({ onCollect }: { onCollect: (memberId: string) => void }) {
+  const { data: session } = useSession();
   const receivables = useApiResource<Receivable[]>("/api/v1/payments/receivables", []);
+  const [linkBusy, setLinkBusy] = useState<string | null>(null);
 
   const total = receivables.data.reduce((acc, r) => acc + Number(r.amount_due), 0);
+
+  const sendWompiLink = async (r: Receivable) => {
+    if (!session?.accessToken || !r.plan_id) return;
+    setLinkBusy(`${r.member_id}-${r.kind}`);
+    try {
+      const client = apiClient(session.accessToken as string);
+      const { data } = await client.post(`/api/v1/members/${r.member_id}/renewal-link`, {
+        plan_id: r.plan_id,
+      });
+      if (!data.checkout_url) {
+        toast.error("Wompi no está configurado en Ajustes › Integraciones");
+        return;
+      }
+      await navigator.clipboard.writeText(data.checkout_url).catch(() => {});
+      const phone = (r.phone ?? "").replace(/\D/g, "");
+      if (phone) {
+        const text = encodeURIComponent(
+          `Hola ${r.member_name.split(" ")[0]} 👋 Renueva tu plan ${r.plan_name} (${formatCOP(r.amount_due)}) pagando aquí: ${data.checkout_url}`
+        );
+        window.open(`https://wa.me/${phone}?text=${text}`, "_blank");
+      }
+      toast.success("Link de pago Wompi creado y copiado");
+    } catch (err: any) {
+      toast.error(err.response?.data?.detail ?? "No se pudo generar el link");
+    } finally {
+      setLinkBusy(null);
+    }
+  };
 
   const columns: DataTableColumn<Receivable>[] = [
     {
@@ -80,6 +116,24 @@ export function ReceivablesTab({ onCollect }: { onCollect: (memberId: string) =>
         const wa = whatsappLink(r);
         return (
           <div className="flex items-center justify-end gap-1.5">
+            {r.kind === "renewal" && r.plan_id && (
+              <button
+                type="button"
+                title="Cobrar con link Wompi"
+                disabled={linkBusy === `${r.member_id}-${r.kind}`}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  void sendWompiLink(r);
+                }}
+                className="h-8 w-8 rounded-lg border border-[var(--border-base)] flex items-center justify-center text-[var(--text-muted)] hover:text-[var(--color-primary)] hover:border-[var(--color-primary)]/50 transition-ui disabled:opacity-50"
+              >
+                {linkBusy === `${r.member_id}-${r.kind}` ? (
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                ) : (
+                  <Link2 className="h-4 w-4" />
+                )}
+              </button>
+            )}
             {wa && (
               <a
                 href={wa}

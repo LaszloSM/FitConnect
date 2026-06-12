@@ -181,6 +181,68 @@ async def update_gym_settings(
     )
 
 
+# ─── Recaudo y datos fiscales ────────────────────────────────────────────────
+
+class TransferAccount(BaseModel):
+    type: str = Field(pattern="^(nequi|daviplata|bancolombia|bank)$")
+    label: str = Field(min_length=1, max_length=60)
+    account_number: str = Field(min_length=3, max_length=40)
+    holder_name: str = Field(min_length=1, max_length=120)
+
+
+class BillingSettingsResponse(BaseModel):
+    transfer_accounts: list[TransferAccount]
+    legal_name: str | None
+    nit: str | None
+    tax_regime: str | None
+
+
+class BillingSettingsUpdate(BaseModel):
+    transfer_accounts: list[TransferAccount] | None = Field(default=None, max_length=10)
+    legal_name: str | None = Field(default=None, max_length=200)
+    nit: str | None = Field(default=None, max_length=30)
+    tax_regime: str | None = Field(default=None, max_length=50)
+
+
+def _billing_response(gym) -> BillingSettingsResponse:
+    return BillingSettingsResponse(
+        transfer_accounts=[TransferAccount(**a) for a in (gym.transfer_accounts or [])],
+        legal_name=gym.legal_name,
+        nit=gym.nit,
+        tax_regime=gym.tax_regime,
+    )
+
+
+# Lectura para todo el staff: recepción necesita las cuentas en el POS
+@router.get("/billing", response_model=BillingSettingsResponse)
+async def get_billing_settings(
+    db: AsyncSession = Depends(get_tenant_db_from_token),
+    _: UserStaff = Depends(get_current_staff),
+) -> BillingSettingsResponse:
+    gym = await load_gym_settings(db)
+    return _billing_response(gym)
+
+
+@router.patch("/billing", response_model=BillingSettingsResponse)
+async def update_billing_settings(
+    payload: BillingSettingsUpdate,
+    db: AsyncSession = Depends(get_tenant_db_from_token),
+    _: UserStaff = Depends(require_role(UserRole.owner)),
+) -> BillingSettingsResponse:
+    gym = await load_gym_settings(db)
+    if payload.transfer_accounts is not None:
+        gym.transfer_accounts = [a.model_dump() for a in payload.transfer_accounts]
+    if payload.legal_name is not None:
+        gym.legal_name = payload.legal_name
+    if payload.nit is not None:
+        gym.nit = payload.nit
+    if payload.tax_regime is not None:
+        gym.tax_regime = payload.tax_regime
+    await db.commit()
+    await db.refresh(gym)
+    return _billing_response(gym)
+
+
 # ─── Integraciones (Wompi, WhatsApp) — secretos cifrados ─────────────────────
 
 class IntegrationsResponse(BaseModel):
