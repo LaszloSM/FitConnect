@@ -27,6 +27,20 @@ async def _open_cash_shift(db: AsyncSession) -> CashShift | None:
     )).scalar_one_or_none()
 
 
+async def _member_names(member_ids: list[uuid.UUID], db: AsyncSession) -> dict[uuid.UUID, str]:
+    ids = [m for m in member_ids if m is not None]
+    if not ids:
+        return {}
+    result = await db.execute(select(Member.id, Member.full_name).where(Member.id.in_(ids)))
+    return {mid: name for mid, name in result.all()}
+
+
+def _payment_response(payment: Payment, member_name: str | None) -> PaymentResponse:
+    data = PaymentResponse.model_validate(payment)
+    data.member_name = member_name
+    return data
+
+
 @router.get("", response_model=list[PaymentResponse])
 async def list_payments(
     db: AsyncSession = Depends(get_tenant_db_from_token),
@@ -34,7 +48,8 @@ async def list_payments(
     status: PaymentStatus | None = Query(None),
     from_date: date | None = Query(None, alias="from"),
     to_date: date | None = Query(None, alias="to"),
-    limit: int = Query(50, ge=1, le=100),
+    # El frontend carga el mes completo de una (limit=200); tope alineado con eso
+    limit: int = Query(50, ge=1, le=200),
     offset: int = Query(0, ge=0),
 ):
     stmt = select(Payment)
@@ -48,7 +63,9 @@ async def list_payments(
         stmt = stmt.where(Payment.created_at < datetime.combine(to_date, datetime.min.time()) + timedelta(days=1))
     stmt = stmt.order_by(desc(Payment.created_at)).limit(limit).offset(offset)
     result = await db.execute(stmt)
-    return result.scalars().all()
+    payments = result.scalars().all()
+    names = await _member_names([p.member_id for p in payments], db)
+    return [_payment_response(p, names.get(p.member_id)) for p in payments]
 
 
 @router.post("", response_model=PaymentResponse, status_code=201)
@@ -58,7 +75,8 @@ async def create_payment(
     current_user: UserStaff = Depends(get_current_staff),
 ):
     member_result = await db.execute(select(Member).where(Member.id == payload.member_id))
-    if not member_result.scalar_one_or_none():
+    member = member_result.scalar_one_or_none()
+    if not member:
         raise HTTPException(status_code=404, detail="Miembro no encontrado")
 
     if payload.membership_id is not None:
@@ -98,7 +116,7 @@ async def create_payment(
     })
     await db.commit()
     await db.refresh(payment)
-    return payment
+    return _payment_response(payment, member.full_name)
 
 
 @router.get("/cash")
@@ -142,7 +160,8 @@ async def get_payment(
     payment = result.scalar_one_or_none()
     if not payment:
         raise HTTPException(status_code=404, detail="Pago no encontrado")
-    return payment
+    names = await _member_names([payment.member_id], db)
+    return _payment_response(payment, names.get(payment.member_id))
 
 
 @router.put("/{payment_id}", response_model=PaymentResponse)
@@ -158,10 +177,11 @@ async def update_payment(
     
     for field, value in payload.model_dump(exclude_unset=True).items():
         setattr(payment, field, value)
-    
+
     await db.commit()
     await db.refresh(payment)
-    return payment
+    names = await _member_names([payment.member_id], db)
+    return _payment_response(payment, names.get(payment.member_id))
 
 
 @router.delete("/{payment_id}", status_code=204)
@@ -205,7 +225,8 @@ async def mark_payment_paid(
     audit(db, current_user, "payment.mark_paid", "payment", payment.id, {"amount": str(payment.amount)})
     await db.commit()
     await db.refresh(payment)
-    return payment
+    names = await _member_names([payment.member_id], db)
+    return _payment_response(payment, names.get(payment.member_id))
 
 
 @router.post("/{payment_id}/payment-link")

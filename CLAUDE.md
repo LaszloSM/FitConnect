@@ -123,6 +123,8 @@ Cuando cometas un error durante una sesión, agrégalo aquí antes de terminar:
 | Webhook de Wompi llega sin JWT y no sabe de qué gym es | Endpoint público multi-tenant | `reference = FC-{slug}-{hex12}`: el slug resuelve el tenant en Master DB y la firma se valida con el `events_secret` de ESE gym (cifrado en gym_settings); idempotencia por `event_id` unique |
 | El job diario corre por todos los tenants y uno roto tumbaba el resto | Excepciones no aisladas | `for_each_tenant`: cada tenant en su propia sesión/transacción con try/except + log; lock `pg_try_advisory_lock` en Master para evitar doble worker |
 | La suite se colgaba para siempre en `DROP TABLE` (teardown de fixtures) | `drop_all` corría dentro del contexto de la sesión: `refresh`/`select` dejan una transacción abierta cuyos AccessShareLock bloquean el DROP | Cerrar la sesión (`await session.close()`) ANTES de `drop_all` en fixtures; si la test DB queda zombi: `pg_terminate_backend` + `DROP DATABASE ... WITH (FORCE)` y recrear |
+| "Error cargando datos" en Pagos: el front pedía `limit=200` y el endpoint capaba `le=100` → 422 silencioso | Tope de paginación desalineado entre frontend y backend | Al subir el `limit` que pide el front, alinear el `le=` del Query; verificar el request real con el panel network, no asumir el 422 |
+| Test de mantenimiento fallaba solo de 7pm a medianoche | El test comparaba `date.today()` (UTC del contenedor) con la fecha Bogotá del backend | En tests, comparar fechas con `datetime.now(ZoneInfo("America/Bogota")).date()`, nunca `date.today()` |
 
 **Protocolo:** Al detectar un error que no estaba documentado, añade una fila a la tabla antes del commit.
 

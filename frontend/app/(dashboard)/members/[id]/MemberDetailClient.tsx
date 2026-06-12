@@ -6,6 +6,7 @@ import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { motion, type Variants } from "framer-motion";
 import { apiClient } from "@/lib/api";
+import { formatCOP } from "@/lib/format";
 import { GlassCard } from "@/components/common/GlassCard";
 import { Button } from "@/components/ui/button";
 import {
@@ -50,15 +51,6 @@ const TAB_CONFIG: { key: Tab; label: string; icon: React.ReactNode }[] = [
   { key: "checkins",    label: "Check-ins",     icon: <Activity className="h-3.5 w-3.5" /> },
   { key: "qr",          label: "Carné QR",      icon: <QrCode className="h-3.5 w-3.5" /> },
 ];
-
-function formatCOP(amount: number) {
-  return new Intl.NumberFormat("es-CO", {
-    style: "currency",
-    currency: "COP",
-    minimumFractionDigits: 0,
-    maximumFractionDigits: 0,
-  }).format(amount);
-}
 
 const STATUS_PILL: Record<string, { label: string; cls: string; icon: React.ReactNode }> = {
   active: {

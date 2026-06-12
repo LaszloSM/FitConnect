@@ -28,6 +28,7 @@ async def _create_member(client, token):
     r = await client.post("/api/v1/members", json={
         "full_name": "Miembro Prueba",
         "email": f"m-{uuid.uuid4().hex[:10]}@test.com",
+        "id_type": "CC", "id_number": str(uuid.uuid4().int)[:10],
     }, headers=_auth(token))
     assert r.status_code == 201, r.text
     return r.json()["id"]

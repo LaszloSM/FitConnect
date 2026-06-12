@@ -48,3 +48,4 @@ __pycache__/
 # Graphify — outputs/caché regenerables
 graphify-out/cache/
 graphify-out/2026-*/
+.gstack/

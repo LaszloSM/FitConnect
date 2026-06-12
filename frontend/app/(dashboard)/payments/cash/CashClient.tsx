@@ -12,16 +12,11 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { CurrencyInput } from "@/components/ui/currency-input";
 import { apiClient } from "@/lib/api";
+import { formatCOP } from "@/lib/format";
 import { ArrowLeft, Lock, Unlock, Loader2, TrendingDown, Plus } from "lucide-react";
 import { toast } from "sonner";
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
-
-function formatCOP(amount: number) {
-  return new Intl.NumberFormat("es-CO", {
-    style: "currency", currency: "COP", minimumFractionDigits: 0, maximumFractionDigits: 0,
-  }).format(amount);
-}
 
 const EXPENSE_CATEGORIES = [
   { value: "servicios", label: "Servicios" },

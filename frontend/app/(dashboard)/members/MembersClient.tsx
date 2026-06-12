@@ -12,6 +12,7 @@ import { EmptyState } from "@/components/common/EmptyState";
 import { QRCodeDisplay } from "@/components/common/QRCodeDisplay";
 import { PARQForm } from "@/components/common/PARQForm";
 import { apiClient } from "@/lib/api";
+import { formatCOP } from "@/lib/format";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -143,6 +144,8 @@ export default function MembersClient() {
   const [error, setError] = useState("");
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState<"" | "active" | "inactive">("");
+  const [missingIdOnly, setMissingIdOnly] = useState(false);
+  const [missingIdCount, setMissingIdCount] = useState(0);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editing, setEditing] = useState<Member | null>(null);
   const [submitting, setSubmitting] = useState(false);
@@ -200,6 +203,7 @@ export default function MembersClient() {
           limit: PAGE_SIZE,
           offset: currentPage * PAGE_SIZE,
           ...(statusFilter ? { status: statusFilter } : {}),
+          ...(missingIdOnly ? { missing_id_number: true } : {}),
         },
       });
       setMembers(res.data);
@@ -221,7 +225,13 @@ export default function MembersClient() {
     setPage(0);
     const client = apiClient(session.accessToken as string);
     client.get("/api/v1/members", {
-      params: { q: search, limit: PAGE_SIZE, offset: 0, ...(statusFilter ? { status: statusFilter } : {}) },
+      params: {
+        q: search,
+        limit: PAGE_SIZE,
+        offset: 0,
+        ...(statusFilter ? { status: statusFilter } : {}),
+        ...(missingIdOnly ? { missing_id_number: true } : {}),
+      },
     }).then((res) => {
       if (!cancelled) {
         setMembers(res.data);
@@ -235,7 +245,16 @@ export default function MembersClient() {
       if (!cancelled) setLoading(false);
     });
     return () => { cancelled = true; };
-  }, [session, search, statusFilter]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [session, search, statusFilter, missingIdOnly]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  // Contador para el banner de miembros antiguos sin cédula
+  useEffect(() => {
+    if (!session?.accessToken) return;
+    const client = apiClient(session.accessToken as string);
+    client.get("/api/v1/members/missing-id-number/count")
+      .then((res) => setMissingIdCount(res.data?.count ?? 0))
+      .catch(() => {});
+  }, [session, members.length]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // Lazy-load plans + current membership when membership tab activates
   useEffect(() => {
@@ -327,6 +346,11 @@ export default function MembersClient() {
       parq_completed_at: Object.keys(form.parq_answers).length > 0 ? new Date().toISOString().split("T")[0] : undefined,
     };
 
+    if (!editing && (!form.id_number.trim() || !form.id_type)) {
+      toast.error("El tipo y número de documento son obligatorios");
+      return;
+    }
+
     const validation = memberSchema.safeParse(payload);
     if (!validation.success) { toast.error(validation.error.issues[0].message); return; }
     setSubmitting(true);
@@ -409,15 +433,22 @@ export default function MembersClient() {
               <TabsContent value="personal" className="space-y-4">
                 <div className="grid grid-cols-2 gap-4">
                   <div className="space-y-2">
-                    <Label className="text-[var(--text-muted)] text-sm">Tipo de documento</Label>
+                    <Label className="text-[var(--text-muted)] text-sm">Tipo de documento {!editing && "*"}</Label>
                     <IdTypeSelect
                       value={form.id_type}
                       onChange={(v) => setForm({ ...form, id_type: v || "" })}
                     />
                   </div>
                   <div className="space-y-2">
-                    <Label className="text-[var(--text-muted)] text-sm">Número de documento</Label>
-                    <Input value={form.id_number} onChange={(e) => setForm({ ...form, id_number: e.target.value })} className={inputCls} />
+                    <Label className="text-[var(--text-muted)] text-sm">Número de documento {!editing && "*"}</Label>
+                    <Input
+                      value={form.id_number}
+                      onChange={(e) => setForm({ ...form, id_number: e.target.value })}
+                      required={!editing}
+                      inputMode="numeric"
+                      placeholder="Cédula — identifica al miembro en el check-in"
+                      className={inputCls}
+                    />
                   </div>
                   <div className="space-y-2 col-span-2">
                     <Label htmlFor="full_name" className="text-[var(--text-muted)] text-sm">Nombre completo *</Label>
@@ -559,7 +590,7 @@ export default function MembersClient() {
                       <option value="">{editing ? "Selecciona un plan..." : "Sin membresía por ahora"}</option>
                       {availablePlans.map((p) => (
                         <option key={p.id} value={p.id}>
-                          {p.name} — {new Intl.NumberFormat("es-CO", { style: "currency", currency: "COP", minimumFractionDigits: 0 }).format(p.price)} / {p.duration_days} días
+                          {p.name} — {formatCOP(p.price)} / {p.duration_days} días
                         </option>
                       ))}
                     </select>
@@ -632,12 +663,32 @@ export default function MembersClient() {
         </DialogContent>
       </Dialog>
 
+      {missingIdCount > 0 && (
+        <div className="flex flex-wrap items-center gap-3 rounded-xl bg-amber-50 dark:bg-amber-950/20 border border-amber-200 dark:border-amber-900/40 px-4 py-3">
+          <AlertCircle className="h-4 w-4 text-amber-600 dark:text-amber-400 shrink-0" />
+          <p className="text-sm text-amber-800 dark:text-amber-300 flex-1 min-w-[200px]">
+            <strong>{missingIdCount}</strong> miembro{missingIdCount !== 1 ? "s" : ""} sin cédula registrada — no podrá{missingIdCount !== 1 ? "n" : ""} usar el check-in por documento.
+          </p>
+          <button
+            onClick={() => setMissingIdOnly((v) => !v)}
+            className={cn(
+              "rounded-full px-3 py-1 text-sm font-medium border transition-colors",
+              missingIdOnly
+                ? "bg-amber-600 border-amber-600 text-white"
+                : "border-amber-300 dark:border-amber-800 text-amber-700 dark:text-amber-400 hover:bg-amber-100 dark:hover:bg-amber-950/40"
+            )}
+          >
+            {missingIdOnly ? "Ver todos" : "Ver pendientes"}
+          </button>
+        </div>
+      )}
+
       <GlassCard className="p-4">
         <div className="flex flex-wrap gap-3 mb-4">
           <div className="relative flex-1 min-w-[200px]">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-[var(--text-muted)]" />
             <Input
-              placeholder="Buscar por nombre o email..."
+              placeholder="Buscar por nombre, email o cédula..."
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               className={cn("pl-9", inputCls)}

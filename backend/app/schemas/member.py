@@ -62,6 +62,10 @@ class MemberBase(BaseModel):
 
 
 class MemberCreate(MemberBase):
+    # La cédula es el identificador natural (kiosko, búsqueda, antiduplicados):
+    # obligatoria en altas nuevas; los miembros antiguos pueden no tenerla.
+    id_type: IdType
+    id_number: str = Field(min_length=3, max_length=50)
     # Asignación opcional de membresía en el mismo paso del alta
     plan_id: Optional[uuid.UUID] = None
     membership_start_date: Optional[date] = None
@@ -159,6 +163,8 @@ class PaymentResponse(PaymentBase):
     id: uuid.UUID
     created_at: datetime
     updated_at: datetime
+    # Inyectado por el endpoint vía bulk-fetch — no viene de la tabla payments
+    member_name: Optional[str] = None
 
     class Config:
         from_attributes = True

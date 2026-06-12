@@ -23,7 +23,7 @@ def _auth(token):
 
 async def _member_with_membership(client, token, start: date, duration=30):
     m = await client.post("/api/v1/members", json={
-        "full_name": "CheckinMember", "email": f"c-{uuid.uuid4().hex[:10]}@test.com",
+        "full_name": "CheckinMember", "email": f"c-{uuid.uuid4().hex[:10]}@test.com", "id_type": "CC", "id_number": str(uuid.uuid4().int)[:10],
     }, headers=_auth(token))
     member_id = m.json()["id"]
     plan = await client.post("/api/v1/member-plans/", json={
@@ -37,7 +37,7 @@ async def _member_with_membership(client, token, start: date, duration=30):
 
 async def _member_no_membership(client, token):
     m = await client.post("/api/v1/members", json={
-        "full_name": "NoMembership", "email": f"n-{uuid.uuid4().hex[:10]}@test.com",
+        "full_name": "NoMembership", "email": f"n-{uuid.uuid4().hex[:10]}@test.com", "id_type": "CC", "id_number": str(uuid.uuid4().int)[:10],
     }, headers=_auth(token))
     return m.json()["id"]
 

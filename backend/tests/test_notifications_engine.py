@@ -1,5 +1,10 @@
 import uuid
-from datetime import date, timedelta
+from datetime import date, datetime, timedelta
+from zoneinfo import ZoneInfo
+
+
+def _today_bogota() -> date:
+    return datetime.now(ZoneInfo("America/Bogota")).date()
 
 _TOKENS: dict[str, str] = {}
 
@@ -24,6 +29,7 @@ def _auth(token):
 async def _member_with_membership(client, token, start: date, duration=30, phone=None):
     m = await client.post("/api/v1/members", json={
         "full_name": "Notificable", "email": f"n-{uuid.uuid4().hex[:10]}@test.com",
+        "id_type": "CC", "id_number": str(uuid.uuid4().int)[:10],
         **({"phone": phone} if phone else {}),
     }, headers=_auth(token))
     member_id = m.json()["id"]
@@ -83,7 +89,8 @@ async def test_preventive_maintenance_alert(client):
     }, headers=_auth(token))
     assert r.status_code == 201, r.text
     machine = (await client.get(f"/api/v1/machines/{machine_id}", headers=_auth(token))).json()
-    assert machine["last_maintenance_date"] == date.today().isoformat()
+    # El backend registra la fecha en zona Bogotá, no en el UTC del contenedor
+    assert machine["last_maintenance_date"] == _today_bogota().isoformat()
 
 
 async def test_profit_and_compare_reports(client):

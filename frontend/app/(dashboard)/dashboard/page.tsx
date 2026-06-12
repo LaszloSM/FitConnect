@@ -11,6 +11,7 @@ import { EmptyState } from "@/components/common/EmptyState";
 import { PageHeader } from "@/components/common/PageHeader";
 import { OperationsToday } from "@/components/dashboard/OperationsToday";
 import { apiClient } from "@/lib/api";
+import { formatCOP } from "@/lib/format";
 import Link from "next/link";
 import {
   Users,
@@ -103,15 +104,6 @@ const PERIODS: Period[] = [
     }),
   },
 ];
-
-function formatCOP(amount: number) {
-  return new Intl.NumberFormat("es-CO", {
-    style: "currency",
-    currency: "COP",
-    minimumFractionDigits: 0,
-    maximumFractionDigits: 0,
-  }).format(amount);
-}
 
 function greeting(): string {
   const h = new Date().getHours();

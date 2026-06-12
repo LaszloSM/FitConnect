@@ -24,8 +24,9 @@ class RenewalLinkRequest(BaseModel):
 @router.get("", response_model=list[MemberResponse])
 async def list_members(
     db: AsyncSession = Depends(get_tenant_db_from_token),
-    q: str = Query("", description="Buscar por nombre o email"),
+    q: str = Query("", description="Buscar por nombre, email o cédula"),
     status: MemberStatus | None = Query(None),
+    missing_id_number: bool = Query(False, description="Solo miembros sin cédula registrada"),
     limit: int = Query(50, ge=1, le=100),
     offset: int = Query(0, ge=0),
 ):
@@ -33,10 +34,16 @@ async def list_members(
     if q:
         search = f"%{q}%"
         stmt = stmt.where(
-            or_(Member.full_name.ilike(search), Member.email.ilike(search))
+            or_(
+                Member.full_name.ilike(search),
+                Member.email.ilike(search),
+                Member.id_number.ilike(search),
+            )
         )
     if status:
         stmt = stmt.where(Member.status == status)
+    if missing_id_number:
+        stmt = stmt.where(Member.id_number.is_(None))
     stmt = stmt.order_by(Member.created_at.desc()).limit(limit).offset(offset)
     result = await db.execute(stmt)
     members = result.scalars().all()
@@ -88,6 +95,16 @@ async def create_member(
     if existing.scalar_one_or_none():
         raise HTTPException(status_code=400, detail="Email ya registrado")
 
+    duplicate = await db.execute(
+        select(Member.full_name).where(Member.id_number == payload.id_number)
+    )
+    holder = duplicate.scalar_one_or_none()
+    if holder:
+        raise HTTPException(
+            status_code=409,
+            detail=f"La cédula {payload.id_number} ya está registrada a nombre de {holder}",
+        )
+
     # Separar los campos de membresía opcional del payload del miembro
     member_data = payload.model_dump(
         exclude={"plan_id", "membership_start_date", "payment_method"}
@@ -117,6 +134,17 @@ async def create_member(
     await db.commit()
     await db.refresh(member)
     return member
+
+
+@router.get("/missing-id-number/count")
+async def count_missing_id_number(
+    db: AsyncSession = Depends(get_tenant_db_from_token),
+):
+    """Cuántos miembros antiguos no tienen cédula — alimenta el banner del frontend."""
+    count = (await db.execute(
+        select(func.count()).select_from(Member).where(Member.id_number.is_(None))
+    )).scalar_one()
+    return {"count": count}
 
 
 @router.get("/{member_id}/payments")
@@ -224,10 +252,23 @@ async def update_member(
     member = result.scalar_one_or_none()
     if not member:
         raise HTTPException(status_code=404, detail="Miembro no encontrado")
-    
+
+    if payload.id_number and payload.id_number != member.id_number:
+        duplicate = await db.execute(
+            select(Member.full_name).where(
+                Member.id_number == payload.id_number, Member.id != member_id
+            )
+        )
+        holder = duplicate.scalar_one_or_none()
+        if holder:
+            raise HTTPException(
+                status_code=409,
+                detail=f"La cédula {payload.id_number} ya está registrada a nombre de {holder}",
+            )
+
     for field, value in payload.model_dump(exclude_unset=True).items():
         setattr(member, field, value)
-    
+
     await db.commit()
     await db.refresh(member)
     return member

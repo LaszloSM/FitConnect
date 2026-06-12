@@ -24,7 +24,7 @@ def _auth(token):
 
 async def _member_active(client, token, duration=90):
     m = await client.post("/api/v1/members", json={
-        "full_name": "Asistente", "email": f"a-{uuid.uuid4().hex[:10]}@test.com",
+        "full_name": "Asistente", "email": f"a-{uuid.uuid4().hex[:10]}@test.com", "id_type": "CC", "id_number": str(uuid.uuid4().int)[:10],
     }, headers=_auth(token))
     member_id = m.json()["id"]
     plan = await client.post("/api/v1/member-plans/", json={
@@ -106,7 +106,7 @@ async def test_member_without_membership_cannot_book(client):
     class_id = await _create_class(client, token)
     session = await _next_session(client, token, class_id)
     m = await client.post("/api/v1/members", json={
-        "full_name": "Sin Plan", "email": f"s-{uuid.uuid4().hex[:10]}@test.com",
+        "full_name": "Sin Plan", "email": f"s-{uuid.uuid4().hex[:10]}@test.com", "id_type": "CC", "id_number": str(uuid.uuid4().int)[:10],
     }, headers=_auth(token))
     r = await client.post(f"/api/v1/class-sessions/{session['id']}/bookings",
                           json={"member_id": m.json()["id"]}, headers=_auth(token))

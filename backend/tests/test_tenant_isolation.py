@@ -46,6 +46,7 @@ async def test_tenant_data_isolation(client):
         json={
             "full_name": "Member of A",
             "email": f"member-{uuid.uuid4().hex[:8]}@gyma.com",
+            "id_type": "CC", "id_number": str(uuid.uuid4().int)[:10],
             "status": "active",
         },
         headers={"Authorization": f"Bearer {token_a}"},

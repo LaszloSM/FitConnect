@@ -1,7 +1,7 @@
 import uuid
 import enum
 from datetime import date
-from sqlalchemy import String, Enum as SAEnum, Date, Text, UniqueConstraint
+from sqlalchemy import String, Enum as SAEnum, Date, Text, UniqueConstraint, Index, text
 from sqlalchemy.dialects.postgresql import UUID, JSONB
 from sqlalchemy.orm import mapped_column, Mapped
 from typing import Optional
@@ -41,7 +41,17 @@ class TrainingGoal(str, enum.Enum):
 
 class Member(TenantBase, TenantTimestampMixin):
     __tablename__ = "members"
-    __table_args__ = (UniqueConstraint("email", name="uq_member_email"),)
+    __table_args__ = (
+        UniqueConstraint("email", name="uq_member_email"),
+        # Cédula única cuando existe — los miembros antiguos sin documento siguen siendo válidos.
+        # Declarado en metadata porque los tenants nuevos nacen con create_all + stamp.
+        Index(
+            "uq_member_id_number",
+            "id_number",
+            unique=True,
+            postgresql_where=text("id_number IS NOT NULL"),
+        ),
+    )
 
     id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     full_name: Mapped[str] = mapped_column(String(255), nullable=False)
