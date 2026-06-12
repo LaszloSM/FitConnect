@@ -24,6 +24,7 @@ from app.models.tenant.payment_link import PaymentLink, WebhookEvent
 from app.models.tenant.notification_outbox import NotificationOutbox
 from app.models.tenant.product import Product
 from app.models.tenant.payment_item import PaymentItem
+from app.models.tenant.kiosk_device import KioskDevice
 
 __all__ = [
     "UserStaff", "UserRole",
@@ -52,4 +53,5 @@ __all__ = [
     "NotificationOutbox",
     "Product",
     "PaymentItem",
+    "KioskDevice",
 ]

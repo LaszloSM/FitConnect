@@ -59,6 +59,19 @@ def create_staff_token(staff_id: str, db_name: str, role: str) -> str:
     return jwt.encode(payload, settings.secret_key, algorithm=settings.algorithm)
 
 
+def create_kiosk_token(device_id: str, db_name: str, jti: str) -> str:
+    """JWT de dispositivo kiosko: sin expiración (la revocación es por fila
+    kiosk_devices.is_active), con scope restringido a los endpoints /kiosk."""
+    payload = {
+        "sub": device_id,
+        "device_id": device_id,
+        "db_name": db_name,
+        "scope": "kiosk",
+        "jti": jti,
+    }
+    return jwt.encode(payload, settings.secret_key, algorithm=settings.algorithm)
+
+
 def decode_token(token: str) -> dict[str, Any]:
     try:
         return jwt.decode(token, settings.secret_key, algorithms=[settings.algorithm])

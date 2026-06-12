@@ -30,3 +30,5 @@ class CheckIn(TenantBase, TenantTimestampMixin):
     # Quién autorizó un override (recepcionista) y con qué motivo
     override_by: Mapped[Optional[uuid.UUID]] = mapped_column(UUID(as_uuid=True), ForeignKey("users.id"), nullable=True)
     override_reason: Mapped[Optional[str]] = mapped_column(String(255), nullable=True)
+    # Por dónde entró el registro: reception | qr | kiosk (futuro: biometric | turnstile)
+    source: Mapped[str] = mapped_column(String(20), nullable=False, default="reception", server_default="reception")

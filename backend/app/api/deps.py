@@ -70,6 +70,54 @@ async def get_tenant_db_from_token(
         yield session
 
 
+async def get_db_name(
+    credentials: HTTPAuthorizationCredentials = Depends(security),
+) -> str:
+    """Extrae el db_name del JWT (staff u owner) — para publicar eventos por tenant."""
+    try:
+        payload = decode_token(credentials.credentials)
+    except JWTError:
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Token inválido")
+    db_name = payload.get("db_name")
+    if not db_name:
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Token sin contexto de tenant")
+    return db_name
+
+
+async def get_kiosk_payload(
+    credentials: HTTPAuthorizationCredentials = Depends(security),
+) -> dict:
+    """Valida el token de dispositivo kiosko (scope=kiosk, sin expiración)."""
+    try:
+        payload = decode_token(credentials.credentials)
+    except JWTError:
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Token inválido")
+    if payload.get("scope") != "kiosk" or not payload.get("db_name") or not payload.get("device_id"):
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Token de kiosko inválido")
+    return payload
+
+
+async def get_kiosk_db(
+    payload: dict = Depends(get_kiosk_payload),
+) -> AsyncGenerator[AsyncSession, None]:
+    """Sesión de tenant para el kiosko, verificando que el dispositivo siga activo
+    (revocación inmediata vía kiosk_devices.is_active)."""
+    from app.models.tenant.kiosk_device import KioskDevice
+
+    connection_string = settings.tenant_database_url_template.replace("{db_name}", payload["db_name"])
+    engine = get_tenant_engine(connection_string)
+    async with async_sessionmaker(engine, expire_on_commit=False)() as session:
+        device = (await session.execute(
+            select(KioskDevice).where(
+                KioskDevice.id == payload["device_id"],
+                KioskDevice.token_jti == payload.get("jti", ""),
+            )
+        )).scalar_one_or_none()
+        if not device or not device.is_active:
+            raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Dispositivo revocado o no registrado")
+        yield session
+
+
 async def get_current_staff(
     credentials: HTTPAuthorizationCredentials = Depends(security),
     db: AsyncSession = Depends(get_tenant_db_from_token),

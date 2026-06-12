@@ -11,7 +11,9 @@ import MemberSelect from "@/components/common/MemberSelect";
 import { QrScanner } from "@/components/common/QrScanner";
 import { Textarea } from "@/components/ui/textarea";
 import { apiClient } from "@/lib/api";
+import { formatCOP, formatTimeAgo, parseUTC } from "@/lib/format";
 import { useApiResource } from "@/hooks/useApiResource";
+import { useReceptionEvents, type ReceptionEvent } from "@/hooks/useReceptionEvents";
 import type { CheckIn, CheckinResult, MembershipStatus } from "@/types/models";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
@@ -27,8 +29,6 @@ import {
 } from "@/components/ui/table";
 import { AlertCircle, CheckCircle2, QrCode, User, XCircle } from "lucide-react";
 import { toast } from "sonner";
-import { formatDistanceToNow } from "date-fns";
-import { es } from "date-fns/locale";
 
 type ActiveTab = "qr" | "manual";
 
@@ -113,6 +113,75 @@ const DENIAL_LABELS: Record<string, string> = {
   no_membership: "sin membresía",
 };
 
+function LiveDeniedCard({
+  event,
+  onAuthorize,
+  onDismiss,
+  authorizing,
+}: {
+  event: ReceptionEvent;
+  onAuthorize: (memberId: string, reason: string) => void;
+  onDismiss: (memberId: string) => void;
+  authorizing: boolean;
+}) {
+  const [reason, setReason] = useState("");
+  return (
+    <motion.div
+      layout
+      initial={{ opacity: 0, y: -16, scale: 0.97 }}
+      animate={{ opacity: 1, y: 0, scale: 1 }}
+      exit={{ opacity: 0, x: 40 }}
+      transition={{ type: "spring", stiffness: 350, damping: 28 }}
+      className="rounded-xl border border-red-300 dark:border-red-900/60 bg-red-50 dark:bg-red-950/30 p-4 space-y-3"
+    >
+      <div className="flex items-center gap-3">
+        {event.photo_url ? (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img src={event.photo_url} alt="" className="h-12 w-12 rounded-full object-cover shrink-0" />
+        ) : (
+          <span className="h-12 w-12 rounded-full bg-red-200 dark:bg-red-900/60 text-red-700 dark:text-red-300 flex items-center justify-center text-lg font-bold shrink-0">
+            {event.member_name[0]?.toUpperCase()}
+          </span>
+        )}
+        <div className="min-w-0 flex-1">
+          <p className="font-bold text-red-700 dark:text-red-300 leading-tight">
+            {event.member_name} — en la entrada
+          </p>
+          <p className="text-sm text-red-600/90 dark:text-red-400">
+            {DENIAL_LABELS[event.denial_reason ?? ""] ?? event.denial_reason}
+            {event.plan_name ? ` · ${event.plan_name}` : ""}
+            {event.days_overdue ? ` · venció hace ${event.days_overdue}d` : ""}
+            {event.amount_due ? ` · debe ${formatCOP(event.amount_due)}` : ""}
+          </p>
+        </div>
+        <button
+          onClick={() => onDismiss(event.member_id)}
+          className="text-red-400 hover:text-red-600 shrink-0"
+          title="Descartar"
+        >
+          <XCircle className="h-5 w-5" />
+        </button>
+      </div>
+      <div className="flex items-center gap-2">
+        <Input
+          value={reason}
+          onChange={(e) => setReason(e.target.value)}
+          placeholder="Motivo para autorizar..."
+          className="h-9 text-sm bg-white/70 dark:bg-black/20 border-red-200 dark:border-red-900/50"
+        />
+        <Button
+          type="button"
+          disabled={authorizing || !reason.trim()}
+          onClick={() => onAuthorize(event.member_id, reason.trim())}
+          className="h-9 shrink-0 bg-red-600 hover:bg-red-700 text-white font-semibold"
+        >
+          Autorizar entrada
+        </Button>
+      </div>
+    </motion.div>
+  );
+}
+
 function DecisionBadge({
   decision,
   denialReason,
@@ -159,6 +228,37 @@ export default function CheckinsClient() {
   const [notes, setNotes] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [overriding, setOverriding] = useState(false);
+  const [liveAlerts, setLiveAlerts] = useState<ReceptionEvent[]>([]);
+
+  useReceptionEvents((event) => {
+    if (event.type !== "checkin") return;
+    void fetchToday();
+    if (event.decision === "denied") {
+      toast.error(`${event.member_name} en la entrada — acceso denegado`);
+      setLiveAlerts((prev) =>
+        [event, ...prev.filter((a) => a.member_id !== event.member_id)].slice(0, 5)
+      );
+    } else {
+      // allowed/override: limpiar la alerta pendiente de ese miembro
+      setLiveAlerts((prev) => prev.filter((a) => a.member_id !== event.member_id));
+    }
+  });
+
+  const authorizeFromAlert = async (alertMemberId: string, reason: string) => {
+    if (!session?.accessToken) return;
+    setOverriding(true);
+    try {
+      const client = apiClient(session.accessToken as string);
+      await client.post("/api/v1/checkins/override", { member_id: alertMemberId, reason });
+      toast.success("Entrada autorizada");
+      setLiveAlerts((prev) => prev.filter((a) => a.member_id !== alertMemberId));
+      void fetchToday();
+    } catch (err: any) {
+      handleError(err, "Error autorizando la entrada");
+    } finally {
+      setOverriding(false);
+    }
+  };
 
   const handleResult = (data: CheckinResult) => {
     setResult(data);
@@ -241,6 +341,19 @@ export default function CheckinsClient() {
       className="space-y-6"
     >
       <PageHeader module="checkins" title="Check-ins" subtitle="Registra la asistencia de los miembros" />
+
+      {/* Denegados del kiosko/QR saltando en vivo */}
+      <AnimatePresence>
+        {liveAlerts.map((alert) => (
+          <LiveDeniedCard
+            key={`${alert.member_id}-${alert.at}`}
+            event={alert}
+            onAuthorize={authorizeFromAlert}
+            onDismiss={(id) => setLiveAlerts((prev) => prev.filter((a) => a.member_id !== id))}
+            authorizing={overriding}
+          />
+        ))}
+      </AnimatePresence>
 
       <GlassCard className="p-0 overflow-hidden">
         <div className="flex border-b border-[var(--border-base)]">
@@ -404,8 +517,8 @@ export default function CheckinsClient() {
                       <DecisionBadge decision={c.decision} denialReason={c.denial_reason} />
                     </TableCell>
                     <TableCell className="text-[var(--text-muted)] text-sm">
-                      <span title={new Date(c.created_at).toLocaleString("es-ES")}>
-                        {formatDistanceToNow(new Date(c.created_at), { addSuffix: true, locale: es })}
+                      <span title={parseUTC(c.created_at).toLocaleString("es-CO")}>
+                        {formatTimeAgo(c.created_at)}
                       </span>
                     </TableCell>
                   </TableRow>

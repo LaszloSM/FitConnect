@@ -4,7 +4,7 @@ import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { PageHeader } from "@/components/common/PageHeader";
 import { cn } from "@/lib/utils";
-import { User, Building2, Bell, CreditCard, Palette, SlidersHorizontal, Plug } from "lucide-react";
+import { User, Building2, Bell, CreditCard, Palette, SlidersHorizontal, Plug, MonitorSmartphone } from "lucide-react";
 import dynamic from "next/dynamic";
 
 const ProfileSection      = dynamic(() => import("@/components/settings/ProfileSection"));
@@ -14,8 +14,9 @@ const IntegrationsSection = dynamic(() => import("@/components/settings/Integrat
 const NotificationsSection = dynamic(() => import("@/components/settings/NotificationsSection"));
 const PlanSection         = dynamic(() => import("@/components/settings/PlanSection"));
 const AppearanceSection   = dynamic(() => import("@/components/settings/AppearanceSection"));
+const KioskSection        = dynamic(() => import("@/components/settings/KioskSection"));
 
-type TabKey = "profile" | "gym" | "operations" | "integrations" | "notifications" | "plan" | "appearance";
+type TabKey = "profile" | "gym" | "operations" | "kiosk" | "integrations" | "notifications" | "plan" | "appearance";
 
 interface Tab {
   key: TabKey;
@@ -27,6 +28,7 @@ const TABS: Tab[] = [
   { key: "profile",       label: "Perfil",          icon: User },
   { key: "gym",           label: "Gimnasio",         icon: Building2 },
   { key: "operations",    label: "Operación",        icon: SlidersHorizontal },
+  { key: "kiosk",         label: "Kiosko",           icon: MonitorSmartphone },
   { key: "integrations",  label: "Integraciones",    icon: Plug },
   { key: "notifications", label: "Notificaciones",   icon: Bell },
   { key: "plan",          label: "Plan",             icon: CreditCard },
@@ -37,6 +39,7 @@ const SECTION_MAP: Record<TabKey, React.ComponentType> = {
   profile:       ProfileSection,
   gym:           GymSection,
   operations:    OperationsSection,
+  kiosk:         KioskSection,
   integrations:  IntegrationsSection,
   notifications: NotificationsSection,
   plan:          PlanSection,

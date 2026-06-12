@@ -195,9 +195,12 @@ class CheckInResponse(BaseModel):
     denial_reason: Optional[str] = None
     created_at: datetime
     updated_at: datetime
+    source: Optional[str] = None
     # Inyectados por el endpoint — no vienen directo de la tabla checkins
     member_name: Optional[str] = None
     membership_status: Optional[Literal["ok", "in_grace", "expired", "frozen", "no_membership"]] = None
+    # Clase marcada como asistida automáticamente al entrar (±60 min)
+    upcoming_class: Optional[dict] = None
 
     class Config:
         from_attributes = True
