@@ -2,11 +2,11 @@ import logging
 from collections.abc import Awaitable, Callable
 
 from sqlalchemy import select
-from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker
+from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
+from sqlalchemy.pool import NullPool
 
 from app.core.config import settings
 from app.db.master_session import MasterSessionLocal
-from app.db.tenant_session import get_tenant_engine
 from app.models.master.tenant import Tenant, TenantStatus
 
 logger = logging.getLogger(__name__)
@@ -27,10 +27,15 @@ async def for_each_tenant(fn: TenantFn) -> None:
         connection_string = settings.tenant_database_url_template.replace(
             "{db_name}", tenant.db_name
         )
-        engine = get_tenant_engine(connection_string)
+        # Engine desechable sin pool: el cache de engines del request-path
+        # acumularía un pool por tenant y agota las conexiones de Postgres
+        # cuando hay muchos tenants.
+        engine = create_async_engine(connection_string, poolclass=NullPool)
         session_factory = async_sessionmaker(engine, expire_on_commit=False)
         try:
             async with session_factory() as session:
                 await fn(session, tenant)
         except Exception:
             logger.exception("Job falló para tenant %s (%s)", tenant.slug, tenant.db_name)
+        finally:
+            await engine.dispose()

@@ -9,7 +9,7 @@ from app.core.timeutil import now_bogota, today_bogota
 from app.db.master_session import master_engine
 from app.models.master.tenant import Tenant
 from app.models.tenant.membership import Membership, MembershipStatus
-from app.models.tenant.payment import Payment, PaymentStatus
+from app.models.tenant.payment import Payment, PaymentMethod, PaymentStatus
 from app.models.tenant.payment_link import PaymentLink
 from app.services.gym_settings import get_gym_settings, secret
 from app.services.payment_confirmation import confirm_payment
@@ -36,11 +36,82 @@ async def _expire_tenant_memberships(session: AsyncSession, tenant: Tenant) -> N
         logger.info("Tenant %s: %d membresías expiradas", tenant.slug, result.rowcount)
 
 
+async def _has_renewal_after(session: AsyncSession, membership: Membership) -> bool:
+    """True si el miembro ya tiene otra membresía vigente/programada que arranca
+    después de esta — ya renovó, no hay nada que recordarle."""
+    renewal = (await session.execute(
+        select(Membership.id).where(
+            Membership.member_id == membership.member_id,
+            Membership.id != membership.id,
+            Membership.status.in_([MembershipStatus.active.value, MembershipStatus.frozen.value]),
+            Membership.end_date > membership.end_date,
+        ).limit(1)
+    )).scalar_one_or_none()
+    return renewal is not None
+
+
+async def _renewal_checkout_url(session: AsyncSession, tenant: Tenant, membership: Membership, member_name: str) -> str | None:
+    """Link Wompi de renovación para incluir en recordatorios. Reutiliza un link
+    pendiente del mismo miembro+plan; None si Wompi no está configurado o el
+    plan ya no existe. Un fallo de Wompi no tumba el job."""
+    from decimal import Decimal
+    from app.models.tenant.member_plan import MemberPlan
+    from app.services.payment_links import create_payment_link_for
+
+    gym = await get_gym_settings(session)
+    if not (gym.wompi_public_key and secret(gym, "wompi_private_key")):
+        return None
+    if not membership.plan_id:
+        return None
+    plan = (await session.execute(
+        select(MemberPlan).where(MemberPlan.id == membership.plan_id)
+    )).scalar_one_or_none()
+    if not plan or not plan.is_active:
+        return None
+
+    existing = (await session.execute(
+        select(PaymentLink)
+        .join(Payment, Payment.id == PaymentLink.payment_id)
+        .where(
+            Payment.member_id == membership.member_id,
+            Payment.status == PaymentStatus.pending,
+            PaymentLink.status == "created",
+            PaymentLink.membership_intent["plan_id"].astext == str(plan.id),
+        )
+        .limit(1)
+    )).scalar_one_or_none()
+    if existing:
+        return existing.checkout_url
+
+    payment = Payment(
+        member_id=membership.member_id,
+        amount=Decimal(str(plan.price)),
+        method=PaymentMethod.wompi,
+        status=PaymentStatus.pending,
+        concept=f"Renovación {plan.name}",
+    )
+    session.add(payment)
+    await session.flush()
+    try:
+        link = await create_payment_link_for(
+            session, payment, tenant.slug, member_name=member_name,
+            membership_intent={"member_id": str(membership.member_id), "plan_id": str(plan.id)},
+        )
+    except Exception as e:  # noqa: BLE001
+        logger.warning("Tenant %s: no se pudo crear link Wompi para recordatorio: %s", tenant.slug, e)
+        await session.delete(payment)
+        return None
+    return link.checkout_url
+
+
 async def _emit_expiry_reminders(session: AsyncSession, tenant: Tenant) -> None:
-    """Encola recordatorios de vencimiento a D-3 y D-0 (idempotente por key)."""
+    """Encola recordatorios de vencimiento a D-3, D-0 y vencida D+3 (idempotente
+    por key). Si Wompi está configurado, incluye link de pago de renovación.
+    No recuerda a quien ya tiene una renovación encadenada."""
     from app.models.tenant.member import Member
     from app.services.events import emit
     today = today_bogota()
+
     for days in (3, 0):
         target = today + timedelta(days=days)
         rows = (await session.execute(
@@ -49,18 +120,47 @@ async def _emit_expiry_reminders(session: AsyncSession, tenant: Tenant) -> None:
             .where(
                 Membership.status == MembershipStatus.active.value,
                 Membership.end_date == target,
+                Membership.start_date <= today,
             )
         )).all()
         for m, name, phone in rows:
+            if await _has_renewal_after(session, m):
+                continue
+            link = await _renewal_checkout_url(session, tenant, m, name)
             label = "hoy" if days == 0 else f"en {days} días"
+            pay_hint = link or "en recepción"
             await emit(
                 session, "membership.expiring",
                 idempotency_key=f"expiring:{m.id}:{m.end_date.isoformat()}:{days}",
                 title="Membresía por vencer",
                 message=f"La membresía de {name} ({m.plan_name}) vence {label} ({m.end_date.isoformat()}).",
                 member_id=m.member_id, phone=phone,
-                template_params=[name, m.plan_name, m.end_date.isoformat()],
+                template_params=[name, m.plan_name, m.end_date.isoformat(), pay_hint],
             )
+
+    # Vencida hace 3 días: el empujón que recupera cartera
+    overdue_date = today - timedelta(days=3)
+    rows = (await session.execute(
+        select(Membership, Member.full_name, Member.phone)
+        .join(Member, Member.id == Membership.member_id)
+        .where(
+            Membership.status.in_([MembershipStatus.active.value, MembershipStatus.expired.value]),
+            Membership.end_date == overdue_date,
+        )
+    )).all()
+    for m, name, phone in rows:
+        if await _has_renewal_after(session, m):
+            continue
+        link = await _renewal_checkout_url(session, tenant, m, name)
+        pay_hint = link or "en recepción"
+        await emit(
+            session, "membership.overdue",
+            idempotency_key=f"overdue:{m.id}:{m.end_date.isoformat()}",
+            title="Membresía vencida",
+            message=f"La membresía de {name} ({m.plan_name}) venció hace 3 días ({m.end_date.isoformat()}).",
+            member_id=m.member_id, phone=phone,
+            template_params=[name, m.plan_name, m.end_date.isoformat(), pay_hint],
+        )
     await session.commit()
 
 

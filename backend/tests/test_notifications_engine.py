@@ -61,6 +61,82 @@ async def test_expiry_reminder_emitted_and_idempotent(client):
     assert len(expiring_after) == count_first
 
 
+async def test_overdue_reminder_emitted_and_idempotent(client):
+    token = await _owner_token(client)
+    # Venció hace exactamente 3 días (D+3)
+    member_id = await _member_with_membership(
+        client, token, _today_bogota() - timedelta(days=33), duration=30
+    )
+
+    r = await client.post("/api/v1/admin/run-job/expire_memberships", headers=_auth(token))
+    assert r.status_code == 200, r.text
+    notifs = (await client.get("/api/v1/notifications?limit=100", headers=_auth(token))).json()
+    overdue = [n for n in notifs if n["type"] == "membership.overdue" and n.get("member_id") == member_id]
+    assert len(overdue) == 1
+
+    await client.post("/api/v1/admin/run-job/expire_memberships", headers=_auth(token))
+    notifs = (await client.get("/api/v1/notifications?limit=100", headers=_auth(token))).json()
+    overdue = [n for n in notifs if n["type"] == "membership.overdue" and n.get("member_id") == member_id]
+    assert len(overdue) == 1
+
+
+async def test_no_reminder_when_already_renewed(client):
+    token = await _owner_token(client)
+    # Vence hoy, pero ya renovó (assign encadena la siguiente)
+    member_id = await _member_with_membership(
+        client, token, _today_bogota() - timedelta(days=30), duration=30
+    )
+    plan = await client.post("/api/v1/member-plans/", json={
+        "name": f"Plan R {uuid.uuid4().hex[:6]}", "price": 50000, "duration_days": 30,
+    }, headers=_auth(token))
+    r = await client.post("/api/v1/member-plans/assign", json={
+        "member_id": member_id, "plan_id": plan.json()["id"],
+        "start_date": _today_bogota().isoformat(),
+    }, headers=_auth(token))
+    assert r.status_code == 200, r.text
+
+    await client.post("/api/v1/admin/run-job/expire_memberships", headers=_auth(token))
+    notifs = (await client.get("/api/v1/notifications?limit=100", headers=_auth(token))).json()
+    expiring = [n for n in notifs if n["type"] == "membership.expiring" and n.get("member_id") == member_id]
+    assert expiring == []
+
+
+async def test_reminder_includes_wompi_link_when_configured(client, monkeypatch):
+    token = await _owner_token(client)
+
+    async def fake_create_payment_link(self, **kwargs):
+        return {"id": "fake-link-123"}
+
+    from app.services.wompi import WompiClient
+    monkeypatch.setattr(WompiClient, "create_payment_link", fake_create_payment_link)
+
+    r = await client.patch("/api/v1/settings/integrations", json={
+        "wompi_public_key": "pub_test_x", "wompi_private_key": "prv_test_x",
+        "wompi_events_secret": "events_x",
+        "whatsapp_phone_number_id": "12345", "whatsapp_access_token": "EAAG_test",
+    }, headers=_auth(token))
+    assert r.status_code == 200, r.text
+
+    member_id = await _member_with_membership(
+        client, token, _today_bogota() - timedelta(days=33), duration=30, phone="3001112233"
+    )
+    await client.post("/api/v1/admin/run-job/expire_memberships", headers=_auth(token))
+
+    outbox = (await client.get("/api/v1/notifications/outbox", headers=_auth(token))).json()
+    mine = [
+        o for o in outbox
+        if o.get("event_type") == "membership.overdue" and o.get("member_id") == member_id
+    ]
+    assert len(mine) == 1, outbox
+    params = mine[0]["template_params"]["params"]
+    assert params[3].startswith("https://checkout.wompi.co/l/")
+
+    # Quitar credenciales para no contaminar otros tests del mismo tenant
+    await client.patch("/api/v1/settings/integrations", json={
+        "wompi_public_key": "", "whatsapp_phone_number_id": "",
+    }, headers=_auth(token))
+
+
 async def test_outbox_endpoint_owner_only(client):
     token = await _owner_token(client)
     r = await client.get("/api/v1/notifications/outbox", headers=_auth(token))

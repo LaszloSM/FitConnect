@@ -27,6 +27,8 @@ async def list_outbox(
     return [
         {
             "id": str(o.id), "event_type": o.event_type, "recipient_phone": o.recipient_phone,
+            "member_id": str(o.member_id) if o.member_id else None,
+            "template_name": o.template_name, "template_params": o.template_params,
             "status": o.status, "attempts": o.attempts, "last_error": o.last_error,
             "created_at": o.created_at, "sent_at": o.sent_at,
         }

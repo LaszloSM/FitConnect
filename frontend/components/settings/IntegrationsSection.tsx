@@ -167,6 +167,19 @@ export default function IntegrationsSection() {
             </Button>
           </div>
         </form>
+        <div className="rounded-lg border border-[var(--border-base)] bg-[var(--bg-base)] p-3 space-y-1.5">
+          <p className="text-xs font-semibold text-[var(--text-base)]">Plantillas que debes aprobar en WhatsApp Business (idioma es_CO):</p>
+          <ul className="text-[11px] text-[var(--text-muted)] space-y-1 font-mono">
+            <li>recordatorio_vencimiento — {"{{1}}"} nombre, {"{{2}}"} plan, {"{{3}}"} fecha, {"{{4}}"} link de pago</li>
+            <li>recordatorio_vencido — {"{{1}}"} nombre, {"{{2}}"} plan, {"{{3}}"} fecha, {"{{4}}"} link de pago</li>
+            <li>confirmacion_pago — {"{{1}}"} nombre, {"{{2}}"} monto, {"{{3}}"} concepto</li>
+            <li>link_de_pago — {"{{1}}"} nombre, {"{{2}}"} monto, {"{{3}}"} link</li>
+          </ul>
+          <p className="text-[11px] text-[var(--text-muted)]">
+            Los recordatorios se envían solos cada día: 3 días antes de vencer, el día del vencimiento
+            y 3 días después. Si Wompi está configurado, incluyen el link de pago.
+          </p>
+        </div>
       </GlassCard>
     </div>
   );
