@@ -22,6 +22,8 @@ from app.models.tenant.expense import Expense
 from app.models.tenant.receipt import Receipt
 from app.models.tenant.payment_link import PaymentLink, WebhookEvent
 from app.models.tenant.notification_outbox import NotificationOutbox
+from app.models.tenant.product import Product
+from app.models.tenant.payment_item import PaymentItem
 
 __all__ = [
     "UserStaff", "UserRole",
@@ -48,4 +50,6 @@ __all__ = [
     "PaymentLink",
     "WebhookEvent",
     "NotificationOutbox",
+    "Product",
+    "PaymentItem",
 ]

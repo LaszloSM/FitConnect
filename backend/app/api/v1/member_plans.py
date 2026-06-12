@@ -175,6 +175,8 @@ async def _create_membership(
         status=MembershipStatus.active.value,
     )
     db.add(membership)
+    # El id de la membresía debe existir para vincular el pago (saldo pendiente computable)
+    await db.flush()
 
     if payment_method:
         method_map = {
@@ -184,15 +186,19 @@ async def _create_membership(
             "wompi": PaymentMethod.wompi,
         }
         method = method_map.get(payment_method, PaymentMethod.cash)
-        db.add(Payment(
+        payment = Payment(
             member_id=member_id,
+            membership_id=membership.id,
             amount=net_price,
             method=method,
             status=PaymentStatus.pending,
             concept=f"Membresía {plan.name}",
-        ))
+        )
+        db.add(payment)
+        await db.flush()
+        return membership, payment
 
-    return membership
+    return membership, None
 
 
 @router.post("/assign")
@@ -214,7 +220,7 @@ async def assign_membership(
     if not plan:
         raise HTTPException(status_code=404, detail="Plan no encontrado")
 
-    membership = await _create_membership(
+    membership, _ = await _create_membership(
         db, uuid.UUID(data.member_id), plan, data.start_date, data.payment_method,
         discount_amount=data.discount_amount,
         discount_reason=data.discount_reason,
@@ -230,3 +236,97 @@ async def assign_membership(
     await db.commit()
     await db.refresh(membership)
     return membership
+
+
+class ChargeMembership(BaseModel):
+    member_id: str
+    plan_id: str
+    method: str  # "cash" | "transfer" | "card"
+    # Descuento manual o promo, como en /assign
+    discount_amount: float | None = None
+    discount_reason: str | None = None
+    promo_code: str | None = None
+
+
+@router.post("/charge")
+async def charge_membership(
+    data: ChargeMembership,
+    db: AsyncSession = Depends(get_tenant_db_from_token),
+    current_user=Depends(get_current_staff),
+):
+    """Cobro POS en un paso: crea/renueva la membresía, marca el pago como pagado
+    y emite el recibo. Si hay membresía vigente, la renovación arranca cuando esa
+    termina (no se pierden días pagados)."""
+    from datetime import timedelta as td
+    from app.core.timeutil import today_bogota
+    from app.models.tenant.member import Member
+    from app.models.tenant.member_plan import MemberPlan
+    from app.models.tenant.membership import Membership
+    from app.models.tenant.payment import PaymentMethod, PaymentStatus
+    from app.models.tenant.cash_shift import CashShift
+    from app.services.audit import audit
+    from app.services.gym_settings import get_gym_settings
+    from app.services.membership_status import effective_status
+    from app.services.receipts import issue_receipt
+
+    if data.method not in ("cash", "transfer", "card"):
+        raise HTTPException(status_code=400, detail="Método inválido para cobro directo (usa link Wompi)")
+
+    member = (await db.execute(
+        select(Member).where(Member.id == uuid.UUID(data.member_id))
+    )).scalar_one_or_none()
+    if not member:
+        raise HTTPException(status_code=404, detail="Miembro no encontrado")
+    plan = (await db.execute(
+        select(MemberPlan).where(MemberPlan.id == uuid.UUID(data.plan_id))
+    )).scalar_one_or_none()
+    if not plan:
+        raise HTTPException(status_code=404, detail="Plan no encontrado")
+
+    shift = None
+    if data.method == "cash":
+        shift = (await db.execute(
+            select(CashShift).where(CashShift.status == "open", CashShift.location_id.is_(None)).limit(1)
+        )).scalar_one_or_none()
+        if shift is None:
+            raise HTTPException(status_code=400, detail="Abre un turno de caja antes de cobrar en efectivo")
+
+    # Renovación sin perder días: arranca al terminar la membresía vigente
+    gym = await get_gym_settings(db)
+    today = today_bogota()
+    start = today
+    memberships = (await db.execute(
+        select(Membership).where(Membership.member_id == member.id)
+        .order_by(Membership.end_date.desc())
+    )).scalars().all()
+    for m in memberships:
+        if effective_status(m, today=today, grace_days=gym.grace_days) in ("active", "frozen"):
+            start = m.end_date + td(days=1)
+            break
+
+    membership, payment = await _create_membership(
+        db, member.id, plan, start, data.method,
+        discount_amount=data.discount_amount,
+        discount_reason=data.discount_reason,
+        promo_code=data.promo_code,
+    )
+    payment.status = PaymentStatus.paid
+    payment.received_by = current_user.id
+    if shift is not None:
+        payment.shift_id = shift.id
+    await db.flush()
+    receipt = await issue_receipt(db, payment)
+    audit(db, current_user, "membership.charge", "membership", membership.id, {
+        "member_id": str(member.id), "plan_name": plan.name,
+        "price": str(membership.price), "method": data.method,
+    })
+    await db.commit()
+    await db.refresh(membership)
+    return {
+        "membership_id": str(membership.id),
+        "payment_id": str(payment.id),
+        "receipt_number": receipt.snapshot.get("receipt_number"),
+        "start_date": membership.start_date.isoformat(),
+        "end_date": membership.end_date.isoformat(),
+        "amount": str(payment.amount),
+    }

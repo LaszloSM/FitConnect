@@ -1,19 +1,25 @@
 import uuid
 from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import select, func, desc
+from sqlalchemy import select, func, desc, update
 from datetime import date, datetime, timedelta
 from decimal import Decimal
 
 from app.api.deps import get_tenant_db_from_token, get_current_staff, get_tenant_slug
+from app.core.timeutil import today_bogota
 from app.schemas.member import PaymentCreate, PaymentUpdate, PaymentResponse
+from app.schemas.pos import PaymentItemOut, ReceivableOut
 from app.models.tenant.payment import Payment, PaymentStatus, PaymentMethod
+from app.models.tenant.payment_item import PaymentItem
+from app.models.tenant.product import Product
 from app.models.tenant.member import Member
 from app.models.tenant.membership import Membership
 from app.models.tenant.cash_shift import CashShift
 from app.models.tenant.receipt import Receipt
 from app.models.tenant.user_staff import UserStaff
 from app.services.audit import audit
+from app.services.gym_settings import get_gym_settings
+from app.services.membership_status import effective_status
 from app.services.receipts import issue_receipt
 from app.services.payment_links import create_payment_link_for
 
@@ -68,16 +74,64 @@ async def list_payments(
     return [_payment_response(p, names.get(p.member_id)) for p in payments]
 
 
+async def _resolve_items(payload: PaymentCreate, db: AsyncSession) -> tuple[list[dict], Decimal]:
+    """Resuelve los renglones de venta: snapshot de nombre/precio del catálogo y
+    descuento de stock atómico (UPDATE condicional, 409 si no alcanza)."""
+    items: list[dict] = []
+    total = Decimal(0)
+    for item in payload.items:
+        if item.product_id:
+            row = (await db.execute(
+                update(Product)
+                .where(
+                    Product.id == item.product_id,
+                    Product.is_active.is_(True),
+                    Product.stock >= item.quantity,
+                )
+                .values(stock=Product.stock - item.quantity)
+                .returning(Product.name, Product.price)
+            )).first()
+            if row is None:
+                product = (await db.execute(
+                    select(Product).where(Product.id == item.product_id)
+                )).scalar_one_or_none()
+                if not product:
+                    raise HTTPException(status_code=404, detail="Producto no encontrado")
+                if not product.is_active:
+                    raise HTTPException(status_code=409, detail=f"{product.name} está archivado")
+                raise HTTPException(
+                    status_code=409,
+                    detail=f"Stock insuficiente de {product.name}: quedan {product.stock}",
+                )
+            description = row.name
+            unit_price = item.unit_price if item.unit_price is not None else row.price
+        else:
+            description = item.description
+            unit_price = item.unit_price
+        subtotal = (unit_price * item.quantity).quantize(Decimal("0.01"))
+        items.append({
+            "product_id": item.product_id,
+            "description": description,
+            "quantity": item.quantity,
+            "unit_price": unit_price,
+            "subtotal": subtotal,
+        })
+        total += subtotal
+    return items, total
+
+
 @router.post("", response_model=PaymentResponse, status_code=201)
 async def create_payment(
     payload: PaymentCreate,
     db: AsyncSession = Depends(get_tenant_db_from_token),
     current_user: UserStaff = Depends(get_current_staff),
 ):
-    member_result = await db.execute(select(Member).where(Member.id == payload.member_id))
-    member = member_result.scalar_one_or_none()
-    if not member:
-        raise HTTPException(status_code=404, detail="Miembro no encontrado")
+    member = None
+    if payload.member_id is not None:
+        member_result = await db.execute(select(Member).where(Member.id == payload.member_id))
+        member = member_result.scalar_one_or_none()
+        if not member:
+            raise HTTPException(status_code=404, detail="Miembro no encontrado")
 
     if payload.membership_id is not None:
         mem_result = await db.execute(
@@ -102,21 +156,33 @@ async def create_payment(
             detail="Abre un turno de caja antes de cobrar en efectivo",
         )
 
-    payment = Payment(**payload.model_dump(), received_by=current_user.id)
+    items, items_total = await _resolve_items(payload, db)
+
+    payment = Payment(**payload.model_dump(exclude={"items"}), received_by=current_user.id)
+    if items:
+        # El total de una venta con items siempre es la suma de sus renglones
+        payment.amount = items_total
     if is_cash_paid:
         payment.shift_id = shift.id
     db.add(payment)
+    await db.flush()
+    for item in items:
+        db.add(PaymentItem(payment_id=payment.id, **item))
     await db.flush()
 
     if payment.status == PaymentStatus.paid:
         await issue_receipt(db, payment)
     audit(db, current_user, "payment.create", "payment", payment.id, {
         "amount": str(payment.amount), "method": payment.method.value if payment.method else None,
-        "status": payment.status.value,
+        "status": payment.status.value, "items": len(items),
     })
     await db.commit()
     await db.refresh(payment)
-    return _payment_response(payment, member.full_name)
+    response = _payment_response(payment, member.full_name if member else None)
+    response.items = [PaymentItemOut.model_validate(i) for i in (await db.execute(
+        select(PaymentItem).where(PaymentItem.payment_id == payment.id)
+    )).scalars().all()]
+    return response
 
 
 @router.get("/cash")
@@ -151,6 +217,75 @@ async def cash_box(
     }
 
 
+@router.get("/receivables", response_model=list[ReceivableOut])
+async def list_receivables(
+    db: AsyncSession = Depends(get_tenant_db_from_token),
+):
+    """Cuentas por cobrar: membresías vencidas/en gracia (≤30 días) para renovar,
+    y saldos parciales pendientes de membresías vigentes."""
+    gym = await get_gym_settings(db)
+    today = today_bogota()
+
+    memberships = (await db.execute(
+        select(Membership).order_by(desc(Membership.end_date))
+    )).scalars().all()
+    latest: dict[uuid.UUID, Membership] = {}
+    for m in memberships:
+        if m.member_id not in latest:
+            latest[m.member_id] = m
+    if not latest:
+        return []
+
+    member_rows = (await db.execute(
+        select(Member.id, Member.full_name, Member.phone, Member.status)
+        .where(Member.id.in_(list(latest.keys())))
+    )).all()
+    members = {mid: (name, phone, status) for mid, name, phone, status in member_rows}
+
+    membership_ids = [m.id for m in latest.values()]
+    paid_rows = (await db.execute(
+        select(Payment.membership_id, func.coalesce(func.sum(Payment.amount), 0))
+        .where(Payment.membership_id.in_(membership_ids), Payment.status == PaymentStatus.paid)
+        .group_by(Payment.membership_id)
+    )).all()
+    paid_by_membership = {mid: total for mid, total in paid_rows}
+    linked_rows = (await db.execute(
+        select(Payment.membership_id, func.count())
+        .where(Payment.membership_id.in_(membership_ids))
+        .group_by(Payment.membership_id)
+    )).all()
+    linked_by_membership = {mid: n for mid, n in linked_rows}
+
+    results: list[ReceivableOut] = []
+    for member_id, m in latest.items():
+        info = members.get(member_id)
+        if not info or info[2] != "active":
+            continue
+        name, phone, _ = info
+        st = effective_status(m, today=today, grace_days=gym.grace_days)
+        days_overdue = max((today - m.end_date).days, 0)
+
+        if st in ("in_grace", "expired") and days_overdue <= 30:
+            results.append(ReceivableOut(
+                member_id=member_id, member_name=name, phone=phone,
+                plan_name=m.plan_name, end_date=m.end_date,
+                effective_status=st, days_overdue=days_overdue,
+                amount_due=m.price, kind="renewal",
+            ))
+        elif st in ("active", "frozen") and linked_by_membership.get(m.id):
+            balance = m.price - Decimal(paid_by_membership.get(m.id, 0))
+            if balance > 0:
+                results.append(ReceivableOut(
+                    member_id=member_id, member_name=name, phone=phone,
+                    plan_name=m.plan_name, end_date=m.end_date,
+                    effective_status=st, days_overdue=0,
+                    amount_due=balance, kind="balance",
+                ))
+
+    results.sort(key=lambda r: (-r.days_overdue, r.member_name))
+    return results
+
+
 @router.get("/{payment_id}", response_model=PaymentResponse)
 async def get_payment(
     payment_id: uuid.UUID,
@@ -161,7 +296,11 @@ async def get_payment(
     if not payment:
         raise HTTPException(status_code=404, detail="Pago no encontrado")
     names = await _member_names([payment.member_id], db)
-    return _payment_response(payment, names.get(payment.member_id))
+    response = _payment_response(payment, names.get(payment.member_id))
+    response.items = [PaymentItemOut.model_validate(i) for i in (await db.execute(
+        select(PaymentItem).where(PaymentItem.payment_id == payment.id)
+    )).scalars().all()]
+    return response
 
 
 @router.put("/{payment_id}", response_model=PaymentResponse)
@@ -193,6 +332,26 @@ async def delete_payment(
     payment = result.scalar_one_or_none()
     if not payment:
         raise HTTPException(status_code=404, detail="Pago no encontrado")
+    receipt = (await db.execute(
+        select(Receipt.id).where(Receipt.payment_id == payment_id).limit(1)
+    )).scalar_one_or_none()
+    if receipt:
+        raise HTTPException(
+            status_code=400,
+            detail="Este pago ya tiene recibo emitido; usa un reembolso en vez de borrarlo",
+        )
+    # Devolver stock de los renglones de producto antes de borrar
+    items = (await db.execute(
+        select(PaymentItem).where(PaymentItem.payment_id == payment_id)
+    )).scalars().all()
+    for item in items:
+        if item.product_id:
+            await db.execute(
+                update(Product)
+                .where(Product.id == item.product_id)
+                .values(stock=Product.stock + item.quantity)
+            )
+        await db.delete(item)
     await db.delete(payment)
     await db.commit()
     return None

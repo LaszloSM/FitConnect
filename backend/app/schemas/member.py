@@ -9,6 +9,7 @@ from app.models.tenant.member import MemberStatus, IdType, Gender, TrainingGoal
 from app.models.tenant.payment import PaymentMethod, PaymentStatus
 from app.models.tenant.checkin import CheckInType
 from app.models.tenant.membership import MembershipStatus
+from app.schemas.pos import PaymentItemIn, PaymentItemOut
 
 
 # ─── Member ───
@@ -138,7 +139,8 @@ class MembershipResponse(MembershipBase):
 
 # ─── Payment ───
 class PaymentBase(BaseModel):
-    member_id: uuid.UUID
+    # Nullable: una venta de mostrador a un walk-in no tiene miembro
+    member_id: Optional[uuid.UUID] = None
     membership_id: Optional[uuid.UUID] = None
     amount: Decimal = Field(gt=0, decimal_places=2)
     method: Optional[PaymentMethod] = None
@@ -148,7 +150,14 @@ class PaymentBase(BaseModel):
 
 
 class PaymentCreate(PaymentBase):
-    pass
+    # Venta de productos/cargos sueltos en el mismo pago (POS)
+    items: list["PaymentItemIn"] = []
+
+    @model_validator(mode="after")
+    def member_or_items(self):
+        if self.member_id is None and not self.items:
+            raise ValueError("Un pago sin miembro debe tener al menos un item de venta")
+        return self
 
 
 class PaymentUpdate(BaseModel):
@@ -163,8 +172,9 @@ class PaymentResponse(PaymentBase):
     id: uuid.UUID
     created_at: datetime
     updated_at: datetime
-    # Inyectado por el endpoint vía bulk-fetch — no viene de la tabla payments
+    # Inyectados por el endpoint — no vienen directo de la tabla payments
     member_name: Optional[str] = None
+    items: list[PaymentItemOut] = []
 
     class Config:
         from_attributes = True

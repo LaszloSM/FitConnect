@@ -3,6 +3,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.models.tenant.member import Member
 from app.models.tenant.payment import Payment
+from app.models.tenant.payment_item import PaymentItem
 from app.models.tenant.receipt import Receipt
 from app.services.gym_settings import get_gym_settings
 
@@ -18,9 +19,15 @@ async def issue_receipt(db: AsyncSession, payment: Payment) -> Receipt:
         return existing
 
     gym = await get_gym_settings(db)
-    member = (await db.execute(
-        select(Member).where(Member.id == payment.member_id)
-    )).scalar_one_or_none()
+    member = None
+    if payment.member_id is not None:
+        member = (await db.execute(
+            select(Member).where(Member.id == payment.member_id)
+        )).scalar_one_or_none()
+
+    items = (await db.execute(
+        select(PaymentItem).where(PaymentItem.payment_id == payment.id)
+    )).scalars().all()
 
     number = (await db.execute(text("SELECT nextval('receipt_number_seq')"))).scalar()
     snapshot = {
@@ -31,6 +38,15 @@ async def issue_receipt(db: AsyncSession, payment: Payment) -> Receipt:
         "amount": str(payment.amount),
         "method": payment.method.value if payment.method else None,
         "payment_id": str(payment.id),
+        "items": [
+            {
+                "description": i.description,
+                "quantity": i.quantity,
+                "unit_price": str(i.unit_price),
+                "subtotal": str(i.subtotal),
+            }
+            for i in items
+        ],
     }
     receipt = Receipt(payment_id=payment.id, number=number, snapshot=snapshot)
     db.add(receipt)

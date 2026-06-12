@@ -136,6 +136,78 @@ async def create_member(
     return member
 
 
+@router.get("/{member_id}/billing-summary")
+async def get_billing_summary(
+    member_id: uuid.UUID,
+    db: AsyncSession = Depends(get_tenant_db_from_token),
+):
+    """Resumen de cobro para el POS: membresía vigente/última, días vencidos,
+    saldo pendiente y renovación sugerida con precio actual del plan."""
+    from app.models.tenant.member_plan import MemberPlan
+    from app.models.tenant.payment import Payment, PaymentStatus
+    from app.schemas.pos import BillingSummary, BillingMembership, BillingRenewal
+
+    member = (await db.execute(select(Member).where(Member.id == member_id))).scalar_one_or_none()
+    if not member:
+        raise HTTPException(status_code=404, detail="Miembro no encontrado")
+
+    gym = await get_gym_settings(db)
+    today = today_bogota()
+    memberships = (await db.execute(
+        select(Membership).where(Membership.member_id == member_id)
+        .order_by(Membership.end_date.desc())
+    )).scalars().all()
+
+    current = None
+    for m in memberships:
+        if effective_status(m, today=today, grace_days=gym.grace_days) in ("active", "frozen", "in_grace"):
+            current = m
+            break
+    latest = current or (memberships[0] if memberships else None)
+
+    summary = BillingSummary(member_id=member.id, member_name=member.full_name, phone=member.phone)
+
+    if latest:
+        st = effective_status(latest, today=today, grace_days=gym.grace_days)
+        paid_sum = (await db.execute(
+            select(func.coalesce(func.sum(Payment.amount), 0)).where(
+                Payment.membership_id == latest.id, Payment.status == PaymentStatus.paid
+            )
+        )).scalar_one()
+        linked = (await db.execute(
+            select(func.count()).select_from(Payment).where(Payment.membership_id == latest.id)
+        )).scalar_one()
+        balance = latest.price - Decimal(paid_sum) if linked else Decimal(0)
+        summary.membership = BillingMembership(
+            id=latest.id,
+            plan_name=latest.plan_name,
+            end_date=latest.end_date,
+            effective_status=st,
+            days_overdue=max((today - latest.end_date).days, 0),
+            balance_due=max(balance, Decimal(0)),
+        )
+
+        # Renovación sugerida: precio ACTUAL del plan vinculado; si el plan ya no
+        # existe o está archivado, se sugiere el último precio cobrado.
+        plan = None
+        if latest.plan_id:
+            plan = (await db.execute(
+                select(MemberPlan).where(MemberPlan.id == latest.plan_id, MemberPlan.is_active.is_(True))
+            )).scalar_one_or_none()
+        if plan:
+            summary.renewal = BillingRenewal(
+                plan_id=plan.id, plan_name=plan.name,
+                price=plan.price, duration_days=plan.duration_days,
+            )
+        else:
+            summary.renewal = BillingRenewal(
+                plan_id=latest.plan_id, plan_name=latest.plan_name,
+                price=latest.price, duration_days=latest.duration_days,
+            )
+
+    return summary
+
+
 @router.get("/missing-id-number/count")
 async def count_missing_id_number(
     db: AsyncSession = Depends(get_tenant_db_from_token),
