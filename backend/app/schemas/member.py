@@ -130,6 +130,9 @@ class MembershipResponse(MembershipBase):
     updated_at: datetime
     discount_amount: Optional[Decimal] = None
     discount_reason: Optional[str] = None
+    # Snapshot de derechos del plan al momento de la venta
+    access_type: Optional[str] = None
+    class_credits_per_month: Optional[int] = None
     # Derivado de end_date/status en tiempo de lectura (no persiste un status stale)
     effective_status: Optional[Literal["active", "frozen", "in_grace", "expired", "cancelled"]] = None
 

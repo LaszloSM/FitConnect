@@ -33,6 +33,8 @@ class LocationResponse(LocationBase):
 class GymClassBase(BaseModel):
     name: str = Field(min_length=1, max_length=255)
     instructor: str = Field(min_length=1, max_length=255)
+    # Vínculo a la entidad instructor; el texto queda como snapshot
+    instructor_id: Optional[uuid.UUID] = None
     schedule: Optional[str] = Field(default=None, max_length=255)  # legado — usar weekdays+start_time
     weekdays: Optional[list[int]] = None  # [0=Lun..6=Dom]
     start_time: Optional[time] = None
@@ -53,6 +55,7 @@ class GymClassCreate(GymClassBase):
 class GymClassUpdate(BaseModel):
     name: Optional[str] = Field(default=None, min_length=1, max_length=255)
     instructor: Optional[str] = Field(default=None, min_length=1, max_length=255)
+    instructor_id: Optional[uuid.UUID] = None
     schedule: Optional[str] = Field(default=None, max_length=255)
     weekdays: Optional[list[int]] = None
     start_time: Optional[time] = None

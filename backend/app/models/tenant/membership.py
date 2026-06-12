@@ -39,4 +39,10 @@ class Membership(TenantBase, TenantTimestampMixin):
     status: Mapped[str] = mapped_column(String(20), default=MembershipStatus.active.value, nullable=False)
     # Cuándo la marcó expirada el job diario (None si expiró por backfill o sigue activa)
     expired_at: Mapped[Optional[datetime]] = mapped_column(DateTime(timezone=True), nullable=True)
+    # Snapshot de los derechos del plan al momento de la venta: editar el plan
+    # después no cambia lo que el miembro ya compró.
+    access_type: Mapped[str] = mapped_column(
+        String(20), default="gym_and_classes", server_default="gym_and_classes", nullable=False
+    )
+    class_credits_per_month: Mapped[Optional[int]] = mapped_column(Integer, nullable=True)
     notes: Mapped[Optional[str]] = mapped_column(String(500), nullable=True)

@@ -13,6 +13,7 @@ from app.models.tenant.member import Member
 from app.models.tenant.membership import Membership
 from app.models.tenant.session_booking import SessionBooking
 from app.models.tenant.user_staff import UserStaff
+from app.services.class_access import validate_class_access
 from app.services.class_sessions import materialize_sessions, seed_bookings_from_enrollments
 from app.services.gym_settings import get_gym_settings
 from app.services.membership_status import effective_status
@@ -168,12 +169,13 @@ async def book_session(
     if not member:
         raise HTTPException(status_code=404, detail="Miembro no encontrado")
 
-    # Validar membresía (in_grace permitido con aviso)
+    # Validar membresía y derechos de clase del plan (in_grace permitido con aviso)
     gym = await get_gym_settings(db)
-    memberships = (await db.execute(select(Membership).where(Membership.member_id == member.id))).scalars().all()
-    statuses = {effective_status(m, grace_days=gym.grace_days) for m in memberships}
-    if not (statuses & {"active", "in_grace"}):
-        raise HTTPException(status_code=400, detail="El miembro no tiene una membresía vigente")
+    access = await validate_class_access(db, member.id, gym.grace_days)
+    if access.result == "no_membership":
+        raise HTTPException(status_code=400, detail=access.detail)
+    if access.result in ("no_class_access", "no_credits"):
+        raise HTTPException(status_code=403, detail=access.detail)
 
     existing = (await db.execute(
         select(SessionBooking).where(
@@ -207,7 +209,14 @@ async def book_session(
     db.add(booking)
     await db.commit()
     await db.refresh(booking)
-    return {"booking_id": str(booking.id), "status": booking.status, "waitlist_position": booking.waitlist_position}
+    remaining = access.credits_remaining
+    return {
+        "booking_id": str(booking.id),
+        "status": booking.status,
+        "waitlist_position": booking.waitlist_position,
+        # None = ilimitadas; ya descontando esta reserva
+        "credits_remaining": remaining - 1 if remaining is not None else None,
+    }
 
 
 @router.delete("/{session_id}/bookings/{booking_id}")

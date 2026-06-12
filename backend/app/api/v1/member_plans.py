@@ -4,6 +4,7 @@ from sqlalchemy import select
 from app.api.deps import get_tenant_db_from_token, get_current_staff
 from pydantic import BaseModel
 from datetime import date, timedelta
+from typing import Literal
 import uuid
 
 router = APIRouter(prefix="/member-plans", tags=["member_plans"])
@@ -15,6 +16,9 @@ class PlanCreate(BaseModel):
     duration_days: int
     description: str | None = None
     is_active: bool = True
+    # gym_only | gym_and_classes; créditos: None = ilimitadas
+    access_type: Literal["gym_only", "gym_and_classes"] = "gym_and_classes"
+    class_credits_per_month: int | None = None
 
 
 class PlanUpdate(BaseModel):
@@ -23,6 +27,8 @@ class PlanUpdate(BaseModel):
     duration_days: int | None = None
     description: str | None = None
     is_active: bool | None = None
+    access_type: Literal["gym_only", "gym_and_classes"] | None = None
+    class_credits_per_month: int | None = None
 
 
 class AssignMembership(BaseModel):
@@ -61,7 +67,8 @@ async def update_plan(plan_id: str, data: PlanUpdate, db: AsyncSession = Depends
     plan = result.scalar_one_or_none()
     if not plan:
         raise HTTPException(status_code=404, detail="Plan no encontrado")
-    for field, val in data.model_dump(exclude_none=True).items():
+    # exclude_unset (no exclude_none): poner créditos en None = volver a ilimitadas
+    for field, val in data.model_dump(exclude_unset=True).items():
         setattr(plan, field, val)
     await db.commit()
     await db.refresh(plan)
@@ -165,6 +172,9 @@ async def _create_membership(
         member_id=member_id,
         plan_id=plan.id,
         plan_name=plan.name,
+        # Snapshot de derechos: editar el plan luego no cambia lo ya vendido
+        access_type=getattr(plan, "access_type", "gym_and_classes"),
+        class_credits_per_month=getattr(plan, "class_credits_per_month", None),
         price=net_price,
         discount_amount=discount,
         discount_reason=reason,

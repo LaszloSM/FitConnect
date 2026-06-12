@@ -31,7 +31,9 @@ class GymClass(TenantBase, TenantTimestampMixin):
 
     id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     name: Mapped[str] = mapped_column(String(255), nullable=False)
+    # Texto legacy/snapshot; instructor_id es el vínculo real a la entidad
     instructor: Mapped[str] = mapped_column(String(255), nullable=False)
+    instructor_id: Mapped[Optional[uuid.UUID]] = mapped_column(UUID(as_uuid=True), ForeignKey("instructors.id"), nullable=True)
     # schedule mantenido para compatibilidad retroactiva; weekdays/start_time son el nuevo estándar
     schedule: Mapped[Optional[str]] = mapped_column(String(255), nullable=True)
     weekdays: Mapped[Optional[list]] = mapped_column(JSONB, nullable=True)  # [0=Lun..6=Dom]

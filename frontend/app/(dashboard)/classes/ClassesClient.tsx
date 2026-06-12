@@ -32,6 +32,7 @@ import {
 } from "@/components/ui/table";
 import { Plus, AlertCircle, Users, ChevronDown, ChevronUp, CalendarClock } from "lucide-react";
 import Link from "next/link";
+import { InstructorsCard } from "./InstructorsCard";
 import MemberSelect from "@/components/common/MemberSelect";
 
 interface GymClass {
@@ -110,9 +111,11 @@ export default function ClassesClient() {
   const [error, setError] = useState("");
   const [dialogOpen, setDialogOpen] = useState(false);
   const [submitting, setSubmitting] = useState(false);
+  const [instructors, setInstructors] = useState<{ id: string; full_name: string; specialty: string | null }[]>([]);
   const [form, setForm] = useState({
     name: "",
     instructor: "",
+    instructor_id: "",
     schedule: "",
     max_capacity: "20",
     duration_minutes: "60",
@@ -164,6 +167,9 @@ export default function ClassesClient() {
           );
       })
       .finally(() => { if (!cancelled) setLoading(false); });
+    client.get("/api/v1/instructors")
+      .then((res) => { if (!cancelled) setInstructors(res.data); })
+      .catch(() => {});
     return () => { cancelled = true; };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [session]);
@@ -181,6 +187,7 @@ export default function ClassesClient() {
       await client.post("/api/v1/classes", {
         name: form.name,
         instructor: form.instructor,
+        instructor_id: form.instructor_id || undefined,
         schedule: schedulePreview || form.schedule || "",
         max_capacity: parseInt(form.max_capacity),
         duration_minutes: parseInt(form.duration_minutes),
@@ -193,7 +200,7 @@ export default function ClassesClient() {
       });
       toast.success("Clase creada correctamente");
       setDialogOpen(false);
-      setForm({ name: "", instructor: "", schedule: "", max_capacity: "20", duration_minutes: "60", description: "", category: "", difficulty: "", weekdays: [], start_time: "", color: "" });
+      setForm({ name: "", instructor: "", instructor_id: "", schedule: "", max_capacity: "20", duration_minutes: "60", description: "", category: "", difficulty: "", weekdays: [], start_time: "", color: "" });
       fetchClasses();
     } catch (err: any) {
       const detail = err.response?.data?.detail;
@@ -293,12 +300,36 @@ export default function ClassesClient() {
               </div>
               <div className="space-y-2">
                 <Label className="text-[var(--text-muted)] text-sm">Instructor</Label>
-                <Input
-                  value={form.instructor}
-                  onChange={(e) => setForm({ ...form, instructor: e.target.value })}
-                  required
-                  className={inputCls}
-                />
+                {instructors.length > 0 ? (
+                  <select
+                    value={form.instructor_id}
+                    onChange={(e) => {
+                      const selected = instructors.find((i) => i.id === e.target.value);
+                      setForm({
+                        ...form,
+                        instructor_id: e.target.value,
+                        instructor: selected?.full_name ?? form.instructor,
+                      });
+                    }}
+                    required
+                    className={selectCls}
+                  >
+                    <option value="">Selecciona un instructor...</option>
+                    {instructors.map((i) => (
+                      <option key={i.id} value={i.id}>
+                        {i.full_name}{i.specialty ? ` — ${i.specialty}` : ""}
+                      </option>
+                    ))}
+                  </select>
+                ) : (
+                  <Input
+                    value={form.instructor}
+                    onChange={(e) => setForm({ ...form, instructor: e.target.value })}
+                    required
+                    placeholder="Nombre del instructor"
+                    className={inputCls}
+                  />
+                )}
               </div>
               <div className="space-y-2">
                 <Label className="text-[var(--text-muted)] text-sm">Categoría</Label>
@@ -607,6 +638,14 @@ export default function ClassesClient() {
           </Table>
         </div>
       </GlassCard>
+
+      <InstructorsCard
+        onChanged={() => {
+          if (!session?.accessToken) return;
+          const client = apiClient(session.accessToken as string);
+          client.get("/api/v1/instructors").then((res) => setInstructors(res.data)).catch(() => {});
+        }}
+      />
     </motion.div>
   );
 }

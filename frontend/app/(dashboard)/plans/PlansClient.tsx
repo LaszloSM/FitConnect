@@ -41,6 +41,8 @@ const planSchema = z.object({
   duration_days: z.number().int().min(1, "Duración inválida"),
   description: z.string().optional(),
   is_active: z.boolean(),
+  access_type: z.enum(["gym_only", "gym_and_classes"]),
+  class_credits_per_month: z.number().int().min(1).nullable(),
 });
 
 type PlanForm = z.infer<typeof planSchema>;
@@ -52,6 +54,27 @@ interface Plan {
   duration_days: number;
   description?: string;
   is_active: boolean;
+  access_type: "gym_only" | "gym_and_classes";
+  class_credits_per_month: number | null;
+}
+
+const ACCESS_OPTIONS = [
+  { value: "gym_only" as const, credits: false, label: "Solo máquinas", hint: "Sin acceso a clases grupales" },
+  { value: "gym_and_classes" as const, credits: false, label: "Máquinas + clases ilimitadas", hint: "Reserva todas las clases que quiera" },
+  { value: "gym_and_classes" as const, credits: true, label: "Máquinas + N clases", hint: "Un cupo de clases por período" },
+];
+
+function accessBadge(plan: Plan): { label: string; cls: string } {
+  if (plan.access_type === "gym_only") {
+    return { label: "Solo máquinas", cls: "bg-slate-100 dark:bg-slate-800/50 text-slate-600 dark:text-slate-300" };
+  }
+  if (plan.class_credits_per_month != null) {
+    return {
+      label: `${plan.class_credits_per_month} clases/período`,
+      cls: "bg-violet-100 dark:bg-violet-950/40 text-violet-700 dark:text-violet-400",
+    };
+  }
+  return { label: "Clases ilimitadas", cls: "bg-fuchsia-100 dark:bg-fuchsia-950/40 text-fuchsia-700 dark:text-fuchsia-400" };
 }
 
 const DURATION_PRESETS = [
@@ -130,7 +153,7 @@ function PlanCardItem({ plan, onEdit, onDelete }: PlanCardItemProps) {
             <PricingCard.MainPrice>{formatCOP(plan.price)}</PricingCard.MainPrice>
           </PricingCard.Price>
 
-          <div className="flex items-center gap-1 text-xs text-[var(--text-muted)] mb-3">
+          <div className="flex items-center gap-1 text-xs text-[var(--text-muted)] mb-2">
             <Clock className="h-3 w-3" />
             {duration}
             {plan.duration_days !== 30 && (
@@ -139,6 +162,15 @@ function PlanCardItem({ plan, onEdit, onDelete }: PlanCardItemProps) {
               </span>
             )}
           </div>
+
+          {(() => {
+            const badge = accessBadge(plan);
+            return (
+              <span className={cn("inline-flex w-fit items-center rounded-full px-2 py-0.5 text-[11px] font-semibold mb-3", badge.cls)}>
+                {badge.label}
+              </span>
+            );
+          })()}
 
           {/* Actions */}
           <div className="flex gap-2 pt-1">
@@ -181,6 +213,8 @@ const emptyForm: PlanForm = {
   duration_days: 30,
   description: "",
   is_active: true,
+  access_type: "gym_and_classes" as const,
+  class_credits_per_month: null,
 };
 
 export default function PlansClient() {
@@ -227,6 +261,8 @@ export default function PlansClient() {
       duration_days: plan.duration_days,
       description: plan.description ?? "",
       is_active: plan.is_active,
+      access_type: plan.access_type ?? "gym_and_classes",
+      class_credits_per_month: plan.class_credits_per_month ?? null,
     });
     setErrors({});
     setDialogOpen(true);
@@ -367,6 +403,67 @@ export default function PlansClient() {
                   rows={2}
                   className="bg-[var(--bg-base)] border-[var(--border-base)] text-[var(--text-base)]"
                 />
+              </div>
+
+              <div className="space-y-2">
+                <Label className="text-[var(--text-muted)] text-sm">Qué incluye el plan</Label>
+                <div className="grid gap-2">
+                  {ACCESS_OPTIONS.map((opt) => {
+                    const selected =
+                      form.access_type === opt.value &&
+                      (opt.credits ? form.class_credits_per_month != null : form.class_credits_per_month == null);
+                    return (
+                      <label
+                        key={opt.label}
+                        className={cn(
+                          "flex items-center gap-3 rounded-xl border px-3 py-2.5 cursor-pointer transition-colors",
+                          selected
+                            ? "border-[var(--color-primary)] bg-[var(--color-primary)]/10"
+                            : "border-[var(--border-base)] hover:border-[var(--color-primary)]/50"
+                        )}
+                      >
+                        <input
+                          type="radio"
+                          name="access"
+                          checked={selected}
+                          onChange={() =>
+                            setForm({
+                              ...form,
+                              access_type: opt.value,
+                              class_credits_per_month: opt.credits ? form.class_credits_per_month ?? 8 : null,
+                            })
+                          }
+                          className="sr-only"
+                        />
+                        <span
+                          className={cn(
+                            "h-4 w-4 rounded-full border-2 shrink-0",
+                            selected
+                              ? "border-[var(--color-primary)] bg-[var(--color-primary)]"
+                              : "border-[var(--border-base)]"
+                          )}
+                        />
+                        <div className="flex-1 min-w-0">
+                          <p className="text-sm font-medium text-[var(--text-base)]">{opt.label}</p>
+                          <p className="text-xs text-[var(--text-muted)]">{opt.hint}</p>
+                        </div>
+                        {opt.credits && selected && (
+                          <input
+                            type="number"
+                            min={1}
+                            max={99}
+                            value={form.class_credits_per_month ?? 8}
+                            onClick={(e) => e.stopPropagation()}
+                            onChange={(e) =>
+                              setForm({ ...form, class_credits_per_month: Math.max(1, Number(e.target.value)) })
+                            }
+                            className="w-16 h-8 rounded-md border border-[var(--border-base)] bg-[var(--bg-base)] px-2 text-sm text-center text-[var(--text-base)]"
+                          />
+                        )}
+                      </label>
+                    );
+                  })}
+                </div>
               </div>
 
               <div className="flex items-center gap-3">

@@ -1,18 +1,31 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState, useCallback, useMemo } from "react";
 import { useSession } from "next-auth/react";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import Link from "next/link";
 import { GlassCard } from "@/components/common/GlassCard";
 import { PageHeader } from "@/components/common/PageHeader";
+import { EmptyState } from "@/components/common/EmptyState";
 import { Button } from "@/components/ui/button";
+import { StatusBadge } from "@/components/ui/status-badge";
 import MemberSelect from "@/components/common/MemberSelect";
 import { apiClient } from "@/lib/api";
-import { ArrowLeft, Users, Loader2, Check, X, CalendarPlus } from "lucide-react";
+import { cn } from "@/lib/utils";
+import {
+  ArrowLeft,
+  Calendar,
+  Check,
+  ChevronLeft,
+  ChevronRight,
+  Loader2,
+  Users,
+  X,
+  XCircle,
+} from "lucide-react";
 import { toast } from "sonner";
-import { format } from "date-fns";
+import { addDays, format, isSameDay, startOfWeek } from "date-fns";
 import { es } from "date-fns/locale";
 
 interface SessionItem {
@@ -30,35 +43,86 @@ interface SessionItem {
   booked: number;
 }
 
+interface RosterEntry {
+  booking_id: string;
+  member_id: string;
+  member_name: string;
+  status: string;
+  waitlist_position: number | null;
+}
+
+const HOUR_PX = 56;
+
+function minutesOf(time: string): number {
+  const [h, m] = time.split(":").map(Number);
+  return h * 60 + m;
+}
+
+function occupancyColor(booked: number, capacity: number): string {
+  const ratio = capacity > 0 ? booked / capacity : 0;
+  if (ratio >= 1) return "bg-red-500";
+  if (ratio >= 0.75) return "bg-amber-500";
+  return "bg-emerald-500";
+}
+
 export default function AgendaClient() {
   const { data: session } = useSession();
+  const [weekStart, setWeekStart] = useState(() => startOfWeek(new Date(), { weekStartsOn: 1 }));
   const [sessions, setSessions] = useState<SessionItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [selected, setSelected] = useState<SessionItem | null>(null);
-  const [roster, setRoster] = useState<any[]>([]);
+  const [roster, setRoster] = useState<RosterEntry[]>([]);
+  const [rosterLoading, setRosterLoading] = useState(false);
   const [bookingMember, setBookingMember] = useState("");
   const [busy, setBusy] = useState(false);
 
+  const days = useMemo(
+    () => Array.from({ length: 7 }, (_, i) => addDays(weekStart, i)),
+    [weekStart]
+  );
+
   const loadSessions = useCallback(async () => {
     if (!session?.accessToken) return;
-    const client = apiClient(session.accessToken as string);
-    const today = new Date();
-    const to = new Date(today.getTime() + 7 * 86400000);
-    const res = await client.get("/api/v1/class-sessions", {
-      params: { from: format(today, "yyyy-MM-dd"), to: format(to, "yyyy-MM-dd") },
-    });
-    setSessions(res.data);
-    setLoading(false);
-  }, [session?.accessToken]);
+    setLoading(true);
+    try {
+      const client = apiClient(session.accessToken as string);
+      const res = await client.get("/api/v1/class-sessions", {
+        params: {
+          from: format(weekStart, "yyyy-MM-dd"),
+          to: format(addDays(weekStart, 6), "yyyy-MM-dd"),
+        },
+      });
+      setSessions(res.data);
+    } catch (err: any) {
+      toast.error(err.response?.data?.detail ?? "Error cargando la agenda");
+    } finally {
+      setLoading(false);
+    }
+  }, [session?.accessToken, weekStart]);
 
   useEffect(() => { void loadSessions(); }, [loadSessions]);
 
+  const timed = sessions.filter((s) => s.start_time);
+  const minHour = timed.length
+    ? Math.min(...timed.map((s) => Math.floor(minutesOf(s.start_time!) / 60)), 6)
+    : 6;
+  const maxHour = timed.length
+    ? Math.max(...timed.map((s) => Math.ceil((minutesOf(s.start_time!) + s.duration_minutes) / 60)), 21)
+    : 21;
+  const hours = Array.from({ length: maxHour - minHour }, (_, i) => minHour + i);
+
   const openSession = async (s: SessionItem) => {
     setSelected(s);
+    setRoster([]);
     if (!session?.accessToken) return;
-    const client = apiClient(session.accessToken as string);
-    const res = await client.get(`/api/v1/class-sessions/${s.id}`);
-    setRoster(res.data.roster);
+    setRosterLoading(true);
+    try {
+      const client = apiClient(session.accessToken as string);
+      const res = await client.get(`/api/v1/class-sessions/${s.id}`);
+      setRoster(res.data.roster);
+    } finally {
+      setRosterLoading(false);
+    }
   };
 
   const refreshSelected = async () => {
@@ -74,8 +138,19 @@ export default function AgendaClient() {
     setBusy(true);
     try {
       const client = apiClient(session.accessToken as string);
-      const res = await client.post(`/api/v1/class-sessions/${selected.id}/bookings`, { member_id: bookingMember });
-      toast.success(res.data.status === "waitlisted" ? "Agregado a lista de espera" : "Reserva confirmada");
+      const res = await client.post(`/api/v1/class-sessions/${selected.id}/bookings`, {
+        member_id: bookingMember,
+      });
+      const remaining = res.data.credits_remaining;
+      const creditsMsg =
+        remaining === null || remaining === undefined
+          ? ""
+          : ` — le quedan ${remaining} clase${remaining !== 1 ? "s" : ""}`;
+      toast.success(
+        res.data.status === "waitlisted"
+          ? "Agregado a lista de espera"
+          : `Reserva confirmada${creditsMsg}`
+      );
       setBookingMember("");
       await refreshSelected();
     } catch (err: any) {
@@ -90,8 +165,11 @@ export default function AgendaClient() {
     try {
       const client = apiClient(session.accessToken as string);
       const res = await client.delete(`/api/v1/class-sessions/${selected.id}/bookings/${bookingId}`);
-      if (res.data.promoted_member_id) toast.success("Reserva cancelada — se promovió un miembro de la lista");
-      else toast.success("Reserva cancelada");
+      toast.success(
+        res.data.promoted_member_id
+          ? "Reserva cancelada — se promovió un miembro de la lista"
+          : "Reserva cancelada"
+      );
       await refreshSelected();
     } catch {
       toast.error("Error al cancelar");
@@ -109,134 +187,325 @@ export default function AgendaClient() {
     }
   };
 
-  // Agrupar por fecha
-  const byDate: Record<string, SessionItem[]> = {};
-  for (const s of sessions) {
-    (byDate[s.session_date] ??= []).push(s);
-  }
+  const weekLabel = `${format(weekStart, "d MMM", { locale: es })} — ${format(addDays(weekStart, 6), "d MMM yyyy", { locale: es })}`;
 
   return (
     <motion.div
       initial={{ opacity: 0, y: 8 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ ease: [0.16, 1, 0.3, 1], duration: 0.35 }}
-      className="space-y-5"
+      className="space-y-6"
     >
-      <Link href="/classes" className="inline-flex items-center gap-1.5 text-[var(--text-muted)] hover:text-[var(--text-base)] text-sm transition-colors">
-        <ArrowLeft className="h-4 w-4" /> Clases
-      </Link>
-      <PageHeader module="classes" title="Agenda de clases" subtitle="Reservas, lista de espera y asistencia por sesión" />
+      <PageHeader
+        module="classes"
+        title="Agenda semanal"
+        subtitle="Sesiones, ocupación y asistencia"
+        action={
+          <Link
+            href="/classes"
+            className="flex items-center gap-1.5 px-3 py-2 rounded-lg border border-[var(--border-base)] text-sm font-medium text-[var(--text-muted)] hover:text-[var(--text-base)] hover:bg-[var(--bg-base)] transition-colors"
+          >
+            <ArrowLeft className="h-4 w-4" />
+            Clases
+          </Link>
+        }
+      />
 
-      {loading ? (
-        <div className="flex justify-center py-12"><Loader2 className="h-6 w-6 animate-spin text-[var(--text-muted)]" /></div>
-      ) : sessions.length === 0 ? (
-        <GlassCard className="p-8 text-center space-y-2">
-          <CalendarPlus className="h-8 w-8 text-[var(--text-muted)] mx-auto" />
-          <p className="text-[var(--text-muted)] text-sm">No hay sesiones programadas esta semana.</p>
-          <p className="text-[var(--text-muted)] text-xs">Crea una clase con días y hora para generar su agenda.</p>
-        </GlassCard>
-      ) : (
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
-          {/* Lista de sesiones por día */}
-          <div className="lg:col-span-2 space-y-4">
-            {Object.entries(byDate).map(([day, items]) => (
-              <div key={day}>
-                <h3 className="text-xs font-semibold uppercase tracking-wider text-[var(--text-muted)] mb-2">
-                  {format(new Date(day + "T00:00"), "EEEE d 'de' MMMM", { locale: es })}
-                </h3>
-                <div className="space-y-1.5">
-                  {items.map((s) => {
-                    const full = s.booked >= s.capacity;
-                    return (
-                      <button
-                        key={s.id}
-                        onClick={() => openSession(s)}
-                        className={`w-full flex items-center gap-3 p-3 rounded-lg border text-left transition-colors ${
-                          selected?.id === s.id
-                            ? "border-[var(--color-primary)] bg-[var(--color-primary-muted)]"
-                            : "border-[var(--border-base)] bg-[var(--bg-muted)] hover:bg-[var(--bg-base)]"
-                        } ${s.status === "cancelled" ? "opacity-50" : ""}`}
-                      >
-                        <span className="h-9 w-1.5 rounded-full shrink-0" style={{ background: s.color ?? "var(--color-primary)" }} />
-                        <div className="min-w-0 flex-1">
-                          <p className="text-sm font-medium text-[var(--text-base)] truncate">{s.class_name}</p>
-                          <p className="text-[11px] text-[var(--text-muted)]">
-                            {s.start_time?.slice(0, 5)} · {s.instructor}
-                            {s.status === "cancelled" && " · CANCELADA"}
-                          </p>
-                        </div>
-                        <span className={`shrink-0 inline-flex items-center gap-1 text-xs font-semibold ${full ? "text-amber-600 dark:text-amber-400" : "text-[var(--text-muted)]"}`}>
-                          <Users className="h-3.5 w-3.5" /> {s.booked}/{s.capacity}
-                        </span>
-                      </button>
-                    );
-                  })}
-                </div>
-              </div>
-            ))}
+      <GlassCard className="p-4 space-y-4">
+        <div className="flex items-center justify-between gap-3 flex-wrap">
+          <div className="flex items-center gap-1.5">
+            <button
+              onClick={() => setWeekStart((w) => addDays(w, -7))}
+              className="h-8 w-8 rounded-lg border border-[var(--border-base)] flex items-center justify-center text-[var(--text-muted)] hover:text-[var(--text-base)] transition-colors"
+            >
+              <ChevronLeft className="h-4 w-4" />
+            </button>
+            <button
+              onClick={() => setWeekStart(startOfWeek(new Date(), { weekStartsOn: 1 }))}
+              className="h-8 px-3 rounded-lg border border-[var(--border-base)] text-sm font-medium text-[var(--text-muted)] hover:text-[var(--text-base)] transition-colors"
+            >
+              Hoy
+            </button>
+            <button
+              onClick={() => setWeekStart((w) => addDays(w, 7))}
+              className="h-8 w-8 rounded-lg border border-[var(--border-base)] flex items-center justify-center text-[var(--text-muted)] hover:text-[var(--text-base)] transition-colors"
+            >
+              <ChevronRight className="h-4 w-4" />
+            </button>
           </div>
+          <p className="text-sm font-semibold text-[var(--text-base)] capitalize">{weekLabel}</p>
+        </div>
 
-          {/* Detalle / roster de la sesión seleccionada */}
-          <div className="lg:col-span-1">
-            {selected ? (
-              <GlassCard className="p-4 space-y-4 lg:sticky lg:top-4">
+        {loading ? (
+          <div className="skeleton h-96 rounded-xl" />
+        ) : timed.length === 0 ? (
+          <EmptyState
+            icon={<Calendar className="h-10 w-10 text-[var(--text-muted)] opacity-50" />}
+            title="Sin sesiones esta semana"
+            description="Crea clases con horario semanal y las sesiones se generan solas."
+            action={
+              <Link href="/classes">
+                <Button className="bg-[var(--color-primary)] text-[var(--color-primary-contrast)] hover:bg-[var(--color-primary-hover)]">
+                  Ir a clases
+                </Button>
+              </Link>
+            }
+          />
+        ) : (
+          <div className="overflow-x-auto">
+            <div className="min-w-[900px]">
+              {/* Cabecera de días */}
+              <div className="grid" style={{ gridTemplateColumns: "56px repeat(7, 1fr)" }}>
+                <div />
+                {days.map((day) => {
+                  const today = isSameDay(day, new Date());
+                  return (
+                    <div key={day.toISOString()} className="px-2 pb-2 text-center">
+                      <p className={cn("text-xs uppercase tracking-wide", today ? "text-[var(--color-primary-hover)] dark:text-[var(--color-primary)] font-bold" : "text-[var(--text-muted)]")}>
+                        {format(day, "EEE", { locale: es })}
+                      </p>
+                      <p className={cn(
+                        "text-lg font-bold leading-tight mx-auto w-9 h-9 flex items-center justify-center rounded-full",
+                        today ? "bg-[var(--color-primary)] text-[var(--color-primary-contrast)]" : "text-[var(--text-base)]"
+                      )}>
+                        {format(day, "d")}
+                      </p>
+                    </div>
+                  );
+                })}
+              </div>
+
+              {/* Grilla horas × días */}
+              <div
+                className="grid border-t border-[var(--border-base)]"
+                style={{ gridTemplateColumns: "56px repeat(7, 1fr)" }}
+              >
+                {/* Columna de horas */}
+                <div className="relative" style={{ height: hours.length * HOUR_PX }}>
+                  {hours.map((h, i) => (
+                    <span
+                      key={h}
+                      className="absolute right-2 -translate-y-1/2 text-[11px] text-[var(--text-muted)] tabular-nums"
+                      style={{ top: i * HOUR_PX }}
+                    >
+                      {i > 0 && `${String(h).padStart(2, "0")}:00`}
+                    </span>
+                  ))}
+                </div>
+
+                {days.map((day) => {
+                  const dayStr = format(day, "yyyy-MM-dd");
+                  const daySessions = timed.filter((s) => s.session_date === dayStr);
+                  return (
+                    <div
+                      key={dayStr}
+                      className="relative border-l border-[var(--border-base)]"
+                      style={{ height: hours.length * HOUR_PX }}
+                    >
+                      {hours.map((_, i) => (
+                        <div
+                          key={i}
+                          className="absolute left-0 right-0 border-t border-[var(--border-base)]/50"
+                          style={{ top: i * HOUR_PX }}
+                        />
+                      ))}
+                      {daySessions.map((s) => {
+                        const top = ((minutesOf(s.start_time!) - minHour * 60) / 60) * HOUR_PX;
+                        const height = Math.max((s.duration_minutes / 60) * HOUR_PX, 36);
+                        const cancelled = s.status === "cancelled";
+                        const accent = s.color || "var(--accent-classes)";
+                        return (
+                          <button
+                            key={s.id}
+                            onClick={() => void openSession(s)}
+                            className={cn(
+                              "absolute left-1 right-1 rounded-lg border px-2 py-1 text-left overflow-hidden transition-transform hover:scale-[1.02] hover:z-10",
+                              cancelled
+                                ? "opacity-45 line-through border-[var(--border-base)] bg-[var(--bg-muted)]"
+                                : "border-transparent text-white shadow-sm"
+                            )}
+                            style={cancelled ? { top, height } : { top, height, background: accent }}
+                          >
+                            <p className="text-xs font-bold leading-tight truncate">{s.class_name}</p>
+                            <p className="text-[10px] opacity-90 truncate">
+                              {s.start_time!.slice(0, 5)}
+                              {height >= 64 ? ` · ${s.instructor}` : ""}
+                            </p>
+                            {!cancelled && height >= 52 && (
+                              <div className="absolute bottom-1 left-2 right-2">
+                                <div className="flex items-center justify-between text-[10px] font-semibold">
+                                  <span>
+                                    {s.booked}/{s.capacity}
+                                  </span>
+                                </div>
+                                <div className="h-1 rounded-full bg-black/25 overflow-hidden">
+                                  <div
+                                    className={cn("h-full rounded-full", occupancyColor(s.booked, s.capacity))}
+                                    style={{ width: `${Math.min((s.booked / s.capacity) * 100, 100)}%` }}
+                                  />
+                                </div>
+                              </div>
+                            )}
+                          </button>
+                        );
+                      })}
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          </div>
+        )}
+      </GlassCard>
+
+      {/* Drawer de sesión */}
+      <AnimatePresence>
+        {selected && (
+          <>
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => setSelected(null)}
+              className="fixed inset-0 bg-black/40 z-40"
+            />
+            <motion.aside
+              initial={{ x: "100%" }}
+              animate={{ x: 0 }}
+              exit={{ x: "100%" }}
+              transition={{ type: "spring", stiffness: 320, damping: 32 }}
+              className="fixed right-0 top-0 bottom-0 z-50 w-full max-w-md bg-[var(--bg-card)] border-l border-[var(--border-base)] shadow-[var(--shadow-dialog)] flex flex-col"
+            >
+              <div className="p-5 border-b border-[var(--border-base)] flex items-start justify-between gap-3">
                 <div>
-                  <h3 className="text-sm font-semibold text-[var(--text-base)]">{selected.class_name}</h3>
-                  <p className="text-[11px] text-[var(--text-muted)]">
-                    {format(new Date(selected.session_date + "T00:00"), "d MMM", { locale: es })} · {selected.start_time?.slice(0, 5)} · {selected.booked}/{selected.capacity}
+                  <h2 className="text-lg font-bold text-[var(--text-base)]">{selected.class_name}</h2>
+                  <p className="text-sm text-[var(--text-muted)] capitalize">
+                    {format(new Date(selected.session_date + "T12:00:00"), "EEEE d MMM", { locale: es })}
+                    {selected.start_time ? ` · ${selected.start_time.slice(0, 5)}` : ""} · {selected.instructor}
+                  </p>
+                  <p className="text-sm text-[var(--text-muted)] mt-1 flex items-center gap-1.5">
+                    <Users className="h-3.5 w-3.5" />
+                    {selected.booked}/{selected.capacity} reservados
+                    {selected.status === "cancelled" && <StatusBadge status="cancelled" label="Cancelada" />}
                   </p>
                 </div>
+                <button
+                  onClick={() => setSelected(null)}
+                  className="h-8 w-8 rounded-lg flex items-center justify-center text-[var(--text-muted)] hover:text-[var(--text-base)]"
+                >
+                  <X className="h-4 w-4" />
+                </button>
+              </div>
 
+              <div className="p-5 space-y-4 flex-1 overflow-y-auto">
                 {selected.status !== "cancelled" && (
-                  <div className="flex items-center gap-2">
-                    <div className="flex-1 min-w-0">
-                      <MemberSelect value={bookingMember} onChange={setBookingMember} />
+                  <div className="space-y-2">
+                    <p className="text-xs font-semibold uppercase tracking-wider text-[var(--text-muted)]">
+                      Reservar miembro
+                    </p>
+                    <div className="flex items-center gap-2">
+                      <div className="flex-1">
+                        <MemberSelect value={bookingMember} onChange={setBookingMember} />
+                      </div>
+                      <Button
+                        onClick={book}
+                        disabled={busy || !bookingMember}
+                        className="shrink-0 bg-[var(--color-primary)] text-[var(--color-primary-contrast)] hover:bg-[var(--color-primary-hover)]"
+                      >
+                        {busy ? <Loader2 className="h-4 w-4 animate-spin" /> : "Reservar"}
+                      </Button>
                     </div>
-                    <Button onClick={book} disabled={busy || !bookingMember} className="shrink-0 bg-[var(--color-primary)] text-[var(--color-primary-contrast)] font-semibold hover:bg-[var(--color-primary-hover)] h-9">
-                      {busy ? <Loader2 className="h-4 w-4 animate-spin" /> : "Reservar"}
-                    </Button>
                   </div>
                 )}
 
-                <div className="space-y-1.5">
-                  {roster.length === 0 ? (
-                    <p className="text-xs text-[var(--text-muted)] py-2 text-center">Sin reservas todavía.</p>
-                  ) : roster.map((b) => (
-                    <div key={b.booking_id} className="flex items-center gap-2 p-2 rounded-lg bg-[var(--bg-muted)] text-sm">
-                      <div className="flex-1 min-w-0">
-                        <p className="text-[var(--text-base)] truncate">{b.member_name}</p>
-                        <p className="text-[10px] text-[var(--text-muted)]">
-                          {b.status === "waitlisted" ? `Lista de espera #${b.waitlist_position}` :
-                           b.status === "attended" ? "Asistió" :
-                           b.status === "no_show" ? "No asistió" :
-                           b.status === "cancelled" ? "Cancelada" : "Reservada"}
-                        </p>
-                      </div>
-                      {b.status === "booked" && (
-                        <div className="flex items-center gap-1 shrink-0">
-                          <button onClick={() => markAttendance(b.booking_id, "attended")} title="Asistió" className="h-6 w-6 rounded flex items-center justify-center text-emerald-600 hover:bg-emerald-50 dark:hover:bg-emerald-950/30">
-                            <Check className="h-3.5 w-3.5" />
-                          </button>
-                          <button onClick={() => markAttendance(b.booking_id, "no_show")} title="No asistió" className="h-6 w-6 rounded flex items-center justify-center text-[var(--text-muted)] hover:bg-[var(--bg-base)]">
-                            <X className="h-3.5 w-3.5" />
-                          </button>
-                          <button onClick={() => cancelBooking(b.booking_id)} title="Cancelar reserva" className="h-6 w-6 rounded flex items-center justify-center text-red-500 hover:bg-red-50 dark:hover:bg-red-950/30 text-[10px] font-bold">
-                            ✕
-                          </button>
+                <div className="space-y-2">
+                  <p className="text-xs font-semibold uppercase tracking-wider text-[var(--text-muted)]">
+                    Roster
+                  </p>
+                  {rosterLoading ? (
+                    <div className="skeleton h-24 rounded-xl" />
+                  ) : roster.length === 0 ? (
+                    <p className="text-sm text-[var(--text-muted)]">Nadie reservado aún.</p>
+                  ) : (
+                    roster.map((b) => (
+                      <div
+                        key={b.booking_id}
+                        className="flex items-center gap-2 rounded-lg border border-[var(--border-base)] bg-[var(--bg-base)] px-3 py-2"
+                      >
+                        <div className="flex-1 min-w-0">
+                          <p className="text-sm font-medium text-[var(--text-base)] truncate">{b.member_name}</p>
+                          <StatusBadge
+                            status={b.status}
+                            label={
+                              b.status === "waitlisted"
+                                ? `Lista de espera #${b.waitlist_position}`
+                                : b.status === "attended"
+                                ? "Asistió"
+                                : b.status === "no_show"
+                                ? "No vino"
+                                : b.status === "cancelled"
+                                ? "Cancelada"
+                                : "Reservado"
+                            }
+                            tone={
+                              b.status === "attended"
+                                ? "success"
+                                : b.status === "no_show"
+                                ? "danger"
+                                : b.status === "waitlisted"
+                                ? "info"
+                                : b.status === "cancelled"
+                                ? "neutral"
+                                : "violet"
+                            }
+                          />
                         </div>
-                      )}
-                    </div>
-                  ))}
+                        {(b.status === "booked" || b.status === "attended" || b.status === "no_show") && (
+                          <div className="flex items-center gap-1 shrink-0">
+                            <button
+                              onClick={() => markAttendance(b.booking_id, "attended")}
+                              title="Asistió"
+                              className={cn(
+                                "h-7 w-7 rounded-lg flex items-center justify-center transition-colors",
+                                b.status === "attended"
+                                  ? "bg-emerald-100 dark:bg-emerald-950/40 text-emerald-600"
+                                  : "text-[var(--text-muted)] hover:text-emerald-600"
+                              )}
+                            >
+                              <Check className="h-3.5 w-3.5" />
+                            </button>
+                            <button
+                              onClick={() => markAttendance(b.booking_id, "no_show")}
+                              title="No vino"
+                              className={cn(
+                                "h-7 w-7 rounded-lg flex items-center justify-center transition-colors",
+                                b.status === "no_show"
+                                  ? "bg-red-100 dark:bg-red-950/40 text-red-600"
+                                  : "text-[var(--text-muted)] hover:text-red-500"
+                              )}
+                            >
+                              <XCircle className="h-3.5 w-3.5" />
+                            </button>
+                            {b.status === "booked" && (
+                              <button
+                                onClick={() => cancelBooking(b.booking_id)}
+                                title="Cancelar reserva"
+                                className="h-7 w-7 rounded-lg flex items-center justify-center text-[var(--text-muted)] hover:text-red-500"
+                              >
+                                <X className="h-3.5 w-3.5" />
+                              </button>
+                            )}
+                          </div>
+                        )}
+                      </div>
+                    ))
+                  )}
                 </div>
-              </GlassCard>
-            ) : (
-              <GlassCard className="p-6 text-center">
-                <p className="text-xs text-[var(--text-muted)]">Selecciona una sesión para ver y gestionar sus reservas.</p>
-              </GlassCard>
-            )}
-          </div>
-        </div>
-      )}
+              </div>
+            </motion.aside>
+          </>
+        )}
+      </AnimatePresence>
     </motion.div>
   );
 }

@@ -17,3 +17,9 @@ class MemberPlan(TenantBase, TenantTimestampMixin):
     duration_days: Mapped[int] = mapped_column(Integer, nullable=False)
     description: Mapped[Optional[str]] = mapped_column(String(1000), nullable=True)
     is_active: Mapped[bool] = mapped_column(Boolean, default=True, nullable=False)
+    # Qué incluye el plan: gym_only | gym_and_classes (estándar del mercado).
+    # class_credits_per_month: NULL = clases ilimitadas (si el plan las incluye).
+    access_type: Mapped[str] = mapped_column(
+        String(20), default="gym_and_classes", server_default="gym_and_classes", nullable=False
+    )
+    class_credits_per_month: Mapped[Optional[int]] = mapped_column(Integer, nullable=True)
