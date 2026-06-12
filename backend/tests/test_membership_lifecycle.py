@@ -1,5 +1,10 @@
 import uuid
-from datetime import date, timedelta
+from datetime import date, datetime, timedelta
+from zoneinfo import ZoneInfo
+
+
+def _today_bogota() -> date:
+    return datetime.now(ZoneInfo("America/Bogota")).date()
 
 
 # Cache de tokens por email: evita golpear el rate limit de /auth con un
@@ -108,6 +113,113 @@ async def test_cancelled_membership_cannot_freeze(client):
     r = await client.post(f"/api/v1/memberships/{membership['id']}/freeze",
                           json={}, headers=_auth(token))
     assert r.status_code == 400
+
+
+# ─── Encadenamiento y solapes (bug: "duplicación" al asignar/descongelar) ───
+
+async def test_assign_chains_after_active_membership(client):
+    token = await _owner_token(client)
+    member_id = await _create_member(client, token)
+    plan_id = await _create_plan(client, token, duration_days=30)
+    today = _today_bogota()
+
+    first = (await _assign(client, token, member_id, plan_id, today)).json()
+    second = (await _assign(client, token, member_id, plan_id, today)).json()
+
+    first_end = date.fromisoformat(first["end_date"])
+    assert second["start_date"] == (first_end + timedelta(days=1)).isoformat()
+
+    memberships = (await client.get(
+        f"/api/v1/members/{member_id}/memberships", headers=_auth(token)
+    )).json()
+    statuses = sorted(m["effective_status"] for m in memberships)
+    assert statuses == ["active", "scheduled"]
+
+
+async def test_assign_chains_after_scheduled_membership(client):
+    token = await _owner_token(client)
+    member_id = await _create_member(client, token)
+    plan_id = await _create_plan(client, token, duration_days=30)
+    today = _today_bogota()
+
+    await _assign(client, token, member_id, plan_id, today)
+    second = (await _assign(client, token, member_id, plan_id, today)).json()
+    third = (await _assign(client, token, member_id, plan_id, today)).json()
+
+    second_end = date.fromisoformat(second["end_date"])
+    assert third["start_date"] == (second_end + timedelta(days=1)).isoformat()
+
+
+async def test_scheduled_membership_does_not_allow_checkin(client):
+    token = await _owner_token(client)
+    member_id = await _create_member(client, token)
+    plan_id = await _create_plan(client, token, duration_days=30)
+    await _assign(client, token, member_id, plan_id, _today_bogota() + timedelta(days=10))
+
+    r = await client.post("/api/v1/checkins", json={"member_id": member_id}, headers=_auth(token))
+    assert r.status_code == 201, r.text
+    body = r.json()
+    assert body["decision"] == "denied"
+    assert body["membership_status"] == "scheduled"
+
+
+async def test_unfreeze_shifts_chained_memberships(client):
+    from sqlalchemy import update
+    from sqlalchemy.ext.asyncio import async_sessionmaker, create_async_engine
+    from app.core.config import settings
+    from app.models.tenant.membership_freeze import MembershipFreeze
+
+    email = f"chain-{uuid.uuid4().hex[:6]}@gym.com"
+    r = await client.post("/api/v1/auth/register", json={
+        "email": email, "password": "Pass123456!",
+        "full_name": "Owner Chain", "gym_name": f"Chain Gym {uuid.uuid4().hex[:4]}", "city": "Bogotá",
+    })
+    assert r.status_code == 201, r.text
+    db_name = r.json()["db_name"]
+    login = await client.post("/api/v1/auth/login", json={"email": email, "password": "Pass123456!"})
+    token = login.json()["access_token"]
+
+    member_id = await _create_member(client, token)
+    plan_id = await _create_plan(client, token, duration_days=30)
+    today = _today_bogota()
+    first = (await _assign(client, token, member_id, plan_id, today)).json()
+    second = (await _assign(client, token, member_id, plan_id, today)).json()
+
+    r = await client.post(f"/api/v1/memberships/{first['id']}/freeze",
+                          json={"reason": "viaje"}, headers=_auth(token))
+    assert r.status_code == 200, r.text
+
+    # Simular que la congelación empezó hace 5 días
+    url = settings.tenant_database_url_template.replace("{db_name}", db_name)
+    engine = create_async_engine(url)
+    try:
+        Session = async_sessionmaker(engine, expire_on_commit=False)
+        async with Session() as session:
+            await session.execute(
+                update(MembershipFreeze)
+                .where(MembershipFreeze.membership_id == uuid.UUID(first["id"]))
+                .values(start_date=today - timedelta(days=5))
+            )
+            await session.commit()
+    finally:
+        await engine.dispose()
+
+    r = await client.post(f"/api/v1/memberships/{first['id']}/unfreeze",
+                          json={}, headers=_auth(token))
+    assert r.status_code == 200, r.text
+    new_first_end = date.fromisoformat(r.json()["end_date"])
+    assert new_first_end == date.fromisoformat(first["end_date"]) + timedelta(days=5)
+
+    memberships = (await client.get(
+        f"/api/v1/members/{member_id}/memberships", headers=_auth(token)
+    )).json()
+    shifted = next(m for m in memberships if m["id"] == second["id"])
+    assert shifted["start_date"] == (new_first_end + timedelta(days=1)).isoformat()
+    assert shifted["end_date"] == (
+        date.fromisoformat(second["end_date"]) + timedelta(days=5)
+    ).isoformat()
+    # Nunca dos membresías solapadas tras descongelar
+    assert date.fromisoformat(shifted["start_date"]) > new_first_end
 
 
 # ─── Gracia y expiración ─────────────────────────────────────────────────────

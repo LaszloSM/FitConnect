@@ -27,6 +27,7 @@ import {
   Pencil,
   Snowflake,
   Play,
+  CalendarClock,
 } from "lucide-react";
 import { QRCodeDisplay } from "@/components/common/QRCodeDisplay";
 import {
@@ -64,6 +65,11 @@ const STATUS_PILL: Record<string, { label: string; cls: string; icon: React.Reac
     label: "Activa",
     cls: "bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-400 ring-emerald-200 dark:ring-emerald-800/60",
     icon: <CheckCircle2 className="h-3 w-3" />,
+  },
+  scheduled: {
+    label: "Programada",
+    cls: "bg-violet-50 dark:bg-violet-950/40 text-violet-700 dark:text-violet-400 ring-violet-200 dark:ring-violet-800/60",
+    icon: <CalendarClock className="h-3 w-3" />,
   },
   frozen: {
     label: "Congelada",
@@ -215,7 +221,7 @@ export default function MemberDetailClient({ memberId }: { memberId: string }) {
     setAssigning(true);
     try {
       const client = apiClient(session.accessToken as string);
-      await client.post("/api/v1/member-plans/assign", {
+      const res = await client.post("/api/v1/member-plans/assign", {
         member_id: memberId,
         plan_id: selectedPlan,
         start_date: startDate,
@@ -224,7 +230,13 @@ export default function MemberDetailClient({ memberId }: { memberId: string }) {
         discount_amount: discountAmount ? Number(discountAmount) : null,
         discount_reason: discountReason.trim() || null,
       });
-      toast.success(paymentMethod ? "Membresía asignada y pago generado" : "Membresía asignada correctamente");
+      const realStart: string | undefined = res.data?.start_date;
+      const chained = realStart && realStart !== startDate;
+      toast.success(
+        chained
+          ? `Membresía programada desde el ${format(new Date(realStart + "T00:00:00"), "d 'de' MMMM yyyy", { locale: es })} (al terminar la vigente)`
+          : paymentMethod ? "Membresía asignada y pago generado" : "Membresía asignada correctamente"
+      );
       setSelectedPlan("");
       setPaymentMethod("");
       setPromoCode("");
@@ -518,7 +530,7 @@ export default function MemberDetailClient({ memberId }: { memberId: string }) {
                     const st = m.effective_status ?? m.status;
                     const canFreeze = st === "active" || st === "in_grace";
                     const canUnfreeze = st === "frozen";
-                    const canCancel = st === "active" || st === "frozen" || st === "in_grace";
+                    const canCancel = st === "active" || st === "frozen" || st === "in_grace" || st === "scheduled";
                     return (
                       <div
                         key={m.id}

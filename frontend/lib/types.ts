@@ -57,6 +57,7 @@ export type MembershipStatus = "active" | "frozen" | "expired" | "cancelled";
 // Estado derivado en lectura (incluye gracia) — el que muestra la UI
 export type EffectiveMembershipStatus =
   | "active"
+  | "scheduled"
   | "frozen"
   | "in_grace"
   | "expired"

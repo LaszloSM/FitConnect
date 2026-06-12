@@ -217,9 +217,12 @@ async def assign_membership(
     db: AsyncSession = Depends(get_tenant_db_from_token),
     current_user=Depends(get_current_staff),
 ):
+    from app.core.timeutil import today_bogota
     from app.models.tenant.member import Member
     from app.models.tenant.member_plan import MemberPlan
     from app.services.audit import audit
+    from app.services.gym_settings import get_gym_settings
+    from app.services.membership_status import next_chain_start
 
     member_result = await db.execute(select(Member).where(Member.id == uuid.UUID(data.member_id)))
     if not member_result.scalar_one_or_none():
@@ -230,8 +233,14 @@ async def assign_membership(
     if not plan:
         raise HTTPException(status_code=404, detail="Plan no encontrado")
 
+    # Nunca solapar con una vigente/congelada/programada: encadenar
+    gym = await get_gym_settings(db)
+    start = await next_chain_start(
+        db, uuid.UUID(data.member_id), gym.grace_days, data.start_date, today=today_bogota()
+    )
+
     membership, _ = await _create_membership(
-        db, uuid.UUID(data.member_id), plan, data.start_date, data.payment_method,
+        db, uuid.UUID(data.member_id), plan, start, data.payment_method,
         discount_amount=data.discount_amount,
         discount_reason=data.discount_reason,
         promo_code=data.promo_code,
@@ -267,16 +276,14 @@ async def charge_membership(
     """Cobro POS en un paso: crea/renueva la membresía, marca el pago como pagado
     y emite el recibo. Si hay membresía vigente, la renovación arranca cuando esa
     termina (no se pierden días pagados)."""
-    from datetime import timedelta as td
     from app.core.timeutil import today_bogota
     from app.models.tenant.member import Member
     from app.models.tenant.member_plan import MemberPlan
-    from app.models.tenant.membership import Membership
     from app.models.tenant.payment import PaymentMethod, PaymentStatus
     from app.models.tenant.cash_shift import CashShift
     from app.services.audit import audit
     from app.services.gym_settings import get_gym_settings
-    from app.services.membership_status import effective_status
+    from app.services.membership_status import next_chain_start
     from app.services.receipts import issue_receipt
 
     if data.method not in ("cash", "transfer", "card"):
@@ -301,18 +308,10 @@ async def charge_membership(
         if shift is None:
             raise HTTPException(status_code=400, detail="Abre un turno de caja antes de cobrar en efectivo")
 
-    # Renovación sin perder días: arranca al terminar la membresía vigente
+    # Renovación sin perder días: arranca al terminar la vigente/programada
     gym = await get_gym_settings(db)
     today = today_bogota()
-    start = today
-    memberships = (await db.execute(
-        select(Membership).where(Membership.member_id == member.id)
-        .order_by(Membership.end_date.desc())
-    )).scalars().all()
-    for m in memberships:
-        if effective_status(m, today=today, grace_days=gym.grace_days) in ("active", "frozen"):
-            start = m.end_date + td(days=1)
-            break
+    start = await next_chain_start(db, member.id, gym.grace_days, today, today=today)
 
     membership, payment = await _create_membership(
         db, member.id, plan, start, data.method,

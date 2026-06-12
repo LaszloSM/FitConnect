@@ -28,6 +28,7 @@ const TONE_CLS: Record<StatusTone, string> = {
 const STATUS_PRESETS: Record<string, { label: string; tone: StatusTone }> = {
   // Membresías / miembros
   active: { label: "Activa", tone: "success" },
+  scheduled: { label: "Programada", tone: "violet" },
   in_grace: { label: "En gracia", tone: "warning" },
   frozen: { label: "Congelada", tone: "info" },
   expired: { label: "Vencida", tone: "danger" },

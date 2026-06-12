@@ -1,9 +1,9 @@
 // Tipos de dominio compartidos — única fuente de verdad para el frontend.
 // Reemplazan las interfaces inline duplicadas en cada *Client.tsx.
 
-export type MembershipStatus = "ok" | "in_grace" | "expired" | "frozen" | "no_membership";
+export type MembershipStatus = "ok" | "in_grace" | "scheduled" | "expired" | "frozen" | "no_membership";
 export type MembershipEffectiveStatus =
-  | "active" | "frozen" | "in_grace" | "expired" | "cancelled";
+  | "active" | "scheduled" | "frozen" | "in_grace" | "expired" | "cancelled";
 export type CheckinDecision = "allowed" | "denied" | "override";
 export type MemberStatus = "active" | "inactive";
 export type PaymentMethod = "cash" | "transfer" | "card" | "wompi";

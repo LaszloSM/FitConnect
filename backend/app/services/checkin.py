@@ -35,7 +35,7 @@ class DuplicateCheckin(Exception):
 
 async def checkin_status(member_id: uuid.UUID, db: AsyncSession, grace_days: int) -> tuple[str, Membership | None]:
     """(estado para check-in, membresía más relevante).
-    Estado: ok | in_grace | expired | frozen | no_membership."""
+    Estado: ok | in_grace | scheduled | expired | frozen | no_membership."""
     today = today_bogota()
     memberships = (await db.execute(
         select(Membership).where(Membership.member_id == member_id)
@@ -45,7 +45,7 @@ async def checkin_status(member_id: uuid.UUID, db: AsyncSession, grace_days: int
         return "no_membership", None
     best = "no_membership"
     best_membership = memberships[0]
-    priority = {"ok": 5, "in_grace": 4, "frozen": 3, "expired": 2, "cancelled": 1, "no_membership": 0}
+    priority = {"ok": 6, "in_grace": 5, "frozen": 4, "scheduled": 3, "expired": 2, "cancelled": 1, "no_membership": 0}
     for m in memberships:
         st = effective_status(m, today=today, grace_days=grace_days)
         st = "ok" if st == "active" else st

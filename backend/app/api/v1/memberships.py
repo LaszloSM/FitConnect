@@ -113,11 +113,30 @@ async def unfreeze_membership(
     days = max((today - open_freeze.start_date).days, 0)
     open_freeze.end_date = today
     open_freeze.days_applied = days
+    original_end = membership.end_date
     membership.end_date = membership.end_date + timedelta(days=days)
     membership.status = MembershipStatus.active.value
+
+    # Correr también las renovaciones programadas encadenadas para no solaparlas
+    shifted = 0
+    if days:
+        chained = (await db.execute(
+            select(Membership).where(
+                Membership.member_id == membership.member_id,
+                Membership.status == MembershipStatus.active.value,
+                Membership.start_date > original_end,
+                Membership.id != membership.id,
+            )
+        )).scalars().all()
+        for c in chained:
+            c.start_date = c.start_date + timedelta(days=days)
+            c.end_date = c.end_date + timedelta(days=days)
+        shifted = len(chained)
+
     audit(db, current_user, "membership.unfreeze", "membership", membership.id,
           {"member_id": str(membership.member_id), "days_applied": days,
-           "new_end_date": membership.end_date.isoformat()})
+           "new_end_date": membership.end_date.isoformat(),
+           "chained_shifted": shifted})
     await db.commit()
     await db.refresh(membership)
     return await _to_response(membership, db)

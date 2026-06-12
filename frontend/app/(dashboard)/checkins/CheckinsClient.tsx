@@ -38,6 +38,7 @@ const STATUS_UI: Record<
 > = {
   ok:            { label: "Membresía activa",                tone: "ok",   icon: CheckCircle2 },
   in_grace:      { label: "Vencida — en período de gracia",  tone: "warn", icon: AlertCircle },
+  scheduled:     { label: "Membresía aún no inicia",         tone: "warn", icon: AlertCircle },
   frozen:        { label: "Membresía congelada",             tone: "bad",  icon: XCircle },
   expired:       { label: "Membresía vencida",               tone: "bad",  icon: XCircle },
   no_membership: { label: "Sin membresía activa",            tone: "bad",  icon: XCircle },

@@ -134,7 +134,7 @@ class MembershipResponse(MembershipBase):
     access_type: Optional[str] = None
     class_credits_per_month: Optional[int] = None
     # Derivado de end_date/status en tiempo de lectura (no persiste un status stale)
-    effective_status: Optional[Literal["active", "frozen", "in_grace", "expired", "cancelled"]] = None
+    effective_status: Optional[Literal["active", "scheduled", "frozen", "in_grace", "expired", "cancelled"]] = None
 
     class Config:
         from_attributes = True
@@ -201,7 +201,7 @@ class CheckInResponse(BaseModel):
     source: Optional[str] = None
     # Inyectados por el endpoint — no vienen directo de la tabla checkins
     member_name: Optional[str] = None
-    membership_status: Optional[Literal["ok", "in_grace", "expired", "frozen", "no_membership"]] = None
+    membership_status: Optional[Literal["ok", "in_grace", "scheduled", "expired", "frozen", "no_membership"]] = None
     # Clase marcada como asistida automáticamente al entrar (±60 min)
     upcoming_class: Optional[dict] = None
 
