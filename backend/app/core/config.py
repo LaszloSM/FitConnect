@@ -30,6 +30,15 @@ class Settings(BaseSettings):
     # Wompi: sandbox por defecto; en producción cambiar a https://production.wompi.co/v1
     wompi_api_url: str = "https://sandbox.wompi.co/v1"
 
+    # Almacenamiento de objetos S3-compatible (MinIO local / S3 en prod).
+    # s3_endpoint_url vacío => boto3 usa AWS S3 real (prod).
+    s3_endpoint_url: str = ""
+    s3_public_url: str = ""
+    s3_bucket: str = "fitconnect-media"
+    s3_access_key: str = ""
+    s3_secret_key: str = ""
+    s3_region: str = "us-east-1"
+
     @model_validator(mode="after")
     def _guard_production_defaults(self) -> "Settings":
         """Falla al arrancar si se despliega a producción con defaults inseguros.

@@ -1,5 +1,5 @@
 import uuid
-from fastapi import APIRouter, Depends, HTTPException, Query
+from fastapi import APIRouter, Depends, File, HTTPException, Query, UploadFile
 from pydantic import BaseModel
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select, func, or_, and_
@@ -378,6 +378,39 @@ async def create_renewal_link(
     await db.commit()
     await db.refresh(link)
     return {"checkout_url": link.checkout_url, "reference": link.reference, "payment_id": str(payment.id)}
+
+
+_ALLOWED_PHOTO_TYPES = {"image/jpeg": "jpg", "image/png": "png", "image/webp": "webp"}
+_MAX_PHOTO_BYTES = 5 * 1024 * 1024
+
+
+@router.post("/{member_id}/photo")
+async def upload_member_photo(
+    member_id: uuid.UUID,
+    file: UploadFile = File(...),
+    db: AsyncSession = Depends(get_tenant_db_from_token),
+    current_user=Depends(get_current_staff),
+    slug: str = Depends(get_tenant_slug),
+):
+    """Sube la foto del socio a almacenamiento S3-compatible y persiste su URL."""
+    from app.services.storage import upload_image
+
+    ext = _ALLOWED_PHOTO_TYPES.get(file.content_type or "")
+    if not ext:
+        raise HTTPException(status_code=400, detail="Formato no soportado (usa JPG, PNG o WEBP)")
+    data = await file.read()
+    if len(data) > _MAX_PHOTO_BYTES:
+        raise HTTPException(status_code=400, detail="La imagen supera 5 MB")
+
+    member = (await db.execute(select(Member).where(Member.id == member_id))).scalar_one_or_none()
+    if not member:
+        raise HTTPException(status_code=404, detail="Miembro no encontrado")
+
+    key = f"members/{slug}/{member_id}.{ext}"
+    url = await upload_image(data, key, file.content_type)
+    member.photo_url = url
+    await db.commit()
+    return {"photo_url": url}
 
 
 @router.get("/{member_id}", response_model=MemberResponse)

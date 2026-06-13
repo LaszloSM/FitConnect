@@ -162,6 +162,7 @@ export default function MembersClient() {
   const [editing, setEditing] = useState<Member | null>(null);
   const [submitting, setSubmitting] = useState(false);
   const [form, setForm] = useState<FormState>(emptyForm);
+  const [photoFile, setPhotoFile] = useState<File | null>(null);
   const [deleteId, setDeleteId] = useState<string | null>(null);
   const [qrMember, setQrMember] = useState<Member | null>(null);
 
@@ -312,6 +313,7 @@ export default function MembersClient() {
 
   const resetForm = () => {
     setForm(emptyForm);
+    setPhotoFile(null);
     setEditing(null);
     setMembershipTabActive(false);
     setCurrentMembership(null);
@@ -371,15 +373,25 @@ export default function MembersClient() {
     setSubmitting(true);
     const client = apiClient(session.accessToken as string);
     try {
+      let memberId = editing?.id;
       if (editing) {
         await client.put(`/api/v1/members/${editing.id}`, payload);
       } else {
         // Alta con membresía opcional en un solo paso
-        await client.post("/api/v1/members", {
+        const { data: created } = await client.post("/api/v1/members", {
           ...payload,
           plan_id: assignPlanId || undefined,
           membership_start_date: assignPlanId ? (assignStartDate || undefined) : undefined,
           payment_method: assignPlanId ? (assignPaymentMethod || undefined) : undefined,
+        });
+        memberId = created.id;
+      }
+      // Subir la foto real una vez existe el socio (el blob local no persiste)
+      if (photoFile && memberId) {
+        const fd = new FormData();
+        fd.append("file", photoFile);
+        await client.post(`/api/v1/members/${memberId}/photo`, fd, {
+          headers: { "Content-Type": "multipart/form-data" },
         });
       }
       toast.success(editing ? "Miembro actualizado" : "Miembro creado");
@@ -523,9 +535,10 @@ export default function MembersClient() {
                       value={form.photo_url || undefined}
                       onChange={(file) => {
                         if (file) {
-                          const url = URL.createObjectURL(file);
-                          setForm({ ...form, photo_url: url });
+                          setPhotoFile(file);
+                          setForm({ ...form, photo_url: URL.createObjectURL(file) });
                         } else {
+                          setPhotoFile(null);
                           setForm({ ...form, photo_url: "" });
                         }
                       }}
