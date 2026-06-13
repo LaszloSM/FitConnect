@@ -9,7 +9,7 @@ import { PageHeader } from "@/components/common/PageHeader";
 import { EmptyState } from "@/components/common/EmptyState";
 import { apiClient } from "@/lib/api";
 import { formatCOP } from "@/lib/format";
-import { AlertCircle, Users, CreditCard, Activity, Calendar, TrendingUp, UserX, Phone, Cake } from "lucide-react";
+import { AlertCircle, Users, CreditCard, Activity, Calendar, TrendingUp, UserX, Phone, Cake, FileSpreadsheet, FileText, Loader2 } from "lucide-react";
 import {
   BarChart,
   Bar,
@@ -57,6 +57,26 @@ export default function ReportsClient() {
   const [profit, setProfit] = useState<{ month: string; income: number; expenses: number; profit: number }[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const [downloading, setDownloading] = useState<null | "xlsx" | "pdf">(null);
+
+  const downloadReport = async (format: "xlsx" | "pdf") => {
+    if (!session?.accessToken) return;
+    setDownloading(format);
+    try {
+      const client = apiClient(session.accessToken as string);
+      const { data } = await client.get(`/api/v1/reports/export.${format}`, { responseType: "blob" });
+      const url = URL.createObjectURL(data as Blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = format === "xlsx" ? "reportes.xlsx" : "estado-resultados.pdf";
+      a.click();
+      URL.revokeObjectURL(url);
+    } catch {
+      setError("No se pudo generar el archivo de export");
+    } finally {
+      setDownloading(null);
+    }
+  };
 
   useEffect(() => {
     if (!session?.accessToken) return;
@@ -151,7 +171,29 @@ export default function ReportsClient() {
       transition={{ ease: [0.16, 1, 0.3, 1], duration: 0.35 }}
       className="space-y-6"
     >
-      <PageHeader module="reports" title="Reportes" subtitle="Análisis operativo del gym" />
+      <div className="flex items-start justify-between gap-3 flex-wrap">
+        <PageHeader module="reports" title="Reportes" subtitle="Análisis operativo del gym" />
+        <div className="flex items-center gap-2">
+          <button
+            type="button"
+            onClick={() => void downloadReport("xlsx")}
+            disabled={downloading !== null}
+            className="flex items-center gap-1.5 h-9 px-3 rounded-lg border border-[var(--border-base)] bg-[var(--bg-card)] text-sm text-[var(--text-base)] hover:bg-[var(--bg-muted)] transition-colors disabled:opacity-50"
+          >
+            {downloading === "xlsx" ? <Loader2 className="h-4 w-4 animate-spin" /> : <FileSpreadsheet className="h-4 w-4 text-emerald-500" />}
+            Excel
+          </button>
+          <button
+            type="button"
+            onClick={() => void downloadReport("pdf")}
+            disabled={downloading !== null}
+            className="flex items-center gap-1.5 h-9 px-3 rounded-lg border border-[var(--border-base)] bg-[var(--bg-card)] text-sm text-[var(--text-base)] hover:bg-[var(--bg-muted)] transition-colors disabled:opacity-50"
+          >
+            {downloading === "pdf" ? <Loader2 className="h-4 w-4 animate-spin" /> : <FileText className="h-4 w-4 text-red-500" />}
+            PDF
+          </button>
+        </div>
+      </div>
 
       {revenueCompare && (
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">

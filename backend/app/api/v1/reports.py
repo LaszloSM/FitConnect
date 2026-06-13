@@ -1,10 +1,12 @@
 from fastapi import APIRouter, Depends, Query
+from fastapi.responses import Response
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select, func, extract, not_, exists, cast, Integer
 from datetime import date, datetime, timedelta
 from decimal import Decimal
 
 from app.api.deps import get_tenant_db_from_token
+from app.services.exports import build_reports_xlsx, build_profit_pdf
 from app.core.timeutil import today_bogota
 from app.models.tenant.member import Member, MemberStatus
 from app.models.tenant.payment import Payment, PaymentMethod, PaymentStatus
@@ -13,6 +15,30 @@ from app.models.tenant.checkin import CheckIn
 from app.models.tenant.membership import Membership, MembershipStatus
 
 router = APIRouter(prefix="/reports", tags=["reports"])
+
+
+@router.get("/export.xlsx")
+async def export_xlsx(db: AsyncSession = Depends(get_tenant_db_from_token)):
+    """Reporte completo en Excel multi-hoja (Utilidad, Por vencer, Inactivos, Socios)."""
+    content = await build_reports_xlsx(db)
+    stamp = today_bogota().strftime("%Y-%m-%d")
+    return Response(
+        content=content,
+        media_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+        headers={"Content-Disposition": f'attachment; filename="reportes-{stamp}.xlsx"'},
+    )
+
+
+@router.get("/export.pdf")
+async def export_pdf(db: AsyncSession = Depends(get_tenant_db_from_token)):
+    """Estado de resultados (utilidad mensual) en PDF con marca del gym."""
+    content = await build_profit_pdf(db)
+    stamp = today_bogota().strftime("%Y-%m-%d")
+    return Response(
+        content=content,
+        media_type="application/pdf",
+        headers={"Content-Disposition": f'attachment; filename="estado-resultados-{stamp}.pdf"'},
+    )
 
 
 def _month_bounds(year: int, month: int) -> tuple[datetime, datetime]:
