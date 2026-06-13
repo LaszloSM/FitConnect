@@ -12,14 +12,43 @@ from app.models.tenant.membership import Membership, MembershipStatus
 from app.models.tenant.payment import Payment, PaymentMethod, PaymentStatus
 from app.models.tenant.payment_link import PaymentLink
 from app.services.gym_settings import get_gym_settings, secret
+from app.services.job_monitor import record_end, record_start
 from app.services.payment_confirmation import confirm_payment
 from app.services.tenant_iterator import for_each_tenant
 from app.services.wompi import WompiClient
 
 logger = logging.getLogger(__name__)
 
-# Lock global en Master DB: evita doble ejecución si algún día hay más de un worker
+# Locks globales en Master DB: evitan doble ejecución cuando hay más de una réplica
+# corriendo el scheduler in-process. Una clave por job (los de intervalo también la
+# necesitan: sin esto, N réplicas duplican WhatsApp y reconciliación).
 _EXPIRE_LOCK_KEY = 815001
+_RECONCILE_LOCK_KEY = 815002
+_OUTBOX_LOCK_KEY = 815003
+
+
+async def _run_with_advisory_lock(key: int, name: str, work) -> None:
+    """Corre `work` (callable que devuelve un coroutine) solo si se obtiene el
+    advisory lock en Master DB. Si otra réplica lo tiene, salta sin error.
+    Registra la corrida en job_monitor para exponerla en /health."""
+    run = record_start(name)
+    async with master_engine.connect() as conn:
+        got_lock = (await conn.execute(
+            text("SELECT pg_try_advisory_lock(:key)"), {"key": key}
+        )).scalar()
+        if not got_lock:
+            logger.info("%s: otra réplica tiene el lock, salto", name)
+            record_end(run, "skipped")
+            return
+        try:
+            await work()
+            record_end(run, "ok")
+        except Exception as e:  # noqa: BLE001
+            logger.exception("%s falló", name)
+            record_end(run, "error", str(e)[:200])
+            raise
+        finally:
+            await conn.execute(text("SELECT pg_advisory_unlock(:key)"), {"key": key})
 
 
 async def _expire_tenant_memberships(session: AsyncSession, tenant: Tenant) -> None:
@@ -198,17 +227,10 @@ async def _daily_tenant_tasks(session: AsyncSession, tenant: Tenant) -> None:
 async def expire_memberships_job() -> None:
     """Job diario: expira membresías vencidas y genera sesiones de clase futuras.
     Idempotente. Las congeladas no expiran."""
-    async with master_engine.connect() as conn:
-        got_lock = (await conn.execute(
-            text("SELECT pg_try_advisory_lock(:key)"), {"key": _EXPIRE_LOCK_KEY}
-        )).scalar()
-        if not got_lock:
-            logger.info("expire_memberships_job: otro worker tiene el lock, salto")
-            return
-        try:
-            await for_each_tenant(_daily_tenant_tasks)
-        finally:
-            await conn.execute(text("SELECT pg_advisory_unlock(:key)"), {"key": _EXPIRE_LOCK_KEY})
+    await _run_with_advisory_lock(
+        _EXPIRE_LOCK_KEY, "expire_memberships_job",
+        lambda: for_each_tenant(_daily_tenant_tasks),
+    )
 
 
 async def _reconcile_tenant_payments(session: AsyncSession, tenant: Tenant) -> None:
@@ -249,7 +271,10 @@ async def _reconcile_tenant_payments(session: AsyncSession, tenant: Tenant) -> N
 async def reconcile_payments_job() -> None:
     """Red de seguridad si se pierde un webhook: consulta Wompi por links
     pendientes recientes y aplica la misma transición que el webhook."""
-    await for_each_tenant(_reconcile_tenant_payments)
+    await _run_with_advisory_lock(
+        _RECONCILE_LOCK_KEY, "reconcile_payments_job",
+        lambda: for_each_tenant(_reconcile_tenant_payments),
+    )
 
 
 async def _process_tenant_outbox(session: AsyncSession, tenant: Tenant) -> None:
@@ -291,7 +316,10 @@ async def _process_tenant_outbox(session: AsyncSession, tenant: Tenant) -> None:
 
 async def process_outbox_job() -> None:
     """Procesa la cola de WhatsApp con backoff (3 intentos)."""
-    await for_each_tenant(_process_tenant_outbox)
+    await _run_with_advisory_lock(
+        _OUTBOX_LOCK_KEY, "process_outbox_job",
+        lambda: for_each_tenant(_process_tenant_outbox),
+    )
 
 
 # Registro de jobs invocables manualmente (endpoint dev /admin/run-job/{name})

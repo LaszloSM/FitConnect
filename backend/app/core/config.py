@@ -1,3 +1,4 @@
+from pydantic import model_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
@@ -28,6 +29,23 @@ class Settings(BaseSettings):
     settings_encryption_key: str = ""
     # Wompi: sandbox por defecto; en producción cambiar a https://production.wompi.co/v1
     wompi_api_url: str = "https://sandbox.wompi.co/v1"
+
+    @model_validator(mode="after")
+    def _guard_production_defaults(self) -> "Settings":
+        """Falla al arrancar si se despliega a producción con defaults inseguros.
+        En desarrollo no aplica (los defaults son válidos para local)."""
+        if self.environment != "production":
+            return self
+        errors = []
+        if not self.settings_encryption_key:
+            errors.append("settings_encryption_key vacío: no se pueden cifrar los secretos de Wompi/WhatsApp")
+        if any("localhost" in o or "127.0.0.1" in o for o in self.cors_origins):
+            errors.append(f"cors_origins apunta a localhost en producción: {self.cors_origins}")
+        if "sandbox.wompi.co" in self.wompi_api_url:
+            errors.append("wompi_api_url sigue en sandbox en producción")
+        if errors:
+            raise ValueError("Configuración de producción insegura -> " + "; ".join(errors))
+        return self
 
 
 settings = Settings()

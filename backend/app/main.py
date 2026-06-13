@@ -42,4 +42,10 @@ app.include_router(api_router)
 
 @app.get("/health")
 async def health():
-    return {"status": "ok"}
+    from app.services.job_monitor import snapshot
+    from app.services.scheduler import scheduler
+    return {
+        "status": "ok",
+        "scheduler_running": scheduler.running,
+        "jobs": snapshot(),
+    }

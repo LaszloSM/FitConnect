@@ -14,15 +14,18 @@ logger = logging.getLogger(__name__)
 TenantFn = Callable[[AsyncSession, Tenant], Awaitable[None]]
 
 
-async def for_each_tenant(fn: TenantFn) -> None:
+async def for_each_tenant(fn: TenantFn) -> tuple[int, int]:
     """Ejecuta fn(session, tenant) sobre cada tenant activo, cada uno en su
-    propia sesión/transacción. Un tenant que falle no rompe el resto."""
+    propia sesión/transacción. Un tenant que falle no rompe el resto.
+    Devuelve (ok, fallidos) para observabilidad."""
     async with MasterSessionLocal() as master_db:
         result = await master_db.execute(
             select(Tenant).where(Tenant.status != TenantStatus.suspended)
         )
         tenants = result.scalars().all()
 
+    ok = 0
+    failed = 0
     for tenant in tenants:
         connection_string = settings.tenant_database_url_template.replace(
             "{db_name}", tenant.db_name
@@ -35,7 +38,12 @@ async def for_each_tenant(fn: TenantFn) -> None:
         try:
             async with session_factory() as session:
                 await fn(session, tenant)
+            ok += 1
         except Exception:
+            failed += 1
             logger.exception("Job falló para tenant %s (%s)", tenant.slug, tenant.db_name)
         finally:
             await engine.dispose()
+
+    logger.info("for_each_tenant: %d ok, %d fallidos de %d", ok, failed, len(tenants))
+    return ok, failed
