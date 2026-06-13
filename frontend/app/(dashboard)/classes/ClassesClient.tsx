@@ -30,7 +30,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { Plus, AlertCircle, Users, ChevronDown, ChevronUp, CalendarClock } from "lucide-react";
+import { Plus, AlertCircle, Users, ChevronDown, ChevronUp, CalendarClock, X } from "lucide-react";
 import Link from "next/link";
 import { InstructorsCard } from "./InstructorsCard";
 import MemberSelect from "@/components/common/MemberSelect";
@@ -243,6 +243,20 @@ export default function ClassesClient() {
     } catch (err: any) {
       const detail = err.response?.data?.detail;
       toast.error(typeof detail === "string" ? detail : "Error al inscribir");
+    }
+  };
+
+  const handleUnenroll = async (classId: string, enrollmentId: string) => {
+    if (!session?.accessToken) return;
+    try {
+      const client = apiClient(session.accessToken as string);
+      await client.delete(`/api/v1/classes/${classId}/enrollments/${enrollmentId}`);
+      toast.success("Inscripción cancelada");
+      const res = await client.get(`/api/v1/classes/${classId}/enrollments`);
+      setEnrollments((prev) => ({ ...prev, [classId]: res.data }));
+    } catch (err: any) {
+      const detail = err.response?.data?.detail;
+      toast.error(typeof detail === "string" ? detail : "Error al cancelar la inscripción");
     }
   };
 
@@ -597,10 +611,20 @@ export default function ClassesClient() {
                               {(enrollments[cls.id] || []).map((enr) => (
                                 <div
                                   key={enr.id}
-                                  className="flex items-center justify-between text-sm py-1.5 px-3 surface-1 rounded-lg"
+                                  className="flex items-center justify-between gap-2 text-sm py-1.5 px-3 surface-1 rounded-lg group"
                                 >
-                                  <span className="text-[var(--text-base)]">{enr.member_name}</span>
-                                  <span className="text-[var(--text-muted)] text-xs">{enr.member_email}</span>
+                                  <span className="text-[var(--text-base)] min-w-0 truncate">{enr.member_name}</span>
+                                  <div className="flex items-center gap-2 shrink-0">
+                                    <span className="text-[var(--text-muted)] text-xs hidden sm:inline">{enr.member_email}</span>
+                                    <button
+                                      type="button"
+                                      onClick={() => handleUnenroll(cls.id, enr.id)}
+                                      title="Dar de baja"
+                                      className="h-6 w-6 rounded-md flex items-center justify-center text-[var(--text-muted)] hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-950/30 transition-colors"
+                                    >
+                                      <X className="h-3.5 w-3.5" />
+                                    </button>
+                                  </div>
                                 </div>
                               ))}
                               {(enrollments[cls.id] || []).length === 0 && (
