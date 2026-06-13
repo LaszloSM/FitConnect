@@ -114,8 +114,9 @@ async def test_receipt_numbers_unique_under_concurrency(client):
     member_ids = [await _member(client, token) for _ in range(6)]
 
     async def pay(mid):
+        # card queda paid de inmediato (transfer ahora entra pending sin recibo)
         return await client.post("/api/v1/payments", json={
-            "member_id": mid, "amount": 10000, "method": "transfer", "status": "paid", "concept": "Concurrente",
+            "member_id": mid, "amount": 10000, "method": "card", "status": "paid", "concept": "Concurrente",
         }, headers=_auth(token))
 
     results = await asyncio.gather(*[pay(m) for m in member_ids])

@@ -23,6 +23,7 @@ class MemberBase(BaseModel):
     birth_date: Optional[date] = None
     address: Optional[str] = Field(default=None, max_length=500)
     city: Optional[str] = Field(default=None, max_length=100)
+    country: Optional[str] = Field(default="CO", max_length=2)
     emergency_contact_name: Optional[str] = Field(default=None, max_length=255)
     emergency_contact_phone: Optional[str] = Field(default=None, max_length=50)
     blood_type: Optional[str] = Field(default=None, max_length=5)
@@ -83,6 +84,7 @@ class MemberUpdate(BaseModel):
     birth_date: Optional[date] = None
     address: Optional[str] = Field(default=None, max_length=500)
     city: Optional[str] = Field(default=None, max_length=100)
+    country: Optional[str] = Field(default=None, max_length=2)
     emergency_contact_name: Optional[str] = Field(default=None, max_length=255)
     emergency_contact_phone: Optional[str] = Field(default=None, max_length=50)
     blood_type: Optional[str] = Field(default=None, max_length=5)

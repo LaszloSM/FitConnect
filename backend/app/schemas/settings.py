@@ -25,6 +25,7 @@ class GymSettingsResponse(BaseModel):
     phone: Optional[str] = None
     address: Optional[str] = None
     city: Optional[str] = None
+    country: Optional[str] = None
     logo_url: Optional[str] = None
     plan: Optional[str] = None
     operating_hours: Optional[dict] = None
@@ -35,6 +36,7 @@ class GymSettingsUpdate(BaseModel):
     phone: Optional[str] = None
     address: Optional[str] = None
     city: Optional[str] = None
+    country: Optional[str] = Field(default=None, min_length=2, max_length=2)
     logo_url: Optional[str] = None
     operating_hours: Optional[dict] = None
 

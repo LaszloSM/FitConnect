@@ -142,6 +142,7 @@ async def get_gym_settings(
         phone=tenant.phone,
         address=tenant.address,
         city=tenant.city,
+        country=tenant.country,
         logo_url=tenant.logo_url,
         plan=tenant.plan.value if tenant.plan else None,
         operating_hours=tenant.operating_hours,
@@ -162,6 +163,8 @@ async def update_gym_settings(
         tenant.address = payload.address
     if payload.city is not None:
         tenant.city = payload.city
+    if payload.country is not None:
+        tenant.country = payload.country
     if payload.logo_url is not None:
         tenant.logo_url = payload.logo_url
     if payload.operating_hours is not None:
@@ -175,6 +178,7 @@ async def update_gym_settings(
         phone=tenant.phone,
         address=tenant.address,
         city=tenant.city,
+        country=tenant.country,
         logo_url=tenant.logo_url,
         plan=tenant.plan.value if tenant.plan else None,
         operating_hours=tenant.operating_hours,

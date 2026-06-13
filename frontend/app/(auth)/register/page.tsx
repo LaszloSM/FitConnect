@@ -8,6 +8,8 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { PasswordInput } from "@/components/ui/password-input";
 import { PhoneInput } from "@/components/ui/phone-input";
+import { CityCombobox } from "@/components/ui/city-combobox";
+import { CountrySelect } from "@/components/ui/country-select";
 import { BrandMark } from "@/components/common/BrandMark";
 
 const registerSchema = z
@@ -18,6 +20,7 @@ const registerSchema = z
     password: z.string().min(8, "La contraseña debe tener al menos 8 caracteres"),
     confirm_password: z.string(),
     city: z.string().min(2, "Ciudad demasiado corta"),
+    country: z.string().min(2).max(2),
     phone: z.string().optional(),
     terms_accepted: z.boolean().refine((v) => v, "Debes aceptar los términos de servicio"),
   })
@@ -33,6 +36,8 @@ export default function RegisterPage() {
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [phone, setPhone] = useState("");
+  const [city, setCity] = useState("");
+  const [country, setCountry] = useState("CO");
   const [termsAccepted, setTermsAccepted] = useState(false);
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
@@ -46,7 +51,8 @@ export default function RegisterPage() {
       confirm_password: confirmPassword,
       full_name: form.get("full_name") as string,
       gym_name: form.get("gym_name") as string,
-      city: form.get("city") as string,
+      city,
+      country,
       phone: phone || undefined,
       terms_accepted: termsAccepted,
     };
@@ -67,6 +73,7 @@ export default function RegisterPage() {
         full_name: formData.full_name,
         gym_name: formData.gym_name,
         city: formData.city,
+        country: formData.country,
         phone: formData.phone,
       }),
     });
@@ -107,16 +114,16 @@ export default function RegisterPage() {
           />
         </div>
 
-        {/* City */}
-        <div className="space-y-1.5">
-          <Label htmlFor="city" className="text-slate-600 text-sm font-medium">Ciudad</Label>
-          <Input
-            id="city"
-            name="city"
-            type="text"
-            required
-            className="bg-white border-slate-200 text-slate-800 placeholder:text-slate-400 focus:border-[var(--color-primary)] focus:ring-[var(--color-primary)]"
-          />
+        {/* City + Country */}
+        <div className="grid grid-cols-2 gap-3">
+          <div className="space-y-1.5">
+            <Label htmlFor="city" className="text-slate-600 text-sm font-medium">Ciudad</Label>
+            <CityCombobox id="city" value={city} onChange={setCity} surface="on-light" />
+          </div>
+          <div className="space-y-1.5">
+            <Label className="text-slate-600 text-sm font-medium">País</Label>
+            <CountrySelect value={country} onChange={(v) => setCountry(v || "CO")} surface="on-light" />
+          </div>
         </div>
 
         {/* Full name */}

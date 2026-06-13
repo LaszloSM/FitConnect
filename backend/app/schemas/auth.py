@@ -8,6 +8,7 @@ class RegisterRequest(BaseModel):
     full_name: str
     gym_name: str
     city: str
+    country: str = Field(default="CO", min_length=2, max_length=2)
 
 
 class LoginRequest(BaseModel):

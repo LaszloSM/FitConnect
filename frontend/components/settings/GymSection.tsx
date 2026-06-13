@@ -10,6 +10,8 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { TimePicker } from "@/components/ui/time-picker";
+import { CityCombobox } from "@/components/ui/city-combobox";
+import { CountrySelect } from "@/components/ui/country-select";
 import { apiClient } from "@/lib/api";
 import { Lock } from "lucide-react";
 
@@ -23,6 +25,7 @@ interface GymData {
   phone: string | null;
   address: string | null;
   city: string | null;
+  country: string | null;
   logo_url: string | null;
   plan: string | null;
   operating_hours?: OperatingHours;
@@ -72,6 +75,7 @@ export default function GymSection() {
     phone: "",
     address: "",
     city: "",
+    country: "CO",
     logo_url: "",
   });
   const [saving, setSaving] = useState(false);
@@ -90,6 +94,7 @@ export default function GymSection() {
         phone:    res.data.phone ?? "",
         address:  res.data.address ?? "",
         city:     res.data.city ?? "",
+        country:  res.data.country ?? "CO",
         logo_url: res.data.logo_url ?? "",
       });
       if (res.data.operating_hours) {
@@ -110,6 +115,7 @@ export default function GymSection() {
         phone:    form.phone || undefined,
         address:  form.address || undefined,
         city:     form.city || undefined,
+        country:  form.country || undefined,
         logo_url: form.logo_url || undefined,
       });
       setGymData(res.data);
@@ -201,12 +207,19 @@ export default function GymSection() {
           </div>
           <div className="space-y-2">
             <Label className="text-[var(--text-muted)] text-sm">Ciudad</Label>
-            <Input
-              value={form.city}
-              onChange={(e) => setForm({ ...form, city: e.target.value })}
-              disabled={!isOwner}
-              className={isOwner ? inputCls : readOnlyCls}
-            />
+            {isOwner ? (
+              <CityCombobox value={form.city} onChange={(v) => setForm({ ...form, city: v })} />
+            ) : (
+              <Input value={form.city} disabled className={readOnlyCls} />
+            )}
+          </div>
+          <div className="space-y-2">
+            <Label className="text-[var(--text-muted)] text-sm">País</Label>
+            {isOwner ? (
+              <CountrySelect value={form.country} onChange={(v) => setForm({ ...form, country: v || "CO" })} />
+            ) : (
+              <Input value={form.country} disabled className={readOnlyCls} />
+            )}
           </div>
         </div>
 

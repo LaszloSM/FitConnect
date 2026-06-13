@@ -22,6 +22,10 @@ import { PhoneInput } from "@/components/ui/phone-input";
 import { DatePicker } from "@/components/ui/date-picker";
 import { IdTypeSelect } from "@/components/ui/id-type-select";
 import { BloodTypeSelect } from "@/components/ui/blood-type-select";
+import { GenderSelect } from "@/components/ui/gender-select";
+import { CityCombobox } from "@/components/ui/city-combobox";
+import { CountrySelect } from "@/components/ui/country-select";
+import { TrainingGoalSelect } from "@/components/ui/training-goal-select";
 import { FileUpload } from "@/components/ui/file-upload";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
@@ -46,8 +50,10 @@ const memberSchema = z.object({
   status: z.enum(["active", "inactive"]),
   notes: z.string().optional(),
   gender: z.enum(["M", "F", "other"]).optional(),
+  training_goal: z.enum(["weight_loss", "muscle_gain", "endurance", "flexibility", "general_fitness"]).optional(),
   address: z.string().optional(),
   city: z.string().optional(),
+  country: z.string().optional(),
   emergency_contact_name: z.string().optional(),
   emergency_contact_phone: z.string().optional(),
   blood_type: z.string().optional(),
@@ -68,8 +74,10 @@ interface Member {
   notes: string | null;
   created_at: string;
   gender: string | null;
+  training_goal: string | null;
   address: string | null;
   city: string | null;
+  country: string | null;
   emergency_contact_name: string | null;
   emergency_contact_phone: string | null;
   blood_type: string | null;
@@ -108,8 +116,10 @@ type FormState = {
   status: string;
   notes: string;
   gender: string;
+  training_goal: string;
   address: string;
   city: string;
+  country: string;
   emergency_contact_name: string;
   emergency_contact_phone: string;
   blood_type: string;
@@ -127,8 +137,10 @@ const emptyForm: FormState = {
   status: "active",
   notes: "",
   gender: "",
+  training_goal: "",
   address: "",
   city: "",
+  country: "CO",
   emergency_contact_name: "",
   emergency_contact_phone: "",
   blood_type: "",
@@ -321,8 +333,10 @@ export default function MembersClient() {
       status: member.status,
       notes: member.notes || "",
       gender: member.gender || "",
+      training_goal: member.training_goal || "",
       address: member.address || "",
       city: member.city || "",
+      country: member.country || "CO",
       emergency_contact_name: member.emergency_contact_name || "",
       emergency_contact_phone: member.emergency_contact_phone || "",
       blood_type: member.blood_type || "",
@@ -340,6 +354,7 @@ export default function MembersClient() {
       ...form,
       id_type: form.id_type || undefined,
       gender: form.gender || undefined,
+      training_goal: form.training_goal || undefined,
       blood_type: form.blood_type || undefined,
       // No persistir blobs locales (URL.createObjectURL no sobrevive)
       photo_url: form.photo_url.startsWith("blob:") ? undefined : form.photo_url || undefined,
@@ -454,21 +469,19 @@ export default function MembersClient() {
                     <Label htmlFor="full_name" className="text-[var(--text-muted)] text-sm">Nombre completo *</Label>
                     <Input id="full_name" value={form.full_name} onChange={(e) => setForm({ ...form, full_name: e.target.value })} required className={inputCls} />
                   </div>
-                  <div className="space-y-2 col-span-2">
+                  <div className="space-y-2">
                     <Label className="text-[var(--text-muted)] text-sm">Género</Label>
-                    <div className="flex gap-3">
-                      {[{ value: "M", label: "Masculino" }, { value: "F", label: "Femenino" }, { value: "other", label: "Otro" }].map((g) => (
-                        <label key={g.value} className={cn(
-                          "flex items-center gap-2 cursor-pointer rounded-md px-3 py-1.5 text-sm font-medium border transition-colors select-none",
-                          form.gender === g.value
-                            ? "bg-[var(--color-primary)]/10 border-[var(--color-primary)]/40 text-[var(--color-primary-hover)] dark:text-[var(--color-primary)]"
-                            : "border-[var(--border-base)] text-[var(--text-muted)] hover:border-[var(--color-primary)]"
-                        )}>
-                          <input type="radio" name="gender" value={g.value} checked={form.gender === g.value} onChange={() => setForm({ ...form, gender: g.value })} className="sr-only" />
-                          {g.label}
-                        </label>
-                      ))}
-                    </div>
+                    <GenderSelect
+                      value={form.gender}
+                      onChange={(v) => setForm({ ...form, gender: v || "" })}
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label className="text-[var(--text-muted)] text-sm">Objetivo de entrenamiento</Label>
+                    <TrainingGoalSelect
+                      value={form.training_goal}
+                      onChange={(v) => setForm({ ...form, training_goal: v || "" })}
+                    />
                   </div>
                   <div className="space-y-2">
                     <Label htmlFor="email" className="text-[var(--text-muted)] text-sm">Email *</Label>
@@ -494,7 +507,11 @@ export default function MembersClient() {
                   </div>
                   <div className="space-y-2">
                     <Label className="text-[var(--text-muted)] text-sm">Ciudad</Label>
-                    <Input value={form.city} onChange={(e) => setForm({ ...form, city: e.target.value })} className={inputCls} />
+                    <CityCombobox value={form.city} onChange={(v) => setForm({ ...form, city: v })} />
+                  </div>
+                  <div className="space-y-2">
+                    <Label className="text-[var(--text-muted)] text-sm">País</Label>
+                    <CountrySelect value={form.country} onChange={(v) => setForm({ ...form, country: v || "CO" })} />
                   </div>
                   <div className="space-y-2 col-span-2">
                     <Label className="text-[var(--text-muted)] text-sm">Dirección</Label>

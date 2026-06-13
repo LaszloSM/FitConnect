@@ -63,6 +63,7 @@ class Member(TenantBase, TenantTimestampMixin):
     birth_date: Mapped[Optional[date]] = mapped_column(Date, nullable=True)
     address: Mapped[Optional[str]] = mapped_column(String(500), nullable=True)
     city: Mapped[Optional[str]] = mapped_column(String(100), nullable=True)
+    country: Mapped[Optional[str]] = mapped_column(String(2), nullable=True, default="CO")
     # Contacto de emergencia
     emergency_contact_name: Mapped[Optional[str]] = mapped_column(String(255), nullable=True)
     emergency_contact_phone: Mapped[Optional[str]] = mapped_column(String(50), nullable=True)

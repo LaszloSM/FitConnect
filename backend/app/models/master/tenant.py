@@ -37,4 +37,5 @@ class Tenant(MasterBase, MasterTimestampMixin):
     phone: Mapped[str | None] = mapped_column(String(50), nullable=True)
     address: Mapped[str | None] = mapped_column(String(500), nullable=True)
     city: Mapped[str | None] = mapped_column(String(100), nullable=True)
+    country: Mapped[str | None] = mapped_column(String(2), nullable=True, default="CO")
     operating_hours: Mapped[Optional[dict]] = mapped_column(JSONB, nullable=True, default=None)
