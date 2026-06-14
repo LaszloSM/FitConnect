@@ -216,12 +216,107 @@ async def _emit_maintenance_alerts(session: AsyncSession, tenant: Tenant) -> Non
     await session.commit()
 
 
+async def _emit_birthday_greetings(session: AsyncSession, tenant: Tenant) -> None:
+    """Saludo de cumpleaños del día con el mensaje que editó el dueño
+    (idempotente por año). Engagement = retención."""
+    from sqlalchemy import extract
+    from app.models.tenant.member import Member, MemberStatus
+    from app.services.events import emit
+    from app.services.message_templates import CATALOG, get_body, render
+
+    body = await get_body(session, "birthday")
+    if not body:
+        return
+    today = today_bogota()
+    gym = await get_gym_settings(session)
+    gym_name = getattr(gym, "legal_name", None) or tenant.name
+    rows = (await session.execute(
+        select(Member).where(
+            Member.status == MemberStatus.active,
+            Member.birth_date.isnot(None),
+            extract("month", Member.birth_date) == today.month,
+            extract("day", Member.birth_date) == today.day,
+        )
+    )).scalars().all()
+    variables = CATALOG["birthday"]["variables"]
+    for m in rows:
+        values = {"nombre": m.full_name.split(" ")[0], "gym": gym_name}
+        await emit(
+            session, "member.birthday",
+            idempotency_key=f"birthday:{m.id}:{today.year}",
+            title="Cumpleaños", message=render(body, values),
+            member_id=m.id, phone=m.phone,
+            template_params=[values.get(v, "") for v in variables],
+        )
+    await session.commit()
+
+
+async def _emit_winback(session: AsyncSession, tenant: Tenant) -> None:
+    """Win-back: socio activo con membresía vigente que no viene hace 21 días.
+    Una sola vez por 'ausencia' (idempotencia por su último check-in)."""
+    from sqlalchemy import func
+    from app.core.timeutil import utcnow_naive
+    from app.models.tenant.member import Member, MemberStatus
+    from app.models.tenant.checkin import CheckIn
+    from app.services.events import emit
+    from app.services.message_templates import CATALOG, get_body, render
+
+    body = await get_body(session, "winback")
+    if not body:
+        return
+    today = today_bogota()
+    # checkins.created_at es UTC naive: el cutoff debe ser naive (no aware).
+    cutoff = utcnow_naive() - timedelta(days=21)
+    gym = await get_gym_settings(session)
+    gym_name = getattr(gym, "legal_name", None) or tenant.name
+
+    with_membership = (
+        select(Membership.member_id).where(
+            Membership.status == MembershipStatus.active.value,
+            Membership.end_date >= today,
+        ).distinct().scalar_subquery()
+    )
+    recent = select(CheckIn.member_id).where(CheckIn.created_at >= cutoff).distinct().scalar_subquery()
+    rows = (await session.execute(
+        select(Member).where(
+            Member.status == MemberStatus.active,
+            Member.id.in_(with_membership),
+            Member.id.not_in(recent),
+        )
+    )).scalars().all()
+    if not rows:
+        return
+    ids = [m.id for m in rows]
+    last_map = {
+        r[0]: r[1]
+        for r in (await session.execute(
+            select(CheckIn.member_id, func.max(CheckIn.created_at))
+            .where(CheckIn.member_id.in_(ids)).group_by(CheckIn.member_id)
+        )).all()
+    }
+    variables = CATALOG["winback"]["variables"]
+    for m in rows:
+        last = last_map.get(m.id)
+        episode = last.date().isoformat() if last else "never"
+        values = {"nombre": m.full_name.split(" ")[0], "gym": gym_name}
+        await emit(
+            session, "member.winback",
+            idempotency_key=f"winback:{m.id}:{episode}",
+            title="Te extrañamos", message=render(body, values),
+            member_id=m.id, phone=m.phone,
+            template_params=[values.get(v, "") for v in variables],
+        )
+    await session.commit()
+
+
 async def _daily_tenant_tasks(session: AsyncSession, tenant: Tenant) -> None:
     from app.services.class_sessions import materialize_sessions
     await _expire_tenant_memberships(session, tenant)
     await materialize_sessions(session, horizon_days=14)
     await _emit_expiry_reminders(session, tenant)
     await _emit_maintenance_alerts(session, tenant)
+    await _emit_birthday_greetings(session, tenant)
+    await _emit_winback(session, tenant)
 
 
 async def expire_memberships_job() -> None:

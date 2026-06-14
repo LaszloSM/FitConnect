@@ -10,6 +10,8 @@ TEMPLATES = {
     "membership.overdue": "recordatorio_vencido",
     "payment.confirmed": "confirmacion_pago",
     "payment.link_created": "link_de_pago",
+    "member.birthday": "cumpleanos",
+    "member.winback": "te_extranamos",
 }
 
 

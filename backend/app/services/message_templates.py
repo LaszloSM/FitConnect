@@ -61,6 +61,17 @@ async def get_or_seed_templates(db: AsyncSession) -> list[MessageTemplate]:
     return [existing[o] for o in CATALOG if o in existing]
 
 
+async def get_body(db: AsyncSession, occasion: str) -> str | None:
+    """Cuerpo activo que el dueño guardó para una ocasión; default si no lo tocó;
+    None si la ocasión está desactivada."""
+    t = (await db.execute(
+        select(MessageTemplate).where(MessageTemplate.occasion == occasion)
+    )).scalar_one_or_none()
+    if t is None:
+        return CATALOG.get(occasion, {}).get("default")
+    return t.body if t.is_active else None
+
+
 def render(body: str, values: dict[str, str]) -> str:
     """Reemplaza {variable} con su valor; deja intactas las que no se conozcan."""
     out = body
