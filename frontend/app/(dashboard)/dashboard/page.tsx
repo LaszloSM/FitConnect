@@ -11,6 +11,7 @@ import { EmptyState } from "@/components/common/EmptyState";
 import { PageHeader } from "@/components/common/PageHeader";
 import { OperationsToday } from "@/components/dashboard/OperationsToday";
 import { OnboardingChecklist } from "@/components/dashboard/OnboardingChecklist";
+import { InsightsStrip } from "@/components/dashboard/InsightsStrip";
 import { apiClient } from "@/lib/api";
 import { formatCOP } from "@/lib/format";
 import Link from "next/link";
@@ -249,6 +250,8 @@ export default function DashboardPage() {
       />
 
       <OnboardingChecklist />
+
+      <InsightsStrip />
 
       {/* KPI grid — flagship Volt + calm functional cards */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">

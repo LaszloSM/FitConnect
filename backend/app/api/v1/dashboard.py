@@ -175,6 +175,77 @@ async def get_dashboard_kpis(
     )
 
 
+@router.get("/insights")
+async def get_dashboard_insights(db: AsyncSession = Depends(get_tenant_db_from_token)):
+    """Frases accionables derivadas de los agregados que ya se calculan.
+    Sin modelo: reglas sobre los datos. Cada insight tiene tono y, si aplica,
+    un enlace para actuar."""
+    today = today_bogota()
+    insights: list[dict] = []
+
+    # Ingresos del mes vs mes anterior
+    def _bounds(y: int, m: int):
+        from datetime import date as _date
+        start = _date(y, m, 1)
+        end = _date(y + 1, 1, 1) if m == 12 else _date(y, m + 1, 1)
+        return (datetime.combine(start, datetime.min.time()),
+                datetime.combine(end, datetime.min.time()))
+
+    cur_s, cur_e = _bounds(today.year, today.month)
+    pm, py = (12, today.year - 1) if today.month == 1 else (today.month - 1, today.year)
+    prev_s, prev_e = _bounds(py, pm)
+
+    async def _paid_sum(s, e):
+        return (await db.execute(
+            select(func.coalesce(func.sum(Payment.amount), Decimal("0"))).where(
+                Payment.created_at >= s, Payment.created_at < e,
+                Payment.status == PaymentStatus.paid,
+            )
+        )).scalar() or Decimal("0")
+
+    cur = float(await _paid_sum(cur_s, cur_e))
+    prev = float(await _paid_sum(prev_s, prev_e))
+    if prev > 0:
+        delta = round((cur - prev) / prev * 100)
+        if delta <= -10:
+            insights.append({"tone": "negative", "text": f"Tus ingresos del mes van {abs(delta)}% por debajo del mes pasado.", "href": "/reports"})
+        elif delta >= 10:
+            insights.append({"tone": "positive", "text": f"Tus ingresos del mes van {delta}% por encima del mes pasado. ¡Bien!", "href": "/reports"})
+
+    # Membresías por vencer esta semana
+    week_end = today + timedelta(days=7)
+    expiring = (await db.execute(
+        select(func.count()).select_from(Membership).where(
+            Membership.end_date >= today, Membership.end_date <= week_end,
+            Membership.status == MembershipStatus.active.value,
+        )
+    )).scalar() or 0
+    if expiring:
+        insights.append({"tone": "warning", "text": f"{expiring} {'membresía vence' if expiring == 1 else 'membresías vencen'} esta semana — envía recordatorios.", "href": "/payments"})
+
+    # Socios sin visita en 14 días (riesgo de abandono)
+    cutoff = datetime.combine(today - timedelta(days=14), datetime.min.time())
+    recent = select(CheckIn.member_id).where(CheckIn.created_at >= cutoff).distinct().scalar_subquery()
+    inactive = (await db.execute(
+        select(func.count()).select_from(Member).where(
+            Member.status == MemberStatus.active, Member.id.not_in(recent),
+        )
+    )).scalar() or 0
+    if inactive:
+        insights.append({"tone": "warning", "text": f"{inactive} {'socio activo no ha venido' if inactive == 1 else 'socios activos no han venido'} en 14 días — riesgo de abandono.", "href": "/reports"})
+
+    # Nuevos socios este mes
+    new_members = (await db.execute(
+        select(func.count()).select_from(Member).where(
+            Member.created_at >= cur_s, Member.created_at < cur_e,
+        )
+    )).scalar() or 0
+    if new_members:
+        insights.append({"tone": "positive", "text": f"{new_members} {'socio nuevo' if new_members == 1 else 'socios nuevos'} este mes.", "href": "/members"})
+
+    return {"insights": insights[:4], "generated_for": today.isoformat()}
+
+
 @router.get("/operations")
 async def get_operations_dashboard(
     db: AsyncSession = Depends(get_tenant_db_from_token),
