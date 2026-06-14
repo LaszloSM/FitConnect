@@ -55,6 +55,7 @@ export default function ReportsClient() {
   const [checkinTrend, setCheckinTrend] = useState<{ week: string; count: number }[]>([]);
   const [revenueCompare, setRevenueCompare] = useState<{ current: number; previous: number; delta_pct: number | null } | null>(null);
   const [profit, setProfit] = useState<{ month: string; income: number; expenses: number; profit: number }[]>([]);
+  const [retention, setRetention] = useState<{ month: string; ended: number; renewed: number; renewal_rate: number | null; churn_rate: number | null }[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [downloading, setDownloading] = useState<null | "xlsx" | "pdf">(null);
@@ -95,8 +96,9 @@ export default function ReportsClient() {
       client.get("/api/v1/reports/checkin-trend"),
       client.get("/api/v1/reports/revenue-compare"),
       client.get("/api/v1/reports/profit"),
+      client.get("/api/v1/reports/retention"),
     ])
-      .then(([ms, pm, at, em, rh, im, bd, rbp, ct, rc, pf]) => {
+      .then(([ms, pm, at, em, rh, im, bd, rbp, ct, rc, pf, rt]) => {
         if (!cancelled) {
           setMemberStatus(ms.data);
           setPaymentMethods(pm.data);
@@ -109,6 +111,7 @@ export default function ReportsClient() {
           setCheckinTrend(ct.data);
           setRevenueCompare(rc.data);
           setProfit(pf.data);
+          setRetention(rt.data);
           setError("");
         }
       })
@@ -213,6 +216,37 @@ export default function ReportsClient() {
           </GlassCard>
         </div>
       )}
+
+      {(() => {
+        const last = [...retention].reverse().find((r) => r.renewal_rate !== null);
+        if (!last) return null;
+        const good = (last.renewal_rate ?? 0) >= 70;
+        return (
+          <GlassCard className="p-5">
+            <div className="flex items-center gap-2 mb-3">
+              <Activity className="h-4 w-4 text-[var(--color-primary)]" aria-hidden="true" />
+              <h3 className="text-[var(--text-base)] font-semibold text-sm">Retención de socios</h3>
+              <span className="text-xs text-[var(--text-muted)]">· {last.month}</span>
+            </div>
+            <div className="flex flex-wrap items-end gap-6">
+              <div>
+                <p className="text-[10px] uppercase tracking-wider text-[var(--text-muted)]">Tasa de renovación</p>
+                <p className={`text-3xl font-bold font-mono ${good ? "text-emerald-600 dark:text-emerald-400" : "text-amber-600 dark:text-amber-400"}`}>
+                  {last.renewal_rate}%
+                </p>
+              </div>
+              <div>
+                <p className="text-[10px] uppercase tracking-wider text-[var(--text-muted)]">Churn</p>
+                <p className="text-xl font-bold font-mono text-[var(--text-muted)]">{last.churn_rate}%</p>
+              </div>
+              <p className="text-xs text-[var(--text-muted)] flex-1 min-w-[180px]">
+                De {last.ended} membresía{last.ended !== 1 ? "s" : ""} que vencieron, {last.renewed} renovó
+                {last.renewed !== 1 ? "n" : ""}.
+              </p>
+            </div>
+          </GlassCard>
+        );
+      })()}
 
       {profit.length > 0 && profit.some((p) => p.expenses > 0) && (
         <GlassCard className="p-5">

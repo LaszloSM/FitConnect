@@ -220,6 +220,55 @@ async def revenue_history_report(
     return results
 
 
+@router.get("/retention")
+async def retention_report(
+    months: int = Query(6, ge=1, le=24),
+    db: AsyncSession = Depends(get_tenant_db_from_token),
+):
+    """Tasa de renovación mensual: de las membresías que vencieron en el mes,
+    cuántas tuvieron una renovación (otra membresía que arranca al terminar).
+    churn = 1 - renovación. El número de ROI para el dueño."""
+    from sqlalchemy.orm import aliased
+    today = today_bogota()
+    M2 = aliased(Membership)
+    renewal_exists = (
+        select(M2.id).where(
+            M2.member_id == Membership.member_id,
+            M2.id != Membership.id,
+            M2.start_date >= Membership.end_date,
+        ).exists()
+    )
+
+    results = []
+    for i in range(months - 1, -1, -1):
+        m, y = today.month - i, today.year
+        while m <= 0:
+            m += 12
+            y -= 1
+        start = date(y, m, 1)
+        end = date(y + 1, 1, 1) if m == 12 else date(y, m + 1, 1)
+        ended = (await db.execute(
+            select(func.count()).select_from(Membership).where(
+                Membership.end_date >= start, Membership.end_date < end,
+            )
+        )).scalar() or 0
+        renewed = (await db.execute(
+            select(func.count()).select_from(Membership).where(
+                Membership.end_date >= start, Membership.end_date < end,
+                renewal_exists,
+            )
+        )).scalar() or 0
+        rate = round(renewed / ended * 100) if ended else None
+        results.append({
+            "month": start.strftime("%b %Y"),
+            "ended": ended,
+            "renewed": renewed,
+            "renewal_rate": rate,
+            "churn_rate": (100 - rate) if rate is not None else None,
+        })
+    return results
+
+
 @router.get("/inactive-members")
 async def inactive_members_report(
     days: int = Query(14, ge=1, le=365, description="Días sin visita"),
