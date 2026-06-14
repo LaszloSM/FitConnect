@@ -10,6 +10,7 @@ import { AreaChartCard } from "@/components/common/AreaChartCard";
 import { EmptyState } from "@/components/common/EmptyState";
 import { PageHeader } from "@/components/common/PageHeader";
 import { OperationsToday } from "@/components/dashboard/OperationsToday";
+import { OnboardingChecklist } from "@/components/dashboard/OnboardingChecklist";
 import { apiClient } from "@/lib/api";
 import { formatCOP } from "@/lib/format";
 import Link from "next/link";
@@ -246,6 +247,8 @@ export default function DashboardPage() {
           </div>
         }
       />
+
+      <OnboardingChecklist />
 
       {/* KPI grid — flagship Volt + calm functional cards */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
