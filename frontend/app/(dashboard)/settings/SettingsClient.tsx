@@ -4,7 +4,7 @@ import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { PageHeader } from "@/components/common/PageHeader";
 import { cn } from "@/lib/utils";
-import { User, Building2, Bell, CreditCard, Palette, SlidersHorizontal, Plug, MonitorSmartphone, Landmark } from "lucide-react";
+import { User, Building2, Bell, CreditCard, Palette, SlidersHorizontal, Plug, MonitorSmartphone, Landmark, MessageSquare } from "lucide-react";
 import dynamic from "next/dynamic";
 
 const ProfileSection      = dynamic(() => import("@/components/settings/ProfileSection"));
@@ -16,8 +16,9 @@ const NotificationsSection = dynamic(() => import("@/components/settings/Notific
 const PlanSection         = dynamic(() => import("@/components/settings/PlanSection"));
 const AppearanceSection   = dynamic(() => import("@/components/settings/AppearanceSection"));
 const KioskSection        = dynamic(() => import("@/components/settings/KioskSection"));
+const MessagesSection     = dynamic(() => import("@/components/settings/MessagesSection"));
 
-type TabKey = "profile" | "gym" | "operations" | "billing" | "kiosk" | "integrations" | "notifications" | "plan" | "appearance";
+type TabKey = "profile" | "gym" | "operations" | "billing" | "kiosk" | "integrations" | "notifications" | "messages" | "plan" | "appearance";
 
 interface Tab {
   key: TabKey;
@@ -33,6 +34,7 @@ const TABS: Tab[] = [
   { key: "kiosk",         label: "Kiosko",           icon: MonitorSmartphone },
   { key: "integrations",  label: "Integraciones",    icon: Plug },
   { key: "notifications", label: "Notificaciones",   icon: Bell },
+  { key: "messages",      label: "Mensajes",         icon: MessageSquare },
   { key: "plan",          label: "Plan",             icon: CreditCard },
   { key: "appearance",    label: "Apariencia",       icon: Palette },
 ];
@@ -45,6 +47,7 @@ const SECTION_MAP: Record<TabKey, React.ComponentType> = {
   kiosk:         KioskSection,
   integrations:  IntegrationsSection,
   notifications: NotificationsSection,
+  messages:      MessagesSection,
   plan:          PlanSection,
   appearance:    AppearanceSection,
 };

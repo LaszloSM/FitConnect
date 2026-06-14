@@ -26,6 +26,7 @@ from app.models.tenant.product import Product
 from app.models.tenant.payment_item import PaymentItem
 from app.models.tenant.kiosk_device import KioskDevice
 from app.models.tenant.instructor import Instructor
+from app.models.tenant.message_template import MessageTemplate
 
 __all__ = [
     "UserStaff", "UserRole",
@@ -56,4 +57,5 @@ __all__ = [
     "PaymentItem",
     "KioskDevice",
     "Instructor",
+    "MessageTemplate",
 ]
