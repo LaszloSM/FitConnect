@@ -24,6 +24,8 @@ class Settings(BaseSettings):
     anthropic_api_key: str = ""
     ses_from_email: str = ""
     cors_origins: list[str] = ["http://localhost:3000"]
+    # URL pública del frontend, para construir links (ej. invitaciones de staff).
+    frontend_url: str = "http://localhost:3000"
     # Clave Fernet para cifrar secretos de integraciones (Wompi, WhatsApp) en gym_settings.
     # Generar con: python -c "from cryptography.fernet import Fernet; print(Fernet.generate_key().decode())"
     settings_encryption_key: str = ""

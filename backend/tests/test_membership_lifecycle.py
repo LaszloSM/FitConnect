@@ -335,12 +335,14 @@ async def test_sensitive_actions_are_audited(client):
 async def test_audit_requires_owner_role(client):
     token = await _owner_token(client)
     invite_email = f"recep-{uuid.uuid4().hex[:6]}@gym.com"
-    await client.post("/api/v1/users/invite", json={
+    inv = await client.post("/api/v1/users/invite", json={
         "email": invite_email, "full_name": "Recep", "role": "receptionist",
     }, headers=_auth(token))
-    r = await client.post("/api/v1/auth/staff/login",
-                          json={"email": invite_email, "password": "TempPass123!"})
-    recep_token = r.json()["access_token"]
+    from urllib.parse import urlparse, parse_qs
+    invite_token = parse_qs(urlparse(inv.json()["invite_url"]).query)["token"][0]
+    acc = await client.post("/api/v1/auth/staff/accept-invite",
+                            json={"token": invite_token, "password": "RecepPass123!"})
+    recep_token = acc.json()["access_token"]
     r = await client.get("/api/v1/audit", headers=_auth(recep_token))
     assert r.status_code == 403
 

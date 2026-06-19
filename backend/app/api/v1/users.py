@@ -1,19 +1,23 @@
+from datetime import datetime, timedelta, timezone
+
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import select
+from sqlalchemy import select, delete
 
 from app.api.deps import get_master_db, get_tenant_db_from_token, require_role
-from app.core.security import hash_password
+from app.core.config import settings
+from app.core.security import generate_invite_token, hash_invite_token
 from app.models.master.staff_directory import StaffDirectory
+from app.models.master.staff_invitation import StaffInvitation
 from app.models.tenant.user_staff import UserStaff, UserRole
-from app.schemas.user import InviteUserRequest, UserResponse, UpdateUserRoleRequest
+from app.schemas.user import InviteUserRequest, InviteResponse, UserResponse, UpdateUserRoleRequest
 
 router = APIRouter(prefix="/users", tags=["users"])
 
-TEMP_PASSWORD = "TempPass123!"
+INVITE_TTL_HOURS = 48
 
 
-@router.post("/invite", status_code=201, response_model=UserResponse)
+@router.post("/invite", status_code=201, response_model=InviteResponse)
 async def invite_staff(
     payload: InviteUserRequest,
     current_user: UserStaff = Depends(require_role(UserRole.owner)),
@@ -42,25 +46,36 @@ async def invite_staff(
     if result.scalar_one_or_none():
         raise HTTPException(status_code=400, detail="Email ya existe en este gym")
 
-    new_user = UserStaff(
+    # Re-invitar emite un link fresco: descartamos invitaciones previas sin usar.
+    await master_db.execute(
+        delete(StaffInvitation).where(
+            StaffInvitation.email == payload.email,
+            StaffInvitation.used_at.is_(None),
+        )
+    )
+
+    token = generate_invite_token()
+    expires_at = datetime.now(timezone.utc) + timedelta(hours=INVITE_TTL_HOURS)
+    master_db.add(StaffInvitation(
+        token_hash=hash_invite_token(token),
+        email=payload.email,
+        full_name=payload.full_name,
+        role=payload.role.value,
+        tenant_id=inviter_entry.tenant_id,
+        db_name=inviter_entry.db_name,
+        invited_by=current_user.id,
+        expires_at=expires_at,
+    ))
+    await master_db.commit()
+
+    invite_url = f"{settings.frontend_url.rstrip('/')}/aceptar-invitacion?token={token}"
+    return InviteResponse(
         email=payload.email,
         full_name=payload.full_name,
         role=payload.role,
-        hashed_password=hash_password(TEMP_PASSWORD),
-        email_verified=False,
+        invite_url=invite_url,
+        expires_at=expires_at,
     )
-    db.add(new_user)
-    await db.commit()
-    await db.refresh(new_user)
-
-    master_db.add(StaffDirectory(
-        email=payload.email,
-        tenant_id=inviter_entry.tenant_id,
-        db_name=inviter_entry.db_name,
-        staff_id=new_user.id,
-    ))
-    await master_db.commit()
-    return UserResponse.model_validate(new_user)
 
 
 @router.get("", response_model=list[UserResponse])

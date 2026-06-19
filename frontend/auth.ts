@@ -18,11 +18,18 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
       },
       async authorize(credentials) {
         const apiUrl = process.env.API_URL || process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
-        const res = await fetch(`${apiUrl}/api/v1/auth/login`, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(credentials),
-        });
+        // El owner entra por /auth/login; el staff (admin/recepción) por
+        // /auth/staff/login. Probamos owner primero y caemos a staff.
+        const login = (path: string) =>
+          fetch(`${apiUrl}${path}`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(credentials),
+          });
+        let res = await login("/api/v1/auth/login");
+        if (!res.ok) {
+          res = await login("/api/v1/auth/staff/login");
+        }
         if (!res.ok) {
           const err = await res.json().catch(() => ({}));
           throw new BackendAuthError(err.detail || "Credenciales incorrectas");

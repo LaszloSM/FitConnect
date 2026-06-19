@@ -1,5 +1,7 @@
 from datetime import datetime, timedelta, timezone
 from typing import Any
+import hashlib
+import secrets
 import uuid
 
 import bcrypt
@@ -13,6 +15,17 @@ def hash_password(password: str) -> str:
     # bcrypt limit is 72 bytes — encode to bytes and truncate
     password_bytes = password.encode("utf-8")[:72]
     return bcrypt.hashpw(password_bytes, bcrypt.gensalt()).decode("utf-8")
+
+
+def generate_invite_token() -> str:
+    """Token aleatorio de alta entropía para invitaciones (un solo uso)."""
+    return secrets.token_urlsafe(32)
+
+
+def hash_invite_token(token: str) -> str:
+    """Hash del token de invitación. El token ya es alta entropía, así que basta
+    sha256 (no bcrypt): guardamos solo el hash, nunca el token plano."""
+    return hashlib.sha256(token.encode("utf-8")).hexdigest()
 
 
 def verify_password(plain: str, hashed: str) -> bool:
