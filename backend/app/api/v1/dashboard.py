@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Depends, Query
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import select, func, and_, extract
+from sqlalchemy import select, func
 from datetime import date, datetime, timedelta
 from decimal import Decimal
 
@@ -26,8 +26,6 @@ async def get_dashboard_kpis(
     today = date.today()
     today_start = datetime.combine(today, datetime.min.time())
     today_end = today_start + timedelta(days=1)
-    month_start = today.replace(day=1)
-    month_start_dt = datetime.combine(month_start, datetime.min.time())
     seven_days_later = today + timedelta(days=7)
 
     # Date range for KPI filtering

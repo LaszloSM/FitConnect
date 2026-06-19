@@ -7,7 +7,6 @@ from pydantic import BaseModel, EmailStr, Field, field_validator, model_validato
 
 from app.models.tenant.member import MemberStatus, IdType, Gender, TrainingGoal
 from app.models.tenant.payment import PaymentMethod, PaymentStatus
-from app.models.tenant.checkin import CheckInType
 from app.models.tenant.membership import MembershipStatus
 from app.schemas.pos import PaymentItemIn, PaymentItemOut
 

@@ -3,20 +3,18 @@ from datetime import date, timedelta
 from fastapi import APIRouter, Depends, HTTPException, Query
 from pydantic import BaseModel, Field
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import select, func, desc
+from sqlalchemy import select, func
 
 from app.api.deps import get_tenant_db_from_token, get_current_staff
 from app.core.timeutil import today_bogota, now_bogota
 from app.models.tenant.class_session import ClassSession
 from app.models.tenant.gym_class import GymClass
 from app.models.tenant.member import Member
-from app.models.tenant.membership import Membership
 from app.models.tenant.session_booking import SessionBooking
 from app.models.tenant.user_staff import UserStaff
 from app.services.class_access import validate_class_access
-from app.services.class_sessions import materialize_sessions, seed_bookings_from_enrollments
+from app.services.class_sessions import materialize_sessions
 from app.services.gym_settings import get_gym_settings
-from app.services.membership_status import effective_status
 
 router = APIRouter(prefix="/class-sessions", tags=["class_sessions"])
 

@@ -9,7 +9,6 @@ from app.api.deps import (
     get_kiosk_payload,
     get_tenant_db_from_token,
     get_db_name,
-    get_current_staff,
     require_role,
 )
 from app.core.rate_limit import limiter

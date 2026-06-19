@@ -339,7 +339,7 @@ async def update_payment(
     payment = result.scalar_one_or_none()
     if not payment:
         raise HTTPException(status_code=404, detail="Pago no encontrado")
-    
+
     for field, value in payload.model_dump(exclude_unset=True).items():
         setattr(payment, field, value)
 

@@ -1,7 +1,7 @@
 import uuid
 from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import select, func, desc
+from sqlalchemy import select, desc
 
 from app.api.deps import get_tenant_db_from_token, require_role
 from app.schemas.operations import NotificationCreate, NotificationResponse
@@ -45,7 +45,7 @@ async def list_notifications(
 ):
     stmt = select(Notification)
     if unread_only:
-        stmt = stmt.where(Notification.is_read == False)
+        stmt = stmt.where(Notification.is_read.is_(False))
     stmt = stmt.order_by(desc(Notification.created_at)).limit(limit).offset(offset)
     result = await db.execute(stmt)
     return result.scalars().all()
@@ -82,7 +82,7 @@ async def mark_read(
 async def mark_all_read(
     db: AsyncSession = Depends(get_tenant_db_from_token),
 ):
-    result = await db.execute(select(Notification).where(Notification.is_read == False))
+    result = await db.execute(select(Notification).where(Notification.is_read.is_(False)))
     notifications = result.scalars().all()
     for n in notifications:
         n.is_read = True

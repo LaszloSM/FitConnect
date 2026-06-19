@@ -6,14 +6,13 @@ from alembic.config import Config
 from alembic import command
 from app.core.config import settings
 from app.core.security import hash_password
-from app.db.master_session import master_engine, MasterSessionLocal
-from app.db.tenant_session import get_tenant_engine
+from app.db.master_session import MasterSessionLocal
 from app.db.tenant_base import TenantBase
 from app.models.master.tenant import Tenant, TenantStatus, SubscriptionPlan
 from app.models.master.owner import Owner
 from app.models.master.staff_directory import StaffDirectory
 from app.models.tenant.user_staff import UserStaff, UserRole
-from sqlalchemy import select, text
+from sqlalchemy import text
 
 
 def slugify(name: str) -> str:
@@ -53,11 +52,11 @@ async def run_tenant_migrations(db_name: str) -> None:
     alembic_cfg.set_main_option("sqlalchemy.url", connection_string)
     # Usar el script de migraciones de tenant
     alembic_cfg.set_main_option("script_location", "migrations/tenant")
-    
+
     # Alembic command upgrade es síncrono, lo ejecutamos en executor
     def _upgrade():
         command.upgrade(alembic_cfg, "head")
-    
+
     loop = asyncio.get_event_loop()
     await loop.run_in_executor(None, _upgrade)
 
@@ -72,7 +71,7 @@ async def create_tenant(owner_email: str, gym_name: str, city: str, owner_full_n
     """
     db_name = get_tenant_db_name(gym_name)
     connection_string = get_tenant_connection_string(db_name)
-    
+
     async with MasterSessionLocal() as master_db:
         # 1. Crear Owner en Master DB (sin tenant_id inicialmente)
         owner = Owner(
@@ -82,7 +81,7 @@ async def create_tenant(owner_email: str, gym_name: str, city: str, owner_full_n
         )
         master_db.add(owner)
         await master_db.flush()
-        
+
         # 2. Crear Tenant en Master DB
         tenant = Tenant(
             name=gym_name,
@@ -96,16 +95,16 @@ async def create_tenant(owner_email: str, gym_name: str, city: str, owner_full_n
         )
         master_db.add(tenant)
         await master_db.flush()
-        
+
         # Asociar owner con tenant
         owner.tenant_id = tenant.id
         await master_db.commit()
         await master_db.refresh(tenant)
         await master_db.refresh(owner)
-    
+
     # 3. Crear DB física
     await create_database(db_name)
-    
+
     # 4. Crear tablas en tenant DB (create_all refleja el estado actual de los
     # modelos) y stampear Alembic en head para que las migraciones futuras
     # apliquen limpio sin DuplicateColumnError.
@@ -122,7 +121,7 @@ async def create_tenant(owner_email: str, gym_name: str, city: str, owner_full_n
 
     loop = asyncio.get_event_loop()
     await loop.run_in_executor(None, _stamp_head)
-    
+
     # 5. Crear UserStaff (owner) en Tenant DB
     tenant_engine = create_async_engine(connection_string)
     TenantSessionLocal = async_sessionmaker(tenant_engine, expire_on_commit=False)

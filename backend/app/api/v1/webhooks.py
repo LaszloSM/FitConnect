@@ -1,6 +1,5 @@
 import logging
 import re
-import uuid
 
 from fastapi import APIRouter, Request
 from fastapi.responses import JSONResponse

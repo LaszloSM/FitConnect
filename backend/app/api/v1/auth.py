@@ -1,5 +1,3 @@
-import re
-import uuid
 from fastapi import APIRouter, Depends, HTTPException, Request
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
@@ -8,7 +6,6 @@ from sqlalchemy.ext.asyncio import async_sessionmaker
 
 from app.core.config import settings
 from app.core.security import (
-    hash_password,
     verify_password,
     create_access_token,
     create_staff_token,
@@ -42,7 +39,7 @@ async def register(request: Request, payload: RegisterRequest, db: AsyncSession 
     result = await db.execute(select(Owner).where(Owner.email == payload.email))
     if result.scalar_one_or_none():
         raise HTTPException(status_code=400, detail="Email ya registrado")
-    
+
     # Crear tenant completo (Master DB + Tenant DB física + Alembic + UserStaff owner)
     tenant = await create_tenant(
         owner_email=payload.email,
@@ -52,7 +49,7 @@ async def register(request: Request, payload: RegisterRequest, db: AsyncSession 
         owner_full_name=payload.full_name,
         password=payload.password,
     )
-    
+
     return {
         "email": payload.email,
         "role": "owner",
@@ -66,21 +63,21 @@ async def register(request: Request, payload: RegisterRequest, db: AsyncSession 
 async def login(request: Request, payload: LoginRequest, db: AsyncSession = Depends(get_master_db)):
     result = await db.execute(select(Owner).where(Owner.email == payload.email))
     owner = result.scalar_one_or_none()
-    
+
     if not owner or not verify_password(payload.password, owner.hashed_password):
         raise HTTPException(status_code=401, detail="Credenciales incorrectas")
     if not owner.is_active:
         raise HTTPException(status_code=401, detail="Cuenta desactivada")
-    
+
     # Buscar tenant asociado
     if not owner.tenant_id:
         raise HTTPException(status_code=400, detail="Owner no tiene gym asignado")
-    
+
     tenant_result = await db.execute(select(Tenant).where(Tenant.id == owner.tenant_id))
     tenant = tenant_result.scalar_one_or_none()
     if not tenant:
         raise HTTPException(status_code=404, detail="Gym no encontrado")
-    
+
     staff_id = await _resolve_owner_staff_id(tenant, owner.email)
     token = create_access_token(
         owner_id=str(owner.id),

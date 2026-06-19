@@ -221,7 +221,9 @@ async def build_profit_pdf(db: AsyncSession) -> bytes:
     tot_i = tot_e = tot_p = 0.0
     for r in rows:
         data.append([r["month"], _cop(r["income"]), _cop(r["expenses"]), _cop(r["profit"])])
-        tot_i += r["income"]; tot_e += r["expenses"]; tot_p += r["profit"]
+        tot_i += r["income"]
+        tot_e += r["expenses"]
+        tot_p += r["profit"]
     data.append(["TOTAL", _cop(tot_i), _cop(tot_e), _cop(tot_p)])
 
     table = Table(data, colWidths=[40 * mm, 40 * mm, 40 * mm, 40 * mm])

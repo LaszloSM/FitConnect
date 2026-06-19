@@ -9,7 +9,7 @@ from app.schemas.operations import (
     MachineCreate, MachineUpdate, MachineResponse,
     MaintenanceLogCreate, MaintenanceLogResponse,
 )
-from app.models.tenant.machine import Machine, MachineStatus
+from app.models.tenant.machine import Machine
 from app.models.tenant.maintenance import MaintenanceLog
 
 router = APIRouter(prefix="/machines", tags=["machines"])

@@ -1,11 +1,9 @@
-import uuid
 from decimal import Decimal
 
 from fastapi import HTTPException
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.models.master.tenant import Tenant
 from app.models.tenant.payment import Payment
 from app.models.tenant.payment_link import PaymentLink
 from app.services.gym_settings import get_gym_settings, secret

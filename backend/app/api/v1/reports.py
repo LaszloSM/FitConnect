@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends, Query
 from fastapi.responses import Response
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import select, func, extract, not_, exists, cast, Integer
+from sqlalchemy import select, func, extract
 from datetime import date, datetime, timedelta
 from decimal import Decimal
 
@@ -9,7 +9,7 @@ from app.api.deps import get_tenant_db_from_token
 from app.services.exports import build_reports_xlsx, build_profit_pdf
 from app.core.timeutil import today_bogota
 from app.models.tenant.member import Member, MemberStatus
-from app.models.tenant.payment import Payment, PaymentMethod, PaymentStatus
+from app.models.tenant.payment import Payment, PaymentStatus
 from app.models.tenant.expense import Expense
 from app.models.tenant.checkin import CheckIn
 from app.models.tenant.membership import Membership, MembershipStatus
@@ -183,14 +183,9 @@ async def revenue_history_report(
     db: AsyncSession = Depends(get_tenant_db_from_token),
 ):
     """Monthly revenue for the last N months."""
-    from sqlalchemy import case
     today = date.today()
     results = []
     for i in range(months - 1, -1, -1):
-        target = date(today.year, today.month, 1)
-        # go back i months
-        month_date = date(target.year - (i // 12), target.month - (i % 12) or 12, 1) if (target.month - i % 12) <= 0 else date(target.year, target.month - i % 12, 1)
-        # Simpler: subtract months
         m = today.month - i
         y = today.year
         while m <= 0:
@@ -464,7 +459,7 @@ async def generate_expiry_notifications(
         existing = await db.execute(
             select(Notification).where(
                 Notification.title == title,
-                Notification.is_read == False,
+                Notification.is_read.is_(False),
             )
         )
         if existing.scalar_one_or_none():

@@ -1,0 +1,4 @@
+-r requirements.txt
+
+# Herramientas de desarrollo / CI (no se instalan en la imagen de producción)
+ruff==0.15.18

@@ -46,7 +46,7 @@ class AssignMembership(BaseModel):
 @router.get("/")
 async def list_plans(db: AsyncSession = Depends(get_tenant_db_from_token)):
     from app.models.tenant.member_plan import MemberPlan
-    result = await db.execute(select(MemberPlan).where(MemberPlan.is_active == True).order_by(MemberPlan.name))
+    result = await db.execute(select(MemberPlan).where(MemberPlan.is_active.is_(True)).order_by(MemberPlan.name))
     return result.scalars().all()
 
 
@@ -279,7 +279,7 @@ async def charge_membership(
     from app.core.timeutil import today_bogota
     from app.models.tenant.member import Member
     from app.models.tenant.member_plan import MemberPlan
-    from app.models.tenant.payment import PaymentMethod, PaymentStatus
+    from app.models.tenant.payment import PaymentStatus
     from app.models.tenant.cash_shift import CashShift
     from app.services.audit import audit
     from app.services.gym_settings import get_gym_settings

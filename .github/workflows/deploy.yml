@@ -14,13 +14,61 @@ env:
 jobs:
   test-backend:
     runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_USER: gymuser
+          POSTGRES_PASSWORD: gympass
+          POSTGRES_DB: gymdb_master
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U gymuser -d gymdb_master"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+      redis:
+        image: redis:7-alpine
+        ports:
+          - 6379:6379
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 5s
+          --health-timeout 3s
+          --health-retries 10
+    env:
+      MASTER_DATABASE_URL: postgresql+asyncpg://gymuser:gympass@localhost:5432/gymdb_master
+      TENANT_DATABASE_URL_TEMPLATE: postgresql+asyncpg://gymuser:gympass@localhost:5432/{db_name}
+      DATABASE_URL: postgresql+asyncpg://gymuser:gympass@localhost:5432/gymdb_master
+      TEST_DB_URL: postgresql+asyncpg://gymuser:gympass@localhost:5432/gymdb_test
+      REDIS_URL: redis://localhost:6379
+      SECRET_KEY: ci-test-secret-key
+      ENVIRONMENT: development
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
-      - run: pip install -r backend/requirements.txt
-      - run: cd backend && pytest --cov=app tests/ || true
+      - run: pip install -r backend/requirements-dev.txt
+
+      - name: Lint (ruff)
+        run: cd backend && ruff check app
+
+      - name: Provision databases
+        env:
+          PGPASSWORD: gympass
+        run: |
+          # gymuser ya es superusuario del contenedor de servicio; CREATEDB es
+          # necesario para que los tests provisionen tenant DBs dinámicamente.
+          psql -h localhost -U gymuser -d gymdb_master -c "ALTER USER gymuser CREATEDB;"
+          psql -h localhost -U gymuser -d gymdb_master -c "CREATE DATABASE gymdb_test;"
+
+      - name: Run master migrations
+        run: cd backend && alembic upgrade head
+
+      - name: Tests
+        run: cd backend && pytest --cov=app tests/
 
   test-frontend:
     runs-on: ubuntu-latest
@@ -30,6 +78,10 @@ jobs:
         with:
           node-version: "20"
       - run: cd frontend && npm ci
+
+      - name: Lint (eslint)
+        run: cd frontend && npm run lint
+
       - run: cd frontend && npm run build
       - name: Install Playwright
         run: cd frontend && npx playwright install --with-deps chromium
