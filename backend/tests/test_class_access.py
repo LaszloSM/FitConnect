@@ -1,5 +1,6 @@
 import uuid
 from datetime import date, datetime, timedelta
+from app.core.timeutil import today_bogota
 from zoneinfo import ZoneInfo
 
 _TOKENS: dict[str, str] = {}
@@ -42,7 +43,7 @@ async def _plan(client, token, **kwargs):
 
 async def _assign(client, token, member_id, plan_id):
     r = await client.post("/api/v1/member-plans/assign", json={
-        "member_id": member_id, "plan_id": plan_id, "start_date": date.today().isoformat(),
+        "member_id": member_id, "plan_id": plan_id, "start_date": today_bogota().isoformat(),
     }, headers=_auth(token))
     assert r.status_code == 200, r.text
     return r.json()

@@ -1,5 +1,6 @@
 import uuid
 from datetime import date, timedelta
+from app.core.timeutil import today_bogota
 
 _TOKENS: dict[str, str] = {}
 
@@ -44,7 +45,7 @@ async def _member_no_membership(client, token):
 
 async def test_active_membership_allowed(client):
     token = await _owner_token(client)
-    member_id = await _member_with_membership(client, token, date.today())
+    member_id = await _member_with_membership(client, token, today_bogota())
     r = await client.post("/api/v1/checkins", json={"member_id": member_id}, headers=_auth(token))
     assert r.status_code == 201, r.text
     body = r.json()
@@ -55,7 +56,7 @@ async def test_active_membership_allowed(client):
 async def test_in_grace_allowed_with_status(client):
     token = await _owner_token(client)
     await client.patch("/api/v1/settings/operations", json={"grace_days": 7}, headers=_auth(token))
-    member_id = await _member_with_membership(client, token, date.today() - timedelta(days=33))
+    member_id = await _member_with_membership(client, token, today_bogota() - timedelta(days=33))
     r = await client.post("/api/v1/checkins", json={"member_id": member_id}, headers=_auth(token))
     assert r.status_code == 201, r.text
     body = r.json()
@@ -66,7 +67,7 @@ async def test_in_grace_allowed_with_status(client):
 async def test_expired_membership_denied(client):
     token = await _owner_token(client)
     await client.patch("/api/v1/settings/operations", json={"grace_days": 1}, headers=_auth(token))
-    member_id = await _member_with_membership(client, token, date.today() - timedelta(days=60))
+    member_id = await _member_with_membership(client, token, today_bogota() - timedelta(days=60))
     r = await client.post("/api/v1/checkins", json={"member_id": member_id}, headers=_auth(token))
     assert r.status_code == 201, r.text
     body = r.json()
@@ -86,7 +87,7 @@ async def test_no_membership_denied(client):
 async def test_override_after_denial_audits(client):
     token = await _owner_token(client)
     await client.patch("/api/v1/settings/operations", json={"grace_days": 0}, headers=_auth(token))
-    member_id = await _member_with_membership(client, token, date.today() - timedelta(days=60))
+    member_id = await _member_with_membership(client, token, today_bogota() - timedelta(days=60))
     denied = await client.post("/api/v1/checkins", json={"member_id": member_id}, headers=_auth(token))
     assert denied.json()["decision"] == "denied"
 
@@ -103,7 +104,7 @@ async def test_override_after_denial_audits(client):
 
 async def test_override_without_recent_denial_rejected(client):
     token = await _owner_token(client)
-    member_id = await _member_with_membership(client, token, date.today())
+    member_id = await _member_with_membership(client, token, today_bogota())
     r = await client.post("/api/v1/checkins/override", json={
         "member_id": member_id, "reason": "sin denegación previa",
     }, headers=_auth(token))
@@ -114,9 +115,9 @@ async def test_operations_dashboard_shows_denied_and_grace(client):
     token = await _owner_token(client)
     await client.patch("/api/v1/settings/operations", json={"grace_days": 7}, headers=_auth(token))
     # En gracia
-    await _member_with_membership(client, token, date.today() - timedelta(days=33))
+    await _member_with_membership(client, token, today_bogota() - timedelta(days=33))
     # Denegado hoy
-    expired_member = await _member_with_membership(client, token, date.today() - timedelta(days=90))
+    expired_member = await _member_with_membership(client, token, today_bogota() - timedelta(days=90))
     await client.patch("/api/v1/settings/operations", json={"grace_days": 7}, headers=_auth(token))
     await client.post("/api/v1/checkins", json={"member_id": expired_member}, headers=_auth(token))
 

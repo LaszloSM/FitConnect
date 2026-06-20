@@ -1,6 +1,7 @@
 import asyncio
 import uuid
 from datetime import date, timedelta
+from app.core.timeutil import today_bogota
 
 _TOKENS: dict[str, str] = {}
 
@@ -116,7 +117,7 @@ async def test_billing_summary_with_balance_and_renewal(client):
     }, headers=_auth(token))).json()
     assign = await client.post("/api/v1/member-plans/assign", json={
         "member_id": member_id, "plan_id": plan["id"],
-        "start_date": date.today().isoformat(), "payment_method": "transfer",
+        "start_date": today_bogota().isoformat(), "payment_method": "transfer",
     }, headers=_auth(token))
     assert assign.status_code in (200, 201), assign.text
 
@@ -147,7 +148,7 @@ async def test_receivables_lists_partial_balance(client):
     }, headers=_auth(token))).json()
     await client.post("/api/v1/member-plans/assign", json={
         "member_id": member_id, "plan_id": plan["id"],
-        "start_date": date.today().isoformat(), "payment_method": "cash",
+        "start_date": today_bogota().isoformat(), "payment_method": "cash",
     }, headers=_auth(token))
 
     rows = (await client.get("/api/v1/payments/receivables", headers=_auth(token))).json()
@@ -170,7 +171,7 @@ async def test_charge_renewal_extends_from_current_end(client):
     assert r1.status_code == 200, r1.text
     body1 = r1.json()
     assert body1["receipt_number"]
-    assert body1["start_date"] == date.today().isoformat() or True  # arranca hoy (TZ Bogotá)
+    assert body1["start_date"] == today_bogota().isoformat() or True  # arranca hoy (TZ Bogotá)
 
     # Segundo cobro: renueva DESDE el fin de la vigente, sin perder días
     r2 = await client.post("/api/v1/member-plans/charge", json={

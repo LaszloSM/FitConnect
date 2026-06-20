@@ -1,5 +1,6 @@
 import uuid
 from datetime import date, datetime, timedelta
+from app.core.timeutil import today_bogota
 from zoneinfo import ZoneInfo
 
 
@@ -45,7 +46,7 @@ async def _member_with_membership(client, token, start: date, duration=30, phone
 async def test_expiry_reminder_emitted_and_idempotent(client):
     token = await _owner_token(client)
     # Membresía que vence exactamente hoy (D-0)
-    await _member_with_membership(client, token, date.today() - timedelta(days=30), duration=30)
+    await _member_with_membership(client, token, today_bogota() - timedelta(days=30), duration=30)
 
     r1 = await client.post("/api/v1/admin/run-job/expire_memberships", headers=_auth(token))
     assert r1.status_code == 200, r1.text
@@ -149,7 +150,7 @@ async def test_preventive_maintenance_alert(client):
     r = await client.post("/api/v1/machines", json={
         "name": f"Caminadora {uuid.uuid4().hex[:5]}",
         "maintenance_interval_days": 30,
-        "last_maintenance_date": (date.today() - timedelta(days=60)).isoformat(),
+        "last_maintenance_date": (today_bogota() - timedelta(days=60)).isoformat(),
     }, headers=_auth(token))
     assert r.status_code == 201, r.text
     machine_id = r.json()["id"]

@@ -1,5 +1,6 @@
 import uuid
 from datetime import date, datetime, timedelta
+from app.core.timeutil import today_bogota
 from zoneinfo import ZoneInfo
 
 
@@ -65,7 +66,7 @@ async def test_freeze_and_unfreeze_roundtrip(client):
     token = await _owner_token(client)
     member_id = await _create_member(client, token)
     plan_id = await _create_plan(client, token)
-    membership = (await _assign(client, token, member_id, plan_id, date.today())).json()
+    membership = (await _assign(client, token, member_id, plan_id, today_bogota())).json()
     original_end = membership["end_date"]
 
     r = await client.post(f"/api/v1/memberships/{membership['id']}/freeze",
@@ -92,7 +93,7 @@ async def test_double_freeze_rejected(client):
     token = await _owner_token(client)
     member_id = await _create_member(client, token)
     plan_id = await _create_plan(client, token)
-    membership = (await _assign(client, token, member_id, plan_id, date.today())).json()
+    membership = (await _assign(client, token, member_id, plan_id, today_bogota())).json()
 
     r1 = await client.post(f"/api/v1/memberships/{membership['id']}/freeze",
                            json={}, headers=_auth(token))
@@ -106,7 +107,7 @@ async def test_cancelled_membership_cannot_freeze(client):
     token = await _owner_token(client)
     member_id = await _create_member(client, token)
     plan_id = await _create_plan(client, token)
-    membership = (await _assign(client, token, member_id, plan_id, date.today())).json()
+    membership = (await _assign(client, token, member_id, plan_id, today_bogota())).json()
 
     r = await client.post(f"/api/v1/memberships/{membership['id']}/cancel", headers=_auth(token))
     assert r.status_code == 200
@@ -233,7 +234,7 @@ async def test_grace_period_effective_status(client):
     member_id = await _create_member(client, token)
     plan_id = await _create_plan(client, token, duration_days=30)
     # Venció hace 3 días → dentro de la gracia de 7
-    start = date.today() - timedelta(days=33)
+    start = today_bogota() - timedelta(days=33)
     await _assign(client, token, member_id, plan_id, start)
 
     memberships = (await client.get(
@@ -254,7 +255,7 @@ async def test_expire_job_marks_overdue_memberships(client):
     token = await _owner_token(client)
     member_id = await _create_member(client, token)
     plan_id = await _create_plan(client, token, duration_days=30)
-    start = date.today() - timedelta(days=60)
+    start = today_bogota() - timedelta(days=60)
     membership = (await _assign(client, token, member_id, plan_id, start)).json()
     assert membership["status"] == "active"
 
@@ -278,7 +279,7 @@ async def test_manual_discount_requires_reason(client):
     token = await _owner_token(client)
     member_id = await _create_member(client, token)
     plan_id = await _create_plan(client, token)
-    r = await _assign(client, token, member_id, plan_id, date.today(),
+    r = await _assign(client, token, member_id, plan_id, today_bogota(),
                       discount_amount=10000.0)
     assert r.status_code == 400
 
@@ -287,7 +288,7 @@ async def test_manual_discount_applies_net_price(client):
     token = await _owner_token(client)
     member_id = await _create_member(client, token)
     plan_id = await _create_plan(client, token, price=100000.0)
-    r = await _assign(client, token, member_id, plan_id, date.today(),
+    r = await _assign(client, token, member_id, plan_id, today_bogota(),
                       discount_amount=20000.0, discount_reason="convenio empresa")
     assert r.status_code == 200, r.text
     body = r.json()
@@ -305,13 +306,13 @@ async def test_promo_code_percent_and_max_uses(client):
 
     member_id = await _create_member(client, token)
     plan_id = await _create_plan(client, token, price=100000.0)
-    r = await _assign(client, token, member_id, plan_id, date.today(), promo_code=code)
+    r = await _assign(client, token, member_id, plan_id, today_bogota(), promo_code=code)
     assert r.status_code == 200, r.text
     assert float(r.json()["price"]) == 50000.0
 
     # Segundo uso supera max_uses
     member2 = await _create_member(client, token)
-    r = await _assign(client, token, member2, plan_id, date.today(), promo_code=code)
+    r = await _assign(client, token, member2, plan_id, today_bogota(), promo_code=code)
     assert r.status_code == 400
 
 
@@ -321,7 +322,7 @@ async def test_sensitive_actions_are_audited(client):
     token = await _owner_token(client)
     member_id = await _create_member(client, token)
     plan_id = await _create_plan(client, token)
-    membership = (await _assign(client, token, member_id, plan_id, date.today())).json()
+    membership = (await _assign(client, token, member_id, plan_id, today_bogota())).json()
     await client.post(f"/api/v1/memberships/{membership['id']}/freeze",
                       json={"reason": "lesión"}, headers=_auth(token))
 

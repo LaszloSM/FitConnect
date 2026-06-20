@@ -1,6 +1,7 @@
 import asyncio
 import uuid
 from datetime import date, timedelta
+from app.core.timeutil import today_bogota
 
 _TOKENS: dict[str, str] = {}
 
@@ -31,14 +32,14 @@ async def _member_active(client, token, duration=90):
         "name": f"Plan {uuid.uuid4().hex[:6]}", "price": 50000, "duration_days": duration,
     }, headers=_auth(token))
     await client.post("/api/v1/member-plans/assign", json={
-        "member_id": member_id, "plan_id": plan.json()["id"], "start_date": date.today().isoformat(),
+        "member_id": member_id, "plan_id": plan.json()["id"], "start_date": today_bogota().isoformat(),
     }, headers=_auth(token))
     return member_id
 
 
 async def _create_class(client, token, capacity=2):
     # weekday de mañana para garantizar una sesión futura en el horizonte
-    tomorrow_weekday = (date.today() + timedelta(days=1)).weekday()
+    tomorrow_weekday = (today_bogota() + timedelta(days=1)).weekday()
     r = await client.post("/api/v1/classes", json={
         "name": f"Yoga {uuid.uuid4().hex[:5]}", "instructor": "Ana",
         "weekdays": [tomorrow_weekday], "start_time": "08:00:00",
