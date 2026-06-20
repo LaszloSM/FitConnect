@@ -19,6 +19,9 @@ class Settings(BaseSettings):
     redis_url: str
     secret_key: str
     environment: str = "development"
+    log_level: str = "INFO"
+    # Sentry opcional: si está vacío, no se inicializa (no requiere cuenta).
+    sentry_dsn: str = ""
     access_token_expire_minutes: int = 480
     # TTL del token efímero del SSE de recepción (segundos).
     realtime_token_ttl_seconds: int = 120
