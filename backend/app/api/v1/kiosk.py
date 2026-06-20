@@ -1,4 +1,5 @@
 import uuid
+from datetime import datetime, timezone, timedelta
 from fastapi import APIRouter, Depends, HTTPException, Request
 from pydantic import BaseModel, Field, model_validator
 from sqlalchemy import select
@@ -100,7 +101,13 @@ async def kiosk_ping(
     )).scalar_one()
     device.last_seen_at = utcnow_naive()
     await db.commit()
-    return {"ok": True, "device_name": device.name}
+    resp = {"ok": True, "device_name": device.name}
+    # Renovación deslizante: si al token le quedan menos de 7 días, emitimos uno
+    # nuevo (mismo jti, así la revocación por is_active/jti sigue valiendo).
+    exp = token.get("exp")
+    if exp and datetime.fromtimestamp(exp, tz=timezone.utc) - datetime.now(timezone.utc) < timedelta(days=7):
+        resp["renewed_token"] = create_kiosk_token(token["device_id"], token["db_name"], token["jti"])
+    return resp
 
 
 # ─── Gestión de dispositivos (staff, solo owner/admin) ───

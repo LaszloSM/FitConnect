@@ -20,6 +20,8 @@ class Settings(BaseSettings):
     secret_key: str
     environment: str = "development"
     access_token_expire_minutes: int = 480
+    # TTL del token efímero del SSE de recepción (segundos).
+    realtime_token_ttl_seconds: int = 120
     algorithm: str = "HS256"
     anthropic_api_key: str = ""
     ses_from_email: str = ""

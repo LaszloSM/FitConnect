@@ -69,6 +69,11 @@ export default function KioskClient() {
         .then((res) => {
           setDeviceName(res.data.device_name);
           setInvalidDevice(false);
+          // Renovación deslizante del token (el backend lo emite cerca de expirar)
+          if (res.data.renewed_token) {
+            localStorage.setItem(TOKEN_KEY, res.data.renewed_token);
+            setToken(res.data.renewed_token);
+          }
         })
         .catch((err) => {
           if (err.response?.status === 401) setInvalidDevice(true);

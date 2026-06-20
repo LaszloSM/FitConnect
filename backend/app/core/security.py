@@ -72,14 +72,35 @@ def create_staff_token(staff_id: str, db_name: str, role: str) -> str:
     return jwt.encode(payload, settings.secret_key, algorithm=settings.algorithm)
 
 
+def create_realtime_token(staff_id: str, db_name: str) -> str:
+    """JWT efímero para el SSE de recepción. EventSource no permite headers, así
+    que el token viaja en la query; con TTL corto (scope=realtime) la ventana de
+    exposición en logs/proxies es mínima. Se pide justo antes de conectar."""
+    expire = datetime.now(timezone.utc) + timedelta(seconds=settings.realtime_token_ttl_seconds)
+    payload = {
+        "sub": staff_id,
+        "db_name": db_name,
+        "scope": "realtime",
+        "exp": expire,
+        "jti": str(uuid.uuid4()),
+    }
+    return jwt.encode(payload, settings.secret_key, algorithm=settings.algorithm)
+
+
+KIOSK_TOKEN_TTL_DAYS = 30
+
+
 def create_kiosk_token(device_id: str, db_name: str, jti: str) -> str:
-    """JWT de dispositivo kiosko: sin expiración (la revocación es por fila
-    kiosk_devices.is_active), con scope restringido a los endpoints /kiosk."""
+    """JWT de dispositivo kiosko con scope restringido a /kiosk. Expira a los 30
+    días y se renueva en cada heartbeat (/kiosk/ping); la revocación inmediata
+    sigue siendo por kiosk_devices.is_active (verificada por jti en cada request)."""
+    expire = datetime.now(timezone.utc) + timedelta(days=KIOSK_TOKEN_TTL_DAYS)
     payload = {
         "sub": device_id,
         "device_id": device_id,
         "db_name": db_name,
         "scope": "kiosk",
+        "exp": expire,
         "jti": jti,
     }
     return jwt.encode(payload, settings.secret_key, algorithm=settings.algorithm)

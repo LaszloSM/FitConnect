@@ -87,7 +87,8 @@ async def get_db_name(
 async def get_kiosk_payload(
     credentials: HTTPAuthorizationCredentials = Depends(security),
 ) -> dict:
-    """Valida el token de dispositivo kiosko (scope=kiosk, sin expiración)."""
+    """Valida el token de dispositivo kiosko (scope=kiosk; exp validado por
+    decode_token, renovable en /kiosk/ping)."""
     try:
         payload = decode_token(credentials.credentials)
     except JWTError:

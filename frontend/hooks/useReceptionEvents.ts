@@ -35,10 +35,26 @@ export function useReceptionEvents(onEvent: (event: ReceptionEvent) => void) {
     let retries = 0;
     let timer: ReturnType<typeof setTimeout> | null = null;
 
-    const connect = () => {
+    const base = process.env.NEXT_PUBLIC_API_URL ?? "";
+
+    const connect = async () => {
       if (closed) return;
-      const base = process.env.NEXT_PUBLIC_API_URL ?? "";
-      source = new EventSource(`${base}/api/v1/realtime/reception?token=${encodeURIComponent(token)}`);
+      // Token efímero (scope=realtime): se pide con el bearer normal y se usa una
+      // sola vez para abrir el SSE, en vez de exponer el JWT de sesión en la URL.
+      let ephemeral: string;
+      try {
+        const res = await fetch(`${base}/api/v1/realtime/token`, {
+          method: "POST",
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        if (!res.ok) throw new Error("token");
+        ephemeral = (await res.json()).token;
+      } catch {
+        if (!closed) timer = setTimeout(connect, Math.min(1000 * 2 ** retries++, 15000));
+        return;
+      }
+      if (closed) return;
+      source = new EventSource(`${base}/api/v1/realtime/reception?token=${encodeURIComponent(ephemeral)}`);
       source.onopen = () => { retries = 0; };
       source.onmessage = (e) => {
         try {

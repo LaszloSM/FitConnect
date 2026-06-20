@@ -15,7 +15,17 @@ def test_limiter_is_configured():
     assert isinstance(app.state.limiter, Limiter)
 
 
-def test_limiter_uses_remote_address():
-    """Limiter must use IP-based rate limiting."""
-    from slowapi.util import get_remote_address
-    assert app.state.limiter._key_func == get_remote_address
+def test_limiter_uses_client_ip():
+    """Limiter debe usar la IP del cliente (XFF-aware detrás del ALB)."""
+    from app.core.rate_limit import client_ip
+    assert app.state.limiter._key_func == client_ip
+
+
+def test_client_ip_prefers_forwarded_for():
+    """Detrás del proxy, la IP real es el primer valor de X-Forwarded-For."""
+    from app.core.rate_limit import client_ip
+
+    class _Req:
+        headers = {"x-forwarded-for": "203.0.113.7, 10.0.0.1"}
+
+    assert client_ip(_Req()) == "203.0.113.7"
