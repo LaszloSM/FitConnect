@@ -40,22 +40,28 @@ async def migrate_all() -> None:
         tenants = (await db.execute(select(Tenant))).scalars().all()
 
     ok, failed = 0, 0
+    failures: list[str] = []
     for tenant in tenants:
         url = settings.tenant_database_url_template.replace("{db_name}", tenant.db_name)
         engine = create_async_engine(url)
         try:
             async with engine.begin() as conn:
                 await conn.run_sync(TenantBase.metadata.create_all)
-            await engine.dispose()
             await asyncio.get_event_loop().run_in_executor(None, _stamp_head, url)
             print(f"OK   {tenant.db_name}")
             ok += 1
         except Exception as e:
             print(f"FAIL {tenant.db_name}: {type(e).__name__}: {e}")
+            failures.append(tenant.db_name)
             failed += 1
+        finally:
             await engine.dispose()
 
     print(f"\n{ok} alineadas, {failed} con error de {len(tenants)} tenants")
+    if failures:
+        print("Tenants con error (revisar manualmente):")
+        for db_name in failures:
+            print(f"  - {db_name}")
 
 
 if __name__ == "__main__":
