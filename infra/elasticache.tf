@@ -33,5 +33,8 @@ resource "aws_elasticache_cluster" "redis" {
   parameter_group_name = "default.redis7"
   subnet_group_name    = aws_elasticache_subnet_group.main.name
   security_group_ids   = [aws_security_group.elasticache.id]
-  tags                 = merge(local.common_tags, { Name = "${local.name_prefix}-redis" })
+  # Nota: el cifrado at-rest/in-transit NO está soportado en aws_elasticache_cluster
+  # (cluster de nodo único). Requiere migrar a aws_elasticache_replication_group;
+  # queda como follow-up (Redis solo guarda datos efímeros/rate-limit, no PII).
+  tags = merge(local.common_tags, { Name = "${local.name_prefix}-redis" })
 }

@@ -8,7 +8,7 @@ resource "aws_ecs_cluster" "main" {
 }
 
 resource "aws_ecs_cluster_capacity_providers" "main" {
-  cluster_name = aws_ecs_cluster.main.name
+  cluster_name       = aws_ecs_cluster.main.name
   capacity_providers = ["FARGATE", "FARGATE_SPOT"]
   default_capacity_provider_strategy {
     base              = 1
@@ -28,8 +28,8 @@ resource "aws_ecs_task_definition" "backend" {
 
   container_definitions = jsonencode([
     {
-      name  = "backend"
-      image = "${aws_ecr_repository.backend.repository_url}:${var.backend_image_tag}"
+      name      = "backend"
+      image     = "${aws_ecr_repository.backend.repository_url}:${var.backend_image_tag}"
       essential = true
       portMappings = [
         {
@@ -39,13 +39,15 @@ resource "aws_ecs_task_definition" "backend" {
       ]
       environment = [
         { name = "ENVIRONMENT", value = var.environment },
-        { name = "MASTER_DATABASE_URL", value = "postgresql+asyncpg://${var.db_username}:${var.db_password}@${aws_db_instance.master.endpoint}/gymdb_master" },
-        { name = "TENANT_DATABASE_URL_TEMPLATE", value = "postgresql+asyncpg://${var.db_username}:${var.db_password}@${aws_db_instance.master.endpoint}/{db_name}" },
-        { name = "DATABASE_URL", value = "postgresql+asyncpg://${var.db_username}:${var.db_password}@${aws_db_instance.master.endpoint}/gymdb_master" },
         { name = "REDIS_URL", value = "redis://${aws_elasticache_cluster.redis.cache_nodes[0].address}:6379" },
-        { name = "SECRET_KEY", value = var.secret_key },
         { name = "AWS_REGION", value = var.aws_region },
         { name = "S3_BUCKET", value = aws_s3_bucket.uploads.id }
+      ]
+      secrets = [
+        { name = "MASTER_DATABASE_URL", valueFrom = aws_secretsmanager_secret.app["master-database-url"].arn },
+        { name = "TENANT_DATABASE_URL_TEMPLATE", valueFrom = aws_secretsmanager_secret.app["tenant-database-url-template"].arn },
+        { name = "DATABASE_URL", valueFrom = aws_secretsmanager_secret.app["database-url"].arn },
+        { name = "SECRET_KEY", valueFrom = aws_secretsmanager_secret.app["secret-key"].arn }
       ]
       logConfiguration = {
         logDriver = "awslogs"
@@ -72,8 +74,8 @@ resource "aws_ecs_task_definition" "frontend" {
 
   container_definitions = jsonencode([
     {
-      name  = "frontend"
-      image = "${aws_ecr_repository.frontend.repository_url}:${var.frontend_image_tag}"
+      name      = "frontend"
+      image     = "${aws_ecr_repository.frontend.repository_url}:${var.frontend_image_tag}"
       essential = true
       portMappings = [
         {
@@ -82,9 +84,11 @@ resource "aws_ecs_task_definition" "frontend" {
         }
       ]
       environment = [
-        { name = "NEXTAUTH_URL", value = "http://${aws_lb.main.dns_name}" },
-        { name = "NEXTAUTH_SECRET", value = var.nextauth_secret },
-        { name = "NEXT_PUBLIC_API_URL", value = "http://${aws_lb.main.dns_name}" }
+        { name = "NEXTAUTH_URL", value = local.app_base_url },
+        { name = "NEXT_PUBLIC_API_URL", value = local.app_base_url }
+      ]
+      secrets = [
+        { name = "NEXTAUTH_SECRET", valueFrom = aws_secretsmanager_secret.app["nextauth-secret"].arn }
       ]
       logConfiguration = {
         logDriver = "awslogs"
@@ -116,7 +120,7 @@ resource "aws_ecs_service" "backend" {
   load_balancer {
     target_group_arn = aws_lb_target_group.backend.arn
     container_name   = "backend"
-    container_port     = 8000
+    container_port   = 8000
   }
 
   deployment_circuit_breaker {
@@ -156,12 +160,12 @@ resource "aws_ecs_service" "frontend" {
 
 resource "aws_cloudwatch_log_group" "backend" {
   name              = "/ecs/${local.name_prefix}-backend"
-  retention_in_days = 7
+  retention_in_days = 30
   tags              = merge(local.common_tags, { Name = "${local.name_prefix}-backend-logs" })
 }
 
 resource "aws_cloudwatch_log_group" "frontend" {
   name              = "/ecs/${local.name_prefix}-frontend"
-  retention_in_days = 7
+  retention_in_days = 30
   tags              = merge(local.common_tags, { Name = "${local.name_prefix}-frontend-logs" })
 }
