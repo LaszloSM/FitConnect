@@ -221,7 +221,7 @@ def _billing_response(gym) -> BillingSettingsResponse:
 @router.get("/billing", response_model=BillingSettingsResponse)
 async def get_billing_settings(
     db: AsyncSession = Depends(get_tenant_db_from_token),
-    _: UserStaff = Depends(get_current_staff),
+    _: UserStaff = Depends(require_role(UserRole.owner, UserRole.admin)),
 ) -> BillingSettingsResponse:
     gym = await load_gym_settings(db)
     return _billing_response(gym)

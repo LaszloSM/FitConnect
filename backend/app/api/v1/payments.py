@@ -5,7 +5,7 @@ from sqlalchemy import select, func, desc, update
 from datetime import date, datetime, timedelta
 from decimal import Decimal
 
-from app.api.deps import get_tenant_db_from_token, get_current_staff, get_tenant_slug
+from app.api.deps import get_tenant_db_from_token, get_current_staff, get_tenant_slug, require_role
 from app.core.timeutil import today_bogota
 from app.schemas.member import PaymentCreate, PaymentUpdate, PaymentResponse
 from app.schemas.pos import PaymentItemOut, ReceivableOut
@@ -16,7 +16,7 @@ from app.models.tenant.member import Member
 from app.models.tenant.membership import Membership
 from app.models.tenant.cash_shift import CashShift
 from app.models.tenant.receipt import Receipt
-from app.models.tenant.user_staff import UserStaff
+from app.models.tenant.user_staff import UserStaff, UserRole
 from app.services.audit import audit
 from app.services.gym_settings import get_gym_settings
 from app.services.membership_status import effective_status
@@ -47,7 +47,7 @@ def _payment_response(payment: Payment, member_name: str | None) -> PaymentRespo
     return data
 
 
-@router.get("", response_model=list[PaymentResponse])
+@router.get("", response_model=list[PaymentResponse], dependencies=[Depends(require_role(UserRole.owner, UserRole.admin))])
 async def list_payments(
     db: AsyncSession = Depends(get_tenant_db_from_token),
     member_id: uuid.UUID | None = Query(None),
@@ -211,7 +211,7 @@ async def void_pending_payment(
     return _payment_response(payment, names.get(payment.member_id))
 
 
-@router.get("/cash")
+@router.get("/cash", dependencies=[Depends(require_role(UserRole.owner, UserRole.admin))])
 async def cash_box(
     db: AsyncSession = Depends(get_tenant_db_from_token),
 ):
@@ -243,7 +243,7 @@ async def cash_box(
     }
 
 
-@router.get("/receivables", response_model=list[ReceivableOut])
+@router.get("/receivables", response_model=list[ReceivableOut], dependencies=[Depends(require_role(UserRole.owner, UserRole.admin))])
 async def list_receivables(
     db: AsyncSession = Depends(get_tenant_db_from_token),
 ):
@@ -312,7 +312,7 @@ async def list_receivables(
     return results
 
 
-@router.get("/{payment_id}", response_model=PaymentResponse)
+@router.get("/{payment_id}", response_model=PaymentResponse, dependencies=[Depends(get_current_staff)])
 async def get_payment(
     payment_id: uuid.UUID,
     db: AsyncSession = Depends(get_tenant_db_from_token),
@@ -329,7 +329,7 @@ async def get_payment(
     return response
 
 
-@router.put("/{payment_id}", response_model=PaymentResponse)
+@router.put("/{payment_id}", response_model=PaymentResponse, dependencies=[Depends(require_role(UserRole.owner, UserRole.admin))])
 async def update_payment(
     payment_id: uuid.UUID,
     payload: PaymentUpdate,
@@ -349,7 +349,7 @@ async def update_payment(
     return _payment_response(payment, names.get(payment.member_id))
 
 
-@router.delete("/{payment_id}", status_code=204)
+@router.delete("/{payment_id}", status_code=204, dependencies=[Depends(require_role(UserRole.owner, UserRole.admin))])
 async def delete_payment(
     payment_id: uuid.UUID,
     db: AsyncSession = Depends(get_tenant_db_from_token),
@@ -415,7 +415,7 @@ async def mark_payment_paid(
     return _payment_response(payment, names.get(payment.member_id))
 
 
-@router.post("/{payment_id}/payment-link")
+@router.post("/{payment_id}/payment-link", dependencies=[Depends(get_current_staff)])
 async def create_payment_link(
     payment_id: uuid.UUID,
     db: AsyncSession = Depends(get_tenant_db_from_token),
@@ -436,7 +436,7 @@ async def create_payment_link(
     return {"checkout_url": link.checkout_url, "reference": link.reference, "status": link.status}
 
 
-@router.get("/{payment_id}/receipt")
+@router.get("/{payment_id}/receipt", dependencies=[Depends(get_current_staff)])
 async def get_receipt(
     payment_id: uuid.UUID,
     db: AsyncSession = Depends(get_tenant_db_from_token),

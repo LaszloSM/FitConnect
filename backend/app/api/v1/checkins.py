@@ -57,7 +57,7 @@ async def _register(member: Member, db: AsyncSession, source: str, db_name: str 
     return await _build_response(checkin, member, status, upcoming_class)
 
 
-@router.get("", response_model=list[CheckInResponse])
+@router.get("", response_model=list[CheckInResponse], dependencies=[Depends(get_current_staff)])
 async def list_checkins(
     db: AsyncSession = Depends(get_tenant_db_from_token),
     member_id: uuid.UUID | None = Query(None),
@@ -80,7 +80,7 @@ async def list_checkins(
     return responses
 
 
-@router.get("/today", response_model=list[CheckInResponse])
+@router.get("/today", response_model=list[CheckInResponse], dependencies=[Depends(get_current_staff)])
 async def list_today_checkins(
     db: AsyncSession = Depends(get_tenant_db_from_token),
     limit: int = Query(100, ge=1, le=200),
@@ -104,7 +104,7 @@ async def list_today_checkins(
     return responses
 
 
-@router.post("", response_model=CheckInResponse, status_code=201)
+@router.post("", response_model=CheckInResponse, status_code=201, dependencies=[Depends(get_current_staff)])
 async def create_checkin(
     payload: CheckInCreate,
     db: AsyncSession = Depends(get_tenant_db_from_token),
@@ -116,7 +116,7 @@ async def create_checkin(
     return await _register(member, db, source="reception", db_name=db_name)
 
 
-@router.post("/qr/{qr_code}", response_model=CheckInResponse, status_code=201)
+@router.post("/qr/{qr_code}", response_model=CheckInResponse, status_code=201, dependencies=[Depends(get_current_staff)])
 async def checkin_by_qr(
     qr_code: str,
     db: AsyncSession = Depends(get_tenant_db_from_token),

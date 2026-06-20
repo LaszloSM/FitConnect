@@ -4,7 +4,8 @@ from sqlalchemy import select, func
 from datetime import date, datetime, timedelta
 from decimal import Decimal
 
-from app.api.deps import get_tenant_db_from_token
+from app.api.deps import get_tenant_db_from_token, require_role
+from app.models.tenant.user_staff import UserRole
 from app.core.timeutil import today_bogota, utc_day_bounds
 from app.schemas.member import DashboardOverview, DashboardKPIs, MemberGrowthPoint, RevenuePoint
 from app.models.tenant.member import Member, MemberStatus
@@ -17,7 +18,7 @@ from app.services.gym_settings import get_gym_settings
 router = APIRouter(prefix="/dashboard", tags=["dashboard"])
 
 
-@router.get("/kpis", response_model=DashboardOverview)
+@router.get("/kpis", response_model=DashboardOverview, dependencies=[Depends(require_role(UserRole.owner, UserRole.admin))])
 async def get_dashboard_kpis(
     from_: date | None = Query(None, alias="from"),
     to_: date | None = Query(None, alias="to"),
@@ -173,7 +174,7 @@ async def get_dashboard_kpis(
     )
 
 
-@router.get("/insights")
+@router.get("/insights", dependencies=[Depends(require_role(UserRole.owner, UserRole.admin))])
 async def get_dashboard_insights(db: AsyncSession = Depends(get_tenant_db_from_token)):
     """Frases accionables derivadas de los agregados que ya se calculan.
     Sin modelo: reglas sobre los datos. Cada insight tiene tono y, si aplica,
@@ -244,7 +245,7 @@ async def get_dashboard_insights(db: AsyncSession = Depends(get_tenant_db_from_t
     return {"insights": insights[:4], "generated_for": today.isoformat()}
 
 
-@router.get("/operations")
+@router.get("/operations", dependencies=[Depends(require_role(UserRole.owner, UserRole.admin))])
 async def get_operations_dashboard(
     db: AsyncSession = Depends(get_tenant_db_from_token),
 ):

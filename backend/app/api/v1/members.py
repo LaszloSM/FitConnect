@@ -5,15 +5,17 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select, func, or_
 from decimal import Decimal
 
-from app.api.deps import get_tenant_db_from_token, get_current_staff, get_tenant_slug
+from app.api.deps import get_tenant_db_from_token, get_current_staff, get_tenant_slug, require_role
 from app.schemas.member import MemberCreate, MemberUpdate, MemberResponse, MembershipResponse
 from app.models.tenant.member import Member, MemberStatus
 from app.models.tenant.membership import Membership
+from app.models.tenant.user_staff import UserRole
 from app.core.timeutil import today_bogota
 from app.services.gym_settings import get_gym_settings
 from app.services.membership_status import effective_status
 
-router = APIRouter(prefix="/members", tags=["members"])
+# Todo /members exige staff activo; el borrado además exige owner/admin.
+router = APIRouter(prefix="/members", tags=["members"], dependencies=[Depends(get_current_staff)])
 
 
 class RenewalLinkRequest(BaseModel):
@@ -456,7 +458,7 @@ async def update_member(
     return member
 
 
-@router.delete("/{member_id}", status_code=204)
+@router.delete("/{member_id}", status_code=204, dependencies=[Depends(require_role(UserRole.owner, UserRole.admin))])
 async def delete_member(
     member_id: uuid.UUID,
     db: AsyncSession = Depends(get_tenant_db_from_token),
