@@ -5,12 +5,12 @@ from pydantic import BaseModel, Field
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select, func, desc
 
-from app.api.deps import get_tenant_db_from_token, get_current_staff
+from app.api.deps import get_tenant_db_from_token, get_current_staff, require_role
 from app.core.timeutil import now_bogota
 from app.models.tenant.cash_shift import CashShift
 from app.models.tenant.expense import Expense
 from app.models.tenant.payment import Payment, PaymentMethod, PaymentStatus
-from app.models.tenant.user_staff import UserStaff
+from app.models.tenant.user_staff import UserStaff, UserRole
 from app.services.audit import audit
 
 router = APIRouter(prefix="/cash", tags=["cash"])
@@ -63,7 +63,7 @@ async def _shift_cash_movements(db: AsyncSession, shift_id: uuid.UUID) -> tuple[
     return Decimal(income), Decimal(outflow)
 
 
-@router.get("/shifts/current")
+@router.get("/shifts/current", dependencies=[Depends(get_current_staff)])
 async def current_shift(
     db: AsyncSession = Depends(get_tenant_db_from_token),
     location_id: uuid.UUID | None = Query(None),
@@ -81,7 +81,7 @@ async def current_shift(
     }
 
 
-@router.get("/shifts")
+@router.get("/shifts", dependencies=[Depends(require_role(UserRole.owner, UserRole.admin))])
 async def list_shifts(
     db: AsyncSession = Depends(get_tenant_db_from_token),
     limit: int = Query(30, ge=1, le=100),
@@ -151,7 +151,7 @@ async def close_shift(
     return shift
 
 
-@router.get("/expenses")
+@router.get("/expenses", dependencies=[Depends(require_role(UserRole.owner, UserRole.admin))])
 async def list_expenses(
     db: AsyncSession = Depends(get_tenant_db_from_token),
     shift_id: uuid.UUID | None = Query(None),

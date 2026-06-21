@@ -5,7 +5,7 @@ from sqlalchemy import select, func, extract
 from datetime import date, datetime, timedelta
 from decimal import Decimal
 
-from app.api.deps import get_tenant_db_from_token
+from app.api.deps import get_tenant_db_from_token, require_role
 from app.services.exports import build_reports_xlsx, build_profit_pdf
 from app.core.timeutil import today_bogota
 from app.models.tenant.member import Member, MemberStatus
@@ -13,8 +13,11 @@ from app.models.tenant.payment import Payment, PaymentStatus
 from app.models.tenant.expense import Expense
 from app.models.tenant.checkin import CheckIn
 from app.models.tenant.membership import Membership, MembershipStatus
+from app.models.tenant.user_staff import UserRole
 
-router = APIRouter(prefix="/reports", tags=["reports"])
+# Los reportes (ingresos, P&L, exportaciones contables) son datos financieros:
+# solo owner/admin, nunca recepción.
+router = APIRouter(prefix="/reports", tags=["reports"], dependencies=[Depends(require_role(UserRole.owner, UserRole.admin))])
 
 
 @router.get("/export.xlsx")

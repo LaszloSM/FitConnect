@@ -46,6 +46,9 @@ abrir una segunda conexión.
 | members | GET /members y subrecursos de lectura | staff activo |
 | members | POST /members, PUT /members/{id} | staff activo |
 | members | DELETE /members/{id} | owner+admin |
+| reports | TODO el módulo /reports (ingresos, P&L, exportaciones) | owner+admin |
+| cash | GET /cash/shifts, GET /cash/expenses | owner+admin |
+| cash | GET /cash/shifts/current, abrir/cerrar turno, registrar gasto | staff activo |
 | settings | GET/PATCH /settings/billing | owner+admin (GET), owner (PATCH) |
 | settings | /settings/integrations, /settings/operations (PATCH), notifications | ver settings.py |
 | users | invitaciones, roles, desactivar | owner |

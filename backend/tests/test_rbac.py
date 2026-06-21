@@ -45,6 +45,10 @@ FINANCIAL_GET = [
     "/api/v1/payments/cash",
     "/api/v1/payments/receivables",
     "/api/v1/settings/billing",
+    "/api/v1/reports/member-status",
+    "/api/v1/reports/payment-methods",
+    "/api/v1/cash/shifts",
+    "/api/v1/cash/expenses",
 ]
 
 
