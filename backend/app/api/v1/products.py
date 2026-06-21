@@ -10,7 +10,7 @@ from app.models.tenant.user_staff import UserStaff
 from app.schemas.pos import ProductCreate, ProductUpdate, ProductResponse
 from app.services.audit import audit
 
-router = APIRouter(prefix="/products", tags=["products"])
+router = APIRouter(prefix="/products", tags=["products"], dependencies=[Depends(get_current_staff)])
 
 
 @router.get("", response_model=list[ProductResponse])

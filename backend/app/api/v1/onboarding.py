@@ -2,13 +2,13 @@ from fastapi import APIRouter, Depends
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.api.deps import get_tenant_db_from_token
+from app.api.deps import get_tenant_db_from_token, get_current_staff
 from app.models.tenant.checkin import CheckIn
 from app.models.tenant.member import Member
 from app.models.tenant.member_plan import MemberPlan
 from app.services.gym_settings import get_gym_settings, secret
 
-router = APIRouter(prefix="/onboarding", tags=["onboarding"])
+router = APIRouter(prefix="/onboarding", tags=["onboarding"], dependencies=[Depends(get_current_staff)])
 
 
 async def _exists(db: AsyncSession, model) -> bool:

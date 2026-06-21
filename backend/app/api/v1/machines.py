@@ -4,7 +4,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select, desc
 from typing import Optional
 
-from app.api.deps import get_tenant_db_from_token
+from app.api.deps import get_tenant_db_from_token, get_current_staff
 from app.schemas.operations import (
     MachineCreate, MachineUpdate, MachineResponse,
     MaintenanceLogCreate, MaintenanceLogResponse,
@@ -12,7 +12,7 @@ from app.schemas.operations import (
 from app.models.tenant.machine import Machine
 from app.models.tenant.maintenance import MaintenanceLog
 
-router = APIRouter(prefix="/machines", tags=["machines"])
+router = APIRouter(prefix="/machines", tags=["machines"], dependencies=[Depends(get_current_staff)])
 
 
 @router.get("", response_model=list[MachineResponse])

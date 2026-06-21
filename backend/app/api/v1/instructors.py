@@ -9,7 +9,7 @@ from app.models.tenant.gym_class import GymClass
 from app.models.tenant.instructor import Instructor
 from app.models.tenant.user_staff import UserStaff
 
-router = APIRouter(prefix="/instructors", tags=["instructors"])
+router = APIRouter(prefix="/instructors", tags=["instructors"], dependencies=[Depends(get_current_staff)])
 
 
 class InstructorCreate(BaseModel):

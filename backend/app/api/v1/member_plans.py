@@ -7,7 +7,7 @@ from datetime import date, timedelta
 from typing import Literal
 import uuid
 
-router = APIRouter(prefix="/member-plans", tags=["member_plans"])
+router = APIRouter(prefix="/member-plans", tags=["member_plans"], dependencies=[Depends(get_current_staff)])
 
 
 class PlanCreate(BaseModel):

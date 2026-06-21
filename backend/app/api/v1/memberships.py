@@ -15,7 +15,7 @@ from app.services.audit import audit
 from app.services.gym_settings import get_gym_settings
 from app.services.membership_status import effective_status
 
-router = APIRouter(prefix="/memberships", tags=["memberships"])
+router = APIRouter(prefix="/memberships", tags=["memberships"], dependencies=[Depends(get_current_staff)])
 
 
 class FreezeRequest(BaseModel):

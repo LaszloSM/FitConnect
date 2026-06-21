@@ -81,3 +81,27 @@ async def test_receptionist_cannot_delete_member(client):
     recep = await _staff_token(client, owner, "receptionist")
     r = await client.delete(f"/api/v1/members/{uuid.uuid4()}", headers=_auth(recep))
     assert r.status_code == 403
+
+
+async def test_deactivated_staff_token_rejected_on_operational(client):
+    """El baseline get_current_staff cierra el hueco: un token de staff cuyo
+    UserStaff fue desactivado deja de funcionar en endpoints operativos."""
+    owner = await _owner_token(client)
+    email = f"deact-{uuid.uuid4().hex[:8]}@gym.com"
+    inv = await client.post(
+        "/api/v1/users/invite",
+        json={"email": email, "full_name": "Deact", "role": "receptionist"},
+        headers=_auth(owner),
+    )
+    token = parse_qs(urlparse(inv.json()["invite_url"]).query)["token"][0]
+    staff_token = (await client.post(
+        "/api/v1/auth/staff/accept-invite", json={"token": token, "password": "StaffPass123!"}
+    )).json()["access_token"]
+    # Funciona mientras está activo
+    assert (await client.get("/api/v1/products", headers=_auth(staff_token))).status_code == 200
+    # El owner lo desactiva
+    users = (await client.get("/api/v1/users", headers=_auth(owner))).json()
+    uid = next(u["id"] for u in users if u["email"] == email)
+    assert (await client.delete(f"/api/v1/users/{uid}", headers=_auth(owner))).status_code == 200
+    # El token deja de servir (get_current_staff valida is_active)
+    assert (await client.get("/api/v1/products", headers=_auth(staff_token))).status_code == 401

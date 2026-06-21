@@ -5,7 +5,7 @@ from sqlalchemy import select, func
 from sqlalchemy.exc import IntegrityError
 from typing import Optional
 
-from app.api.deps import get_tenant_db_from_token
+from app.api.deps import get_tenant_db_from_token, get_current_staff
 from app.schemas.operations import (
     GymClassCreate, GymClassUpdate, GymClassResponse,
     ClassEnrollmentCreate, ClassEnrollmentResponse,
@@ -15,7 +15,7 @@ from app.models.tenant.gym_class import GymClass
 from app.models.tenant.class_enrollment import ClassEnrollment
 from app.models.tenant.member import Member
 
-router = APIRouter(prefix="/classes", tags=["classes"])
+router = APIRouter(prefix="/classes", tags=["classes"], dependencies=[Depends(get_current_staff)])
 
 
 @router.get("", response_model=list[GymClassResponse])

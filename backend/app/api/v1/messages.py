@@ -3,12 +3,12 @@ from pydantic import BaseModel, Field
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.api.deps import get_tenant_db_from_token, require_role
+from app.api.deps import get_tenant_db_from_token, require_role, get_current_staff
 from app.models.tenant.message_template import MessageTemplate
 from app.models.tenant.user_staff import UserRole
 from app.services.message_templates import CATALOG, get_or_seed_templates, render
 
-router = APIRouter(prefix="/messages", tags=["messages"])
+router = APIRouter(prefix="/messages", tags=["messages"], dependencies=[Depends(get_current_staff)])
 
 
 class MessageOut(BaseModel):

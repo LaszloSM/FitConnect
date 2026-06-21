@@ -3,13 +3,13 @@ from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select, desc
 
-from app.api.deps import get_tenant_db_from_token, require_role
+from app.api.deps import get_tenant_db_from_token, require_role, get_current_staff
 from app.schemas.operations import NotificationCreate, NotificationResponse
 from app.models.tenant.notification import Notification
 from app.models.tenant.notification_outbox import NotificationOutbox
 from app.models.tenant.user_staff import UserRole
 
-router = APIRouter(prefix="/notifications", tags=["notifications"])
+router = APIRouter(prefix="/notifications", tags=["notifications"], dependencies=[Depends(get_current_staff)])
 
 
 @router.get("/outbox", dependencies=[Depends(require_role(UserRole.owner))])

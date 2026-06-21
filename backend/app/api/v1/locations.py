@@ -4,11 +4,11 @@ from pydantic import BaseModel, Field
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
 
-from app.api.deps import get_tenant_db_from_token, require_role
+from app.api.deps import get_tenant_db_from_token, require_role, get_current_staff
 from app.models.tenant.location import Location
 from app.models.tenant.user_staff import UserRole
 
-router = APIRouter(prefix="/locations", tags=["locations"])
+router = APIRouter(prefix="/locations", tags=["locations"], dependencies=[Depends(get_current_staff)])
 
 
 class LocationCreate(BaseModel):

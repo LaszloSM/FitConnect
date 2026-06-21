@@ -16,7 +16,7 @@ from app.services.class_access import validate_class_access
 from app.services.class_sessions import materialize_sessions
 from app.services.gym_settings import get_gym_settings
 
-router = APIRouter(prefix="/class-sessions", tags=["class_sessions"])
+router = APIRouter(prefix="/class-sessions", tags=["class_sessions"], dependencies=[Depends(get_current_staff)])
 
 
 class BookingRequest(BaseModel):

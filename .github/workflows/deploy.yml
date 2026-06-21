@@ -102,7 +102,10 @@ jobs:
 
   deploy:
     needs: [test-backend, test-frontend]
-    if: github.ref == 'refs/heads/main'
+    # Solo despliega cuando AWS está configurado. Activar creando la variable de
+    # repositorio AWS_DEPLOY_ENABLED=true (Settings > Secrets and variables >
+    # Actions > Variables) junto con los secrets ECR_*/AWS_DEPLOY_ROLE_ARN.
+    if: github.ref == 'refs/heads/main' && vars.AWS_DEPLOY_ENABLED == 'true'
     runs-on: ubuntu-latest
     permissions:
       id-token: write

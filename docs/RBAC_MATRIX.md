@@ -55,5 +55,6 @@ abrir una segunda conexión.
 | audit | GET /audit | owner |
 | kiosk | gestión de dispositivos | owner+admin |
 | kiosk | checkin/ping | token de kiosko (scope=kiosk) |
+| operativos (classes, class-sessions, machines, instructors, locations, memberships, member-plans, products, promo-codes, notifications, messages, onboarding) | lectura/operación | staff activo (baseline a nivel de router); las escrituras sensibles ya exigen owner/admin per-route |
 
 Los tests negativos por rol viven en `backend/tests/test_rbac.py`.
