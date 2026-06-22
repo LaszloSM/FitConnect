@@ -1,5 +1,6 @@
 import uuid
 from fastapi import APIRouter, Depends, File, HTTPException, Query, UploadFile
+from fastapi.responses import Response
 from pydantic import BaseModel
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select, func, or_
@@ -13,6 +14,7 @@ from app.models.tenant.user_staff import UserRole
 from app.core.timeutil import today_bogota
 from app.services.gym_settings import get_gym_settings
 from app.services.membership_status import effective_status
+from app.services.member_import import build_template, import_members
 
 # Todo /members exige staff activo; el borrado además exige owner/admin.
 router = APIRouter(prefix="/members", tags=["members"], dependencies=[Depends(get_current_staff)])
@@ -135,6 +137,29 @@ async def create_member(
     await db.commit()
     await db.refresh(member)
     return member
+
+
+@router.get("/import/template.xlsx", dependencies=[Depends(require_role(UserRole.owner, UserRole.admin))])
+async def download_import_template():
+    return Response(
+        content=build_template(),
+        media_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+        headers={"Content-Disposition": 'attachment; filename="plantilla_miembros.xlsx"'},
+    )
+
+
+@router.post("/import", dependencies=[Depends(require_role(UserRole.owner, UserRole.admin))])
+async def import_members_file(
+    file: UploadFile = File(...),
+    db: AsyncSession = Depends(get_tenant_db_from_token),
+):
+    data = await file.read()
+    if not data:
+        raise HTTPException(status_code=400, detail="El archivo está vacío")
+    try:
+        return await import_members(db, data)
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc))
 
 
 @router.get("/{member_id}/billing-summary")

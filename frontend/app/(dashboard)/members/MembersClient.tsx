@@ -8,6 +8,7 @@ import { z } from "zod";
 import { motion } from "framer-motion";
 import { GlassCard } from "@/components/common/GlassCard";
 import { PageHeader } from "@/components/common/PageHeader";
+import { MemberImportDialog } from "@/components/members/MemberImportDialog";
 import { EmptyState } from "@/components/common/EmptyState";
 import { QRCodeDisplay } from "@/components/common/QRCodeDisplay";
 import { PARQForm } from "@/components/common/PARQForm";
@@ -432,14 +433,17 @@ export default function MembersClient() {
           title="Miembros"
           subtitle="Gestiona los socios de tu gym"
           action={
-            <DialogTrigger
-              render={
-                <Button onClick={openCreate} className="bg-[var(--color-primary)] text-[var(--color-primary-contrast)] hover:bg-[var(--color-primary-hover)]">
-                  <Plus className="h-4 w-4 mr-2" />
-                  Nuevo miembro
-                </Button>
-              }
-            />
+            <div className="flex items-center gap-2">
+              <MemberImportDialog onImported={() => fetchMembers(0)} />
+              <DialogTrigger
+                render={
+                  <Button onClick={openCreate} className="bg-[var(--color-primary)] text-[var(--color-primary-contrast)] hover:bg-[var(--color-primary-hover)]">
+                    <Plus className="h-4 w-4 mr-2" />
+                    Nuevo miembro
+                  </Button>
+                }
+              />
+            </div>
           }
         />
         <DialogContent className="bg-[var(--bg-card)] border border-[var(--border-base)] text-[var(--text-base)] sm:max-w-2xl max-h-[90vh] overflow-y-auto">
