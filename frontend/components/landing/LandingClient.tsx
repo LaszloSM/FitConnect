@@ -4,6 +4,7 @@ import { useState } from "react";
 import Link from "next/link";
 import { motion, type Variants } from "framer-motion";
 import { BrandMark } from "@/components/common/BrandMark";
+import { ProductShot } from "@/components/landing/ProductShot";
 import { cn } from "@/lib/utils";
 import {
   Activity,
@@ -12,9 +13,15 @@ import {
   Check,
   ChevronDown,
   CreditCard,
+  Database,
+  DoorOpen,
+  KeyRound,
   MonitorSmartphone,
+  RefreshCw,
+  ScrollText,
   ShieldCheck,
   Users,
+  Wallet,
   Zap,
 } from "lucide-react";
 
@@ -80,7 +87,7 @@ const PRICING = [
     period: "30 días de prueba",
     highlight: false,
     features: [
-      "Todos los módulos sin recortes",
+      "Acceso completo durante la prueba",
       "Hasta 100 miembros",
       "Kiosko de entrada incluido",
       "Soporte por WhatsApp",
@@ -102,6 +109,28 @@ const PRICING = [
     ],
     cta: "Empezar ahora",
   },
+];
+
+const PROBLEMS = [
+  "Morosos que entran sin pagar porque nadie revisa la lista.",
+  "Caja descuadrada al final del día y nadie sabe por qué.",
+  "Fila en la entrada mientras buscas quién está al día.",
+  "Clases sobrevendidas y recordatorios de pago que se te olvidan.",
+];
+
+const FLOW = [
+  { icon: DoorOpen, title: "Entrada", description: "El miembro digita su cédula en el kiosko." },
+  { icon: Activity, title: "Recepción", description: "Si debe, salta en vivo y decides si pasa." },
+  { icon: Wallet, title: "Cobro", description: "Efectivo, transferencia o link de Wompi." },
+  { icon: RefreshCw, title: "Renovación", description: "Recordatorio por WhatsApp con su link de pago." },
+  { icon: BarChart3, title: "Reporte", description: "Caja cuadrada e ingresos del día, sin Excel." },
+];
+
+const TRUST = [
+  { icon: Database, title: "Base de datos por gimnasio", description: "Tus datos viven aislados de los de cualquier otro gym." },
+  { icon: KeyRound, title: "Secretos cifrados", description: "Las llaves de Wompi y WhatsApp se guardan cifradas." },
+  { icon: Users, title: "Roles de staff", description: "Cada quién ve solo lo que su rol permite." },
+  { icon: ScrollText, title: "Auditoría", description: "Cada acción sensible del personal queda registrada." },
 ];
 
 const FAQS = [
@@ -184,7 +213,7 @@ export default function LandingClient() {
       {/* Hero */}
       <section className="relative pt-36 pb-24 px-5">
         <div
-          className="pointer-events-none absolute -top-32 left-1/2 -translate-x-1/2 h-[28rem] w-[60rem] rounded-full opacity-25 blur-3xl"
+          className="pointer-events-none absolute -top-32 left-1/2 -translate-x-1/2 h-[28rem] w-[60rem] rounded-full opacity-[0.14] blur-3xl"
           style={{ background: "var(--color-primary)" }}
         />
         <motion.div
@@ -241,33 +270,103 @@ export default function LandingClient() {
           </motion.p>
         </motion.div>
 
-        {/* Mini mockup del kiosko + recepción */}
+        {/* Captura real del producto */}
         <motion.div
           initial={{ opacity: 0, y: 40 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.6, delay: 0.2 }}
-          className="relative mx-auto max-w-4xl mt-16 grid sm:grid-cols-2 gap-4"
+          className="relative mx-auto max-w-5xl mt-16"
         >
-          <div className="rounded-2xl border border-white/10 bg-white/[0.04] p-5 backdrop-blur">
-            <p className="text-xs text-white/40 uppercase tracking-wider mb-3">Kiosko · entrada</p>
-            <div className="rounded-xl bg-emerald-500 p-5 text-center space-y-1">
-              <Check className="h-8 w-8 mx-auto" strokeWidth={2.5} />
-              <p className="text-xl font-extrabold">SIGA</p>
-              <p className="text-sm opacity-90">¡Bienvenido, Juan! Tienes Spinning a las 6:00.</p>
-            </div>
-          </div>
-          <div className="rounded-2xl border border-white/10 bg-white/[0.04] p-5 backdrop-blur">
-            <p className="text-xs text-white/40 uppercase tracking-wider mb-3">Recepción · en vivo</p>
-            <div className="rounded-xl border border-red-400/40 bg-red-500/15 p-4 space-y-2">
-              <p className="font-bold text-red-300 text-sm">Pedro Moroso — en la entrada</p>
-              <p className="text-xs text-red-200/80">Plan vencido hace 11 días · debe $80.000</p>
-              <span className="inline-block rounded-lg bg-red-500 px-3 py-1.5 text-xs font-bold">
-                Autorizar entrada
-              </span>
-            </div>
-          </div>
+          <ProductShot
+            name="dashboard"
+            alt="Panel de FitConnect"
+            caption="Panel de control — ingresos del día, caja, vencimientos y operación en una sola pantalla."
+          />
         </motion.div>
+      </section>
+
+      {/* Problema real */}
+      <section className="py-20 px-5 border-y border-white/5 bg-white/[0.02]">
+        <div className="mx-auto max-w-5xl">
+          <motion.div
+            variants={fadeUp}
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true }}
+            transition={{ duration: 0.5 }}
+            className="text-center mb-10 space-y-3"
+          >
+            <h2 className="text-3xl sm:text-4xl font-extrabold">
+              Lo que hoy vive repartido entre Excel, WhatsApp, cuaderno y caja
+            </h2>
+            <p className="text-white/50 max-w-xl mx-auto">
+              FitConnect junta todo eso en un solo lugar que sí cuadra.
+            </p>
+          </motion.div>
+          <motion.div
+            variants={stagger}
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true, margin: "-80px" }}
+            className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4"
+          >
+            {PROBLEMS.map((p) => (
+              <motion.div
+                key={p}
+                variants={fadeUp}
+                transition={{ duration: 0.45 }}
+                className="rounded-2xl border border-white/10 bg-white/[0.03] p-5 text-sm text-white/70 leading-relaxed"
+              >
+                {p}
+              </motion.div>
+            ))}
+          </motion.div>
+        </div>
+      </section>
+
+      {/* Flujo operativo */}
+      <section className="py-20 px-5">
+        <div className="mx-auto max-w-6xl">
+          <motion.div
+            variants={fadeUp}
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true }}
+            transition={{ duration: 0.5 }}
+            className="text-center mb-12 space-y-3"
+          >
+            <h2 className="text-3xl sm:text-4xl font-extrabold">De la entrada al reporte, sin fricción</h2>
+            <p className="text-white/50 max-w-xl mx-auto">
+              Un solo flujo conecta el acceso, el cobro y el cierre del día.
+            </p>
+          </motion.div>
+          <motion.div
+            variants={stagger}
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true, margin: "-80px" }}
+            className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4"
+          >
+            {FLOW.map(({ icon: Icon, title, description }, i) => (
+              <motion.div
+                key={title}
+                variants={fadeUp}
+                transition={{ duration: 0.45 }}
+                className="rounded-2xl border border-white/10 bg-white/[0.03] p-5"
+              >
+                <div className="flex items-center gap-2 mb-3">
+                  <span className="inline-flex h-8 w-8 items-center justify-center rounded-lg bg-[var(--color-primary)]/15 text-[var(--color-primary)]">
+                    <Icon className="h-4 w-4" />
+                  </span>
+                  <span className="text-xs font-bold text-white/40">{i + 1}</span>
+                </div>
+                <h3 className="font-bold text-sm mb-1">{title}</h3>
+                <p className="text-xs text-white/55 leading-relaxed">{description}</p>
+              </motion.div>
+            ))}
+          </motion.div>
+        </div>
       </section>
 
       {/* Features */}
@@ -328,6 +427,47 @@ export default function LandingClient() {
               <p className="text-xs text-white/50 mt-1">{m.label}</p>
             </div>
           ))}
+        </div>
+      </section>
+
+      {/* Seguridad y confianza */}
+      <section className="py-20 px-5 border-y border-white/5 bg-white/[0.02]">
+        <div className="mx-auto max-w-6xl">
+          <motion.div
+            variants={fadeUp}
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true }}
+            transition={{ duration: 0.5 }}
+            className="text-center mb-12 space-y-3"
+          >
+            <h2 className="text-3xl sm:text-4xl font-extrabold">Datos de tus miembros, en serio</h2>
+            <p className="text-white/50 max-w-xl mx-auto">
+              Manejas cédulas, salud y pagos. Lo tratamos con el cuidado que eso exige.
+            </p>
+          </motion.div>
+          <motion.div
+            variants={stagger}
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true, margin: "-80px" }}
+            className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4"
+          >
+            {TRUST.map(({ icon: Icon, title, description }) => (
+              <motion.div
+                key={title}
+                variants={fadeUp}
+                transition={{ duration: 0.45 }}
+                className="rounded-2xl border border-white/10 bg-white/[0.03] p-6"
+              >
+                <span className="inline-flex h-10 w-10 items-center justify-center rounded-xl mb-4 bg-[var(--color-primary)]/15 text-[var(--color-primary)]">
+                  <Icon className="h-5 w-5" />
+                </span>
+                <h3 className="font-bold mb-1.5 text-sm">{title}</h3>
+                <p className="text-sm text-white/55 leading-relaxed">{description}</p>
+              </motion.div>
+            ))}
+          </motion.div>
         </div>
       </section>
 
@@ -453,9 +593,11 @@ export default function LandingClient() {
             <BrandMark className="h-6 w-6" />
             <span>© {new Date().getFullYear()} FitConnect</span>
           </div>
-          <div className="flex items-center gap-6">
+          <div className="flex flex-wrap items-center justify-center gap-x-6 gap-y-2">
             <a href="#features" className="hover:text-white/70 transition-colors">Funciones</a>
             <a href="#pricing" className="hover:text-white/70 transition-colors">Precios</a>
+            <Link href="/privacidad" className="hover:text-white/70 transition-colors">Privacidad</Link>
+            <Link href="/terminos" className="hover:text-white/70 transition-colors">Términos</Link>
             <Link href="/login" className="hover:text-white/70 transition-colors">Ingresar</Link>
           </div>
         </div>
