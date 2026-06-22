@@ -1,10 +1,11 @@
 "use client";
 
 import { useState } from "react";
+import { useSession } from "next-auth/react";
 import { motion, AnimatePresence } from "framer-motion";
 import { PageHeader } from "@/components/common/PageHeader";
 import { cn } from "@/lib/utils";
-import { User, Building2, Bell, CreditCard, Palette, SlidersHorizontal, Plug, MonitorSmartphone, Landmark, MessageSquare } from "lucide-react";
+import { User, Building2, Bell, CreditCard, Palette, SlidersHorizontal, Plug, MonitorSmartphone, Landmark, MessageSquare, Users } from "lucide-react";
 import dynamic from "next/dynamic";
 
 const ProfileSection      = dynamic(() => import("@/components/settings/ProfileSection"));
@@ -17,13 +18,15 @@ const PlanSection         = dynamic(() => import("@/components/settings/PlanSect
 const AppearanceSection   = dynamic(() => import("@/components/settings/AppearanceSection"));
 const KioskSection        = dynamic(() => import("@/components/settings/KioskSection"));
 const MessagesSection     = dynamic(() => import("@/components/settings/MessagesSection"));
+const TeamSection         = dynamic(() => import("@/components/settings/TeamSection"));
 
-type TabKey = "profile" | "gym" | "operations" | "billing" | "kiosk" | "integrations" | "notifications" | "messages" | "plan" | "appearance";
+type TabKey = "profile" | "gym" | "operations" | "billing" | "kiosk" | "integrations" | "notifications" | "messages" | "team" | "plan" | "appearance";
 
 interface Tab {
   key: TabKey;
   label: string;
   icon: React.ElementType;
+  ownerOnly?: boolean;
 }
 
 const TABS: Tab[] = [
@@ -35,6 +38,7 @@ const TABS: Tab[] = [
   { key: "integrations",  label: "Integraciones",    icon: Plug },
   { key: "notifications", label: "Notificaciones",   icon: Bell },
   { key: "messages",      label: "Mensajes",         icon: MessageSquare },
+  { key: "team",          label: "Equipo",           icon: Users, ownerOnly: true },
   { key: "plan",          label: "Plan",             icon: CreditCard },
   { key: "appearance",    label: "Apariencia",       icon: Palette },
 ];
@@ -48,11 +52,15 @@ const SECTION_MAP: Record<TabKey, React.ComponentType> = {
   integrations:  IntegrationsSection,
   notifications: NotificationsSection,
   messages:      MessagesSection,
+  team:          TeamSection,
   plan:          PlanSection,
   appearance:    AppearanceSection,
 };
 
 export default function SettingsClient() {
+  const { data: session } = useSession();
+  const isOwner = session?.role === "owner";
+  const visibleTabs = TABS.filter((tab) => !tab.ownerOnly || isOwner);
   const [activeTab, setActiveTab] = useState<TabKey>("profile");
 
   const ActiveSection = SECTION_MAP[activeTab];
@@ -72,7 +80,7 @@ export default function SettingsClient() {
           className="flex lg:flex-col gap-1 overflow-x-auto lg:overflow-x-visible lg:w-52 shrink-0"
           aria-label="Secciones de configuración"
         >
-          {TABS.map((tab) => {
+          {visibleTabs.map((tab) => {
             const Icon = tab.icon;
             const isActive = activeTab === tab.key;
             return (
