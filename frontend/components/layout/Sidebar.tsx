@@ -20,6 +20,7 @@ import {
   LogOut,
   Tag,
   ScrollText,
+  HelpCircle,
 } from "lucide-react";
 import { BrandMark } from "@/components/common/BrandMark";
 
@@ -51,6 +52,7 @@ const navGroups: NavGroup[] = [
     items: [
       { href: "/audit", label: "Auditoría", icon: ScrollText, ownerOnly: true },
       { href: "/settings", label: "Configuración", icon: Settings },
+      { href: "/ayuda", label: "Ayuda", icon: HelpCircle },
     ],
   },
 ];
