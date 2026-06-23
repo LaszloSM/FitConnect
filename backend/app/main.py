@@ -27,6 +27,9 @@ if settings.sentry_dsn:
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
+    if settings.run_migrations_on_startup:
+        from app.db.migrate import run_master_migrations
+        await run_master_migrations()
     start_scheduler()
     yield
     stop_scheduler()

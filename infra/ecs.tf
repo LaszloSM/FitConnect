@@ -41,7 +41,12 @@ resource "aws_ecs_task_definition" "backend" {
         { name = "ENVIRONMENT", value = var.environment },
         { name = "REDIS_URL", value = "redis://${aws_elasticache_cluster.redis.cache_nodes[0].address}:6379" },
         { name = "AWS_REGION", value = var.aws_region },
-        { name = "S3_BUCKET", value = aws_s3_bucket.uploads.id }
+        { name = "S3_BUCKET", value = aws_s3_bucket.uploads.id },
+        # En RDS fresco el backend migra el Master al arrancar (advisory lock).
+        { name = "RUN_MIGRATIONS_ON_STARTUP", value = "true" },
+        # El guard de config.py falla el arranque si estos quedan en localhost.
+        { name = "CORS_ORIGINS", value = jsonencode([local.app_base_url]) },
+        { name = "FRONTEND_URL", value = local.app_base_url }
       ]
       secrets = [
         { name = "MASTER_DATABASE_URL", valueFrom = aws_secretsmanager_secret.app["master-database-url"].arn },

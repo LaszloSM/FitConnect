@@ -48,6 +48,35 @@ secreto rotado.
    recibo, kiosko, webhook Wompi, auditoría.
 3. Probar un restore de RDS desde snapshot al menos una vez (drill).
 
+## Gotchas del primer deploy (cazados antes de aplicar)
+
+Tres cosas que rompen el primer deploy si no se atienden. Las dos primeras ya
+están resueltas en código; las dos últimas requieren un valor/decisión tuya.
+
+1. **Frontend → API URL (resuelto).** `NEXT_PUBLIC_API_URL` se hornea en build-time
+   en Next. El `deploy.yml` ya lo pasa como `--build-arg` desde la variable de
+   repositorio **`NEXT_PUBLIC_API_URL`** (Settings → Secrets and variables →
+   Actions → Variables). Debes setearla al dominio público (ej.
+   `https://app.tudominio.com`). Implica: **usa `domain_name`**, porque sin dominio
+   el DNS del ALB no se conoce al momento del build (huevo y gallina).
+
+2. **Esquema del Master en RDS fresco (resuelto).** El backend corre
+   `alembic upgrade head` del Master al arrancar (`RUN_MIGRATIONS_ON_STARTUP=true`,
+   ya seteado en `ecs.tf`), con advisory lock para que solo una réplica migre. Los
+   tenants siguen naciendo con `create_all` al registrarse.
+
+3. **Guard de producción (requiere tus valores).** `config.py` **falla el arranque**
+   del backend si en `environment=production` faltan:
+   - `CORS_ORIGINS` / `FRONTEND_URL` → ya seteados en `ecs.tf` al `app_base_url`.
+   - **`WOMPI_API_URL`** → debes ponerlo en `https://production.wompi.co/v1` (env del
+     backend en `ecs.tf`). Si aún no vas a cobrar real, despliega con
+     `environment != production` para saltar el guard, pero entonces no es prod.
+   - **`SETTINGS_ENCRYPTION_KEY`** → llave Fernet para cifrar los secretos de
+     Wompi/WhatsApp. Generar con
+     `python -c "from cryptography.fernet import Fernet; print(Fernet.generate_key().decode())"`,
+     guardarla como secreto (mismo patrón que `secret-key` en `secrets.tf` +
+     `terraform.tfvars`) e inyectarla en el bloque `secrets` del backend.
+
 ## Endurecimiento ya incluido
 
 - Secretos en Secrets Manager (no en la task def).

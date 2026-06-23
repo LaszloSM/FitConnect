@@ -20,6 +20,10 @@ class Settings(BaseSettings):
     secret_key: str
     environment: str = "development"
     log_level: str = "INFO"
+    # Si está activo, el backend corre `alembic upgrade head` del Master al arrancar
+    # (con advisory lock para que solo una réplica migre). Default False: en dev la
+    # Master ya existe y puede tener drift. En prod (RDS fresco) se activa por env.
+    run_migrations_on_startup: bool = False
     # Sentry opcional: si está vacío, no se inicializa (no requiere cuenta).
     sentry_dsn: str = ""
     access_token_expire_minutes: int = 480
