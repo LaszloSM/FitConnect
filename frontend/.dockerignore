@@ -3,8 +3,9 @@ npm-debug.log
 Dockerfile
 .dockerignore
 .git
+# .env.local NO se incluye: NEXT_PUBLIC_API_URL llega por build-arg, no por el
+# .env de dev (si se filtra, prod hornea localhost:8000).
 .env*
-!.env.local
 .next
 coverage
 README.md

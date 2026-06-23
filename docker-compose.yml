@@ -81,7 +81,12 @@ services:
         condition: service_healthy
 
   frontend:
-    build: ./frontend
+    build:
+      context: ./frontend
+      args:
+        # NEXT_PUBLIC_API_URL se hornea en build-time; pasarlo como build-arg
+        # (ya no se filtra vía .env.local del build context).
+        NEXT_PUBLIC_API_URL: http://localhost:8000
     command: node server.js
     ports:
       - "3000:3000"

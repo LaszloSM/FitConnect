@@ -7,6 +7,10 @@ COPY package*.json ./
 RUN npm ci
 
 COPY . .
+# NEXT_PUBLIC_* se hornea en build-time: el valor debe llegar como build-arg por
+# entorno (localhost en dev vía compose, dominio real en prod vía deploy.yml).
+ARG NEXT_PUBLIC_API_URL
+ENV NEXT_PUBLIC_API_URL=$NEXT_PUBLIC_API_URL
 RUN npm run build
 
 # Production stage
