@@ -32,3 +32,8 @@ output "ecr_frontend" {
   description = "Frontend ECR repository URL"
   value       = aws_ecr_repository.frontend.repository_url
 }
+
+output "github_actions_deploy_role_arn" {
+  description = "ARN del rol OIDC a pegar como secret AWS_DEPLOY_ROLE_ARN en GitHub"
+  value       = aws_iam_role.github_actions_deploy.arn
+}

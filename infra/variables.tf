@@ -49,3 +49,9 @@ variable "frontend_image_tag" {
   description = "Docker image tag for frontend (e.g. git SHA)"
   type        = string
 }
+
+variable "github_repo" {
+  description = "Repo de GitHub (owner/repo) autorizado a asumir el rol de deploy vía OIDC"
+  type        = string
+  default     = "LaszloSM/FitConnect"
+}
