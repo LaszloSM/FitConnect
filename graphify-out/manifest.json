@@ -465,8 +465,8 @@
     "semantic_hash": "df92b326fff459b0c5f55407474aef14"
   },
   "C:\\Users\\User\\Desktop\\SaaS Gym\\frontend\\app\\(dashboard)\\dashboard\\page.tsx": {
-    "mtime": 1783114402.748845,
-    "ast_hash": "ed9c285476fe041aa4d604a739042b90",
+    "mtime": 1783198486.7671127,
+    "ast_hash": "b7c3125de797347c12a637674b36b485",
     "semantic_hash": ""
   },
   "C:\\Users\\User\\Desktop\\SaaS Gym\\frontend\\app\\(dashboard)\\machines\\MachinesClient.tsx": {
@@ -1837,6 +1837,11 @@
   "C:\\Users\\User\\Desktop\\SaaS Gym\\frontend\\components\\common\\CheckinToaster.tsx": {
     "mtime": 1783197706.1369936,
     "ast_hash": "564d88d766a150e02b644431086c9fe7",
+    "semantic_hash": ""
+  },
+  "C:\\Users\\User\\Desktop\\SaaS Gym\\frontend\\components\\dashboard\\LiveNowStrip.tsx": {
+    "mtime": 1783198399.412398,
+    "ast_hash": "dbdab9d2176f06a3663cd75eb7af8813",
     "semantic_hash": ""
   }
 }

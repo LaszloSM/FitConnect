@@ -486,7 +486,7 @@
       "source_file": "backend/app/api/v1/cash.py",
       "source_location": "L21",
       "id": "v1_cash_openshiftrequest",
-      "community": 188,
+      "community": 159,
       "norm_label": "openshiftrequest"
     },
     {
@@ -495,7 +495,7 @@
       "source_file": "",
       "source_location": "",
       "id": "basemodel",
-      "community": 188,
+      "community": 17,
       "norm_label": "basemodel"
     },
     {
@@ -504,7 +504,7 @@
       "source_file": "backend/app/api/v1/cash.py",
       "source_location": "L27",
       "id": "v1_cash_closeshiftrequest",
-      "community": 188,
+      "community": 159,
       "norm_label": "closeshiftrequest"
     },
     {
@@ -513,7 +513,7 @@
       "source_file": "backend/app/api/v1/cash.py",
       "source_location": "L32",
       "id": "v1_cash_expensecreate",
-      "community": 188,
+      "community": 159,
       "norm_label": "expensecreate"
     },
     {
@@ -729,7 +729,7 @@
       "source_file": "backend/app/api/v1/classes.py",
       "source_location": "L37",
       "id": "v1_classes_create_class",
-      "community": 3,
+      "community": 181,
       "norm_label": "create_class()"
     },
     {
@@ -864,7 +864,7 @@
       "source_file": "backend/app/api/v1/class_sessions.py",
       "source_location": "L91",
       "id": "v1_class_sessions_materialize",
-      "community": 3,
+      "community": 181,
       "norm_label": "materialize()"
     },
     {
@@ -999,7 +999,7 @@
       "source_file": "backend/app/api/v1/instructors.py",
       "source_location": "L15",
       "id": "v1_instructors_instructorcreate",
-      "community": 188,
+      "community": 206,
       "norm_label": "instructorcreate"
     },
     {
@@ -1008,7 +1008,7 @@
       "source_file": "backend/app/api/v1/instructors.py",
       "source_location": "L22",
       "id": "v1_instructors_instructorupdate",
-      "community": 188,
+      "community": 206,
       "norm_label": "instructorupdate"
     },
     {
@@ -1098,7 +1098,7 @@
       "source_file": "backend/app/api/v1/kiosk.py",
       "source_location": "L40",
       "id": "v1_kiosk_kiosk_checkin",
-      "community": 19,
+      "community": 156,
       "norm_label": "kiosk_checkin()"
     },
     {
@@ -1179,7 +1179,7 @@
       "source_file": "backend/app/api/v1/kiosk.py",
       "source_location": "L46",
       "id": "v1_kiosk_rationale_46",
-      "community": 19,
+      "community": 156,
       "norm_label": "check-in desde el kiosko de la entrada. respuesta minima: sin pii mas     alla"
     },
     {
@@ -1359,7 +1359,7 @@
       "source_file": "backend/app/api/v1/members.py",
       "source_location": "L23",
       "id": "v1_members_renewallinkrequest",
-      "community": 151,
+      "community": 17,
       "norm_label": "renewallinkrequest"
     },
     {
@@ -1368,7 +1368,7 @@
       "source_file": "backend/app/api/v1/members.py",
       "source_location": "L28",
       "id": "v1_members_list_members",
-      "community": 149,
+      "community": 8,
       "norm_label": "list_members()"
     },
     {
@@ -1404,7 +1404,7 @@
       "source_file": "backend/app/api/v1/members.py",
       "source_location": "L166",
       "id": "v1_members_get_billing_summary",
-      "community": 17,
+      "community": 8,
       "norm_label": "get_billing_summary()"
     },
     {
@@ -1413,7 +1413,7 @@
       "source_file": "backend/app/api/v1/members.py",
       "source_location": "L238",
       "id": "v1_members_get_member_timeline",
-      "community": 8,
+      "community": 228,
       "norm_label": "get_member_timeline()"
     },
     {
@@ -1449,7 +1449,7 @@
       "source_file": "backend/app/api/v1/members.py",
       "source_location": "L351",
       "id": "v1_members_get_member_memberships",
-      "community": 149,
+      "community": 8,
       "norm_label": "get_member_memberships()"
     },
     {
@@ -1503,7 +1503,7 @@
       "source_file": "backend/app/api/v1/members.py",
       "source_location": "L170",
       "id": "v1_members_rationale_170",
-      "community": 17,
+      "community": 8,
       "norm_label": "resumen de cobro para el pos: membresia vigente/ultima, dias vencidos,     sald"
     },
     {
@@ -1512,7 +1512,7 @@
       "source_file": "backend/app/api/v1/members.py",
       "source_location": "L243",
       "id": "v1_members_rationale_243",
-      "community": 8,
+      "community": 228,
       "norm_label": "actividad unificada del miembro: check-ins, pagos, membresias y reservas,     e"
     },
     {
@@ -1557,7 +1557,7 @@
       "source_file": "backend/app/api/v1/memberships.py",
       "source_location": "L21",
       "id": "v1_memberships_freezerequest",
-      "community": 188,
+      "community": 151,
       "norm_label": "freezerequest"
     },
     {
@@ -1710,7 +1710,7 @@
       "source_file": "backend/app/api/v1/member_plans.py",
       "source_location": "L215",
       "id": "v1_member_plans_assign_membership",
-      "community": 149,
+      "community": 169,
       "norm_label": "assign_membership()"
     },
     {
@@ -1728,7 +1728,7 @@
       "source_file": "backend/app/api/v1/member_plans.py",
       "source_location": "L271",
       "id": "v1_member_plans_charge_membership",
-      "community": 149,
+      "community": 169,
       "norm_label": "charge_membership()"
     },
     {
@@ -1764,7 +1764,7 @@
       "source_file": "backend/app/api/v1/member_plans.py",
       "source_location": "L276",
       "id": "v1_member_plans_rationale_276",
-      "community": 149,
+      "community": 169,
       "norm_label": "cobro pos en un paso: crea/renueva la membresia, marca el pago como pagado     y"
     },
     {
@@ -1836,7 +1836,7 @@
       "source_file": "backend/app/api/v1/messages.py",
       "source_location": "L82",
       "id": "v1_messages_preview_message",
-      "community": 158,
+      "community": 210,
       "norm_label": "preview_message()"
     },
     {
@@ -1854,7 +1854,7 @@
       "source_file": "backend/app/api/v1/messages.py",
       "source_location": "L87",
       "id": "v1_messages_rationale_87",
-      "community": 158,
+      "community": 210,
       "norm_label": "previsualiza el mensaje con valores de ejemplo para cada variable."
     },
     {
@@ -2034,7 +2034,7 @@
       "source_file": "backend/app/api/v1/payments.py",
       "source_location": "L215",
       "id": "v1_payments_cash_box",
-      "community": 29,
+      "community": 231,
       "norm_label": "cash_box()"
     },
     {
@@ -2043,7 +2043,7 @@
       "source_file": "backend/app/api/v1/payments.py",
       "source_location": "L247",
       "id": "v1_payments_list_receivables",
-      "community": 17,
+      "community": 8,
       "norm_label": "list_receivables()"
     },
     {
@@ -2088,7 +2088,7 @@
       "source_file": "backend/app/api/v1/payments.py",
       "source_location": "L423",
       "id": "v1_payments_create_payment_link",
-      "community": 29,
+      "community": 172,
       "norm_label": "create_payment_link()"
     },
     {
@@ -2133,7 +2133,7 @@
       "source_file": "backend/app/api/v1/payments.py",
       "source_location": "L218",
       "id": "v1_payments_rationale_218",
-      "community": 29,
+      "community": 231,
       "norm_label": "caja: ingresos pagados de hoy y del mes, con desglose por metodo."
     },
     {
@@ -2142,7 +2142,7 @@
       "source_file": "backend/app/api/v1/payments.py",
       "source_location": "L250",
       "id": "v1_payments_rationale_250",
-      "community": 17,
+      "community": 8,
       "norm_label": "cuentas por cobrar: membresias vencidas/en gracia (\u226430 dias) para renovar,"
     },
     {
@@ -2160,7 +2160,7 @@
       "source_file": "backend/app/api/v1/payments.py",
       "source_location": "L428",
       "id": "v1_payments_rationale_428",
-      "community": 29,
+      "community": 172,
       "norm_label": "genera un link de pago wompi para un pago pendiente."
     },
     {
@@ -2169,7 +2169,7 @@
       "source_file": "backend/app/api/v1/products.py",
       "source_location": "L1",
       "id": "backend_app_api_v1_products_py",
-      "community": 156,
+      "community": 180,
       "norm_label": "products.py"
     },
     {
@@ -2178,7 +2178,7 @@
       "source_file": "backend/app/api/v1/products.py",
       "source_location": "L17",
       "id": "v1_products_list_products",
-      "community": 156,
+      "community": 180,
       "norm_label": "list_products()"
     },
     {
@@ -2187,7 +2187,7 @@
       "source_file": "backend/app/api/v1/products.py",
       "source_location": "L35",
       "id": "v1_products_create_product",
-      "community": 156,
+      "community": 180,
       "norm_label": "create_product()"
     },
     {
@@ -2196,7 +2196,7 @@
       "source_file": "backend/app/api/v1/products.py",
       "source_location": "L52",
       "id": "v1_products_update_product",
-      "community": 156,
+      "community": 180,
       "norm_label": "update_product()"
     },
     {
@@ -2205,7 +2205,7 @@
       "source_file": "backend/app/api/v1/products.py",
       "source_location": "L73",
       "id": "v1_products_archive_product",
-      "community": 156,
+      "community": 180,
       "norm_label": "archive_product()"
     },
     {
@@ -2214,7 +2214,7 @@
       "source_file": "backend/app/api/v1/products.py",
       "source_location": "L78",
       "id": "v1_products_rationale_78",
-      "community": 156,
+      "community": 180,
       "norm_label": "soft-delete: las ventas historicas referencian el producto, nunca se borra."
     },
     {
@@ -2232,7 +2232,7 @@
       "source_file": "backend/app/api/v1/promo_codes.py",
       "source_location": "L18",
       "id": "v1_promo_codes_promocodecreate",
-      "community": 188,
+      "community": 225,
       "norm_label": "promocodecreate"
     },
     {
@@ -2259,7 +2259,7 @@
       "source_file": "backend/app/api/v1/promo_codes.py",
       "source_location": "L40",
       "id": "v1_promo_codes_promocodeupdate",
-      "community": 188,
+      "community": 225,
       "norm_label": "promocodeupdate"
     },
     {
@@ -2655,7 +2655,7 @@
       "source_file": "backend/app/api/v1/settings.py",
       "source_location": "L81",
       "id": "v1_settings_get_profile",
-      "community": 188,
+      "community": 17,
       "norm_label": "get_profile()"
     },
     {
@@ -2781,7 +2781,7 @@
       "source_file": "backend/app/api/v1/settings.py",
       "source_location": "L287",
       "id": "v1_settings_update_integrations",
-      "community": 148,
+      "community": 188,
       "norm_label": "update_integrations()"
     },
     {
@@ -2943,7 +2943,7 @@
       "source_file": "backend/app/core/crypto.py",
       "source_location": "L1",
       "id": "backend_app_core_crypto_py",
-      "community": 148,
+      "community": 149,
       "norm_label": "crypto.py"
     },
     {
@@ -2952,7 +2952,7 @@
       "source_file": "backend/app/core/crypto.py",
       "source_location": "L9",
       "id": "core_crypto_fernet",
-      "community": 148,
+      "community": 149,
       "norm_label": "_fernet()"
     },
     {
@@ -2961,7 +2961,7 @@
       "source_file": "backend/app/core/crypto.py",
       "source_location": "L19",
       "id": "core_crypto_encrypt_secret",
-      "community": 148,
+      "community": 149,
       "norm_label": "encrypt_secret()"
     },
     {
@@ -2970,7 +2970,7 @@
       "source_file": "backend/app/core/crypto.py",
       "source_location": "L25",
       "id": "core_crypto_decrypt_secret",
-      "community": 148,
+      "community": 149,
       "norm_label": "decrypt_secret()"
     },
     {
@@ -3222,7 +3222,7 @@
       "source_file": "backend/app/core/timeutil.py",
       "source_location": "L9",
       "id": "core_timeutil_now_bogota",
-      "community": 230,
+      "community": 35,
       "norm_label": "now_bogota()"
     },
     {
@@ -3303,7 +3303,7 @@
       "source_file": "",
       "source_location": "",
       "id": "declarativebase",
-      "community": 6,
+      "community": 151,
       "norm_label": "declarativebase"
     },
     {
@@ -3609,7 +3609,7 @@
       "source_file": "backend/app/models/user.py",
       "source_location": "L9",
       "id": "models_user_userrole",
-      "community": 188,
+      "community": 6,
       "norm_label": "userrole"
     },
     {
@@ -3771,7 +3771,7 @@
       "source_file": "backend/app/models/tenant/audit_log.py",
       "source_location": "L1",
       "id": "backend_app_models_tenant_audit_log_py",
-      "community": 156,
+      "community": 180,
       "norm_label": "audit_log.py"
     },
     {
@@ -3780,7 +3780,7 @@
       "source_file": "backend/app/models/tenant/audit_log.py",
       "source_location": "L10",
       "id": "tenant_audit_log_auditlog",
-      "community": 156,
+      "community": 180,
       "norm_label": "auditlog"
     },
     {
@@ -3789,7 +3789,7 @@
       "source_file": "backend/app/models/tenant/audit_log.py",
       "source_location": "L11",
       "id": "tenant_audit_log_rationale_11",
-      "community": 156,
+      "community": 180,
       "norm_label": "registro de acciones sensibles del staff (pagos, overrides, membresias, caja)."
     },
     {
@@ -3861,7 +3861,7 @@
       "source_file": "backend/app/models/tenant/class_enrollment.py",
       "source_location": "L1",
       "id": "backend_app_models_tenant_class_enrollment_py",
-      "community": 151,
+      "community": 3,
       "norm_label": "class_enrollment.py"
     },
     {
@@ -3870,7 +3870,7 @@
       "source_file": "backend/app/models/tenant/class_enrollment.py",
       "source_location": "L8",
       "id": "tenant_class_enrollment_classenrollment",
-      "community": 151,
+      "community": 3,
       "norm_label": "classenrollment"
     },
     {
@@ -3879,7 +3879,7 @@
       "source_file": "backend/app/models/tenant/class_enrollment.py",
       "source_location": "L9",
       "id": "tenant_class_enrollment_rationale_9",
-      "community": 151,
+      "community": 3,
       "norm_label": "inscripcion de miembros a clases grupales."
     },
     {
@@ -3924,7 +3924,7 @@
       "source_file": "backend/app/models/tenant/expense.py",
       "source_location": "L1",
       "id": "backend_app_models_tenant_expense_py",
-      "community": 188,
+      "community": 159,
       "norm_label": "expense.py"
     },
     {
@@ -3933,7 +3933,7 @@
       "source_file": "backend/app/models/tenant/expense.py",
       "source_location": "L10",
       "id": "tenant_expense_expense",
-      "community": 188,
+      "community": 159,
       "norm_label": "expense"
     },
     {
@@ -3942,7 +3942,7 @@
       "source_file": "backend/app/models/tenant/expense.py",
       "source_location": "L11",
       "id": "tenant_expense_rationale_11",
-      "community": 188,
+      "community": 159,
       "norm_label": "egresos/gastos del gym (servicios, nomina, insumos, otros)."
     },
     {
@@ -4014,7 +4014,7 @@
       "source_file": "backend/app/models/tenant/instructor.py",
       "source_location": "L1",
       "id": "backend_app_models_tenant_instructor_py",
-      "community": 151,
+      "community": 206,
       "norm_label": "instructor.py"
     },
     {
@@ -4023,7 +4023,7 @@
       "source_file": "backend/app/models/tenant/instructor.py",
       "source_location": "L9",
       "id": "tenant_instructor_instructor",
-      "community": 151,
+      "community": 206,
       "norm_label": "instructor"
     },
     {
@@ -4032,7 +4032,7 @@
       "source_file": "backend/app/models/tenant/instructor.py",
       "source_location": "L10",
       "id": "tenant_instructor_rationale_10",
-      "community": 151,
+      "community": 206,
       "norm_label": "instructores del gym (sin login propio \u2014 entidad operativa)."
     },
     {
@@ -4122,7 +4122,7 @@
       "source_file": "backend/app/models/tenant/maintenance.py",
       "source_location": "L1",
       "id": "backend_app_models_tenant_maintenance_py",
-      "community": 151,
+      "community": 3,
       "norm_label": "maintenance.py"
     },
     {
@@ -4131,7 +4131,7 @@
       "source_file": "backend/app/models/tenant/maintenance.py",
       "source_location": "L11",
       "id": "tenant_maintenance_maintenancelog",
-      "community": 151,
+      "community": 3,
       "norm_label": "maintenancelog"
     },
     {
@@ -4140,7 +4140,7 @@
       "source_file": "backend/app/models/tenant/maintenance.py",
       "source_location": "L12",
       "id": "tenant_maintenance_rationale_12",
-      "community": 151,
+      "community": 3,
       "norm_label": "historial de mantenimiento de maquinas."
     },
     {
@@ -4203,7 +4203,7 @@
       "source_file": "backend/app/models/tenant/member.py",
       "source_location": "L42",
       "id": "tenant_member_member",
-      "community": 151,
+      "community": 159,
       "norm_label": "member"
     },
     {
@@ -4329,7 +4329,7 @@
       "source_file": "backend/app/models/tenant/notification.py",
       "source_location": "L1",
       "id": "backend_app_models_tenant_notification_py",
-      "community": 151,
+      "community": 130,
       "norm_label": "notification.py"
     },
     {
@@ -4338,7 +4338,7 @@
       "source_file": "backend/app/models/tenant/notification.py",
       "source_location": "L9",
       "id": "tenant_notification_notification",
-      "community": 151,
+      "community": 130,
       "norm_label": "notification"
     },
     {
@@ -4545,7 +4545,7 @@
       "source_file": "backend/app/models/tenant/receipt.py",
       "source_location": "L1",
       "id": "backend_app_models_tenant_receipt_py",
-      "community": 29,
+      "community": 218,
       "norm_label": "receipt.py"
     },
     {
@@ -4554,7 +4554,7 @@
       "source_file": "backend/app/models/tenant/receipt.py",
       "source_location": "L13",
       "id": "tenant_receipt_receipt",
-      "community": 29,
+      "community": 218,
       "norm_label": "receipt"
     },
     {
@@ -4563,7 +4563,7 @@
       "source_file": "backend/app/models/tenant/receipt.py",
       "source_location": "L14",
       "id": "tenant_receipt_rationale_14",
-      "community": 29,
+      "community": 218,
       "norm_label": "comprobante de pago con consecutivo. snapshot es inmutable."
     },
     {
@@ -4644,7 +4644,7 @@
       "source_file": "backend/app/schemas/auth.py",
       "source_location": "L1",
       "id": "backend_app_schemas_auth_py",
-      "community": 188,
+      "community": 17,
       "norm_label": "auth.py"
     },
     {
@@ -4653,7 +4653,7 @@
       "source_file": "backend/app/schemas/auth.py",
       "source_location": "L6",
       "id": "schemas_auth_registerrequest",
-      "community": 188,
+      "community": 17,
       "norm_label": "registerrequest"
     },
     {
@@ -4662,7 +4662,7 @@
       "source_file": "backend/app/schemas/auth.py",
       "source_location": "L17",
       "id": "schemas_auth_normalize_colombian_phone",
-      "community": 188,
+      "community": 17,
       "norm_label": "normalize_colombian_phone()"
     },
     {
@@ -4671,7 +4671,7 @@
       "source_file": "backend/app/schemas/auth.py",
       "source_location": "L32",
       "id": "schemas_auth_loginrequest",
-      "community": 188,
+      "community": 17,
       "norm_label": "loginrequest"
     },
     {
@@ -4689,7 +4689,7 @@
       "source_file": "backend/app/schemas/auth.py",
       "source_location": "L46",
       "id": "schemas_auth_passwordresetrequest",
-      "community": 188,
+      "community": 17,
       "norm_label": "passwordresetrequest"
     },
     {
@@ -4698,7 +4698,7 @@
       "source_file": "backend/app/schemas/auth.py",
       "source_location": "L50",
       "id": "schemas_auth_passwordresetconfirm",
-      "community": 188,
+      "community": 17,
       "norm_label": "passwordresetconfirm"
     },
     {
@@ -4707,7 +4707,7 @@
       "source_file": "backend/app/schemas/auth.py",
       "source_location": "L55",
       "id": "schemas_auth_acceptinviterequest",
-      "community": 188,
+      "community": 17,
       "norm_label": "acceptinviterequest"
     },
     {
@@ -5265,7 +5265,7 @@
       "source_file": "backend/app/schemas/settings.py",
       "source_location": "L1",
       "id": "backend_app_schemas_settings_py",
-      "community": 188,
+      "community": 17,
       "norm_label": "settings.py"
     },
     {
@@ -5274,7 +5274,7 @@
       "source_file": "backend/app/schemas/settings.py",
       "source_location": "L5",
       "id": "schemas_settings_userprofileresponse",
-      "community": 188,
+      "community": 17,
       "norm_label": "userprofileresponse"
     },
     {
@@ -5283,7 +5283,7 @@
       "source_file": "backend/app/schemas/settings.py",
       "source_location": "L14",
       "id": "schemas_settings_userprofileupdate",
-      "community": 188,
+      "community": 17,
       "norm_label": "userprofileupdate"
     },
     {
@@ -5301,7 +5301,7 @@
       "source_file": "backend/app/schemas/settings.py",
       "source_location": "L34",
       "id": "schemas_settings_gymsettingsupdate",
-      "community": 188,
+      "community": 17,
       "norm_label": "gymsettingsupdate"
     },
     {
@@ -5319,7 +5319,7 @@
       "source_file": "backend/app/schemas/settings.py",
       "source_location": "L53",
       "id": "schemas_settings_notificationpreferencesupdate",
-      "community": 188,
+      "community": 17,
       "norm_label": "notificationpreferencesupdate"
     },
     {
@@ -5328,7 +5328,7 @@
       "source_file": "backend/app/schemas/user.py",
       "source_location": "L1",
       "id": "backend_app_schemas_user_py",
-      "community": 188,
+      "community": 17,
       "norm_label": "user.py"
     },
     {
@@ -5337,7 +5337,7 @@
       "source_file": "backend/app/schemas/user.py",
       "source_location": "L7",
       "id": "schemas_user_inviteuserrequest",
-      "community": 188,
+      "community": 17,
       "norm_label": "inviteuserrequest"
     },
     {
@@ -5346,7 +5346,7 @@
       "source_file": "backend/app/schemas/user.py",
       "source_location": "L13",
       "id": "schemas_user_inviteresponse",
-      "community": 188,
+      "community": 17,
       "norm_label": "inviteresponse"
     },
     {
@@ -5355,7 +5355,7 @@
       "source_file": "backend/app/schemas/user.py",
       "source_location": "L23",
       "id": "schemas_user_userresponse",
-      "community": 188,
+      "community": 17,
       "norm_label": "userresponse"
     },
     {
@@ -5364,7 +5364,7 @@
       "source_file": "backend/app/schemas/user.py",
       "source_location": "L33",
       "id": "schemas_user_updateuserrolerequest",
-      "community": 188,
+      "community": 17,
       "norm_label": "updateuserrolerequest"
     },
     {
@@ -5373,7 +5373,7 @@
       "source_file": "backend/app/schemas/user.py",
       "source_location": "L14",
       "id": "schemas_user_rationale_14",
-      "community": 188,
+      "community": 17,
       "norm_label": "resultado de invitar staff: el owner comparte `invite_url` con el invitado."
     },
     {
@@ -5391,7 +5391,7 @@
       "source_file": "backend/app/services/audit.py",
       "source_location": "L1",
       "id": "backend_app_services_audit_py",
-      "community": 156,
+      "community": 180,
       "norm_label": "audit.py"
     },
     {
@@ -5400,7 +5400,7 @@
       "source_file": "backend/app/services/audit.py",
       "source_location": "L8",
       "id": "services_audit_audit",
-      "community": 156,
+      "community": 180,
       "norm_label": "audit()"
     },
     {
@@ -5409,7 +5409,7 @@
       "source_file": "backend/app/services/audit.py",
       "source_location": "L16",
       "id": "services_audit_rationale_16",
-      "community": 156,
+      "community": 180,
       "norm_label": "agrega un registro de auditoria a la sesion (sin commit: viaja en la     misma t"
     },
     {
@@ -5418,7 +5418,7 @@
       "source_file": "backend/app/services/checkin.py",
       "source_location": "L1",
       "id": "backend_app_services_checkin_py",
-      "community": 19,
+      "community": 35,
       "norm_label": "checkin.py"
     },
     {
@@ -5427,7 +5427,7 @@
       "source_file": "backend/app/services/checkin.py",
       "source_location": "L32",
       "id": "services_checkin_duplicatecheckin",
-      "community": 151,
+      "community": 35,
       "norm_label": "duplicatecheckin"
     },
     {
@@ -5436,7 +5436,7 @@
       "source_file": "",
       "source_location": "",
       "id": "exception",
-      "community": 151,
+      "community": 35,
       "norm_label": "exception"
     },
     {
@@ -5445,7 +5445,7 @@
       "source_file": "backend/app/services/checkin.py",
       "source_location": "L36",
       "id": "services_checkin_checkin_status",
-      "community": 19,
+      "community": 35,
       "norm_label": "checkin_status()"
     },
     {
@@ -5454,7 +5454,7 @@
       "source_file": "backend/app/services/checkin.py",
       "source_location": "L62",
       "id": "services_checkin_decision_for",
-      "community": 19,
+      "community": 35,
       "norm_label": "decision_for()"
     },
     {
@@ -5463,7 +5463,7 @@
       "source_file": "backend/app/services/checkin.py",
       "source_location": "L68",
       "id": "services_checkin_reject_if_duplicate",
-      "community": 19,
+      "community": 35,
       "norm_label": "_reject_if_duplicate()"
     },
     {
@@ -5472,7 +5472,7 @@
       "source_file": "backend/app/services/checkin.py",
       "source_location": "L83",
       "id": "services_checkin_auto_attend_class",
-      "community": 19,
+      "community": 35,
       "norm_label": "_auto_attend_class()"
     },
     {
@@ -5481,7 +5481,7 @@
       "source_file": "backend/app/services/checkin.py",
       "source_location": "L110",
       "id": "services_checkin_register_checkin",
-      "community": 19,
+      "community": 35,
       "norm_label": "register_checkin()"
     },
     {
@@ -5490,7 +5490,7 @@
       "source_file": "backend/app/services/checkin.py",
       "source_location": "L143",
       "id": "services_checkin_publish_event",
-      "community": 19,
+      "community": 35,
       "norm_label": "publish_event()"
     },
     {
@@ -5499,7 +5499,7 @@
       "source_file": "backend/app/services/checkin.py",
       "source_location": "L1",
       "id": "services_checkin_rationale_1",
-      "community": 19,
+      "community": 35,
       "norm_label": "registro de check-ins: unica puerta de entrada para recepcion, qr y kiosko.  un"
     },
     {
@@ -5508,7 +5508,7 @@
       "source_file": "backend/app/services/checkin.py",
       "source_location": "L37",
       "id": "services_checkin_rationale_37",
-      "community": 19,
+      "community": 35,
       "norm_label": "(estado para check-in, membresia mas relevante).     estado: ok | in_grace | sch"
     },
     {
@@ -5517,7 +5517,7 @@
       "source_file": "backend/app/services/checkin.py",
       "source_location": "L84",
       "id": "services_checkin_rationale_84",
-      "community": 19,
+      "community": 35,
       "norm_label": "si el miembro tiene reserva en una sesion de hoy que empieza dentro de     \u00b160 m"
     },
     {
@@ -5526,7 +5526,7 @@
       "source_file": "backend/app/services/checkin.py",
       "source_location": "L116",
       "id": "services_checkin_rationale_116",
-      "community": 19,
+      "community": 35,
       "norm_label": "registra el check-in (allowed/denied segun membresia), marca asistencia a     cl"
     },
     {
@@ -5580,7 +5580,7 @@
       "source_file": "backend/app/services/class_sessions.py",
       "source_location": "L1",
       "id": "backend_app_services_class_sessions_py",
-      "community": 3,
+      "community": 181,
       "norm_label": "class_sessions.py"
     },
     {
@@ -5589,7 +5589,7 @@
       "source_file": "backend/app/services/class_sessions.py",
       "source_location": "L13",
       "id": "services_class_sessions_materialize_sessions",
-      "community": 3,
+      "community": 181,
       "norm_label": "materialize_sessions()"
     },
     {
@@ -5598,7 +5598,7 @@
       "source_file": "backend/app/services/class_sessions.py",
       "source_location": "L57",
       "id": "services_class_sessions_seed_bookings_from_enrollments",
-      "community": 3,
+      "community": 181,
       "norm_label": "seed_bookings_from_enrollments()"
     },
     {
@@ -5607,7 +5607,7 @@
       "source_file": "backend/app/services/class_sessions.py",
       "source_location": "L14",
       "id": "services_class_sessions_rationale_14",
-      "community": 3,
+      "community": 181,
       "norm_label": "genera sesiones futuras desde las plantillas gymclass segun weekdays     (0=lun."
     },
     {
@@ -5616,7 +5616,7 @@
       "source_file": "backend/app/services/class_sessions.py",
       "source_location": "L58",
       "id": "services_class_sessions_rationale_58",
-      "community": 3,
+      "community": 181,
       "norm_label": "siembra reservas para los inscritos recurrentes (classenrollment) de la     clas"
     },
     {
@@ -5769,7 +5769,7 @@
       "source_file": "backend/app/services/gym_settings.py",
       "source_location": "L1",
       "id": "backend_app_services_gym_settings_py",
-      "community": 148,
+      "community": 149,
       "norm_label": "gym_settings.py"
     },
     {
@@ -5778,7 +5778,7 @@
       "source_file": "backend/app/services/gym_settings.py",
       "source_location": "L16",
       "id": "services_gym_settings_get_gym_settings",
-      "community": 148,
+      "community": 149,
       "norm_label": "get_gym_settings()"
     },
     {
@@ -5787,7 +5787,7 @@
       "source_file": "backend/app/services/gym_settings.py",
       "source_location": "L28",
       "id": "services_gym_settings_secret",
-      "community": 230,
+      "community": 149,
       "norm_label": "secret()"
     },
     {
@@ -5796,7 +5796,7 @@
       "source_file": "backend/app/services/gym_settings.py",
       "source_location": "L33",
       "id": "services_gym_settings_set_secret",
-      "community": 148,
+      "community": 149,
       "norm_label": "set_secret()"
     },
     {
@@ -5805,7 +5805,7 @@
       "source_file": "backend/app/services/gym_settings.py",
       "source_location": "L17",
       "id": "services_gym_settings_rationale_17",
-      "community": 148,
+      "community": 149,
       "norm_label": "devuelve la fila unica de configuracion del gym, creandola con     defaults si e"
     },
     {
@@ -5814,7 +5814,7 @@
       "source_file": "backend/app/services/gym_settings.py",
       "source_location": "L29",
       "id": "services_gym_settings_rationale_29",
-      "community": 230,
+      "community": 149,
       "norm_label": "lee y descifra un campo secreto de gym_settings."
     },
     {
@@ -5823,7 +5823,7 @@
       "source_file": "backend/app/services/gym_settings.py",
       "source_location": "L34",
       "id": "services_gym_settings_rationale_34",
-      "community": 148,
+      "community": 149,
       "norm_label": "cifra y asigna un campo secreto (no hace commit)."
     },
     {
@@ -5859,7 +5859,7 @@
       "source_file": "backend/app/services/jobs.py",
       "source_location": "L68",
       "id": "services_jobs_has_renewal_after",
-      "community": 38,
+      "community": 158,
       "norm_label": "_has_renewal_after()"
     },
     {
@@ -5868,7 +5868,7 @@
       "source_file": "backend/app/services/jobs.py",
       "source_location": "L82",
       "id": "services_jobs_renewal_checkout_url",
-      "community": 38,
+      "community": 158,
       "norm_label": "_renewal_checkout_url()"
     },
     {
@@ -5877,7 +5877,7 @@
       "source_file": "backend/app/services/jobs.py",
       "source_location": "L136",
       "id": "services_jobs_emit_expiry_reminders",
-      "community": 38,
+      "community": 158,
       "norm_label": "_emit_expiry_reminders()"
     },
     {
@@ -5931,7 +5931,7 @@
       "source_file": "backend/app/services/jobs.py",
       "source_location": "L331",
       "id": "services_jobs_reconcile_tenant_payments",
-      "community": 230,
+      "community": 149,
       "norm_label": "_reconcile_tenant_payments()"
     },
     {
@@ -5949,7 +5949,7 @@
       "source_file": "backend/app/services/jobs.py",
       "source_location": "L375",
       "id": "services_jobs_process_tenant_outbox",
-      "community": 230,
+      "community": 217,
       "norm_label": "_process_tenant_outbox()"
     },
     {
@@ -5976,7 +5976,7 @@
       "source_file": "backend/app/services/jobs.py",
       "source_location": "L69",
       "id": "services_jobs_rationale_69",
-      "community": 38,
+      "community": 158,
       "norm_label": "true si el miembro ya tiene otra membresia vigente/programada que arranca     d"
     },
     {
@@ -5985,7 +5985,7 @@
       "source_file": "backend/app/services/jobs.py",
       "source_location": "L83",
       "id": "services_jobs_rationale_83",
-      "community": 38,
+      "community": 158,
       "norm_label": "link wompi de renovacion para incluir en recordatorios. reutiliza un link     p"
     },
     {
@@ -5994,7 +5994,7 @@
       "source_file": "backend/app/services/jobs.py",
       "source_location": "L137",
       "id": "services_jobs_rationale_137",
-      "community": 38,
+      "community": 158,
       "norm_label": "encola recordatorios de vencimiento a d-3, d-0 y vencida d+3 (idempotente     p"
     },
     {
@@ -6111,7 +6111,7 @@
       "source_file": "backend/app/services/membership_status.py",
       "source_location": "L1",
       "id": "backend_app_services_membership_status_py",
-      "community": 149,
+      "community": 169,
       "norm_label": "membership_status.py"
     },
     {
@@ -6120,7 +6120,7 @@
       "source_file": "backend/app/services/membership_status.py",
       "source_location": "L10",
       "id": "services_membership_status_effective_status",
-      "community": 149,
+      "community": 8,
       "norm_label": "effective_status()"
     },
     {
@@ -6129,7 +6129,7 @@
       "source_file": "backend/app/services/membership_status.py",
       "source_location": "L40",
       "id": "services_membership_status_next_chain_start",
-      "community": 149,
+      "community": 169,
       "norm_label": "next_chain_start()"
     },
     {
@@ -6138,7 +6138,7 @@
       "source_file": "backend/app/services/membership_status.py",
       "source_location": "L15",
       "id": "services_membership_status_rationale_15",
-      "community": 149,
+      "community": 8,
       "norm_label": "estado real de una membresia derivado de end_date/status (compute-on-read)."
     },
     {
@@ -6147,7 +6147,7 @@
       "source_file": "backend/app/services/membership_status.py",
       "source_location": "L47",
       "id": "services_membership_status_rationale_47",
-      "community": 149,
+      "community": 169,
       "norm_label": "fecha de inicio real para una membresia nueva: si el miembro ya tiene una     vi"
     },
     {
@@ -6327,7 +6327,7 @@
       "source_file": "backend/app/services/payment_links.py",
       "source_location": "L1",
       "id": "backend_app_services_payment_links_py",
-      "community": 192,
+      "community": 172,
       "norm_label": "payment_links.py"
     },
     {
@@ -6336,7 +6336,7 @@
       "source_file": "backend/app/services/payment_links.py",
       "source_location": "L13",
       "id": "services_payment_links_create_payment_link_for",
-      "community": 192,
+      "community": 172,
       "norm_label": "create_payment_link_for()"
     },
     {
@@ -6345,7 +6345,7 @@
       "source_file": "backend/app/services/payment_links.py",
       "source_location": "L21",
       "id": "services_payment_links_rationale_21",
-      "community": 192,
+      "community": 172,
       "norm_label": "crea un link de pago wompi para un payment pendiente. idempotente:     si ya ex"
     },
     {
@@ -6399,7 +6399,7 @@
       "source_file": "backend/app/services/receipts.py",
       "source_location": "L1",
       "id": "backend_app_services_receipts_py",
-      "community": 29,
+      "community": 218,
       "norm_label": "receipts.py"
     },
     {
@@ -6408,7 +6408,7 @@
       "source_file": "backend/app/services/receipts.py",
       "source_location": "L11",
       "id": "services_receipts_issue_receipt",
-      "community": 29,
+      "community": 218,
       "norm_label": "issue_receipt()"
     },
     {
@@ -6417,7 +6417,7 @@
       "source_file": "backend/app/services/receipts.py",
       "source_location": "L12",
       "id": "services_receipts_rationale_12",
-      "community": 29,
+      "community": 218,
       "norm_label": "genera el recibo de un pago pagado (idempotente: si ya existe, lo devuelve)."
     },
     {
@@ -8694,7 +8694,7 @@
       "source_file": "backend/tests/test_models.py",
       "source_location": "L1",
       "id": "backend_tests_test_models_py",
-      "community": 6,
+      "community": 227,
       "norm_label": "test_models.py"
     },
     {
@@ -8703,7 +8703,7 @@
       "source_file": "backend/tests/test_models.py",
       "source_location": "L16",
       "id": "tests_test_models_session_fixture",
-      "community": 6,
+      "community": 227,
       "norm_label": "_session_fixture()"
     },
     {
@@ -8712,7 +8712,7 @@
       "source_file": "backend/tests/test_models.py",
       "source_location": "L40",
       "id": "tests_test_models_test_tenant_creation",
-      "community": 6,
+      "community": 227,
       "norm_label": "test_tenant_creation()"
     },
     {
@@ -8721,7 +8721,7 @@
       "source_file": "backend/tests/test_models.py",
       "source_location": "L56",
       "id": "tests_test_models_test_user_staff_creation",
-      "community": 6,
+      "community": 227,
       "norm_label": "test_user_staff_creation()"
     },
     {
@@ -8730,7 +8730,7 @@
       "source_file": "backend/tests/test_models.py",
       "source_location": "L70",
       "id": "tests_test_models_test_location_creation",
-      "community": 6,
+      "community": 227,
       "norm_label": "test_location_creation()"
     },
     {
@@ -11169,7 +11169,7 @@
       "source_file": "frontend/app/(dashboard)/classes/InstructorsCard.tsx",
       "source_location": "L1",
       "id": "frontend_app_dashboard_classes_instructorscard_tsx",
-      "community": 13,
+      "community": 209,
       "norm_label": "instructorscard.tsx"
     },
     {
@@ -11178,7 +11178,7 @@
       "source_file": "frontend/app/(dashboard)/classes/InstructorsCard.tsx",
       "source_location": "L17",
       "id": "classes_instructorscard_instructor",
-      "community": 13,
+      "community": 209,
       "norm_label": "instructor"
     },
     {
@@ -11187,7 +11187,7 @@
       "source_file": "frontend/app/(dashboard)/classes/InstructorsCard.tsx",
       "source_location": "L27",
       "id": "classes_instructorscard_emptyform",
-      "community": 13,
+      "community": 209,
       "norm_label": "emptyform"
     },
     {
@@ -11196,7 +11196,7 @@
       "source_file": "frontend/app/(dashboard)/classes/InstructorsCard.tsx",
       "source_location": "L29",
       "id": "classes_instructorscard_instructorscard",
-      "community": 13,
+      "community": 209,
       "norm_label": "instructorscard()"
     },
     {
@@ -11223,7 +11223,7 @@
       "source_file": "frontend/app/(dashboard)/classes/agenda/AgendaClient.tsx",
       "source_location": "L1",
       "id": "frontend_app_dashboard_classes_agenda_agendaclient_tsx",
-      "community": 86,
+      "community": 209,
       "norm_label": "agendaclient.tsx"
     },
     {
@@ -11232,7 +11232,7 @@
       "source_file": "frontend/app/(dashboard)/classes/agenda/AgendaClient.tsx",
       "source_location": "L31",
       "id": "agenda_agendaclient_sessionitem",
-      "community": 86,
+      "community": 209,
       "norm_label": "sessionitem"
     },
     {
@@ -11241,7 +11241,7 @@
       "source_file": "frontend/app/(dashboard)/classes/agenda/AgendaClient.tsx",
       "source_location": "L46",
       "id": "agenda_agendaclient_rosterentry",
-      "community": 86,
+      "community": 209,
       "norm_label": "rosterentry"
     },
     {
@@ -11250,7 +11250,7 @@
       "source_file": "frontend/app/(dashboard)/classes/agenda/AgendaClient.tsx",
       "source_location": "L56",
       "id": "agenda_agendaclient_minutesof",
-      "community": 86,
+      "community": 209,
       "norm_label": "minutesof()"
     },
     {
@@ -11259,7 +11259,7 @@
       "source_file": "frontend/app/(dashboard)/classes/agenda/AgendaClient.tsx",
       "source_location": "L61",
       "id": "agenda_agendaclient_occupancycolor",
-      "community": 86,
+      "community": 209,
       "norm_label": "occupancycolor()"
     },
     {
@@ -11268,7 +11268,7 @@
       "source_file": "frontend/app/(dashboard)/classes/agenda/AgendaClient.tsx",
       "source_location": "L68",
       "id": "agenda_agendaclient_agendaclient",
-      "community": 86,
+      "community": 209,
       "norm_label": "agendaclient()"
     },
     {
@@ -11277,7 +11277,7 @@
       "source_file": "frontend/app/(dashboard)/classes/agenda/page.tsx",
       "source_location": "L1",
       "id": "frontend_app_dashboard_classes_agenda_page_tsx",
-      "community": 86,
+      "community": 209,
       "norm_label": "page.tsx"
     },
     {
@@ -11286,7 +11286,7 @@
       "source_file": "frontend/app/(dashboard)/classes/agenda/page.tsx",
       "source_location": "L6",
       "id": "agenda_page_agendapage",
-      "community": 86,
+      "community": 209,
       "norm_label": "agendapage()"
     },
     {
@@ -11295,70 +11295,70 @@
       "source_file": "frontend/app/(dashboard)/dashboard/page.tsx",
       "source_location": "L1",
       "id": "frontend_app_dashboard_dashboard_page_tsx",
-      "community": 35,
+      "community": 86,
       "norm_label": "page.tsx"
     },
     {
       "label": "DashboardData",
       "file_type": "code",
       "source_file": "frontend/app/(dashboard)/dashboard/page.tsx",
-      "source_location": "L50",
+      "source_location": "L51",
       "id": "dashboard_page_dashboarddata",
-      "community": 35,
+      "community": 86,
       "norm_label": "dashboarddata"
     },
     {
       "label": "PeriodKey",
       "file_type": "code",
       "source_file": "frontend/app/(dashboard)/dashboard/page.tsx",
-      "source_location": "L68",
+      "source_location": "L69",
       "id": "dashboard_page_periodkey",
-      "community": 35,
+      "community": 86,
       "norm_label": "periodkey"
     },
     {
       "label": "Period",
       "file_type": "code",
       "source_file": "frontend/app/(dashboard)/dashboard/page.tsx",
-      "source_location": "L70",
+      "source_location": "L71",
       "id": "dashboard_page_period",
-      "community": 35,
+      "community": 86,
       "norm_label": "period"
     },
     {
       "label": "PERIODS",
       "file_type": "code",
       "source_file": "frontend/app/(dashboard)/dashboard/page.tsx",
-      "source_location": "L76",
+      "source_location": "L77",
       "id": "dashboard_page_periods",
-      "community": 35,
+      "community": 86,
       "norm_label": "periods"
     },
     {
       "label": "greeting()",
       "file_type": "code",
       "source_file": "frontend/app/(dashboard)/dashboard/page.tsx",
-      "source_location": "L111",
+      "source_location": "L112",
       "id": "dashboard_page_greeting",
-      "community": 35,
+      "community": 86,
       "norm_label": "greeting()"
     },
     {
       "label": "WEEKDAY_MAP",
       "file_type": "code",
       "source_file": "frontend/app/(dashboard)/dashboard/page.tsx",
-      "source_location": "L118",
+      "source_location": "L119",
       "id": "dashboard_page_weekday_map",
-      "community": 35,
+      "community": 86,
       "norm_label": "weekday_map"
     },
     {
       "label": "DashboardPage()",
       "file_type": "code",
       "source_file": "frontend/app/(dashboard)/dashboard/page.tsx",
-      "source_location": "L122",
+      "source_location": "L123",
       "id": "dashboard_page_dashboardpage",
-      "community": 35,
+      "community": 86,
       "norm_label": "dashboardpage()"
     },
     {
@@ -11547,7 +11547,7 @@
       "source_file": "frontend/app/(dashboard)/members/[id]/MemberDetailClient.tsx",
       "source_location": "L1",
       "id": "frontend_app_dashboard_members_id_memberdetailclient_tsx",
-      "community": 101,
+      "community": 38,
       "norm_label": "memberdetailclient.tsx"
     },
     {
@@ -11556,7 +11556,7 @@
       "source_file": "frontend/app/(dashboard)/members/[id]/MemberDetailClient.tsx",
       "source_location": "L47",
       "id": "id_memberdetailclient_tab",
-      "community": 101,
+      "community": 38,
       "norm_label": "tab"
     },
     {
@@ -11565,7 +11565,7 @@
       "source_file": "frontend/app/(dashboard)/members/[id]/MemberDetailClient.tsx",
       "source_location": "L49",
       "id": "id_memberdetailclient_tab_config",
-      "community": 101,
+      "community": 38,
       "norm_label": "tab_config"
     },
     {
@@ -11574,7 +11574,7 @@
       "source_file": "frontend/app/(dashboard)/members/[id]/MemberDetailClient.tsx",
       "source_location": "L58",
       "id": "id_memberdetailclient_timelineevent",
-      "community": 101,
+      "community": 38,
       "norm_label": "timelineevent"
     },
     {
@@ -11583,7 +11583,7 @@
       "source_file": "frontend/app/(dashboard)/members/[id]/MemberDetailClient.tsx",
       "source_location": "L64",
       "id": "id_memberdetailclient_status_pill",
-      "community": 101,
+      "community": 38,
       "norm_label": "status_pill"
     },
     {
@@ -11592,7 +11592,7 @@
       "source_file": "frontend/app/(dashboard)/members/[id]/MemberDetailClient.tsx",
       "source_location": "L97",
       "id": "id_memberdetailclient_membershipstatuspill",
-      "community": 101,
+      "community": 38,
       "norm_label": "membershipstatuspill()"
     },
     {
@@ -11601,7 +11601,7 @@
       "source_file": "frontend/app/(dashboard)/members/[id]/MemberDetailClient.tsx",
       "source_location": "L106",
       "id": "id_memberdetailclient_cardvariants",
-      "community": 101,
+      "community": 38,
       "norm_label": "cardvariants"
     },
     {
@@ -11610,7 +11610,7 @@
       "source_file": "frontend/app/(dashboard)/members/[id]/MemberDetailClient.tsx",
       "source_location": "L111",
       "id": "id_memberdetailclient_memberdetailclient",
-      "community": 101,
+      "community": 38,
       "norm_label": "memberdetailclient()"
     },
     {
@@ -11619,7 +11619,7 @@
       "source_file": "frontend/app/(dashboard)/members/[id]/page.tsx",
       "source_location": "L1",
       "id": "frontend_app_dashboard_members_id_page_tsx",
-      "community": 101,
+      "community": 38,
       "norm_label": "page.tsx"
     },
     {
@@ -11628,7 +11628,7 @@
       "source_file": "frontend/app/(dashboard)/members/[id]/page.tsx",
       "source_location": "L4",
       "id": "id_page_props",
-      "community": 101,
+      "community": 38,
       "norm_label": "props"
     },
     {
@@ -11637,7 +11637,7 @@
       "source_file": "frontend/app/(dashboard)/members/[id]/page.tsx",
       "source_location": "L6",
       "id": "id_page_memberdetailpage",
-      "community": 101,
+      "community": 38,
       "norm_label": "memberdetailpage()"
     },
     {
@@ -12609,7 +12609,7 @@
       "source_file": "frontend/components/common/AnimatedNumber.tsx",
       "source_location": "L1",
       "id": "frontend_components_common_animatednumber_tsx",
-      "community": 220,
+      "community": 16,
       "norm_label": "animatednumber.tsx"
     },
     {
@@ -12618,7 +12618,7 @@
       "source_file": "frontend/components/common/AnimatedNumber.tsx",
       "source_location": "L4",
       "id": "common_animatednumber_animatednumber",
-      "community": 220,
+      "community": 16,
       "norm_label": "animatednumber()"
     },
     {
@@ -12627,7 +12627,7 @@
       "source_file": "frontend/components/common/AreaChartCard.tsx",
       "source_location": "L1",
       "id": "frontend_components_common_areachartcard_tsx",
-      "community": 35,
+      "community": 86,
       "norm_label": "areachartcard.tsx"
     },
     {
@@ -12636,7 +12636,7 @@
       "source_file": "frontend/components/common/AreaChartCard.tsx",
       "source_location": "L15",
       "id": "common_areachartcard_areachartcardprops",
-      "community": 35,
+      "community": 86,
       "norm_label": "areachartcardprops"
     },
     {
@@ -12645,7 +12645,7 @@
       "source_file": "frontend/components/common/AreaChartCard.tsx",
       "source_location": "L33",
       "id": "common_areachartcard_areachartcard",
-      "community": 35,
+      "community": 86,
       "norm_label": "areachartcard()"
     },
     {
@@ -12744,7 +12744,7 @@
       "source_file": "frontend/components/common/EmptyState.tsx",
       "source_location": "L1",
       "id": "frontend_components_common_emptystate_tsx",
-      "community": 86,
+      "community": 13,
       "norm_label": "emptystate.tsx"
     },
     {
@@ -12753,7 +12753,7 @@
       "source_file": "frontend/components/common/EmptyState.tsx",
       "source_location": "L6",
       "id": "common_emptystate_emptystateprops",
-      "community": 86,
+      "community": 13,
       "norm_label": "emptystateprops"
     },
     {
@@ -12762,7 +12762,7 @@
       "source_file": "frontend/components/common/EmptyState.tsx",
       "source_location": "L14",
       "id": "common_emptystate_defaultemptystateicon",
-      "community": 86,
+      "community": 13,
       "norm_label": "defaultemptystateicon()"
     },
     {
@@ -12843,7 +12843,7 @@
       "source_file": "frontend/components/common/MembershipStatusBadge.tsx",
       "source_location": "L1",
       "id": "frontend_components_common_membershipstatusbadge_tsx",
-      "community": 154,
+      "community": 9,
       "norm_label": "membershipstatusbadge.tsx"
     },
     {
@@ -12852,7 +12852,7 @@
       "source_file": "frontend/components/common/MembershipStatusBadge.tsx",
       "source_location": "L3",
       "id": "common_membershipstatusbadge_membershipstatus",
-      "community": 154,
+      "community": 9,
       "norm_label": "membershipstatus"
     },
     {
@@ -12861,7 +12861,7 @@
       "source_file": "frontend/components/common/MembershipStatusBadge.tsx",
       "source_location": "L5",
       "id": "common_membershipstatusbadge_membershipstatusbadgeprops",
-      "community": 154,
+      "community": 9,
       "norm_label": "membershipstatusbadgeprops"
     },
     {
@@ -12870,7 +12870,7 @@
       "source_file": "frontend/components/common/MembershipStatusBadge.tsx",
       "source_location": "L11",
       "id": "common_membershipstatusbadge_getdaysdiff",
-      "community": 154,
+      "community": 9,
       "norm_label": "getdaysdiff()"
     },
     {
@@ -12879,7 +12879,7 @@
       "source_file": "frontend/components/common/MembershipStatusBadge.tsx",
       "source_location": "L19",
       "id": "common_membershipstatusbadge_membershipstatusbadge",
-      "community": 154,
+      "community": 9,
       "norm_label": "membershipstatusbadge()"
     },
     {
@@ -12987,7 +12987,7 @@
       "source_file": "frontend/components/common/QRCodeDisplay.tsx",
       "source_location": "L1",
       "id": "frontend_components_common_qrcodedisplay_tsx",
-      "community": 9,
+      "community": 38,
       "norm_label": "qrcodedisplay.tsx"
     },
     {
@@ -12996,7 +12996,7 @@
       "source_file": "frontend/components/common/QRCodeDisplay.tsx",
       "source_location": "L8",
       "id": "common_qrcodedisplay_qrcodedisplayprops",
-      "community": 9,
+      "community": 38,
       "norm_label": "qrcodedisplayprops"
     },
     {
@@ -13005,7 +13005,7 @@
       "source_file": "frontend/components/common/QRCodeDisplay.tsx",
       "source_location": "L14",
       "id": "common_qrcodedisplay_qrcodedisplay",
-      "community": 9,
+      "community": 38,
       "norm_label": "qrcodedisplay()"
     },
     {
@@ -13041,7 +13041,7 @@
       "source_file": "frontend/components/dashboard/InsightsStrip.tsx",
       "source_location": "L1",
       "id": "frontend_components_dashboard_insightsstrip_tsx",
-      "community": 231,
+      "community": 86,
       "norm_label": "insightsstrip.tsx"
     },
     {
@@ -13050,7 +13050,7 @@
       "source_file": "frontend/components/dashboard/InsightsStrip.tsx",
       "source_location": "L10",
       "id": "dashboard_insightsstrip_tone",
-      "community": 231,
+      "community": 86,
       "norm_label": "tone"
     },
     {
@@ -13059,7 +13059,7 @@
       "source_file": "frontend/components/dashboard/InsightsStrip.tsx",
       "source_location": "L12",
       "id": "dashboard_insightsstrip_insight",
-      "community": 231,
+      "community": 86,
       "norm_label": "insight"
     },
     {
@@ -13068,8 +13068,44 @@
       "source_file": "frontend/components/dashboard/InsightsStrip.tsx",
       "source_location": "L24",
       "id": "dashboard_insightsstrip_insightsstrip",
-      "community": 231,
+      "community": 86,
       "norm_label": "insightsstrip()"
+    },
+    {
+      "label": "LiveNowStrip.tsx",
+      "file_type": "code",
+      "source_file": "frontend/components/dashboard/LiveNowStrip.tsx",
+      "source_location": "L1",
+      "id": "frontend_components_dashboard_livenowstrip_tsx",
+      "community": 154,
+      "norm_label": "livenowstrip.tsx"
+    },
+    {
+      "label": "TodayEntry",
+      "file_type": "code",
+      "source_file": "frontend/components/dashboard/LiveNowStrip.tsx",
+      "source_location": "L15",
+      "id": "dashboard_livenowstrip_todayentry",
+      "community": 154,
+      "norm_label": "todayentry"
+    },
+    {
+      "label": "Birthday",
+      "file_type": "code",
+      "source_file": "frontend/components/dashboard/LiveNowStrip.tsx",
+      "source_location": "L22",
+      "id": "dashboard_livenowstrip_birthday",
+      "community": 154,
+      "norm_label": "birthday"
+    },
+    {
+      "label": "LiveNowStrip()",
+      "file_type": "code",
+      "source_file": "frontend/components/dashboard/LiveNowStrip.tsx",
+      "source_location": "L29",
+      "id": "dashboard_livenowstrip_livenowstrip",
+      "community": 154,
+      "norm_label": "livenowstrip()"
     },
     {
       "label": "OnboardingChecklist.tsx",
@@ -13077,7 +13113,7 @@
       "source_file": "frontend/components/dashboard/OnboardingChecklist.tsx",
       "source_location": "L1",
       "id": "frontend_components_dashboard_onboardingchecklist_tsx",
-      "community": 228,
+      "community": 86,
       "norm_label": "onboardingchecklist.tsx"
     },
     {
@@ -13086,7 +13122,7 @@
       "source_file": "frontend/components/dashboard/OnboardingChecklist.tsx",
       "source_location": "L11",
       "id": "dashboard_onboardingchecklist_onboardingstatus",
-      "community": 228,
+      "community": 86,
       "norm_label": "onboardingstatus"
     },
     {
@@ -13095,7 +13131,7 @@
       "source_file": "frontend/components/dashboard/OnboardingChecklist.tsx",
       "source_location": "L17",
       "id": "dashboard_onboardingchecklist_step",
-      "community": 228,
+      "community": 86,
       "norm_label": "step"
     },
     {
@@ -13104,7 +13140,7 @@
       "source_file": "frontend/components/dashboard/OnboardingChecklist.tsx",
       "source_location": "L24",
       "id": "dashboard_onboardingchecklist_steps",
-      "community": 228,
+      "community": 86,
       "norm_label": "steps"
     },
     {
@@ -13113,7 +13149,7 @@
       "source_file": "frontend/components/dashboard/OnboardingChecklist.tsx",
       "source_location": "L29",
       "id": "dashboard_onboardingchecklist_onboardingchecklist",
-      "community": 228,
+      "community": 86,
       "norm_label": "onboardingchecklist()"
     },
     {
@@ -13122,7 +13158,7 @@
       "source_file": "frontend/components/dashboard/OperationsToday.tsx",
       "source_location": "L1",
       "id": "frontend_components_dashboard_operationstoday_tsx",
-      "community": 218,
+      "community": 86,
       "norm_label": "operationstoday.tsx"
     },
     {
@@ -13131,7 +13167,7 @@
       "source_file": "frontend/components/dashboard/OperationsToday.tsx",
       "source_location": "L11",
       "id": "dashboard_operationstoday_expiringitem",
-      "community": 218,
+      "community": 86,
       "norm_label": "expiringitem"
     },
     {
@@ -13140,7 +13176,7 @@
       "source_file": "frontend/components/dashboard/OperationsToday.tsx",
       "source_location": "L21",
       "id": "dashboard_operationstoday_graceitem",
-      "community": 218,
+      "community": 86,
       "norm_label": "graceitem"
     },
     {
@@ -13149,7 +13185,7 @@
       "source_file": "frontend/components/dashboard/OperationsToday.tsx",
       "source_location": "L31",
       "id": "dashboard_operationstoday_denieditem",
-      "community": 218,
+      "community": 86,
       "norm_label": "denieditem"
     },
     {
@@ -13158,7 +13194,7 @@
       "source_file": "frontend/components/dashboard/OperationsToday.tsx",
       "source_location": "L39",
       "id": "dashboard_operationstoday_operationsdata",
-      "community": 218,
+      "community": 86,
       "norm_label": "operationsdata"
     },
     {
@@ -13167,7 +13203,7 @@
       "source_file": "frontend/components/dashboard/OperationsToday.tsx",
       "source_location": "L46",
       "id": "dashboard_operationstoday_denial_labels",
-      "community": 218,
+      "community": 86,
       "norm_label": "denial_labels"
     },
     {
@@ -13176,7 +13212,7 @@
       "source_file": "frontend/components/dashboard/OperationsToday.tsx",
       "source_location": "L52",
       "id": "dashboard_operationstoday_walink",
-      "community": 218,
+      "community": 86,
       "norm_label": "walink()"
     },
     {
@@ -13185,7 +13221,7 @@
       "source_file": "frontend/components/dashboard/OperationsToday.tsx",
       "source_location": "L58",
       "id": "dashboard_operationstoday_shiftinfo",
-      "community": 218,
+      "community": 86,
       "norm_label": "shiftinfo"
     },
     {
@@ -13194,7 +13230,7 @@
       "source_file": "frontend/components/dashboard/OperationsToday.tsx",
       "source_location": "L63",
       "id": "dashboard_operationstoday_lowstockproduct",
-      "community": 218,
+      "community": 86,
       "norm_label": "lowstockproduct"
     },
     {
@@ -13203,7 +13239,7 @@
       "source_file": "frontend/components/dashboard/OperationsToday.tsx",
       "source_location": "L70",
       "id": "dashboard_operationstoday_operationstoday",
-      "community": 218,
+      "community": 86,
       "norm_label": "operationstoday()"
     },
     {
@@ -13536,7 +13572,7 @@
       "source_file": "frontend/components/members/MemberImportDialog.tsx",
       "source_location": "L31",
       "id": "members_memberimportdialog_memberimportdialog",
-      "community": 9,
+      "community": 13,
       "norm_label": "memberimportdialog()"
     },
     {
@@ -13743,7 +13779,7 @@
       "source_file": "frontend/components/settings/MessagesSection.tsx",
       "source_location": "L1",
       "id": "frontend_components_settings_messagessection_tsx",
-      "community": 209,
+      "community": 220,
       "norm_label": "messagessection.tsx"
     },
     {
@@ -13752,7 +13788,7 @@
       "source_file": "frontend/components/settings/MessagesSection.tsx",
       "source_location": "L13",
       "id": "settings_messagessection_message",
-      "community": 209,
+      "community": 220,
       "norm_label": "message"
     },
     {
@@ -13761,7 +13797,7 @@
       "source_file": "frontend/components/settings/MessagesSection.tsx",
       "source_location": "L23",
       "id": "settings_messagessection_samples",
-      "community": 209,
+      "community": 220,
       "norm_label": "samples"
     },
     {
@@ -13770,7 +13806,7 @@
       "source_file": "frontend/components/settings/MessagesSection.tsx",
       "source_location": "L28",
       "id": "settings_messagessection_renderpreview",
-      "community": 209,
+      "community": 220,
       "norm_label": "renderpreview()"
     },
     {
@@ -13779,7 +13815,7 @@
       "source_file": "frontend/components/settings/MessagesSection.tsx",
       "source_location": "L34",
       "id": "settings_messagessection_status_label",
-      "community": 209,
+      "community": 220,
       "norm_label": "status_label"
     },
     {
@@ -13788,7 +13824,7 @@
       "source_file": "frontend/components/settings/MessagesSection.tsx",
       "source_location": "L41",
       "id": "settings_messagessection_messagecard",
-      "community": 209,
+      "community": 220,
       "norm_label": "messagecard()"
     },
     {
@@ -13797,7 +13833,7 @@
       "source_file": "frontend/components/settings/MessagesSection.tsx",
       "source_location": "L134",
       "id": "settings_messagessection_messagessection",
-      "community": 209,
+      "community": 220,
       "norm_label": "messagessection()"
     },
     {
@@ -14292,7 +14328,7 @@
       "source_file": "frontend/components/ui/city-combobox.tsx",
       "source_location": "L1",
       "id": "frontend_components_ui_city_combobox_tsx",
-      "community": 9,
+      "community": 0,
       "norm_label": "city-combobox.tsx"
     },
     {
@@ -14301,7 +14337,7 @@
       "source_file": "frontend/components/ui/city-combobox.tsx",
       "source_location": "L9",
       "id": "ui_city_combobox_citycomboboxprops",
-      "community": 9,
+      "community": 0,
       "norm_label": "citycomboboxprops"
     },
     {
@@ -14310,7 +14346,7 @@
       "source_file": "frontend/components/ui/city-combobox.tsx",
       "source_location": "L22",
       "id": "ui_city_combobox_citycombobox",
-      "community": 9,
+      "community": 0,
       "norm_label": "citycombobox()"
     },
     {
@@ -14319,7 +14355,7 @@
       "source_file": "frontend/components/ui/country-select.tsx",
       "source_location": "L1",
       "id": "frontend_components_ui_country_select_tsx",
-      "community": 9,
+      "community": 0,
       "norm_label": "country-select.tsx"
     },
     {
@@ -14328,7 +14364,7 @@
       "source_file": "frontend/components/ui/country-select.tsx",
       "source_location": "L8",
       "id": "ui_country_select_countryselectprops",
-      "community": 9,
+      "community": 0,
       "norm_label": "countryselectprops"
     },
     {
@@ -14337,7 +14373,7 @@
       "source_file": "frontend/components/ui/country-select.tsx",
       "source_location": "L17",
       "id": "ui_country_select_countryselect",
-      "community": 9,
+      "community": 0,
       "norm_label": "countryselect()"
     },
     {
@@ -15102,7 +15138,7 @@
       "source_file": "frontend/components/ui/kpi-card.tsx",
       "source_location": "L118",
       "id": "ui_kpi_card_kpicard",
-      "community": 16,
+      "community": 86,
       "norm_label": "kpicard()"
     },
     {
@@ -15795,7 +15831,7 @@
       "source_file": "frontend/components/ui/textarea.tsx",
       "source_location": "L1",
       "id": "frontend_components_ui_textarea_tsx",
-      "community": 9,
+      "community": 101,
       "norm_label": "textarea.tsx"
     },
     {
@@ -15804,7 +15840,7 @@
       "source_file": "frontend/components/ui/textarea.tsx",
       "source_location": "L6",
       "id": "ui_textarea_textareaprops",
-      "community": 9,
+      "community": 101,
       "norm_label": "textareaprops"
     },
     {
@@ -15813,7 +15849,7 @@
       "source_file": "frontend/components/ui/textarea.tsx",
       "source_location": "L11",
       "id": "ui_textarea_textarea",
-      "community": 9,
+      "community": 101,
       "norm_label": "textarea()"
     },
     {
@@ -15822,7 +15858,7 @@
       "source_file": "frontend/components/ui/time-picker.tsx",
       "source_location": "L1",
       "id": "frontend_components_ui_time_picker_tsx",
-      "community": 172,
+      "community": 9,
       "norm_label": "time-picker.tsx"
     },
     {
@@ -15831,7 +15867,7 @@
       "source_file": "frontend/components/ui/time-picker.tsx",
       "source_location": "L7",
       "id": "ui_time_picker_all_times",
-      "community": 172,
+      "community": 9,
       "norm_label": "all_times"
     },
     {
@@ -15840,7 +15876,7 @@
       "source_file": "frontend/components/ui/time-picker.tsx",
       "source_location": "L13",
       "id": "ui_time_picker_getgroup",
-      "community": 172,
+      "community": 9,
       "norm_label": "getgroup()"
     },
     {
@@ -15849,7 +15885,7 @@
       "source_file": "frontend/components/ui/time-picker.tsx",
       "source_location": "L20",
       "id": "ui_time_picker_timepickerprops",
-      "community": 172,
+      "community": 9,
       "norm_label": "timepickerprops"
     },
     {
@@ -15858,7 +15894,7 @@
       "source_file": "frontend/components/ui/time-picker.tsx",
       "source_location": "L26",
       "id": "ui_time_picker_timepicker",
-      "community": 172,
+      "community": 9,
       "norm_label": "timepicker()"
     },
     {
@@ -15903,7 +15939,7 @@
       "source_file": "frontend/components/ui/weekday-picker.tsx",
       "source_location": "L1",
       "id": "frontend_components_ui_weekday_picker_tsx",
-      "community": 227,
+      "community": 9,
       "norm_label": "weekday-picker.tsx"
     },
     {
@@ -15912,7 +15948,7 @@
       "source_file": "frontend/components/ui/weekday-picker.tsx",
       "source_location": "L6",
       "id": "ui_weekday_picker_days",
-      "community": 227,
+      "community": 9,
       "norm_label": "days"
     },
     {
@@ -15921,7 +15957,7 @@
       "source_file": "frontend/components/ui/weekday-picker.tsx",
       "source_location": "L8",
       "id": "ui_weekday_picker_weekdaypickerprops",
-      "community": 227,
+      "community": 9,
       "norm_label": "weekdaypickerprops"
     },
     {
@@ -15930,7 +15966,7 @@
       "source_file": "frontend/components/ui/weekday-picker.tsx",
       "source_location": "L13",
       "id": "ui_weekday_picker_weekdaypicker",
-      "community": 227,
+      "community": 9,
       "norm_label": "weekdaypicker()"
     },
     {
@@ -16083,7 +16119,7 @@
       "source_file": "frontend/lib/format.ts",
       "source_location": "L1",
       "id": "frontend_lib_format_ts",
-      "community": 101,
+      "community": 209,
       "norm_label": "format.ts"
     },
     {
@@ -16092,7 +16128,7 @@
       "source_file": "frontend/lib/format.ts",
       "source_location": "L4",
       "id": "lib_format_copformatter",
-      "community": 101,
+      "community": 209,
       "norm_label": "copformatter"
     },
     {
@@ -16101,7 +16137,7 @@
       "source_file": "frontend/lib/format.ts",
       "source_location": "L11",
       "id": "lib_format_copcompactformatter",
-      "community": 101,
+      "community": 209,
       "norm_label": "copcompactformatter"
     },
     {
@@ -16110,7 +16146,7 @@
       "source_file": "frontend/lib/format.ts",
       "source_location": "L16",
       "id": "lib_format_formatcop",
-      "community": 101,
+      "community": 209,
       "norm_label": "formatcop()"
     },
     {
@@ -16119,7 +16155,7 @@
       "source_file": "frontend/lib/format.ts",
       "source_location": "L20",
       "id": "lib_format_formatcopcompact",
-      "community": 101,
+      "community": 209,
       "norm_label": "formatcopcompact()"
     },
     {
@@ -16128,7 +16164,7 @@
       "source_file": "frontend/lib/format.ts",
       "source_location": "L26",
       "id": "lib_format_parseutc",
-      "community": 101,
+      "community": 209,
       "norm_label": "parseutc()"
     },
     {
@@ -16146,7 +16182,7 @@
       "source_file": "frontend/lib/format.ts",
       "source_location": "L39",
       "id": "lib_format_formattimeago",
-      "community": 101,
+      "community": 209,
       "norm_label": "formattimeago()"
     },
     {
@@ -19431,7 +19467,7 @@
       "source_file": "docs/superpowers/plans/2026-04-30-plan-1-foundation.md",
       "source_location": "L723",
       "id": "plans_2026_04_30_plan_1_foundation_chunk_3_autenticaci\u00f3n_backend",
-      "community": 109,
+      "community": 119,
       "norm_label": "chunk 3: autenticacion backend"
     },
     {
@@ -23201,7 +23237,7 @@
       "file_type": "rationale",
       "source_file": "backend/app/api/v1/payments.py",
       "source_location": "L424",
-      "community": 29,
+      "community": 172,
       "norm_label": "genera un link de pago wompi para un pago pendiente.",
       "id": "v1_payments_rationale_424"
     },
@@ -23210,7 +23246,7 @@
       "file_type": "rationale",
       "source_file": "backend/app/services/checkin.py",
       "source_location": "L80",
-      "community": 19,
+      "community": 35,
       "norm_label": "si el miembro tiene reserva en una sesion de hoy que empieza dentro de     \u00b160 m",
       "id": "services_checkin_rationale_80"
     },
@@ -23219,7 +23255,7 @@
       "file_type": "rationale",
       "source_file": "backend/app/services/checkin.py",
       "source_location": "L112",
-      "community": 19,
+      "community": 35,
       "norm_label": "registra el check-in (allowed/denied segun membresia), marca asistencia a     cl",
       "id": "services_checkin_rationale_112"
     },
@@ -23354,7 +23390,7 @@
       "file_type": "rationale",
       "source_file": "backend/app/api/v1/members.py",
       "source_location": "L145",
-      "community": 17,
+      "community": 8,
       "norm_label": "resumen de cobro para el pos: membresia vigente/ultima, dias vencidos,     sald",
       "id": "v1_members_rationale_145"
     },
@@ -23363,7 +23399,7 @@
       "file_type": "rationale",
       "source_file": "backend/app/api/v1/members.py",
       "source_location": "L218",
-      "community": 8,
+      "community": 228,
       "norm_label": "actividad unificada del miembro: check-ins, pagos, membresias y reservas,     e",
       "id": "v1_members_rationale_218"
     },
@@ -23534,7 +23570,7 @@
       "file_type": "rationale",
       "source_file": "backend/app/api/v1/kiosk.py",
       "source_location": "L45",
-      "community": 19,
+      "community": 156,
       "norm_label": "check-in desde el kiosko de la entrada. respuesta minima: sin pii mas     alla d",
       "id": "v1_kiosk_rationale_45"
     },
@@ -23615,7 +23651,7 @@
       "file_type": "rationale",
       "source_file": "backend/app/api/v1/members.py",
       "source_location": "L143",
-      "community": 17,
+      "community": 8,
       "norm_label": "resumen de cobro para el pos: membresia vigente/ultima, dias vencidos,     sald",
       "id": "v1_members_rationale_143"
     },
@@ -23624,7 +23660,7 @@
       "file_type": "rationale",
       "source_file": "backend/app/api/v1/members.py",
       "source_location": "L216",
-      "community": 8,
+      "community": 228,
       "norm_label": "actividad unificada del miembro: check-ins, pagos, membresias y reservas,     e",
       "id": "v1_members_rationale_216"
     },
@@ -23750,7 +23786,7 @@
       "file_type": "rationale",
       "source_file": "backend/app/api/v1/members.py",
       "source_location": "L144",
-      "community": 17,
+      "community": 8,
       "norm_label": "resumen de cobro para el pos: membresia vigente/ultima, dias vencidos,     sald",
       "id": "v1_members_rationale_144"
     },
@@ -23759,7 +23795,7 @@
       "file_type": "rationale",
       "source_file": "backend/app/api/v1/members.py",
       "source_location": "L217",
-      "community": 8,
+      "community": 228,
       "norm_label": "actividad unificada del miembro: check-ins, pagos, membresias y reservas,     e",
       "id": "v1_members_rationale_217"
     },
@@ -23858,7 +23894,7 @@
       "file_type": "rationale",
       "source_file": "backend/app/services/payment_links.py",
       "source_location": "L23",
-      "community": 192,
+      "community": 172,
       "norm_label": "crea un link de pago wompi para un payment pendiente. idempotente:     si ya exi",
       "id": "services_payment_links_rationale_23"
     },
@@ -24047,7 +24083,7 @@
       "file_type": "rationale",
       "source_file": "backend/app/services/jobs.py",
       "source_location": "L40",
-      "community": 38,
+      "community": 158,
       "norm_label": "true si el miembro ya tiene otra membresia vigente/programada que arranca     de",
       "id": "services_jobs_rationale_40"
     },
@@ -24056,7 +24092,7 @@
       "file_type": "rationale",
       "source_file": "backend/app/services/jobs.py",
       "source_location": "L54",
-      "community": 38,
+      "community": 158,
       "norm_label": "link wompi de renovacion para incluir en recordatorios. reutiliza un link     pe",
       "id": "services_jobs_rationale_54"
     },
@@ -24065,7 +24101,7 @@
       "file_type": "rationale",
       "source_file": "backend/app/services/jobs.py",
       "source_location": "L108",
-      "community": 38,
+      "community": 158,
       "norm_label": "encola recordatorios de vencimiento a d-3, d-0 y vencida d+3 (idempotente     po",
       "id": "services_jobs_rationale_108"
     },
@@ -24137,7 +24173,7 @@
       "file_type": "rationale",
       "source_file": "backend/app/api/v1/member_plans.py",
       "source_location": "L267",
-      "community": 149,
+      "community": 169,
       "norm_label": "cobro pos en un paso: crea/renueva la membresia, marca el pago como pagado",
       "id": "v1_member_plans_rationale_267"
     },
@@ -24146,7 +24182,7 @@
       "file_type": "rationale",
       "source_file": "backend/app/api/v1/payments.py",
       "source_location": "L192",
-      "community": 29,
+      "community": 231,
       "norm_label": "caja: ingresos pagados de hoy y del mes, con desglose por metodo.",
       "id": "v1_payments_rationale_192"
     },
@@ -24155,7 +24191,7 @@
       "file_type": "rationale",
       "source_file": "backend/app/api/v1/payments.py",
       "source_location": "L224",
-      "community": 17,
+      "community": 8,
       "norm_label": "cuentas por cobrar: membresias vencidas/en gracia (\u226430 dias) para renovar,",
       "id": "v1_payments_rationale_224"
     },
@@ -24173,7 +24209,7 @@
       "file_type": "rationale",
       "source_file": "backend/app/api/v1/payments.py",
       "source_location": "L397",
-      "community": 29,
+      "community": 172,
       "norm_label": "genera un link de pago wompi para un pago pendiente.",
       "id": "v1_payments_rationale_397"
     },
@@ -24218,7 +24254,7 @@
       "file_type": "rationale",
       "source_file": "backend/app/services/membership_status.py",
       "source_location": "L12",
-      "community": 149,
+      "community": 8,
       "norm_label": "estado real de una membresia derivado de end_date/status (compute-on-read).",
       "id": "services_membership_status_rationale_12"
     },
@@ -24389,7 +24425,7 @@
       "file_type": "rationale",
       "source_file": "backend/app/api/v1/payments.py",
       "source_location": "L108",
-      "community": 29,
+      "community": 231,
       "norm_label": "caja: ingresos pagados de hoy y del mes, con desglose por metodo.",
       "id": "v1_payments_rationale_108"
     },
@@ -24407,7 +24443,7 @@
       "file_type": "rationale",
       "source_file": "backend/app/api/v1/payments.py",
       "source_location": "L217",
-      "community": 29,
+      "community": 172,
       "norm_label": "genera un link de pago wompi para un pago pendiente.",
       "id": "v1_payments_rationale_217"
     },
@@ -24416,7 +24452,7 @@
       "file_type": "rationale",
       "source_file": "backend/app/services/receipts.py",
       "source_location": "L11",
-      "community": 29,
+      "community": 218,
       "norm_label": "genera el recibo de un pago pagado (idempotente: si ya existe, lo devuelve).",
       "id": "services_receipts_rationale_11"
     },
@@ -24443,7 +24479,7 @@
       "file_type": "code",
       "source_file": "frontend/app/(dashboard)/dashboard/page.tsx",
       "source_location": "L107",
-      "community": 35,
+      "community": 86,
       "norm_label": "formatcop()",
       "id": "dashboard_page_formatcop"
     },
@@ -24452,7 +24488,7 @@
       "file_type": "code",
       "source_file": "frontend/app/(dashboard)/members/[id]/MemberDetailClient.tsx",
       "source_location": "L54",
-      "community": 101,
+      "community": 38,
       "norm_label": "formatcop()",
       "id": "id_memberdetailclient_formatcop"
     },
@@ -24739,7 +24775,7 @@
       "file_type": "rationale",
       "source_file": "backend/app/api/v1/payments.py",
       "source_location": "L74",
-      "community": 29,
+      "community": 231,
       "norm_label": "caja: ingresos pagados de hoy y del mes, con desglose por metodo.",
       "id": "v1_payments_rationale_74"
     },
@@ -24811,7 +24847,7 @@
       "file_type": "rationale",
       "source_file": "backend/app/services/membership_status.py",
       "source_location": "L7",
-      "community": 149,
+      "community": 8,
       "norm_label": "estado real de una membresia derivado de end_date/status (compute-on-read).",
       "id": "services_membership_status_rationale_7"
     },
@@ -24820,7 +24856,7 @@
       "file_type": "code",
       "source_file": "backend/tests/test_models.py",
       "source_location": "L17",
-      "community": 6,
+      "community": 227,
       "norm_label": "db_session()",
       "id": "tests_test_models_db_session"
     },
@@ -24982,7 +25018,7 @@
       "file_type": "code",
       "source_file": "frontend/app/(dashboard)/dashboard/page.tsx",
       "source_location": "L114",
-      "community": 35,
+      "community": 86,
       "norm_label": "tooltipstyle",
       "id": "dashboard_page_tooltipstyle"
     },
@@ -24991,7 +25027,7 @@
       "file_type": "code",
       "source_file": "frontend/components/dashboard/KPICard.tsx",
       "source_location": "L1",
-      "community": 220,
+      "community": 16,
       "norm_label": "kpicard.tsx",
       "id": "frontend_components_dashboard_kpicard_tsx"
     },
@@ -25000,7 +25036,7 @@
       "file_type": "code",
       "source_file": "frontend/components/dashboard/KPICard.tsx",
       "source_location": "L9",
-      "community": 220,
+      "community": 16,
       "norm_label": "sparkline()",
       "id": "dashboard_kpicard_sparkline"
     },
@@ -25009,7 +25045,7 @@
       "file_type": "code",
       "source_file": "frontend/components/dashboard/KPICard.tsx",
       "source_location": "L55",
-      "community": 220,
+      "community": 16,
       "norm_label": "colormap",
       "id": "dashboard_kpicard_colormap"
     },
@@ -25018,7 +25054,7 @@
       "file_type": "code",
       "source_file": "frontend/components/dashboard/KPICard.tsx",
       "source_location": "L107",
-      "community": 220,
+      "community": 16,
       "norm_label": "kpicardprops",
       "id": "dashboard_kpicard_kpicardprops"
     },
@@ -25027,7 +25063,7 @@
       "file_type": "code",
       "source_file": "frontend/components/dashboard/KPICard.tsx",
       "source_location": "L122",
-      "community": 220,
+      "community": 16,
       "norm_label": "cardvariants",
       "id": "dashboard_kpicard_cardvariants"
     },
@@ -25036,7 +25072,7 @@
       "file_type": "code",
       "source_file": "frontend/components/dashboard/KPICard.tsx",
       "source_location": "L132",
-      "community": 220,
+      "community": 16,
       "norm_label": "kpicard()",
       "id": "dashboard_kpicard_kpicard"
     },
@@ -25117,7 +25153,7 @@
       "file_type": "code",
       "source_file": "frontend/app/(dashboard)/members/[id]/MemberDetailClient.tsx",
       "source_location": "L13",
-      "community": 101,
+      "community": 38,
       "norm_label": "tab_labels",
       "id": "id_memberdetailclient_tab_labels"
     },
@@ -25135,7 +25171,7 @@
       "file_type": "code",
       "source_file": "frontend/components/dashboard/KPICard.tsx",
       "source_location": "L20",
-      "community": 220,
+      "community": 16,
       "norm_label": "iconcirclestyles",
       "id": "dashboard_kpicard_iconcirclestyles"
     },
@@ -26505,9 +26541,9 @@
       "source_file": "backend/app/api/v1/kiosk.py",
       "source_location": "L157",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "v1_kiosk_deviceupdate",
-      "target": "basemodel",
-      "confidence_score": 1.0
+      "target": "basemodel"
     },
     {
       "relation": "inherits",
@@ -29036,9 +29072,9 @@
       "source_file": "backend/app/api/v1/kiosk.py",
       "source_location": "L157",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "backend_app_api_v1_kiosk_py",
-      "target": "v1_kiosk_deviceupdate",
-      "confidence_score": 1.0
+      "target": "v1_kiosk_deviceupdate"
     },
     {
       "relation": "contains",
@@ -29046,9 +29082,9 @@
       "source_file": "backend/app/api/v1/kiosk.py",
       "source_location": "L162",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "backend_app_api_v1_kiosk_py",
-      "target": "v1_kiosk_rename_device",
-      "confidence_score": 1.0
+      "target": "v1_kiosk_rename_device"
     },
     {
       "relation": "contains",
@@ -29056,9 +29092,9 @@
       "source_file": "backend/app/api/v1/kiosk.py",
       "source_location": "L182",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "backend_app_api_v1_kiosk_py",
-      "target": "v1_kiosk_regenerate_device_link",
-      "confidence_score": 1.0
+      "target": "v1_kiosk_regenerate_device_link"
     },
     {
       "relation": "contains",
@@ -29261,9 +29297,9 @@
       "source_file": "backend/app/api/v1/kiosk.py",
       "source_location": "L18",
       "weight": 0.8,
+      "confidence_score": 0.5,
       "source": "v1_kiosk_deviceupdate",
-      "target": "tenant_kiosk_device_kioskdevice",
-      "confidence_score": 0.5
+      "target": "tenant_kiosk_device_kioskdevice"
     },
     {
       "relation": "uses",
@@ -29271,9 +29307,9 @@
       "source_file": "backend/app/api/v1/kiosk.py",
       "source_location": "L19",
       "weight": 0.8,
+      "confidence_score": 0.5,
       "source": "v1_kiosk_deviceupdate",
-      "target": "tenant_member_member",
-      "confidence_score": 0.5
+      "target": "tenant_member_member"
     },
     {
       "relation": "uses",
@@ -29281,9 +29317,9 @@
       "source_file": "backend/app/api/v1/kiosk.py",
       "source_location": "L20",
       "weight": 0.8,
+      "confidence_score": 0.5,
       "source": "v1_kiosk_deviceupdate",
-      "target": "tenant_user_staff_userstaff",
-      "confidence_score": 0.5
+      "target": "tenant_user_staff_userstaff"
     },
     {
       "relation": "uses",
@@ -29291,9 +29327,9 @@
       "source_file": "backend/app/api/v1/kiosk.py",
       "source_location": "L20",
       "weight": 0.8,
+      "confidence_score": 0.5,
       "source": "v1_kiosk_deviceupdate",
-      "target": "tenant_user_staff_userrole",
-      "confidence_score": 0.5
+      "target": "tenant_user_staff_userrole"
     },
     {
       "relation": "calls",
@@ -29312,9 +29348,9 @@
       "source_file": "backend/app/api/v1/kiosk.py",
       "source_location": "L188",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "v1_kiosk_rationale_188",
-      "target": "v1_kiosk_regenerate_device_link",
-      "confidence_score": 1.0
+      "target": "v1_kiosk_regenerate_device_link"
     },
     {
       "relation": "calls",
@@ -45039,9 +45075,9 @@
       "source_file": "backend/tests/test_cedula_unica.py",
       "source_location": "L46",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "backend_tests_test_cedula_unica_py",
-      "target": "tests_test_cedula_unica_test_create_with_incomplete_parq_is_422",
-      "confidence_score": 1.0
+      "target": "tests_test_cedula_unica_test_create_with_incomplete_parq_is_422"
     },
     {
       "relation": "contains",
@@ -45049,9 +45085,9 @@
       "source_file": "backend/tests/test_cedula_unica.py",
       "source_location": "L55",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "backend_tests_test_cedula_unica_py",
-      "target": "tests_test_cedula_unica_test_create_without_plan_is_422",
-      "confidence_score": 1.0
+      "target": "tests_test_cedula_unica_test_create_without_plan_is_422"
     },
     {
       "relation": "contains",
@@ -45111,9 +45147,9 @@
       "source_file": "backend/tests/test_cedula_unica.py",
       "source_location": "L47",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "tests_test_cedula_unica_test_create_with_incomplete_parq_is_422",
-      "target": "tests_test_cedula_unica_owner_token",
-      "confidence_score": 1.0
+      "target": "tests_test_cedula_unica_owner_token"
     },
     {
       "relation": "calls",
@@ -45122,9 +45158,9 @@
       "source_file": "backend/tests/test_cedula_unica.py",
       "source_location": "L56",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "tests_test_cedula_unica_test_create_without_plan_is_422",
-      "target": "tests_test_cedula_unica_owner_token",
-      "confidence_score": 1.0
+      "target": "tests_test_cedula_unica_owner_token"
     },
     {
       "relation": "calls",
@@ -45199,9 +45235,9 @@
       "source_file": "backend/tests/test_cedula_unica.py",
       "source_location": "L50",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "tests_test_cedula_unica_test_create_with_incomplete_parq_is_422",
-      "target": "tests_test_cedula_unica_auth",
-      "confidence_score": 1.0
+      "target": "tests_test_cedula_unica_auth"
     },
     {
       "relation": "calls",
@@ -45210,9 +45246,9 @@
       "source_file": "backend/tests/test_cedula_unica.py",
       "source_location": "L59",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "tests_test_cedula_unica_test_create_without_plan_is_422",
-      "target": "tests_test_cedula_unica_auth",
-      "confidence_score": 1.0
+      "target": "tests_test_cedula_unica_auth"
     },
     {
       "relation": "calls",
@@ -45276,9 +45312,9 @@
       "source_file": "backend/tests/test_cedula_unica.py",
       "source_location": "L48",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "tests_test_cedula_unica_test_create_with_incomplete_parq_is_422",
-      "target": "tests_test_cedula_unica_member_payload",
-      "confidence_score": 1.0
+      "target": "tests_test_cedula_unica_member_payload"
     },
     {
       "relation": "calls",
@@ -45287,9 +45323,9 @@
       "source_file": "backend/tests/test_cedula_unica.py",
       "source_location": "L57",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "tests_test_cedula_unica_test_create_without_plan_is_422",
-      "target": "tests_test_cedula_unica_member_payload",
-      "confidence_score": 1.0
+      "target": "tests_test_cedula_unica_member_payload"
     },
     {
       "relation": "calls",
@@ -46722,9 +46758,9 @@
       "source_file": "backend/tests/test_kiosk.py",
       "source_location": "L166",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "backend_tests_test_kiosk_py",
-      "target": "tests_test_kiosk_test_device_rename",
-      "confidence_score": 1.0
+      "target": "tests_test_kiosk_test_device_rename"
     },
     {
       "relation": "contains",
@@ -46732,9 +46768,9 @@
       "source_file": "backend/tests/test_kiosk.py",
       "source_location": "L180",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "backend_tests_test_kiosk_py",
-      "target": "tests_test_kiosk_test_device_regenerate_link_rotates_token",
-      "confidence_score": 1.0
+      "target": "tests_test_kiosk_test_device_regenerate_link_rotates_token"
     },
     {
       "relation": "calls",
@@ -46820,9 +46856,9 @@
       "source_file": "backend/tests/test_kiosk.py",
       "source_location": "L167",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "tests_test_kiosk_test_device_rename",
-      "target": "tests_test_kiosk_owner_token",
-      "confidence_score": 1.0
+      "target": "tests_test_kiosk_owner_token"
     },
     {
       "relation": "calls",
@@ -46831,9 +46867,9 @@
       "source_file": "backend/tests/test_kiosk.py",
       "source_location": "L181",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "tests_test_kiosk_test_device_regenerate_link_rotates_token",
-      "target": "tests_test_kiosk_owner_token",
-      "confidence_score": 1.0
+      "target": "tests_test_kiosk_owner_token"
     },
     {
       "relation": "calls",
@@ -46952,9 +46988,9 @@
       "source_file": "backend/tests/test_kiosk.py",
       "source_location": "L171",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "tests_test_kiosk_test_device_rename",
-      "target": "tests_test_kiosk_auth",
-      "confidence_score": 1.0
+      "target": "tests_test_kiosk_auth"
     },
     {
       "relation": "calls",
@@ -46963,9 +46999,9 @@
       "source_file": "backend/tests/test_kiosk.py",
       "source_location": "L185",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "tests_test_kiosk_test_device_regenerate_link_rotates_token",
-      "target": "tests_test_kiosk_auth",
-      "confidence_score": 1.0
+      "target": "tests_test_kiosk_auth"
     },
     {
       "relation": "calls",
@@ -47040,9 +47076,9 @@
       "source_file": "backend/tests/test_kiosk.py",
       "source_location": "L168",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "tests_test_kiosk_test_device_rename",
-      "target": "tests_test_kiosk_device_token",
-      "confidence_score": 1.0
+      "target": "tests_test_kiosk_device_token"
     },
     {
       "relation": "calls",
@@ -47051,9 +47087,9 @@
       "source_file": "backend/tests/test_kiosk.py",
       "source_location": "L182",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "tests_test_kiosk_test_device_regenerate_link_rotates_token",
-      "target": "tests_test_kiosk_device_token",
-      "confidence_score": 1.0
+      "target": "tests_test_kiosk_device_token"
     },
     {
       "relation": "calls",
@@ -52290,9 +52326,9 @@
       "source_file": "frontend/app/(dashboard)/layout.tsx",
       "source_location": "L6",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "frontend_app_dashboard_layout_tsx",
-      "target": "frontend_components_common_checkintoaster_tsx",
-      "confidence_score": 1.0
+      "target": "frontend_components_common_checkintoaster_tsx"
     },
     {
       "relation": "imports",
@@ -52301,9 +52337,9 @@
       "source_file": "frontend/app/(dashboard)/layout.tsx",
       "source_location": "L6",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "frontend_app_dashboard_layout_tsx",
-      "target": "common_checkintoaster_checkintoaster",
-      "confidence_score": 1.0
+      "target": "common_checkintoaster_checkintoaster"
     },
     {
       "relation": "contains",
@@ -53041,9 +53077,9 @@
       "source_file": "frontend/app/(dashboard)/checkins/CheckinsClient.tsx",
       "source_location": "L134",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "frontend_app_dashboard_checkins_checkinsclient_tsx",
-      "target": "checkins_checkinsclient_tvmode",
-      "confidence_score": 1.0
+      "target": "checkins_checkinsclient_tvmode"
     },
     {
       "relation": "contains",
@@ -55069,6 +55105,28 @@
       "confidence_score": 1.0,
       "source": "frontend_app_dashboard_dashboard_page_tsx",
       "target": "dashboard_insightsstrip_insightsstrip"
+    },
+    {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "frontend/app/(dashboard)/dashboard/page.tsx",
+      "source_location": "L15",
+      "weight": 1.0,
+      "source": "frontend_app_dashboard_dashboard_page_tsx",
+      "target": "frontend_components_dashboard_livenowstrip_tsx",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "frontend/app/(dashboard)/dashboard/page.tsx",
+      "source_location": "L15",
+      "weight": 1.0,
+      "source": "frontend_app_dashboard_dashboard_page_tsx",
+      "target": "dashboard_livenowstrip_livenowstrip",
+      "confidence_score": 1.0
     },
     {
       "relation": "imports_from",
@@ -62282,9 +62340,9 @@
       "source_file": "frontend/components/common/CheckinToaster.tsx",
       "source_location": "L8",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "frontend_components_common_checkintoaster_tsx",
-      "target": "frontend_lib_api_ts",
-      "confidence_score": 1.0
+      "target": "frontend_lib_api_ts"
     },
     {
       "relation": "imports",
@@ -62293,9 +62351,9 @@
       "source_file": "frontend/components/common/CheckinToaster.tsx",
       "source_location": "L8",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "frontend_components_common_checkintoaster_tsx",
-      "target": "lib_api_apiclient",
-      "confidence_score": 1.0
+      "target": "lib_api_apiclient"
     },
     {
       "relation": "imports_from",
@@ -62304,9 +62362,9 @@
       "source_file": "frontend/components/common/CheckinToaster.tsx",
       "source_location": "L9",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "frontend_components_common_checkintoaster_tsx",
-      "target": "frontend_lib_format_ts",
-      "confidence_score": 1.0
+      "target": "frontend_lib_format_ts"
     },
     {
       "relation": "imports",
@@ -62315,9 +62373,9 @@
       "source_file": "frontend/components/common/CheckinToaster.tsx",
       "source_location": "L9",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "frontend_components_common_checkintoaster_tsx",
-      "target": "lib_format_formatcop",
-      "confidence_score": 1.0
+      "target": "lib_format_formatcop"
     },
     {
       "relation": "imports_from",
@@ -62326,9 +62384,9 @@
       "source_file": "frontend/components/common/CheckinToaster.tsx",
       "source_location": "L10",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "frontend_components_common_checkintoaster_tsx",
-      "target": "frontend_components_ui_button_tsx",
-      "confidence_score": 1.0
+      "target": "frontend_components_ui_button_tsx"
     },
     {
       "relation": "imports",
@@ -62337,9 +62395,9 @@
       "source_file": "frontend/components/common/CheckinToaster.tsx",
       "source_location": "L10",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "frontend_components_common_checkintoaster_tsx",
-      "target": "ui_button_button",
-      "confidence_score": 1.0
+      "target": "ui_button_button"
     },
     {
       "relation": "imports_from",
@@ -62348,9 +62406,9 @@
       "source_file": "frontend/components/common/CheckinToaster.tsx",
       "source_location": "L11",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "frontend_components_common_checkintoaster_tsx",
-      "target": "frontend_components_ui_input_tsx",
-      "confidence_score": 1.0
+      "target": "frontend_components_ui_input_tsx"
     },
     {
       "relation": "imports",
@@ -62359,9 +62417,9 @@
       "source_file": "frontend/components/common/CheckinToaster.tsx",
       "source_location": "L11",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "frontend_components_common_checkintoaster_tsx",
-      "target": "ui_input_input",
-      "confidence_score": 1.0
+      "target": "ui_input_input"
     },
     {
       "relation": "imports_from",
@@ -62370,9 +62428,9 @@
       "source_file": "frontend/components/common/CheckinToaster.tsx",
       "source_location": "L12",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "frontend_components_common_checkintoaster_tsx",
-      "target": "frontend_hooks_usereceptionevents_ts",
-      "confidence_score": 1.0
+      "target": "frontend_hooks_usereceptionevents_ts"
     },
     {
       "relation": "imports",
@@ -62381,9 +62439,9 @@
       "source_file": "frontend/components/common/CheckinToaster.tsx",
       "source_location": "L12",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "frontend_components_common_checkintoaster_tsx",
-      "target": "hooks_usereceptionevents_usereceptionevents",
-      "confidence_score": 1.0
+      "target": "hooks_usereceptionevents_usereceptionevents"
     },
     {
       "relation": "imports",
@@ -62392,9 +62450,9 @@
       "source_file": "frontend/components/common/CheckinToaster.tsx",
       "source_location": "L12",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "frontend_components_common_checkintoaster_tsx",
-      "target": "hooks_usereceptionevents_receptionevent",
-      "confidence_score": 1.0
+      "target": "hooks_usereceptionevents_receptionevent"
     },
     {
       "relation": "contains",
@@ -62402,9 +62460,9 @@
       "source_file": "frontend/components/common/CheckinToaster.tsx",
       "source_location": "L19",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "frontend_components_common_checkintoaster_tsx",
-      "target": "common_checkintoaster_denial_labels",
-      "confidence_score": 1.0
+      "target": "common_checkintoaster_denial_labels"
     },
     {
       "relation": "contains",
@@ -62412,9 +62470,9 @@
       "source_file": "frontend/components/common/CheckinToaster.tsx",
       "source_location": "L26",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "frontend_components_common_checkintoaster_tsx",
-      "target": "common_checkintoaster_stackedevent",
-      "confidence_score": 1.0
+      "target": "common_checkintoaster_stackedevent"
     },
     {
       "relation": "contains",
@@ -62422,9 +62480,9 @@
       "source_file": "frontend/components/common/CheckinToaster.tsx",
       "source_location": "L30",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "frontend_components_common_checkintoaster_tsx",
-      "target": "common_checkintoaster_toastcard",
-      "confidence_score": 1.0
+      "target": "common_checkintoaster_toastcard"
     },
     {
       "relation": "contains",
@@ -62432,9 +62490,9 @@
       "source_file": "frontend/components/common/CheckinToaster.tsx",
       "source_location": "L128",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "frontend_components_common_checkintoaster_tsx",
-      "target": "common_checkintoaster_checkintoaster",
-      "confidence_score": 1.0
+      "target": "common_checkintoaster_checkintoaster"
     },
     {
       "relation": "calls",
@@ -62599,6 +62657,17 @@
       "relation": "imports_from",
       "context": "import",
       "confidence": "EXTRACTED",
+      "source_file": "frontend/components/dashboard/LiveNowStrip.tsx",
+      "source_location": "L8",
+      "weight": 1.0,
+      "source": "frontend_components_dashboard_livenowstrip_tsx",
+      "target": "frontend_components_common_glasscard_tsx",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
       "source_file": "frontend/components/dashboard/OnboardingChecklist.tsx",
       "source_location": "L7",
       "weight": 1.0,
@@ -62748,6 +62817,17 @@
       "confidence_score": 1.0,
       "source": "settings_plansection_plansection",
       "target": "frontend_components_common_glasscard_tsx"
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "frontend/components/dashboard/LiveNowStrip.tsx",
+      "source_location": "L8",
+      "weight": 1.0,
+      "source": "frontend_components_dashboard_livenowstrip_tsx",
+      "target": "common_glasscard_glasscard",
+      "confidence_score": 1.0
     },
     {
       "relation": "imports",
@@ -63449,6 +63529,146 @@
       "confidence_score": 1.0,
       "source": "frontend_components_dashboard_insightsstrip_tsx",
       "target": "dashboard_insightsstrip_insightsstrip"
+    },
+    {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "frontend/components/dashboard/LiveNowStrip.tsx",
+      "source_location": "L9",
+      "weight": 1.0,
+      "source": "frontend_components_dashboard_livenowstrip_tsx",
+      "target": "frontend_lib_api_ts",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "frontend/components/dashboard/LiveNowStrip.tsx",
+      "source_location": "L9",
+      "weight": 1.0,
+      "source": "frontend_components_dashboard_livenowstrip_tsx",
+      "target": "lib_api_apiclient",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "frontend/components/dashboard/LiveNowStrip.tsx",
+      "source_location": "L10",
+      "weight": 1.0,
+      "source": "frontend_components_dashboard_livenowstrip_tsx",
+      "target": "frontend_lib_format_ts",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "frontend/components/dashboard/LiveNowStrip.tsx",
+      "source_location": "L10",
+      "weight": 1.0,
+      "source": "frontend_components_dashboard_livenowstrip_tsx",
+      "target": "lib_format_formatcop",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "frontend/components/dashboard/LiveNowStrip.tsx",
+      "source_location": "L10",
+      "weight": 1.0,
+      "source": "frontend_components_dashboard_livenowstrip_tsx",
+      "target": "lib_format_formattimeago",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "frontend/components/dashboard/LiveNowStrip.tsx",
+      "source_location": "L11",
+      "weight": 1.0,
+      "source": "frontend_components_dashboard_livenowstrip_tsx",
+      "target": "frontend_hooks_usereceptionevents_ts",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "frontend/components/dashboard/LiveNowStrip.tsx",
+      "source_location": "L11",
+      "weight": 1.0,
+      "source": "frontend_components_dashboard_livenowstrip_tsx",
+      "target": "hooks_usereceptionevents_usereceptionevents",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "frontend/components/dashboard/LiveNowStrip.tsx",
+      "source_location": "L12",
+      "weight": 1.0,
+      "source": "frontend_components_dashboard_livenowstrip_tsx",
+      "target": "frontend_lib_utils_ts",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "frontend/components/dashboard/LiveNowStrip.tsx",
+      "source_location": "L12",
+      "weight": 1.0,
+      "source": "frontend_components_dashboard_livenowstrip_tsx",
+      "target": "lib_utils_cn",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "frontend/components/dashboard/LiveNowStrip.tsx",
+      "source_location": "L15",
+      "weight": 1.0,
+      "source": "frontend_components_dashboard_livenowstrip_tsx",
+      "target": "dashboard_livenowstrip_todayentry",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "frontend/components/dashboard/LiveNowStrip.tsx",
+      "source_location": "L22",
+      "weight": 1.0,
+      "source": "frontend_components_dashboard_livenowstrip_tsx",
+      "target": "dashboard_livenowstrip_birthday",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "frontend/components/dashboard/LiveNowStrip.tsx",
+      "source_location": "L29",
+      "weight": 1.0,
+      "source": "frontend_components_dashboard_livenowstrip_tsx",
+      "target": "dashboard_livenowstrip_livenowstrip",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "frontend/components/dashboard/LiveNowStrip.tsx",
+      "source_location": "L50",
+      "weight": 1.0,
+      "source": "dashboard_livenowstrip_livenowstrip",
+      "target": "hooks_usereceptionevents_usereceptionevents"
     },
     {
       "relation": "imports_from",
@@ -78569,5 +78789,5 @@
     }
   ],
   "hyperedges": [],
-  "built_at_commit": "766e166d8f291a6781e15bc19dbf5acc6a3ad48a"
+  "built_at_commit": "29612d615ad28b57fd763783710105c96a3b1040"
 }

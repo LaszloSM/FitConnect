@@ -12,6 +12,7 @@ import { PageHeader } from "@/components/common/PageHeader";
 import { OperationsToday } from "@/components/dashboard/OperationsToday";
 import { OnboardingChecklist } from "@/components/dashboard/OnboardingChecklist";
 import { InsightsStrip } from "@/components/dashboard/InsightsStrip";
+import { LiveNowStrip } from "@/components/dashboard/LiveNowStrip";
 import { apiClient } from "@/lib/api";
 import { formatCOP } from "@/lib/format";
 import Link from "next/link";
@@ -252,18 +253,58 @@ export default function DashboardPage() {
 
       <OnboardingChecklist />
 
+      {/* Centro de comando: lo de HOY primero, en vivo */}
+      <LiveNowStrip expiring7d={kpis.expiring_memberships_7d} />
+
       <InsightsStrip />
 
-      {/* KPI grid — flagship Volt + calm functional cards */}
+      {/* La operación del día es la protagonista */}
+      <OperationsToday />
+
+      {/* Today's classes */}
+      {todayClasses.length > 0 && (
+        <GlassCard className="p-4 mb-4">
+          <div className="flex items-center gap-2 mb-3">
+            <Dumbbell className="h-4 w-4 text-[var(--accent-classes)]" />
+            <h3 className="text-sm font-semibold text-[var(--text-base)]">
+              Clases de hoy — {WEEKDAY_MAP[new Date().getDay()]}
+            </h3>
+          </div>
+          <div className="flex flex-wrap gap-2">
+            {todayClasses.map((c: any) => (
+              <Link key={c.id} href="/classes">
+                <div className="flex items-center gap-2 px-3 py-2 rounded-lg border border-[var(--border-base)] bg-[var(--bg-base)] hover:border-[var(--accent-classes)] transition-colors cursor-pointer">
+                  {c.color && (
+                    <span
+                      className="h-6 w-1 rounded-full shrink-0"
+                      style={{ background: c.color }}
+                      aria-hidden
+                    />
+                  )}
+                  <div>
+                    <p className="text-xs font-medium text-[var(--text-base)]">{c.name}</p>
+                    <p className="text-[10px] text-[var(--text-muted)]">
+                      {c.start_time ? c.start_time.slice(0, 5) : "—"} · {c.instructor}
+                    </p>
+                  </div>
+                  <span className="ml-2 text-[10px] text-[var(--text-muted)] border border-[var(--border-base)] rounded px-1.5 py-0.5 shrink-0">
+                    {c.duration_minutes}min
+                  </span>
+                </div>
+              </Link>
+            ))}
+          </div>
+        </GlassCard>
+      )}
+
+      {/* Análisis del período seleccionado (arriba a la derecha) */}
+      <div className="mt-6 mb-3 flex items-center gap-2">
+        <span className="h-2 w-2 rounded-full bg-[var(--text-muted)] inline-block" />
+        <h2 className="text-sm font-semibold text-[var(--text-muted)] uppercase tracking-wider">
+          Análisis del período
+        </h2>
+      </div>
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
-        <KpiCard
-          flagship
-          tone="volt"
-          label="Check-ins hoy"
-          value={kpis.checkins_today}
-          caption="Asistencia del día"
-          icon={<Activity className="h-full w-full" />}
-        />
         <KpiCard
           tone="teal"
           label="Miembros activos"
@@ -274,20 +315,23 @@ export default function DashboardPage() {
         />
         <KpiCard
           tone="emerald"
-          label="Ingresos del mes"
+          label="Ingresos del período"
           value={formatCOP(kpis.total_payments_month)}
-          caption={
-            kpis.pending_payments_month > 0
-              ? `${formatCOP(kpis.pending_payments_month)} pendiente`
-              : "Sin pagos pendientes"
-          }
+          caption="Pagos confirmados"
           trend={kpis.total_payments_month > 0 ? "up" : "flat"}
           icon={<DollarSign className="h-full w-full" />}
           sparklineData={data.revenue_history.map((p) => p.amount)}
         />
         <KpiCard
           tone="amber"
-          label="Nuevos este mes"
+          label="Pendiente por cobrar"
+          value={formatCOP(kpis.pending_payments_month)}
+          caption="Pagos sin confirmar del período"
+          icon={<Activity className="h-full w-full" />}
+        />
+        <KpiCard
+          tone="volt"
+          label="Nuevos en el período"
           value={kpis.new_members_this_month}
           caption="Miembros registrados"
           trend={kpis.new_members_this_month > 0 ? "up" : "flat"}
@@ -295,8 +339,6 @@ export default function DashboardPage() {
           icon={<TrendingUp className="h-full w-full" />}
         />
       </div>
-
-      <OperationsToday />
 
       {/* Charts row */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-6">
@@ -352,42 +394,6 @@ export default function DashboardPage() {
           </ResponsiveContainer>
         </GlassCard>
       </div>
-
-      {/* Today's classes */}
-      {todayClasses.length > 0 && (
-        <GlassCard className="p-4 mb-4">
-          <div className="flex items-center gap-2 mb-3">
-            <Dumbbell className="h-4 w-4 text-[var(--accent-classes)]" />
-            <h3 className="text-sm font-semibold text-[var(--text-base)]">
-              Clases de hoy — {WEEKDAY_MAP[new Date().getDay()]}
-            </h3>
-          </div>
-          <div className="flex flex-wrap gap-2">
-            {todayClasses.map((c: any) => (
-              <Link key={c.id} href="/classes">
-                <div className="flex items-center gap-2 px-3 py-2 rounded-lg border border-[var(--border-base)] bg-[var(--bg-base)] hover:border-[var(--accent-classes)] transition-colors cursor-pointer">
-                  {c.color && (
-                    <span
-                      className="h-6 w-1 rounded-full shrink-0"
-                      style={{ background: c.color }}
-                      aria-hidden
-                    />
-                  )}
-                  <div>
-                    <p className="text-xs font-medium text-[var(--text-base)]">{c.name}</p>
-                    <p className="text-[10px] text-[var(--text-muted)]">
-                      {c.start_time ? c.start_time.slice(0, 5) : "—"} · {c.instructor}
-                    </p>
-                  </div>
-                  <span className="ml-2 text-[10px] text-[var(--text-muted)] border border-[var(--border-base)] rounded px-1.5 py-0.5 shrink-0">
-                    {c.duration_minutes}min
-                  </span>
-                </div>
-              </Link>
-            ))}
-          </div>
-        </GlassCard>
-      )}
 
       <div className="space-y-3">
         {/* Machine health */}
