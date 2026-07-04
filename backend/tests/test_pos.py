@@ -3,6 +3,8 @@ import uuid
 from datetime import date, timedelta
 from app.core.timeutil import today_bogota
 
+from tests.helpers import create_member_without_membership
+
 _TOKENS: dict[str, str] = {}
 
 
@@ -24,11 +26,8 @@ def _auth(token):
 
 
 async def _member(client, token):
-    r = await client.post("/api/v1/members", json={
-        "full_name": "Cliente POS", "email": f"p-{uuid.uuid4().hex[:10]}@test.com",
-        "id_type": "CC", "id_number": str(uuid.uuid4().int)[:10],
-    }, headers=_auth(token))
-    return r.json()["id"]
+    member = await create_member_without_membership(client, _auth(token), full_name="Cliente POS")
+    return member["id"]
 
 
 async def _product(client, token, stock=10, price=5000):

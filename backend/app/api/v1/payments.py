@@ -13,7 +13,7 @@ from app.models.tenant.payment import Payment, PaymentStatus, PaymentMethod
 from app.models.tenant.payment_item import PaymentItem
 from app.models.tenant.product import Product
 from app.models.tenant.member import Member
-from app.models.tenant.membership import Membership
+from app.models.tenant.membership import Membership, MembershipStatus
 from app.models.tenant.cash_shift import CashShift
 from app.models.tenant.receipt import Receipt
 from app.models.tenant.user_staff import UserStaff, UserRole
@@ -257,6 +257,10 @@ async def list_receivables(
     )).scalars().all()
     latest: dict[uuid.UUID, Membership] = {}
     for m in memberships:
+        # Las canceladas no cuentan: pueden empatar en end_date con la vigente
+        # y ocultarían su saldo pendiente
+        if m.status == MembershipStatus.cancelled:
+            continue
         if m.member_id not in latest:
             latest[m.member_id] = m
     if not latest:

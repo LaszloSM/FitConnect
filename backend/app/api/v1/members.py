@@ -108,31 +108,31 @@ async def create_member(
             detail=f"La cédula {payload.id_number} ya está registrada a nombre de {holder}",
         )
 
-    # Separar los campos de membresía opcional del payload del miembro
-    member_data = payload.model_dump(
-        exclude={"plan_id", "membership_start_date", "payment_method"}
-    )
+    # Separar los campos de membresía del payload del miembro
+    member_data = payload.model_dump(exclude={"plan_id", "payment_method"})
+    if not member_data.get("parq_completed_at"):
+        member_data["parq_completed_at"] = today_bogota()
     member = Member(**member_data)
     db.add(member)
     await db.flush()  # obtener member.id sin cerrar la transacción
 
-    if payload.plan_id:
-        from app.models.tenant.member_plan import MemberPlan
-        from app.api.v1.member_plans import _create_membership
+    from app.models.tenant.member_plan import MemberPlan
+    from app.api.v1.member_plans import _create_membership
 
-        plan_result = await db.execute(
-            select(MemberPlan).where(MemberPlan.id == payload.plan_id)
-        )
-        plan = plan_result.scalar_one_or_none()
-        if not plan:
-            raise HTTPException(status_code=404, detail="Plan no encontrado")
-        await _create_membership(
-            db,
-            member.id,
-            plan,
-            payload.membership_start_date or today_bogota(),
-            payload.payment_method,
-        )
+    plan_result = await db.execute(
+        select(MemberPlan).where(MemberPlan.id == payload.plan_id)
+    )
+    plan = plan_result.scalar_one_or_none()
+    if not plan:
+        raise HTTPException(status_code=404, detail="Plan no encontrado")
+    # La membresía del alta inicia siempre hoy (fecha de creación del socio)
+    await _create_membership(
+        db,
+        member.id,
+        plan,
+        today_bogota(),
+        payload.payment_method,
+    )
 
     await db.commit()
     await db.refresh(member)

@@ -3,6 +3,8 @@
 import { Alert } from "@/components/ui/alert"
 import { cn } from "@/lib/utils"
 
+export const PARQ_KEYS = ["q1", "q2", "q3", "q4", "q5", "q6", "q7"] as const;
+
 const QUESTIONS: { key: string; text: string }[] = [
   { key: "q1", text: "¿Algún médico le ha dicho que tiene una condición cardíaca y que solo debe hacer actividad física recomendada por un médico?" },
   { key: "q2", text: "¿Siente dolor en el pecho cuando hace actividad física?" },

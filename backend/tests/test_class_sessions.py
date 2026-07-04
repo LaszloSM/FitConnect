@@ -3,6 +3,8 @@ import uuid
 from datetime import date, timedelta
 from app.core.timeutil import today_bogota
 
+from tests.helpers import create_member_without_membership
+
 _TOKENS: dict[str, str] = {}
 
 
@@ -24,10 +26,8 @@ def _auth(token):
 
 
 async def _member_active(client, token, duration=90):
-    m = await client.post("/api/v1/members", json={
-        "full_name": "Asistente", "email": f"a-{uuid.uuid4().hex[:10]}@test.com", "id_type": "CC", "id_number": str(uuid.uuid4().int)[:10],
-    }, headers=_auth(token))
-    member_id = m.json()["id"]
+    member = await create_member_without_membership(client, _auth(token), full_name="Asistente")
+    member_id = member["id"]
     plan = await client.post("/api/v1/member-plans/", json={
         "name": f"Plan {uuid.uuid4().hex[:6]}", "price": 50000, "duration_days": duration,
     }, headers=_auth(token))
@@ -106,11 +106,9 @@ async def test_member_without_membership_cannot_book(client):
     token = await _owner_token(client)
     class_id = await _create_class(client, token)
     session = await _next_session(client, token, class_id)
-    m = await client.post("/api/v1/members", json={
-        "full_name": "Sin Plan", "email": f"s-{uuid.uuid4().hex[:10]}@test.com", "id_type": "CC", "id_number": str(uuid.uuid4().int)[:10],
-    }, headers=_auth(token))
+    m = await create_member_without_membership(client, _auth(token), full_name="Sin Plan")
     r = await client.post(f"/api/v1/class-sessions/{session['id']}/bookings",
-                          json={"member_id": m.json()["id"]}, headers=_auth(token))
+                          json={"member_id": m["id"]}, headers=_auth(token))
     assert r.status_code == 400
 
 

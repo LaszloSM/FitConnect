@@ -3,6 +3,8 @@ from datetime import date, datetime, timedelta
 from app.core.timeutil import today_bogota
 from zoneinfo import ZoneInfo
 
+from tests.helpers import create_member_without_membership
+
 
 def _today_bogota() -> date:
     return datetime.now(ZoneInfo("America/Bogota")).date()
@@ -28,12 +30,11 @@ def _auth(token):
 
 
 async def _member_with_membership(client, token, start: date, duration=30, phone=None):
-    m = await client.post("/api/v1/members", json={
-        "full_name": "Notificable", "email": f"n-{uuid.uuid4().hex[:10]}@test.com",
-        "id_type": "CC", "id_number": str(uuid.uuid4().int)[:10],
+    member = await create_member_without_membership(
+        client, _auth(token), full_name="Notificable",
         **({"phone": phone} if phone else {}),
-    }, headers=_auth(token))
-    member_id = m.json()["id"]
+    )
+    member_id = member["id"]
     plan = await client.post("/api/v1/member-plans/", json={
         "name": f"Plan {uuid.uuid4().hex[:6]}", "price": 50000, "duration_days": duration,
     }, headers=_auth(token))

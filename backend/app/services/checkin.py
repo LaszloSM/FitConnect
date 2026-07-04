@@ -52,6 +52,10 @@ async def checkin_status(member_id: uuid.UUID, db: AsyncSession, grace_days: int
         if priority.get(st, 0) > priority.get(best, 0):
             best = st
             best_membership = m
+    # Solo membresías canceladas = sin membresía (el Literal del response no
+    # admite "cancelled" y para el negocio es el mismo estado)
+    if best == "cancelled":
+        return "no_membership", best_membership
     return best, best_membership
 
 

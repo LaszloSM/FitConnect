@@ -3,6 +3,8 @@ from datetime import date, datetime, timedelta
 from app.core.timeutil import today_bogota
 from zoneinfo import ZoneInfo
 
+from tests.helpers import create_member_without_membership
+
 
 def _today_bogota() -> date:
     return datetime.now(ZoneInfo("America/Bogota")).date()
@@ -31,13 +33,8 @@ def _auth(token):
 
 
 async def _create_member(client, token):
-    r = await client.post("/api/v1/members", json={
-        "full_name": "Miembro Prueba",
-        "email": f"m-{uuid.uuid4().hex[:10]}@test.com",
-        "id_type": "CC", "id_number": str(uuid.uuid4().int)[:10],
-    }, headers=_auth(token))
-    assert r.status_code == 201, r.text
-    return r.json()["id"]
+    member = await create_member_without_membership(client, _auth(token), full_name="Miembro Prueba")
+    return member["id"]
 
 
 async def _create_plan(client, token, price=100000.0, duration_days=30):
@@ -133,7 +130,7 @@ async def test_assign_chains_after_active_membership(client):
     memberships = (await client.get(
         f"/api/v1/members/{member_id}/memberships", headers=_auth(token)
     )).json()
-    statuses = sorted(m["effective_status"] for m in memberships)
+    statuses = sorted(m["effective_status"] for m in memberships if m["effective_status"] != "cancelled")
     assert statuses == ["active", "scheduled"]
 
 
@@ -240,7 +237,8 @@ async def test_grace_period_effective_status(client):
     memberships = (await client.get(
         f"/api/v1/members/{member_id}/memberships", headers=_auth(token)
     )).json()
-    assert memberships[0]["effective_status"] == "in_grace"
+    current = next(m for m in memberships if m["effective_status"] != "cancelled")
+    assert current["effective_status"] == "in_grace"
 
     # Reducir gracia a 1 día → la misma membresía pasa a expired
     await client.patch("/api/v1/settings/operations",
@@ -248,7 +246,8 @@ async def test_grace_period_effective_status(client):
     memberships = (await client.get(
         f"/api/v1/members/{member_id}/memberships", headers=_auth(token)
     )).json()
-    assert memberships[0]["effective_status"] == "expired"
+    current = next(m for m in memberships if m["effective_status"] != "cancelled")
+    assert current["effective_status"] == "expired"
 
 
 async def test_expire_job_marks_overdue_memberships(client):

@@ -1,6 +1,8 @@
 import uuid
 from datetime import date, timedelta
 
+from tests.helpers import create_member_without_membership
+
 _TOKENS: dict[str, str] = {}
 
 
@@ -29,12 +31,10 @@ async def _device_token(client, token):
 
 async def _member(client, token, cedula=None):
     cedula = cedula or str(uuid.uuid4().int)[:10]
-    r = await client.post("/api/v1/members", json={
-        "full_name": "Kiosko Member", "email": f"k-{uuid.uuid4().hex[:10]}@test.com",
-        "id_type": "CC", "id_number": cedula,
-    }, headers=_auth(token))
-    assert r.status_code == 201, r.text
-    return r.json(), cedula
+    member = await create_member_without_membership(
+        client, _auth(token), full_name="Kiosko Member", id_number=cedula,
+    )
+    return member, cedula
 
 
 async def _activate(client, token, member_id, duration=30):

@@ -1,5 +1,7 @@
 import uuid
 
+from tests.helpers import full_member_fields
+
 
 def _payload(email):
     return {
@@ -46,12 +48,11 @@ async def test_onboarding_done_after_plan_and_member(client):
     })
     assert plan.status_code in (200, 201), plan.text
 
-    member = await client.post("/api/v1/members", headers=headers, json={
-        "full_name": "Socio Onboarding",
-        "email": f"socio-{uuid.uuid4().hex[:8]}@test.co",
-        "id_type": "CC",
-        "id_number": uuid.uuid4().hex[:10],
-    })
+    member = await client.post("/api/v1/members", headers=headers, json=full_member_fields(
+        full_name="Socio Onboarding",
+        email=f"socio-{uuid.uuid4().hex[:8]}@test.co",
+        plan_id=plan.json()["id"],
+    ))
     assert member.status_code in (200, 201), member.text
 
     response = await client.get("/api/v1/onboarding/status", headers=headers)

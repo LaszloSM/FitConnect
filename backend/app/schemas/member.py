@@ -62,15 +62,34 @@ class MemberBase(BaseModel):
         return v.upper() if v else v
 
 
+PARQ_REQUIRED_KEYS = {f"q{i}" for i in range(1, 8)}
+
+
 class MemberCreate(MemberBase):
-    # La cédula es el identificador natural (kiosko, búsqueda, antiduplicados):
-    # obligatoria en altas nuevas; los miembros antiguos pueden no tenerla.
+    # Alta completa desde el panel: la cédula es el identificador natural
+    # (kiosko, búsqueda, antiduplicados) y los datos de contacto, salud y
+    # membresía son obligatorios. Los miembros legacy entran por el import
+    # de Excel (MemberBase), que sigue siendo flexible.
     id_type: IdType
     id_number: str = Field(min_length=3, max_length=50)
-    # Asignación opcional de membresía en el mismo paso del alta
-    plan_id: Optional[uuid.UUID] = None
-    membership_start_date: Optional[date] = None
+    phone: str = Field(min_length=7, max_length=50)
+    birth_date: date
+    address: str = Field(min_length=3, max_length=500)
+    city: str = Field(min_length=2, max_length=100)
+    emergency_contact_name: str = Field(min_length=2, max_length=255)
+    emergency_contact_phone: str = Field(min_length=7, max_length=50)
+    parq_answers: dict
+    # La membresía es parte del alta: inicia hoy (Bogotá) siempre
+    plan_id: uuid.UUID
     payment_method: Optional[str] = None  # "cash" | "transfer" | "card" | None
+
+    @field_validator("parq_answers")
+    @classmethod
+    def parq_complete(cls, v: dict) -> dict:
+        missing = PARQ_REQUIRED_KEYS - {k for k, val in v.items() if isinstance(val, bool)}
+        if missing:
+            raise ValueError("El cuestionario PAR-Q debe responderse completo (7 preguntas)")
+        return v
 
 
 class MemberUpdate(BaseModel):

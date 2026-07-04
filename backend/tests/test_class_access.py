@@ -3,6 +3,8 @@ from datetime import date, datetime, timedelta
 from app.core.timeutil import today_bogota
 from zoneinfo import ZoneInfo
 
+from tests.helpers import create_member_without_membership
+
 _TOKENS: dict[str, str] = {}
 
 
@@ -24,11 +26,8 @@ def _auth(token):
 
 
 async def _member(client, token):
-    r = await client.post("/api/v1/members", json={
-        "full_name": "Clase Member", "email": f"a-{uuid.uuid4().hex[:10]}@test.com",
-        "id_type": "CC", "id_number": str(uuid.uuid4().int)[:10],
-    }, headers=_auth(token))
-    return r.json()["id"]
+    member = await create_member_without_membership(client, _auth(token), full_name="Clase Member")
+    return member["id"]
 
 
 async def _plan(client, token, **kwargs):

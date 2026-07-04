@@ -1,6 +1,7 @@
 import uuid
 from datetime import date, timedelta
 from app.core.timeutil import today_bogota
+from tests.helpers import create_member_without_membership
 
 _TOKENS: dict[str, str] = {}
 
@@ -23,10 +24,8 @@ def _auth(token):
 
 
 async def _member_with_membership(client, token, start: date, duration=30):
-    m = await client.post("/api/v1/members", json={
-        "full_name": "CheckinMember", "email": f"c-{uuid.uuid4().hex[:10]}@test.com", "id_type": "CC", "id_number": str(uuid.uuid4().int)[:10],
-    }, headers=_auth(token))
-    member_id = m.json()["id"]
+    member = await create_member_without_membership(client, _auth(token), full_name="CheckinMember")
+    member_id = member["id"]
     plan = await client.post("/api/v1/member-plans/", json={
         "name": f"Plan {uuid.uuid4().hex[:6]}", "price": 50000, "duration_days": duration,
     }, headers=_auth(token))
@@ -37,10 +36,8 @@ async def _member_with_membership(client, token, start: date, duration=30):
 
 
 async def _member_no_membership(client, token):
-    m = await client.post("/api/v1/members", json={
-        "full_name": "NoMembership", "email": f"n-{uuid.uuid4().hex[:10]}@test.com", "id_type": "CC", "id_number": str(uuid.uuid4().int)[:10],
-    }, headers=_auth(token))
-    return m.json()["id"]
+    member = await create_member_without_membership(client, _auth(token), full_name="NoMembership")
+    return member["id"]
 
 
 async def test_active_membership_allowed(client):

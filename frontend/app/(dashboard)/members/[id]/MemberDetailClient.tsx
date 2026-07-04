@@ -28,6 +28,7 @@ import {
   Snowflake,
   Play,
   CalendarClock,
+  HeartPulse,
 } from "lucide-react";
 import { QRCodeDisplay } from "@/components/common/QRCodeDisplay";
 import {
@@ -336,6 +337,14 @@ export default function MemberDetailClient({ memberId }: { memberId: string }) {
             <h2 className="text-xl font-bold text-[var(--text-base)] font-display truncate">
               {member.full_name}
             </h2>
+            {member.parq_answers && Object.values(member.parq_answers).some(Boolean) && (
+              <span
+                className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-semibold ring-1 bg-amber-50 dark:bg-amber-950/40 text-amber-700 dark:text-amber-400 ring-amber-200 dark:ring-amber-800/60"
+                title="Respondió sí a una o más preguntas del PAR-Q: se recomienda aval médico antes de entrenar"
+              >
+                <HeartPulse className="h-3 w-3" /> Requiere aval médico
+              </span>
+            )}
             <Dialog open={editOpen} onOpenChange={setEditOpen}>
               <DialogTrigger
                 render={

@@ -4,6 +4,8 @@ Requires the test DB to be running.
 """
 import uuid
 
+from tests.helpers import create_member
+
 
 async def test_tenant_data_isolation(client):
     """
@@ -41,17 +43,12 @@ async def test_tenant_data_isolation(client):
     token_b = r.json()["access_token"]
 
     # Tenant A creates a member (email único: la tenant DB persiste entre corridas)
-    r = await client.post(
-        "/api/v1/members",
-        json={
-            "full_name": "Member of A",
-            "email": f"member-{uuid.uuid4().hex[:8]}@gyma.com",
-            "id_type": "CC", "id_number": str(uuid.uuid4().int)[:10],
-            "status": "active",
-        },
-        headers={"Authorization": f"Bearer {token_a}"},
+    await create_member(
+        client,
+        {"Authorization": f"Bearer {token_a}"},
+        full_name="Member of A",
+        email=f"member-{uuid.uuid4().hex[:8]}@gyma.com",
     )
-    assert r.status_code == 201, r.text
 
     # Tenant A lists members — should see Member of A (positive check)
     r = await client.get(

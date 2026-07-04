@@ -11,7 +11,7 @@ import { PageHeader } from "@/components/common/PageHeader";
 import { MemberImportDialog } from "@/components/members/MemberImportDialog";
 import { EmptyState } from "@/components/common/EmptyState";
 import { QRCodeDisplay } from "@/components/common/QRCodeDisplay";
-import { PARQForm } from "@/components/common/PARQForm";
+import { PARQForm, PARQ_KEYS } from "@/components/common/PARQForm";
 import { apiClient } from "@/lib/api";
 import { formatCOP } from "@/lib/format";
 import { cn } from "@/lib/utils";
@@ -26,7 +26,6 @@ import { BloodTypeSelect } from "@/components/ui/blood-type-select";
 import { GenderSelect } from "@/components/ui/gender-select";
 import { CityCombobox } from "@/components/ui/city-combobox";
 import { CountrySelect } from "@/components/ui/country-select";
-import { TrainingGoalSelect } from "@/components/ui/training-goal-select";
 import { FileUpload } from "@/components/ui/file-upload";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
@@ -38,7 +37,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { Plus, Search, Pencil, Trash2, AlertCircle, QrCode, X, Tag, Clock, CheckCircle2, Download } from "lucide-react";
+import { Plus, Search, Pencil, Trash2, AlertCircle, QrCode, X, Tag, Clock, CheckCircle2, Download, Check, User, HeartPulse, CreditCard } from "lucide-react";
 import { MembershipStatusBadge } from "@/components/common/MembershipStatusBadge";
 
 const memberSchema = z.object({
@@ -128,6 +127,12 @@ type FormState = {
   parq_answers: Record<string, boolean>;
 };
 
+const WIZARD_STEPS = [
+  { label: "Datos personales", icon: User },
+  { label: "Salud", icon: HeartPulse },
+  { label: "Membresía", icon: CreditCard },
+];
+
 const emptyForm: FormState = {
   full_name: "",
   email: "",
@@ -161,6 +166,7 @@ export default function MembersClient() {
   const [missingIdCount, setMissingIdCount] = useState(0);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editing, setEditing] = useState<Member | null>(null);
+  const [step, setStep] = useState(0);
   const [submitting, setSubmitting] = useState(false);
   const [form, setForm] = useState<FormState>(emptyForm);
   const [photoFile, setPhotoFile] = useState<File | null>(null);
@@ -270,9 +276,11 @@ export default function MembersClient() {
       .catch(() => {});
   }, [session, members.length]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  // Lazy-load plans + current membership when membership tab activates
+  // Cargar planes: al abrir el wizard de creación, o al activar la pestaña de
+  // membresía en edición (lazy)
   useEffect(() => {
-    if (!membershipTabActive || !session?.accessToken) return;
+    if (!session?.accessToken || !dialogOpen) return;
+    if (editing && !membershipTabActive) return;
     const client = apiClient(session.accessToken as string);
     client.get("/api/v1/member-plans/").then((res) => setAvailablePlans(res.data)).catch(() => {});
     if (editing?.id) {
@@ -285,7 +293,7 @@ export default function MembersClient() {
         }
       }).catch(() => setCurrentMembership(null));
     }
-  }, [membershipTabActive, session, editing]);
+  }, [dialogOpen, membershipTabActive, session, editing]);
 
   const handleAssignMembership = async () => {
     if (!session?.accessToken || !editing || !assignPlanId || !assignStartDate) return;
@@ -316,6 +324,7 @@ export default function MembersClient() {
     setForm(emptyForm);
     setPhotoFile(null);
     setEditing(null);
+    setStep(0);
     setMembershipTabActive(false);
     setCurrentMembership(null);
     setAssignPlanId("");
@@ -349,9 +358,40 @@ export default function MembersClient() {
     setDialogOpen(true);
   };
 
+  // Validación por paso del wizard de creación: no se avanza con datos incompletos
+  const validateStep = (s: number): string | null => {
+    if (s === 0) {
+      if (!form.id_type || !form.id_number.trim()) return "El tipo y número de documento son obligatorios";
+      if (form.full_name.trim().length < 2) return "Escribe el nombre completo";
+      if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email)) return "Email inválido";
+      if (!form.phone.trim()) return "El teléfono es obligatorio";
+      if (!form.birth_date) return "La fecha de nacimiento es obligatoria";
+      if (!form.city.trim()) return "La ciudad es obligatoria";
+      if (!form.country) return "El país es obligatorio";
+      if (!form.address.trim()) return "La dirección es obligatoria";
+    }
+    if (s === 1) {
+      if (!PARQ_KEYS.every((k) => typeof form.parq_answers[k] === "boolean"))
+        return "Responde las 7 preguntas del cuestionario PAR-Q";
+      if (!form.emergency_contact_name.trim()) return "El nombre del contacto de emergencia es obligatorio";
+      if (!form.emergency_contact_phone.trim()) return "El teléfono de emergencia es obligatorio";
+    }
+    if (s === 2 && !assignPlanId) return "Selecciona el plan de membresía";
+    return null;
+  };
+
+  const goNext = () => {
+    const err = validateStep(step);
+    if (err) { toast.error(err); return; }
+    setStep((s) => Math.min(s + 1, 2));
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!session?.accessToken) return;
+
+    // Enter en un input del wizard avanza de paso, no envía
+    if (!editing && step < 2) { goNext(); return; }
 
     const payload = {
       ...form,
@@ -364,13 +404,16 @@ export default function MembersClient() {
       parq_completed_at: Object.keys(form.parq_answers).length > 0 ? new Date().toISOString().split("T")[0] : undefined,
     };
 
-    if (!editing && (!form.id_number.trim() || !form.id_type)) {
-      toast.error("El tipo y número de documento son obligatorios");
-      return;
+    if (!editing) {
+      for (const s of [0, 1, 2]) {
+        const err = validateStep(s);
+        if (err) { toast.error(err); setStep(s); return; }
+      }
+    } else {
+      const validation = memberSchema.safeParse(payload);
+      if (!validation.success) { toast.error(validation.error.issues[0].message); return; }
     }
 
-    const validation = memberSchema.safeParse(payload);
-    if (!validation.success) { toast.error(validation.error.issues[0].message); return; }
     setSubmitting(true);
     const client = apiClient(session.accessToken as string);
     try {
@@ -378,12 +421,12 @@ export default function MembersClient() {
       if (editing) {
         await client.put(`/api/v1/members/${editing.id}`, payload);
       } else {
-        // Alta con membresía opcional en un solo paso
+        // Alta completa: la membresía es obligatoria e inicia hoy (backend)
         const { data: created } = await client.post("/api/v1/members", {
           ...payload,
-          plan_id: assignPlanId || undefined,
-          membership_start_date: assignPlanId ? (assignStartDate || undefined) : undefined,
-          payment_method: assignPlanId ? (assignPaymentMethod || undefined) : undefined,
+          status: "active",
+          plan_id: assignPlanId,
+          payment_method: assignPaymentMethod || undefined,
         });
         memberId = created.id;
       }
@@ -420,6 +463,117 @@ export default function MembersClient() {
 
   const age = form.birth_date ? calcAge(form.birth_date) : null;
 
+  const req = !editing; // en creación todos estos campos son obligatorios
+
+  const personalFields = (
+    <div className="grid grid-cols-2 gap-4">
+      <div className="space-y-2">
+        <Label className="text-[var(--text-muted)] text-sm">Tipo de documento {req && "*"}</Label>
+        <IdTypeSelect
+          value={form.id_type}
+          onChange={(v) => setForm({ ...form, id_type: v || "" })}
+        />
+      </div>
+      <div className="space-y-2">
+        <Label className="text-[var(--text-muted)] text-sm">Número de documento {req && "*"}</Label>
+        <Input
+          value={form.id_number}
+          onChange={(e) => setForm({ ...form, id_number: e.target.value })}
+          inputMode="numeric"
+          placeholder="Cédula — identifica al miembro en el check-in"
+          className={inputCls}
+        />
+      </div>
+      <div className="space-y-2 col-span-2">
+        <Label htmlFor="full_name" className="text-[var(--text-muted)] text-sm">Nombre completo *</Label>
+        <Input id="full_name" value={form.full_name} onChange={(e) => setForm({ ...form, full_name: e.target.value })} className={inputCls} />
+      </div>
+      <div className="space-y-2">
+        <Label className="text-[var(--text-muted)] text-sm">Género</Label>
+        <GenderSelect
+          value={form.gender}
+          onChange={(v) => setForm({ ...form, gender: v || "" })}
+        />
+      </div>
+      <div className="space-y-2">
+        <Label htmlFor="email" className="text-[var(--text-muted)] text-sm">Email *</Label>
+        <Input id="email" type="email" value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} className={inputCls} />
+      </div>
+      <div className="space-y-2">
+        <Label className="text-[var(--text-muted)] text-sm">Teléfono {req && "*"}</Label>
+        <PhoneInput value={form.phone} onChange={(v) => setForm({ ...form, phone: v })} />
+      </div>
+      <div className="space-y-2">
+        <Label className="text-[var(--text-muted)] text-sm">Fecha de nacimiento {req && "*"}</Label>
+        <DatePicker
+          value={form.birth_date ? new Date(form.birth_date + "T12:00:00") : undefined}
+          onChange={(d) => setForm({ ...form, birth_date: d.toISOString().split("T")[0] })}
+          placeholder="Seleccionar fecha"
+          maxDate={new Date()}
+          fromYear={1920}
+          toYear={new Date().getFullYear()}
+        />
+        {age !== null && (
+          <p className="text-xs text-[var(--text-muted)]">{age} años</p>
+        )}
+      </div>
+      <div className="space-y-2">
+        <Label className="text-[var(--text-muted)] text-sm">Ciudad {req && "*"}</Label>
+        <CityCombobox value={form.city} onChange={(v) => setForm({ ...form, city: v })} />
+      </div>
+      <div className="space-y-2">
+        <Label className="text-[var(--text-muted)] text-sm">País {req && "*"}</Label>
+        <CountrySelect value={form.country} onChange={(v) => setForm({ ...form, country: v || "CO" })} />
+      </div>
+      <div className="space-y-2 col-span-2">
+        <Label className="text-[var(--text-muted)] text-sm">Dirección {req && "*"}</Label>
+        <Input value={form.address} onChange={(e) => setForm({ ...form, address: e.target.value })} className={inputCls} />
+      </div>
+      <div className="col-span-2 space-y-2">
+        <Label className="text-[var(--text-muted)] text-sm">Foto del miembro (opcional)</Label>
+        <FileUpload
+          value={form.photo_url || undefined}
+          onChange={(file) => {
+            if (file) {
+              setPhotoFile(file);
+              setForm({ ...form, photo_url: URL.createObjectURL(file) });
+            } else {
+              setPhotoFile(null);
+              setForm({ ...form, photo_url: "" });
+            }
+          }}
+          shape="rect"
+        />
+      </div>
+    </div>
+  );
+
+  const healthFields = (
+    <div className="space-y-4">
+      <PARQForm
+        value={form.parq_answers}
+        onChange={(answers) => setForm({ ...form, parq_answers: answers })}
+      />
+      <div className="grid grid-cols-2 gap-4">
+        <div className="space-y-2">
+          <Label className="text-[var(--text-muted)] text-sm">Grupo sanguíneo</Label>
+          <BloodTypeSelect
+            value={form.blood_type}
+            onChange={(v) => setForm({ ...form, blood_type: v || "" })}
+          />
+        </div>
+        <div className="space-y-2">
+          <Label className="text-[var(--text-muted)] text-sm">Contacto de emergencia {req && "*"}</Label>
+          <Input value={form.emergency_contact_name} onChange={(e) => setForm({ ...form, emergency_contact_name: e.target.value })} placeholder="Nombre" className={inputCls} />
+        </div>
+        <div className="space-y-2">
+          <Label className="text-[var(--text-muted)] text-sm">Teléfono emergencia {req && "*"}</Label>
+          <PhoneInput value={form.emergency_contact_phone} onChange={(v) => setForm({ ...form, emergency_contact_phone: v })} />
+        </div>
+      </div>
+    </div>
+  );
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 8 }}
@@ -453,208 +607,77 @@ export default function MembersClient() {
             </DialogTitle>
           </DialogHeader>
           <form onSubmit={handleSubmit} className="mt-2">
-            <Tabs defaultValue="personal" onValueChange={(v) => setMembershipTabActive(v === "membresia")}>
-              <TabsList>
-                <TabsTrigger value="personal">Personal</TabsTrigger>
-                <TabsTrigger value="salud">Salud</TabsTrigger>
-                <TabsTrigger value="membresia">Membresía</TabsTrigger>
-              </TabsList>
+            {editing ? (
+              <Tabs defaultValue="personal" onValueChange={(v) => setMembershipTabActive(v === "membresia")}>
+                <TabsList>
+                  <TabsTrigger value="personal">Personal</TabsTrigger>
+                  <TabsTrigger value="salud">Salud</TabsTrigger>
+                  <TabsTrigger value="membresia">Membresía</TabsTrigger>
+                </TabsList>
 
-              {/* TAB PERSONAL */}
-              <TabsContent value="personal" className="space-y-4">
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="space-y-2">
-                    <Label className="text-[var(--text-muted)] text-sm">Tipo de documento {!editing && "*"}</Label>
-                    <IdTypeSelect
-                      value={form.id_type}
-                      onChange={(v) => setForm({ ...form, id_type: v || "" })}
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label className="text-[var(--text-muted)] text-sm">Número de documento {!editing && "*"}</Label>
-                    <Input
-                      value={form.id_number}
-                      onChange={(e) => setForm({ ...form, id_number: e.target.value })}
-                      required={!editing}
-                      inputMode="numeric"
-                      placeholder="Cédula — identifica al miembro en el check-in"
-                      className={inputCls}
-                    />
-                  </div>
-                  <div className="space-y-2 col-span-2">
-                    <Label htmlFor="full_name" className="text-[var(--text-muted)] text-sm">Nombre completo *</Label>
-                    <Input id="full_name" value={form.full_name} onChange={(e) => setForm({ ...form, full_name: e.target.value })} required className={inputCls} />
-                  </div>
-                  <div className="space-y-2">
-                    <Label className="text-[var(--text-muted)] text-sm">Género</Label>
-                    <GenderSelect
-                      value={form.gender}
-                      onChange={(v) => setForm({ ...form, gender: v || "" })}
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label className="text-[var(--text-muted)] text-sm">Objetivo de entrenamiento</Label>
-                    <TrainingGoalSelect
-                      value={form.training_goal}
-                      onChange={(v) => setForm({ ...form, training_goal: v || "" })}
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="email" className="text-[var(--text-muted)] text-sm">Email *</Label>
-                    <Input id="email" type="email" value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} required className={inputCls} />
-                  </div>
-                  <div className="space-y-2">
-                    <Label className="text-[var(--text-muted)] text-sm">Teléfono</Label>
-                    <PhoneInput value={form.phone} onChange={(v) => setForm({ ...form, phone: v })} />
-                  </div>
-                  <div className="space-y-2">
-                    <Label className="text-[var(--text-muted)] text-sm">Fecha de nacimiento</Label>
-                    <DatePicker
-                      value={form.birth_date ? new Date(form.birth_date + "T12:00:00") : undefined}
-                      onChange={(d) => setForm({ ...form, birth_date: d.toISOString().split("T")[0] })}
-                      placeholder="Seleccionar fecha"
-                      maxDate={new Date()}
-                      fromYear={1920}
-                      toYear={new Date().getFullYear()}
-                    />
-                    {age !== null && (
-                      <p className="text-xs text-[var(--text-muted)]">{age} años</p>
+                <TabsContent value="personal" className="space-y-4">
+                  {personalFields}
+                </TabsContent>
+
+                <TabsContent value="salud" className="space-y-4">
+                  {healthFields}
+                </TabsContent>
+
+                {/* TAB MEMBRESÍA (edición) */}
+                <TabsContent value="membresia" className="space-y-4">
+                  <div className="rounded-xl border border-[var(--border-base)] bg-[var(--bg-base)] p-4 space-y-3">
+                    <p className="text-xs font-semibold uppercase tracking-wider text-[var(--text-muted)]">Membresía activa</p>
+                    {currentMembership ? (
+                      <div className="space-y-2">
+                        <div className="flex items-center gap-2">
+                          <Tag className="h-4 w-4 text-[var(--color-primary)]" />
+                          <span className="font-semibold text-[var(--text-base)]">{currentMembership.plan_name}</span>
+                          <MembershipStatusBadge
+                            status={new Date(currentMembership.end_date) >= new Date() ? "ok" : "expired"}
+                            endDate={currentMembership.end_date}
+                          />
+                        </div>
+                        <div className="flex items-center gap-1.5 text-sm text-[var(--text-muted)]">
+                          <Clock className="h-3.5 w-3.5" />
+                          {new Date(currentMembership.start_date).toLocaleDateString("es-CO")}
+                          {" → "}
+                          {new Date(currentMembership.end_date).toLocaleDateString("es-CO")}
+                        </div>
+                      </div>
+                    ) : (
+                      <div className="flex items-center gap-2 text-[var(--text-muted)] text-sm">
+                        <CheckCircle2 className="h-4 w-4 opacity-40" />
+                        Sin membresía activa
+                      </div>
                     )}
                   </div>
-                  <div className="space-y-2">
-                    <Label className="text-[var(--text-muted)] text-sm">Ciudad</Label>
-                    <CityCombobox value={form.city} onChange={(v) => setForm({ ...form, city: v })} />
-                  </div>
-                  <div className="space-y-2">
-                    <Label className="text-[var(--text-muted)] text-sm">País</Label>
-                    <CountrySelect value={form.country} onChange={(v) => setForm({ ...form, country: v || "CO" })} />
-                  </div>
-                  <div className="space-y-2 col-span-2">
-                    <Label className="text-[var(--text-muted)] text-sm">Dirección</Label>
-                    <Input value={form.address} onChange={(e) => setForm({ ...form, address: e.target.value })} className={inputCls} />
-                  </div>
-                  <div className="col-span-2 space-y-2">
-                    <Label className="text-[var(--text-muted)] text-sm">Foto del miembro</Label>
-                    <FileUpload
-                      value={form.photo_url || undefined}
-                      onChange={(file) => {
-                        if (file) {
-                          setPhotoFile(file);
-                          setForm({ ...form, photo_url: URL.createObjectURL(file) });
-                        } else {
-                          setPhotoFile(null);
-                          setForm({ ...form, photo_url: "" });
-                        }
-                      }}
-                      shape="rect"
-                    />
-                  </div>
-                </div>
-              </TabsContent>
 
-              {/* TAB SALUD */}
-              <TabsContent value="salud" className="space-y-4">
-                <PARQForm
-                  value={form.parq_answers}
-                  onChange={(answers) => setForm({ ...form, parq_answers: answers })}
-                />
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="space-y-2">
-                    <Label className="text-[var(--text-muted)] text-sm">Grupo sanguíneo</Label>
-                    <BloodTypeSelect
-                      value={form.blood_type}
-                      onChange={(v) => setForm({ ...form, blood_type: v || "" })}
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label className="text-[var(--text-muted)] text-sm">Contacto de emergencia</Label>
-                    <Input value={form.emergency_contact_name} onChange={(e) => setForm({ ...form, emergency_contact_name: e.target.value })} placeholder="Nombre" className={inputCls} />
-                  </div>
-                  <div className="space-y-2">
-                    <Label className="text-[var(--text-muted)] text-sm">Teléfono emergencia</Label>
-                    <PhoneInput value={form.emergency_contact_phone} onChange={(v) => setForm({ ...form, emergency_contact_phone: v })} />
-                  </div>
-                </div>
-              </TabsContent>
-
-              {/* TAB MEMBRESÍA */}
-              <TabsContent value="membresia" className="space-y-4">
-                {/* Membresía activa — solo al editar */}
-                {editing && (
-                <div className="rounded-xl border border-[var(--border-base)] bg-[var(--bg-base)] p-4 space-y-3">
-                  <p className="text-xs font-semibold uppercase tracking-wider text-[var(--text-muted)]">Membresía activa</p>
-                  {currentMembership ? (
+                  <div className="rounded-xl border border-[var(--border-base)] bg-[var(--bg-base)] p-4 space-y-3">
+                    <p className="text-xs font-semibold uppercase tracking-wider text-[var(--text-muted)]">Asignar membresía</p>
                     <div className="space-y-2">
-                      <div className="flex items-center gap-2">
-                        <Tag className="h-4 w-4 text-[var(--color-primary)]" />
-                        <span className="font-semibold text-[var(--text-base)]">{currentMembership.plan_name}</span>
-                        <MembershipStatusBadge
-                          status={new Date(currentMembership.end_date) >= new Date() ? "ok" : "expired"}
-                          endDate={currentMembership.end_date}
-                        />
-                      </div>
-                      <div className="flex items-center gap-1.5 text-sm text-[var(--text-muted)]">
-                        <Clock className="h-3.5 w-3.5" />
-                        {new Date(currentMembership.start_date).toLocaleDateString("es-CO")}
-                        {" → "}
-                        {new Date(currentMembership.end_date).toLocaleDateString("es-CO")}
-                      </div>
-                    </div>
-                  ) : (
-                    <div className="flex items-center gap-2 text-[var(--text-muted)] text-sm">
-                      <CheckCircle2 className="h-4 w-4 opacity-40" />
-                      Sin membresía activa
-                    </div>
-                  )}
-                </div>
-                )}
-
-                {/* Asignar membresía — al editar (endpoint /assign) o al crear (va en el alta) */}
-                <div className="rounded-xl border border-[var(--border-base)] bg-[var(--bg-base)] p-4 space-y-3">
-                  <p className="text-xs font-semibold uppercase tracking-wider text-[var(--text-muted)]">
-                    {editing ? "Asignar membresía" : "Membresía inicial (opcional)"}
-                  </p>
-                  <div className="space-y-2">
-                    <Label className="text-[var(--text-muted)] text-sm">Plan</Label>
-                    <select
-                      value={assignPlanId}
-                      onChange={(e) => setAssignPlanId(e.target.value)}
-                      className={selectCls}
-                    >
-                      <option value="">{editing ? "Selecciona un plan..." : "Sin membresía por ahora"}</option>
-                      {availablePlans.map((p) => (
-                        <option key={p.id} value={p.id}>
-                          {p.name} — {formatCOP(p.price)} / {p.duration_days} días
-                        </option>
-                      ))}
-                    </select>
-                  </div>
-                  <div className="space-y-2">
-                    <Label className="text-[var(--text-muted)] text-sm">Fecha de inicio</Label>
-                    <Input
-                      type="date"
-                      value={assignStartDate}
-                      onChange={(e) => setAssignStartDate(e.target.value)}
-                      className={inputCls}
-                    />
-                  </div>
-                  {!editing && assignPlanId && (
-                    <div className="space-y-2">
-                      <Label className="text-[var(--text-muted)] text-sm">Método de pago (opcional)</Label>
+                      <Label className="text-[var(--text-muted)] text-sm">Plan</Label>
                       <select
-                        value={assignPaymentMethod}
-                        onChange={(e) => setAssignPaymentMethod(e.target.value)}
+                        value={assignPlanId}
+                        onChange={(e) => setAssignPlanId(e.target.value)}
                         className={selectCls}
                       >
-                        <option value="">Sin cobro por ahora</option>
-                        <option value="cash">Efectivo</option>
-                        <option value="transfer">Transferencia</option>
-                        <option value="card">Tarjeta</option>
+                        <option value="">Selecciona un plan...</option>
+                        {availablePlans.map((p) => (
+                          <option key={p.id} value={p.id}>
+                            {p.name} — {formatCOP(p.price)} / {p.duration_days} días
+                          </option>
+                        ))}
                       </select>
-                      <p className="text-xs text-[var(--text-muted)]">Genera un pago pendiente por el valor del plan.</p>
                     </div>
-                  )}
-                  {editing && (
+                    <div className="space-y-2">
+                      <Label className="text-[var(--text-muted)] text-sm">Fecha de inicio</Label>
+                      <Input
+                        type="date"
+                        value={assignStartDate}
+                        onChange={(e) => setAssignStartDate(e.target.value)}
+                        className={inputCls}
+                      />
+                    </div>
                     <Button
                       type="button"
                       disabled={assigningMembership || !assignPlanId || !assignStartDate}
@@ -663,35 +686,153 @@ export default function MembersClient() {
                     >
                       {assigningMembership ? "Asignando..." : "Asignar membresía"}
                     </Button>
+                  </div>
+
+                  <div className="space-y-3 pt-1">
+                    <div className="space-y-2">
+                      <Label className="text-[var(--text-muted)] text-sm">Estado del miembro</Label>
+                      <select value={form.status} onChange={(e) => setForm({ ...form, status: e.target.value })} className={selectCls}>
+                        <option value="active">Activo</option>
+                        <option value="inactive">Inactivo</option>
+                      </select>
+                    </div>
+                    <div className="space-y-2">
+                      <Label className="text-[var(--text-muted)] text-sm">Notas</Label>
+                      <Textarea
+                        value={form.notes}
+                        onChange={(e) => setForm({ ...form, notes: e.target.value })}
+                        placeholder="Notas adicionales sobre el miembro..."
+                      />
+                    </div>
+                  </div>
+                </TabsContent>
+              </Tabs>
+            ) : (
+              <div className="space-y-5">
+                {/* Indicador de pasos del wizard */}
+                <div className="flex items-center gap-1.5" aria-label={`Paso ${step + 1} de ${WIZARD_STEPS.length}`}>
+                  {WIZARD_STEPS.map((s, i) => {
+                    const Icon = s.icon;
+                    const done = i < step;
+                    const current = i === step;
+                    return (
+                      <div key={s.label} className="flex items-center gap-1.5 flex-1 min-w-0">
+                        <span
+                          className={cn(
+                            "h-7 w-7 rounded-full flex items-center justify-center shrink-0 border transition-colors",
+                            done && "bg-[var(--color-primary)] border-[var(--color-primary)] text-[var(--color-primary-contrast)]",
+                            current && "border-[var(--color-primary)] text-[var(--color-primary)]",
+                            !done && !current && "border-[var(--border-base)] text-[var(--text-muted)]"
+                          )}
+                        >
+                          {done ? <Check className="h-3.5 w-3.5" strokeWidth={3} /> : <Icon className="h-3.5 w-3.5" />}
+                        </span>
+                        <span className={cn(
+                          "text-xs font-medium truncate",
+                          current ? "text-[var(--text-base)]" : "text-[var(--text-muted)]"
+                        )}>
+                          {s.label}
+                        </span>
+                        {i < WIZARD_STEPS.length - 1 && (
+                          <span className={cn("h-px flex-1 min-w-3", done ? "bg-[var(--color-primary)]" : "bg-[var(--border-base)]")} />
+                        )}
+                      </div>
+                    );
+                  })}
+                </div>
+
+                {step === 0 && personalFields}
+                {step === 1 && healthFields}
+                {step === 2 && (
+                  <div className="space-y-4">
+                    <div className="rounded-xl border border-[var(--border-base)] bg-[var(--bg-base)] p-4 space-y-3">
+                      <p className="text-xs font-semibold uppercase tracking-wider text-[var(--text-muted)]">Membresía inicial *</p>
+                      {availablePlans.length === 0 ? (
+                        <div className="rounded-lg bg-amber-50 dark:bg-amber-950/20 border border-amber-200 dark:border-amber-900/40 p-3 text-sm text-amber-800 dark:text-amber-300">
+                          Aún no tienes planes creados. Ve a{" "}
+                          <a href="/plans" className="font-semibold underline">Planes</a>{" "}
+                          y crea tu primer plan para poder registrar socios.
+                        </div>
+                      ) : (
+                        <>
+                          <div className="space-y-2">
+                            <Label className="text-[var(--text-muted)] text-sm">Plan *</Label>
+                            <select
+                              value={assignPlanId}
+                              onChange={(e) => setAssignPlanId(e.target.value)}
+                              className={selectCls}
+                            >
+                              <option value="">Selecciona un plan...</option>
+                              {availablePlans.map((p) => (
+                                <option key={p.id} value={p.id}>
+                                  {p.name} — {formatCOP(p.price)} / {p.duration_days} días
+                                </option>
+                              ))}
+                            </select>
+                          </div>
+                          <div className="space-y-2">
+                            <Label className="text-[var(--text-muted)] text-sm">Fecha de inicio</Label>
+                            <p className="text-sm text-[var(--text-base)]">
+                              Hoy — {new Date().toLocaleDateString("es-CO")}
+                              <span className="ml-1.5 text-xs text-[var(--text-muted)]">(la membresía inicia al crear el socio)</span>
+                            </p>
+                          </div>
+                          {assignPlanId && (
+                            <div className="space-y-2">
+                              <Label className="text-[var(--text-muted)] text-sm">Método de pago (opcional)</Label>
+                              <select
+                                value={assignPaymentMethod}
+                                onChange={(e) => setAssignPaymentMethod(e.target.value)}
+                                className={selectCls}
+                              >
+                                <option value="">Sin cobro por ahora</option>
+                                <option value="cash">Efectivo</option>
+                                <option value="transfer">Transferencia</option>
+                                <option value="card">Tarjeta</option>
+                              </select>
+                              <p className="text-xs text-[var(--text-muted)]">Genera un pago pendiente por el valor del plan.</p>
+                            </div>
+                          )}
+                        </>
+                      )}
+                    </div>
+                    <div className="space-y-2">
+                      <Label className="text-[var(--text-muted)] text-sm">Notas</Label>
+                      <Textarea
+                        value={form.notes}
+                        onChange={(e) => setForm({ ...form, notes: e.target.value })}
+                        placeholder="Notas adicionales sobre el miembro..."
+                      />
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
+
+            <div className="flex items-center justify-between gap-2 pt-4 mt-2 border-t border-[var(--border-base)]">
+              <Button type="button" variant="ghost" onClick={() => setDialogOpen(false)} className="text-[var(--text-muted)]">Cancelar</Button>
+              {editing ? (
+                <Button type="submit" disabled={submitting} className="bg-[var(--color-primary)] text-[var(--color-primary-contrast)] font-semibold hover:bg-[var(--color-primary-hover)]">
+                  {submitting ? "Guardando..." : "Guardar cambios"}
+                </Button>
+              ) : (
+                <div className="flex gap-2">
+                  {step > 0 && (
+                    <Button type="button" variant="outline" onClick={() => setStep(step - 1)}>
+                      Anterior
+                    </Button>
+                  )}
+                  {step < 2 ? (
+                    <Button type="button" onClick={goNext} className="bg-[var(--color-primary)] text-[var(--color-primary-contrast)] font-semibold hover:bg-[var(--color-primary-hover)]">
+                      Siguiente
+                    </Button>
+                  ) : (
+                    <Button type="submit" disabled={submitting} className="bg-[var(--color-primary)] text-[var(--color-primary-contrast)] font-semibold hover:bg-[var(--color-primary-hover)]">
+                      {submitting ? "Creando..." : "Crear socio"}
+                    </Button>
                   )}
                 </div>
-
-                {/* Estado y notas del miembro */}
-                <div className="space-y-3 pt-1">
-                  <div className="space-y-2">
-                    <Label className="text-[var(--text-muted)] text-sm">Estado del miembro</Label>
-                    <select value={form.status} onChange={(e) => setForm({ ...form, status: e.target.value })} className={selectCls}>
-                      <option value="active">Activo</option>
-                      <option value="inactive">Inactivo</option>
-                    </select>
-                  </div>
-                  <div className="space-y-2">
-                    <Label className="text-[var(--text-muted)] text-sm">Notas</Label>
-                    <Textarea
-                      value={form.notes}
-                      onChange={(e) => setForm({ ...form, notes: e.target.value })}
-                      placeholder="Notas adicionales sobre el miembro..."
-                    />
-                  </div>
-                </div>
-              </TabsContent>
-            </Tabs>
-
-            <div className="flex justify-end gap-2 pt-4 mt-2 border-t border-[var(--border-base)]">
-              <Button type="button" variant="ghost" onClick={() => setDialogOpen(false)} className="text-[var(--text-muted)]">Cancelar</Button>
-              <Button type="submit" disabled={submitting} className="bg-[var(--color-primary)] text-[var(--color-primary-contrast)] font-semibold hover:bg-[var(--color-primary-hover)]">
-                {submitting ? "Guardando..." : (editing ? "Guardar cambios" : "Crear miembro")}
-              </Button>
+              )}
             </div>
           </form>
         </DialogContent>
