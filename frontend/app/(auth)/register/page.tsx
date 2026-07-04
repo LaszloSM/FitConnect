@@ -10,7 +10,7 @@ import { PasswordInput } from "@/components/ui/password-input";
 import { PhoneInput } from "@/components/ui/phone-input";
 import { CityCombobox } from "@/components/ui/city-combobox";
 import { CountrySelect } from "@/components/ui/country-select";
-import { BrandMark } from "@/components/common/BrandMark";
+import { AuthCardHeader } from "@/components/common/AuthCardHeader";
 
 const registerSchema = z
   .object({
@@ -21,7 +21,7 @@ const registerSchema = z
     confirm_password: z.string(),
     city: z.string().min(2, "Ciudad demasiado corta"),
     country: z.string().min(2).max(2),
-    phone: z.string().optional(),
+    phone: z.string().max(50, "Teléfono demasiado largo").optional(),
     terms_accepted: z.boolean().refine((v) => v, "Debes aceptar los términos de servicio"),
   })
   .refine((data) => data.password === data.confirm_password, {
@@ -93,14 +93,7 @@ export default function RegisterPage() {
 
   return (
     <div className="rounded-2xl bg-white p-8 shadow-[0_20px_60px_-10px_rgb(0_0_0/0.5)]">
-      <div className="mb-8">
-        <div className="flex items-center gap-2.5 mb-4">
-          <BrandMark size={32} />
-          <span className="text-slate-900 font-extrabold text-xl tracking-tight">FitConnect</span>
-        </div>
-        <h2 className="text-slate-900 font-bold text-lg">Crea tu cuenta</h2>
-        <p className="text-slate-500 text-sm mt-0.5">Comienza gratis — Plan Básico</p>
-      </div>
+      <AuthCardHeader title="Crea tu cuenta" subtitle="Comienza gratis — Plan Básico" />
       <form onSubmit={handleSubmit} className="space-y-5">
         {/* Gym name */}
         <div className="space-y-1.5">

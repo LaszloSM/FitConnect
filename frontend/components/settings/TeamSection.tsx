@@ -38,6 +38,8 @@ const ROLE_META: Record<Role, { label: string; tone: StatusTone }> = {
 
 const ASSIGNABLE_ROLES: Exclude<Role, "owner">[] = ["admin", "receptionist"];
 
+const renderRoleValue = (v: Role | null) => (v ? ROLE_META[v]?.label ?? v : "Rol");
+
 export default function TeamSection() {
   const { data: session } = useSession();
   const staff = useApiResource<Staff[]>("/api/v1/users", []);
@@ -178,7 +180,7 @@ export default function TeamSection() {
                   ) : (
                     <Select value={m.role} onValueChange={(v) => changeRole(m, v as string)}>
                       <SelectTrigger size="sm" className="w-40">
-                        <SelectValue />
+                        <SelectValue>{renderRoleValue}</SelectValue>
                       </SelectTrigger>
                       <SelectContent>
                         {ASSIGNABLE_ROLES.map((r) => (
@@ -233,7 +235,7 @@ export default function TeamSection() {
         <FormField label="Rol" required hint="El rol owner no se puede invitar.">
           <Select value={role} onValueChange={(v) => setRole(v as Exclude<Role, "owner">)}>
             <SelectTrigger className="w-full">
-              <SelectValue />
+              <SelectValue>{renderRoleValue}</SelectValue>
             </SelectTrigger>
             <SelectContent>
               {ASSIGNABLE_ROLES.map((r) => (

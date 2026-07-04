@@ -11,8 +11,6 @@ import { Check, Circle, ArrowRight, Rocket } from "lucide-react";
 interface OnboardingStatus {
   has_plan: boolean;
   has_member: boolean;
-  has_checkin: boolean;
-  has_online_payments: boolean;
   done: boolean;
 }
 
@@ -21,14 +19,11 @@ interface Step {
   label: string;
   hint: string;
   href: string;
-  optional?: boolean;
 }
 
 const STEPS: Step[] = [
   { key: "has_plan", label: "Crea tu primer plan", hint: "Define precios y duración", href: "/plans" },
-  { key: "has_member", label: "Registra tu primer socio", hint: "Alta con cédula y datos", href: "/members" },
-  { key: "has_checkin", label: "Registra un check-in", hint: "Marca una entrada en recepción", href: "/checkins" },
-  { key: "has_online_payments", label: "Activa cobros en línea", hint: "Conecta Wompi para links de pago", href: "/settings", optional: true },
+  { key: "has_member", label: "Registra tu primer socio", hint: "Alta con cédula, salud y membresía", href: "/members" },
 ];
 
 export function OnboardingChecklist() {
@@ -48,8 +43,8 @@ export function OnboardingChecklist() {
   // Se oculta cuando los pasos esenciales están completos (o si el dueño lo cierra)
   if (!status || status.done || dismissed) return null;
 
-  const essentialDone = [status.has_plan, status.has_member, status.has_checkin].filter(Boolean).length;
-  const pct = Math.round((essentialDone / 3) * 100);
+  const essentialDone = STEPS.filter((s) => status[s.key]).length;
+  const pct = Math.round((essentialDone / STEPS.length) * 100);
 
   return (
     <motion.div
@@ -66,7 +61,7 @@ export function OnboardingChecklist() {
             </span>
             <div>
               <h3 className="text-sm font-semibold text-[var(--text-base)]">Pon tu gym en marcha</h3>
-              <p className="text-xs text-[var(--text-muted)]">{essentialDone} de 3 pasos esenciales</p>
+              <p className="text-xs text-[var(--text-muted)]">{essentialDone} de {STEPS.length} pasos esenciales</p>
             </div>
           </div>
           <button
@@ -106,7 +101,6 @@ export function OnboardingChecklist() {
                 <div className="flex-1 min-w-0">
                   <p className={`text-sm ${done ? "text-[var(--text-muted)] line-through" : "text-[var(--text-base)] font-medium"}`}>
                     {step.label}
-                    {step.optional && <span className="ml-1.5 text-[10px] text-[var(--text-muted)] no-underline">(opcional)</span>}
                   </p>
                   {!done && <p className="text-xs text-[var(--text-muted)]">{step.hint}</p>}
                 </div>

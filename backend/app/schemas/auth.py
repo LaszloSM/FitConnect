@@ -1,4 +1,6 @@
-from pydantic import BaseModel, EmailStr, Field
+import re
+
+from pydantic import BaseModel, EmailStr, Field, field_validator
 
 
 class RegisterRequest(BaseModel):
@@ -8,6 +10,23 @@ class RegisterRequest(BaseModel):
     gym_name: str
     city: str
     country: str = Field(default="CO", min_length=2, max_length=2)
+    phone: str | None = Field(default=None, max_length=50)
+
+    @field_validator("phone", mode="before")
+    @classmethod
+    def normalize_colombian_phone(cls, v: str | None) -> str | None:
+        if not v or not v.strip():
+            return None
+        v = v.strip()
+        digits = re.sub(r"\D", "", v)
+        if not digits:
+            return None
+        if digits.startswith("57") and len(digits) == 12:
+            digits = digits[2:]
+        if len(digits) == 10 and digits.startswith("3"):
+            return f"+57{digits}"
+        # Aceptar sin formato estricto si no cumple — validación suave
+        return v
 
 
 class LoginRequest(BaseModel):

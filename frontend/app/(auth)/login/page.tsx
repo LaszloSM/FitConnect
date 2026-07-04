@@ -6,7 +6,7 @@ import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { BrandMark } from "@/components/common/BrandMark";
+import { AuthCardHeader } from "@/components/common/AuthCardHeader";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -38,14 +38,7 @@ export default function LoginPage() {
 
   return (
     <div className="rounded-2xl bg-white p-8 shadow-[0_20px_60px_-10px_rgb(0_0_0/0.5)]">
-      <div className="mb-8">
-        <div className="flex items-center gap-2.5 mb-4">
-          <BrandMark size={32} />
-          <span className="text-slate-900 font-extrabold text-xl tracking-tight">FitConnect</span>
-        </div>
-        <h2 className="text-slate-900 font-bold text-lg">Inicia sesión</h2>
-        <p className="text-slate-500 text-sm mt-0.5">Accede a tu plataforma de gestión</p>
-      </div>
+      <AuthCardHeader title="Inicia sesión" subtitle="Accede a tu plataforma de gestión" />
       <form onSubmit={handleSubmit} className="space-y-5">
         <div className="space-y-1.5">
           <Label htmlFor="email" className="text-slate-600 text-sm font-medium">Email</Label>

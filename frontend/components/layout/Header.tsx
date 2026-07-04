@@ -2,7 +2,6 @@
 
 import { useEffect, useRef, useState } from "react";
 import { signOut, useSession } from "next-auth/react";
-import { usePathname } from "next/navigation";
 import { useTheme } from "next-themes";
 import Link from "next/link";
 import { AnimatePresence, motion } from "framer-motion";
@@ -13,7 +12,6 @@ import { Button } from "@/components/ui/button";
 import { apiClient } from "@/lib/api";
 import { useSidebar } from "@/components/layout/SidebarContext";
 import { SIDEBAR_COLLAPSED_W, SIDEBAR_EXPANDED_W } from "@/lib/layout-constants";
-import { MODULE_ACCENTS, moduleFromPath } from "@/lib/module-accents";
 
 interface Notification {
   id: string;
@@ -42,7 +40,6 @@ function getInitials(name?: string | null): string {
 
 export function Header() {
   const { data: session } = useSession();
-  const pathname = usePathname();
   const { resolvedTheme, setTheme } = useTheme();
   const { collapsed } = useSidebar();
 
@@ -57,10 +54,6 @@ export function Header() {
 
   const bellRef = useRef<HTMLDivElement>(null);
   const userRef = useRef<HTMLDivElement>(null);
-
-  // Wayfinding context — the breadcrumb orients, it does not title the page.
-  const moduleKey = moduleFromPath(pathname);
-  const moduleMeta = moduleKey ? MODULE_ACCENTS[moduleKey] : null;
 
   // Gym name for the breadcrumb (fetched once per session)
   useEffect(() => {
@@ -156,24 +149,11 @@ export function Header() {
         borderBottom: "1px solid var(--border-base)",
       }}
     >
-      {/* Left: wayfinding breadcrumb — gym context, NOT a page title */}
+      {/* Left: gym identity — the page title lives in each page's PageHeader */}
       <nav aria-label="Ubicación" className="flex items-center gap-2 min-w-0">
-        <span className="text-sm font-medium text-[var(--text-base)] truncate max-w-[12rem]">
+        <span className="text-sm font-medium text-[var(--text-base)] truncate max-w-[16rem]">
           {gymName ?? "FitConnect"}
         </span>
-        {moduleMeta && (
-          <>
-            <span className="text-[var(--text-subtle)] select-none">/</span>
-            <span className="flex items-center gap-1.5 text-sm text-[var(--text-muted)] truncate">
-              <span
-                className="h-1.5 w-1.5 rounded-full shrink-0"
-                style={{ background: `var(${moduleMeta.cssVar})` }}
-                aria-hidden
-              />
-              {moduleMeta.label}
-            </span>
-          </>
-        )}
       </nav>
 
       {/* Right: global actions */}

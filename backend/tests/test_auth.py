@@ -41,6 +41,29 @@ async def test_login_returns_token(client):
     assert data["role"] == "owner"
 
 
+async def test_register_persists_phone_normalized(client):
+    email = f"phone-{uuid.uuid4().hex[:8]}@gym.com"
+    payload = _payload(email) | {"phone": "300 111 2233"}
+    response = await client.post("/api/v1/auth/register", json=payload)
+    assert response.status_code == 201, response.text
+
+    login = await client.post("/api/v1/auth/login", json={
+        "email": email,
+        "password": "SecurePass123!",
+    })
+    headers = {"Authorization": f"Bearer {login.json()['access_token']}"}
+    settings = await client.get("/api/v1/settings/gym", headers=headers)
+    assert settings.status_code == 200, settings.text
+    assert settings.json()["phone"] == "+573001112233"
+
+
+async def test_register_phone_too_long_rejected(client):
+    email = f"phonelong-{uuid.uuid4().hex[:8]}@gym.com"
+    payload = _payload(email) | {"phone": "3" * 60}
+    response = await client.post("/api/v1/auth/register", json=payload)
+    assert response.status_code == 422
+
+
 async def test_login_wrong_password_fails(client):
     email = f"wrong-{uuid.uuid4().hex[:8]}@gym.com"
     await client.post("/api/v1/auth/register", json=_payload(email))

@@ -1,5 +1,3 @@
-import type { CSSProperties } from "react";
-
 export type ModuleKey =
   | "dashboard"
   | "members"
@@ -41,27 +39,3 @@ export const MODULE_ACCENTS: Record<ModuleKey, ModuleAccent> = {
   reports: { label: "Reportes", tone: "indigo", cssVar: "--accent-reports" },
   settings: { label: "Configuración", tone: "slate", cssVar: "--accent-settings" },
 };
-
-const PATH_TO_MODULE: Array<[string, ModuleKey]> = [
-  ["/dashboard", "dashboard"],
-  ["/members", "members"],
-  ["/checkins", "checkins"],
-  ["/classes", "classes"],
-  ["/machines", "machines"],
-  ["/payments", "payments"],
-  ["/plans", "plans"],
-  ["/reports", "reports"],
-  ["/settings", "settings"],
-];
-
-export function moduleFromPath(pathname: string): ModuleKey | null {
-  const match = PATH_TO_MODULE.find(
-    ([prefix]) => pathname === prefix || pathname.startsWith(prefix + "/"),
-  );
-  return match ? match[1] : null;
-}
-
-/** Inline style helper to expose the module accent as `--accent` on a subtree. */
-export function accentStyle(key: ModuleKey): CSSProperties {
-  return { ["--accent" as string]: `var(${MODULE_ACCENTS[key].cssVar})` };
-}

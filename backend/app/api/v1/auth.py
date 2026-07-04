@@ -51,6 +51,7 @@ async def register(request: Request, payload: RegisterRequest, db: AsyncSession 
         gym_name=payload.gym_name,
         city=payload.city,
         country=payload.country,
+        phone=payload.phone,
         owner_full_name=payload.full_name,
         password=payload.password,
     )

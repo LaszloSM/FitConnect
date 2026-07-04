@@ -61,7 +61,7 @@ async def run_tenant_migrations(db_name: str) -> None:
     await loop.run_in_executor(None, _upgrade)
 
 
-async def create_tenant(owner_email: str, gym_name: str, city: str, owner_full_name: str, password: str, country: str = "CO") -> Tenant:
+async def create_tenant(owner_email: str, gym_name: str, city: str, owner_full_name: str, password: str, country: str = "CO", phone: str | None = None) -> Tenant:
     """Flujo completo de creación de tenant:
     1. Crea Owner en Master DB
     2. Crea Tenant en Master DB (con db_name y connection_string)
@@ -90,6 +90,7 @@ async def create_tenant(owner_email: str, gym_name: str, city: str, owner_full_n
             db_connection_string=connection_string,
             city=city,
             country=country,
+            phone=phone,
             plan=SubscriptionPlan.basic,
             status=TenantStatus.active,
         )

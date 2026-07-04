@@ -29,7 +29,8 @@ import {
 import {
   format,
   subMonths,
-  subDays,
+  startOfWeek,
+  endOfWeek,
   startOfMonth,
   endOfMonth,
   startOfToday,
@@ -64,7 +65,7 @@ interface DashboardData {
   revenue_history: { month: string; amount: number }[];
 }
 
-type PeriodKey = "today" | "this_month" | "last_30" | "last_3_months";
+type PeriodKey = "today" | "this_week" | "this_month" | "last_3_months";
 
 interface Period {
   key: PeriodKey;
@@ -82,19 +83,19 @@ const PERIODS: Period[] = [
     }),
   },
   {
+    key: "this_week",
+    label: "Esta semana",
+    getRange: () => ({
+      from: format(startOfWeek(new Date(), { weekStartsOn: 1 }), "yyyy-MM-dd"),
+      to: format(endOfWeek(new Date(), { weekStartsOn: 1 }), "yyyy-MM-dd"),
+    }),
+  },
+  {
     key: "this_month",
     label: "Este mes",
     getRange: () => ({
       from: format(startOfMonth(new Date()), "yyyy-MM-dd"),
       to: format(endOfMonth(new Date()), "yyyy-MM-dd"),
-    }),
-  },
-  {
-    key: "last_30",
-    label: "Últimos 30 días",
-    getRange: () => ({
-      from: format(subDays(new Date(), 30), "yyyy-MM-dd"),
-      to: format(new Date(), "yyyy-MM-dd"),
     }),
   },
   {
@@ -126,7 +127,7 @@ export default function DashboardPage() {
   const [data, setData] = useState<DashboardData | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
-  const [activePeriod, setActivePeriod] = useState<PeriodKey>("last_30");
+  const [activePeriod, setActivePeriod] = useState<PeriodKey>("this_month");
   const [todayClasses, setTodayClasses] = useState<any[]>([]);
 
   const { from: dateFrom, to: dateTo } =
