@@ -154,6 +154,54 @@ async def create_device(
     return {"id": str(device.id), "name": device.name, "token": token}
 
 
+class DeviceUpdate(BaseModel):
+    name: str = Field(min_length=1, max_length=100)
+
+
+@router.patch("/devices/{device_id}")
+async def rename_device(
+    device_id: uuid.UUID,
+    payload: DeviceUpdate,
+    db: AsyncSession = Depends(get_tenant_db_from_token),
+    current_user: UserStaff = Depends(require_role(UserRole.owner, UserRole.admin)),
+):
+    device = (await db.execute(
+        select(KioskDevice).where(KioskDevice.id == device_id)
+    )).scalar_one_or_none()
+    if not device:
+        raise HTTPException(status_code=404, detail="Dispositivo no encontrado")
+    old_name = device.name
+    device.name = payload.name
+    audit(db, current_user, "kiosk.device_rename", "kiosk_device", device.id,
+          {"old_name": old_name, "new_name": payload.name})
+    await db.commit()
+    return {"id": str(device.id), "name": device.name}
+
+
+@router.post("/devices/{device_id}/regenerate-link")
+async def regenerate_device_link(
+    device_id: uuid.UUID,
+    db: AsyncSession = Depends(get_tenant_db_from_token),
+    db_name: str = Depends(get_db_name),
+    current_user: UserStaff = Depends(require_role(UserRole.owner, UserRole.admin)),
+):
+    """Emite un token nuevo para el dispositivo rotando el jti: el enlace
+    anterior deja de funcionar (no se guardan tokens en claro)."""
+    device = (await db.execute(
+        select(KioskDevice).where(KioskDevice.id == device_id)
+    )).scalar_one_or_none()
+    if not device:
+        raise HTTPException(status_code=404, detail="Dispositivo no encontrado")
+    if not device.is_active:
+        raise HTTPException(status_code=400, detail="El dispositivo está revocado")
+    device.token_jti = str(uuid.uuid4())
+    token = create_kiosk_token(str(device.id), db_name, device.token_jti)
+    audit(db, current_user, "kiosk.device_regenerate_link", "kiosk_device", device.id,
+          {"name": device.name})
+    await db.commit()
+    return {"id": str(device.id), "name": device.name, "token": token}
+
+
 @router.delete("/devices/{device_id}")
 async def revoke_device(
     device_id: uuid.UUID,

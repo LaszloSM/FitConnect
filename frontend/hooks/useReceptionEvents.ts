@@ -20,15 +20,17 @@ export interface ReceptionEvent {
 }
 
 /** Suscripción SSE a los check-ins del gym en vivo (kiosko incluido),
- * con reconexión exponencial — las tablets/PCs de recepción pierden wifi. */
-export function useReceptionEvents(onEvent: (event: ReceptionEvent) => void) {
+ * con reconexión exponencial — las tablets/PCs de recepción pierden wifi.
+ * `enabled=false` no abre la conexión (evita duplicar SSE cuando otra vista
+ * ya está suscrita, ej. el toaster global vs la página de Check-ins). */
+export function useReceptionEvents(onEvent: (event: ReceptionEvent) => void, enabled = true) {
   const { data: session } = useSession();
   const handlerRef = useRef(onEvent);
   handlerRef.current = onEvent;
 
   useEffect(() => {
     const token = session?.accessToken as string | undefined;
-    if (!token) return;
+    if (!token || !enabled) return;
 
     let source: EventSource | null = null;
     let closed = false;
@@ -77,5 +79,5 @@ export function useReceptionEvents(onEvent: (event: ReceptionEvent) => void) {
       if (timer) clearTimeout(timer);
       source?.close();
     };
-  }, [session?.accessToken]);
+  }, [session?.accessToken, enabled]);
 }

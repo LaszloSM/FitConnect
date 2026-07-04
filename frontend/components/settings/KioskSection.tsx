@@ -4,6 +4,7 @@
 import { useState } from "react";
 import { useSession } from "next-auth/react";
 import { toast } from "sonner";
+import { QRCodeSVG } from "qrcode.react";
 import { GlassCard } from "@/components/common/GlassCard";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -12,7 +13,7 @@ import { StatusBadge } from "@/components/ui/status-badge";
 import { apiClient } from "@/lib/api";
 import { formatTimeAgo } from "@/lib/format";
 import { useApiResource } from "@/hooks/useApiResource";
-import { Copy, Loader2, MonitorSmartphone, Plus, ShieldOff } from "lucide-react";
+import { Check, Copy, Link2, Loader2, MonitorSmartphone, Pencil, Plus, ShieldOff, X } from "lucide-react";
 
 interface KioskDevice {
   id: string;
@@ -27,15 +28,19 @@ export default function KioskSection() {
   const devices = useApiResource<KioskDevice[]>("/api/v1/kiosk/devices", []);
   const [name, setName] = useState("");
   const [creating, setCreating] = useState(false);
-  const [newToken, setNewToken] = useState<{ name: string; url: string } | null>(null);
+  const [newToken, setNewToken] = useState<{ name: string; url: string; regenerated?: boolean } | null>(null);
+  const [renamingId, setRenamingId] = useState<string | null>(null);
+  const [renameValue, setRenameValue] = useState("");
+  const [busyId, setBusyId] = useState<string | null>(null);
+
+  const client = () => apiClient(session?.accessToken as string);
 
   const createDevice = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!session?.accessToken || !name.trim()) return;
     setCreating(true);
     try {
-      const client = apiClient(session.accessToken as string);
-      const { data } = await client.post("/api/v1/kiosk/devices", { name: name.trim() });
+      const { data } = await client().post("/api/v1/kiosk/devices", { name: name.trim() });
       const url = `${window.location.origin}/kiosk?device=${data.token}`;
       setNewToken({ name: data.name, url });
       setName("");
@@ -47,11 +52,43 @@ export default function KioskSection() {
     }
   };
 
+  const regenerateLink = async (device: KioskDevice) => {
+    if (!session?.accessToken) return;
+    setBusyId(device.id);
+    try {
+      const { data } = await client().post(`/api/v1/kiosk/devices/${device.id}/regenerate-link`);
+      const url = `${window.location.origin}/kiosk?device=${data.token}`;
+      setNewToken({ name: data.name, url, regenerated: true });
+      toast.success("Enlace regenerado — el anterior dejó de funcionar");
+    } catch (err: any) {
+      toast.error(err.response?.data?.detail ?? "Error regenerando el enlace");
+    } finally {
+      setBusyId(null);
+    }
+  };
+
+  const saveRename = async (device: KioskDevice) => {
+    if (!session?.accessToken || !renameValue.trim() || renameValue.trim() === device.name) {
+      setRenamingId(null);
+      return;
+    }
+    setBusyId(device.id);
+    try {
+      await client().patch(`/api/v1/kiosk/devices/${device.id}`, { name: renameValue.trim() });
+      toast.success("Dispositivo renombrado");
+      setRenamingId(null);
+      await devices.refetch();
+    } catch (err: any) {
+      toast.error(err.response?.data?.detail ?? "Error renombrando");
+    } finally {
+      setBusyId(null);
+    }
+  };
+
   const revoke = async (device: KioskDevice) => {
     if (!session?.accessToken) return;
     try {
-      const client = apiClient(session.accessToken as string);
-      await client.delete(`/api/v1/kiosk/devices/${device.id}`);
+      await client().delete(`/api/v1/kiosk/devices/${device.id}`);
       toast.success(`${device.name} revocado — el kiosko dejará de funcionar`);
       await devices.refetch();
     } catch (err: any) {
@@ -75,7 +112,7 @@ export default function KioskSection() {
           </h3>
           <p className="text-sm text-[var(--text-muted)] mt-1">
             Monta una tablet o celular viejo en la entrada: el miembro digita su cédula o escanea
-            su carnet, y si está al día pasa solo. Los denegados saltan en vivo en la pantalla de Check-ins.
+            su carnet, y si está al día pasa solo. Cada entrada aparece al instante en todo el panel.
           </p>
         </div>
 
@@ -100,23 +137,40 @@ export default function KioskSection() {
         </form>
 
         {newToken && (
-          <div className="rounded-xl bg-amber-50 dark:bg-amber-950/20 border border-amber-200 dark:border-amber-900/40 p-4 space-y-2">
-            <p className="text-sm font-semibold text-amber-800 dark:text-amber-300">
-              Enlace de {newToken.name} — se muestra UNA sola vez
-            </p>
-            <div className="flex items-center gap-2">
-              <code className="flex-1 min-w-0 truncate text-xs bg-white/60 dark:bg-black/20 rounded-lg px-3 py-2 text-[var(--text-base)]">
-                {newToken.url}
-              </code>
-              <Button type="button" variant="outline" size="sm" onClick={copyUrl}>
-                <Copy className="h-3.5 w-3.5 mr-1.5" />
-                Copiar
-              </Button>
+          <div className="rounded-xl bg-amber-50 dark:bg-amber-950/20 border border-amber-200 dark:border-amber-900/40 p-4 space-y-3">
+            <div className="flex items-start justify-between gap-2">
+              <p className="text-sm font-semibold text-amber-800 dark:text-amber-300">
+                Enlace de {newToken.name}
+                {newToken.regenerated ? " — el enlace anterior quedó revocado" : ""}
+              </p>
+              <button
+                onClick={() => setNewToken(null)}
+                className="text-amber-500 hover:text-amber-700 shrink-0"
+                title="Cerrar"
+              >
+                <X className="h-4 w-4" />
+              </button>
             </div>
-            <p className="text-xs text-amber-700 dark:text-amber-400">
-              Ábrelo en el navegador de la tablet (modo pantalla completa). El dispositivo queda
-              vinculado para siempre hasta que lo revoques.
-            </p>
+            <div className="flex flex-wrap items-start gap-4">
+              <div className="p-3 bg-white rounded-xl shadow-sm shrink-0">
+                <QRCodeSVG value={newToken.url} size={120} level="M" marginSize={1} />
+              </div>
+              <div className="flex-1 min-w-[220px] space-y-2">
+                <div className="flex items-center gap-2">
+                  <code className="flex-1 min-w-0 truncate text-xs bg-white/60 dark:bg-black/20 rounded-lg px-3 py-2 text-[var(--text-base)]">
+                    {newToken.url}
+                  </code>
+                  <Button type="button" variant="outline" size="sm" onClick={copyUrl}>
+                    <Copy className="h-3.5 w-3.5 mr-1.5" />
+                    Copiar
+                  </Button>
+                </div>
+                <p className="text-xs text-amber-700 dark:text-amber-400">
+                  Escanea el QR con la tablet o abre el enlace en su navegador (modo pantalla completa).
+                  Si pierdes el enlace, puedes regenerarlo cuando quieras desde la lista.
+                </p>
+              </div>
+            </div>
           </div>
         )}
 
@@ -133,23 +187,72 @@ export default function KioskSection() {
               >
                 <MonitorSmartphone className="h-4 w-4 text-[var(--text-muted)] shrink-0" />
                 <div className="flex-1 min-w-0">
-                  <p className="text-sm font-medium text-[var(--text-base)] truncate">{d.name}</p>
-                  <p className="text-xs text-[var(--text-muted)]">
-                    {d.last_seen_at ? `Visto ${formatTimeAgo(d.last_seen_at)}` : "Nunca conectado"}
-                  </p>
+                  {renamingId === d.id ? (
+                    <div className="flex items-center gap-1.5">
+                      <Input
+                        value={renameValue}
+                        onChange={(e) => setRenameValue(e.target.value)}
+                        onKeyDown={(e) => {
+                          if (e.key === "Enter") { e.preventDefault(); void saveRename(d); }
+                          if (e.key === "Escape") setRenamingId(null);
+                        }}
+                        autoFocus
+                        className="h-7 text-sm bg-[var(--bg-input)] border-[var(--border-base)]"
+                      />
+                      <button
+                        onClick={() => saveRename(d)}
+                        disabled={busyId === d.id}
+                        className="h-7 w-7 rounded-lg flex items-center justify-center text-emerald-600 hover:bg-emerald-50 dark:hover:bg-emerald-950/30 shrink-0"
+                        title="Guardar"
+                      >
+                        <Check className="h-4 w-4" />
+                      </button>
+                      <button
+                        onClick={() => setRenamingId(null)}
+                        className="h-7 w-7 rounded-lg flex items-center justify-center text-[var(--text-muted)] hover:bg-[var(--bg-muted)] shrink-0"
+                        title="Cancelar"
+                      >
+                        <X className="h-4 w-4" />
+                      </button>
+                    </div>
+                  ) : (
+                    <>
+                      <p className="text-sm font-medium text-[var(--text-base)] truncate">{d.name}</p>
+                      <p className="text-xs text-[var(--text-muted)]">
+                        {d.last_seen_at ? `Visto ${formatTimeAgo(d.last_seen_at)}` : "Nunca conectado"}
+                      </p>
+                    </>
+                  )}
                 </div>
                 <StatusBadge
                   status={d.is_active ? "active" : "cancelled"}
                   label={d.is_active ? "Activo" : "Revocado"}
                 />
-                {d.is_active && (
-                  <button
-                    onClick={() => revoke(d)}
-                    title="Revocar acceso"
-                    className="h-8 w-8 rounded-lg flex items-center justify-center text-[var(--text-muted)] hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-950/30 transition-colors"
-                  >
-                    <ShieldOff className="h-4 w-4" />
-                  </button>
+                {d.is_active && renamingId !== d.id && (
+                  <div className="flex items-center gap-1 shrink-0">
+                    <button
+                      onClick={() => regenerateLink(d)}
+                      disabled={busyId === d.id}
+                      title="Regenerar enlace del kiosko (el anterior deja de funcionar)"
+                      className="h-8 w-8 rounded-lg flex items-center justify-center text-[var(--text-muted)] hover:text-[var(--color-primary)] hover:bg-[var(--color-primary-muted)] transition-colors disabled:opacity-50"
+                    >
+                      {busyId === d.id ? <Loader2 className="h-4 w-4 animate-spin" /> : <Link2 className="h-4 w-4" />}
+                    </button>
+                    <button
+                      onClick={() => { setRenamingId(d.id); setRenameValue(d.name); }}
+                      title="Renombrar"
+                      className="h-8 w-8 rounded-lg flex items-center justify-center text-[var(--text-muted)] hover:text-[var(--text-base)] hover:bg-[var(--bg-muted)] transition-colors"
+                    >
+                      <Pencil className="h-4 w-4" />
+                    </button>
+                    <button
+                      onClick={() => revoke(d)}
+                      title="Revocar acceso"
+                      className="h-8 w-8 rounded-lg flex items-center justify-center text-[var(--text-muted)] hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-950/30 transition-colors"
+                    >
+                      <ShieldOff className="h-4 w-4" />
+                    </button>
+                  </div>
                 )}
               </div>
             ))

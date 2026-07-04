@@ -161,3 +161,33 @@ async def test_kiosk_auto_attends_class(client):
     detail = (await client.get(f"/api/v1/class-sessions/{session['id']}", headers=_auth(token))).json()
     statuses = {b["member_id"]: b["status"] for b in detail["roster"]}
     assert statuses.get(member["id"]) == "attended"
+
+
+async def test_device_rename(client):
+    token = await _owner_token(client)
+    device = await _device_token(client, token)
+
+    r = await client.patch(f"/api/v1/kiosk/devices/{device['id']}",
+                           json={"name": "Tablet piso 2"}, headers=_auth(token))
+    assert r.status_code == 200, r.text
+    assert r.json()["name"] == "Tablet piso 2"
+
+    listing = (await client.get("/api/v1/kiosk/devices", headers=_auth(token))).json()
+    names = {d["id"]: d["name"] for d in listing}
+    assert names[device["id"]] == "Tablet piso 2"
+
+
+async def test_device_regenerate_link_rotates_token(client):
+    token = await _owner_token(client)
+    device = await _device_token(client, token)
+
+    r = await client.post(f"/api/v1/kiosk/devices/{device['id']}/regenerate-link",
+                          headers=_auth(token))
+    assert r.status_code == 200, r.text
+    new_token = r.json()["token"]
+
+    # El token anterior queda inválido (jti rotado); el nuevo funciona
+    old = await client.get("/api/v1/kiosk/ping", headers=_auth(device["token"]))
+    assert old.status_code == 401
+    new = await client.get("/api/v1/kiosk/ping", headers=_auth(new_token))
+    assert new.status_code == 200, new.text
