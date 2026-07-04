@@ -55,3 +55,11 @@ infra/terraform.tfvars
 infra/.terraform/
 infra/*.tfstate
 infra/*.tfstate.backup
+infra-lite/terraform.tfvars
+infra-lite/.terraform/
+infra-lite/*.tfstate
+infra-lite/*.tfstate.backup
+infra-lite/*.pem
+infra-lite/tfplan
+infra/tfplan
+deploy/.env.prod

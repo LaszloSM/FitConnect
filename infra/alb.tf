@@ -106,7 +106,10 @@ resource "aws_lb_listener_rule" "backend" {
 
   condition {
     path_pattern {
-      values = ["/api/*", "/docs", "/openapi.json"]
+      # Solo /api/v1/* es del backend: /api/auth/* (NextAuth) y /api/health
+      # son rutas del frontend Next.js y deben caer a la regla por defecto.
+      # /health es el healthcheck del backend FastAPI (igual que en deploy/Caddyfile).
+      values = ["/api/v1/*", "/health", "/docs", "/openapi.json"]
     }
   }
 }

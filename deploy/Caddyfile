@@ -1,0 +1,12 @@
+# Enrutamiento: el backend FastAPI vive bajo /api/v1 (mas /docs, /openapi.json
+# y su health en /health). OJO: /api/auth/* (NextAuth) y /api/health son rutas
+# del frontend Next.js — nunca enrutar /api/* completo al backend.
+:80 {
+	@backend path /api/v1/* /docs /openapi.json /health
+	handle @backend {
+		reverse_proxy backend:8000
+	}
+	handle {
+		reverse_proxy frontend:3000
+	}
+}
