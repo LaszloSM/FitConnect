@@ -70,6 +70,26 @@ async def get_tenant_db_from_token(
         yield session
 
 
+async def get_tenant_from_claims(
+    credentials: HTTPAuthorizationCredentials = Depends(security),
+    db: AsyncSession = Depends(get_master_db),
+) -> Tenant:
+    """Tenant desde el claim tenant_id del JWT: funciona para owner y staff
+    (get_master_tenant solo resuelve owners)."""
+    try:
+        payload = decode_token(credentials.credentials)
+    except JWTError:
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Token inválido")
+    tenant_id = payload.get("tenant_id")
+    if not tenant_id:
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Token sin contexto de tenant")
+    result = await db.execute(select(Tenant).where(Tenant.id == tenant_id))
+    tenant = result.scalar_one_or_none()
+    if not tenant:
+        raise HTTPException(status_code=404, detail="Tenant no encontrado")
+    return tenant
+
+
 async def get_db_name(
     credentials: HTTPAuthorizationCredentials = Depends(security),
 ) -> str:
