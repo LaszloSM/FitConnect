@@ -108,7 +108,7 @@
       "source_file": "backend/app/main.py",
       "source_location": "L1",
       "id": "backend_app_main_py",
-      "community": 223,
+      "community": 160,
       "norm_label": "main.py"
     },
     {
@@ -126,7 +126,7 @@
       "source_file": "backend/app/main.py",
       "source_location": "L50",
       "id": "app_main_request_id_middleware",
-      "community": 223,
+      "community": 160,
       "norm_label": "request_id_middleware()"
     },
     {
@@ -135,7 +135,7 @@
       "source_file": "backend/app/main.py",
       "source_location": "L75",
       "id": "app_main_health",
-      "community": 223,
+      "community": 160,
       "norm_label": "health()"
     },
     {
@@ -144,7 +144,7 @@
       "source_file": "backend/app/main.py",
       "source_location": "L51",
       "id": "app_main_rationale_51",
-      "community": 223,
+      "community": 160,
       "norm_label": "correlation id por request: respeta un x-request-id entrante (del alb) o     ge"
     },
     {
@@ -153,7 +153,7 @@
       "source_file": "backend/app/main.py",
       "source_location": "L76",
       "id": "app_main_rationale_76",
-      "community": 223,
+      "community": 160,
       "norm_label": "healthcheck con dependencias criticas (db master + redis), no solo 'ok'."
     },
     {
@@ -459,7 +459,7 @@
       "source_file": "backend/app/api/v1/auth.py",
       "source_location": "L139",
       "id": "v1_auth_accept_invite",
-      "community": 202,
+      "community": 221,
       "norm_label": "accept_invite()"
     },
     {
@@ -486,7 +486,7 @@
       "source_file": "backend/app/api/v1/auth.py",
       "source_location": "L140",
       "id": "v1_auth_rationale_140",
-      "community": 202,
+      "community": 221,
       "norm_label": "el invitado fija su contrasena con el token del link. crea el userstaff en"
     },
     {
@@ -495,7 +495,7 @@
       "source_file": "backend/app/api/v1/cash.py",
       "source_location": "L1",
       "id": "backend_app_api_v1_cash_py",
-      "community": 180,
+      "community": 170,
       "norm_label": "cash.py"
     },
     {
@@ -504,7 +504,7 @@
       "source_file": "backend/app/api/v1/cash.py",
       "source_location": "L21",
       "id": "v1_cash_openshiftrequest",
-      "community": 159,
+      "community": 188,
       "norm_label": "openshiftrequest"
     },
     {
@@ -522,7 +522,7 @@
       "source_file": "backend/app/api/v1/cash.py",
       "source_location": "L27",
       "id": "v1_cash_closeshiftrequest",
-      "community": 159,
+      "community": 188,
       "norm_label": "closeshiftrequest"
     },
     {
@@ -531,7 +531,7 @@
       "source_file": "backend/app/api/v1/cash.py",
       "source_location": "L32",
       "id": "v1_cash_expensecreate",
-      "community": 159,
+      "community": 188,
       "norm_label": "expensecreate"
     },
     {
@@ -540,7 +540,7 @@
       "source_file": "backend/app/api/v1/cash.py",
       "source_location": "L39",
       "id": "v1_cash_current_open_shift",
-      "community": 180,
+      "community": 170,
       "norm_label": "_current_open_shift()"
     },
     {
@@ -549,7 +549,7 @@
       "source_file": "backend/app/api/v1/cash.py",
       "source_location": "L48",
       "id": "v1_cash_shift_cash_movements",
-      "community": 180,
+      "community": 170,
       "norm_label": "_shift_cash_movements()"
     },
     {
@@ -558,7 +558,7 @@
       "source_file": "backend/app/api/v1/cash.py",
       "source_location": "L67",
       "id": "v1_cash_current_shift",
-      "community": 180,
+      "community": 170,
       "norm_label": "current_shift()"
     },
     {
@@ -567,7 +567,7 @@
       "source_file": "backend/app/api/v1/cash.py",
       "source_location": "L89",
       "id": "v1_cash_list_shifts",
-      "community": 180,
+      "community": 170,
       "norm_label": "list_shifts()"
     },
     {
@@ -576,7 +576,7 @@
       "source_file": "backend/app/api/v1/cash.py",
       "source_location": "L101",
       "id": "v1_cash_open_shift",
-      "community": 180,
+      "community": 170,
       "norm_label": "open_shift()"
     },
     {
@@ -585,7 +585,7 @@
       "source_file": "backend/app/api/v1/cash.py",
       "source_location": "L124",
       "id": "v1_cash_close_shift",
-      "community": 180,
+      "community": 170,
       "norm_label": "close_shift()"
     },
     {
@@ -594,7 +594,7 @@
       "source_file": "backend/app/api/v1/cash.py",
       "source_location": "L159",
       "id": "v1_cash_list_expenses",
-      "community": 180,
+      "community": 170,
       "norm_label": "list_expenses()"
     },
     {
@@ -603,7 +603,7 @@
       "source_file": "backend/app/api/v1/cash.py",
       "source_location": "L171",
       "id": "v1_cash_create_expense",
-      "community": 180,
+      "community": 170,
       "norm_label": "create_expense()"
     },
     {
@@ -612,7 +612,7 @@
       "source_file": "backend/app/api/v1/cash.py",
       "source_location": "L49",
       "id": "v1_cash_rationale_49",
-      "community": 180,
+      "community": 170,
       "norm_label": "(ingresos cash pagados del turno, egresos cash del turno)."
     },
     {
@@ -630,7 +630,7 @@
       "source_file": "backend/app/api/v1/checkins.py",
       "source_location": "L24",
       "id": "v1_checkins_overriderequest",
-      "community": 181,
+      "community": 159,
       "norm_label": "overriderequest"
     },
     {
@@ -729,7 +729,7 @@
       "source_file": "backend/app/api/v1/classes.py",
       "source_location": "L1",
       "id": "backend_app_api_v1_classes_py",
-      "community": 3,
+      "community": 30,
       "norm_label": "classes.py"
     },
     {
@@ -738,7 +738,7 @@
       "source_file": "backend/app/api/v1/classes.py",
       "source_location": "L22",
       "id": "v1_classes_list_classes",
-      "community": 3,
+      "community": 30,
       "norm_label": "list_classes()"
     },
     {
@@ -747,7 +747,7 @@
       "source_file": "backend/app/api/v1/classes.py",
       "source_location": "L37",
       "id": "v1_classes_create_class",
-      "community": 3,
+      "community": 30,
       "norm_label": "create_class()"
     },
     {
@@ -756,7 +756,7 @@
       "source_file": "backend/app/api/v1/classes.py",
       "source_location": "L52",
       "id": "v1_classes_get_class",
-      "community": 3,
+      "community": 30,
       "norm_label": "get_class()"
     },
     {
@@ -765,7 +765,7 @@
       "source_file": "backend/app/api/v1/classes.py",
       "source_location": "L64",
       "id": "v1_classes_update_class",
-      "community": 3,
+      "community": 30,
       "norm_label": "update_class()"
     },
     {
@@ -774,7 +774,7 @@
       "source_file": "backend/app/api/v1/classes.py",
       "source_location": "L81",
       "id": "v1_classes_delete_class",
-      "community": 3,
+      "community": 30,
       "norm_label": "delete_class()"
     },
     {
@@ -783,7 +783,7 @@
       "source_file": "backend/app/api/v1/classes.py",
       "source_location": "L96",
       "id": "v1_classes_list_enrollments",
-      "community": 3,
+      "community": 30,
       "norm_label": "list_enrollments()"
     },
     {
@@ -792,7 +792,7 @@
       "source_file": "backend/app/api/v1/classes.py",
       "source_location": "L118",
       "id": "v1_classes_create_enrollment",
-      "community": 3,
+      "community": 151,
       "norm_label": "create_enrollment()"
     },
     {
@@ -801,7 +801,7 @@
       "source_file": "backend/app/api/v1/classes.py",
       "source_location": "L150",
       "id": "v1_classes_enroll_member",
-      "community": 3,
+      "community": 30,
       "norm_label": "enroll_member()"
     },
     {
@@ -810,7 +810,7 @@
       "source_file": "backend/app/api/v1/classes.py",
       "source_location": "L197",
       "id": "v1_classes_delete_enrollment",
-      "community": 3,
+      "community": 30,
       "norm_label": "delete_enrollment()"
     },
     {
@@ -819,7 +819,7 @@
       "source_file": "backend/app/api/v1/classes.py",
       "source_location": "L155",
       "id": "v1_classes_rationale_155",
-      "community": 3,
+      "community": 30,
       "norm_label": "shorthand enroll endpoint \u2014 accepts only member_id in body."
     },
     {
@@ -882,7 +882,7 @@
       "source_file": "backend/app/api/v1/class_sessions.py",
       "source_location": "L91",
       "id": "v1_class_sessions_materialize",
-      "community": 3,
+      "community": 30,
       "norm_label": "materialize()"
     },
     {
@@ -954,7 +954,7 @@
       "source_file": "backend/app/api/v1/dashboard.py",
       "source_location": "L1",
       "id": "backend_app_api_v1_dashboard_py",
-      "community": 219,
+      "community": 184,
       "norm_label": "dashboard.py"
     },
     {
@@ -972,7 +972,7 @@
       "source_file": "backend/app/api/v1/dashboard.py",
       "source_location": "L178",
       "id": "v1_dashboard_get_dashboard_insights",
-      "community": 219,
+      "community": 184,
       "norm_label": "get_dashboard_insights()"
     },
     {
@@ -981,7 +981,7 @@
       "source_file": "backend/app/api/v1/dashboard.py",
       "source_location": "L249",
       "id": "v1_dashboard_get_operations_dashboard",
-      "community": 219,
+      "community": 184,
       "norm_label": "get_operations_dashboard()"
     },
     {
@@ -990,7 +990,7 @@
       "source_file": "backend/app/api/v1/dashboard.py",
       "source_location": "L179",
       "id": "v1_dashboard_rationale_179",
-      "community": 219,
+      "community": 184,
       "norm_label": "frases accionables derivadas de los agregados que ya se calculan.     sin model"
     },
     {
@@ -999,7 +999,7 @@
       "source_file": "backend/app/api/v1/dashboard.py",
       "source_location": "L252",
       "id": "v1_dashboard_rationale_252",
-      "community": 219,
+      "community": 184,
       "norm_label": "tablero del dia a dia de recepcion: quien vence, morosos en gracia,     accesos"
     },
     {
@@ -1089,7 +1089,7 @@
       "source_file": "backend/app/api/v1/kiosk.py",
       "source_location": "L1",
       "id": "backend_app_api_v1_kiosk_py",
-      "community": 156,
+      "community": 188,
       "norm_label": "kiosk.py"
     },
     {
@@ -1107,7 +1107,7 @@
       "source_file": "backend/app/api/v1/kiosk.py",
       "source_location": "L32",
       "id": "v1_kiosk_one_identifier",
-      "community": 156,
+      "community": 188,
       "norm_label": "one_identifier()"
     },
     {
@@ -1116,7 +1116,7 @@
       "source_file": "backend/app/api/v1/kiosk.py",
       "source_location": "L40",
       "id": "v1_kiosk_kiosk_checkin",
-      "community": 156,
+      "community": 35,
       "norm_label": "kiosk_checkin()"
     },
     {
@@ -1143,7 +1143,7 @@
       "source_file": "backend/app/api/v1/kiosk.py",
       "source_location": "L120",
       "id": "v1_kiosk_list_devices",
-      "community": 156,
+      "community": 188,
       "norm_label": "list_devices()"
     },
     {
@@ -1170,7 +1170,7 @@
       "source_file": "backend/app/api/v1/kiosk.py",
       "source_location": "L162",
       "id": "v1_kiosk_rename_device",
-      "community": 156,
+      "community": 180,
       "norm_label": "rename_device()"
     },
     {
@@ -1188,7 +1188,7 @@
       "source_file": "backend/app/api/v1/kiosk.py",
       "source_location": "L206",
       "id": "v1_kiosk_revoke_device",
-      "community": 156,
+      "community": 180,
       "norm_label": "revoke_device()"
     },
     {
@@ -1197,7 +1197,7 @@
       "source_file": "backend/app/api/v1/kiosk.py",
       "source_location": "L46",
       "id": "v1_kiosk_rationale_46",
-      "community": 156,
+      "community": 35,
       "norm_label": "check-in desde el kiosko de la entrada. respuesta minima: sin pii mas     alla"
     },
     {
@@ -1296,7 +1296,7 @@
       "source_file": "backend/app/api/v1/machines.py",
       "source_location": "L1",
       "id": "backend_app_api_v1_machines_py",
-      "community": 219,
+      "community": 192,
       "norm_label": "machines.py"
     },
     {
@@ -1305,7 +1305,7 @@
       "source_file": "backend/app/api/v1/machines.py",
       "source_location": "L19",
       "id": "v1_machines_list_machines",
-      "community": 219,
+      "community": 192,
       "norm_label": "list_machines()"
     },
     {
@@ -1314,7 +1314,7 @@
       "source_file": "backend/app/api/v1/machines.py",
       "source_location": "L34",
       "id": "v1_machines_create_machine",
-      "community": 219,
+      "community": 192,
       "norm_label": "create_machine()"
     },
     {
@@ -1323,7 +1323,7 @@
       "source_file": "backend/app/api/v1/machines.py",
       "source_location": "L46",
       "id": "v1_machines_get_machine",
-      "community": 219,
+      "community": 192,
       "norm_label": "get_machine()"
     },
     {
@@ -1332,7 +1332,7 @@
       "source_file": "backend/app/api/v1/machines.py",
       "source_location": "L58",
       "id": "v1_machines_update_machine",
-      "community": 219,
+      "community": 192,
       "norm_label": "update_machine()"
     },
     {
@@ -1341,7 +1341,7 @@
       "source_file": "backend/app/api/v1/machines.py",
       "source_location": "L75",
       "id": "v1_machines_delete_machine",
-      "community": 219,
+      "community": 192,
       "norm_label": "delete_machine()"
     },
     {
@@ -1350,7 +1350,7 @@
       "source_file": "backend/app/api/v1/machines.py",
       "source_location": "L90",
       "id": "v1_machines_list_maintenance",
-      "community": 219,
+      "community": 192,
       "norm_label": "list_maintenance()"
     },
     {
@@ -1359,7 +1359,7 @@
       "source_file": "backend/app/api/v1/machines.py",
       "source_location": "L103",
       "id": "v1_machines_create_maintenance",
-      "community": 219,
+      "community": 192,
       "norm_label": "create_maintenance()"
     },
     {
@@ -1377,7 +1377,7 @@
       "source_file": "backend/app/api/v1/members.py",
       "source_location": "L23",
       "id": "v1_members_renewallinkrequest",
-      "community": 181,
+      "community": 159,
       "norm_label": "renewallinkrequest"
     },
     {
@@ -1386,7 +1386,7 @@
       "source_file": "backend/app/api/v1/members.py",
       "source_location": "L28",
       "id": "v1_members_list_members",
-      "community": 224,
+      "community": 169,
       "norm_label": "list_members()"
     },
     {
@@ -1440,7 +1440,7 @@
       "source_file": "backend/app/api/v1/members.py",
       "source_location": "L316",
       "id": "v1_members_count_missing_id_number",
-      "community": 8,
+      "community": 224,
       "norm_label": "count_missing_id_number()"
     },
     {
@@ -1467,7 +1467,7 @@
       "source_file": "backend/app/api/v1/members.py",
       "source_location": "L351",
       "id": "v1_members_get_member_memberships",
-      "community": 169,
+      "community": 224,
       "norm_label": "get_member_memberships()"
     },
     {
@@ -1476,7 +1476,7 @@
       "source_file": "backend/app/api/v1/members.py",
       "source_location": "L369",
       "id": "v1_members_create_renewal_link",
-      "community": 236,
+      "community": 224,
       "norm_label": "create_renewal_link()"
     },
     {
@@ -1485,7 +1485,7 @@
       "source_file": "backend/app/api/v1/members.py",
       "source_location": "L414",
       "id": "v1_members_upload_member_photo",
-      "community": 216,
+      "community": 224,
       "norm_label": "upload_member_photo()"
     },
     {
@@ -1539,7 +1539,7 @@
       "source_file": "backend/app/api/v1/members.py",
       "source_location": "L319",
       "id": "v1_members_rationale_319",
-      "community": 8,
+      "community": 224,
       "norm_label": "cuantos miembros antiguos no tienen cedula \u2014 alimenta el banner del frontend."
     },
     {
@@ -1548,7 +1548,7 @@
       "source_file": "backend/app/api/v1/members.py",
       "source_location": "L376",
       "id": "v1_members_rationale_376",
-      "community": 236,
+      "community": 224,
       "norm_label": "crea un pago pendiente wompi + link, con intent de renovar la membresia     del"
     },
     {
@@ -1557,7 +1557,7 @@
       "source_file": "backend/app/api/v1/members.py",
       "source_location": "L421",
       "id": "v1_members_rationale_421",
-      "community": 216,
+      "community": 224,
       "norm_label": "sube la foto del socio a almacenamiento s3-compatible y persiste su url."
     },
     {
@@ -1575,7 +1575,7 @@
       "source_file": "backend/app/api/v1/memberships.py",
       "source_location": "L21",
       "id": "v1_memberships_freezerequest",
-      "community": 151,
+      "community": 257,
       "norm_label": "freezerequest"
     },
     {
@@ -1944,7 +1944,7 @@
       "source_file": "backend/app/api/v1/onboarding.py",
       "source_location": "L1",
       "id": "backend_app_api_v1_onboarding_py",
-      "community": 193,
+      "community": 148,
       "norm_label": "onboarding.py"
     },
     {
@@ -1953,7 +1953,7 @@
       "source_file": "backend/app/api/v1/onboarding.py",
       "source_location": "L12",
       "id": "v1_onboarding_exists",
-      "community": 193,
+      "community": 148,
       "norm_label": "_exists()"
     },
     {
@@ -1962,7 +1962,7 @@
       "source_file": "backend/app/api/v1/onboarding.py",
       "source_location": "L17",
       "id": "v1_onboarding_onboarding_status",
-      "community": 193,
+      "community": 148,
       "norm_label": "onboarding_status()"
     },
     {
@@ -1971,7 +1971,7 @@
       "source_file": "backend/app/api/v1/onboarding.py",
       "source_location": "L18",
       "id": "v1_onboarding_rationale_18",
-      "community": 193,
+      "community": 148,
       "norm_label": "progreso de configuracion del gym para el checklist de onboarding."
     },
     {
@@ -2052,7 +2052,7 @@
       "source_file": "backend/app/api/v1/payments.py",
       "source_location": "L219",
       "id": "v1_payments_cash_box",
-      "community": 29,
+      "community": 193,
       "norm_label": "cash_box()"
     },
     {
@@ -2097,7 +2097,7 @@
       "source_file": "backend/app/api/v1/payments.py",
       "source_location": "L395",
       "id": "v1_payments_mark_payment_paid",
-      "community": 29,
+      "community": 149,
       "norm_label": "mark_payment_paid()"
     },
     {
@@ -2151,7 +2151,7 @@
       "source_file": "backend/app/api/v1/payments.py",
       "source_location": "L222",
       "id": "v1_payments_rationale_222",
-      "community": 29,
+      "community": 193,
       "norm_label": "caja: ingresos pagados de hoy y del mes, con desglose por metodo."
     },
     {
@@ -2169,7 +2169,7 @@
       "source_file": "backend/app/api/v1/payments.py",
       "source_location": "L400",
       "id": "v1_payments_rationale_400",
-      "community": 29,
+      "community": 149,
       "norm_label": "marcar un pago como pagado (estado: paid). genera el recibo y, si es     efecti"
     },
     {
@@ -2412,7 +2412,7 @@
       "source_file": "backend/app/api/v1/reports.py",
       "source_location": "L97",
       "id": "v1_reports_revenue_compare_report",
-      "community": 30,
+      "community": 182,
       "norm_label": "revenue_compare_report()"
     },
     {
@@ -2457,7 +2457,7 @@
       "source_file": "backend/app/api/v1/reports.py",
       "source_location": "L193",
       "id": "v1_reports_revenue_history_report",
-      "community": 190,
+      "community": 182,
       "norm_label": "revenue_history_report()"
     },
     {
@@ -2466,7 +2466,7 @@
       "source_file": "backend/app/api/v1/reports.py",
       "source_location": "L231",
       "id": "v1_reports_retention_report",
-      "community": 222,
+      "community": 182,
       "norm_label": "retention_report()"
     },
     {
@@ -2484,7 +2484,7 @@
       "source_file": "backend/app/api/v1/reports.py",
       "source_location": "L336",
       "id": "v1_reports_birthdays_report",
-      "community": 170,
+      "community": 182,
       "norm_label": "birthdays_report()"
     },
     {
@@ -2493,7 +2493,7 @@
       "source_file": "backend/app/api/v1/reports.py",
       "source_location": "L380",
       "id": "v1_reports_revenue_by_plan_report",
-      "community": 211,
+      "community": 178,
       "norm_label": "revenue_by_plan_report()"
     },
     {
@@ -2502,7 +2502,7 @@
       "source_file": "backend/app/api/v1/reports.py",
       "source_location": "L414",
       "id": "v1_reports_checkin_trend_report",
-      "community": 184,
+      "community": 187,
       "norm_label": "checkin_trend_report()"
     },
     {
@@ -2547,7 +2547,7 @@
       "source_file": "backend/app/api/v1/reports.py",
       "source_location": "L98",
       "id": "v1_reports_rationale_98",
-      "community": 30,
+      "community": 182,
       "norm_label": "ingresos del mes actual vs mes anterior, con delta porcentual."
     },
     {
@@ -2556,7 +2556,7 @@
       "source_file": "backend/app/api/v1/reports.py",
       "source_location": "L197",
       "id": "v1_reports_rationale_197",
-      "community": 190,
+      "community": 182,
       "norm_label": "monthly revenue for the last n months."
     },
     {
@@ -2565,7 +2565,7 @@
       "source_file": "backend/app/api/v1/reports.py",
       "source_location": "L235",
       "id": "v1_reports_rationale_235",
-      "community": 222,
+      "community": 182,
       "norm_label": "tasa de renovacion mensual: de las membresias que vencieron en el mes,     cuant"
     },
     {
@@ -2583,7 +2583,7 @@
       "source_file": "backend/app/api/v1/reports.py",
       "source_location": "L340",
       "id": "v1_reports_rationale_340",
-      "community": 170,
+      "community": 182,
       "norm_label": "members with birthdays in the next n months (by day/month, ignoring year)."
     },
     {
@@ -2592,7 +2592,7 @@
       "source_file": "backend/app/api/v1/reports.py",
       "source_location": "L384",
       "id": "v1_reports_rationale_384",
-      "community": 211,
+      "community": 178,
       "norm_label": "revenue grouped by payment concept for the last n months."
     },
     {
@@ -2601,7 +2601,7 @@
       "source_file": "backend/app/api/v1/reports.py",
       "source_location": "L418",
       "id": "v1_reports_rationale_418",
-      "community": 184,
+      "community": 187,
       "norm_label": "weekly check-in counts for the last n weeks."
     },
     {
@@ -2889,7 +2889,7 @@
       "source_file": "backend/app/api/v1/webhooks.py",
       "source_location": "L1",
       "id": "backend_app_api_v1_webhooks_py",
-      "community": 230,
+      "community": 148,
       "norm_label": "webhooks.py"
     },
     {
@@ -2898,7 +2898,7 @@
       "source_file": "backend/app/api/v1/webhooks.py",
       "source_location": "L27",
       "id": "v1_webhooks_ok",
-      "community": 230,
+      "community": 148,
       "norm_label": "_ok()"
     },
     {
@@ -2907,7 +2907,7 @@
       "source_file": "backend/app/api/v1/webhooks.py",
       "source_location": "L33",
       "id": "v1_webhooks_wompi_webhook",
-      "community": 230,
+      "community": 148,
       "norm_label": "wompi_webhook()"
     },
     {
@@ -2916,7 +2916,7 @@
       "source_file": "backend/app/api/v1/webhooks.py",
       "source_location": "L34",
       "id": "v1_webhooks_rationale_34",
-      "community": 230,
+      "community": 148,
       "norm_label": "webhook publico de wompi (sin jwt). resuelve el tenant por el slug del     refe"
     },
     {
@@ -2979,7 +2979,7 @@
       "source_file": "backend/app/core/crypto.py",
       "source_location": "L1",
       "id": "backend_app_core_crypto_py",
-      "community": 149,
+      "community": 148,
       "norm_label": "crypto.py"
     },
     {
@@ -2988,7 +2988,7 @@
       "source_file": "backend/app/core/crypto.py",
       "source_location": "L9",
       "id": "core_crypto_fernet",
-      "community": 149,
+      "community": 148,
       "norm_label": "_fernet()"
     },
     {
@@ -2997,7 +2997,7 @@
       "source_file": "backend/app/core/crypto.py",
       "source_location": "L19",
       "id": "core_crypto_encrypt_secret",
-      "community": 149,
+      "community": 148,
       "norm_label": "encrypt_secret()"
     },
     {
@@ -3006,7 +3006,7 @@
       "source_file": "backend/app/core/crypto.py",
       "source_location": "L25",
       "id": "core_crypto_decrypt_secret",
-      "community": 149,
+      "community": 148,
       "norm_label": "decrypt_secret()"
     },
     {
@@ -3159,7 +3159,7 @@
       "source_file": "backend/app/core/security.py",
       "source_location": "L61",
       "id": "core_security_create_staff_token",
-      "community": 202,
+      "community": 221,
       "norm_label": "create_staff_token()"
     },
     {
@@ -3222,7 +3222,7 @@
       "source_file": "backend/app/core/security.py",
       "source_location": "L62",
       "id": "core_security_rationale_62",
-      "community": 202,
+      "community": 221,
       "norm_label": "genera jwt para staff del gym (admin/receptionist) autenticado contra tenant db."
     },
     {
@@ -3249,7 +3249,7 @@
       "source_file": "backend/app/core/timeutil.py",
       "source_location": "L1",
       "id": "backend_app_core_timeutil_py",
-      "community": 19,
+      "community": 238,
       "norm_label": "timeutil.py"
     },
     {
@@ -3258,7 +3258,7 @@
       "source_file": "backend/app/core/timeutil.py",
       "source_location": "L9",
       "id": "core_timeutil_now_bogota",
-      "community": 180,
+      "community": 238,
       "norm_label": "now_bogota()"
     },
     {
@@ -3285,7 +3285,7 @@
       "source_file": "backend/app/core/timeutil.py",
       "source_location": "L22",
       "id": "core_timeutil_utc_day_bounds",
-      "community": 19,
+      "community": 238,
       "norm_label": "utc_day_bounds()"
     },
     {
@@ -3303,7 +3303,7 @@
       "source_file": "backend/app/core/timeutil.py",
       "source_location": "L23",
       "id": "core_timeutil_rationale_23",
-      "community": 19,
+      "community": 238,
       "norm_label": "inicio y fin (exclusivo) de un dia de bogota expresados en utc naive,     para f"
     },
     {
@@ -3645,7 +3645,7 @@
       "source_file": "backend/app/models/user.py",
       "source_location": "L9",
       "id": "models_user_userrole",
-      "community": 188,
+      "community": 6,
       "norm_label": "userrole"
     },
     {
@@ -3861,7 +3861,7 @@
       "source_file": "backend/app/models/tenant/checkin.py",
       "source_location": "L1",
       "id": "backend_app_models_tenant_checkin_py",
-      "community": 181,
+      "community": 151,
       "norm_label": "checkin.py"
     },
     {
@@ -3879,7 +3879,7 @@
       "source_file": "backend/app/models/tenant/checkin.py",
       "source_location": "L15",
       "id": "tenant_checkin_checkin",
-      "community": 181,
+      "community": 151,
       "norm_label": "checkin"
     },
     {
@@ -3888,7 +3888,7 @@
       "source_file": "backend/app/models/tenant/checkin.py",
       "source_location": "L16",
       "id": "tenant_checkin_rationale_16",
-      "community": 181,
+      "community": 151,
       "norm_label": "registro de entradas y salidas de miembros al gym."
     },
     {
@@ -3897,7 +3897,7 @@
       "source_file": "backend/app/models/tenant/class_enrollment.py",
       "source_location": "L1",
       "id": "backend_app_models_tenant_class_enrollment_py",
-      "community": 3,
+      "community": 151,
       "norm_label": "class_enrollment.py"
     },
     {
@@ -3906,7 +3906,7 @@
       "source_file": "backend/app/models/tenant/class_enrollment.py",
       "source_location": "L8",
       "id": "tenant_class_enrollment_classenrollment",
-      "community": 3,
+      "community": 151,
       "norm_label": "classenrollment"
     },
     {
@@ -3915,7 +3915,7 @@
       "source_file": "backend/app/models/tenant/class_enrollment.py",
       "source_location": "L9",
       "id": "tenant_class_enrollment_rationale_9",
-      "community": 3,
+      "community": 151,
       "norm_label": "inscripcion de miembros a clases grupales."
     },
     {
@@ -3924,7 +3924,7 @@
       "source_file": "backend/app/models/tenant/class_session.py",
       "source_location": "L1",
       "id": "backend_app_models_tenant_class_session_py",
-      "community": 151,
+      "community": 181,
       "norm_label": "class_session.py"
     },
     {
@@ -3960,7 +3960,7 @@
       "source_file": "backend/app/models/tenant/expense.py",
       "source_location": "L1",
       "id": "backend_app_models_tenant_expense_py",
-      "community": 159,
+      "community": 188,
       "norm_label": "expense.py"
     },
     {
@@ -3969,7 +3969,7 @@
       "source_file": "backend/app/models/tenant/expense.py",
       "source_location": "L10",
       "id": "tenant_expense_expense",
-      "community": 159,
+      "community": 188,
       "norm_label": "expense"
     },
     {
@@ -3978,7 +3978,7 @@
       "source_file": "backend/app/models/tenant/expense.py",
       "source_location": "L11",
       "id": "tenant_expense_rationale_11",
-      "community": 159,
+      "community": 188,
       "norm_label": "egresos/gastos del gym (servicios, nomina, insumos, otros)."
     },
     {
@@ -4239,7 +4239,7 @@
       "source_file": "backend/app/models/tenant/member.py",
       "source_location": "L42",
       "id": "tenant_member_member",
-      "community": 181,
+      "community": 159,
       "norm_label": "member"
     },
     {
@@ -4248,7 +4248,7 @@
       "source_file": "backend/app/models/tenant/membership.py",
       "source_location": "L1",
       "id": "backend_app_models_tenant_membership_py",
-      "community": 181,
+      "community": 159,
       "norm_label": "membership.py"
     },
     {
@@ -4266,7 +4266,7 @@
       "source_file": "backend/app/models/tenant/membership.py",
       "source_location": "L19",
       "id": "tenant_membership_membership",
-      "community": 181,
+      "community": 159,
       "norm_label": "membership"
     },
     {
@@ -4275,7 +4275,7 @@
       "source_file": "backend/app/models/tenant/membership.py",
       "source_location": "L20",
       "id": "tenant_membership_rationale_20",
-      "community": 181,
+      "community": 159,
       "norm_label": "membresias activas de cada miembro."
     },
     {
@@ -4464,7 +4464,7 @@
       "source_file": "backend/app/models/tenant/payment_item.py",
       "source_location": "L1",
       "id": "backend_app_models_tenant_payment_item_py",
-      "community": 29,
+      "community": 211,
       "norm_label": "payment_item.py"
     },
     {
@@ -4473,7 +4473,7 @@
       "source_file": "backend/app/models/tenant/payment_item.py",
       "source_location": "L10",
       "id": "tenant_payment_item_paymentitem",
-      "community": 29,
+      "community": 211,
       "norm_label": "paymentitem"
     },
     {
@@ -4482,7 +4482,7 @@
       "source_file": "backend/app/models/tenant/payment_item.py",
       "source_location": "L11",
       "id": "tenant_payment_item_rationale_11",
-      "community": 29,
+      "community": 211,
       "norm_label": "renglones de un pago (venta de productos o cargos sueltos).     description/unit"
     },
     {
@@ -4581,7 +4581,7 @@
       "source_file": "backend/app/models/tenant/receipt.py",
       "source_location": "L1",
       "id": "backend_app_models_tenant_receipt_py",
-      "community": 29,
+      "community": 149,
       "norm_label": "receipt.py"
     },
     {
@@ -4590,7 +4590,7 @@
       "source_file": "backend/app/models/tenant/receipt.py",
       "source_location": "L13",
       "id": "tenant_receipt_receipt",
-      "community": 29,
+      "community": 149,
       "norm_label": "receipt"
     },
     {
@@ -4599,7 +4599,7 @@
       "source_file": "backend/app/models/tenant/receipt.py",
       "source_location": "L14",
       "id": "tenant_receipt_rationale_14",
-      "community": 29,
+      "community": 149,
       "norm_label": "comprobante de pago con consecutivo. snapshot es inmutable."
     },
     {
@@ -5364,7 +5364,7 @@
       "source_file": "backend/app/schemas/user.py",
       "source_location": "L1",
       "id": "backend_app_schemas_user_py",
-      "community": 188,
+      "community": 6,
       "norm_label": "user.py"
     },
     {
@@ -5373,7 +5373,7 @@
       "source_file": "backend/app/schemas/user.py",
       "source_location": "L7",
       "id": "schemas_user_inviteuserrequest",
-      "community": 188,
+      "community": 6,
       "norm_label": "inviteuserrequest"
     },
     {
@@ -5382,7 +5382,7 @@
       "source_file": "backend/app/schemas/user.py",
       "source_location": "L13",
       "id": "schemas_user_inviteresponse",
-      "community": 188,
+      "community": 221,
       "norm_label": "inviteresponse"
     },
     {
@@ -5391,7 +5391,7 @@
       "source_file": "backend/app/schemas/user.py",
       "source_location": "L23",
       "id": "schemas_user_userresponse",
-      "community": 188,
+      "community": 6,
       "norm_label": "userresponse"
     },
     {
@@ -5400,7 +5400,7 @@
       "source_file": "backend/app/schemas/user.py",
       "source_location": "L33",
       "id": "schemas_user_updateuserrolerequest",
-      "community": 188,
+      "community": 6,
       "norm_label": "updateuserrolerequest"
     },
     {
@@ -5409,7 +5409,7 @@
       "source_file": "backend/app/schemas/user.py",
       "source_location": "L14",
       "id": "schemas_user_rationale_14",
-      "community": 188,
+      "community": 221,
       "norm_label": "resultado de invitar staff: el owner comparte `invite_url` con el invitado."
     },
     {
@@ -5616,7 +5616,7 @@
       "source_file": "backend/app/services/class_sessions.py",
       "source_location": "L1",
       "id": "backend_app_services_class_sessions_py",
-      "community": 3,
+      "community": 30,
       "norm_label": "class_sessions.py"
     },
     {
@@ -5625,7 +5625,7 @@
       "source_file": "backend/app/services/class_sessions.py",
       "source_location": "L13",
       "id": "services_class_sessions_materialize_sessions",
-      "community": 3,
+      "community": 30,
       "norm_label": "materialize_sessions()"
     },
     {
@@ -5634,7 +5634,7 @@
       "source_file": "backend/app/services/class_sessions.py",
       "source_location": "L57",
       "id": "services_class_sessions_seed_bookings_from_enrollments",
-      "community": 3,
+      "community": 30,
       "norm_label": "seed_bookings_from_enrollments()"
     },
     {
@@ -5643,7 +5643,7 @@
       "source_file": "backend/app/services/class_sessions.py",
       "source_location": "L14",
       "id": "services_class_sessions_rationale_14",
-      "community": 3,
+      "community": 30,
       "norm_label": "genera sesiones futuras desde las plantillas gymclass segun weekdays     (0=lun."
     },
     {
@@ -5652,7 +5652,7 @@
       "source_file": "backend/app/services/class_sessions.py",
       "source_location": "L58",
       "id": "services_class_sessions_rationale_58",
-      "community": 3,
+      "community": 30,
       "norm_label": "siembra reservas para los inscritos recurrentes (classenrollment) de la     clas"
     },
     {
@@ -5877,7 +5877,7 @@
       "source_file": "backend/app/services/gym_settings.py",
       "source_location": "L1",
       "id": "backend_app_services_gym_settings_py",
-      "community": 149,
+      "community": 148,
       "norm_label": "gym_settings.py"
     },
     {
@@ -5886,7 +5886,7 @@
       "source_file": "backend/app/services/gym_settings.py",
       "source_location": "L16",
       "id": "services_gym_settings_get_gym_settings",
-      "community": 149,
+      "community": 148,
       "norm_label": "get_gym_settings()"
     },
     {
@@ -5895,7 +5895,7 @@
       "source_file": "backend/app/services/gym_settings.py",
       "source_location": "L28",
       "id": "services_gym_settings_secret",
-      "community": 149,
+      "community": 148,
       "norm_label": "secret()"
     },
     {
@@ -5904,7 +5904,7 @@
       "source_file": "backend/app/services/gym_settings.py",
       "source_location": "L33",
       "id": "services_gym_settings_set_secret",
-      "community": 149,
+      "community": 148,
       "norm_label": "set_secret()"
     },
     {
@@ -5913,7 +5913,7 @@
       "source_file": "backend/app/services/gym_settings.py",
       "source_location": "L17",
       "id": "services_gym_settings_rationale_17",
-      "community": 149,
+      "community": 148,
       "norm_label": "devuelve la fila unica de configuracion del gym, creandola con     defaults si e"
     },
     {
@@ -5922,7 +5922,7 @@
       "source_file": "backend/app/services/gym_settings.py",
       "source_location": "L29",
       "id": "services_gym_settings_rationale_29",
-      "community": 149,
+      "community": 148,
       "norm_label": "lee y descifra un campo secreto de gym_settings."
     },
     {
@@ -5931,7 +5931,7 @@
       "source_file": "backend/app/services/gym_settings.py",
       "source_location": "L34",
       "id": "services_gym_settings_rationale_34",
-      "community": 149,
+      "community": 148,
       "norm_label": "cifra y asigna un campo secreto (no hace commit)."
     },
     {
@@ -5949,7 +5949,7 @@
       "source_file": "backend/app/services/jobs.py",
       "source_location": "L30",
       "id": "services_jobs_run_with_advisory_lock",
-      "community": 238,
+      "community": 20,
       "norm_label": "_run_with_advisory_lock()"
     },
     {
@@ -5967,7 +5967,7 @@
       "source_file": "backend/app/services/jobs.py",
       "source_location": "L68",
       "id": "services_jobs_has_renewal_after",
-      "community": 154,
+      "community": 158,
       "norm_label": "_has_renewal_after()"
     },
     {
@@ -5976,7 +5976,7 @@
       "source_file": "backend/app/services/jobs.py",
       "source_location": "L82",
       "id": "services_jobs_renewal_checkout_url",
-      "community": 154,
+      "community": 148,
       "norm_label": "_renewal_checkout_url()"
     },
     {
@@ -5985,7 +5985,7 @@
       "source_file": "backend/app/services/jobs.py",
       "source_location": "L136",
       "id": "services_jobs_emit_expiry_reminders",
-      "community": 154,
+      "community": 158,
       "norm_label": "_emit_expiry_reminders()"
     },
     {
@@ -6039,7 +6039,7 @@
       "source_file": "backend/app/services/jobs.py",
       "source_location": "L331",
       "id": "services_jobs_reconcile_tenant_payments",
-      "community": 149,
+      "community": 148,
       "norm_label": "_reconcile_tenant_payments()"
     },
     {
@@ -6066,7 +6066,7 @@
       "source_file": "backend/app/services/jobs.py",
       "source_location": "L412",
       "id": "services_jobs_process_outbox_job",
-      "community": 238,
+      "community": 20,
       "norm_label": "process_outbox_job()"
     },
     {
@@ -6075,7 +6075,7 @@
       "source_file": "backend/app/services/jobs.py",
       "source_location": "L31",
       "id": "services_jobs_rationale_31",
-      "community": 238,
+      "community": 20,
       "norm_label": "corre `work` (callable que devuelve un coroutine) solo si se obtiene el     adv"
     },
     {
@@ -6084,7 +6084,7 @@
       "source_file": "backend/app/services/jobs.py",
       "source_location": "L69",
       "id": "services_jobs_rationale_69",
-      "community": 154,
+      "community": 158,
       "norm_label": "true si el miembro ya tiene otra membresia vigente/programada que arranca     d"
     },
     {
@@ -6093,7 +6093,7 @@
       "source_file": "backend/app/services/jobs.py",
       "source_location": "L83",
       "id": "services_jobs_rationale_83",
-      "community": 154,
+      "community": 148,
       "norm_label": "link wompi de renovacion para incluir en recordatorios. reutiliza un link     p"
     },
     {
@@ -6102,7 +6102,7 @@
       "source_file": "backend/app/services/jobs.py",
       "source_location": "L137",
       "id": "services_jobs_rationale_137",
-      "community": 154,
+      "community": 158,
       "norm_label": "encola recordatorios de vencimiento a d-3, d-0 y vencida d+3 (idempotente     p"
     },
     {
@@ -6156,7 +6156,7 @@
       "source_file": "backend/app/services/jobs.py",
       "source_location": "L413",
       "id": "services_jobs_rationale_413",
-      "community": 238,
+      "community": 20,
       "norm_label": "procesa la cola de whatsapp con backoff (3 intentos)."
     },
     {
@@ -6201,7 +6201,7 @@
       "source_file": "backend/app/services/job_monitor.py",
       "source_location": "L45",
       "id": "services_job_monitor_snapshot",
-      "community": 223,
+      "community": 160,
       "norm_label": "snapshot()"
     },
     {
@@ -6390,7 +6390,7 @@
       "source_file": "backend/app/services/payment_confirmation.py",
       "source_location": "L1",
       "id": "backend_app_services_payment_confirmation_py",
-      "community": 230,
+      "community": 148,
       "norm_label": "payment_confirmation.py"
     },
     {
@@ -6399,7 +6399,7 @@
       "source_file": "backend/app/services/payment_confirmation.py",
       "source_location": "L16",
       "id": "services_payment_confirmation_apply_membership_intent",
-      "community": 230,
+      "community": 148,
       "norm_label": "_apply_membership_intent()"
     },
     {
@@ -6408,7 +6408,7 @@
       "source_file": "backend/app/services/payment_confirmation.py",
       "source_location": "L41",
       "id": "services_payment_confirmation_confirm_payment",
-      "community": 230,
+      "community": 148,
       "norm_label": "confirm_payment()"
     },
     {
@@ -6417,7 +6417,7 @@
       "source_file": "backend/app/services/payment_confirmation.py",
       "source_location": "L17",
       "id": "services_payment_confirmation_rationale_17",
-      "community": 230,
+      "community": 148,
       "norm_label": "crea/renueva la membresia descrita en el intent del payment_link."
     },
     {
@@ -6426,7 +6426,7 @@
       "source_file": "backend/app/services/payment_confirmation.py",
       "source_location": "L42",
       "id": "services_payment_confirmation_rationale_42",
-      "community": 230,
+      "community": 148,
       "norm_label": "transicion pending\u2192paid idempotente (unica fuente de verdad para webhook     y r"
     },
     {
@@ -6435,7 +6435,7 @@
       "source_file": "backend/app/services/payment_links.py",
       "source_location": "L1",
       "id": "backend_app_services_payment_links_py",
-      "community": 236,
+      "community": 148,
       "norm_label": "payment_links.py"
     },
     {
@@ -6444,7 +6444,7 @@
       "source_file": "backend/app/services/payment_links.py",
       "source_location": "L13",
       "id": "services_payment_links_create_payment_link_for",
-      "community": 236,
+      "community": 148,
       "norm_label": "create_payment_link_for()"
     },
     {
@@ -6453,7 +6453,7 @@
       "source_file": "backend/app/services/payment_links.py",
       "source_location": "L21",
       "id": "services_payment_links_rationale_21",
-      "community": 236,
+      "community": 148,
       "norm_label": "crea un link de pago wompi para un payment pendiente. idempotente:     si ya ex"
     },
     {
@@ -6507,7 +6507,7 @@
       "source_file": "backend/app/services/receipts.py",
       "source_location": "L1",
       "id": "backend_app_services_receipts_py",
-      "community": 29,
+      "community": 149,
       "norm_label": "receipts.py"
     },
     {
@@ -6516,7 +6516,7 @@
       "source_file": "backend/app/services/receipts.py",
       "source_location": "L11",
       "id": "services_receipts_issue_receipt",
-      "community": 29,
+      "community": 149,
       "norm_label": "issue_receipt()"
     },
     {
@@ -6525,7 +6525,7 @@
       "source_file": "backend/app/services/receipts.py",
       "source_location": "L12",
       "id": "services_receipts_rationale_12",
-      "community": 29,
+      "community": 149,
       "norm_label": "genera el recibo de un pago pagado (idempotente: si ya existe, lo devuelve)."
     },
     {
@@ -6561,7 +6561,7 @@
       "source_file": "backend/app/services/storage.py",
       "source_location": "L1",
       "id": "backend_app_services_storage_py",
-      "community": 216,
+      "community": 224,
       "norm_label": "storage.py"
     },
     {
@@ -6570,7 +6570,7 @@
       "source_file": "backend/app/services/storage.py",
       "source_location": "L20",
       "id": "services_storage_s3",
-      "community": 216,
+      "community": 224,
       "norm_label": "_s3()"
     },
     {
@@ -6579,7 +6579,7 @@
       "source_file": "backend/app/services/storage.py",
       "source_location": "L34",
       "id": "services_storage_ensure_bucket_sync",
-      "community": 216,
+      "community": 224,
       "norm_label": "_ensure_bucket_sync()"
     },
     {
@@ -6588,7 +6588,7 @@
       "source_file": "backend/app/services/storage.py",
       "source_location": "L57",
       "id": "services_storage_public_url",
-      "community": 216,
+      "community": 224,
       "norm_label": "_public_url()"
     },
     {
@@ -6597,7 +6597,7 @@
       "source_file": "backend/app/services/storage.py",
       "source_location": "L64",
       "id": "services_storage_upload_sync",
-      "community": 216,
+      "community": 224,
       "norm_label": "_upload_sync()"
     },
     {
@@ -6606,7 +6606,7 @@
       "source_file": "backend/app/services/storage.py",
       "source_location": "L72",
       "id": "services_storage_upload_image",
-      "community": 216,
+      "community": 224,
       "norm_label": "upload_image()"
     },
     {
@@ -6615,7 +6615,7 @@
       "source_file": "backend/app/services/storage.py",
       "source_location": "L1",
       "id": "services_storage_rationale_1",
-      "community": 216,
+      "community": 224,
       "norm_label": "almacenamiento de objetos s3-compatible (minio en local, aws s3 en prod).  el"
     },
     {
@@ -6624,7 +6624,7 @@
       "source_file": "backend/app/services/storage.py",
       "source_location": "L73",
       "id": "services_storage_rationale_73",
-      "community": 216,
+      "community": 224,
       "norm_label": "sube bytes de imagen y devuelve su url publica. boto3 es sync \u2192 a thread."
     },
     {
@@ -6813,7 +6813,7 @@
       "source_file": "backend/app/services/wompi.py",
       "source_location": "L1",
       "id": "backend_app_services_wompi_py",
-      "community": 192,
+      "community": 148,
       "norm_label": "wompi.py"
     },
     {
@@ -6822,7 +6822,7 @@
       "source_file": "backend/app/services/wompi.py",
       "source_location": "L9",
       "id": "services_wompi_wompiclient",
-      "community": 192,
+      "community": 148,
       "norm_label": "wompiclient"
     },
     {
@@ -6831,7 +6831,7 @@
       "source_file": "backend/app/services/wompi.py",
       "source_location": "L12",
       "id": "services_wompi_wompiclient_init",
-      "community": 192,
+      "community": 148,
       "norm_label": ".__init__()"
     },
     {
@@ -6840,7 +6840,7 @@
       "source_file": "backend/app/services/wompi.py",
       "source_location": "L17",
       "id": "services_wompi_wompiclient_create_payment_link",
-      "community": 192,
+      "community": 148,
       "norm_label": ".create_payment_link()"
     },
     {
@@ -6849,7 +6849,7 @@
       "source_file": "backend/app/services/wompi.py",
       "source_location": "L47",
       "id": "services_wompi_wompiclient_get_transaction",
-      "community": 192,
+      "community": 148,
       "norm_label": ".get_transaction()"
     },
     {
@@ -6858,7 +6858,7 @@
       "source_file": "backend/app/services/wompi.py",
       "source_location": "L57",
       "id": "services_wompi_wompiclient_find_transaction_by_reference",
-      "community": 192,
+      "community": 148,
       "norm_label": ".find_transaction_by_reference()"
     },
     {
@@ -6867,7 +6867,7 @@
       "source_file": "backend/app/services/wompi.py",
       "source_location": "L70",
       "id": "services_wompi_verify_event_signature",
-      "community": 192,
+      "community": 148,
       "norm_label": "verify_event_signature()"
     },
     {
@@ -6876,7 +6876,7 @@
       "source_file": "backend/app/services/wompi.py",
       "source_location": "L10",
       "id": "services_wompi_rationale_10",
-      "community": 192,
+      "community": 148,
       "norm_label": "cliente minimo de wompi (sandbox por defecto). las llaves vienen por gym."
     },
     {
@@ -6885,7 +6885,7 @@
       "source_file": "backend/app/services/wompi.py",
       "source_location": "L71",
       "id": "services_wompi_rationale_71",
-      "community": 192,
+      "community": 148,
       "norm_label": "valida la firma del webhook: sha256 de los valores de signature.properties     ("
     },
     {
@@ -7839,7 +7839,7 @@
       "source_file": "backend/tests/helpers.py",
       "source_location": "L53",
       "id": "tests_helpers_create_member_without_membership",
-      "community": 219,
+      "community": 203,
       "norm_label": "create_member_without_membership()"
     },
     {
@@ -7866,7 +7866,7 @@
       "source_file": "backend/tests/helpers.py",
       "source_location": "L54",
       "id": "tests_helpers_rationale_54",
-      "community": 219,
+      "community": 203,
       "norm_label": "miembro sin membresia vigente: alta completa + cancelar la membresia inicial."
     },
     {
@@ -8145,7 +8145,7 @@
       "source_file": "backend/tests/test_checkin_decisions.py",
       "source_location": "L1",
       "id": "backend_tests_test_checkin_decisions_py",
-      "community": 219,
+      "community": 154,
       "norm_label": "test_checkin_decisions.py"
     },
     {
@@ -8154,7 +8154,7 @@
       "source_file": "backend/tests/test_checkin_decisions.py",
       "source_location": "L9",
       "id": "tests_test_checkin_decisions_owner_token",
-      "community": 219,
+      "community": 154,
       "norm_label": "_owner_token()"
     },
     {
@@ -8163,7 +8163,7 @@
       "source_file": "backend/tests/test_checkin_decisions.py",
       "source_location": "L22",
       "id": "tests_test_checkin_decisions_auth",
-      "community": 219,
+      "community": 154,
       "norm_label": "_auth()"
     },
     {
@@ -8172,7 +8172,7 @@
       "source_file": "backend/tests/test_checkin_decisions.py",
       "source_location": "L26",
       "id": "tests_test_checkin_decisions_member_with_membership",
-      "community": 219,
+      "community": 154,
       "norm_label": "_member_with_membership()"
     },
     {
@@ -8181,7 +8181,7 @@
       "source_file": "backend/tests/test_checkin_decisions.py",
       "source_location": "L38",
       "id": "tests_test_checkin_decisions_member_no_membership",
-      "community": 219,
+      "community": 154,
       "norm_label": "_member_no_membership()"
     },
     {
@@ -8190,7 +8190,7 @@
       "source_file": "backend/tests/test_checkin_decisions.py",
       "source_location": "L43",
       "id": "tests_test_checkin_decisions_test_active_membership_allowed",
-      "community": 219,
+      "community": 154,
       "norm_label": "test_active_membership_allowed()"
     },
     {
@@ -8199,7 +8199,7 @@
       "source_file": "backend/tests/test_checkin_decisions.py",
       "source_location": "L53",
       "id": "tests_test_checkin_decisions_test_in_grace_allowed_with_status",
-      "community": 219,
+      "community": 154,
       "norm_label": "test_in_grace_allowed_with_status()"
     },
     {
@@ -8208,7 +8208,7 @@
       "source_file": "backend/tests/test_checkin_decisions.py",
       "source_location": "L64",
       "id": "tests_test_checkin_decisions_test_expired_membership_denied",
-      "community": 219,
+      "community": 154,
       "norm_label": "test_expired_membership_denied()"
     },
     {
@@ -8217,7 +8217,7 @@
       "source_file": "backend/tests/test_checkin_decisions.py",
       "source_location": "L75",
       "id": "tests_test_checkin_decisions_test_no_membership_denied",
-      "community": 219,
+      "community": 154,
       "norm_label": "test_no_membership_denied()"
     },
     {
@@ -8226,7 +8226,7 @@
       "source_file": "backend/tests/test_checkin_decisions.py",
       "source_location": "L84",
       "id": "tests_test_checkin_decisions_test_override_after_denial_audits",
-      "community": 219,
+      "community": 154,
       "norm_label": "test_override_after_denial_audits()"
     },
     {
@@ -8235,7 +8235,7 @@
       "source_file": "backend/tests/test_checkin_decisions.py",
       "source_location": "L102",
       "id": "tests_test_checkin_decisions_test_override_without_recent_denial_rejected",
-      "community": 219,
+      "community": 154,
       "norm_label": "test_override_without_recent_denial_rejected()"
     },
     {
@@ -8244,7 +8244,7 @@
       "source_file": "backend/tests/test_checkin_decisions.py",
       "source_location": "L111",
       "id": "tests_test_checkin_decisions_test_operations_dashboard_shows_denied_and_grace",
-      "community": 219,
+      "community": 154,
       "norm_label": "test_operations_dashboard_shows_denied_and_grace()"
     },
     {
@@ -8370,7 +8370,7 @@
       "source_file": "backend/tests/test_class_sessions.py",
       "source_location": "L1",
       "id": "backend_tests_test_class_sessions_py",
-      "community": 219,
+      "community": 203,
       "norm_label": "test_class_sessions.py"
     },
     {
@@ -8379,7 +8379,7 @@
       "source_file": "backend/tests/test_class_sessions.py",
       "source_location": "L11",
       "id": "tests_test_class_sessions_owner_token",
-      "community": 219,
+      "community": 203,
       "norm_label": "_owner_token()"
     },
     {
@@ -8388,7 +8388,7 @@
       "source_file": "backend/tests/test_class_sessions.py",
       "source_location": "L24",
       "id": "tests_test_class_sessions_auth",
-      "community": 219,
+      "community": 203,
       "norm_label": "_auth()"
     },
     {
@@ -8397,7 +8397,7 @@
       "source_file": "backend/tests/test_class_sessions.py",
       "source_location": "L28",
       "id": "tests_test_class_sessions_member_active",
-      "community": 219,
+      "community": 203,
       "norm_label": "_member_active()"
     },
     {
@@ -8406,7 +8406,7 @@
       "source_file": "backend/tests/test_class_sessions.py",
       "source_location": "L40",
       "id": "tests_test_class_sessions_create_class",
-      "community": 219,
+      "community": 203,
       "norm_label": "_create_class()"
     },
     {
@@ -8415,7 +8415,7 @@
       "source_file": "backend/tests/test_class_sessions.py",
       "source_location": "L52",
       "id": "tests_test_class_sessions_next_session",
-      "community": 219,
+      "community": 203,
       "norm_label": "_next_session()"
     },
     {
@@ -8424,7 +8424,7 @@
       "source_file": "backend/tests/test_class_sessions.py",
       "source_location": "L59",
       "id": "tests_test_class_sessions_test_class_creation_materializes_sessions",
-      "community": 219,
+      "community": 203,
       "norm_label": "test_class_creation_materializes_sessions()"
     },
     {
@@ -8433,7 +8433,7 @@
       "source_file": "backend/tests/test_class_sessions.py",
       "source_location": "L67",
       "id": "tests_test_class_sessions_test_booking_respects_capacity_with_waitlist",
-      "community": 219,
+      "community": 203,
       "norm_label": "test_booking_respects_capacity_with_waitlist()"
     },
     {
@@ -8442,7 +8442,7 @@
       "source_file": "backend/tests/test_class_sessions.py",
       "source_location": "L83",
       "id": "tests_test_class_sessions_test_cancel_promotes_waitlist",
-      "community": 219,
+      "community": 203,
       "norm_label": "test_cancel_promotes_waitlist()"
     },
     {
@@ -8451,7 +8451,7 @@
       "source_file": "backend/tests/test_class_sessions.py",
       "source_location": "L105",
       "id": "tests_test_class_sessions_test_member_without_membership_cannot_book",
-      "community": 219,
+      "community": 203,
       "norm_label": "test_member_without_membership_cannot_book()"
     },
     {
@@ -8460,7 +8460,7 @@
       "source_file": "backend/tests/test_class_sessions.py",
       "source_location": "L115",
       "id": "tests_test_class_sessions_test_attendance_marking",
-      "community": 219,
+      "community": 203,
       "norm_label": "test_attendance_marking()"
     },
     {
@@ -8469,7 +8469,7 @@
       "source_file": "backend/tests/test_class_sessions.py",
       "source_location": "L128",
       "id": "tests_test_class_sessions_test_materialize_idempotent",
-      "community": 219,
+      "community": 203,
       "norm_label": "test_materialize_idempotent()"
     },
     {
@@ -8640,7 +8640,7 @@
       "source_file": "backend/tests/test_membership_lifecycle.py",
       "source_location": "L1",
       "id": "backend_tests_test_membership_lifecycle_py",
-      "community": 219,
+      "community": 8,
       "norm_label": "test_membership_lifecycle.py"
     },
     {
@@ -8649,7 +8649,7 @@
       "source_file": "backend/tests/test_membership_lifecycle.py",
       "source_location": "L9",
       "id": "tests_test_membership_lifecycle_today_bogota",
-      "community": 219,
+      "community": 8,
       "norm_label": "_today_bogota()"
     },
     {
@@ -8658,7 +8658,7 @@
       "source_file": "backend/tests/test_membership_lifecycle.py",
       "source_location": "L18",
       "id": "tests_test_membership_lifecycle_owner_token",
-      "community": 219,
+      "community": 8,
       "norm_label": "_owner_token()"
     },
     {
@@ -8667,7 +8667,7 @@
       "source_file": "backend/tests/test_membership_lifecycle.py",
       "source_location": "L31",
       "id": "tests_test_membership_lifecycle_auth",
-      "community": 219,
+      "community": 8,
       "norm_label": "_auth()"
     },
     {
@@ -8676,7 +8676,7 @@
       "source_file": "backend/tests/test_membership_lifecycle.py",
       "source_location": "L35",
       "id": "tests_test_membership_lifecycle_create_member",
-      "community": 219,
+      "community": 8,
       "norm_label": "_create_member()"
     },
     {
@@ -8685,7 +8685,7 @@
       "source_file": "backend/tests/test_membership_lifecycle.py",
       "source_location": "L40",
       "id": "tests_test_membership_lifecycle_create_plan",
-      "community": 219,
+      "community": 8,
       "norm_label": "_create_plan()"
     },
     {
@@ -8694,7 +8694,7 @@
       "source_file": "backend/tests/test_membership_lifecycle.py",
       "source_location": "L50",
       "id": "tests_test_membership_lifecycle_assign",
-      "community": 219,
+      "community": 8,
       "norm_label": "_assign()"
     },
     {
@@ -8703,7 +8703,7 @@
       "source_file": "backend/tests/test_membership_lifecycle.py",
       "source_location": "L62",
       "id": "tests_test_membership_lifecycle_test_freeze_and_unfreeze_roundtrip",
-      "community": 219,
+      "community": 8,
       "norm_label": "test_freeze_and_unfreeze_roundtrip()"
     },
     {
@@ -8712,7 +8712,7 @@
       "source_file": "backend/tests/test_membership_lifecycle.py",
       "source_location": "L89",
       "id": "tests_test_membership_lifecycle_test_double_freeze_rejected",
-      "community": 219,
+      "community": 8,
       "norm_label": "test_double_freeze_rejected()"
     },
     {
@@ -8721,7 +8721,7 @@
       "source_file": "backend/tests/test_membership_lifecycle.py",
       "source_location": "L103",
       "id": "tests_test_membership_lifecycle_test_cancelled_membership_cannot_freeze",
-      "community": 219,
+      "community": 8,
       "norm_label": "test_cancelled_membership_cannot_freeze()"
     },
     {
@@ -8730,7 +8730,7 @@
       "source_file": "backend/tests/test_membership_lifecycle.py",
       "source_location": "L118",
       "id": "tests_test_membership_lifecycle_test_assign_chains_after_active_membership",
-      "community": 219,
+      "community": 8,
       "norm_label": "test_assign_chains_after_active_membership()"
     },
     {
@@ -8739,7 +8739,7 @@
       "source_file": "backend/tests/test_membership_lifecycle.py",
       "source_location": "L137",
       "id": "tests_test_membership_lifecycle_test_assign_chains_after_scheduled_membership",
-      "community": 219,
+      "community": 8,
       "norm_label": "test_assign_chains_after_scheduled_membership()"
     },
     {
@@ -8748,7 +8748,7 @@
       "source_file": "backend/tests/test_membership_lifecycle.py",
       "source_location": "L151",
       "id": "tests_test_membership_lifecycle_test_scheduled_membership_does_not_allow_checkin",
-      "community": 219,
+      "community": 8,
       "norm_label": "test_scheduled_membership_does_not_allow_checkin()"
     },
     {
@@ -8757,7 +8757,7 @@
       "source_file": "backend/tests/test_membership_lifecycle.py",
       "source_location": "L164",
       "id": "tests_test_membership_lifecycle_test_unfreeze_shifts_chained_memberships",
-      "community": 219,
+      "community": 8,
       "norm_label": "test_unfreeze_shifts_chained_memberships()"
     },
     {
@@ -8766,7 +8766,7 @@
       "source_file": "backend/tests/test_membership_lifecycle.py",
       "source_location": "L225",
       "id": "tests_test_membership_lifecycle_test_grace_period_effective_status",
-      "community": 219,
+      "community": 8,
       "norm_label": "test_grace_period_effective_status()"
     },
     {
@@ -8775,7 +8775,7 @@
       "source_file": "backend/tests/test_membership_lifecycle.py",
       "source_location": "L253",
       "id": "tests_test_membership_lifecycle_test_expire_job_marks_overdue_memberships",
-      "community": 219,
+      "community": 8,
       "norm_label": "test_expire_job_marks_overdue_memberships()"
     },
     {
@@ -8784,7 +8784,7 @@
       "source_file": "backend/tests/test_membership_lifecycle.py",
       "source_location": "L277",
       "id": "tests_test_membership_lifecycle_test_manual_discount_requires_reason",
-      "community": 219,
+      "community": 8,
       "norm_label": "test_manual_discount_requires_reason()"
     },
     {
@@ -8793,7 +8793,7 @@
       "source_file": "backend/tests/test_membership_lifecycle.py",
       "source_location": "L286",
       "id": "tests_test_membership_lifecycle_test_manual_discount_applies_net_price",
-      "community": 219,
+      "community": 8,
       "norm_label": "test_manual_discount_applies_net_price()"
     },
     {
@@ -8802,7 +8802,7 @@
       "source_file": "backend/tests/test_membership_lifecycle.py",
       "source_location": "L298",
       "id": "tests_test_membership_lifecycle_test_promo_code_percent_and_max_uses",
-      "community": 219,
+      "community": 8,
       "norm_label": "test_promo_code_percent_and_max_uses()"
     },
     {
@@ -8811,7 +8811,7 @@
       "source_file": "backend/tests/test_membership_lifecycle.py",
       "source_location": "L320",
       "id": "tests_test_membership_lifecycle_test_sensitive_actions_are_audited",
-      "community": 219,
+      "community": 8,
       "norm_label": "test_sensitive_actions_are_audited()"
     },
     {
@@ -8820,7 +8820,7 @@
       "source_file": "backend/tests/test_membership_lifecycle.py",
       "source_location": "L335",
       "id": "tests_test_membership_lifecycle_test_audit_requires_owner_role",
-      "community": 219,
+      "community": 8,
       "norm_label": "test_audit_requires_owner_role()"
     },
     {
@@ -8829,7 +8829,7 @@
       "source_file": "backend/tests/test_membership_lifecycle.py",
       "source_location": "L352",
       "id": "tests_test_membership_lifecycle_test_locations_crud_and_soft_delete",
-      "community": 219,
+      "community": 8,
       "norm_label": "test_locations_crud_and_soft_delete()"
     },
     {
@@ -8838,7 +8838,7 @@
       "source_file": "backend/tests/test_models.py",
       "source_location": "L1",
       "id": "backend_tests_test_models_py",
-      "community": 225,
+      "community": 6,
       "norm_label": "test_models.py"
     },
     {
@@ -8847,7 +8847,7 @@
       "source_file": "backend/tests/test_models.py",
       "source_location": "L16",
       "id": "tests_test_models_session_fixture",
-      "community": 225,
+      "community": 6,
       "norm_label": "_session_fixture()"
     },
     {
@@ -8856,7 +8856,7 @@
       "source_file": "backend/tests/test_models.py",
       "source_location": "L40",
       "id": "tests_test_models_test_tenant_creation",
-      "community": 225,
+      "community": 6,
       "norm_label": "test_tenant_creation()"
     },
     {
@@ -8865,7 +8865,7 @@
       "source_file": "backend/tests/test_models.py",
       "source_location": "L56",
       "id": "tests_test_models_test_user_staff_creation",
-      "community": 225,
+      "community": 6,
       "norm_label": "test_user_staff_creation()"
     },
     {
@@ -8874,7 +8874,7 @@
       "source_file": "backend/tests/test_models.py",
       "source_location": "L70",
       "id": "tests_test_models_test_location_creation",
-      "community": 225,
+      "community": 6,
       "norm_label": "test_location_creation()"
     },
     {
@@ -9081,7 +9081,7 @@
       "source_file": "backend/tests/test_pos.py",
       "source_location": "L1",
       "id": "backend_tests_test_pos_py",
-      "community": 234,
+      "community": 203,
       "norm_label": "test_pos.py"
     },
     {
@@ -9090,7 +9090,7 @@
       "source_file": "backend/tests/test_pos.py",
       "source_location": "L11",
       "id": "tests_test_pos_owner_token",
-      "community": 234,
+      "community": 203,
       "norm_label": "_owner_token()"
     },
     {
@@ -9099,7 +9099,7 @@
       "source_file": "backend/tests/test_pos.py",
       "source_location": "L24",
       "id": "tests_test_pos_auth",
-      "community": 234,
+      "community": 203,
       "norm_label": "_auth()"
     },
     {
@@ -9108,7 +9108,7 @@
       "source_file": "backend/tests/test_pos.py",
       "source_location": "L28",
       "id": "tests_test_pos_member",
-      "community": 234,
+      "community": 203,
       "norm_label": "_member()"
     },
     {
@@ -9117,7 +9117,7 @@
       "source_file": "backend/tests/test_pos.py",
       "source_location": "L33",
       "id": "tests_test_pos_product",
-      "community": 234,
+      "community": 203,
       "norm_label": "_product()"
     },
     {
@@ -9126,7 +9126,7 @@
       "source_file": "backend/tests/test_pos.py",
       "source_location": "L41",
       "id": "tests_test_pos_test_product_sale_decrements_stock_and_issues_receipt",
-      "community": 234,
+      "community": 203,
       "norm_label": "test_product_sale_decrements_stock_and_issues_receipt()"
     },
     {
@@ -9135,7 +9135,7 @@
       "source_file": "backend/tests/test_pos.py",
       "source_location": "L70",
       "id": "tests_test_pos_test_insufficient_stock_is_409",
-      "community": 234,
+      "community": 203,
       "norm_label": "test_insufficient_stock_is_409()"
     },
     {
@@ -9144,7 +9144,7 @@
       "source_file": "backend/tests/test_pos.py",
       "source_location": "L82",
       "id": "tests_test_pos_test_concurrent_sales_never_oversell",
-      "community": 234,
+      "community": 203,
       "norm_label": "test_concurrent_sales_never_oversell()"
     },
     {
@@ -9153,7 +9153,7 @@
       "source_file": "backend/tests/test_pos.py",
       "source_location": "L103",
       "id": "tests_test_pos_test_payment_without_member_and_without_items_is_422",
-      "community": 234,
+      "community": 203,
       "norm_label": "test_payment_without_member_and_without_items_is_422()"
     },
     {
@@ -9162,7 +9162,7 @@
       "source_file": "backend/tests/test_pos.py",
       "source_location": "L111",
       "id": "tests_test_pos_test_billing_summary_with_balance_and_renewal",
-      "community": 234,
+      "community": 203,
       "norm_label": "test_billing_summary_with_balance_and_renewal()"
     },
     {
@@ -9171,7 +9171,7 @@
       "source_file": "backend/tests/test_pos.py",
       "source_location": "L142",
       "id": "tests_test_pos_test_receivables_lists_partial_balance",
-      "community": 234,
+      "community": 203,
       "norm_label": "test_receivables_lists_partial_balance()"
     },
     {
@@ -9180,7 +9180,7 @@
       "source_file": "backend/tests/test_pos.py",
       "source_location": "L160",
       "id": "tests_test_pos_test_charge_renewal_extends_from_current_end",
-      "community": 234,
+      "community": 203,
       "norm_label": "test_charge_renewal_extends_from_current_end()"
     },
     {
@@ -9189,7 +9189,7 @@
       "source_file": "backend/tests/test_pos.py",
       "source_location": "L189",
       "id": "tests_test_pos_test_charge_cash_requires_open_shift",
-      "community": 234,
+      "community": 203,
       "norm_label": "test_charge_cash_requires_open_shift()"
     },
     {
@@ -9198,7 +9198,7 @@
       "source_file": "backend/tests/test_pos.py",
       "source_location": "L206",
       "id": "tests_test_pos_test_archive_product_with_sales",
-      "community": 234,
+      "community": 203,
       "norm_label": "test_archive_product_with_sales()"
     },
     {
@@ -11097,7 +11097,7 @@
       "source_file": "frontend/app/(dashboard)/ayuda/page.tsx",
       "source_location": "L1",
       "id": "frontend_app_dashboard_ayuda_page_tsx",
-      "community": 218,
+      "community": 189,
       "norm_label": "page.tsx"
     },
     {
@@ -11106,7 +11106,7 @@
       "source_file": "frontend/app/(dashboard)/ayuda/page.tsx",
       "source_location": "L18",
       "id": "ayuda_page_guide",
-      "community": 218,
+      "community": 189,
       "norm_label": "guide"
     },
     {
@@ -11115,7 +11115,7 @@
       "source_file": "frontend/app/(dashboard)/ayuda/page.tsx",
       "source_location": "L24",
       "id": "ayuda_page_guides",
-      "community": 218,
+      "community": 189,
       "norm_label": "guides"
     },
     {
@@ -11124,7 +11124,7 @@
       "source_file": "frontend/app/(dashboard)/ayuda/page.tsx",
       "source_location": "L81",
       "id": "ayuda_page_faqs",
-      "community": 218,
+      "community": 189,
       "norm_label": "faqs"
     },
     {
@@ -11133,7 +11133,7 @@
       "source_file": "frontend/app/(dashboard)/ayuda/page.tsx",
       "source_location": "L104",
       "id": "ayuda_page_accordion",
-      "community": 218,
+      "community": 189,
       "norm_label": "accordion()"
     },
     {
@@ -11142,7 +11142,7 @@
       "source_file": "frontend/app/(dashboard)/ayuda/page.tsx",
       "source_location": "L134",
       "id": "ayuda_page_ayudapage",
-      "community": 218,
+      "community": 189,
       "norm_label": "ayudapage()"
     },
     {
@@ -11151,7 +11151,7 @@
       "source_file": "frontend/app/(dashboard)/checkins/CheckinsClient.tsx",
       "source_location": "L1",
       "id": "frontend_app_dashboard_checkins_checkinsclient_tsx",
-      "community": 209,
+      "community": 38,
       "norm_label": "checkinsclient.tsx"
     },
     {
@@ -11160,7 +11160,7 @@
       "source_file": "frontend/app/(dashboard)/checkins/CheckinsClient.tsx",
       "source_location": "L29",
       "id": "checkins_checkinsclient_denial_labels",
-      "community": 209,
+      "community": 38,
       "norm_label": "denial_labels"
     },
     {
@@ -11169,7 +11169,7 @@
       "source_file": "frontend/app/(dashboard)/checkins/CheckinsClient.tsx",
       "source_location": "L36",
       "id": "checkins_checkinsclient_livedeniedcard",
-      "community": 209,
+      "community": 38,
       "norm_label": "livedeniedcard()"
     },
     {
@@ -11178,7 +11178,7 @@
       "source_file": "frontend/app/(dashboard)/checkins/CheckinsClient.tsx",
       "source_location": "L105",
       "id": "checkins_checkinsclient_decisionbadge",
-      "community": 209,
+      "community": 38,
       "norm_label": "decisionbadge()"
     },
     {
@@ -11187,7 +11187,7 @@
       "source_file": "frontend/app/(dashboard)/checkins/CheckinsClient.tsx",
       "source_location": "L134",
       "id": "checkins_checkinsclient_tvmode",
-      "community": 209,
+      "community": 38,
       "norm_label": "tvmode()"
     },
     {
@@ -11196,7 +11196,7 @@
       "source_file": "frontend/app/(dashboard)/checkins/CheckinsClient.tsx",
       "source_location": "L216",
       "id": "checkins_checkinsclient_checkinsclient",
-      "community": 13,
+      "community": 38,
       "norm_label": "checkinsclient()"
     },
     {
@@ -11205,7 +11205,7 @@
       "source_file": "frontend/app/(dashboard)/checkins/page.tsx",
       "source_location": "L1",
       "id": "frontend_app_dashboard_checkins_page_tsx",
-      "community": 209,
+      "community": 38,
       "norm_label": "page.tsx"
     },
     {
@@ -11214,7 +11214,7 @@
       "source_file": "frontend/app/(dashboard)/checkins/page.tsx",
       "source_location": "L6",
       "id": "checkins_page_checkinspage",
-      "community": 209,
+      "community": 38,
       "norm_label": "checkinspage()"
     },
     {
@@ -11223,7 +11223,7 @@
       "source_file": "frontend/app/(dashboard)/classes/ClassesClient.tsx",
       "source_location": "L1",
       "id": "frontend_app_dashboard_classes_classesclient_tsx",
-      "community": 13,
+      "community": 38,
       "norm_label": "classesclient.tsx"
     },
     {
@@ -11232,7 +11232,7 @@
       "source_file": "frontend/app/(dashboard)/classes/ClassesClient.tsx",
       "source_location": "L38",
       "id": "classes_classesclient_gymclass",
-      "community": 13,
+      "community": 38,
       "norm_label": "gymclass"
     },
     {
@@ -11241,7 +11241,7 @@
       "source_file": "frontend/app/(dashboard)/classes/ClassesClient.tsx",
       "source_location": "L54",
       "id": "classes_classesclient_enrollment",
-      "community": 13,
+      "community": 38,
       "norm_label": "enrollment"
     },
     {
@@ -11250,7 +11250,7 @@
       "source_file": "frontend/app/(dashboard)/classes/ClassesClient.tsx",
       "source_location": "L66",
       "id": "classes_classesclient_categories",
-      "community": 13,
+      "community": 38,
       "norm_label": "categories"
     },
     {
@@ -11259,7 +11259,7 @@
       "source_file": "frontend/app/(dashboard)/classes/ClassesClient.tsx",
       "source_location": "L70",
       "id": "classes_classesclient_difficulties",
-      "community": 13,
+      "community": 38,
       "norm_label": "difficulties"
     },
     {
@@ -11268,7 +11268,7 @@
       "source_file": "frontend/app/(dashboard)/classes/ClassesClient.tsx",
       "source_location": "L76",
       "id": "classes_classesclient_duration_options",
-      "community": 13,
+      "community": 38,
       "norm_label": "duration_options"
     },
     {
@@ -11277,7 +11277,7 @@
       "source_file": "frontend/app/(dashboard)/classes/ClassesClient.tsx",
       "source_location": "L78",
       "id": "classes_classesclient_day_labels",
-      "community": 13,
+      "community": 38,
       "norm_label": "day_labels"
     },
     {
@@ -11286,7 +11286,7 @@
       "source_file": "frontend/app/(dashboard)/classes/ClassesClient.tsx",
       "source_location": "L80",
       "id": "classes_classesclient_color_options",
-      "community": 13,
+      "community": 38,
       "norm_label": "color_options"
     },
     {
@@ -11295,7 +11295,7 @@
       "source_file": "frontend/app/(dashboard)/classes/ClassesClient.tsx",
       "source_location": "L91",
       "id": "classes_classesclient_buildschedulepreview",
-      "community": 13,
+      "community": 38,
       "norm_label": "buildschedulepreview()"
     },
     {
@@ -11304,7 +11304,7 @@
       "source_file": "frontend/app/(dashboard)/classes/ClassesClient.tsx",
       "source_location": "L106",
       "id": "classes_classesclient_classesclient",
-      "community": 13,
+      "community": 38,
       "norm_label": "classesclient()"
     },
     {
@@ -11313,7 +11313,7 @@
       "source_file": "frontend/app/(dashboard)/classes/InstructorsCard.tsx",
       "source_location": "L1",
       "id": "frontend_app_dashboard_classes_instructorscard_tsx",
-      "community": 220,
+      "community": 0,
       "norm_label": "instructorscard.tsx"
     },
     {
@@ -11322,7 +11322,7 @@
       "source_file": "frontend/app/(dashboard)/classes/InstructorsCard.tsx",
       "source_location": "L17",
       "id": "classes_instructorscard_instructor",
-      "community": 220,
+      "community": 0,
       "norm_label": "instructor"
     },
     {
@@ -11331,7 +11331,7 @@
       "source_file": "frontend/app/(dashboard)/classes/InstructorsCard.tsx",
       "source_location": "L27",
       "id": "classes_instructorscard_emptyform",
-      "community": 220,
+      "community": 0,
       "norm_label": "emptyform"
     },
     {
@@ -11340,7 +11340,7 @@
       "source_file": "frontend/app/(dashboard)/classes/InstructorsCard.tsx",
       "source_location": "L29",
       "id": "classes_instructorscard_instructorscard",
-      "community": 220,
+      "community": 38,
       "norm_label": "instructorscard()"
     },
     {
@@ -11349,7 +11349,7 @@
       "source_file": "frontend/app/(dashboard)/classes/page.tsx",
       "source_location": "L1",
       "id": "frontend_app_dashboard_classes_page_tsx",
-      "community": 13,
+      "community": 38,
       "norm_label": "page.tsx"
     },
     {
@@ -11358,7 +11358,7 @@
       "source_file": "frontend/app/(dashboard)/classes/page.tsx",
       "source_location": "L6",
       "id": "classes_page_classespage",
-      "community": 13,
+      "community": 38,
       "norm_label": "classespage()"
     },
     {
@@ -11367,7 +11367,7 @@
       "source_file": "frontend/app/(dashboard)/classes/agenda/AgendaClient.tsx",
       "source_location": "L1",
       "id": "frontend_app_dashboard_classes_agenda_agendaclient_tsx",
-      "community": 189,
+      "community": 220,
       "norm_label": "agendaclient.tsx"
     },
     {
@@ -11376,7 +11376,7 @@
       "source_file": "frontend/app/(dashboard)/classes/agenda/AgendaClient.tsx",
       "source_location": "L31",
       "id": "agenda_agendaclient_sessionitem",
-      "community": 189,
+      "community": 220,
       "norm_label": "sessionitem"
     },
     {
@@ -11385,7 +11385,7 @@
       "source_file": "frontend/app/(dashboard)/classes/agenda/AgendaClient.tsx",
       "source_location": "L46",
       "id": "agenda_agendaclient_rosterentry",
-      "community": 189,
+      "community": 220,
       "norm_label": "rosterentry"
     },
     {
@@ -11394,7 +11394,7 @@
       "source_file": "frontend/app/(dashboard)/classes/agenda/AgendaClient.tsx",
       "source_location": "L56",
       "id": "agenda_agendaclient_minutesof",
-      "community": 189,
+      "community": 220,
       "norm_label": "minutesof()"
     },
     {
@@ -11403,7 +11403,7 @@
       "source_file": "frontend/app/(dashboard)/classes/agenda/AgendaClient.tsx",
       "source_location": "L61",
       "id": "agenda_agendaclient_occupancycolor",
-      "community": 189,
+      "community": 220,
       "norm_label": "occupancycolor()"
     },
     {
@@ -11412,7 +11412,7 @@
       "source_file": "frontend/app/(dashboard)/classes/agenda/AgendaClient.tsx",
       "source_location": "L68",
       "id": "agenda_agendaclient_agendaclient",
-      "community": 189,
+      "community": 220,
       "norm_label": "agendaclient()"
     },
     {
@@ -11421,7 +11421,7 @@
       "source_file": "frontend/app/(dashboard)/classes/agenda/page.tsx",
       "source_location": "L1",
       "id": "frontend_app_dashboard_classes_agenda_page_tsx",
-      "community": 189,
+      "community": 220,
       "norm_label": "page.tsx"
     },
     {
@@ -11430,7 +11430,7 @@
       "source_file": "frontend/app/(dashboard)/classes/agenda/page.tsx",
       "source_location": "L6",
       "id": "agenda_page_agendapage",
-      "community": 189,
+      "community": 220,
       "norm_label": "agendapage()"
     },
     {
@@ -11664,7 +11664,7 @@
       "source_file": "frontend/app/(dashboard)/members/MembersClient.tsx",
       "source_location": "L157",
       "id": "members_membersclient_membersclient",
-      "community": 13,
+      "community": 38,
       "norm_label": "membersclient()"
     },
     {
@@ -11691,7 +11691,7 @@
       "source_file": "frontend/app/(dashboard)/members/[id]/MemberDetailClient.tsx",
       "source_location": "L1",
       "id": "frontend_app_dashboard_members_id_memberdetailclient_tsx",
-      "community": 0,
+      "community": 101,
       "norm_label": "memberdetailclient.tsx"
     },
     {
@@ -11700,7 +11700,7 @@
       "source_file": "frontend/app/(dashboard)/members/[id]/MemberDetailClient.tsx",
       "source_location": "L47",
       "id": "id_memberdetailclient_tab",
-      "community": 0,
+      "community": 101,
       "norm_label": "tab"
     },
     {
@@ -11709,7 +11709,7 @@
       "source_file": "frontend/app/(dashboard)/members/[id]/MemberDetailClient.tsx",
       "source_location": "L49",
       "id": "id_memberdetailclient_tab_config",
-      "community": 0,
+      "community": 101,
       "norm_label": "tab_config"
     },
     {
@@ -11718,7 +11718,7 @@
       "source_file": "frontend/app/(dashboard)/members/[id]/MemberDetailClient.tsx",
       "source_location": "L58",
       "id": "id_memberdetailclient_timelineevent",
-      "community": 0,
+      "community": 101,
       "norm_label": "timelineevent"
     },
     {
@@ -11727,7 +11727,7 @@
       "source_file": "frontend/app/(dashboard)/members/[id]/MemberDetailClient.tsx",
       "source_location": "L64",
       "id": "id_memberdetailclient_status_pill",
-      "community": 0,
+      "community": 101,
       "norm_label": "status_pill"
     },
     {
@@ -11736,7 +11736,7 @@
       "source_file": "frontend/app/(dashboard)/members/[id]/MemberDetailClient.tsx",
       "source_location": "L97",
       "id": "id_memberdetailclient_membershipstatuspill",
-      "community": 0,
+      "community": 101,
       "norm_label": "membershipstatuspill()"
     },
     {
@@ -11745,7 +11745,7 @@
       "source_file": "frontend/app/(dashboard)/members/[id]/MemberDetailClient.tsx",
       "source_location": "L106",
       "id": "id_memberdetailclient_cardvariants",
-      "community": 0,
+      "community": 101,
       "norm_label": "cardvariants"
     },
     {
@@ -11754,7 +11754,7 @@
       "source_file": "frontend/app/(dashboard)/members/[id]/MemberDetailClient.tsx",
       "source_location": "L111",
       "id": "id_memberdetailclient_memberdetailclient",
-      "community": 0,
+      "community": 101,
       "norm_label": "memberdetailclient()"
     },
     {
@@ -11763,7 +11763,7 @@
       "source_file": "frontend/app/(dashboard)/members/[id]/page.tsx",
       "source_location": "L1",
       "id": "frontend_app_dashboard_members_id_page_tsx",
-      "community": 0,
+      "community": 101,
       "norm_label": "page.tsx"
     },
     {
@@ -11772,7 +11772,7 @@
       "source_file": "frontend/app/(dashboard)/members/[id]/page.tsx",
       "source_location": "L4",
       "id": "id_page_props",
-      "community": 0,
+      "community": 101,
       "norm_label": "props"
     },
     {
@@ -11781,7 +11781,7 @@
       "source_file": "frontend/app/(dashboard)/members/[id]/page.tsx",
       "source_location": "L6",
       "id": "id_page_memberdetailpage",
-      "community": 0,
+      "community": 101,
       "norm_label": "memberdetailpage()"
     },
     {
@@ -11943,7 +11943,7 @@
       "source_file": "frontend/app/(dashboard)/payments/PosTab.tsx",
       "source_location": "L217",
       "id": "payments_postab_postab",
-      "community": 220,
+      "community": 209,
       "norm_label": "postab()"
     },
     {
@@ -11988,7 +11988,7 @@
       "source_file": "frontend/app/(dashboard)/payments/ReceivablesTab.tsx",
       "source_location": "L1",
       "id": "frontend_app_dashboard_payments_receivablestab_tsx",
-      "community": 209,
+      "community": 220,
       "norm_label": "receivablestab.tsx"
     },
     {
@@ -11997,7 +11997,7 @@
       "source_file": "frontend/app/(dashboard)/payments/ReceivablesTab.tsx",
       "source_location": "L16",
       "id": "payments_receivablestab_receivable",
-      "community": 209,
+      "community": 220,
       "norm_label": "receivable"
     },
     {
@@ -12123,7 +12123,7 @@
       "source_file": "frontend/app/(dashboard)/plans/page.tsx",
       "source_location": "L1",
       "id": "frontend_app_dashboard_plans_page_tsx",
-      "community": 101,
+      "community": 209,
       "norm_label": "page.tsx"
     },
     {
@@ -12132,7 +12132,7 @@
       "source_file": "frontend/app/(dashboard)/plans/page.tsx",
       "source_location": "L3",
       "id": "plans_page_planspage",
-      "community": 101,
+      "community": 209,
       "norm_label": "planspage()"
     },
     {
@@ -12141,7 +12141,7 @@
       "source_file": "frontend/app/(dashboard)/plans/PlansClient.tsx",
       "source_location": "L1",
       "id": "frontend_app_dashboard_plans_plansclient_tsx",
-      "community": 101,
+      "community": 209,
       "norm_label": "plansclient.tsx"
     },
     {
@@ -12150,7 +12150,7 @@
       "source_file": "frontend/app/(dashboard)/plans/PlansClient.tsx",
       "source_location": "L38",
       "id": "plans_plansclient_planschema",
-      "community": 101,
+      "community": 209,
       "norm_label": "planschema"
     },
     {
@@ -12159,7 +12159,7 @@
       "source_file": "frontend/app/(dashboard)/plans/PlansClient.tsx",
       "source_location": "L48",
       "id": "plans_plansclient_planform",
-      "community": 101,
+      "community": 209,
       "norm_label": "planform"
     },
     {
@@ -12168,7 +12168,7 @@
       "source_file": "frontend/app/(dashboard)/plans/PlansClient.tsx",
       "source_location": "L50",
       "id": "plans_plansclient_plan",
-      "community": 101,
+      "community": 209,
       "norm_label": "plan"
     },
     {
@@ -12177,7 +12177,7 @@
       "source_file": "frontend/app/(dashboard)/plans/PlansClient.tsx",
       "source_location": "L61",
       "id": "plans_plansclient_access_options",
-      "community": 101,
+      "community": 209,
       "norm_label": "access_options"
     },
     {
@@ -12186,7 +12186,7 @@
       "source_file": "frontend/app/(dashboard)/plans/PlansClient.tsx",
       "source_location": "L67",
       "id": "plans_plansclient_accessbadge",
-      "community": 101,
+      "community": 209,
       "norm_label": "accessbadge()"
     },
     {
@@ -12195,7 +12195,7 @@
       "source_file": "frontend/app/(dashboard)/plans/PlansClient.tsx",
       "source_location": "L80",
       "id": "plans_plansclient_duration_presets",
-      "community": 101,
+      "community": 209,
       "norm_label": "duration_presets"
     },
     {
@@ -12204,7 +12204,7 @@
       "source_file": "frontend/app/(dashboard)/plans/PlansClient.tsx",
       "source_location": "L89",
       "id": "plans_plansclient_durationlabel",
-      "community": 101,
+      "community": 209,
       "norm_label": "durationlabel()"
     },
     {
@@ -12213,7 +12213,7 @@
       "source_file": "frontend/app/(dashboard)/plans/PlansClient.tsx",
       "source_location": "L99",
       "id": "plans_plansclient_permonthprice",
-      "community": 101,
+      "community": 209,
       "norm_label": "permonthprice()"
     },
     {
@@ -12222,7 +12222,7 @@
       "source_file": "frontend/app/(dashboard)/plans/PlansClient.tsx",
       "source_location": "L104",
       "id": "plans_plansclient_cardvariants",
-      "community": 101,
+      "community": 209,
       "norm_label": "cardvariants"
     },
     {
@@ -12231,7 +12231,7 @@
       "source_file": "frontend/app/(dashboard)/plans/PlansClient.tsx",
       "source_location": "L109",
       "id": "plans_plansclient_containervariants",
-      "community": 101,
+      "community": 209,
       "norm_label": "containervariants"
     },
     {
@@ -12240,7 +12240,7 @@
       "source_file": "frontend/app/(dashboard)/plans/PlansClient.tsx",
       "source_location": "L114",
       "id": "plans_plansclient_plancarditemprops",
-      "community": 101,
+      "community": 209,
       "norm_label": "plancarditemprops"
     },
     {
@@ -12249,7 +12249,7 @@
       "source_file": "frontend/app/(dashboard)/plans/PlansClient.tsx",
       "source_location": "L120",
       "id": "plans_plansclient_plancarditem",
-      "community": 101,
+      "community": 209,
       "norm_label": "plancarditem()"
     },
     {
@@ -12258,7 +12258,7 @@
       "source_file": "frontend/app/(dashboard)/plans/PlansClient.tsx",
       "source_location": "L210",
       "id": "plans_plansclient_emptyform",
-      "community": 101,
+      "community": 209,
       "norm_label": "emptyform"
     },
     {
@@ -12267,7 +12267,7 @@
       "source_file": "frontend/app/(dashboard)/plans/PlansClient.tsx",
       "source_location": "L220",
       "id": "plans_plansclient_plansclient",
-      "community": 101,
+      "community": 209,
       "norm_label": "plansclient()"
     },
     {
@@ -12438,7 +12438,7 @@
       "source_file": "frontend/app/(dashboard)/settings/SettingsClient.tsx",
       "source_location": "L16",
       "id": "settings_settingsclient_notificationssection",
-      "community": 189,
+      "community": 220,
       "norm_label": "notificationssection"
     },
     {
@@ -12915,7 +12915,7 @@
       "source_file": "frontend/components/common/EmptyState.tsx",
       "source_location": "L1",
       "id": "frontend_components_common_emptystate_tsx",
-      "community": 189,
+      "community": 38,
       "norm_label": "emptystate.tsx"
     },
     {
@@ -12924,7 +12924,7 @@
       "source_file": "frontend/components/common/EmptyState.tsx",
       "source_location": "L6",
       "id": "common_emptystate_emptystateprops",
-      "community": 189,
+      "community": 38,
       "norm_label": "emptystateprops"
     },
     {
@@ -12933,7 +12933,7 @@
       "source_file": "frontend/components/common/EmptyState.tsx",
       "source_location": "L14",
       "id": "common_emptystate_defaultemptystateicon",
-      "community": 189,
+      "community": 38,
       "norm_label": "defaultemptystateicon()"
     },
     {
@@ -12942,7 +12942,7 @@
       "source_file": "frontend/components/common/EmptyState.tsx",
       "source_location": "L32",
       "id": "common_emptystate_emptystate",
-      "community": 13,
+      "community": 38,
       "norm_label": "emptystate()"
     },
     {
@@ -12978,7 +12978,7 @@
       "source_file": "frontend/components/common/MemberSelect.tsx",
       "source_location": "L1",
       "id": "frontend_components_common_memberselect_tsx",
-      "community": 189,
+      "community": 220,
       "norm_label": "memberselect.tsx"
     },
     {
@@ -12987,7 +12987,7 @@
       "source_file": "frontend/components/common/MemberSelect.tsx",
       "source_location": "L7",
       "id": "common_memberselect_member",
-      "community": 189,
+      "community": 220,
       "norm_label": "member"
     },
     {
@@ -12996,7 +12996,7 @@
       "source_file": "frontend/components/common/MemberSelect.tsx",
       "source_location": "L13",
       "id": "common_memberselect_props",
-      "community": 189,
+      "community": 220,
       "norm_label": "props"
     },
     {
@@ -13005,7 +13005,7 @@
       "source_file": "frontend/components/common/MemberSelect.tsx",
       "source_location": "L18",
       "id": "common_memberselect_memberselect",
-      "community": 189,
+      "community": 220,
       "norm_label": "memberselect()"
     },
     {
@@ -13086,7 +13086,7 @@
       "source_file": "frontend/components/common/PageHeader.tsx",
       "source_location": "L1",
       "id": "frontend_components_common_pageheader_tsx",
-      "community": 13,
+      "community": 189,
       "norm_label": "pageheader.tsx"
     },
     {
@@ -13095,7 +13095,7 @@
       "source_file": "frontend/components/common/PageHeader.tsx",
       "source_location": "L7",
       "id": "common_pageheader_pageheaderprops",
-      "community": 13,
+      "community": 189,
       "norm_label": "pageheaderprops"
     },
     {
@@ -13104,7 +13104,7 @@
       "source_file": "frontend/components/common/PageHeader.tsx",
       "source_location": "L19",
       "id": "common_pageheader_pageheader",
-      "community": 13,
+      "community": 189,
       "norm_label": "pageheader()"
     },
     {
@@ -13113,7 +13113,7 @@
       "source_file": "frontend/components/common/PARQForm.tsx",
       "source_location": "L1",
       "id": "frontend_components_common_parqform_tsx",
-      "community": 38,
+      "community": 190,
       "norm_label": "parqform.tsx"
     },
     {
@@ -13122,7 +13122,7 @@
       "source_file": "frontend/components/common/PARQForm.tsx",
       "source_location": "L6",
       "id": "common_parqform_parq_keys",
-      "community": 38,
+      "community": 190,
       "norm_label": "parq_keys"
     },
     {
@@ -13131,7 +13131,7 @@
       "source_file": "frontend/components/common/PARQForm.tsx",
       "source_location": "L8",
       "id": "common_parqform_questions",
-      "community": 38,
+      "community": 190,
       "norm_label": "questions"
     },
     {
@@ -13140,7 +13140,7 @@
       "source_file": "frontend/components/common/PARQForm.tsx",
       "source_location": "L18",
       "id": "common_parqform_parqformprops",
-      "community": 38,
+      "community": 190,
       "norm_label": "parqformprops"
     },
     {
@@ -13149,7 +13149,7 @@
       "source_file": "frontend/components/common/PARQForm.tsx",
       "source_location": "L23",
       "id": "common_parqform_parqform",
-      "community": 38,
+      "community": 190,
       "norm_label": "parqform()"
     },
     {
@@ -13158,7 +13158,7 @@
       "source_file": "frontend/components/common/QRCodeDisplay.tsx",
       "source_location": "L1",
       "id": "frontend_components_common_qrcodedisplay_tsx",
-      "community": 38,
+      "community": 101,
       "norm_label": "qrcodedisplay.tsx"
     },
     {
@@ -13167,7 +13167,7 @@
       "source_file": "frontend/components/common/QRCodeDisplay.tsx",
       "source_location": "L8",
       "id": "common_qrcodedisplay_qrcodedisplayprops",
-      "community": 38,
+      "community": 101,
       "norm_label": "qrcodedisplayprops"
     },
     {
@@ -13176,7 +13176,7 @@
       "source_file": "frontend/components/common/QRCodeDisplay.tsx",
       "source_location": "L14",
       "id": "common_qrcodedisplay_qrcodedisplay",
-      "community": 38,
+      "community": 101,
       "norm_label": "qrcodedisplay()"
     },
     {
@@ -13477,10 +13477,19 @@
       "norm_label": "features"
     },
     {
-      "label": "PRICING",
+      "label": "PlanFeature",
       "file_type": "code",
       "source_file": "frontend/components/landing/LandingClient.tsx",
       "source_location": "L83",
+      "id": "landing_landingclient_planfeature",
+      "community": 52,
+      "norm_label": "planfeature"
+    },
+    {
+      "label": "PRICING",
+      "file_type": "code",
+      "source_file": "frontend/components/landing/LandingClient.tsx",
+      "source_location": "L88",
       "id": "landing_landingclient_pricing",
       "community": 52,
       "norm_label": "pricing"
@@ -13489,7 +13498,7 @@
       "label": "PROBLEMS",
       "file_type": "code",
       "source_file": "frontend/components/landing/LandingClient.tsx",
-      "source_location": "L114",
+      "source_location": "L143",
       "id": "landing_landingclient_problems",
       "community": 52,
       "norm_label": "problems"
@@ -13498,7 +13507,7 @@
       "label": "FLOW",
       "file_type": "code",
       "source_file": "frontend/components/landing/LandingClient.tsx",
-      "source_location": "L121",
+      "source_location": "L150",
       "id": "landing_landingclient_flow",
       "community": 52,
       "norm_label": "flow"
@@ -13507,7 +13516,7 @@
       "label": "TRUST",
       "file_type": "code",
       "source_file": "frontend/components/landing/LandingClient.tsx",
-      "source_location": "L129",
+      "source_location": "L158",
       "id": "landing_landingclient_trust",
       "community": 52,
       "norm_label": "trust"
@@ -13516,7 +13525,7 @@
       "label": "FAQS",
       "file_type": "code",
       "source_file": "frontend/components/landing/LandingClient.tsx",
-      "source_location": "L136",
+      "source_location": "L165",
       "id": "landing_landingclient_faqs",
       "community": 52,
       "norm_label": "faqs"
@@ -13525,7 +13534,7 @@
       "label": "FaqItem()",
       "file_type": "code",
       "source_file": "frontend/components/landing/LandingClient.tsx",
-      "source_location": "L159",
+      "source_location": "L204",
       "id": "landing_landingclient_faqitem",
       "community": 52,
       "norm_label": "faqitem()"
@@ -13534,7 +13543,7 @@
       "label": "LandingClient()",
       "file_type": "code",
       "source_file": "frontend/components/landing/LandingClient.tsx",
-      "source_location": "L184",
+      "source_location": "L229",
       "id": "landing_landingclient_landingclient",
       "community": 52,
       "norm_label": "landingclient()"
@@ -14013,7 +14022,7 @@
       "source_file": "frontend/components/settings/NotificationsSection.tsx",
       "source_location": "L1",
       "id": "frontend_components_settings_notificationssection_tsx",
-      "community": 189,
+      "community": 220,
       "norm_label": "notificationssection.tsx"
     },
     {
@@ -14022,7 +14031,7 @@
       "source_file": "frontend/components/settings/NotificationsSection.tsx",
       "source_location": "L11",
       "id": "settings_notificationssection_notificationprefs",
-      "community": 189,
+      "community": 220,
       "norm_label": "notificationprefs"
     },
     {
@@ -14031,7 +14040,7 @@
       "source_file": "frontend/components/settings/NotificationsSection.tsx",
       "source_location": "L18",
       "id": "settings_notificationssection_notifitem",
-      "community": 189,
+      "community": 220,
       "norm_label": "notifitem"
     },
     {
@@ -14040,7 +14049,7 @@
       "source_file": "frontend/components/settings/NotificationsSection.tsx",
       "source_location": "L24",
       "id": "settings_notificationssection_notif_items",
-      "community": 189,
+      "community": 220,
       "norm_label": "notif_items"
     },
     {
@@ -14049,7 +14058,7 @@
       "source_file": "frontend/components/settings/NotificationsSection.tsx",
       "source_location": "L47",
       "id": "settings_notificationssection_toggle",
-      "community": 189,
+      "community": 220,
       "norm_label": "toggle()"
     },
     {
@@ -14058,7 +14067,7 @@
       "source_file": "frontend/components/settings/NotificationsSection.tsx",
       "source_location": "L83",
       "id": "settings_notificationssection_notificationssection",
-      "community": 189,
+      "community": 220,
       "norm_label": "notificationssection()"
     },
     {
@@ -14220,7 +14229,7 @@
       "source_file": "frontend/components/ui/alert.tsx",
       "source_location": "L1",
       "id": "frontend_components_ui_alert_tsx",
-      "community": 38,
+      "community": 190,
       "norm_label": "alert.tsx"
     },
     {
@@ -14229,7 +14238,7 @@
       "source_file": "frontend/components/ui/alert.tsx",
       "source_location": "L7",
       "id": "ui_alert_alertvariant",
-      "community": 38,
+      "community": 190,
       "norm_label": "alertvariant"
     },
     {
@@ -14238,7 +14247,7 @@
       "source_file": "frontend/components/ui/alert.tsx",
       "source_location": "L9",
       "id": "ui_alert_variantconfig",
-      "community": 38,
+      "community": 190,
       "norm_label": "variantconfig"
     },
     {
@@ -14247,7 +14256,7 @@
       "source_file": "frontend/components/ui/alert.tsx",
       "source_location": "L46",
       "id": "ui_alert_alertprops",
-      "community": 38,
+      "community": 190,
       "norm_label": "alertprops"
     },
     {
@@ -14256,7 +14265,7 @@
       "source_file": "frontend/components/ui/alert.tsx",
       "source_location": "L54",
       "id": "ui_alert_alert",
-      "community": 38,
+      "community": 190,
       "norm_label": "alert()"
     },
     {
@@ -14355,7 +14364,7 @@
       "source_file": "frontend/components/ui/blood-type-select.tsx",
       "source_location": "L1",
       "id": "frontend_components_ui_blood_type_select_tsx",
-      "community": 38,
+      "community": 9,
       "norm_label": "blood-type-select.tsx"
     },
     {
@@ -14364,7 +14373,7 @@
       "source_file": "frontend/components/ui/blood-type-select.tsx",
       "source_location": "L7",
       "id": "ui_blood_type_select_blood_types",
-      "community": 38,
+      "community": 9,
       "norm_label": "blood_types"
     },
     {
@@ -14373,7 +14382,7 @@
       "source_file": "frontend/components/ui/blood-type-select.tsx",
       "source_location": "L9",
       "id": "ui_blood_type_select_bloodtypeselectprops",
-      "community": 38,
+      "community": 9,
       "norm_label": "bloodtypeselectprops"
     },
     {
@@ -14382,7 +14391,7 @@
       "source_file": "frontend/components/ui/blood-type-select.tsx",
       "source_location": "L16",
       "id": "ui_blood_type_select_bloodtypeselect",
-      "community": 38,
+      "community": 9,
       "norm_label": "bloodtypeselect()"
     },
     {
@@ -14499,7 +14508,7 @@
       "source_file": "frontend/components/ui/city-combobox.tsx",
       "source_location": "L1",
       "id": "frontend_components_ui_city_combobox_tsx",
-      "community": 162,
+      "community": 0,
       "norm_label": "city-combobox.tsx"
     },
     {
@@ -14508,7 +14517,7 @@
       "source_file": "frontend/components/ui/city-combobox.tsx",
       "source_location": "L9",
       "id": "ui_city_combobox_citycomboboxprops",
-      "community": 162,
+      "community": 0,
       "norm_label": "citycomboboxprops"
     },
     {
@@ -14517,7 +14526,7 @@
       "source_file": "frontend/components/ui/city-combobox.tsx",
       "source_location": "L20",
       "id": "ui_city_combobox_fold",
-      "community": 162,
+      "community": 0,
       "norm_label": "fold()"
     },
     {
@@ -14535,7 +14544,7 @@
       "source_file": "frontend/components/ui/country-select.tsx",
       "source_location": "L1",
       "id": "frontend_components_ui_country_select_tsx",
-      "community": 38,
+      "community": 0,
       "norm_label": "country-select.tsx"
     },
     {
@@ -14544,7 +14553,7 @@
       "source_file": "frontend/components/ui/country-select.tsx",
       "source_location": "L8",
       "id": "ui_country_select_countryselectprops",
-      "community": 38,
+      "community": 0,
       "norm_label": "countryselectprops"
     },
     {
@@ -14553,7 +14562,7 @@
       "source_file": "frontend/components/ui/country-select.tsx",
       "source_location": "L17",
       "id": "ui_country_select_countryselect",
-      "community": 38,
+      "community": 0,
       "norm_label": "countryselect()"
     },
     {
@@ -14562,7 +14571,7 @@
       "source_file": "frontend/components/ui/currency-input.tsx",
       "source_location": "L1",
       "id": "frontend_components_ui_currency_input_tsx",
-      "community": 220,
+      "community": 209,
       "norm_label": "currency-input.tsx"
     },
     {
@@ -14571,7 +14580,7 @@
       "source_file": "frontend/components/ui/currency-input.tsx",
       "source_location": "L6",
       "id": "ui_currency_input_formatcop",
-      "community": 220,
+      "community": 209,
       "norm_label": "formatcop()"
     },
     {
@@ -14580,7 +14589,7 @@
       "source_file": "frontend/components/ui/currency-input.tsx",
       "source_location": "L11",
       "id": "ui_currency_input_parsecop",
-      "community": 220,
+      "community": 209,
       "norm_label": "parsecop()"
     },
     {
@@ -14589,7 +14598,7 @@
       "source_file": "frontend/components/ui/currency-input.tsx",
       "source_location": "L16",
       "id": "ui_currency_input_currencyinputprops",
-      "community": 220,
+      "community": 209,
       "norm_label": "currencyinputprops"
     },
     {
@@ -14598,7 +14607,7 @@
       "source_file": "frontend/components/ui/currency-input.tsx",
       "source_location": "L22",
       "id": "ui_currency_input_currencyinput",
-      "community": 220,
+      "community": 209,
       "norm_label": "currencyinput()"
     },
     {
@@ -14607,7 +14616,7 @@
       "source_file": "frontend/components/ui/data-table.tsx",
       "source_location": "L1",
       "id": "frontend_components_ui_data_table_tsx",
-      "community": 13,
+      "community": 38,
       "norm_label": "data-table.tsx"
     },
     {
@@ -14616,7 +14625,7 @@
       "source_file": "frontend/components/ui/data-table.tsx",
       "source_location": "L17",
       "id": "ui_data_table_datatablecolumn",
-      "community": 209,
+      "community": 220,
       "norm_label": "datatablecolumn"
     },
     {
@@ -14625,7 +14634,7 @@
       "source_file": "frontend/components/ui/data-table.tsx",
       "source_location": "L27",
       "id": "ui_data_table_datatableprops",
-      "community": 13,
+      "community": 38,
       "norm_label": "datatableprops"
     },
     {
@@ -14769,7 +14778,7 @@
       "source_file": "frontend/components/ui/dialog.tsx",
       "source_location": "L26",
       "id": "ui_dialog_dialogoverlay",
-      "community": 9,
+      "community": 13,
       "norm_label": "dialogoverlay()"
     },
     {
@@ -14967,7 +14976,7 @@
       "source_file": "frontend/components/ui/file-upload.tsx",
       "source_location": "L1",
       "id": "frontend_components_ui_file_upload_tsx",
-      "community": 38,
+      "community": 9,
       "norm_label": "file-upload.tsx"
     },
     {
@@ -14976,7 +14985,7 @@
       "source_file": "frontend/components/ui/file-upload.tsx",
       "source_location": "L7",
       "id": "ui_file_upload_fileuploadprops",
-      "community": 38,
+      "community": 9,
       "norm_label": "fileuploadprops"
     },
     {
@@ -14985,7 +14994,7 @@
       "source_file": "frontend/components/ui/file-upload.tsx",
       "source_location": "L14",
       "id": "ui_file_upload_fileupload",
-      "community": 38,
+      "community": 9,
       "norm_label": "fileupload()"
     },
     {
@@ -15138,7 +15147,7 @@
       "source_file": "frontend/components/ui/gender-select.tsx",
       "source_location": "L1",
       "id": "frontend_components_ui_gender_select_tsx",
-      "community": 38,
+      "community": 9,
       "norm_label": "gender-select.tsx"
     },
     {
@@ -15147,7 +15156,7 @@
       "source_file": "frontend/components/ui/gender-select.tsx",
       "source_location": "L7",
       "id": "ui_gender_select_genders",
-      "community": 38,
+      "community": 9,
       "norm_label": "genders"
     },
     {
@@ -15156,7 +15165,7 @@
       "source_file": "frontend/components/ui/gender-select.tsx",
       "source_location": "L13",
       "id": "ui_gender_select_genderselectprops",
-      "community": 38,
+      "community": 9,
       "norm_label": "genderselectprops"
     },
     {
@@ -15165,7 +15174,7 @@
       "source_file": "frontend/components/ui/gender-select.tsx",
       "source_location": "L20",
       "id": "ui_gender_select_genderselect",
-      "community": 38,
+      "community": 9,
       "norm_label": "genderselect()"
     },
     {
@@ -15174,7 +15183,7 @@
       "source_file": "frontend/components/ui/id-type-select.tsx",
       "source_location": "L1",
       "id": "frontend_components_ui_id_type_select_tsx",
-      "community": 38,
+      "community": 9,
       "norm_label": "id-type-select.tsx"
     },
     {
@@ -15183,7 +15192,7 @@
       "source_file": "frontend/components/ui/id-type-select.tsx",
       "source_location": "L8",
       "id": "ui_id_type_select_id_types",
-      "community": 38,
+      "community": 9,
       "norm_label": "id_types"
     },
     {
@@ -15192,7 +15201,7 @@
       "source_file": "frontend/components/ui/id-type-select.tsx",
       "source_location": "L16",
       "id": "ui_id_type_select_idtypeselectprops",
-      "community": 38,
+      "community": 9,
       "norm_label": "idtypeselectprops"
     },
     {
@@ -15201,7 +15210,7 @@
       "source_file": "frontend/components/ui/id-type-select.tsx",
       "source_location": "L23",
       "id": "ui_id_type_select_idtypeselect",
-      "community": 38,
+      "community": 9,
       "norm_label": "idtypeselect()"
     },
     {
@@ -15345,7 +15354,7 @@
       "source_file": "frontend/components/ui/phone-input.tsx",
       "source_location": "L1",
       "id": "frontend_components_ui_phone_input_tsx",
-      "community": 38,
+      "community": 0,
       "norm_label": "phone-input.tsx"
     },
     {
@@ -15354,7 +15363,7 @@
       "source_file": "frontend/components/ui/phone-input.tsx",
       "source_location": "L6",
       "id": "ui_phone_input_formatphone",
-      "community": 38,
+      "community": 0,
       "norm_label": "formatphone()"
     },
     {
@@ -15363,7 +15372,7 @@
       "source_file": "frontend/components/ui/phone-input.tsx",
       "source_location": "L13",
       "id": "ui_phone_input_phoneinputprops",
-      "community": 38,
+      "community": 0,
       "norm_label": "phoneinputprops"
     },
     {
@@ -15372,7 +15381,7 @@
       "source_file": "frontend/components/ui/phone-input.tsx",
       "source_location": "L20",
       "id": "ui_phone_input_phoneinput",
-      "community": 38,
+      "community": 0,
       "norm_label": "phoneinput()"
     },
     {
@@ -15723,7 +15732,7 @@
       "source_file": "frontend/components/ui/skeleton.tsx",
       "source_location": "L1",
       "id": "frontend_components_ui_skeleton_tsx",
-      "community": 38,
+      "community": 9,
       "norm_label": "skeleton.tsx"
     },
     {
@@ -15732,7 +15741,7 @@
       "source_file": "frontend/components/ui/skeleton.tsx",
       "source_location": "L3",
       "id": "ui_skeleton_skeleton",
-      "community": 38,
+      "community": 9,
       "norm_label": "skeleton()"
     },
     {
@@ -15759,7 +15768,7 @@
       "source_file": "frontend/components/ui/status-badge.tsx",
       "source_location": "L1",
       "id": "frontend_components_ui_status_badge_tsx",
-      "community": 209,
+      "community": 220,
       "norm_label": "status-badge.tsx"
     },
     {
@@ -15768,7 +15777,7 @@
       "source_file": "frontend/components/ui/status-badge.tsx",
       "source_location": "L3",
       "id": "ui_status_badge_statustone",
-      "community": 209,
+      "community": 220,
       "norm_label": "statustone"
     },
     {
@@ -15777,7 +15786,7 @@
       "source_file": "frontend/components/ui/status-badge.tsx",
       "source_location": "L12",
       "id": "ui_status_badge_tone_cls",
-      "community": 209,
+      "community": 220,
       "norm_label": "tone_cls"
     },
     {
@@ -15786,7 +15795,7 @@
       "source_file": "frontend/components/ui/status-badge.tsx",
       "source_location": "L28",
       "id": "ui_status_badge_status_presets",
-      "community": 209,
+      "community": 220,
       "norm_label": "status_presets"
     },
     {
@@ -15795,7 +15804,7 @@
       "source_file": "frontend/components/ui/status-badge.tsx",
       "source_location": "L56",
       "id": "ui_status_badge_statusbadgeprops",
-      "community": 209,
+      "community": 220,
       "norm_label": "statusbadgeprops"
     },
     {
@@ -15804,7 +15813,7 @@
       "source_file": "frontend/components/ui/status-badge.tsx",
       "source_location": "L65",
       "id": "ui_status_badge_statusbadge",
-      "community": 209,
+      "community": 220,
       "norm_label": "statusbadge()"
     },
     {
@@ -15840,7 +15849,7 @@
       "source_file": "frontend/components/ui/table.tsx",
       "source_location": "L1",
       "id": "frontend_components_ui_table_tsx",
-      "community": 13,
+      "community": 38,
       "norm_label": "table.tsx"
     },
     {
@@ -15849,7 +15858,7 @@
       "source_file": "frontend/components/ui/table.tsx",
       "source_location": "L7",
       "id": "ui_table_table",
-      "community": 13,
+      "community": 38,
       "norm_label": "table()"
     },
     {
@@ -15858,7 +15867,7 @@
       "source_file": "frontend/components/ui/table.tsx",
       "source_location": "L22",
       "id": "ui_table_tableheader",
-      "community": 13,
+      "community": 38,
       "norm_label": "tableheader()"
     },
     {
@@ -15867,7 +15876,7 @@
       "source_file": "frontend/components/ui/table.tsx",
       "source_location": "L32",
       "id": "ui_table_tablebody",
-      "community": 13,
+      "community": 38,
       "norm_label": "tablebody()"
     },
     {
@@ -15885,7 +15894,7 @@
       "source_file": "frontend/components/ui/table.tsx",
       "source_location": "L58",
       "id": "ui_table_tablerow",
-      "community": 13,
+      "community": 38,
       "norm_label": "tablerow()"
     },
     {
@@ -15894,7 +15903,7 @@
       "source_file": "frontend/components/ui/table.tsx",
       "source_location": "L71",
       "id": "ui_table_tablehead",
-      "community": 13,
+      "community": 38,
       "norm_label": "tablehead()"
     },
     {
@@ -15903,7 +15912,7 @@
       "source_file": "frontend/components/ui/table.tsx",
       "source_location": "L84",
       "id": "ui_table_tablecell",
-      "community": 13,
+      "community": 38,
       "norm_label": "tablecell()"
     },
     {
@@ -15921,7 +15930,7 @@
       "source_file": "frontend/components/ui/tabs.tsx",
       "source_location": "L1",
       "id": "frontend_components_ui_tabs_tsx",
-      "community": 38,
+      "community": 9,
       "norm_label": "tabs.tsx"
     },
     {
@@ -15930,7 +15939,7 @@
       "source_file": "frontend/components/ui/tabs.tsx",
       "source_location": "L7",
       "id": "ui_tabs_tabscontextvalue",
-      "community": 38,
+      "community": 9,
       "norm_label": "tabscontextvalue"
     },
     {
@@ -15939,7 +15948,7 @@
       "source_file": "frontend/components/ui/tabs.tsx",
       "source_location": "L12",
       "id": "ui_tabs_tabscontext",
-      "community": 38,
+      "community": 9,
       "norm_label": "tabscontext"
     },
     {
@@ -15948,7 +15957,7 @@
       "source_file": "frontend/components/ui/tabs.tsx",
       "source_location": "L14",
       "id": "ui_tabs_tabsprops",
-      "community": 38,
+      "community": 9,
       "norm_label": "tabsprops"
     },
     {
@@ -15957,7 +15966,7 @@
       "source_file": "frontend/components/ui/tabs.tsx",
       "source_location": "L22",
       "id": "ui_tabs_tabs",
-      "community": 38,
+      "community": 9,
       "norm_label": "tabs()"
     },
     {
@@ -15966,7 +15975,7 @@
       "source_file": "frontend/components/ui/tabs.tsx",
       "source_location": "L36",
       "id": "ui_tabs_tabslist",
-      "community": 38,
+      "community": 9,
       "norm_label": "tabslist()"
     },
     {
@@ -15975,7 +15984,7 @@
       "source_file": "frontend/components/ui/tabs.tsx",
       "source_location": "L50",
       "id": "ui_tabs_tabstriggerprops",
-      "community": 38,
+      "community": 9,
       "norm_label": "tabstriggerprops"
     },
     {
@@ -15984,7 +15993,7 @@
       "source_file": "frontend/components/ui/tabs.tsx",
       "source_location": "L57",
       "id": "ui_tabs_tabstrigger",
-      "community": 38,
+      "community": 9,
       "norm_label": "tabstrigger()"
     },
     {
@@ -15993,7 +16002,7 @@
       "source_file": "frontend/components/ui/tabs.tsx",
       "source_location": "L88",
       "id": "ui_tabs_tabscontentprops",
-      "community": 38,
+      "community": 9,
       "norm_label": "tabscontentprops"
     },
     {
@@ -16002,7 +16011,7 @@
       "source_file": "frontend/components/ui/tabs.tsx",
       "source_location": "L94",
       "id": "ui_tabs_tabscontent",
-      "community": 38,
+      "community": 9,
       "norm_label": "tabscontent()"
     },
     {
@@ -16011,7 +16020,7 @@
       "source_file": "frontend/components/ui/textarea.tsx",
       "source_location": "L1",
       "id": "frontend_components_ui_textarea_tsx",
-      "community": 101,
+      "community": 38,
       "norm_label": "textarea.tsx"
     },
     {
@@ -16020,7 +16029,7 @@
       "source_file": "frontend/components/ui/textarea.tsx",
       "source_location": "L6",
       "id": "ui_textarea_textareaprops",
-      "community": 101,
+      "community": 38,
       "norm_label": "textareaprops"
     },
     {
@@ -16029,7 +16038,7 @@
       "source_file": "frontend/components/ui/textarea.tsx",
       "source_location": "L11",
       "id": "ui_textarea_textarea",
-      "community": 101,
+      "community": 38,
       "norm_label": "textarea()"
     },
     {
@@ -16083,7 +16092,7 @@
       "source_file": "frontend/components/ui/training-goal-select.tsx",
       "source_location": "L1",
       "id": "frontend_components_ui_training_goal_select_tsx",
-      "community": 38,
+      "community": 9,
       "norm_label": "training-goal-select.tsx"
     },
     {
@@ -16092,7 +16101,7 @@
       "source_file": "frontend/components/ui/training-goal-select.tsx",
       "source_location": "L7",
       "id": "ui_training_goal_select_goals",
-      "community": 38,
+      "community": 9,
       "norm_label": "goals"
     },
     {
@@ -16101,7 +16110,7 @@
       "source_file": "frontend/components/ui/training-goal-select.tsx",
       "source_location": "L15",
       "id": "ui_training_goal_select_traininggoalselectprops",
-      "community": 38,
+      "community": 9,
       "norm_label": "traininggoalselectprops"
     },
     {
@@ -16110,7 +16119,7 @@
       "source_file": "frontend/components/ui/training-goal-select.tsx",
       "source_location": "L22",
       "id": "ui_training_goal_select_traininggoalselect",
-      "community": 38,
+      "community": 9,
       "norm_label": "traininggoalselect()"
     },
     {
@@ -16236,7 +16245,7 @@
       "source_file": "frontend/lib/api.ts",
       "source_location": "L1",
       "id": "frontend_lib_api_ts",
-      "community": 189,
+      "community": 220,
       "norm_label": "api.ts"
     },
     {
@@ -16245,7 +16254,7 @@
       "source_file": "frontend/lib/api.ts",
       "source_location": "L6",
       "id": "lib_api_addresponseinterceptor",
-      "community": 189,
+      "community": 220,
       "norm_label": "addresponseinterceptor()"
     },
     {
@@ -16254,7 +16263,7 @@
       "source_file": "frontend/lib/api.ts",
       "source_location": "L17",
       "id": "lib_api_apiclient",
-      "community": 189,
+      "community": 220,
       "norm_label": "apiclient()"
     },
     {
@@ -16263,7 +16272,7 @@
       "source_file": "frontend/lib/api.ts",
       "source_location": "L29",
       "id": "lib_api_apiserver",
-      "community": 189,
+      "community": 220,
       "norm_label": "apiserver()"
     },
     {
@@ -16794,7 +16803,7 @@
       "source_file": "frontend/lib/utils.ts",
       "source_location": "L1",
       "id": "frontend_lib_utils_ts",
-      "community": 38,
+      "community": 9,
       "norm_label": "utils.ts"
     },
     {
@@ -23390,7 +23399,7 @@
       "file_type": "rationale",
       "source_file": "backend/app/api/v1/payments.py",
       "source_location": "L218",
-      "community": 29,
+      "community": 193,
       "norm_label": "caja: ingresos pagados de hoy y del mes, con desglose por metodo.",
       "id": "v1_payments_rationale_218"
     },
@@ -23408,7 +23417,7 @@
       "file_type": "rationale",
       "source_file": "backend/app/api/v1/payments.py",
       "source_location": "L396",
-      "community": 29,
+      "community": 149,
       "norm_label": "marcar un pago como pagado (estado: paid). genera el recibo y, si es     efecti",
       "id": "v1_payments_rationale_396"
     },
@@ -23507,7 +23516,7 @@
       "file_type": "rationale",
       "source_file": "backend/app/api/v1/reports.py",
       "source_location": "L89",
-      "community": 30,
+      "community": 182,
       "norm_label": "ingresos del mes actual vs mes anterior, con delta porcentual.",
       "id": "v1_reports_rationale_89"
     },
@@ -23516,7 +23525,7 @@
       "file_type": "rationale",
       "source_file": "backend/app/api/v1/reports.py",
       "source_location": "L188",
-      "community": 190,
+      "community": 182,
       "norm_label": "monthly revenue for the last n months.",
       "id": "v1_reports_rationale_188"
     },
@@ -23525,7 +23534,7 @@
       "file_type": "rationale",
       "source_file": "backend/app/api/v1/reports.py",
       "source_location": "L226",
-      "community": 222,
+      "community": 182,
       "norm_label": "tasa de renovacion mensual: de las membresias que vencieron en el mes,     cuan",
       "id": "v1_reports_rationale_226"
     },
@@ -23543,7 +23552,7 @@
       "file_type": "rationale",
       "source_file": "backend/app/api/v1/reports.py",
       "source_location": "L331",
-      "community": 170,
+      "community": 182,
       "norm_label": "members with birthdays in the next n months (by day/month, ignoring year).",
       "id": "v1_reports_rationale_331"
     },
@@ -23552,7 +23561,7 @@
       "file_type": "rationale",
       "source_file": "backend/app/api/v1/reports.py",
       "source_location": "L375",
-      "community": 211,
+      "community": 178,
       "norm_label": "revenue grouped by payment concept for the last n months.",
       "id": "v1_reports_rationale_375"
     },
@@ -23561,7 +23570,7 @@
       "file_type": "rationale",
       "source_file": "backend/app/api/v1/reports.py",
       "source_location": "L409",
-      "community": 184,
+      "community": 187,
       "norm_label": "weekly check-in counts for the last n weeks.",
       "id": "v1_reports_rationale_409"
     },
@@ -23597,7 +23606,7 @@
       "file_type": "code",
       "source_file": "frontend/app/(dashboard)/checkins/CheckinsClient.tsx",
       "source_location": "L33",
-      "community": 209,
+      "community": 38,
       "norm_label": "activetab",
       "id": "checkins_checkinsclient_activetab"
     },
@@ -23606,7 +23615,7 @@
       "file_type": "code",
       "source_file": "frontend/app/(dashboard)/checkins/CheckinsClient.tsx",
       "source_location": "L35",
-      "community": 209,
+      "community": 38,
       "norm_label": "status_ui",
       "id": "checkins_checkinsclient_status_ui"
     },
@@ -23615,7 +23624,7 @@
       "file_type": "code",
       "source_file": "frontend/app/(dashboard)/checkins/CheckinsClient.tsx",
       "source_location": "L47",
-      "community": 209,
+      "community": 38,
       "norm_label": "confirmationcard()",
       "id": "checkins_checkinsclient_confirmationcard"
     },
@@ -23624,7 +23633,7 @@
       "file_type": "rationale",
       "source_file": "backend/app/api/v1/payments.py",
       "source_location": "L392",
-      "community": 29,
+      "community": 149,
       "norm_label": "marcar un pago como pagado (estado: paid). genera el recibo y, si es     efecti",
       "id": "v1_payments_rationale_392"
     },
@@ -23705,7 +23714,7 @@
       "file_type": "rationale",
       "source_file": "backend/app/main.py",
       "source_location": "L48",
-      "community": 223,
+      "community": 160,
       "norm_label": "correlation id por request: respeta un x-request-id entrante (del alb) o     ge",
       "id": "app_main_rationale_48"
     },
@@ -23714,7 +23723,7 @@
       "file_type": "rationale",
       "source_file": "backend/app/main.py",
       "source_location": "L73",
-      "community": 223,
+      "community": 160,
       "norm_label": "healthcheck con dependencias criticas (db master + redis), no solo 'ok'.",
       "id": "app_main_rationale_73"
     },
@@ -23732,7 +23741,7 @@
       "file_type": "rationale",
       "source_file": "backend/app/api/v1/auth.py",
       "source_location": "L139",
-      "community": 202,
+      "community": 221,
       "norm_label": "el invitado fija su contrasena con el token del link. crea el userstaff en",
       "id": "v1_auth_rationale_139"
     },
@@ -23741,7 +23750,7 @@
       "file_type": "rationale",
       "source_file": "backend/app/api/v1/onboarding.py",
       "source_location": "L20",
-      "community": 193,
+      "community": 148,
       "norm_label": "progreso de configuracion del gym para el checklist de onboarding.     `done` =",
       "id": "v1_onboarding_rationale_20"
     },
@@ -23804,7 +23813,7 @@
       "file_type": "rationale",
       "source_file": "backend/app/api/v1/members.py",
       "source_location": "L294",
-      "community": 8,
+      "community": 224,
       "norm_label": "cuantos miembros antiguos no tienen cedula \u2014 alimenta el banner del frontend.",
       "id": "v1_members_rationale_294"
     },
@@ -23813,7 +23822,7 @@
       "file_type": "rationale",
       "source_file": "backend/app/api/v1/members.py",
       "source_location": "L351",
-      "community": 236,
+      "community": 224,
       "norm_label": "crea un pago pendiente wompi + link, con intent de renovar la membresia     del",
       "id": "v1_members_rationale_351"
     },
@@ -23822,7 +23831,7 @@
       "file_type": "rationale",
       "source_file": "backend/app/api/v1/members.py",
       "source_location": "L396",
-      "community": 216,
+      "community": 224,
       "norm_label": "sube la foto del socio a almacenamiento s3-compatible y persiste su url.",
       "id": "v1_members_rationale_396"
     },
@@ -23858,7 +23867,7 @@
       "file_type": "rationale",
       "source_file": "backend/app/api/v1/reports.py",
       "source_location": "L86",
-      "community": 30,
+      "community": 182,
       "norm_label": "ingresos del mes actual vs mes anterior, con delta porcentual.",
       "id": "v1_reports_rationale_86"
     },
@@ -23867,7 +23876,7 @@
       "file_type": "rationale",
       "source_file": "backend/app/api/v1/reports.py",
       "source_location": "L185",
-      "community": 190,
+      "community": 182,
       "norm_label": "monthly revenue for the last n months.",
       "id": "v1_reports_rationale_185"
     },
@@ -23876,7 +23885,7 @@
       "file_type": "rationale",
       "source_file": "backend/app/api/v1/reports.py",
       "source_location": "L223",
-      "community": 222,
+      "community": 182,
       "norm_label": "tasa de renovacion mensual: de las membresias que vencieron en el mes,     cuan",
       "id": "v1_reports_rationale_223"
     },
@@ -23894,7 +23903,7 @@
       "file_type": "rationale",
       "source_file": "backend/app/api/v1/reports.py",
       "source_location": "L328",
-      "community": 170,
+      "community": 182,
       "norm_label": "members with birthdays in the next n months (by day/month, ignoring year).",
       "id": "v1_reports_rationale_328"
     },
@@ -23903,7 +23912,7 @@
       "file_type": "rationale",
       "source_file": "backend/app/api/v1/reports.py",
       "source_location": "L372",
-      "community": 211,
+      "community": 178,
       "norm_label": "revenue grouped by payment concept for the last n months.",
       "id": "v1_reports_rationale_372"
     },
@@ -23912,7 +23921,7 @@
       "file_type": "rationale",
       "source_file": "backend/app/api/v1/reports.py",
       "source_location": "L406",
-      "community": 184,
+      "community": 187,
       "norm_label": "weekly check-in counts for the last n weeks.",
       "id": "v1_reports_rationale_406"
     },
@@ -23966,7 +23975,7 @@
       "file_type": "rationale",
       "source_file": "backend/app/api/v1/kiosk.py",
       "source_location": "L45",
-      "community": 156,
+      "community": 35,
       "norm_label": "check-in desde el kiosko de la entrada. respuesta minima: sin pii mas     alla d",
       "id": "v1_kiosk_rationale_45"
     },
@@ -24029,7 +24038,7 @@
       "file_type": "rationale",
       "source_file": "backend/app/api/v1/dashboard.py",
       "source_location": "L178",
-      "community": 219,
+      "community": 184,
       "norm_label": "frases accionables derivadas de los agregados que ya se calculan.     sin model",
       "id": "v1_dashboard_rationale_178"
     },
@@ -24038,7 +24047,7 @@
       "file_type": "rationale",
       "source_file": "backend/app/api/v1/dashboard.py",
       "source_location": "L251",
-      "community": 219,
+      "community": 184,
       "norm_label": "tablero del dia a dia de recepcion: quien vence, morosos en gracia,     accesos",
       "id": "v1_dashboard_rationale_251"
     },
@@ -24065,7 +24074,7 @@
       "file_type": "rationale",
       "source_file": "backend/app/api/v1/members.py",
       "source_location": "L292",
-      "community": 8,
+      "community": 224,
       "norm_label": "cuantos miembros antiguos no tienen cedula \u2014 alimenta el banner del frontend.",
       "id": "v1_members_rationale_292"
     },
@@ -24074,7 +24083,7 @@
       "file_type": "rationale",
       "source_file": "backend/app/api/v1/members.py",
       "source_location": "L349",
-      "community": 236,
+      "community": 224,
       "norm_label": "crea un pago pendiente wompi + link, con intent de renovar la membresia     del",
       "id": "v1_members_rationale_349"
     },
@@ -24083,7 +24092,7 @@
       "file_type": "rationale",
       "source_file": "backend/app/api/v1/members.py",
       "source_location": "L394",
-      "community": 216,
+      "community": 224,
       "norm_label": "sube la foto del socio a almacenamiento s3-compatible y persiste su url.",
       "id": "v1_members_rationale_394"
     },
@@ -24110,7 +24119,7 @@
       "file_type": "rationale",
       "source_file": "backend/app/core/security.py",
       "source_location": "L49",
-      "community": 202,
+      "community": 221,
       "norm_label": "genera jwt para staff del gym (admin/receptionist) autenticado contra tenant db.",
       "id": "core_security_rationale_49"
     },
@@ -24155,7 +24164,7 @@
       "file_type": "rationale",
       "source_file": "backend/app/api/v1/dashboard.py",
       "source_location": "L180",
-      "community": 219,
+      "community": 184,
       "norm_label": "frases accionables derivadas de los agregados que ya se calculan.     sin model",
       "id": "v1_dashboard_rationale_180"
     },
@@ -24164,7 +24173,7 @@
       "file_type": "rationale",
       "source_file": "backend/app/api/v1/dashboard.py",
       "source_location": "L253",
-      "community": 219,
+      "community": 184,
       "norm_label": "tablero del dia a dia de recepcion: quien vence, morosos en gracia,     accesos",
       "id": "v1_dashboard_rationale_253"
     },
@@ -24200,7 +24209,7 @@
       "file_type": "rationale",
       "source_file": "backend/app/api/v1/members.py",
       "source_location": "L293",
-      "community": 8,
+      "community": 224,
       "norm_label": "cuantos miembros antiguos no tienen cedula \u2014 alimenta el banner del frontend.",
       "id": "v1_members_rationale_293"
     },
@@ -24209,7 +24218,7 @@
       "file_type": "rationale",
       "source_file": "backend/app/api/v1/members.py",
       "source_location": "L350",
-      "community": 236,
+      "community": 224,
       "norm_label": "crea un pago pendiente wompi + link, con intent de renovar la membresia     del",
       "id": "v1_members_rationale_350"
     },
@@ -24218,7 +24227,7 @@
       "file_type": "rationale",
       "source_file": "backend/app/api/v1/members.py",
       "source_location": "L395",
-      "community": 216,
+      "community": 224,
       "norm_label": "sube la foto del socio a almacenamiento s3-compatible y persiste su url.",
       "id": "v1_members_rationale_395"
     },
@@ -24227,7 +24236,7 @@
       "file_type": "rationale",
       "source_file": "backend/app/api/v1/reports.py",
       "source_location": "L228",
-      "community": 222,
+      "community": 182,
       "norm_label": "tasa de renovacion mensual: de las membresias que vencieron en el mes,     cuan",
       "id": "v1_reports_rationale_228"
     },
@@ -24245,7 +24254,7 @@
       "file_type": "rationale",
       "source_file": "backend/app/api/v1/reports.py",
       "source_location": "L333",
-      "community": 170,
+      "community": 182,
       "norm_label": "members with birthdays in the next n months (by day/month, ignoring year).",
       "id": "v1_reports_rationale_333"
     },
@@ -24254,7 +24263,7 @@
       "file_type": "rationale",
       "source_file": "backend/app/api/v1/reports.py",
       "source_location": "L377",
-      "community": 211,
+      "community": 178,
       "norm_label": "revenue grouped by payment concept for the last n months.",
       "id": "v1_reports_rationale_377"
     },
@@ -24263,7 +24272,7 @@
       "file_type": "rationale",
       "source_file": "backend/app/api/v1/reports.py",
       "source_location": "L411",
-      "community": 184,
+      "community": 187,
       "norm_label": "weekly check-in counts for the last n weeks.",
       "id": "v1_reports_rationale_411"
     },
@@ -24281,7 +24290,7 @@
       "file_type": "rationale",
       "source_file": "backend/app/api/v1/webhooks.py",
       "source_location": "L35",
-      "community": 230,
+      "community": 148,
       "norm_label": "webhook publico de wompi (sin jwt). resuelve el tenant por el slug del     refer",
       "id": "v1_webhooks_rationale_35"
     },
@@ -24290,7 +24299,7 @@
       "file_type": "rationale",
       "source_file": "backend/app/services/payment_links.py",
       "source_location": "L23",
-      "community": 236,
+      "community": 148,
       "norm_label": "crea un link de pago wompi para un payment pendiente. idempotente:     si ya exi",
       "id": "services_payment_links_rationale_23"
     },
@@ -24398,7 +24407,7 @@
       "file_type": "rationale",
       "source_file": "backend/app/api/v1/dashboard.py",
       "source_location": "L182",
-      "community": 219,
+      "community": 184,
       "norm_label": "tablero del dia a dia de recepcion: quien vence, morosos en gracia,     accesos",
       "id": "v1_dashboard_rationale_182"
     },
@@ -24407,7 +24416,7 @@
       "file_type": "rationale",
       "source_file": "backend/app/api/v1/reports.py",
       "source_location": "L60",
-      "community": 30,
+      "community": 182,
       "norm_label": "ingresos del mes actual vs mes anterior, con delta porcentual.",
       "id": "v1_reports_rationale_60"
     },
@@ -24416,7 +24425,7 @@
       "file_type": "rationale",
       "source_file": "backend/app/api/v1/reports.py",
       "source_location": "L159",
-      "community": 190,
+      "community": 182,
       "norm_label": "monthly revenue for the last n months.",
       "id": "v1_reports_rationale_159"
     },
@@ -24434,7 +24443,7 @@
       "file_type": "rationale",
       "source_file": "backend/app/api/v1/reports.py",
       "source_location": "L258",
-      "community": 170,
+      "community": 182,
       "norm_label": "members with birthdays in the next n months (by day/month, ignoring year).",
       "id": "v1_reports_rationale_258"
     },
@@ -24452,7 +24461,7 @@
       "file_type": "rationale",
       "source_file": "backend/app/api/v1/reports.py",
       "source_location": "L336",
-      "community": 184,
+      "community": 187,
       "norm_label": "weekly check-in counts for the last n weeks.",
       "id": "v1_reports_rationale_336"
     },
@@ -24470,7 +24479,7 @@
       "file_type": "rationale",
       "source_file": "backend/app/services/jobs.py",
       "source_location": "L40",
-      "community": 154,
+      "community": 158,
       "norm_label": "true si el miembro ya tiene otra membresia vigente/programada que arranca     de",
       "id": "services_jobs_rationale_40"
     },
@@ -24479,7 +24488,7 @@
       "file_type": "rationale",
       "source_file": "backend/app/services/jobs.py",
       "source_location": "L54",
-      "community": 154,
+      "community": 148,
       "norm_label": "link wompi de renovacion para incluir en recordatorios. reutiliza un link     pe",
       "id": "services_jobs_rationale_54"
     },
@@ -24488,7 +24497,7 @@
       "file_type": "rationale",
       "source_file": "backend/app/services/jobs.py",
       "source_location": "L108",
-      "community": 154,
+      "community": 158,
       "norm_label": "encola recordatorios de vencimiento a d-3, d-0 y vencida d+3 (idempotente     po",
       "id": "services_jobs_rationale_108"
     },
@@ -24524,7 +24533,7 @@
       "file_type": "rationale",
       "source_file": "backend/app/services/jobs.py",
       "source_location": "L293",
-      "community": 238,
+      "community": 20,
       "norm_label": "procesa la cola de whatsapp con backoff (3 intentos).",
       "id": "services_jobs_rationale_293"
     },
@@ -24569,7 +24578,7 @@
       "file_type": "rationale",
       "source_file": "backend/app/api/v1/payments.py",
       "source_location": "L192",
-      "community": 29,
+      "community": 193,
       "norm_label": "caja: ingresos pagados de hoy y del mes, con desglose por metodo.",
       "id": "v1_payments_rationale_192"
     },
@@ -24587,7 +24596,7 @@
       "file_type": "rationale",
       "source_file": "backend/app/api/v1/payments.py",
       "source_location": "L366",
-      "community": 29,
+      "community": 149,
       "norm_label": "marcar un pago como pagado (estado: paid). genera el recibo y, si es     efecti",
       "id": "v1_payments_rationale_366"
     },
@@ -24632,7 +24641,7 @@
       "file_type": "rationale",
       "source_file": "backend/app/services/jobs.py",
       "source_location": "L193",
-      "community": 238,
+      "community": 20,
       "norm_label": "procesa la cola de whatsapp con backoff (3 intentos).",
       "id": "services_jobs_rationale_193"
     },
@@ -24650,7 +24659,7 @@
       "file_type": "rationale",
       "source_file": "backend/app/services/payment_confirmation.py",
       "source_location": "L49",
-      "community": 230,
+      "community": 148,
       "norm_label": "transicion pending\u2192paid idempotente (unica fuente de verdad para webhook     y r",
       "id": "services_payment_confirmation_rationale_49"
     },
@@ -24758,7 +24767,7 @@
       "file_type": "rationale",
       "source_file": "backend/app/api/v1/members.py",
       "source_location": "L172",
-      "community": 236,
+      "community": 224,
       "norm_label": "crea un pago pendiente wompi + link, con intent de renovar la membresia     del",
       "id": "v1_members_rationale_172"
     },
@@ -24803,7 +24812,7 @@
       "file_type": "rationale",
       "source_file": "backend/app/api/v1/payments.py",
       "source_location": "L108",
-      "community": 29,
+      "community": 193,
       "norm_label": "caja: ingresos pagados de hoy y del mes, con desglose por metodo.",
       "id": "v1_payments_rationale_108"
     },
@@ -24812,7 +24821,7 @@
       "file_type": "rationale",
       "source_file": "backend/app/api/v1/payments.py",
       "source_location": "L187",
-      "community": 29,
+      "community": 149,
       "norm_label": "marcar un pago como pagado (estado: paid). genera el recibo y, si es     efecti",
       "id": "v1_payments_rationale_187"
     },
@@ -24830,7 +24839,7 @@
       "file_type": "rationale",
       "source_file": "backend/app/services/receipts.py",
       "source_location": "L11",
-      "community": 29,
+      "community": 149,
       "norm_label": "genera el recibo de un pago pagado (idempotente: si ya existe, lo devuelve).",
       "id": "services_receipts_rationale_11"
     },
@@ -24866,7 +24875,7 @@
       "file_type": "code",
       "source_file": "frontend/app/(dashboard)/members/[id]/MemberDetailClient.tsx",
       "source_location": "L54",
-      "community": 0,
+      "community": 101,
       "norm_label": "formatcop()",
       "id": "id_memberdetailclient_formatcop"
     },
@@ -24947,7 +24956,7 @@
       "file_type": "code",
       "source_file": "frontend/app/(dashboard)/plans/PlansClient.tsx",
       "source_location": "L65",
-      "community": 101,
+      "community": 209,
       "norm_label": "formatcop()",
       "id": "plans_plansclient_formatcop"
     },
@@ -25126,7 +25135,7 @@
       "file_type": "rationale",
       "source_file": "backend/app/api/v1/classes.py",
       "source_location": "L152",
-      "community": 3,
+      "community": 30,
       "norm_label": "shorthand enroll endpoint \u2014 accepts only member_id in body.",
       "id": "v1_classes_rationale_152"
     },
@@ -25153,7 +25162,7 @@
       "file_type": "rationale",
       "source_file": "backend/app/api/v1/payments.py",
       "source_location": "L74",
-      "community": 29,
+      "community": 193,
       "norm_label": "caja: ingresos pagados de hoy y del mes, con desglose por metodo.",
       "id": "v1_payments_rationale_74"
     },
@@ -25162,7 +25171,7 @@
       "file_type": "rationale",
       "source_file": "backend/app/api/v1/payments.py",
       "source_location": "L152",
-      "community": 29,
+      "community": 149,
       "norm_label": "marcar un pago como pagado (estado: paid).",
       "id": "v1_payments_rationale_152"
     },
@@ -25171,7 +25180,7 @@
       "file_type": "rationale",
       "source_file": "backend/app/api/v1/reports.py",
       "source_location": "L95",
-      "community": 190,
+      "community": 182,
       "norm_label": "monthly revenue for the last n months.",
       "id": "v1_reports_rationale_95"
     },
@@ -25189,7 +25198,7 @@
       "file_type": "rationale",
       "source_file": "backend/app/api/v1/reports.py",
       "source_location": "L194",
-      "community": 170,
+      "community": 182,
       "norm_label": "members with birthdays in the next n months (by day/month, ignoring year).",
       "id": "v1_reports_rationale_194"
     },
@@ -25198,7 +25207,7 @@
       "file_type": "rationale",
       "source_file": "backend/app/api/v1/reports.py",
       "source_location": "L238",
-      "community": 211,
+      "community": 178,
       "norm_label": "revenue grouped by payment concept for the last n months.",
       "id": "v1_reports_rationale_238"
     },
@@ -25216,7 +25225,7 @@
       "file_type": "rationale",
       "source_file": "backend/app/models/tenant/membership.py",
       "source_location": "L19",
-      "community": 181,
+      "community": 159,
       "norm_label": "membresias activas de cada miembro.",
       "id": "tenant_membership_rationale_19"
     },
@@ -25234,7 +25243,7 @@
       "file_type": "code",
       "source_file": "backend/tests/test_models.py",
       "source_location": "L17",
-      "community": 225,
+      "community": 6,
       "norm_label": "db_session()",
       "id": "tests_test_models_db_session"
     },
@@ -25315,7 +25324,7 @@
       "file_type": "rationale",
       "source_file": "backend/app/api/v1/payments.py",
       "source_location": "L101",
-      "community": 29,
+      "community": 149,
       "norm_label": "marcar un pago como pagado (estado: paid).",
       "id": "v1_payments_rationale_101"
     },
@@ -25333,7 +25342,7 @@
       "file_type": "rationale",
       "source_file": "backend/app/core/security.py",
       "source_location": "L38",
-      "community": 202,
+      "community": 221,
       "norm_label": "genera jwt para staff del gym (admin/receptionist) autenticado contra tenant db.",
       "id": "core_security_rationale_38"
     },
@@ -25360,7 +25369,7 @@
       "file_type": "code",
       "source_file": "frontend/app/(dashboard)/checkins/CheckinsClient.tsx",
       "source_location": "L32",
-      "community": 209,
+      "community": 38,
       "norm_label": "checkin",
       "id": "checkins_checkinsclient_checkin"
     },
@@ -25369,7 +25378,7 @@
       "file_type": "code",
       "source_file": "frontend/app/(dashboard)/checkins/CheckinsClient.tsx",
       "source_location": "L41",
-      "community": 209,
+      "community": 38,
       "norm_label": "membermembership",
       "id": "checkins_checkinsclient_membermembership"
     },
@@ -25378,7 +25387,7 @@
       "file_type": "code",
       "source_file": "frontend/app/(dashboard)/checkins/CheckinsClient.tsx",
       "source_location": "L46",
-      "community": 209,
+      "community": 38,
       "norm_label": "typefilter",
       "id": "checkins_checkinsclient_typefilter"
     },
@@ -25387,7 +25396,7 @@
       "file_type": "code",
       "source_file": "frontend/app/(dashboard)/checkins/CheckinsClient.tsx",
       "source_location": "L52",
-      "community": 209,
+      "community": 38,
       "norm_label": "type_filters",
       "id": "checkins_checkinsclient_type_filters"
     },
@@ -25531,7 +25540,7 @@
       "file_type": "code",
       "source_file": "frontend/app/(dashboard)/members/[id]/MemberDetailClient.tsx",
       "source_location": "L13",
-      "community": 0,
+      "community": 101,
       "norm_label": "tab_labels",
       "id": "id_memberdetailclient_tab_labels"
     },
@@ -32458,9 +32467,9 @@
       "source_file": "backend/app/api/v1/payments.py",
       "source_location": "L202",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "v1_payments_rationale_202",
-      "target": "v1_payments_void_pending_payment",
-      "confidence_score": 1.0
+      "target": "v1_payments_void_pending_payment"
     },
     {
       "relation": "calls",
@@ -32489,9 +32498,9 @@
       "source_file": "backend/app/api/v1/payments.py",
       "source_location": "L222",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "v1_payments_rationale_222",
-      "target": "v1_payments_cash_box",
-      "confidence_score": 1.0
+      "target": "v1_payments_cash_box"
     },
     {
       "relation": "rationale_for",
@@ -32539,9 +32548,9 @@
       "source_file": "backend/app/api/v1/payments.py",
       "source_location": "L254",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "v1_payments_rationale_254",
-      "target": "v1_payments_list_receivables",
-      "confidence_score": 1.0
+      "target": "v1_payments_list_receivables"
     },
     {
       "relation": "calls",
@@ -32602,9 +32611,9 @@
       "source_file": "backend/app/api/v1/payments.py",
       "source_location": "L400",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "v1_payments_rationale_400",
-      "target": "v1_payments_mark_payment_paid",
-      "confidence_score": 1.0
+      "target": "v1_payments_mark_payment_paid"
     },
     {
       "relation": "calls",
@@ -32694,9 +32703,9 @@
       "source_file": "backend/app/api/v1/payments.py",
       "source_location": "L435",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "v1_payments_rationale_435",
-      "target": "v1_payments_create_payment_link",
-      "confidence_score": 1.0
+      "target": "v1_payments_create_payment_link"
     },
     {
       "relation": "calls",
@@ -33932,9 +33941,9 @@
       "source_file": "backend/app/api/v1/settings.py",
       "source_location": "L199",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "backend_app_api_v1_settings_py",
-      "target": "v1_settings_upload_gym_logo",
-      "confidence_score": 1.0
+      "target": "v1_settings_upload_gym_logo"
     },
     {
       "relation": "contains",
@@ -34220,9 +34229,9 @@
       "source_file": "backend/app/api/v1/settings.py",
       "source_location": "L204",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "v1_settings_rationale_204",
-      "target": "v1_settings_upload_gym_logo",
-      "confidence_score": 1.0
+      "target": "v1_settings_upload_gym_logo"
     },
     {
       "relation": "calls",
@@ -42736,9 +42745,9 @@
       "source_file": "backend/app/services/exports.py",
       "source_location": "L208",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "services_exports_rationale_208",
-      "target": "services_exports_write_sheet",
-      "confidence_score": 1.0
+      "target": "services_exports_write_sheet"
     },
     {
       "relation": "rationale_for",
@@ -44981,9 +44990,9 @@
       "source_file": "backend/migrations/tenant/versions/b7c8d9e0f1a2_cash_shifts_enabled.py",
       "source_location": "L15",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "backend_migrations_tenant_versions_b7c8d9e0f1a2_cash_shifts_enabled_py",
-      "target": "versions_b7c8d9e0f1a2_cash_shifts_enabled_upgrade",
-      "confidence_score": 1.0
+      "target": "versions_b7c8d9e0f1a2_cash_shifts_enabled_upgrade"
     },
     {
       "relation": "contains",
@@ -44991,9 +45000,9 @@
       "source_file": "backend/migrations/tenant/versions/b7c8d9e0f1a2_cash_shifts_enabled.py",
       "source_location": "L24",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "backend_migrations_tenant_versions_b7c8d9e0f1a2_cash_shifts_enabled_py",
-      "target": "versions_b7c8d9e0f1a2_cash_shifts_enabled_downgrade",
-      "confidence_score": 1.0
+      "target": "versions_b7c8d9e0f1a2_cash_shifts_enabled_downgrade"
     },
     {
       "relation": "contains",
@@ -45793,9 +45802,9 @@
       "source_file": "backend/tests/test_cash.py",
       "source_location": "L131",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "backend_tests_test_cash_py",
-      "target": "tests_test_cash_test_cash_paid_without_shift_when_shifts_disabled",
-      "confidence_score": 1.0
+      "target": "tests_test_cash_test_cash_paid_without_shift_when_shifts_disabled"
     },
     {
       "relation": "calls",
@@ -45859,9 +45868,9 @@
       "source_file": "backend/tests/test_cash.py",
       "source_location": "L132",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "tests_test_cash_test_cash_paid_without_shift_when_shifts_disabled",
-      "target": "tests_test_cash_owner_token",
-      "confidence_score": 1.0
+      "target": "tests_test_cash_owner_token"
     },
     {
       "relation": "calls",
@@ -45947,9 +45956,9 @@
       "source_file": "backend/tests/test_cash.py",
       "source_location": "L136",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "tests_test_cash_test_cash_paid_without_shift_when_shifts_disabled",
-      "target": "tests_test_cash_auth",
-      "confidence_score": 1.0
+      "target": "tests_test_cash_auth"
     },
     {
       "relation": "calls",
@@ -46002,9 +46011,9 @@
       "source_file": "backend/tests/test_cash.py",
       "source_location": "L133",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "tests_test_cash_test_cash_paid_without_shift_when_shifts_disabled",
-      "target": "tests_test_cash_member",
-      "confidence_score": 1.0
+      "target": "tests_test_cash_member"
     },
     {
       "relation": "calls",
@@ -46035,9 +46044,9 @@
       "source_file": "backend/tests/test_cash.py",
       "source_location": "L134",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "tests_test_cash_test_cash_paid_without_shift_when_shifts_disabled",
-      "target": "tests_test_cash_ensure_no_open_shift",
-      "confidence_score": 1.0
+      "target": "tests_test_cash_ensure_no_open_shift"
     },
     {
       "relation": "contains",
@@ -65048,6 +65057,16 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "frontend/components/landing/LandingClient.tsx",
+      "source_location": "L83",
+      "weight": 1.0,
+      "source": "frontend_components_landing_landingclient_tsx",
+      "target": "landing_landingclient_planfeature",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "frontend/components/landing/LandingClient.tsx",
       "source_location": "L76",
       "weight": 1.0,
       "confidence_score": 1.0,
@@ -66762,9 +66781,9 @@
       "source_file": "frontend/components/settings/OperationsSection.tsx",
       "source_location": "L11",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "frontend_components_settings_operationssection_tsx",
-      "target": "frontend_components_ui_switch_tsx",
-      "confidence_score": 1.0
+      "target": "frontend_components_ui_switch_tsx"
     },
     {
       "relation": "imports",
@@ -66773,9 +66792,9 @@
       "source_file": "frontend/components/settings/OperationsSection.tsx",
       "source_location": "L11",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "frontend_components_settings_operationssection_tsx",
-      "target": "ui_switch_switch",
-      "confidence_score": 1.0
+      "target": "ui_switch_switch"
     },
     {
       "relation": "imports_from",
@@ -68138,9 +68157,9 @@
       "source_file": "frontend/components/ui/city-combobox.tsx",
       "source_location": "L20",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "frontend_components_ui_city_combobox_tsx",
-      "target": "ui_city_combobox_fold",
-      "confidence_score": 1.0
+      "target": "ui_city_combobox_fold"
     },
     {
       "relation": "contains",
@@ -79883,5 +79902,5 @@
     }
   ],
   "hyperedges": [],
-  "built_at_commit": "8d6318dae310114e6e43d3f50a4bd2b51f1aa8a0"
+  "built_at_commit": "6d2c27e56f076a646f64a659a401e8b8a6ac63af"
 }

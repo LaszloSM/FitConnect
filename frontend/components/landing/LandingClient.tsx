@@ -80,34 +80,63 @@ const FEATURES = [
   },
 ];
 
-const PRICING = [
+interface PlanFeature {
+  text: string;
+  soon?: boolean;
+}
+
+const PRICING: {
+  name: string;
+  price: string;
+  period: string;
+  tagline: string;
+  highlight: boolean;
+  features: PlanFeature[];
+  cta: string;
+}[] = [
   {
-    name: "Inicia",
-    price: "Gratis",
-    period: "30 días de prueba",
+    name: "Básico",
+    price: "$160.000",
+    period: "COP / mes por sede",
+    tagline: "Todo el panel para operar tu gym",
     highlight: false,
     features: [
-      "Acceso completo durante la prueba",
-      "Hasta 100 miembros",
-      "Kiosko de entrada incluido",
-      "Soporte por WhatsApp",
+      { text: "Miembros ilimitados, caja, POS e inventario" },
+      { text: "Kiosko de entrada con avisos en vivo" },
+      { text: "Clases, reservas y lista de espera" },
+      { text: "Pagos Wompi + recordatorios WhatsApp" },
+      { text: "Reportes y exports con tu marca" },
+      { text: "Soporte por WhatsApp" },
     ],
-    cta: "Probar gratis",
+    cta: "Probar 30 días gratis",
   },
   {
-    name: "Pro",
-    price: "$99.900",
+    name: "Avanzado",
+    price: "$300.000",
     period: "COP / mes por sede",
+    tagline: "El panel + la app para tus socios",
     highlight: true,
     features: [
-      "Miembros ilimitados",
-      "Caja, POS e inventario",
-      "Clases, reservas y lista de espera",
-      "Pagos Wompi + recordatorios WhatsApp",
-      "Reportes comparativos y export",
-      "Auditoría de todo el staff",
+      { text: "Todo lo del plan Básico" },
+      { text: "App móvil para tus socios", soon: true },
+      { text: "Reservas y pagos desde la app", soon: true },
+      { text: "Métricas y analítica con IA", soon: true },
     ],
-    cta: "Empezar ahora",
+    cta: "Probar 30 días gratis",
+  },
+  {
+    name: "Premium",
+    price: "$480.000",
+    period: "COP / mes por sede",
+    tagline: "Avanzado + entrenador IA para tus socios",
+    highlight: false,
+    features: [
+      { text: "Todo lo del plan Avanzado" },
+      { text: "Asistente de entrenamiento con IA en la app", soon: true },
+      { text: "Rutinas y seguimiento personalizados", soon: true },
+      { text: "Soporte prioritario" },
+    ],
+    cta: "Probar 30 días gratis",
   },
 ];
 
@@ -153,6 +182,22 @@ const FAQS = [
   {
     q: "¿Mis datos están seguros?",
     a: "Cada gimnasio tiene su propia base de datos aislada. Las llaves de pago se guardan cifradas y cada acción sensible del staff queda en el registro de auditoría.",
+  },
+  {
+    q: "¿Qué incluye la prueba de 30 días?",
+    a: "Todo el plan que elijas, sin tarjeta de crédito. Registras tu gym, cargas tus socios y operas normal. Si al final no te convence, tus datos se pueden exportar y no se te cobra nada.",
+  },
+  {
+    q: "Hoy llevo todo en Excel o en un cuaderno, ¿cómo migro?",
+    a: "Descargas nuestra plantilla de Excel, pegas tus socios (nombre, cédula, teléfono) y los importas en un clic. Los socios importados quedan listos para usar el kiosko y asignarles su membresía.",
+  },
+  {
+    q: "¿Cómo manejan los datos personales de mis socios?",
+    a: "Cumplimos la Ley 1581 de 2012 (habeas data): tú eres el responsable del tratamiento y FitConnect el encargado. Los datos de salud (PAR-Q) son datos sensibles y se tratan como tales. Puedes leer la política completa en nuestra página de tratamiento de datos.",
+  },
+  {
+    q: "¿Puedo cancelar cuando quiera?",
+    a: "Sí. No hay contratos de permanencia: cancelas desde la configuración y te llevas tus datos exportados en Excel.",
   },
 ];
 
@@ -266,7 +311,7 @@ export default function LandingClient() {
             </Link>
           </motion.div>
           <motion.p variants={fadeUp} transition={{ duration: 0.5 }} className="text-xs text-white/40">
-            Sin tarjeta de crédito · Configurado en 10 minutos
+            Sin tarjeta de crédito · Configurado en 10 minutos · Datos protegidos (Ley 1581)
           </motion.p>
         </motion.div>
 
@@ -468,12 +513,25 @@ export default function LandingClient() {
               </motion.div>
             ))}
           </motion.div>
+          <motion.p
+            variants={fadeUp}
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true }}
+            transition={{ duration: 0.5 }}
+            className="text-center text-sm text-white/50 mt-8"
+          >
+            Cumplimos la Ley 1581 de 2012 de protección de datos personales (habeas data).{" "}
+            <Link href="/tratamiento-datos" className="text-[var(--color-primary)] font-medium hover:underline">
+              Lee nuestra política de tratamiento de datos →
+            </Link>
+          </motion.p>
         </div>
       </section>
 
       {/* Pricing */}
       <section id="pricing" className="py-20 px-5">
-        <div className="mx-auto max-w-4xl">
+        <div className="mx-auto max-w-6xl">
           <motion.div
             variants={fadeUp}
             initial="hidden"
@@ -483,9 +541,12 @@ export default function LandingClient() {
             className="text-center mb-12 space-y-3"
           >
             <h2 className="text-3xl sm:text-4xl font-extrabold">Un precio que se paga solo</h2>
-            <p className="text-white/50">Recupera la mensualidad con dos morosos que vuelvan a pagar.</p>
+            <p className="text-white/50">
+              Recupera la mensualidad con dos morosos que vuelvan a pagar.
+              Todos los planes incluyen <span className="text-white/80 font-semibold">30 días de prueba gratis</span>, sin tarjeta.
+            </p>
           </motion.div>
-          <div className="grid sm:grid-cols-2 gap-5">
+          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5 items-start">
             {PRICING.map((plan) => (
               <motion.div
                 key={plan.name}
@@ -497,7 +558,7 @@ export default function LandingClient() {
                 className={cn(
                   "rounded-2xl border p-7 space-y-5",
                   plan.highlight
-                    ? "border-[var(--color-primary)] bg-[var(--color-primary)]/[0.06] relative"
+                    ? "border-[var(--color-primary)] bg-[var(--color-primary)]/[0.06] relative lg:scale-[1.03]"
                     : "border-white/10 bg-white/[0.03]"
                 )}
               >
@@ -508,14 +569,22 @@ export default function LandingClient() {
                 )}
                 <div>
                   <h3 className="font-bold text-lg">{plan.name}</h3>
-                  <p className="text-4xl font-extrabold mt-2">{plan.price}</p>
+                  <p className="text-xs text-white/50 mt-0.5">{plan.tagline}</p>
+                  <p className="text-4xl font-extrabold mt-3">{plan.price}</p>
                   <p className="text-xs text-white/40 mt-1">{plan.period}</p>
                 </div>
                 <ul className="space-y-2.5">
                   {plan.features.map((f) => (
-                    <li key={f} className="flex items-start gap-2.5 text-sm text-white/70">
+                    <li key={f.text} className="flex items-start gap-2.5 text-sm text-white/70">
                       <Check className="h-4 w-4 text-[var(--color-primary)] shrink-0 mt-0.5" />
-                      {f}
+                      <span>
+                        {f.text}
+                        {f.soon && (
+                          <span className="ml-1.5 inline-block align-middle rounded-full border border-amber-400/40 bg-amber-400/10 px-1.5 py-px text-[10px] font-semibold text-amber-300">
+                            Próximamente
+                          </span>
+                        )}
+                      </span>
                     </li>
                   ))}
                 </ul>
@@ -533,6 +602,10 @@ export default function LandingClient() {
               </motion.div>
             ))}
           </div>
+          <p className="text-center text-xs text-white/35 mt-6">
+            Las funciones marcadas como &quot;Próximamente&quot; están en desarrollo: al contratarlas hoy
+            aseguras el precio y las recibes apenas salgan, sin costo adicional.
+          </p>
         </div>
       </section>
 
@@ -598,6 +671,7 @@ export default function LandingClient() {
             <a href="#pricing" className="hover:text-white/70 transition-colors">Precios</a>
             <Link href="/privacidad" className="hover:text-white/70 transition-colors">Privacidad</Link>
             <Link href="/terminos" className="hover:text-white/70 transition-colors">Términos</Link>
+            <Link href="/tratamiento-datos" className="hover:text-white/70 transition-colors">Tratamiento de datos</Link>
             <Link href="/login" className="hover:text-white/70 transition-colors">Ingresar</Link>
           </div>
         </div>

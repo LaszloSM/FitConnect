@@ -185,8 +185,10 @@ export default function RegisterPage() {
           <span className="text-sm text-slate-500">
             Acepto los{" "}
             <Link href="/terminos" target="_blank" className="text-lime-700 hover:underline font-medium">términos de servicio</Link>
-            {" "}y la{" "}
+            , la{" "}
             <Link href="/privacidad" target="_blank" className="text-lime-700 hover:underline font-medium">política de privacidad</Link>
+            {" "}y la{" "}
+            <Link href="/tratamiento-datos" target="_blank" className="text-lime-700 hover:underline font-medium">política de tratamiento de datos</Link>
           </span>
         </label>
 
