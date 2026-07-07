@@ -57,6 +57,7 @@ function waLink(phone: string | null, text: string): string | null {
 
 interface ShiftInfo {
   open: boolean;
+  cash_shifts_enabled?: boolean;
   shift?: { id: string; opening_amount: number; opened_at: string } | null;
 }
 
@@ -91,7 +92,7 @@ export function OperationsToday() {
         <GlassCard className="p-4 flex items-center gap-3">
           <span
             className={`h-9 w-9 rounded-full flex items-center justify-center shrink-0 ${
-              shift?.open
+              shift?.open || shift?.cash_shifts_enabled === false
                 ? "bg-emerald-100 dark:bg-emerald-950/40 text-emerald-600"
                 : "bg-amber-100 dark:bg-amber-950/40 text-amber-600"
             }`}
@@ -100,11 +101,17 @@ export function OperationsToday() {
           </span>
           <div className="flex-1 min-w-0">
             <p className="text-sm font-semibold text-[var(--text-base)]">
-              {shift?.open ? "Turno de caja abierto" : "Caja cerrada"}
+              {shift?.open
+                ? "Turno de caja abierto"
+                : shift?.cash_shifts_enabled === false
+                ? "Caja sin turnos"
+                : "Caja cerrada"}
             </p>
             <p className="text-xs text-[var(--text-muted)]">
               {shift?.open
                 ? `Base: ${formatCOP(shift.shift?.opening_amount ?? 0)}`
+                : shift?.cash_shifts_enabled === false
+                ? "Cobras en efectivo sin abrir turno"
                 : "Abre el turno para cobrar en efectivo"}
             </p>
           </div>
@@ -112,7 +119,7 @@ export function OperationsToday() {
             href="/payments/cash"
             className="shrink-0 text-[11px] font-semibold text-[var(--color-primary)] border border-[var(--border-base)] rounded-lg px-2 py-1 hover:bg-[var(--bg-base)] transition-colors"
           >
-            {shift?.open ? "Ver caja" : "Abrir turno"}
+            {shift?.open || shift?.cash_shifts_enabled === false ? "Ver caja" : "Abrir turno"}
           </Link>
         </GlassCard>
 

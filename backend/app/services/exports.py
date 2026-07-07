@@ -65,8 +65,14 @@ async def fetch_logo_png(logo_url: str | None) -> bytes | None:
     try:
         from app.core.config import settings as app_settings
 
-        # El propio bucket S3/MinIO del sistema es confiable aunque sea interno (dev)
+        # El propio bucket S3/MinIO del sistema es confiable aunque sea interno (dev).
+        # La URL pública (localhost:9000) no resuelve dentro del contenedor: para la
+        # descarga se reescribe al endpoint interno (minio:9000).
         own_bucket = bool(app_settings.s3_endpoint_url) and logo_url.startswith(app_settings.s3_endpoint_url)
+        public_base = getattr(app_settings, "s3_public_url", "") or ""
+        if public_base and app_settings.s3_endpoint_url and logo_url.startswith(public_base):
+            logo_url = app_settings.s3_endpoint_url.rstrip("/") + logo_url[len(public_base.rstrip("/")):]
+            own_bucket = True
         if not own_bucket and not await _is_public_host(logo_url):
             return None
         async with httpx.AsyncClient(timeout=5.0, follow_redirects=True) as client:

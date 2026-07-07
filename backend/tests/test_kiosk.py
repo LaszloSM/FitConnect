@@ -130,7 +130,12 @@ async def test_kiosk_auto_attends_class(client):
 
     now = datetime.now(ZoneInfo("America/Bogota"))
     gym_weekday = now.weekday()
-    start = (now + timedelta(minutes=30)).strftime("%H:%M")
+    # Ventana de auto-attend: ±60 min. Cerca de medianoche now+30min cae en el
+    # día siguiente (la sesión ya no es "de hoy"): usar una clase que acaba de empezar.
+    target = now + timedelta(minutes=30)
+    if target.date() != now.date():
+        target = now - timedelta(minutes=30)
+    start = target.strftime("%H:%M")
     gym_class = (await client.post("/api/v1/classes", json={
         "name": f"Spinning {uuid.uuid4().hex[:5]}",
         "instructor": "Coach",

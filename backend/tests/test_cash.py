@@ -126,3 +126,22 @@ async def test_receipt_numbers_unique_under_concurrency(client):
         rec = await client.get(f"/api/v1/payments/{pid}/receipt", headers=_auth(token))
         numbers.append(rec.json()["number"])
     assert len(set(numbers)) == len(numbers)  # todos únicos
+
+
+async def test_cash_paid_without_shift_when_shifts_disabled(client):
+    token = await _owner_token(client)
+    member_id = await _member(client, token)
+    await _ensure_no_open_shift(client, token)
+    await client.patch("/api/v1/settings/operations",
+                       json={"cash_shifts_enabled": False}, headers=_auth(token))
+    try:
+        r = await client.post("/api/v1/payments", json={
+            "member_id": member_id, "amount": 10000, "method": "cash",
+            "status": "paid", "concept": "Efectivo sin turno",
+        }, headers=_auth(token))
+        assert r.status_code == 201, r.text
+        assert r.json()["status"] == "paid"
+    finally:
+        # Restaurar el default para no afectar otros tests del mismo tenant
+        await client.patch("/api/v1/settings/operations",
+                           json={"cash_shifts_enabled": True}, headers=_auth(token))

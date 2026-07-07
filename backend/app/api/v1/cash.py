@@ -68,12 +68,16 @@ async def current_shift(
     db: AsyncSession = Depends(get_tenant_db_from_token),
     location_id: uuid.UUID | None = Query(None),
 ):
+    from app.services.gym_settings import get_gym_settings
+
+    gym = await get_gym_settings(db)
     shift = await _current_open_shift(db, location_id)
     if not shift:
-        return {"open": False}
+        return {"open": False, "cash_shifts_enabled": gym.cash_shifts_enabled}
     income, outflow = await _shift_cash_movements(db, shift.id)
     return {
         "open": True,
+        "cash_shifts_enabled": gym.cash_shifts_enabled,
         "shift": shift,
         "cash_income": str(income),
         "cash_expenses": str(outflow),

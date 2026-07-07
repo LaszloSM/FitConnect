@@ -16,6 +16,9 @@ interface CityComboboxProps {
   id?: string
 }
 
+// Búsqueda insensible a tildes: "bogota" encuentra "Bogotá", "medellin" a "Medellín"
+const fold = (s: string) => s.normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase()
+
 // Combobox con búsqueda por ciudad o departamento. Permite texto libre: si lo
 // escrito no coincide con la lista, ofrece "Usar: {texto}" para guardarlo igual
 // (un municipio pequeño no listado sigue siendo válido).
@@ -27,14 +30,14 @@ function CityCombobox({ value, onChange, className, placeholder = "Ciudad", surf
   }, [value])
 
   const matches = useMemo(() => {
-    const q = inputValue.trim().toLowerCase()
+    const q = fold(inputValue.trim())
     if (!q) return COLOMBIA_CITIES.slice(0, 50).map((c) => c.city)
     const filtered = COLOMBIA_CITIES.filter(
-      (c) => c.city.toLowerCase().includes(q) || c.department.toLowerCase().includes(q)
+      (c) => fold(c.city).includes(q) || fold(c.department).includes(q)
     )
     const cities = filtered.map((c) => c.city)
     // Texto libre: si no hay coincidencia exacta, permitir guardar lo escrito
-    const exact = COLOMBIA_CITIES.some((c) => c.city.toLowerCase() === q)
+    const exact = COLOMBIA_CITIES.some((c) => fold(c.city) === q)
     if (!exact && inputValue.trim()) cities.unshift(inputValue.trim())
     return Array.from(new Set(cities)).slice(0, 50)
   }, [inputValue])

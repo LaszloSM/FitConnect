@@ -146,15 +146,18 @@ async def create_payment(
                 detail="La membresía no pertenece a este miembro",
             )
 
-    # El efectivo cobrado (paid) requiere un turno abierto para que cuadre la caja.
-    # Un cash pendiente es una promesa de pago: no entra a caja todavía.
+    # El efectivo cobrado (paid) requiere un turno abierto para que cuadre la caja
+    # (salvo que el gym tenga los turnos desactivados). Un cash pendiente es una
+    # promesa de pago: no entra a caja todavía.
     shift = await _open_cash_shift(db)
     is_cash_paid = payload.method == PaymentMethod.cash and payload.status == PaymentStatus.paid
     if is_cash_paid and shift is None:
-        raise HTTPException(
-            status_code=400,
-            detail="Abre un turno de caja antes de cobrar en efectivo",
-        )
+        gym = await get_gym_settings(db)
+        if gym.cash_shifts_enabled:
+            raise HTTPException(
+                status_code=400,
+                detail="Abre un turno de caja antes de cobrar en efectivo",
+            )
 
     items, items_total = await _resolve_items(payload, db)
 
@@ -166,7 +169,8 @@ async def create_payment(
         # Una transferencia no es plata en la mano: queda pendiente hasta que
         # el staff confirme que llegó a la cuenta (POST /payments/{id}/confirm)
         payment.status = PaymentStatus.pending
-    if is_cash_paid:
+    if is_cash_paid and shift is not None:
+        # Con turnos desactivados el efectivo se registra sin turno (shift_id nulo)
         payment.shift_id = shift.id
     db.add(payment)
     await db.flush()
@@ -405,8 +409,11 @@ async def mark_payment_paid(
     if payment.method == PaymentMethod.cash and payment.shift_id is None:
         shift = await _open_cash_shift(db)
         if shift is None:
-            raise HTTPException(status_code=400, detail="Abre un turno de caja antes de cobrar en efectivo")
-        payment.shift_id = shift.id
+            gym = await get_gym_settings(db)
+            if gym.cash_shifts_enabled:
+                raise HTTPException(status_code=400, detail="Abre un turno de caja antes de cobrar en efectivo")
+        else:
+            payment.shift_id = shift.id
 
     payment.status = PaymentStatus.paid
     payment.received_by = current_user.id

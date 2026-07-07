@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, File, HTTPException, UploadFile
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
 
@@ -35,11 +35,13 @@ class OperationsSettingsResponse(BaseModel):
     grace_days: int
     timezone: str
     receipt_prefix: str
+    cash_shifts_enabled: bool
 
 
 class OperationsSettingsUpdate(BaseModel):
     grace_days: int | None = Field(default=None, ge=0, le=30)
     receipt_prefix: str | None = Field(default=None, min_length=1, max_length=10)
+    cash_shifts_enabled: bool | None = None
 
 
 @router.get("/operations", response_model=OperationsSettingsResponse)
@@ -52,6 +54,7 @@ async def get_operations_settings(
         grace_days=gym.grace_days,
         timezone=gym.timezone,
         receipt_prefix=gym.receipt_prefix,
+        cash_shifts_enabled=gym.cash_shifts_enabled,
     )
 
 
@@ -66,12 +69,15 @@ async def update_operations_settings(
         gym.grace_days = payload.grace_days
     if payload.receipt_prefix is not None:
         gym.receipt_prefix = payload.receipt_prefix
+    if payload.cash_shifts_enabled is not None:
+        gym.cash_shifts_enabled = payload.cash_shifts_enabled
     await db.commit()
     await db.refresh(gym)
     return OperationsSettingsResponse(
         grace_days=gym.grace_days,
         timezone=gym.timezone,
         receipt_prefix=gym.receipt_prefix,
+        cash_shifts_enabled=gym.cash_shifts_enabled,
     )
 
 
@@ -173,6 +179,43 @@ async def update_gym_settings(
     await master_db.commit()
     await master_db.refresh(tenant)
 
+    return GymSettingsResponse(
+        name=tenant.name,
+        phone=tenant.phone,
+        address=tenant.address,
+        city=tenant.city,
+        country=tenant.country,
+        logo_url=tenant.logo_url,
+        plan=tenant.plan.value if tenant.plan else None,
+        operating_hours=tenant.operating_hours,
+    )
+
+
+_ALLOWED_LOGO_TYPES = {"image/jpeg": "jpg", "image/png": "png", "image/webp": "webp"}
+_MAX_LOGO_BYTES = 2 * 1024 * 1024
+
+
+@router.post("/gym/logo", response_model=GymSettingsResponse)
+async def upload_gym_logo(
+    file: UploadFile = File(...),
+    tenant: Tenant = Depends(check_tenant_active),
+    master_db: AsyncSession = Depends(get_master_db),
+):
+    """Sube el logo del gym a S3 y persiste su URL (reemplaza el campo de URL manual)."""
+    from app.services.storage import upload_image
+
+    ext = _ALLOWED_LOGO_TYPES.get(file.content_type or "")
+    if not ext:
+        raise HTTPException(status_code=400, detail="Formato no soportado (usa JPG, PNG o WEBP)")
+    data = await file.read()
+    if len(data) > _MAX_LOGO_BYTES:
+        raise HTTPException(status_code=400, detail="El logo supera 2 MB")
+
+    key = f"gyms/{tenant.slug}/logo.{ext}"
+    url = await upload_image(data, key, file.content_type)
+    tenant.logo_url = url
+    await master_db.commit()
+    await master_db.refresh(tenant)
     return GymSettingsResponse(
         name=tenant.name,
         phone=tenant.phone,

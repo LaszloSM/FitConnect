@@ -130,6 +130,19 @@ export default function CashClient() {
       </div>
       <PageHeader module="payments" title="Caja" subtitle="Turno, egresos y cierre con cuadre" />
 
+      {current && !current.open && (current as any).cash_shifts_enabled === false && (
+        <GlassCard className="p-5">
+          <p className="text-sm text-[var(--text-base)] font-medium">Turnos de caja desactivados</p>
+          <p className="text-xs text-[var(--text-muted)] mt-1">
+            Este gym cobra en efectivo sin abrir turno. Puedes activarlos en{" "}
+            <Link href="/settings" className="text-[var(--color-primary)] font-medium hover:underline">
+              Configuración → Operación
+            </Link>{" "}
+            si quieres cuadre de caja por empleado. Abrir un turno abajo sigue siendo opcional.
+          </p>
+        </GlassCard>
+      )}
+
       {current && !current.open && (
         <GlassCard className="p-5 space-y-4">
           <div className="flex items-center gap-2">

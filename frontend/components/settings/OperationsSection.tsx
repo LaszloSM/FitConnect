@@ -8,6 +8,7 @@ import { GlassCard } from "@/components/common/GlassCard";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Switch } from "@/components/ui/switch";
 import { apiClient } from "@/lib/api";
 import type { Location } from "@/lib/types";
 import { Lock, MapPin, Plus, Trash2, Loader2 } from "lucide-react";
@@ -19,6 +20,7 @@ export default function OperationsSection() {
   const { data: session } = useSession();
   const [graceDays, setGraceDays] = useState<number>(3);
   const [receiptPrefix, setReceiptPrefix] = useState("FC");
+  const [cashShiftsEnabled, setCashShiftsEnabled] = useState(true);
   const [savingOps, setSavingOps] = useState(false);
   const [locations, setLocations] = useState<Location[]>([]);
   const [showNewLocation, setShowNewLocation] = useState(false);
@@ -36,6 +38,7 @@ export default function OperationsSection() {
     ]).then(([ops, locs]) => {
       setGraceDays(ops.data.grace_days);
       setReceiptPrefix(ops.data.receipt_prefix);
+      setCashShiftsEnabled(ops.data.cash_shifts_enabled ?? true);
       setLocations(locs.data);
     }).catch(() => toast.error("Error cargando configuración"));
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -50,6 +53,7 @@ export default function OperationsSection() {
       await client.patch("/api/v1/settings/operations", {
         grace_days: graceDays,
         receipt_prefix: receiptPrefix || undefined,
+        cash_shifts_enabled: cashShiftsEnabled,
       });
       toast.success("Configuración operativa guardada");
     } catch (err: any) {
@@ -142,6 +146,22 @@ export default function OperationsSection() {
             />
           </div>
         </div>
+
+        <div className="flex items-start justify-between gap-4 rounded-lg border border-[var(--border-base)] bg-[var(--bg-base)] p-4">
+          <div>
+            <p className="text-sm font-medium text-[var(--text-base)]">Manejar turnos de caja</p>
+            <p className="text-xs text-[var(--text-muted)] mt-0.5 max-w-md">
+              Con turnos, el efectivo exige abrir y cerrar caja (arqueo por empleado). Si atiendes
+              tú solo, apágalo y cobra en efectivo directamente.
+            </p>
+          </div>
+          <Switch
+            checked={cashShiftsEnabled}
+            onCheckedChange={(v: boolean) => setCashShiftsEnabled(v)}
+            disabled={!isOwner}
+          />
+        </div>
+
         {isOwner && (
           <div className="flex justify-end">
             <Button

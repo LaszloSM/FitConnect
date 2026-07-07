@@ -13,7 +13,7 @@ import { TimePicker } from "@/components/ui/time-picker";
 import { CityCombobox } from "@/components/ui/city-combobox";
 import { CountrySelect } from "@/components/ui/country-select";
 import { apiClient } from "@/lib/api";
-import { Lock } from "lucide-react";
+import { ImageIcon, Loader2, Lock, Upload } from "lucide-react";
 
 const inputCls =
   "bg-[var(--bg-base)] border-[var(--border-base)] text-[var(--text-base)] placeholder:text-[var(--text-muted)]";
@@ -79,6 +79,7 @@ export default function GymSection() {
     logo_url: "",
   });
   const [saving, setSaving] = useState(false);
+  const [uploadingLogo, setUploadingLogo] = useState(false);
   const [operatingHours, setOperatingHours] = useState<OperatingHours>(DEFAULT_HOURS);
   const [savingHours, setSavingHours] = useState(false);
 
@@ -128,6 +129,27 @@ export default function GymSection() {
     }
   };
 
+  const uploadLogo = async (file: File) => {
+    if (!session?.accessToken) return;
+    setUploadingLogo(true);
+    try {
+      const fd = new FormData();
+      fd.append("file", file);
+      const client = apiClient(session.accessToken as string);
+      const res = await client.post("/api/v1/settings/gym/logo", fd, {
+        headers: { "Content-Type": "multipart/form-data" },
+      });
+      setForm((f) => ({ ...f, logo_url: res.data.logo_url ?? "" }));
+      setGymData(res.data);
+      toast.success("Logo actualizado");
+    } catch (err: any) {
+      const detail = err.response?.data?.detail;
+      toast.error(typeof detail === "string" ? detail : "Error subiendo el logo");
+    } finally {
+      setUploadingLogo(false);
+    }
+  };
+
   const handleSaveHours = async () => {
     if (!session?.accessToken) return;
     setSavingHours(true);
@@ -161,19 +183,44 @@ export default function GymSection() {
         </div>
       )}
 
-      {/* Logo preview */}
-      {form.logo_url && (
-        <div className="flex items-center gap-3">
-          {/* eslint-disable-next-line @next/next/no-img-element */}
+      {/* Logo del gym: se sube como imagen, aparece en el panel y los reportes */}
+      <div className="flex items-center gap-4 flex-wrap">
+        {form.logo_url ? (
+          // eslint-disable-next-line @next/next/no-img-element
           <img
             src={form.logo_url}
             alt="Logo del gym"
-            className="h-12 w-12 rounded-lg object-contain border border-[var(--border-base)] bg-[var(--bg-base)]"
+            className="h-16 w-16 rounded-xl object-contain border border-[var(--border-base)] bg-white p-1"
             onError={(e) => { (e.target as HTMLImageElement).style.display = "none"; }}
           />
-          <p className="text-[var(--text-muted)] text-xs">Vista previa del logo</p>
+        ) : (
+          <span className="h-16 w-16 rounded-xl border border-dashed border-[var(--border-base)] bg-[var(--bg-base)] flex items-center justify-center text-[var(--text-muted)]">
+            <ImageIcon className="h-6 w-6" />
+          </span>
+        )}
+        <div className="space-y-1.5">
+          {isOwner && (
+            <label className="inline-flex items-center gap-2 h-9 px-3 rounded-lg border border-[var(--border-base)] bg-[var(--bg-base)] text-sm font-medium text-[var(--text-base)] hover:border-[var(--color-primary)] transition-colors cursor-pointer">
+              {uploadingLogo ? <Loader2 className="h-4 w-4 animate-spin" /> : <Upload className="h-4 w-4" />}
+              {form.logo_url ? "Cambiar logo" : "Subir logo"}
+              <input
+                type="file"
+                accept="image/jpeg,image/png,image/webp"
+                className="sr-only"
+                disabled={uploadingLogo}
+                onChange={(e) => {
+                  const file = e.target.files?.[0];
+                  if (file) void uploadLogo(file);
+                  e.target.value = "";
+                }}
+              />
+            </label>
+          )}
+          <p className="text-xs text-[var(--text-muted)]">
+            JPG, PNG o WEBP · máx 2MB. Se usa en el panel y en los reportes PDF/Excel.
+          </p>
         </div>
-      )}
+      </div>
 
       <form onSubmit={handleSubmit} className="space-y-4">
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -223,16 +270,21 @@ export default function GymSection() {
           </div>
         </div>
 
-        <div className="space-y-2">
-          <Label className="text-[var(--text-muted)] text-sm">URL del logo</Label>
-          <Input
-            value={form.logo_url}
-            onChange={(e) => setForm({ ...form, logo_url: e.target.value })}
-            disabled={!isOwner}
-            placeholder="https://..."
-            className={isOwner ? inputCls : readOnlyCls}
-          />
-        </div>
+        {isOwner && (
+          <details className="text-sm">
+            <summary className="cursor-pointer text-[var(--text-muted)] hover:text-[var(--text-base)] transition-colors">
+              Avanzado: usar una URL externa para el logo
+            </summary>
+            <div className="mt-2">
+              <Input
+                value={form.logo_url}
+                onChange={(e) => setForm({ ...form, logo_url: e.target.value })}
+                placeholder="https://..."
+                className={inputCls}
+              />
+            </div>
+          </details>
+        )}
 
         {gymData?.plan && (
           <div className="pt-4 border-t border-[var(--border-base)]">

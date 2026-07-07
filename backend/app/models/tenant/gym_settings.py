@@ -1,5 +1,5 @@
 import uuid
-from sqlalchemy import String, Integer
+from sqlalchemy import Boolean, String, Integer
 from sqlalchemy.dialects.postgresql import UUID, JSONB
 from sqlalchemy.orm import mapped_column, Mapped
 from typing import Optional
@@ -18,6 +18,10 @@ class GymSettings(TenantBase, TenantTimestampMixin):
     grace_days: Mapped[int] = mapped_column(Integer, default=3, nullable=False)
     timezone: Mapped[str] = mapped_column(String(50), default="America/Bogota", nullable=False)
     receipt_prefix: Mapped[str] = mapped_column(String(10), default="FC", nullable=False)
+    # Turnos de caja opcionales: los gyms de un solo dueño cobran sin abrir/cerrar turno
+    cash_shifts_enabled: Mapped[bool] = mapped_column(
+        Boolean, default=True, server_default="true", nullable=False
+    )
 
     wompi_public_key: Mapped[Optional[str]] = mapped_column(String(255), nullable=True)
     wompi_private_key: Mapped[Optional[str]] = mapped_column(String(500), nullable=True)

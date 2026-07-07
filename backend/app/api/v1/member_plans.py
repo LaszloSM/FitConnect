@@ -300,16 +300,16 @@ async def charge_membership(
     if not plan:
         raise HTTPException(status_code=404, detail="Plan no encontrado")
 
+    gym = await get_gym_settings(db)
     shift = None
     if data.method == "cash":
         shift = (await db.execute(
             select(CashShift).where(CashShift.status == "open", CashShift.location_id.is_(None)).limit(1)
         )).scalar_one_or_none()
-        if shift is None:
+        if shift is None and gym.cash_shifts_enabled:
             raise HTTPException(status_code=400, detail="Abre un turno de caja antes de cobrar en efectivo")
 
     # Renovación sin perder días: arranca al terminar la vigente/programada
-    gym = await get_gym_settings(db)
     today = today_bogota()
     start = await next_chain_start(db, member.id, gym.grace_days, today, today=today)
 
