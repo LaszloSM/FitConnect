@@ -33,9 +33,9 @@ async def test_onboarding_status_fresh_tenant(client):
     response = await client.get("/api/v1/onboarding/status", headers=headers)
     assert response.status_code == 200, response.text
     data = response.json()
-    # Contrato exacto que consume OnboardingChecklist.tsx
-    assert set(data.keys()) == {"has_plan", "has_member", "done"}
-    assert data == {"has_plan": False, "has_member": False, "done": False}
+    # Contrato exacto que consumen OnboardingChecklist.tsx y OnboardingTour.tsx
+    assert set(data.keys()) == {"has_plan", "has_member", "done", "tour_completed"}
+    assert data == {"has_plan": False, "has_member": False, "done": False, "tour_completed": False}
 
 
 async def test_onboarding_done_after_plan_and_member(client):
@@ -57,4 +57,13 @@ async def test_onboarding_done_after_plan_and_member(client):
 
     response = await client.get("/api/v1/onboarding/status", headers=headers)
     data = response.json()
-    assert data == {"has_plan": True, "has_member": True, "done": True}
+    assert data["has_plan"] is True
+    assert data["has_member"] is True
+    assert data["done"] is True
+
+    # El tour se marca una sola vez y queda persistido
+    assert data["tour_completed"] is False
+    r = await client.post("/api/v1/onboarding/tour-complete", headers=headers)
+    assert r.status_code == 200, r.text
+    again = (await client.get("/api/v1/onboarding/status", headers=headers)).json()
+    assert again["tour_completed"] is True

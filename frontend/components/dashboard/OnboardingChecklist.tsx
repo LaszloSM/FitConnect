@@ -64,13 +64,22 @@ export function OnboardingChecklist() {
               <p className="text-xs text-[var(--text-muted)]">{essentialDone} de {STEPS.length} pasos esenciales</p>
             </div>
           </div>
-          <button
-            type="button"
-            onClick={() => setDismissed(true)}
-            className="text-xs text-[var(--text-muted)] hover:text-[var(--text-base)] transition-colors"
-          >
-            Ocultar
-          </button>
+          <div className="flex items-center gap-3">
+            <button
+              type="button"
+              onClick={() => window.dispatchEvent(new Event("fitconnect:start-tour"))}
+              className="text-xs font-medium text-[var(--color-primary)] hover:underline"
+            >
+              Ver tutorial
+            </button>
+            <button
+              type="button"
+              onClick={() => setDismissed(true)}
+              className="text-xs text-[var(--text-muted)] hover:text-[var(--text-base)] transition-colors"
+            >
+              Ocultar
+            </button>
+          </div>
         </div>
 
         <div className="h-1.5 w-full rounded-full bg-[var(--bg-muted)] overflow-hidden mb-4">

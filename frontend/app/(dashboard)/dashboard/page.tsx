@@ -11,6 +11,7 @@ import { EmptyState } from "@/components/common/EmptyState";
 import { PageHeader } from "@/components/common/PageHeader";
 import { OperationsToday } from "@/components/dashboard/OperationsToday";
 import { OnboardingChecklist } from "@/components/dashboard/OnboardingChecklist";
+import { OnboardingTour } from "@/components/dashboard/OnboardingTour";
 import { InsightsStrip } from "@/components/dashboard/InsightsStrip";
 import { LiveNowStrip } from "@/components/dashboard/LiveNowStrip";
 import { apiClient } from "@/lib/api";
@@ -251,10 +252,16 @@ export default function DashboardPage() {
         }
       />
 
-      <OnboardingChecklist />
+      <OnboardingTour />
+
+      <div data-tour="checklist">
+        <OnboardingChecklist />
+      </div>
 
       {/* Centro de comando: lo de HOY primero, en vivo */}
-      <LiveNowStrip expiring7d={kpis.expiring_memberships_7d} />
+      <div data-tour="live-now">
+        <LiveNowStrip expiring7d={kpis.expiring_memberships_7d} />
+      </div>
 
       <InsightsStrip />
 

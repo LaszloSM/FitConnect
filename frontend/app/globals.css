@@ -168,3 +168,46 @@
     transition: all var(--transition-fast);
   }
 }
+
+/* ─── Tour de bienvenida (driver.js) con los tokens propios ─── */
+.driver-popover {
+  background-color: var(--bg-card);
+  color: var(--text-base);
+  border: 1px solid var(--border-base);
+  border-radius: 16px;
+  box-shadow: var(--shadow-md);
+  max-width: 340px;
+}
+.driver-popover-title {
+  color: var(--text-base);
+  font-weight: 800;
+}
+.driver-popover-description {
+  color: var(--text-muted);
+  line-height: 1.55;
+}
+.driver-popover-progress-text {
+  color: var(--text-muted);
+  font-size: 12px;
+}
+.driver-popover-navigation-btns button {
+  background-color: var(--bg-muted);
+  color: var(--text-base);
+  border: 1px solid var(--border-base);
+  border-radius: 10px;
+  padding: 6px 12px;
+  text-shadow: none;
+  font-weight: 600;
+}
+.driver-popover-navigation-btns button.driver-popover-next-btn {
+  background-color: var(--color-primary);
+  color: var(--color-primary-contrast);
+  border-color: var(--color-primary);
+}
+.driver-popover-close-btn {
+  color: var(--text-muted);
+}
+.driver-popover-arrow-side-top { border-top-color: var(--bg-card); }
+.driver-popover-arrow-side-bottom { border-bottom-color: var(--bg-card); }
+.driver-popover-arrow-side-left { border-left-color: var(--bg-card); }
+.driver-popover-arrow-side-right { border-right-color: var(--bg-card); }
