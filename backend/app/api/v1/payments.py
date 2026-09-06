@@ -17,6 +17,7 @@ from app.models.tenant.member import Member
 from app.models.tenant.membership import Membership, MembershipStatus
 from app.models.tenant.cash_shift import CashShift
 from app.models.tenant.receipt import Receipt
+from app.models.tenant.inventory import StockMovement
 from app.models.tenant.user_staff import UserStaff, UserRole
 from app.services.audit import audit
 from app.services.gym_settings import get_gym_settings
@@ -29,6 +30,16 @@ from app.services.payments import (
     open_cash_shift as _open_cash_shift,
 )
 from app.services.storage import upload_image
+from app.services.inventory import apply_stock_movement
+from app.services.refunds import refund_payment
+from app.services.receipt_pdf import build_receipt_pdf
+from app.services.signed_links import sign as sign_link
+from app.services.exports import fetch_logo_png
+from app.models.tenant.inventory import StockMovementType
+from app.api.deps import get_tenant_from_claims
+from app.models.master.tenant import Tenant
+from app.core.config import settings
+from fastapi.responses import Response
 from app.core.timeutil import utcnow_naive
 from fastapi import File, UploadFile
 
@@ -41,6 +52,14 @@ async def _member_names(member_ids: list[uuid.UUID], db: AsyncSession) -> dict[u
         return {}
     result = await db.execute(select(Member.id, Member.full_name).where(Member.id.in_(ids)))
     return {mid: name for mid, name in result.all()}
+
+
+async def _member_phones(member_ids: list[uuid.UUID], db: AsyncSession) -> dict[uuid.UUID, str | None]:
+    ids = [m for m in member_ids if m is not None]
+    if not ids:
+        return {}
+    result = await db.execute(select(Member.id, Member.phone).where(Member.id.in_(ids)))
+    return {mid: phone for mid, phone in result.all()}
 
 
 def _payment_response(payment: Payment, member_name: str | None, accounts: dict[str, dict] | None = None) -> PaymentResponse:
@@ -101,41 +120,32 @@ async def list_payments(
     result = await db.execute(stmt)
     payments = result.scalars().all()
     names = await _member_names([p.member_id for p in payments], db)
+    phones = await _member_phones([p.member_id for p in payments], db)
     accounts = await _accounts_by_id(db)
-    return [_payment_response(p, names.get(p.member_id), accounts) for p in payments]
+    out = []
+    for p in payments:
+        data = _payment_response(p, names.get(p.member_id), accounts)
+        data.member_phone = phones.get(p.member_id)
+        out.append(data)
+    return out
 
 
 async def _resolve_items(payload: PaymentCreate, db: AsyncSession) -> tuple[list[dict], Decimal]:
-    """Resuelve los renglones de venta: snapshot de nombre/precio del catálogo y
-    descuento de stock atómico (UPDATE condicional, 409 si no alcanza)."""
+    """Resuelve los renglones de venta con snapshot de nombre/precio del catálogo.
+    El stock se descuenta después, con un movimiento por renglón ligado al pago."""
     items: list[dict] = []
     total = Decimal(0)
     for item in payload.items:
         if item.product_id:
-            row = (await db.execute(
-                update(Product)
-                .where(
-                    Product.id == item.product_id,
-                    Product.is_active.is_(True),
-                    Product.stock >= item.quantity,
-                )
-                .values(stock=Product.stock - item.quantity)
-                .returning(Product.name, Product.price)
-            )).first()
-            if row is None:
-                product = (await db.execute(
-                    select(Product).where(Product.id == item.product_id)
-                )).scalar_one_or_none()
-                if not product:
-                    raise HTTPException(status_code=404, detail="Producto no encontrado")
-                if not product.is_active:
-                    raise HTTPException(status_code=409, detail=f"{product.name} está archivado")
-                raise HTTPException(
-                    status_code=409,
-                    detail=f"Stock insuficiente de {product.name}: quedan {product.stock}",
-                )
-            description = row.name
-            unit_price = item.unit_price if item.unit_price is not None else row.price
+            product = (await db.execute(
+                select(Product).where(Product.id == item.product_id)
+            )).scalar_one_or_none()
+            if not product:
+                raise HTTPException(status_code=404, detail="Producto no encontrado")
+            if not product.is_active:
+                raise HTTPException(status_code=409, detail=f"{product.name} está archivado")
+            description = product.name
+            unit_price = item.unit_price if item.unit_price is not None else product.price
         else:
             description = item.description
             unit_price = item.unit_price
@@ -206,6 +216,12 @@ async def create_payment(
     await db.flush()
     for item in items:
         db.add(PaymentItem(payment_id=payment.id, **item))
+        if item["product_id"]:
+            # Descuento atómico (409 si no alcanza) con rastro en el historial
+            await apply_stock_movement(
+                db, item["product_id"], StockMovementType.sale, item["quantity"],
+                payment_id=payment.id, user_id=current_user.id,
+            )
     await db.flush()
 
     if payment.status == PaymentStatus.paid:
@@ -498,15 +514,89 @@ async def delete_payment(
     )).scalars().all()
     for item in items:
         if item.product_id:
-            await db.execute(
-                update(Product)
-                .where(Product.id == item.product_id)
-                .values(stock=Product.stock + item.quantity)
+            await apply_stock_movement(
+                db, item.product_id, StockMovementType.return_, item.quantity,
+                note="Pago pendiente eliminado",
             )
         await db.delete(item)
+    await db.execute(
+        update(StockMovement).where(StockMovement.payment_id == payment_id).values(payment_id=None)
+    )
     await db.delete(payment)
     await db.commit()
     return None
+
+
+class RefundRequest(BaseModel):
+    reason: str = Field(min_length=3, max_length=500)
+
+
+@router.post("/{payment_id}/refund", response_model=PaymentResponse,
+             dependencies=[Depends(require_role(UserRole.owner, UserRole.admin))])
+async def refund(
+    payment_id: uuid.UUID,
+    payload: RefundRequest,
+    db: AsyncSession = Depends(get_tenant_db_from_token),
+    current_user: UserStaff = Depends(get_current_staff),
+):
+    """Devolución de un pago confirmado: egreso de caja si fue efectivo, stock de
+    vuelta, pase/membresía sin efecto. El recibo original se conserva."""
+    payment = (await db.execute(select(Payment).where(Payment.id == payment_id))).scalar_one_or_none()
+    if not payment:
+        raise HTTPException(status_code=404, detail="Pago no encontrado")
+    await refund_payment(db, current_user, payment, payload.reason)
+    await db.commit()
+    await db.refresh(payment)
+    names = await _member_names([payment.member_id], db)
+    return _payment_response(payment, names.get(payment.member_id), await _accounts_by_id(db))
+
+
+async def _receipt_and_payment(payment_id: uuid.UUID, db: AsyncSession) -> tuple[Receipt, Payment]:
+    payment = (await db.execute(select(Payment).where(Payment.id == payment_id))).scalar_one_or_none()
+    if not payment:
+        raise HTTPException(status_code=404, detail="Pago no encontrado")
+    receipt = (await db.execute(select(Receipt).where(Receipt.payment_id == payment_id))).scalar_one_or_none()
+    if not receipt:
+        raise HTTPException(status_code=404, detail="Este pago aún no tiene recibo (solo los pagados lo generan)")
+    return receipt, payment
+
+
+@router.get("/{payment_id}/receipt.pdf", dependencies=[Depends(get_current_staff)])
+async def receipt_pdf(
+    payment_id: uuid.UUID,
+    db: AsyncSession = Depends(get_tenant_db_from_token),
+    tenant: Tenant = Depends(get_tenant_from_claims),
+):
+    receipt, payment = await _receipt_and_payment(payment_id, db)
+    logo = await fetch_logo_png(tenant.logo_url)
+    pdf = await build_receipt_pdf(db, receipt, payment, gym_name=tenant.name, logo_png=logo)
+    number = _safe_filename(receipt.snapshot.get("receipt_number", "recibo"))
+    return Response(
+        content=pdf, media_type="application/pdf",
+        headers={"Content-Disposition": f'inline; filename="comprobante-{number}.pdf"'},
+    )
+
+
+def _safe_filename(value: str) -> str:
+    import re
+    return re.sub(r"[^A-Za-z0-9._-]", "", value or "") or "recibo"
+
+
+RECEIPT_LINK_TTL = 30 * 24 * 3600
+
+
+@router.get("/{payment_id}/receipt-link", dependencies=[Depends(get_current_staff)])
+async def receipt_link(
+    payment_id: uuid.UUID,
+    db: AsyncSession = Depends(get_tenant_db_from_token),
+    slug: str = Depends(get_tenant_slug),
+):
+    """Enlace público firmado (30 días) al PDF, para enviarlo por WhatsApp."""
+    receipt, _ = await _receipt_and_payment(payment_id, db)
+    token = sign_link("receipt", f"{slug}:{payment_id}", RECEIPT_LINK_TTL)
+    base = settings.public_api_url.rstrip("/") if getattr(settings, "public_api_url", "") else ""
+    path = f"/api/v1/public/receipts/{slug}/{token}.pdf"
+    return {"url": f"{base}{path}", "path": path, "receipt_number": receipt.snapshot.get("receipt_number")}
 
 
 @router.patch("/{payment_id}/mark-paid", response_model=PaymentResponse)

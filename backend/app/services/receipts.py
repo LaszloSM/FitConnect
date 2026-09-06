@@ -33,10 +33,16 @@ async def issue_receipt(db: AsyncSession, payment: Payment) -> Receipt:
     snapshot = {
         "receipt_number": f"{gym.receipt_prefix}-{number:06d}",
         "member_name": member.full_name if member else None,
-        "member_document": f"{member.id_type or ''} {member.id_number or ''}".strip() if member else None,
+        "member_document": (
+            f"{getattr(member.id_type, 'value', member.id_type) or ''} {member.id_number or ''}".strip()
+            if member else None
+        ),
         "concept": payment.concept,
         "amount": str(payment.amount),
         "method": payment.method.value if payment.method else None,
+        "kind": payment.kind,
+        "discount_amount": str(payment.discount_amount or 0),
+        "transfer_reference": payment.transfer_reference,
         "payment_id": str(payment.id),
         "items": [
             {

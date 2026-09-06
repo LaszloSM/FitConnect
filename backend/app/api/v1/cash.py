@@ -15,7 +15,7 @@ from app.services.audit import audit
 
 router = APIRouter(prefix="/cash", tags=["cash"])
 
-_EXPENSE_CATEGORIES = {"servicios", "nomina", "insumos", "otros"}
+_EXPENSE_CATEGORIES = {"servicios", "nomina", "insumos", "devolucion", "otros"}
 
 
 class OpenShiftRequest(BaseModel):

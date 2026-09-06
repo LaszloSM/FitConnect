@@ -12,6 +12,9 @@ from app.core.timeutil import today_bogota
 from app.models.tenant.member import Member, MemberStatus
 from app.models.tenant.payment import Payment, PaymentStatus, PaymentMethod
 from app.models.tenant.day_pass import DayPass
+from app.models.tenant.payment_item import PaymentItem
+from app.models.tenant.product import Product
+from app.models.tenant.inventory import StockMovement
 from app.services.payments import transfer_accounts, public_account
 from app.services.gym_settings import get_gym_settings
 from app.models.tenant.expense import Expense
@@ -629,4 +632,82 @@ async def day_passes_report(
         "total_amount": float(sum(a for _, _, _, a in rows)),
         "unique_people": visitors,
         "converted_to_member": converted,
+    }
+
+
+@router.get("/product-sales")
+async def product_sales_report(
+    db: AsyncSession = Depends(get_tenant_db_from_token),
+    from_date: date | None = Query(None, alias="from"),
+    to_date: date | None = Query(None, alias="to"),
+):
+    """Ventas por producto en el período (pagos confirmados): unidades, ingreso
+    neto (descuento del POS prorrateado por renglón), costo snapshot y margen."""
+    start, end = _range_bounds(from_date, to_date)
+    rows = (await db.execute(
+        select(
+            PaymentItem.payment_id, PaymentItem.product_id, PaymentItem.quantity, PaymentItem.subtotal,
+            Payment.discount_amount,
+        )
+        .join(Payment, Payment.id == PaymentItem.payment_id)
+        .where(
+            PaymentItem.product_id.isnot(None),
+            Payment.status == PaymentStatus.paid,
+            Payment.created_at >= start, Payment.created_at < end,
+        )
+    )).all()
+    # Descuento prorrateado: cada renglón aporta su parte proporcional del pago
+    gross_by_payment: dict = {}
+    for payment_id, _pid, _q, subtotal, _d in rows:
+        gross_by_payment[payment_id] = gross_by_payment.get(payment_id, Decimal(0)) + Decimal(subtotal)
+    agg: dict = {}
+    for payment_id, pid, qty, subtotal, discount in rows:
+        gross = gross_by_payment[payment_id] or Decimal(1)
+        share = Decimal(subtotal) * (Decimal(discount or 0) / gross)
+        entry = agg.setdefault(pid, {"units": 0, "gross": Decimal(0), "discount": Decimal(0)})
+        entry["units"] += int(qty)
+        entry["gross"] += Decimal(subtotal)
+        entry["discount"] += share
+    cost_rows = (await db.execute(
+        select(
+            StockMovement.product_id,
+            func.coalesce(func.sum(-StockMovement.quantity * func.coalesce(StockMovement.unit_cost, 0)), 0),
+        )
+        .join(Payment, Payment.id == StockMovement.payment_id)
+        .where(
+            StockMovement.type == "sale",
+            Payment.status == PaymentStatus.paid,
+            Payment.created_at >= start, Payment.created_at < end,
+        )
+        .group_by(StockMovement.product_id)
+    )).all()
+    cost_by_product = {pid: float(c) for pid, c in cost_rows}
+    product_rows = (await db.execute(
+        select(Product.id, Product.name, Product.stock, Product.low_stock_threshold)
+        .where(Product.id.in_(list(agg.keys())) if agg else False)
+    )).all()
+    info = {pid: (name, stock, low) for pid, name, stock, low in product_rows}
+    products = []
+    for pid, e in agg.items():
+        name, stock, low = info.get(pid, ("(producto eliminado)", None, None))
+        revenue = float(e["gross"] - e["discount"])
+        cost = cost_by_product.get(pid, 0.0)
+        products.append({
+            "product_id": str(pid), "name": name, "units": e["units"],
+            "gross": float(e["gross"]), "discount": float(e["discount"]), "revenue": revenue,
+            "cost": cost, "margin": revenue - cost,
+            "stock": stock, "low_stock": (stock is not None and low is not None and stock <= low),
+        })
+    products.sort(key=lambda x: -x["revenue"])
+    total_revenue = sum(x["revenue"] for x in products)
+    total_cost = sum(x["cost"] for x in products)
+    return {
+        "from": (from_date or today_bogota().replace(day=1)).isoformat(),
+        "to": (to_date or today_bogota()).isoformat(),
+        "products": products,
+        "total_units": sum(x["units"] for x in products),
+        "total_revenue": total_revenue,
+        "total_discount": sum(x["discount"] for x in products),
+        "total_cost": total_cost,
+        "total_margin": total_revenue - total_cost,
     }

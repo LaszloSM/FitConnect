@@ -10,17 +10,20 @@ import { StatusBadge } from "@/components/ui/status-badge";
 import { apiClient } from "@/lib/api";
 import { formatCOP, formatDate } from "@/lib/format";
 import { cn } from "@/lib/utils";
-import { METHOD_LABELS, KIND_LABELS, KIND_TONES, openReceipt, type PaymentRow } from "./shared";
+import { METHOD_LABELS, KIND_LABELS, KIND_TONES, openReceipt, openReceiptPdf, shareReceiptWhatsapp, type PaymentRow } from "./shared";
+import { FormDialog, FormField } from "@/components/ui/form-dialog";
+import { Input } from "@/components/ui/input";
 import { format, startOfMonth, endOfMonth } from "date-fns";
-import { CheckCircle2, Download, Filter, Loader2, Receipt, XCircle } from "lucide-react";
+import { CheckCircle2, Download, FileText, Filter, Loader2, MessageCircle, Receipt, RotateCcw, XCircle } from "lucide-react";
 
-type StatusFilter = "" | "paid" | "pending" | "failed";
+type StatusFilter = "" | "paid" | "pending" | "failed" | "refunded";
 
 const STATUS_FILTERS: { key: StatusFilter; label: string }[] = [
   { key: "", label: "Todos" },
   { key: "paid", label: "Pagados" },
   { key: "pending", label: "Pendientes" },
-  { key: "failed", label: "Fallidos" },
+  { key: "failed", label: "Anulados" },
+  { key: "refunded", label: "Devueltos" },
 ];
 
 export function HistoryTab({ refreshSignal }: { refreshSignal: number }) {
@@ -31,6 +34,31 @@ export function HistoryTab({ refreshSignal }: { refreshSignal: number }) {
   const [statusFilter, setStatusFilter] = useState<StatusFilter>("");
   const [kindFilter, setKindFilter] = useState<string>("");
   const [markingPaid, setMarkingPaid] = useState<string | null>(null);
+  const [refundTarget, setRefundTarget] = useState<PaymentRow | null>(null);
+  const [refundReason, setRefundReason] = useState("");
+  const [refunding, setRefunding] = useState(false);
+  const isOwnerOrAdmin = session?.role === "owner" || session?.role === "admin";
+
+  const doRefund = async () => {
+    if (!session?.accessToken || !refundTarget) return;
+    if (refundReason.trim().length < 3) {
+      toast.error("Escribe el motivo de la devolución");
+      return;
+    }
+    setRefunding(true);
+    try {
+      const client = apiClient(session.accessToken as string);
+      const { data } = await client.post(`/api/v1/payments/${refundTarget.id}/refund`, { reason: refundReason.trim() });
+      toast.success(`Devolución registrada${refundTarget.method === "cash" ? " · egreso en caja" : ""}`);
+      setPayments((prev) => prev.map((p) => (p.id === refundTarget.id ? { ...p, status: data.status, refunded_at: data.refunded_at, refund_reason: data.refund_reason } : p)));
+      setRefundTarget(null);
+      setRefundReason("");
+    } catch (err: any) {
+      toast.error(err.response?.data?.detail ?? "Error registrando la devolución");
+    } finally {
+      setRefunding(false);
+    }
+  };
   const [dateFrom, setDateFrom] = useState(() => format(startOfMonth(new Date()), "yyyy-MM-dd"));
   const [dateTo, setDateTo] = useState(() => format(endOfMonth(new Date()), "yyyy-MM-dd"));
 
@@ -202,13 +230,38 @@ export function HistoryTab({ refreshSignal }: { refreshSignal: number }) {
               </button>
             </>
           )}
-          {p.status === "paid" && session?.accessToken && (
+          {(p.status === "paid" || p.status === "refunded") && session?.accessToken && (
+            <>
+              <button
+                onClick={() => openReceiptPdf(apiClient(session.accessToken as string), p.id)}
+                title="Comprobante PDF"
+                className="h-7 w-7 rounded-lg flex items-center justify-center text-[var(--text-muted)] hover:text-[var(--color-primary)] hover:bg-[var(--bg-base)] transition-colors"
+              >
+                <FileText className="h-3.5 w-3.5" />
+              </button>
+              <button
+                onClick={() => shareReceiptWhatsapp(apiClient(session.accessToken as string), p.id, p.member_phone, (p.member_name ?? "").split(" ")[0])}
+                title="Enviar comprobante por WhatsApp"
+                className="h-7 w-7 rounded-lg flex items-center justify-center text-[var(--text-muted)] hover:text-emerald-600 hover:bg-emerald-50 dark:hover:bg-emerald-950/30 transition-colors"
+              >
+                <MessageCircle className="h-3.5 w-3.5" />
+              </button>
+              <button
+                onClick={() => openReceipt(apiClient(session.accessToken as string), p.id)}
+                title="Imprimir tirilla 80mm"
+                className="h-7 w-7 rounded-lg flex items-center justify-center text-[var(--text-muted)] hover:text-[var(--text-base)] hover:bg-[var(--bg-base)] transition-colors"
+              >
+                <Receipt className="h-3.5 w-3.5" />
+              </button>
+            </>
+          )}
+          {p.status === "paid" && isOwnerOrAdmin && (
             <button
-              onClick={() => openReceipt(apiClient(session.accessToken as string), p.id)}
-              title="Ver recibo"
-              className="h-7 w-7 rounded-lg flex items-center justify-center text-[var(--text-muted)] hover:text-[var(--color-primary)] hover:bg-[var(--bg-base)] transition-colors"
+              onClick={() => { setRefundTarget(p); setRefundReason(""); }}
+              title="Devolver este pago"
+              className="h-7 w-7 rounded-lg flex items-center justify-center text-[var(--text-muted)] hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-950/30 transition-colors"
             >
-              <Receipt className="h-3.5 w-3.5" />
+              <RotateCcw className="h-3.5 w-3.5" />
             </button>
           )}
         </div>
@@ -218,6 +271,24 @@ export function HistoryTab({ refreshSignal }: { refreshSignal: number }) {
 
   return (
     <div className="space-y-4">
+      <FormDialog
+        open={refundTarget !== null}
+        onOpenChange={(o) => !o && setRefundTarget(null)}
+        title={refundTarget ? `Devolver ${formatCOP(refundTarget.amount)}` : ""}
+        description={
+          refundTarget?.method === "cash"
+            ? "Se registra un egreso de caja por el valor, el stock vuelve al inventario y el recibo queda como devuelto."
+            : "El stock vuelve al inventario y el recibo queda como devuelto. La plata la devuelves por el mismo medio."
+        }
+        onSubmit={doRefund}
+        submitLabel="Registrar devolución"
+        submitting={refunding}
+        destructive
+      >
+        <FormField label="Motivo" required>
+          <Input value={refundReason} onChange={(e) => setRefundReason(e.target.value)} placeholder="Producto defectuoso, cobro equivocado..." autoFocus />
+        </FormField>
+      </FormDialog>
       {!loading && payments.length > 0 && (
         <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
           <div className="surface-1 rounded-xl p-4">

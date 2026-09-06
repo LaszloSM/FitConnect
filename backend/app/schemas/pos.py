@@ -13,6 +13,10 @@ class ProductBase(BaseModel):
     stock: int = Field(default=0, ge=0)
     low_stock_threshold: int = Field(default=3, ge=0)
     is_active: bool = True
+    category_id: Optional[uuid.UUID] = None
+    cost_price: Optional[Decimal] = Field(default=None, ge=0, decimal_places=2)
+    sku: Optional[str] = Field(default=None, max_length=50)
+    barcode: Optional[str] = Field(default=None, max_length=64)
 
 
 class ProductCreate(ProductBase):
@@ -26,12 +30,57 @@ class ProductUpdate(BaseModel):
     stock: Optional[int] = Field(default=None, ge=0)
     low_stock_threshold: Optional[int] = Field(default=None, ge=0)
     is_active: Optional[bool] = None
+    category_id: Optional[uuid.UUID] = None
+    cost_price: Optional[Decimal] = Field(default=None, ge=0, decimal_places=2)
+    sku: Optional[str] = Field(default=None, max_length=50)
+    barcode: Optional[str] = Field(default=None, max_length=64)
 
 
 class ProductResponse(ProductBase):
     id: uuid.UUID
     created_at: datetime
     updated_at: datetime
+    category_name: Optional[str] = None
+
+    class Config:
+        from_attributes = True
+
+
+# ─── Categorías e inventario ───
+class ProductCategoryIn(BaseModel):
+    name: str = Field(min_length=1, max_length=100)
+    sort_order: int = Field(default=0, ge=0)
+    is_active: bool = True
+
+
+class ProductCategoryOut(ProductCategoryIn):
+    id: uuid.UUID
+
+    class Config:
+        from_attributes = True
+
+
+class StockMovementIn(BaseModel):
+    """purchase/waste: cantidad positiva (el signo lo pone el tipo);
+    adjustment: con signo (+ entra, − sale)."""
+    type: str = Field(pattern="^(purchase|adjustment|waste)$")
+    quantity: int = Field(ne=0, ge=-99999, le=99999)
+    unit_cost: Optional[Decimal] = Field(default=None, ge=0, decimal_places=2)
+    note: Optional[str] = Field(default=None, max_length=255)
+
+
+class StockMovementOut(BaseModel):
+    id: uuid.UUID
+    product_id: uuid.UUID
+    type: str
+    quantity: int
+    unit_cost: Optional[Decimal] = None
+    stock_after: int
+    note: Optional[str] = None
+    payment_id: Optional[uuid.UUID] = None
+    created_by: Optional[uuid.UUID] = None
+    created_at: datetime
+    created_by_name: Optional[str] = None
 
     class Config:
         from_attributes = True

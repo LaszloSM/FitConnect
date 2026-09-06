@@ -45,6 +45,7 @@ export interface PaymentRow {
   id: string;
   member_id: string | null;
   member_name?: string | null;
+  member_phone?: string | null;
   amount: number;
   method: string | null;
   status: string;
@@ -61,6 +62,7 @@ export interface PaymentRow {
   discount_amount?: number;
   void_reason?: string | null;
   refund_reason?: string | null;
+  refunded_at?: string | null;
   created_at: string;
   items?: PaymentItemRow[];
 }
@@ -86,6 +88,13 @@ export function transferWhatsappText(
   return lines.join("\n");
 }
 
+/** Dígitos para wa.me: un celular colombiano de 10 dígitos recibe el +57. */
+export function waDigits(phone: string | null | undefined): string {
+  const digits = (phone ?? "").replace(/\D/g, "");
+  if (digits.length === 10 && digits.startsWith("3")) return `57${digits}`;
+  return digits;
+}
+
 export function formatElapsed(minutes: number): string {
   if (minutes < 1) return "hace un momento";
   if (minutes < 60) return `hace ${minutes} min`;
@@ -95,6 +104,41 @@ export function formatElapsed(minutes: number): string {
   return `hace ${days} d`;
 }
 
+/** Abre el comprobante PDF (con logo y datos fiscales) en una pestaña nueva. */
+export async function openReceiptPdf(client: AxiosInstance, paymentId: string) {
+  try {
+    const { data } = await client.get(`/api/v1/payments/${paymentId}/receipt.pdf`, { responseType: "blob" });
+    const url = URL.createObjectURL(data);
+    window.open(url, "_blank");
+    setTimeout(() => URL.revokeObjectURL(url), 60_000);
+  } catch (err) {
+    const e = err as { response?: { data?: { detail?: string } } };
+    toast.error(e.response?.data?.detail ?? "No se pudo generar el PDF");
+  }
+}
+
+/** Enlace público firmado al PDF; lo abre en WhatsApp del socio (o copia el enlace). */
+export async function shareReceiptWhatsapp(
+  client: AxiosInstance,
+  paymentId: string,
+  phone: string | null | undefined,
+  firstName: string,
+) {
+  try {
+    const { data } = await client.get(`/api/v1/payments/${paymentId}/receipt-link`);
+    const url: string = data.url;
+    await navigator.clipboard.writeText(url).catch(() => {});
+    const text = encodeURIComponent(`Hola ${firstName} 👋 aquí está tu comprobante ${data.receipt_number}: ${url}`);
+    const digits = waDigits(phone);
+    window.open(digits ? `https://wa.me/${digits}?text=${text}` : `https://wa.me/?text=${text}`, "_blank");
+    toast.success("Enlace del comprobante copiado (válido 30 días)");
+  } catch (err) {
+    const e = err as { response?: { data?: { detail?: string } } };
+    toast.error(e.response?.data?.detail ?? "No se pudo crear el enlace");
+  }
+}
+
+/** Recibo térmico 80mm (impresora de tirilla). */
 export async function openReceipt(client: AxiosInstance, paymentId: string) {
   try {
     const { data } = await client.get(`/api/v1/payments/${paymentId}/receipt`);

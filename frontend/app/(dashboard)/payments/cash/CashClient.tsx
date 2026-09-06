@@ -22,6 +22,7 @@ const EXPENSE_CATEGORIES = [
   { value: "servicios", label: "Servicios" },
   { value: "nomina", label: "Nómina" },
   { value: "insumos", label: "Insumos" },
+  { value: "devolucion", label: "Devolución" },
   { value: "otros", label: "Otros" },
 ];
 

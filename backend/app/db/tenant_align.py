@@ -39,5 +39,18 @@ J1_INGRESOS_PASE_TRANSFERENCIAS: list[str] = [
     "ALTER TABLE gym_settings ADD COLUMN IF NOT EXISTS transfer_auto_void_hours INTEGER NOT NULL DEFAULT 24",
 ]
 
+J2_INVENTARIO: list[str] = [
+    "ALTER TABLE products ADD COLUMN IF NOT EXISTS category_id UUID NULL REFERENCES product_categories(id)",
+    "ALTER TABLE products ADD COLUMN IF NOT EXISTS cost_price NUMERIC(12,2) NULL",
+    "ALTER TABLE products ADD COLUMN IF NOT EXISTS sku VARCHAR(50) NULL",
+    "ALTER TABLE products ADD COLUMN IF NOT EXISTS barcode VARCHAR(64) NULL",
+    "CREATE UNIQUE INDEX IF NOT EXISTS uq_products_sku ON products (sku) WHERE sku IS NOT NULL",
+    "CREATE UNIQUE INDEX IF NOT EXISTS uq_products_barcode ON products (barcode) WHERE barcode IS NOT NULL",
+    # Saldo inicial: un movimiento por producto que aún no tiene historial
+    "INSERT INTO stock_movements (id, product_id, type, quantity, unit_cost, stock_after, note, created_at) "
+    "SELECT gen_random_uuid(), p.id, 'adjustment', p.stock, p.cost_price, p.stock, 'Saldo inicial', now() "
+    "FROM products p WHERE p.stock <> 0 AND NOT EXISTS (SELECT 1 FROM stock_movements m WHERE m.product_id = p.id)",
+]
+
 # Orden cronológico: el aligner las aplica todas, en orden, tras create_all.
-ALIGN_STATEMENTS: list[str] = [*J1_INGRESOS_PASE_TRANSFERENCIAS]
+ALIGN_STATEMENTS: list[str] = [*J1_INGRESOS_PASE_TRANSFERENCIAS, *J2_INVENTARIO]

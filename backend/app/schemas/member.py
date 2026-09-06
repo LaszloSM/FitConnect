@@ -218,6 +218,7 @@ class PaymentResponse(PaymentBase):
     void_reason: Optional[str] = None
     # Inyectados por el endpoint — no vienen directo de la tabla payments
     member_name: Optional[str] = None
+    member_phone: Optional[str] = None
     items: list[PaymentItemOut] = []
     destination_account: Optional[dict] = None
 

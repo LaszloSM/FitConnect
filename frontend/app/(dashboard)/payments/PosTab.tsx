@@ -60,6 +60,9 @@ interface Product {
   price: number;
   stock: number;
   low_stock_threshold: number;
+  sku?: string | null;
+  barcode?: string | null;
+  category_name?: string | null;
 }
 
 export function PosTab({
@@ -82,6 +85,8 @@ export function PosTab({
   const [productQuery, setProductQuery] = useState("");
   const [cart, setCart] = useState<Record<string, number>>({});
   const [selling, setSelling] = useState(false);
+  const [discount, setDiscount] = useState(0);
+  const [discountNote, setDiscountNote] = useState("");
 
   const [transferAccounts, setTransferAccounts] = useState<DestinationAccount[]>([]);
   const [details, setDetails] = useState<MethodDetails>(EMPTY_DETAILS);
@@ -245,7 +250,10 @@ export function PosTab({
         .filter(Boolean) as { product: Product; qty: number }[],
     [cart, products.data]
   );
-  const cartTotal = cartItems.reduce((acc, { product, qty }) => acc + Number(product.price) * qty, 0);
+  const cartSubtotal = cartItems.reduce((acc, { product, qty }) => acc + Number(product.price) * qty, 0);
+  // El descuento nunca deja la venta en cero aunque se quiten productos después
+  const effDiscount = cartSubtotal > 0 ? Math.min(discount, Math.max(cartSubtotal - 1, 0)) : 0;
+  const cartTotal = Math.max(cartSubtotal - effDiscount, 0);
 
   const addToCart = (product: Product) => {
     const current = cart[product.id] ?? 0;
@@ -261,6 +269,7 @@ export function PosTab({
     if (qty <= 0) delete next[id];
     else next[id] = qty;
     setCart(next);
+    if (Object.keys(next).length === 0) { setDiscount(0); setDiscountNote(""); }
   };
 
   const sellCart = async () => {
@@ -275,6 +284,8 @@ export function PosTab({
         status: "paid",
         concept: "Venta de productos",
         items: cartItems.map(({ product, qty }) => ({ product_id: product.id, quantity: qty })),
+        discount_amount: effDiscount > 0 ? effDiscount : 0,
+        discount_note: effDiscount > 0 && discountNote.trim() ? discountNote.trim() : null,
         ...methodPayload(),
       });
       if (data.status === "pending") {
@@ -294,6 +305,8 @@ export function PosTab({
         });
       }
       setCart({});
+      setDiscount(0);
+      setDiscountNote("");
       await products.refetch();
       onCharged?.();
     } catch (err: any) {
@@ -303,9 +316,22 @@ export function PosTab({
     }
   };
 
-  const filteredProducts = products.data.filter(
-    (p) => !productQuery || p.name.toLowerCase().includes(productQuery.toLowerCase())
-  );
+  const filteredProducts = products.data.filter((p) => {
+    const q = productQuery.trim().toLowerCase();
+    return !q || p.name.toLowerCase().includes(q) || (p.sku ?? "").toLowerCase().includes(q) || (p.barcode ?? "") === q;
+  });
+
+  // Escáner de código de barras: Enter con coincidencia exacta agrega al carrito
+  const onProductQueryKey = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key !== "Enter") return;
+    const q = productQuery.trim();
+    const hit = products.data.find((p) => p.barcode === q || (p.sku ?? "").toLowerCase() === q.toLowerCase());
+    if (hit) {
+      e.preventDefault();
+      addToCart(hit);
+      setProductQuery("");
+    }
+  };
 
   const ms = summary?.membership;
 
@@ -461,7 +487,8 @@ export function PosTab({
             <Input
               value={productQuery}
               onChange={(e) => setProductQuery(e.target.value)}
-              placeholder="Buscar producto..."
+              onKeyDown={onProductQueryKey}
+              placeholder="Nombre, SKU o código..."
               className="pl-8 h-8 text-sm"
             />
           </div>
@@ -569,6 +596,17 @@ export function PosTab({
                   </motion.div>
                 ))}
               </AnimatePresence>
+              <div className="flex items-center justify-between gap-2 border-t border-[var(--border-base)] pt-2">
+                <span className="text-xs text-[var(--text-muted)]">Subtotal</span>
+                <span className="text-sm font-mono text-[var(--text-base)]">{formatCOP(cartSubtotal)}</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <span className="text-xs text-[var(--text-muted)] shrink-0">Descuento</span>
+                <CurrencyInput value={effDiscount} onChange={(v) => setDiscount(Math.min(v, Math.max(cartSubtotal - 1, 0)))} className="h-8 text-sm" />
+                {effDiscount > 0 && (
+                  <Input value={discountNote} onChange={(e) => setDiscountNote(e.target.value)} placeholder="Motivo" className="h-8 text-xs" />
+                )}
+              </div>
               <div className="border-t border-[var(--border-base)] pt-2">
                 <MethodPicker value={method} onChange={setMethod} accounts={transferAccounts} details={details} onDetailsChange={setDetails} />
               </div>

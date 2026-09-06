@@ -124,12 +124,13 @@ async def activate_day_passes(db: AsyncSession, payment_id: uuid.UUID) -> None:
     )
 
 
-async def void_day_passes(db: AsyncSession, payment_id: uuid.UUID) -> None:
-    await db.execute(
-        update(DayPass)
-        .where(DayPass.payment_id == payment_id, DayPass.status != DayPassStatus.active.value)
-        .values(status=DayPassStatus.void.value)
-    )
+async def void_day_passes(db: AsyncSession, payment_id: uuid.UUID, *, include_active: bool = False) -> None:
+    """Anular pago pendiente: solo pases pendientes. Devolución de un pago
+    confirmado (include_active): también el pase ya activo deja de dar acceso."""
+    stmt = update(DayPass).where(DayPass.payment_id == payment_id)
+    if not include_active:
+        stmt = stmt.where(DayPass.status != DayPassStatus.active.value)
+    await db.execute(stmt.values(status=DayPassStatus.void.value))
 
 
 def mark_voided(payment: Payment, reason: str | None, user_id: uuid.UUID | None) -> None:
