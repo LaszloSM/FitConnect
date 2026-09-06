@@ -10,7 +10,7 @@ import { StatusBadge } from "@/components/ui/status-badge";
 import { apiClient } from "@/lib/api";
 import { formatCOP, formatDate } from "@/lib/format";
 import { cn } from "@/lib/utils";
-import { METHOD_LABELS, openReceipt, type PaymentRow } from "./shared";
+import { METHOD_LABELS, KIND_LABELS, KIND_TONES, openReceipt, type PaymentRow } from "./shared";
 import { format, startOfMonth, endOfMonth } from "date-fns";
 import { CheckCircle2, Download, Filter, Loader2, Receipt, XCircle } from "lucide-react";
 
@@ -29,6 +29,7 @@ export function HistoryTab({ refreshSignal }: { refreshSignal: number }) {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [statusFilter, setStatusFilter] = useState<StatusFilter>("");
+  const [kindFilter, setKindFilter] = useState<string>("");
   const [markingPaid, setMarkingPaid] = useState<string | null>(null);
   const [dateFrom, setDateFrom] = useState(() => format(startOfMonth(new Date()), "yyyy-MM-dd"));
   const [dateTo, setDateTo] = useState(() => format(endOfMonth(new Date()), "yyyy-MM-dd"));
@@ -79,10 +80,11 @@ export function HistoryTab({ refreshSignal }: { refreshSignal: number }) {
 
   const voidPayment = async (paymentId: string) => {
     if (!session?.accessToken) return;
-    if (!window.confirm("¿Anular este pago pendiente? Úsalo cuando la transferencia nunca llegó.")) return;
+    const reason = window.prompt("¿Anular este pago pendiente? Úsalo cuando la transferencia nunca llegó.\nMotivo (opcional):");
+    if (reason === null) return;
     try {
       const client = apiClient(session.accessToken as string);
-      await client.post(`/api/v1/payments/${paymentId}/void`);
+      await client.post(`/api/v1/payments/${paymentId}/void`, { reason: reason || null });
       toast.success("Pago anulado");
       setPayments((prev) => prev.map((p) => (p.id === paymentId ? { ...p, status: "failed" } : p)));
     } catch (err: any) {
@@ -90,20 +92,24 @@ export function HistoryTab({ refreshSignal }: { refreshSignal: number }) {
     }
   };
 
-  const filtered = statusFilter ? payments.filter((p) => p.status === statusFilter) : payments;
+  const filtered = payments.filter(
+    (p) => (!statusFilter || p.status === statusFilter) && (!kindFilter || (p.kind ?? "other") === kindFilter)
+  );
   const totalPaid = payments.filter((p) => p.status === "paid").reduce((acc, p) => acc + Number(p.amount), 0);
   const totalPending = payments.filter((p) => p.status === "pending").reduce((acc, p) => acc + Number(p.amount), 0);
 
   const exportCSV = () => {
     const rows = [
-      ["Miembro", "Concepto", "Monto COP", "Método", "Estado", "Referencia", "Fecha"],
+      ["Miembro", "Concepto", "Fuente", "Monto COP", "Método", "Cuenta destino", "Estado", "Referencia", "Fecha"],
       ...filtered.map((p) => [
         p.member_name ?? (p.member_id ? `${p.member_id.slice(0, 8)}…` : "Venta de mostrador"),
         p.concept,
+        KIND_LABELS[p.kind ?? "other"],
         String(p.amount),
         METHOD_LABELS[p.method ?? ""] ?? p.method ?? "",
+        p.destination_account?.label ?? "",
         p.status,
-        p.external_ref ?? "",
+        p.transfer_reference ?? p.external_ref ?? "",
         new Date(p.created_at).toLocaleDateString("es-CO"),
       ]),
     ];
@@ -131,7 +137,12 @@ export function HistoryTab({ refreshSignal }: { refreshSignal: number }) {
       key: "concept",
       header: "Concepto",
       hideOnMobile: true,
-      cell: (p) => <span className="text-[var(--text-muted)]">{p.concept}</span>,
+      cell: (p) => (
+        <div className="flex items-center gap-2 min-w-0">
+          <StatusBadge status={p.kind ?? "other"} label={KIND_LABELS[p.kind ?? "other"]} tone={KIND_TONES[p.kind ?? "other"]} />
+          <span className="text-[var(--text-muted)] truncate">{p.concept}</span>
+        </div>
+      ),
     },
     {
       key: "amount",
@@ -142,7 +153,19 @@ export function HistoryTab({ refreshSignal }: { refreshSignal: number }) {
       key: "method",
       header: "Método",
       hideOnMobile: true,
-      cell: (p) => <span className="text-[var(--text-muted)]">{METHOD_LABELS[p.method ?? ""] ?? p.method ?? "-"}</span>,
+      cell: (p) => (
+        <div className="text-[var(--text-muted)]">
+          {METHOD_LABELS[p.method ?? ""] ?? p.method ?? "-"}
+          {p.method === "transfer" && (p.transfer_reference || p.destination_account) && (
+            <p className="text-[11px] font-mono truncate">
+              {p.transfer_reference}{p.destination_account ? ` · ${p.destination_account.label}` : ""}
+            </p>
+          )}
+          {p.method === "card" && p.card_approval_code && (
+            <p className="text-[11px] font-mono truncate">Aprob. {p.card_approval_code}</p>
+          )}
+        </div>
+      ),
     },
     { key: "status", header: "Estado", cell: (p) => <StatusBadge status={p.status} /> },
     {
@@ -240,7 +263,7 @@ export function HistoryTab({ refreshSignal }: { refreshSignal: number }) {
           </button>
         </div>
 
-        <div className="flex gap-2 flex-wrap mb-4" role="group" aria-label="Filtrar por estado">
+        <div className="flex gap-2 flex-wrap mb-2" role="group" aria-label="Filtrar por estado">
           {STATUS_FILTERS.map(({ key, label }) => (
             <button
               key={key}
@@ -250,6 +273,23 @@ export function HistoryTab({ refreshSignal }: { refreshSignal: number }) {
                 "rounded-full px-3 py-1 text-sm font-medium transition-colors",
                 statusFilter === key
                   ? "bg-[var(--color-primary)] text-[var(--color-primary-contrast)]"
+                  : "bg-[var(--bg-base)] border border-[var(--border-base)] text-[var(--text-muted)] hover:text-[var(--text-base)]"
+              )}
+            >
+              {label}
+            </button>
+          ))}
+        </div>
+        <div className="flex gap-2 flex-wrap mb-4" role="group" aria-label="Filtrar por fuente">
+          {[["", "Todas las fuentes"], ...Object.entries(KIND_LABELS)].map(([key, label]) => (
+            <button
+              key={key}
+              onClick={() => setKindFilter(key)}
+              aria-pressed={kindFilter === key}
+              className={cn(
+                "rounded-full px-2.5 py-0.5 text-xs font-medium transition-colors",
+                kindFilter === key
+                  ? "bg-[var(--text-base)] text-[var(--bg-base)]"
                   : "bg-[var(--bg-base)] border border-[var(--border-base)] text-[var(--text-muted)] hover:text-[var(--text-base)]"
               )}
             >

@@ -12,6 +12,7 @@ import { apiClient } from "@/lib/api";
 import { formatCOP, formatDate } from "@/lib/format";
 import { useApiResource } from "@/hooks/useApiResource";
 import { HandCoins, Link2, Loader2, MessageCircle, Wallet } from "lucide-react";
+import { PendingTransfers } from "./PendingTransfers";
 
 interface Receivable {
   member_id: string;
@@ -164,6 +165,8 @@ export function ReceivablesTab({ onCollect }: { onCollect: (memberId: string) =>
   ];
 
   return (
+    <div className="space-y-4">
+    <PendingTransfers onChanged={() => void receivables.refetch()} />
     <GlassCard className="p-4 space-y-4">
       <div className="flex items-center justify-between gap-3 flex-wrap">
         <div className="flex items-center gap-2">
@@ -188,5 +191,6 @@ export function ReceivablesTab({ onCollect }: { onCollect: (memberId: string) =>
         emptyDescription="Cuando una membresía venza o quede un saldo parcial, aparecerá aquí."
       />
     </GlassCard>
+    </div>
   );
 }

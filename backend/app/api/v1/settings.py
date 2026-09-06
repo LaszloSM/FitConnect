@@ -1,3 +1,4 @@
+import uuid
 from fastapi import APIRouter, Depends, File, HTTPException, UploadFile
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
@@ -11,6 +12,7 @@ from app.api.deps import (
     get_tenant_db_from_token,
     check_tenant_active,
     require_role,
+    get_tenant_slug,
 )
 # Alias: en este módulo hay un handler de ruta que también se llama get_gym_settings
 from app.services.gym_settings import get_gym_settings as load_gym_settings
@@ -231,10 +233,15 @@ async def upload_gym_logo(
 # ─── Recaudo y datos fiscales ────────────────────────────────────────────────
 
 class TransferAccount(BaseModel):
+    id: str | None = Field(default=None, max_length=36)
     type: str = Field(pattern="^(nequi|daviplata|bancolombia|bank)$")
     label: str = Field(min_length=1, max_length=60)
     account_number: str = Field(min_length=3, max_length=40)
     holder_name: str = Field(min_length=1, max_length=120)
+    # Llave Bre-B (pagos inmediatos) y QR del banco para mostrar al cobrar
+    breb_key: str | None = Field(default=None, max_length=80)
+    qr_url: str | None = Field(default=None, max_length=500)
+    is_active: bool = True
 
 
 class BillingSettingsResponse(BaseModel):
@@ -242,6 +249,7 @@ class BillingSettingsResponse(BaseModel):
     legal_name: str | None
     nit: str | None
     tax_regime: str | None
+    transfer_auto_void_hours: int = 24
 
 
 class BillingSettingsUpdate(BaseModel):
@@ -249,14 +257,17 @@ class BillingSettingsUpdate(BaseModel):
     legal_name: str | None = Field(default=None, max_length=200)
     nit: str | None = Field(default=None, max_length=30)
     tax_regime: str | None = Field(default=None, max_length=50)
+    transfer_auto_void_hours: int | None = Field(default=None, ge=0, le=720)
 
 
 def _billing_response(gym) -> BillingSettingsResponse:
+    from app.services.payments import transfer_accounts
     return BillingSettingsResponse(
-        transfer_accounts=[TransferAccount(**a) for a in (gym.transfer_accounts or [])],
+        transfer_accounts=[TransferAccount(**a) for a in transfer_accounts(gym)],
         legal_name=gym.legal_name,
         nit=gym.nit,
         tax_regime=gym.tax_regime,
+        transfer_auto_void_hours=gym.transfer_auto_void_hours,
     )
 
 
@@ -278,13 +289,63 @@ async def update_billing_settings(
 ) -> BillingSettingsResponse:
     gym = await load_gym_settings(db)
     if payload.transfer_accounts is not None:
-        gym.transfer_accounts = [a.model_dump() for a in payload.transfer_accounts]
+        # Conservar id y QR de las cuentas existentes al reenviar la lista
+        previous = {a["id"]: a for a in _accounts(gym)}
+        accounts = []
+        for a in payload.transfer_accounts:
+            data = a.model_dump()
+            if not data.get("id"):
+                data["id"] = str(uuid.uuid4())
+            old = previous.get(data["id"])
+            if old and not data.get("qr_url"):
+                data["qr_url"] = old.get("qr_url")
+            accounts.append(data)
+        gym.transfer_accounts = accounts
+    if payload.transfer_auto_void_hours is not None:
+        gym.transfer_auto_void_hours = payload.transfer_auto_void_hours
     if payload.legal_name is not None:
         gym.legal_name = payload.legal_name
     if payload.nit is not None:
         gym.nit = payload.nit
     if payload.tax_regime is not None:
         gym.tax_regime = payload.tax_regime
+    await db.commit()
+    await db.refresh(gym)
+    return _billing_response(gym)
+
+
+def _accounts(gym) -> list[dict]:
+    from app.services.payments import transfer_accounts
+    return transfer_accounts(gym)
+
+
+_QR_TYPES = {"image/jpeg": "jpg", "image/png": "png", "image/webp": "webp"}
+
+
+@router.post("/billing/transfer-accounts/{account_id}/qr", response_model=BillingSettingsResponse)
+async def upload_transfer_account_qr(
+    account_id: str,
+    file: UploadFile = File(...),
+    db: AsyncSession = Depends(get_tenant_db_from_token),
+    _: UserStaff = Depends(require_role(UserRole.owner)),
+    slug: str = Depends(get_tenant_slug),
+) -> BillingSettingsResponse:
+    """Sube el QR del banco/Nequi de una cuenta de recaudo."""
+    from app.services.storage import upload_image
+
+    ext = _QR_TYPES.get(file.content_type or "")
+    if not ext:
+        raise HTTPException(status_code=400, detail="Formato no soportado (usa JPG, PNG o WEBP)")
+    data = await file.read()
+    if len(data) > 3 * 1024 * 1024:
+        raise HTTPException(status_code=400, detail="La imagen supera 3 MB")
+    gym = await load_gym_settings(db)
+    accounts = _accounts(gym)
+    target = next((a for a in accounts if a["id"] == account_id), None)
+    if target is None:
+        raise HTTPException(status_code=404, detail="Cuenta de recaudo no encontrada")
+    target["qr_url"] = await upload_image(data, f"transfer-qr/{slug}/{account_id}.{ext}", file.content_type)
+    gym.transfer_accounts = accounts
     await db.commit()
     await db.refresh(gym)
     return _billing_response(gym)

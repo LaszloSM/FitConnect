@@ -103,7 +103,7 @@ class ClassEnrollmentDetailResponse(BaseModel):
     id: uuid.UUID
     member_id: uuid.UUID
     member_name: str
-    member_email: str
+    member_email: Optional[str] = None
 
     class Config:
         from_attributes = True

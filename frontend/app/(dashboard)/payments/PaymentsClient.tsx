@@ -10,12 +10,14 @@ import { PosTab } from "./PosTab";
 import { HistoryTab } from "./HistoryTab";
 import { ReceivablesTab } from "./ReceivablesTab";
 import { ProductsTab } from "./ProductsTab";
-import { HandCoins, History, Package, Wallet, Zap } from "lucide-react";
+import { DayPassTab } from "./DayPassTab";
+import { HandCoins, History, Package, Ticket, Wallet, Zap } from "lucide-react";
 
-type Tab = "pos" | "history" | "receivables" | "products";
+type Tab = "pos" | "daypass" | "history" | "receivables" | "products";
 
 const TABS: { key: Tab; label: string; icon: typeof Zap }[] = [
   { key: "pos", label: "Cobrar", icon: Zap },
+  { key: "daypass", label: "Pase del día", icon: Ticket },
   { key: "history", label: "Historial", icon: History },
   { key: "receivables", label: "Por cobrar", icon: HandCoins },
   { key: "products", label: "Productos", icon: Package },
@@ -24,7 +26,10 @@ const TABS: { key: Tab; label: string; icon: typeof Zap }[] = [
 export default function PaymentsClient() {
   const searchParams = useSearchParams();
   const initialMember = searchParams.get("member") ?? undefined;
-  const [tab, setTab] = useState<Tab>(initialMember ? "pos" : "pos");
+  const initialTab = searchParams.get("tab");
+  const [tab, setTab] = useState<Tab>(
+    initialTab && ["pos", "daypass", "history", "receivables", "products"].includes(initialTab) ? (initialTab as Tab) : "pos"
+  );
   const [posMember, setPosMember] = useState<string | undefined>(initialMember);
   // Cambia cuando el POS registra un cobro, para que el historial se refresque
   const [refreshSignal, setRefreshSignal] = useState(0);
@@ -44,7 +49,7 @@ export default function PaymentsClient() {
       <PageHeader
         module="payments"
         title="Caja y pagos"
-        subtitle="Cobra renovaciones, vende productos y gestiona la caja"
+        subtitle="Cobra renovaciones, pases del día y productos; concilia transferencias"
         action={
           <Link
             href="/payments/cash"
@@ -80,6 +85,7 @@ export default function PaymentsClient() {
           onCharged={() => setRefreshSignal((n) => n + 1)}
         />
       )}
+      {tab === "daypass" && <DayPassTab onSold={() => setRefreshSignal((n) => n + 1)} />}
       {tab === "history" && <HistoryTab refreshSignal={refreshSignal} />}
       {tab === "receivables" && <ReceivablesTab onCollect={collectFrom} />}
       {tab === "products" && <ProductsTab />}

@@ -118,6 +118,7 @@ async def _renewal_checkout_url(session: AsyncSession, tenant: Tenant, membershi
         method=PaymentMethod.wompi,
         status=PaymentStatus.pending,
         concept=f"Renovación {plan.name}",
+        kind="membership",
     )
     session.add(payment)
     await session.flush()
@@ -309,9 +310,43 @@ async def _emit_winback(session: AsyncSession, tenant: Tenant) -> None:
     await session.commit()
 
 
+async def _auto_void_stale_transfers(session: AsyncSession, tenant: Tenant) -> None:
+    """Transferencias pendientes sin confirmar más de N horas se anulan solas
+    (con sus pases del día). N=0 desactiva la regla."""
+    from app.core.timeutil import utcnow_naive
+    from app.services.payments import mark_voided, void_day_passes, cancel_unpaid_membership
+    from app.services.audit import audit
+
+    gym = await get_gym_settings(session)
+    hours = getattr(gym, "transfer_auto_void_hours", 24) or 0
+    if hours <= 0:
+        return
+    cutoff = utcnow_naive() - timedelta(hours=hours)
+    stale = (await session.execute(
+        select(Payment).where(
+            Payment.method == PaymentMethod.transfer,
+            Payment.status == PaymentStatus.pending,
+            Payment.created_at < cutoff,
+            # Con comprobante adjunto la plata probablemente llegó: lo decide el staff
+            Payment.proof_url.is_(None),
+        )
+    )).scalars().all()
+    for payment in stale:
+        mark_voided(payment, f"Sin confirmación en {hours} h (automático)", None)
+        await void_day_passes(session, payment.id)
+        await cancel_unpaid_membership(session, payment)
+        audit(session, None, "payment.auto_void", "payment", payment.id, {
+            "amount": str(payment.amount), "reference": payment.transfer_reference,
+        })
+    if stale:
+        logger.info("auto-void %s transferencias en %s", len(stale), tenant.slug)
+    await session.commit()
+
+
 async def _daily_tenant_tasks(session: AsyncSession, tenant: Tenant) -> None:
     from app.services.class_sessions import materialize_sessions
     await _expire_tenant_memberships(session, tenant)
+    await _auto_void_stale_transfers(session, tenant)
     await materialize_sessions(session, horizon_days=14)
     await _emit_expiry_reminders(session, tenant)
     await _emit_maintenance_alerts(session, tenant)

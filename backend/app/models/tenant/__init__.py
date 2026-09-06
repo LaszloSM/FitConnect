@@ -1,12 +1,13 @@
 # Tenant models (DB independiente de cada gym)
 from app.models.tenant.user_staff import UserStaff, UserRole
 from app.models.tenant.location import Location
-from app.models.tenant.member import Member, MemberStatus
+from app.models.tenant.member import Member, MemberStatus, MemberType
 from app.models.tenant.membership import Membership, MembershipStatus
 from app.models.tenant.membership_freeze import MembershipFreeze
 from app.models.tenant.member_plan import MemberPlan
 from app.models.tenant.promo_code import PromoCode
-from app.models.tenant.payment import Payment, PaymentMethod, PaymentStatus
+from app.models.tenant.payment import Payment, PaymentMethod, PaymentStatus, PaymentKind
+from app.models.tenant.day_pass import DayPass, DayPassType, DayPassStatus
 from app.models.tenant.checkin import CheckIn, CheckInType
 from app.models.tenant.gym_class import GymClass
 from app.models.tenant.class_enrollment import ClassEnrollment
@@ -31,12 +32,13 @@ from app.models.tenant.message_template import MessageTemplate
 __all__ = [
     "UserStaff", "UserRole",
     "Location",
-    "Member", "MemberStatus",
+    "Member", "MemberStatus", "MemberType",
     "Membership", "MembershipStatus",
     "MembershipFreeze",
     "MemberPlan",
     "PromoCode",
-    "Payment", "PaymentMethod", "PaymentStatus",
+    "Payment", "PaymentMethod", "PaymentStatus", "PaymentKind",
+    "DayPass", "DayPassType", "DayPassStatus",
     "CheckIn", "CheckInType",
     "GymClass",
     "ClassEnrollment",

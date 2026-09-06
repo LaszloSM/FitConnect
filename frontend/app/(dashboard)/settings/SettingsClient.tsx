@@ -1,11 +1,12 @@
 "use client";
 
 import { useState } from "react";
+import { useSearchParams } from "next/navigation";
 import { useSession } from "next-auth/react";
 import { motion, AnimatePresence } from "framer-motion";
 import { PageHeader } from "@/components/common/PageHeader";
 import { cn } from "@/lib/utils";
-import { User, Building2, Bell, CreditCard, Palette, SlidersHorizontal, Plug, MonitorSmartphone, Landmark, MessageSquare, Users } from "lucide-react";
+import { User, Building2, Bell, CreditCard, Palette, SlidersHorizontal, Plug, MonitorSmartphone, Landmark, MessageSquare, Users, Ticket } from "lucide-react";
 import dynamic from "next/dynamic";
 
 const ProfileSection      = dynamic(() => import("@/components/settings/ProfileSection"));
@@ -19,8 +20,10 @@ const AppearanceSection   = dynamic(() => import("@/components/settings/Appearan
 const KioskSection        = dynamic(() => import("@/components/settings/KioskSection"));
 const MessagesSection     = dynamic(() => import("@/components/settings/MessagesSection"));
 const TeamSection         = dynamic(() => import("@/components/settings/TeamSection"));
+const DayPassSection      = dynamic(() => import("@/components/settings/DayPassSection"));
 
-type TabKey = "profile" | "gym" | "operations" | "billing" | "kiosk" | "integrations" | "notifications" | "messages" | "team" | "plan" | "appearance";
+type TabKey = "profile" | "gym" | "operations" | "billing" | "daypass" | "kiosk" | "integrations" | "notifications" | "messages" | "team" | "plan" | "appearance";
+const TAB_KEYS: TabKey[] = ["profile", "gym", "operations", "billing", "daypass", "kiosk", "integrations", "notifications", "messages", "team", "plan", "appearance"];
 
 interface Tab {
   key: TabKey;
@@ -34,6 +37,7 @@ const TABS: Tab[] = [
   { key: "gym",           label: "Gimnasio",         icon: Building2 },
   { key: "operations",    label: "Operación",        icon: SlidersHorizontal },
   { key: "billing",       label: "Recaudo",          icon: Landmark },
+  { key: "daypass",       label: "Pases",            icon: Ticket },
   { key: "kiosk",         label: "Kiosko",           icon: MonitorSmartphone },
   { key: "integrations",  label: "Integraciones",    icon: Plug },
   { key: "notifications", label: "Notificaciones",   icon: Bell },
@@ -48,6 +52,7 @@ const SECTION_MAP: Record<TabKey, React.ComponentType> = {
   gym:           GymSection,
   operations:    OperationsSection,
   billing:       BillingSection,
+  daypass:       DayPassSection,
   kiosk:         KioskSection,
   integrations:  IntegrationsSection,
   notifications: NotificationsSection,
@@ -61,7 +66,11 @@ export default function SettingsClient() {
   const { data: session } = useSession();
   const isOwner = session?.role === "owner";
   const visibleTabs = TABS.filter((tab) => !tab.ownerOnly || isOwner);
-  const [activeTab, setActiveTab] = useState<TabKey>("profile");
+  const searchParams = useSearchParams();
+  const requested = searchParams.get("tab");
+  const [activeTab, setActiveTab] = useState<TabKey>(
+    requested && TAB_KEYS.includes(requested as TabKey) ? (requested as TabKey) : "profile"
+  );
 
   const ActiveSection = SECTION_MAP[activeTab];
 

@@ -203,6 +203,7 @@ async def _create_membership(
             method=method,
             status=PaymentStatus.pending,
             concept=f"Membresía {plan.name}",
+            kind="membership",
         )
         db.add(payment)
         await db.flush()
@@ -265,6 +266,10 @@ class ChargeMembership(BaseModel):
     discount_amount: float | None = None
     discount_reason: str | None = None
     promo_code: str | None = None
+    # Transferencia: cuenta destino; datáfono: voucher
+    transfer_account_id: str | None = None
+    card_approval_code: str | None = None
+    card_terminal: str | None = None
 
 
 @router.post("/charge")
@@ -285,6 +290,7 @@ async def charge_membership(
     from app.services.gym_settings import get_gym_settings
     from app.services.membership_status import next_chain_start
     from app.services.receipts import issue_receipt
+    from app.services.payments import apply_payment_policy, public_account
 
     if data.method not in ("cash", "transfer", "card"):
         raise HTTPException(status_code=400, detail="Método inválido para cobro directo (usa link Wompi)")
@@ -321,13 +327,18 @@ async def charge_membership(
     )
     payment.received_by = current_user.id
     receipt_number = None
+    account = None
     if data.method == "transfer":
-        # Queda pendiente: el recibo se emite cuando el staff confirma la plata
-        payment.status = PaymentStatus.pending
+        # Queda pendiente con cuenta destino + referencia: el recibo se emite
+        # cuando el staff confirma la plata
+        account = await apply_payment_policy(db, payment, gym, transfer_account_id=data.transfer_account_id)
     else:
         payment.status = PaymentStatus.paid
         if shift is not None:
             payment.shift_id = shift.id
+        if data.method == "card":
+            payment.card_approval_code = data.card_approval_code
+            payment.card_terminal = data.card_terminal
         await db.flush()
         receipt = await issue_receipt(db, payment)
         receipt_number = receipt.snapshot.get("receipt_number")
@@ -347,4 +358,6 @@ async def charge_membership(
         "start_date": membership.start_date.isoformat(),
         "end_date": membership.end_date.isoformat(),
         "amount": str(payment.amount),
+        "transfer_reference": payment.transfer_reference,
+        "destination_account": public_account(account),
     }

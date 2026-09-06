@@ -1,7 +1,7 @@
 import uuid
 import enum
 from datetime import date
-from sqlalchemy import String, Enum as SAEnum, Date, UniqueConstraint, Index, text
+from sqlalchemy import String, Enum as SAEnum, Date, Index, text
 from sqlalchemy.dialects.postgresql import UUID, JSONB
 from sqlalchemy.orm import mapped_column, Mapped
 from typing import Optional
@@ -15,6 +15,12 @@ def _generate_qr_code() -> str:
 class MemberStatus(str, enum.Enum):
     active = "active"
     inactive = "inactive"
+
+
+class MemberType(str, enum.Enum):
+    member = "member"
+    # Registro exprés del pase del día (cédula + nombre); convertible a socio
+    visitor = "visitor"
 
 
 class IdType(str, enum.Enum):
@@ -42,7 +48,13 @@ class TrainingGoal(str, enum.Enum):
 class Member(TenantBase, TenantTimestampMixin):
     __tablename__ = "members"
     __table_args__ = (
-        UniqueConstraint("email", name="uq_member_email"),
+        # Email único cuando existe — los visitantes del pase del día no traen correo.
+        Index(
+            "uq_member_email",
+            "email",
+            unique=True,
+            postgresql_where=text("email IS NOT NULL"),
+        ),
         # Cédula única cuando existe — los miembros antiguos sin documento siguen siendo válidos.
         # Declarado en metadata porque los tenants nuevos nacen con create_all + stamp.
         Index(
@@ -55,7 +67,10 @@ class Member(TenantBase, TenantTimestampMixin):
 
     id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     full_name: Mapped[str] = mapped_column(String(255), nullable=False)
-    email: Mapped[str] = mapped_column(String(255), nullable=False, index=True)
+    email: Mapped[Optional[str]] = mapped_column(String(255), nullable=True, index=True)
+    member_type: Mapped[str] = mapped_column(
+        String(20), nullable=False, default=MemberType.member.value, server_default="member",
+    )
     phone: Mapped[Optional[str]] = mapped_column(String(50), nullable=True)
     id_type: Mapped[Optional[IdType]] = mapped_column(SAEnum(IdType), nullable=True)
     id_number: Mapped[Optional[str]] = mapped_column(String(50), nullable=True)

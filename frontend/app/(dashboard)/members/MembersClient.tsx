@@ -1,8 +1,8 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useSession } from "next-auth/react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { toast } from "sonner";
 import { z } from "zod";
 import { motion } from "framer-motion";
@@ -42,7 +42,7 @@ import { MembershipStatusBadge } from "@/components/common/MembershipStatusBadge
 
 const memberSchema = z.object({
   full_name: z.string().min(2, "Nombre demasiado corto"),
-  email: z.string().email("Email inválido"),
+  email: z.union([z.string().email("Email inválido"), z.literal("")]).optional(),
   phone: z.string().optional(),
   id_number: z.string().optional(),
   id_type: z.enum(["CC", "NIT", "CE", "PP", "TI"]).optional(),
@@ -65,7 +65,8 @@ const memberSchema = z.object({
 interface Member {
   id: string;
   full_name: string;
-  email: string;
+  email: string | null;
+  member_type?: "member" | "visitor";
   phone: string | null;
   id_number: string | null;
   id_type: string | null;
@@ -172,6 +173,10 @@ export default function MembersClient() {
   const [photoFile, setPhotoFile] = useState<File | null>(null);
   const [deleteId, setDeleteId] = useState<string | null>(null);
   const [qrMember, setQrMember] = useState<Member | null>(null);
+  // Visitante del pase del día que se está convirtiendo en socio (wizard precargado)
+  const [converting, setConverting] = useState<Member | null>(null);
+  const searchParams = useSearchParams();
+  const convertHandled = useRef<string | null>(null);
 
   // Pagination
   const [page, setPage] = useState(0);
@@ -332,12 +337,38 @@ export default function MembersClient() {
     setAssignPaymentMethod("");
   };
 
-  const openCreate = () => { resetForm(); setDialogOpen(true); };
+  const openCreate = () => { resetForm(); setConverting(null); setDialogOpen(true); };
+  const openConvert = (visitor: Member) => {
+    resetForm();
+    setConverting(visitor);
+    setForm({
+      ...emptyForm,
+      full_name: visitor.full_name,
+      phone: visitor.phone || "",
+      id_number: visitor.id_number || "",
+      id_type: visitor.id_type || "CC",
+      photo_url: visitor.photo_url || "",
+    });
+    setDialogOpen(true);
+  };
+
+  useEffect(() => {
+    const convertId = searchParams.get("convert");
+    if (!convertId || !session?.accessToken || convertHandled.current === convertId) return;
+    convertHandled.current = convertId;
+    const client = apiClient(session.accessToken as string);
+    client
+      .get(`/api/v1/members/${convertId}`)
+      .then((res) => { if (res.data?.member_type === "visitor") openConvert(res.data); })
+      .catch(() => {})
+      .finally(() => router.replace("/members"));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [searchParams, session]);
   const openEdit = (member: Member) => {
     setEditing(member);
     setForm({
       full_name: member.full_name,
-      email: member.email,
+      email: member.email || "",
       phone: member.phone || "",
       id_number: member.id_number || "",
       id_type: member.id_type || "",
@@ -395,6 +426,7 @@ export default function MembersClient() {
 
     const payload = {
       ...form,
+      email: form.email || undefined,
       id_type: form.id_type || undefined,
       gender: form.gender || undefined,
       training_goal: form.training_goal || undefined,
@@ -420,6 +452,15 @@ export default function MembersClient() {
       let memberId = editing?.id;
       if (editing) {
         await client.put(`/api/v1/members/${editing.id}`, payload);
+      } else if (converting) {
+        // Visitante del pase del día → socio: conserva cédula, pases y pagos
+        const { data: created } = await client.post(`/api/v1/members/${converting.id}/convert-to-member`, {
+          ...payload,
+          status: "active",
+          plan_id: assignPlanId,
+          payment_method: assignPaymentMethod || undefined,
+        });
+        memberId = created.id;
       } else {
         // Alta completa: la membresía es obligatoria e inicia hoy (backend)
         const { data: created } = await client.post("/api/v1/members", {
@@ -438,8 +479,8 @@ export default function MembersClient() {
           headers: { "Content-Type": "multipart/form-data" },
         });
       }
-      toast.success(editing ? "Miembro actualizado" : "Miembro creado");
-      setDialogOpen(false); resetForm(); fetchMembers();
+      toast.success(editing ? "Miembro actualizado" : converting ? "Visitante convertido en socio" : "Miembro creado");
+      setDialogOpen(false); resetForm(); setConverting(null); fetchMembers();
     } catch (err: unknown) {
       const e = err as { response?: { data?: { detail?: string | Array<{ msg: string }> } } };
       const detail = e.response?.data?.detail;
@@ -603,7 +644,7 @@ export default function MembersClient() {
         <DialogContent className="bg-[var(--bg-card)] border border-[var(--border-base)] text-[var(--text-base)] sm:max-w-2xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle className="text-[var(--text-base)] font-display">
-              {editing ? "Editar miembro" : "Nuevo miembro"}
+              {editing ? "Editar miembro" : converting ? `Convertir a ${converting.full_name.split(" ")[0]} en socio` : "Nuevo miembro"}
             </DialogTitle>
           </DialogHeader>
           <form onSubmit={handleSubmit} className="mt-2">
@@ -959,9 +1000,14 @@ export default function MembersClient() {
                           </span>
                         )}
                         {m.full_name}
+                        {m.member_type === "visitor" && (
+                          <span className="inline-flex items-center px-1.5 py-0.5 rounded-full text-[10px] font-semibold bg-violet-50 dark:bg-violet-950/40 text-violet-700 dark:text-violet-400 ring-1 ring-violet-200 dark:ring-violet-800/60">
+                            Visitante
+                          </span>
+                        )}
                       </div>
                     </TableCell>
-                    <TableCell className="text-[var(--text-muted)]">{m.email}</TableCell>
+                    <TableCell className="text-[var(--text-muted)]">{m.email ?? "—"}</TableCell>
                     <TableCell className="text-[var(--text-muted)]">{m.phone || "-"}</TableCell>
                     <TableCell className="text-[var(--text-muted)]">
                       {m.id_type && <span className="text-xs font-medium text-[var(--color-primary)] mr-1">{m.id_type}</span>}

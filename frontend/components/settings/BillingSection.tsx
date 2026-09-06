@@ -9,16 +9,21 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { apiClient } from "@/lib/api";
-import { Landmark, Lock, Plus, Smartphone, Trash2, Loader2, FileText } from "lucide-react";
+import { Switch } from "@/components/ui/switch";
+import { Landmark, Lock, Plus, Smartphone, Trash2, Loader2, FileText, KeyRound, QrCode, ImagePlus, Clock } from "lucide-react";
 
 const inputCls =
   "bg-[var(--bg-base)] border-[var(--border-base)] text-[var(--text-base)] placeholder:text-[var(--text-muted)]";
 
 export interface TransferAccount {
+  id?: string;
   type: "nequi" | "daviplata" | "bancolombia" | "bank";
   label: string;
   account_number: string;
   holder_name: string;
+  breb_key?: string | null;
+  qr_url?: string | null;
+  is_active?: boolean;
 }
 
 export const ACCOUNT_TYPES: { key: TransferAccount["type"]; label: string }[] = [
@@ -28,7 +33,7 @@ export const ACCOUNT_TYPES: { key: TransferAccount["type"]; label: string }[] = 
   { key: "bank", label: "Otro banco" },
 ];
 
-const EMPTY_ACCOUNT: TransferAccount = { type: "nequi", label: "", account_number: "", holder_name: "" };
+const EMPTY_ACCOUNT: TransferAccount = { type: "nequi", label: "", account_number: "", holder_name: "", breb_key: "", is_active: true };
 
 export default function BillingSection() {
   const { data: session } = useSession();
@@ -39,6 +44,8 @@ export default function BillingSection() {
   const [newAccount, setNewAccount] = useState<TransferAccount>(EMPTY_ACCOUNT);
   const [showNew, setShowNew] = useState(false);
   const [saving, setSaving] = useState(false);
+  const [autoVoidHours, setAutoVoidHours] = useState(24);
+  const [uploadingQr, setUploadingQr] = useState<string | null>(null);
 
   const isOwner = (session as any)?.role === "owner" || (session?.user as any)?.role === "owner";
 
@@ -52,6 +59,7 @@ export default function BillingSection() {
         setLegalName(res.data.legal_name ?? "");
         setNit(res.data.nit ?? "");
         setTaxRegime(res.data.tax_regime ?? "");
+        setAutoVoidHours(res.data.transfer_auto_void_hours ?? 24);
       })
       .catch(() => toast.error("Error cargando configuración de recaudo"));
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -84,6 +92,44 @@ export default function BillingSection() {
     const acc = accounts[idx];
     if (!window.confirm(`¿Quitar la cuenta "${acc.label || acc.account_number}"?`)) return;
     await persist(accounts.filter((_, i) => i !== idx), "Cuenta eliminada");
+  };
+
+  const uploadQr = async (acc: TransferAccount, file: File) => {
+    if (!session?.accessToken || !acc.id) return;
+    setUploadingQr(acc.id);
+    try {
+      const client = apiClient(session.accessToken as string);
+      const fd = new FormData();
+      fd.append("file", file);
+      const res = await client.post(`/api/v1/settings/billing/transfer-accounts/${acc.id}/qr`, fd, {
+        headers: { "Content-Type": undefined },
+      });
+      setAccounts(res.data.transfer_accounts ?? []);
+      toast.success("QR guardado");
+    } catch (err: any) {
+      toast.error(err.response?.data?.detail ?? "No se pudo subir el QR");
+    } finally {
+      setUploadingQr(null);
+    }
+  };
+
+  const toggleActive = async (idx: number, active: boolean) => {
+    const next = accounts.map((a, i) => (i === idx ? { ...a, is_active: active } : a));
+    await persist(next, active ? "Cuenta activada" : "Cuenta desactivada");
+  };
+
+  const saveAutoVoid = async () => {
+    if (!session?.accessToken) return;
+    setSaving(true);
+    try {
+      const client = apiClient(session.accessToken as string);
+      await client.patch("/api/v1/settings/billing", { transfer_auto_void_hours: autoVoidHours });
+      toast.success("Regla de anulación guardada");
+    } catch (err: any) {
+      toast.error(err.response?.data?.detail ?? "Error guardando");
+    } finally {
+      setSaving(false);
+    }
   };
 
   const handleSaveFiscal = async (e: React.FormEvent) => {
@@ -190,6 +236,16 @@ export default function BillingSection() {
                 className={inputCls}
               />
             </div>
+            <div className="space-y-1 sm:col-span-2">
+              <Label className="text-[var(--text-muted)] text-xs">Llave Bre-B (opcional)</Label>
+              <Input
+                value={newAccount.breb_key ?? ""}
+                onChange={(e) => setNewAccount({ ...newAccount, breb_key: e.target.value })}
+                placeholder="@migym · 3001234567 · correo"
+                className={inputCls}
+              />
+              <p className="text-[11px] text-[var(--text-muted)]">Con la llave el socio paga desde cualquier banco sin escribir el número de cuenta.</p>
+            </div>
             <div className="sm:col-span-2 flex justify-end gap-2">
               <Button type="button" variant="ghost" onClick={() => setShowNew(false)} className="text-[var(--text-muted)]">
                 Cancelar
@@ -231,21 +287,82 @@ export default function BillingSection() {
                   <p className="text-[11px] text-[var(--text-muted)] truncate font-mono">
                     {acc.account_number} · {acc.holder_name}
                   </p>
+                  {acc.breb_key && (
+                    <p className="text-[11px] text-[var(--text-muted)] truncate flex items-center gap-1">
+                      <KeyRound className="h-3 w-3" /> Bre-B <span className="font-mono">{acc.breb_key}</span>
+                    </p>
+                  )}
                 </div>
+                {acc.qr_url ? (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img src={acc.qr_url} alt="QR" className="h-12 w-12 rounded-md bg-white object-contain border border-[var(--border-base)]" />
+                ) : (
+                  <span className="h-12 w-12 rounded-md border border-dashed border-[var(--border-base)] flex items-center justify-center text-[var(--text-muted)]" title="Sin QR">
+                    <QrCode className="h-4 w-4 opacity-50" />
+                  </span>
+                )}
                 {isOwner && (
-                  <button
-                    type="button"
-                    onClick={() => handleRemoveAccount(idx)}
-                    title="Quitar cuenta"
-                    className="p-1.5 rounded-lg text-[var(--text-muted)] hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-950/30 transition-colors"
-                  >
-                    <Trash2 className="h-3.5 w-3.5" />
-                  </button>
+                  <>
+                    <label
+                      title="Subir QR del banco"
+                      className="p-1.5 rounded-lg text-[var(--text-muted)] hover:text-[var(--text-base)] hover:bg-[var(--bg-muted)] transition-colors cursor-pointer"
+                    >
+                      {uploadingQr === acc.id ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <ImagePlus className="h-3.5 w-3.5" />}
+                      <input
+                        type="file"
+                        accept="image/jpeg,image/png,image/webp"
+                        className="hidden"
+                        onChange={(e) => {
+                          const f = e.target.files?.[0];
+                          if (f) void uploadQr(acc, f);
+                          e.target.value = "";
+                        }}
+                      />
+                    </label>
+                    <Switch checked={acc.is_active !== false} onCheckedChange={(v) => toggleActive(idx, v)} />
+                    <button
+                      type="button"
+                      onClick={() => handleRemoveAccount(idx)}
+                      title="Quitar cuenta"
+                      className="p-1.5 rounded-lg text-[var(--text-muted)] hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-950/30 transition-colors"
+                    >
+                      <Trash2 className="h-3.5 w-3.5" />
+                    </button>
+                  </>
                 )}
               </div>
             ))}
           </div>
         )}
+      </div>
+
+      <div className="pt-6 border-t border-[var(--border-base)] space-y-3">
+        <div className="flex items-center gap-2">
+          <Clock className="h-4 w-4 text-[var(--color-primary)]" />
+          <div>
+            <h3 className="text-sm font-semibold text-[var(--text-base)]">Transferencias sin confirmar</h3>
+            <p className="text-xs text-[var(--text-muted)] mt-0.5">
+              Una transferencia pendiente que nadie confirma se anula sola pasadas estas horas (0 = nunca). El pase o renovación asociada queda sin efecto.
+            </p>
+          </div>
+        </div>
+        <div className="flex items-center gap-2">
+          <Input
+            type="number"
+            min={0}
+            max={720}
+            value={autoVoidHours}
+            onChange={(e) => setAutoVoidHours(Number(e.target.value))}
+            disabled={!isOwner}
+            className={`${inputCls} w-24`}
+          />
+          <span className="text-sm text-[var(--text-muted)]">horas</span>
+          {isOwner && (
+            <Button type="button" onClick={saveAutoVoid} disabled={saving} variant="outline" className="h-9 text-xs">
+              Guardar
+            </Button>
+          )}
+        </div>
       </div>
 
       <form onSubmit={handleSaveFiscal} className="pt-6 border-t border-[var(--border-base)] space-y-4">

@@ -29,6 +29,8 @@ import {
   Play,
   CalendarClock,
   HeartPulse,
+  UserPlus,
+  Ticket,
 } from "lucide-react";
 import { QRCodeDisplay } from "@/components/common/QRCodeDisplay";
 import {
@@ -426,6 +428,11 @@ export default function MemberDetailClient({ memberId }: { memberId: string }) {
             >
               {member.status === "active" ? "Activo" : "Inactivo"}
             </span>
+            {member.member_type === "visitor" && (
+              <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-semibold bg-violet-50 dark:bg-violet-950/40 text-violet-700 dark:text-violet-400 ring-1 ring-violet-200 dark:ring-violet-800/60">
+                <Ticket className="h-3 w-3" /> Visitante · pase del día
+              </span>
+            )}
             {activeMembership && (
               <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-medium bg-[var(--bg-muted)] text-[var(--text-muted)] border border-[var(--border-base)]">
                 <Tag className="h-3 w-3" />
@@ -434,7 +441,7 @@ export default function MemberDetailClient({ memberId }: { memberId: string }) {
             )}
           </div>
           <p className="text-[var(--text-muted)] text-sm mt-0.5">
-            {member.email}
+            {member.email ?? "Sin correo"}
             {member.id_number && (
               <span className="ml-2 font-mono text-xs">
                 {member.id_type ?? "CC"} {member.id_number}
@@ -454,13 +461,23 @@ export default function MemberDetailClient({ memberId }: { memberId: string }) {
               <Phone className="h-4 w-4" />
             </a>
           )}
-          <button
-            onClick={() => router.push(`/payments?member=${memberId}`)}
-            className="flex items-center gap-1.5 h-9 px-3 rounded-lg bg-[var(--color-primary)] text-[var(--color-primary-contrast)] text-sm font-semibold hover:bg-[var(--color-primary-hover)] transition-colors"
-          >
-            <CreditCard className="h-4 w-4" />
-            Cobrar
-          </button>
+          {member.member_type === "visitor" ? (
+            <button
+              onClick={() => router.push(`/members?convert=${memberId}`)}
+              className="flex items-center gap-1.5 h-9 px-3 rounded-lg bg-[var(--color-primary)] text-[var(--color-primary-contrast)] text-sm font-semibold hover:bg-[var(--color-primary-hover)] transition-colors"
+            >
+              <UserPlus className="h-4 w-4" />
+              Convertir en socio
+            </button>
+          ) : (
+            <button
+              onClick={() => router.push(`/payments?member=${memberId}`)}
+              className="flex items-center gap-1.5 h-9 px-3 rounded-lg bg-[var(--color-primary)] text-[var(--color-primary-contrast)] text-sm font-semibold hover:bg-[var(--color-primary-hover)] transition-colors"
+            >
+              <CreditCard className="h-4 w-4" />
+              Cobrar
+            </button>
+          )}
         </div>
       </div>
 

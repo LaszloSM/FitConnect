@@ -35,8 +35,12 @@ class GymSettings(TenantBase, TenantTimestampMixin):
     whatsapp_access_token: Mapped[Optional[str]] = mapped_column(String(1000), nullable=True)
 
     # Cuentas de recaudo para transferencias manuales (Nequi, Daviplata, bancos):
-    # lista de {type, label, account_number, holder_name}
+    # lista de {id, type, label, account_number, holder_name, breb_key, qr_url, is_active}
     transfer_accounts: Mapped[Optional[list]] = mapped_column(JSONB, nullable=True)
+    # Una transferencia pendiente sin confirmar más de N horas se anula sola (0 = nunca)
+    transfer_auto_void_hours: Mapped[int] = mapped_column(
+        Integer, default=24, server_default="24", nullable=False
+    )
 
     # Datos fiscales — base para facturación electrónica DIAN (fase posterior)
     legal_name: Mapped[Optional[str]] = mapped_column(String(200), nullable=True)

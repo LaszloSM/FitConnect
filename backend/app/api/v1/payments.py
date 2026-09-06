@@ -1,5 +1,6 @@
 import uuid
 from fastapi import APIRouter, Depends, HTTPException, Query
+from pydantic import BaseModel, Field
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select, func, desc, update
 from datetime import date, datetime, timedelta
@@ -9,7 +10,7 @@ from app.api.deps import get_tenant_db_from_token, get_current_staff, get_tenant
 from app.core.timeutil import today_bogota
 from app.schemas.member import PaymentCreate, PaymentUpdate, PaymentResponse
 from app.schemas.pos import PaymentItemOut, ReceivableOut
-from app.models.tenant.payment import Payment, PaymentStatus, PaymentMethod
+from app.models.tenant.payment import Payment, PaymentStatus, PaymentMethod, PaymentKind
 from app.models.tenant.payment_item import PaymentItem
 from app.models.tenant.product import Product
 from app.models.tenant.member import Member
@@ -22,15 +23,16 @@ from app.services.gym_settings import get_gym_settings
 from app.services.membership_status import effective_status
 from app.services.receipts import issue_receipt
 from app.services.payment_links import create_payment_link_for
+from app.services.payments import (
+    apply_payment_policy, activate_day_passes, void_day_passes, mark_voided, cancel_unpaid_membership,
+    resolve_transfer_account, transfer_accounts, public_account, elapsed_minutes,
+    open_cash_shift as _open_cash_shift,
+)
+from app.services.storage import upload_image
+from app.core.timeutil import utcnow_naive
+from fastapi import File, UploadFile
 
 router = APIRouter(prefix="/payments", tags=["payments"])
-
-
-async def _open_cash_shift(db: AsyncSession) -> CashShift | None:
-    """Turno de caja abierto de la sede única (location_id NULL)."""
-    return (await db.execute(
-        select(CashShift).where(CashShift.status == "open", CashShift.location_id.is_(None)).limit(1)
-    )).scalar_one_or_none()
 
 
 async def _member_names(member_ids: list[uuid.UUID], db: AsyncSession) -> dict[uuid.UUID, str]:
@@ -41,10 +43,29 @@ async def _member_names(member_ids: list[uuid.UUID], db: AsyncSession) -> dict[u
     return {mid: name for mid, name in result.all()}
 
 
-def _payment_response(payment: Payment, member_name: str | None) -> PaymentResponse:
+def _payment_response(payment: Payment, member_name: str | None, accounts: dict[str, dict] | None = None) -> PaymentResponse:
     data = PaymentResponse.model_validate(payment)
     data.member_name = member_name
+    if accounts and payment.destination_account_id:
+        data.destination_account = public_account(accounts.get(payment.destination_account_id))
     return data
+
+
+async def _accounts_by_id(db: AsyncSession) -> dict[str, dict]:
+    gym = await get_gym_settings(db)
+    return {a["id"]: a for a in transfer_accounts(gym)}
+
+
+def _infer_kind(payload: PaymentCreate, items: list[dict]) -> str:
+    """La fuente se deduce de los datos; el cliente solo decide entre day_pass/other
+    cuando no hay membresía ni productos (un abono no puede etiquetarse 'producto')."""
+    if payload.membership_id is not None:
+        return PaymentKind.membership.value
+    if any(i.get("product_id") for i in items):
+        return PaymentKind.product.value
+    if payload.kind in (PaymentKind.day_pass, PaymentKind.other):
+        return payload.kind.value
+    return PaymentKind.other.value
 
 
 @router.get("", response_model=list[PaymentResponse], dependencies=[Depends(require_role(UserRole.owner, UserRole.admin))])
@@ -52,6 +73,9 @@ async def list_payments(
     db: AsyncSession = Depends(get_tenant_db_from_token),
     member_id: uuid.UUID | None = Query(None),
     status: PaymentStatus | None = Query(None),
+    kind: PaymentKind | None = Query(None),
+    method: PaymentMethod | None = Query(None),
+    destination_account_id: str | None = Query(None),
     from_date: date | None = Query(None, alias="from"),
     to_date: date | None = Query(None, alias="to"),
     # El frontend carga el mes completo de una (limit=200); tope alineado con eso
@@ -63,6 +87,12 @@ async def list_payments(
         stmt = stmt.where(Payment.member_id == member_id)
     if status:
         stmt = stmt.where(Payment.status == status)
+    if kind:
+        stmt = stmt.where(Payment.kind == kind.value)
+    if method:
+        stmt = stmt.where(Payment.method == method)
+    if destination_account_id:
+        stmt = stmt.where(Payment.destination_account_id == destination_account_id)
     if from_date:
         stmt = stmt.where(Payment.created_at >= datetime.combine(from_date, datetime.min.time()))
     if to_date:
@@ -71,7 +101,8 @@ async def list_payments(
     result = await db.execute(stmt)
     payments = result.scalars().all()
     names = await _member_names([p.member_id for p in payments], db)
-    return [_payment_response(p, names.get(p.member_id)) for p in payments]
+    accounts = await _accounts_by_id(db)
+    return [_payment_response(p, names.get(p.member_id), accounts) for p in payments]
 
 
 async def _resolve_items(payload: PaymentCreate, db: AsyncSession) -> tuple[list[dict], Decimal]:
@@ -146,32 +177,31 @@ async def create_payment(
                 detail="La membresía no pertenece a este miembro",
             )
 
-    # El efectivo cobrado (paid) requiere un turno abierto para que cuadre la caja
-    # (salvo que el gym tenga los turnos desactivados). Un cash pendiente es una
-    # promesa de pago: no entra a caja todavía.
-    shift = await _open_cash_shift(db)
-    is_cash_paid = payload.method == PaymentMethod.cash and payload.status == PaymentStatus.paid
-    if is_cash_paid and shift is None:
-        gym = await get_gym_settings(db)
-        if gym.cash_shifts_enabled:
-            raise HTTPException(
-                status_code=400,
-                detail="Abre un turno de caja antes de cobrar en efectivo",
-            )
-
+    gym = await get_gym_settings(db)
     items, items_total = await _resolve_items(payload, db)
 
-    payment = Payment(**payload.model_dump(exclude={"items"}), received_by=current_user.id)
+    payment = Payment(
+        **payload.model_dump(exclude={"items", "transfer_account_id", "kind", "card_approval_code", "card_terminal"}),
+        received_by=current_user.id,
+    )
+    if payload.discount_amount > 0 and not items:
+        raise HTTPException(status_code=400, detail="El descuento aplica a ventas de productos; para membresías usa el descuento del plan")
     if items:
-        # El total de una venta con items siempre es la suma de sus renglones
-        payment.amount = items_total
-    if payment.method == PaymentMethod.transfer:
-        # Una transferencia no es plata en la mano: queda pendiente hasta que
-        # el staff confirme que llegó a la cuenta (POST /payments/{id}/confirm)
-        payment.status = PaymentStatus.pending
-    if is_cash_paid and shift is not None:
-        # Con turnos desactivados el efectivo se registra sin turno (shift_id nulo)
-        payment.shift_id = shift.id
+        # El total de una venta con items es la suma de sus renglones menos el descuento
+        if payload.discount_amount > items_total:
+            raise HTTPException(status_code=400, detail="El descuento no puede superar el total de la venta")
+        payment.amount = items_total - payload.discount_amount
+        if payment.amount <= 0:
+            raise HTTPException(status_code=400, detail="El total de la venta debe ser mayor que cero")
+    payment.kind = _infer_kind(payload, items)
+    # Política por método: cash paid exige turno, transfer queda pendiente con
+    # cuenta destino + referencia, card guarda el voucher
+    account = await apply_payment_policy(
+        db, payment, gym,
+        transfer_account_id=payload.transfer_account_id,
+        card_approval_code=payload.card_approval_code,
+        card_terminal=payload.card_terminal,
+    )
     db.add(payment)
     await db.flush()
     for item in items:
@@ -187,15 +217,21 @@ async def create_payment(
     await db.commit()
     await db.refresh(payment)
     response = _payment_response(payment, member.full_name if member else None)
+    response.destination_account = public_account(account)
     response.items = [PaymentItemOut.model_validate(i) for i in (await db.execute(
         select(PaymentItem).where(PaymentItem.payment_id == payment.id)
     )).scalars().all()]
     return response
 
 
+class VoidRequest(BaseModel):
+    reason: str | None = Field(default=None, max_length=500)
+
+
 @router.post("/{payment_id}/void", response_model=PaymentResponse)
 async def void_pending_payment(
     payment_id: uuid.UUID,
+    payload: VoidRequest | None = None,
     db: AsyncSession = Depends(get_tenant_db_from_token),
     current_user: UserStaff = Depends(get_current_staff),
 ):
@@ -205,14 +241,86 @@ async def void_pending_payment(
         raise HTTPException(status_code=404, detail="Pago no encontrado")
     if payment.status != PaymentStatus.pending:
         raise HTTPException(status_code=400, detail=f"Solo se anulan pagos pendientes (está {payment.status.value})")
-    payment.status = PaymentStatus.failed
+    reason = payload.reason if payload else None
+    mark_voided(payment, reason, current_user.id)
+    await void_day_passes(db, payment.id)
+    membership_cancelled = await cancel_unpaid_membership(db, payment)
     audit(db, current_user, "payment.void", "payment", payment.id, {
         "amount": str(payment.amount), "method": payment.method.value if payment.method else None,
+        "reason": reason, "membership_cancelled": membership_cancelled,
     })
     await db.commit()
     await db.refresh(payment)
     names = await _member_names([payment.member_id], db)
     return _payment_response(payment, names.get(payment.member_id))
+
+
+_PROOF_TYPES = {"image/jpeg": "jpg", "image/png": "png", "image/webp": "webp", "application/pdf": "pdf"}
+
+
+def _sniff_proof(data: bytes) -> str | None:
+    """Tipo real por bytes iniciales (no se confía en el Content-Type del cliente)."""
+    if data[:3] == b"\xff\xd8\xff":
+        return "image/jpeg"
+    if data[:8] == b"\x89PNG\r\n\x1a\n":
+        return "image/png"
+    if data[:4] == b"RIFF" and data[8:12] == b"WEBP":
+        return "image/webp"
+    if data[:5] == b"%PDF-":
+        return "application/pdf"
+    return None
+
+
+@router.post("/{payment_id}/proof", response_model=PaymentResponse)
+async def upload_transfer_proof(
+    payment_id: uuid.UUID,
+    file: UploadFile = File(...),
+    db: AsyncSession = Depends(get_tenant_db_from_token),
+    current_user: UserStaff = Depends(get_current_staff),
+    slug: str = Depends(get_tenant_slug),
+):
+    """Adjunta el comprobante (pantallazo del giro) a una transferencia."""
+    data = await file.read()
+    if len(data) > 5 * 1024 * 1024:
+        raise HTTPException(status_code=400, detail="El comprobante supera 5 MB")
+    real_type = _sniff_proof(data)
+    ext = _PROOF_TYPES.get(real_type or "")
+    if not ext:
+        raise HTTPException(status_code=400, detail="Formato no soportado (usa JPG, PNG, WEBP o PDF)")
+    payment = (await db.execute(select(Payment).where(Payment.id == payment_id))).scalar_one_or_none()
+    if not payment:
+        raise HTTPException(status_code=404, detail="Pago no encontrado")
+    if payment.method != PaymentMethod.transfer:
+        raise HTTPException(status_code=400, detail="Solo las transferencias llevan comprobante")
+    if payment.status != PaymentStatus.pending:
+        raise HTTPException(status_code=400, detail="El comprobante se adjunta mientras la transferencia está pendiente")
+    payment.proof_url = await upload_image(data, f"proofs/{slug}/{payment_id}.{ext}", real_type)
+    payment.proof_uploaded_at = utcnow_naive()
+    audit(db, current_user, "payment.proof", "payment", payment.id, {"content_type": file.content_type})
+    await db.commit()
+    await db.refresh(payment)
+    names = await _member_names([payment.member_id], db)
+    return _payment_response(payment, names.get(payment.member_id), await _accounts_by_id(db))
+
+
+@router.get("/pending-transfers")
+async def list_pending_transfers(
+    db: AsyncSession = Depends(get_tenant_db_from_token),
+):
+    """Bandeja 'Por confirmar': transferencias pendientes, la más vieja primero."""
+    payments = (await db.execute(
+        select(Payment)
+        .where(Payment.method == PaymentMethod.transfer, Payment.status == PaymentStatus.pending)
+        .order_by(Payment.created_at)
+    )).scalars().all()
+    names = await _member_names([p.member_id for p in payments], db)
+    accounts = await _accounts_by_id(db)
+    out = []
+    for p in payments:
+        data = _payment_response(p, names.get(p.member_id), accounts).model_dump()
+        data["elapsed_minutes"] = elapsed_minutes(p.created_at)
+        out.append(data)
+    return out
 
 
 @router.get("/cash", dependencies=[Depends(require_role(UserRole.owner, UserRole.admin))])
@@ -226,20 +334,30 @@ async def cash_box(
 
     async def _totals(since: datetime) -> dict:
         stmt = (
-            select(Payment.method, func.coalesce(func.sum(Payment.amount), 0), func.count())
+            select(Payment.method, Payment.kind, func.coalesce(func.sum(Payment.amount), 0), func.count())
             .where(Payment.status == PaymentStatus.paid, Payment.created_at >= since)
-            .group_by(Payment.method)
+            .group_by(Payment.method, Payment.kind)
         )
         result = await db.execute(stmt)
         by_method: dict[str, float] = {}
+        by_kind: dict[str, float] = {}
         total = Decimal(0)
         count = 0
-        for method, amount, n in result.all():
+        for method, kind, amount, n in result.all():
             key = method.value if method else "unknown"
-            by_method[key] = float(amount)
+            by_method[key] = by_method.get(key, 0.0) + float(amount)
+            by_kind[kind or "other"] = by_kind.get(kind or "other", 0.0) + float(amount)
             total += amount
             count += n
-        return {"total": float(total), "count": count, "by_method": by_method}
+        pending_transfers = (await db.execute(
+            select(func.count(), func.coalesce(func.sum(Payment.amount), 0))
+            .where(Payment.method == PaymentMethod.transfer, Payment.status == PaymentStatus.pending,
+                   Payment.created_at >= since)
+        )).one()
+        return {
+            "total": float(total), "count": count, "by_method": by_method, "by_kind": by_kind,
+            "pending_transfers": {"count": pending_transfers[0], "amount": float(pending_transfers[1])},
+        }
 
     return {
         "today": await _totals(today_start),
@@ -330,7 +448,7 @@ async def get_payment(
     if not payment:
         raise HTTPException(status_code=404, detail="Pago no encontrado")
     names = await _member_names([payment.member_id], db)
-    response = _payment_response(payment, names.get(payment.member_id))
+    response = _payment_response(payment, names.get(payment.member_id), await _accounts_by_id(db))
     response.items = [PaymentItemOut.model_validate(i) for i in (await db.execute(
         select(PaymentItem).where(PaymentItem.payment_id == payment.id)
     )).scalars().all()]
@@ -419,6 +537,7 @@ async def mark_payment_paid(
     payment.received_by = current_user.id
     await db.flush()
     await issue_receipt(db, payment)
+    await activate_day_passes(db, payment.id)
     audit(db, current_user, "payment.mark_paid", "payment", payment.id, {"amount": str(payment.amount)})
     await db.commit()
     await db.refresh(payment)

@@ -8,6 +8,30 @@ export const METHOD_LABELS: Record<string, string> = {
   wompi: "Wompi",
 };
 
+export const KIND_LABELS: Record<string, string> = {
+  membership: "Membresía",
+  day_pass: "Pase del día",
+  product: "Productos",
+  other: "Otro",
+};
+
+export const KIND_TONES: Record<string, "success" | "info" | "violet" | "neutral"> = {
+  membership: "success",
+  day_pass: "violet",
+  product: "info",
+  other: "neutral",
+};
+
+export interface DestinationAccount {
+  id: string;
+  type: "nequi" | "daviplata" | "bancolombia" | "bank";
+  label: string;
+  account_number: string;
+  holder_name: string;
+  breb_key: string | null;
+  qr_url: string | null;
+}
+
 export interface PaymentItemRow {
   id: string;
   product_id: string | null;
@@ -25,9 +49,50 @@ export interface PaymentRow {
   method: string | null;
   status: string;
   concept: string;
+  kind?: string;
   external_ref?: string | null;
+  transfer_reference?: string | null;
+  destination_account_id?: string | null;
+  destination_account?: DestinationAccount | null;
+  proof_url?: string | null;
+  proof_uploaded_at?: string | null;
+  card_approval_code?: string | null;
+  card_terminal?: string | null;
+  discount_amount?: number;
+  void_reason?: string | null;
+  refund_reason?: string | null;
   created_at: string;
   items?: PaymentItemRow[];
+}
+
+export interface PendingTransferRow extends PaymentRow {
+  elapsed_minutes: number;
+}
+
+/** Texto para WhatsApp con los datos de la transferencia (cuenta, llave, referencia). */
+export function transferWhatsappText(
+  firstName: string,
+  amount: string,
+  reference: string | null | undefined,
+  account: DestinationAccount | null | undefined,
+  concept?: string,
+): string {
+  const lines = [`Hola ${firstName} 👋`, `Para ${concept ? concept.toLowerCase() : "tu pago"} son ${amount}.`];
+  if (account) {
+    lines.push(`Transfiere a ${account.label}: ${account.account_number} (${account.holder_name}).`);
+    if (account.breb_key) lines.push(`Llave Bre-B: ${account.breb_key}`);
+  }
+  if (reference) lines.push(`Escribe la referencia ${reference} en la descripción del giro y envíanos el pantallazo.`);
+  return lines.join("\n");
+}
+
+export function formatElapsed(minutes: number): string {
+  if (minutes < 1) return "hace un momento";
+  if (minutes < 60) return `hace ${minutes} min`;
+  const hours = Math.floor(minutes / 60);
+  if (hours < 24) return `hace ${hours} h`;
+  const days = Math.floor(hours / 24);
+  return `hace ${days} d`;
 }
 
 export async function openReceipt(client: AxiosInstance, paymentId: string) {

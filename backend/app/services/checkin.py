@@ -23,6 +23,7 @@ from app.services import realtime
 # Ventana anti-doble-registro: mismo miembro no puede registrar asistencia
 # dos veces en este intervalo (no aplica entre un denegado y su override).
 DEDUP_WINDOW = timedelta(minutes=5)
+DAY_PASS_DEDUP_WINDOW = timedelta(minutes=2)
 # Un check-in marca asistencia a clases que empiezan dentro de esta ventana.
 CLASS_ATTEND_WINDOW = timedelta(minutes=60)
 
@@ -35,13 +36,17 @@ class DuplicateCheckin(Exception):
 
 async def checkin_status(member_id: uuid.UUID, db: AsyncSession, grace_days: int) -> tuple[str, Membership | None]:
     """(estado para check-in, membresía más relevante).
-    Estado: ok | in_grace | scheduled | expired | frozen | no_membership."""
+    Estado: ok | in_grace | scheduled | expired | frozen | no_membership.
+    Un pase del día activo para hoy vale como 'ok' cuando ninguna membresía da acceso."""
+    from app.services.day_passes import active_pass_today
     today = today_bogota()
     memberships = (await db.execute(
         select(Membership).where(Membership.member_id == member_id)
         .order_by(desc(Membership.end_date))
     )).scalars().all()
     if not memberships:
+        if await active_pass_today(db, member_id):
+            return "ok", None
         return "no_membership", None
     best = "no_membership"
     best_membership = memberships[0]
@@ -55,7 +60,10 @@ async def checkin_status(member_id: uuid.UUID, db: AsyncSession, grace_days: int
     # Solo membresías canceladas = sin membresía (el Literal del response no
     # admite "cancelled" y para el negocio es el mismo estado)
     if best == "cancelled":
-        return "no_membership", best_membership
+        best = "no_membership"
+    if best not in _ALLOWED_STATUSES and await active_pass_today(db, member_id):
+        # Socio vencido/congelado que compró un pase para hoy: entra por el pase
+        return "ok", None
     return best, best_membership
 
 
@@ -65,8 +73,8 @@ def decision_for(status: str) -> tuple[str, str | None]:
     return "denied", status if status != "cancelled" else "no_membership"
 
 
-async def _reject_if_duplicate(member_id: uuid.UUID, db: AsyncSession) -> None:
-    cutoff = utcnow_naive() - DEDUP_WINDOW
+async def _reject_if_duplicate(member_id: uuid.UUID, db: AsyncSession, window: timedelta = DEDUP_WINDOW) -> None:
+    cutoff = utcnow_naive() - window
     recent = await db.execute(
         select(CheckIn)
         .where(
@@ -121,7 +129,8 @@ async def register_checkin(
     decision, denial_reason = decision_for(status)
 
     if decision == "allowed":
-        await _reject_if_duplicate(member.id, db)
+        # Pase del día: ingresos ilimitados, solo se evita el doble toque accidental
+        await _reject_if_duplicate(member.id, db, window=DAY_PASS_DEDUP_WINDOW if membership is None else DEDUP_WINDOW)
 
     checkin = CheckIn(
         member_id=member.id,
@@ -161,7 +170,8 @@ def publish_event(
         "member_name": member.full_name,
         "photo_url": member.photo_url,
         "membership_status": status,
-        "plan_name": membership.plan_name if membership else None,
+        "day_pass": status == "ok" and membership is None,
+        "plan_name": membership.plan_name if membership else ("Pase del día" if status == "ok" else None),
         "amount_due": str(membership.price) if membership and status in ("expired", "in_grace") else None,
         "days_overdue": max((today - membership.end_date).days, 0) if membership else None,
         "upcoming_class": upcoming_class,

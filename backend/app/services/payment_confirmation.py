@@ -51,6 +51,8 @@ async def confirm_payment(db: AsyncSession, payment_id: uuid.UUID, transaction_i
 
     payment = (await db.execute(select(Payment).where(Payment.id == payment_id))).scalar_one()
     await issue_receipt(db, payment)
+    from app.services.payments import activate_day_passes
+    await activate_day_passes(db, payment.id)
 
     link = (await db.execute(
         select(PaymentLink).where(PaymentLink.payment_id == payment_id)

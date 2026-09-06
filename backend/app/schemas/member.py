@@ -6,7 +6,7 @@ from typing import Optional, Literal
 from pydantic import BaseModel, EmailStr, Field, field_validator, model_validator
 
 from app.models.tenant.member import MemberStatus, IdType, Gender, TrainingGoal
-from app.models.tenant.payment import PaymentMethod, PaymentStatus
+from app.models.tenant.payment import PaymentMethod, PaymentStatus, PaymentKind
 from app.models.tenant.membership import MembershipStatus
 from app.schemas.pos import PaymentItemIn, PaymentItemOut
 
@@ -14,7 +14,8 @@ from app.schemas.pos import PaymentItemIn, PaymentItemOut
 # ─── Member ───
 class MemberBase(BaseModel):
     full_name: str = Field(min_length=2, max_length=255)
-    email: EmailStr
+    # Opcional: los visitantes del pase del día se registran solo con cédula
+    email: Optional[EmailStr] = None
     phone: Optional[str] = Field(default=None, max_length=50)
     id_type: Optional[IdType] = None
     id_number: Optional[str] = Field(default=None, max_length=50)
@@ -66,6 +67,7 @@ PARQ_REQUIRED_KEYS = {f"q{i}" for i in range(1, 8)}
 
 
 class MemberCreate(MemberBase):
+    email: EmailStr
     # Alta completa desde el panel: la cédula es el identificador natural
     # (kiosko, búsqueda, antiduplicados) y los datos de contacto, salud y
     # membresía son obligatorios. Los miembros legacy entran por el import
@@ -117,6 +119,7 @@ class MemberUpdate(BaseModel):
 class MemberResponse(MemberBase):
     id: uuid.UUID
     qr_code: Optional[str] = None
+    member_type: str = "member"
     created_at: datetime
     updated_at: datetime
     # Populated by list endpoint via JOIN — None if no membership
@@ -170,11 +173,20 @@ class PaymentBase(BaseModel):
     status: PaymentStatus = PaymentStatus.pending
     concept: str = Field(min_length=1, max_length=500)
     external_ref: Optional[str] = Field(default=None, max_length=255)
+    # Fuente del ingreso: se infiere (membresía/producto) cuando no viene
+    kind: Optional[PaymentKind] = None
+    # Datáfono
+    card_approval_code: Optional[str] = Field(default=None, max_length=50)
+    card_terminal: Optional[str] = Field(default=None, max_length=100)
+    discount_amount: Decimal = Field(default=Decimal(0), ge=0, decimal_places=2)
+    discount_note: Optional[str] = Field(default=None, max_length=255)
 
 
 class PaymentCreate(PaymentBase):
     # Venta de productos/cargos sueltos en el mismo pago (POS)
     items: list["PaymentItemIn"] = []
+    # Transferencia: a qué cuenta de recaudo (obligatorio si hay varias activas)
+    transfer_account_id: Optional[str] = Field(default=None, max_length=36)
 
     @model_validator(mode="after")
     def member_or_items(self):
@@ -195,9 +207,19 @@ class PaymentResponse(PaymentBase):
     id: uuid.UUID
     created_at: datetime
     updated_at: datetime
+    kind: str = "other"
+    destination_account_id: Optional[str] = None
+    transfer_reference: Optional[str] = None
+    proof_url: Optional[str] = None
+    proof_uploaded_at: Optional[datetime] = None
+    refunded_at: Optional[datetime] = None
+    refund_reason: Optional[str] = None
+    voided_at: Optional[datetime] = None
+    void_reason: Optional[str] = None
     # Inyectados por el endpoint — no vienen directo de la tabla payments
     member_name: Optional[str] = None
     items: list[PaymentItemOut] = []
+    destination_account: Optional[dict] = None
 
     class Config:
         from_attributes = True

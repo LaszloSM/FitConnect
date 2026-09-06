@@ -19,12 +19,13 @@ import asyncio
 
 from alembic import command
 from alembic.config import Config
-from sqlalchemy import select
+from sqlalchemy import select, text
 from sqlalchemy.ext.asyncio import create_async_engine
 
 from app.core.config import settings
 from app.db.master_session import MasterSessionLocal
 from app.db.tenant_base import TenantBase
+from app.db.tenant_align import ALIGN_STATEMENTS
 from app.models.master.tenant import Tenant
 
 
@@ -47,6 +48,10 @@ async def migrate_all() -> None:
         try:
             async with engine.begin() as conn:
                 await conn.run_sync(TenantBase.metadata.create_all)
+                # create_all no agrega columnas a tablas existentes: aplicar el DDL
+                # idempotente de las migraciones que tocan tablas ya creadas
+                for sql in ALIGN_STATEMENTS:
+                    await conn.execute(text(sql))
             await asyncio.get_event_loop().run_in_executor(None, _stamp_head, url)
             print(f"OK   {tenant.db_name}")
             ok += 1

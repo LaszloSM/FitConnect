@@ -10,7 +10,10 @@ from app.models.master.tenant import Tenant
 from app.services.exports import build_reports_xlsx, build_report_pdf, fetch_logo_png
 from app.core.timeutil import today_bogota
 from app.models.tenant.member import Member, MemberStatus
-from app.models.tenant.payment import Payment, PaymentStatus
+from app.models.tenant.payment import Payment, PaymentStatus, PaymentMethod
+from app.models.tenant.day_pass import DayPass
+from app.services.payments import transfer_accounts, public_account
+from app.services.gym_settings import get_gym_settings
 from app.models.tenant.expense import Expense
 from app.models.tenant.checkin import CheckIn
 from app.models.tenant.membership import Membership, MembershipStatus
@@ -495,3 +498,135 @@ async def generate_expiry_notifications(
         await db.commit()
 
     return {"created": created, "total_expiring": len(rows)}
+
+
+def _range_bounds(from_date: date | None, to_date: date | None) -> tuple[datetime, datetime]:
+    """Rango [from, to] en fechas de negocio → límites UTC naive para created_at."""
+    from app.core.timeutil import utc_day_bounds
+    today = today_bogota()
+    start_day = from_date or today.replace(day=1)
+    end_day = to_date or today
+    start, _ = utc_day_bounds(start_day)
+    _, end = utc_day_bounds(end_day)
+    return start, end
+
+
+@router.get("/revenue-by-kind")
+async def revenue_by_kind_report(
+    db: AsyncSession = Depends(get_tenant_db_from_token),
+    from_date: date | None = Query(None, alias="from"),
+    to_date: date | None = Query(None, alias="to"),
+):
+    """Ingresos confirmados del período por fuente (membresía, pase, producto, otro)
+    y método, para saber por dónde entra la plata."""
+    start, end = _range_bounds(from_date, to_date)
+    rows = (await db.execute(
+        select(Payment.kind, Payment.method, func.coalesce(func.sum(Payment.amount), 0), func.count())
+        .where(Payment.status == PaymentStatus.paid, Payment.created_at >= start, Payment.created_at < end)
+        .group_by(Payment.kind, Payment.method)
+    )).all()
+    by_kind: dict[str, dict] = {}
+    by_method: dict[str, float] = {}
+    total = Decimal(0)
+    for kind, method, amount, n in rows:
+        k = kind or "other"
+        m = method.value if method else "unknown"
+        entry = by_kind.setdefault(k, {"amount": 0.0, "count": 0, "by_method": {}})
+        entry["amount"] += float(amount)
+        entry["count"] += n
+        entry["by_method"][m] = entry["by_method"].get(m, 0.0) + float(amount)
+        by_method[m] = by_method.get(m, 0.0) + float(amount)
+        total += amount
+    return {
+        "from": (from_date or today_bogota().replace(day=1)).isoformat(),
+        "to": (to_date or today_bogota()).isoformat(),
+        "total": float(total),
+        "by_kind": by_kind,
+        "by_method": by_method,
+    }
+
+
+@router.get("/transfers-by-account")
+async def transfers_by_account_report(
+    db: AsyncSession = Depends(get_tenant_db_from_token),
+    from_date: date | None = Query(None, alias="from"),
+    to_date: date | None = Query(None, alias="to"),
+):
+    """Recaudo por cuenta destino (Nequi, Bancolombia...): confirmado y pendiente."""
+    start, end = _range_bounds(from_date, to_date)
+    gym = await get_gym_settings(db)
+    accounts = {a["id"]: a for a in transfer_accounts(gym)}
+    rows = (await db.execute(
+        select(Payment.destination_account_id, Payment.status, func.coalesce(func.sum(Payment.amount), 0), func.count())
+        .where(Payment.method == PaymentMethod.transfer, Payment.created_at >= start, Payment.created_at < end)
+        .group_by(Payment.destination_account_id, Payment.status)
+    )).all()
+    out: dict[str, dict] = {}
+    for account_id, status, amount, n in rows:
+        key = account_id or "sin_cuenta"
+        entry = out.setdefault(key, {
+            "account": public_account(accounts.get(account_id)) if account_id else None,
+            "paid": 0.0, "paid_count": 0, "pending": 0.0, "pending_count": 0, "failed": 0.0, "refunded": 0.0,
+        })
+        if status == PaymentStatus.paid:
+            entry["paid"] += float(amount); entry["paid_count"] += n
+        elif status == PaymentStatus.pending:
+            entry["pending"] += float(amount); entry["pending_count"] += n
+        elif status == PaymentStatus.refunded:
+            entry["refunded"] += float(amount)
+        else:
+            entry["failed"] += float(amount)
+    return {"accounts": list(out.values())}
+
+
+@router.get("/day-passes")
+async def day_passes_report(
+    db: AsyncSession = Depends(get_tenant_db_from_token),
+    from_date: date | None = Query(None, alias="from"),
+    to_date: date | None = Query(None, alias="to"),
+):
+    """Pases vendidos por tipo y por día, más cuántos visitantes se volvieron socios."""
+    today = today_bogota()
+    start_day = from_date or today.replace(day=1)
+    end_day = to_date or today
+    rows = (await db.execute(
+        select(DayPass.pass_name, DayPass.includes_trainer, func.count(), func.coalesce(func.sum(DayPass.price), 0))
+        .where(DayPass.status == "active", DayPass.valid_on >= start_day, DayPass.valid_on <= end_day)
+        .group_by(DayPass.pass_name, DayPass.includes_trainer)
+    )).all()
+    daily = (await db.execute(
+        select(DayPass.valid_on, func.count(), func.coalesce(func.sum(DayPass.price), 0))
+        .where(DayPass.status == "active", DayPass.valid_on >= start_day, DayPass.valid_on <= end_day)
+        .group_by(DayPass.valid_on).order_by(DayPass.valid_on)
+    )).all()
+    # Convertidos: compraron un pase y su primera membresía empezó después de ese pase
+    first_membership = (
+        select(Membership.member_id, func.min(Membership.start_date).label("first_start"))
+        .group_by(Membership.member_id).subquery()
+    )
+    converted = (await db.execute(
+        select(func.count(func.distinct(DayPass.member_id)))
+        .select_from(DayPass)
+        .join(first_membership, first_membership.c.member_id == DayPass.member_id)
+        .where(
+            DayPass.status == "active",
+            DayPass.valid_on >= start_day, DayPass.valid_on <= end_day,
+            first_membership.c.first_start > DayPass.valid_on,
+        )
+    )).scalar() or 0
+    visitors = (await db.execute(
+        select(func.count(func.distinct(DayPass.member_id)))
+        .where(DayPass.status == "active", DayPass.valid_on >= start_day, DayPass.valid_on <= end_day)
+    )).scalar() or 0
+    return {
+        "from": start_day.isoformat(), "to": end_day.isoformat(),
+        "by_type": [
+            {"name": name, "includes_trainer": trainer, "count": n, "amount": float(a)}
+            for name, trainer, n, a in rows
+        ],
+        "daily": [{"date": d.isoformat(), "count": n, "amount": float(a)} for d, n, a in daily],
+        "total_count": sum(n for _, _, n, _ in rows),
+        "total_amount": float(sum(a for _, _, _, a in rows)),
+        "unique_people": visitors,
+        "converted_to_member": converted,
+    }

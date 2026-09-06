@@ -16,21 +16,10 @@ import { apiClient } from "@/lib/api";
 import { formatCOP, formatDate } from "@/lib/format";
 import { useApiResource } from "@/hooks/useApiResource";
 import { cn } from "@/lib/utils";
-import { openReceipt } from "./shared";
+import { openReceipt, type DestinationAccount } from "./shared";
+import { MethodPicker, EMPTY_DETAILS, type Method, type MethodDetails } from "./MethodPicker";
+import { TransferPendingDialog, type TransferContext } from "./TransferPendingDialog";
 import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
-import type { TransferAccount } from "@/components/settings/BillingSection";
-import {
-  Banknote,
-  CheckCircle2,
-  Copy,
-  CreditCard,
-  Landmark,
   Link2,
   Loader2,
   Minus,
@@ -39,7 +28,6 @@ import {
   Printer,
   Search,
   ShoppingCart,
-  Smartphone,
   Trash2,
   UserRound,
   Zap,
@@ -74,146 +62,6 @@ interface Product {
   low_stock_threshold: number;
 }
 
-type Method = "cash" | "transfer" | "card";
-
-const METHODS: { key: Method; label: string; icon: typeof Banknote }[] = [
-  { key: "cash", label: "Efectivo", icon: Banknote },
-  { key: "transfer", label: "Transferencia", icon: Landmark },
-  { key: "card", label: "Tarjeta", icon: CreditCard },
-];
-
-function TransferPendingDialog({
-  open,
-  onClose,
-  accounts,
-  amount,
-  paymentId,
-  onConfirmed,
-}: {
-  open: boolean;
-  onClose: () => void;
-  accounts: TransferAccount[];
-  amount: number;
-  paymentId: string | null;
-  onConfirmed: () => void;
-}) {
-  const { data: session } = useSession();
-  const [confirming, setConfirming] = useState(false);
-
-  const confirmReceived = async () => {
-    if (!session?.accessToken || !paymentId) return;
-    setConfirming(true);
-    try {
-      const client = apiClient(session.accessToken as string);
-      await client.patch(`/api/v1/payments/${paymentId}/mark-paid`);
-      toast.success("Transferencia confirmada — recibo emitido", {
-        action: { label: "Imprimir", onClick: () => openReceipt(client, paymentId) },
-        duration: 8000,
-      });
-      onConfirmed();
-      onClose();
-    } catch (err: any) {
-      toast.error(err.response?.data?.detail ?? "Error confirmando el pago");
-    } finally {
-      setConfirming(false);
-    }
-  };
-
-  return (
-    <Dialog open={open} onOpenChange={(o) => !o && onClose()}>
-      <DialogContent>
-        <DialogHeader>
-          <DialogTitle>Transferencia por {formatCOP(amount)}</DialogTitle>
-          <DialogDescription>
-            El pago quedó <strong>pendiente</strong>. Muestra estas cuentas al cliente y confirma
-            cuando veas la plata. También queda en Historial para confirmarla después.
-          </DialogDescription>
-        </DialogHeader>
-
-        {accounts.length === 0 ? (
-          <p className="text-sm text-amber-600 dark:text-amber-400">
-            No hay cuentas de recaudo registradas — agrégalas en Ajustes › Recaudo.
-          </p>
-        ) : (
-          <div className="space-y-2">
-            {accounts.map((acc) => (
-              <div
-                key={`${acc.type}-${acc.account_number}`}
-                className="flex items-center gap-3 p-3 rounded-lg border border-[var(--border-base)] bg-[var(--bg-base)]"
-              >
-                {acc.type === "nequi" || acc.type === "daviplata" ? (
-                  <Smartphone className="h-4 w-4 text-[var(--text-muted)] shrink-0" />
-                ) : (
-                  <Landmark className="h-4 w-4 text-[var(--text-muted)] shrink-0" />
-                )}
-                <div className="flex-1 min-w-0">
-                  <p className="text-sm font-medium text-[var(--text-base)] truncate">{acc.label}</p>
-                  <p className="text-xs text-[var(--text-muted)] font-mono truncate">
-                    {acc.account_number} · {acc.holder_name}
-                  </p>
-                </div>
-                <button
-                  type="button"
-                  title="Copiar número"
-                  onClick={() => {
-                    navigator.clipboard.writeText(acc.account_number).catch(() => {});
-                    toast.success("Número copiado");
-                  }}
-                  className="h-7 w-7 rounded-lg flex items-center justify-center text-[var(--text-muted)] hover:text-[var(--text-base)] hover:bg-[var(--bg-muted)] transition-colors"
-                >
-                  <Copy className="h-3.5 w-3.5" />
-                </button>
-              </div>
-            ))}
-          </div>
-        )}
-
-        <div className="flex gap-2 justify-end">
-          <Button variant="outline" onClick={onClose} className="text-[var(--text-muted)]">
-            Dejar pendiente
-          </Button>
-          <Button
-            onClick={confirmReceived}
-            disabled={confirming || !paymentId}
-            className="bg-emerald-600 hover:bg-emerald-700 text-white font-semibold"
-          >
-            {confirming ? (
-              <Loader2 className="h-4 w-4 animate-spin" />
-            ) : (
-              <>
-                <CheckCircle2 className="h-4 w-4 mr-1.5" /> Ya llegó — confirmar
-              </>
-            )}
-          </Button>
-        </div>
-      </DialogContent>
-    </Dialog>
-  );
-}
-
-function MethodPicker({ value, onChange }: { value: Method; onChange: (m: Method) => void }) {
-  return (
-    <div className="grid grid-cols-3 gap-2">
-      {METHODS.map(({ key, label, icon: Icon }) => (
-        <button
-          key={key}
-          type="button"
-          onClick={() => onChange(key)}
-          className={cn(
-            "flex flex-col items-center gap-1 rounded-xl border px-2 py-2.5 text-xs font-medium transition-ui",
-            value === key
-              ? "border-[var(--color-primary)] bg-[var(--color-primary)]/10 text-[var(--text-base)]"
-              : "border-[var(--border-base)] text-[var(--text-muted)] hover:border-[var(--color-primary)]/50"
-          )}
-        >
-          <Icon className="h-4 w-4" />
-          {label}
-        </button>
-      ))}
-    </div>
-  );
-}
-
 export function PosTab({
   preselectedMember,
   onCharged,
@@ -235,8 +83,9 @@ export function PosTab({
   const [cart, setCart] = useState<Record<string, number>>({});
   const [selling, setSelling] = useState(false);
 
-  const [transferAccounts, setTransferAccounts] = useState<TransferAccount[]>([]);
-  const [transferDialog, setTransferDialog] = useState<{ amount: number; paymentId: string } | null>(null);
+  const [transferAccounts, setTransferAccounts] = useState<DestinationAccount[]>([]);
+  const [details, setDetails] = useState<MethodDetails>(EMPTY_DETAILS);
+  const [transferCtx, setTransferCtx] = useState<TransferContext | null>(null);
   const [sendingWompi, setSendingWompi] = useState(false);
 
   useEffect(() => {
@@ -303,6 +152,13 @@ export function PosTab({
     setSummary(res.data);
   };
 
+  // Detalle del método que viaja con cada cobro: cuenta destino o voucher
+  const methodPayload = () => ({
+    transfer_account_id: method === "transfer" ? details.transfer_account_id : null,
+    card_approval_code: method === "card" ? details.card_approval_code || null : null,
+    card_terminal: method === "card" ? details.card_terminal || null : null,
+  });
+
   const chargeRenewal = async () => {
     if (!session?.accessToken || !summary?.renewal?.plan_id) return;
     setCharging(true);
@@ -312,9 +168,18 @@ export function PosTab({
         member_id: summary.member_id,
         plan_id: summary.renewal.plan_id,
         method,
+        ...methodPayload(),
       });
       if (data.payment_status === "pending") {
-        setTransferDialog({ amount: Number(data.amount), paymentId: data.payment_id });
+        setTransferCtx({
+          paymentId: data.payment_id,
+          amount: Number(data.amount),
+          reference: data.transfer_reference ?? null,
+          account: data.destination_account ?? null,
+          memberName: summary.member_name,
+          phone: summary.phone,
+          concept: `Membresía ${summary.renewal.plan_name}`,
+        });
       } else {
         toast.success(`Cobrado ${formatCOP(data.amount)} — recibo ${data.receipt_number}`, {
           action: { label: "Imprimir", onClick: () => openReceipt(client, data.payment_id) },
@@ -342,9 +207,18 @@ export function PosTab({
         method,
         status: "paid",
         concept: `Abono ${summary.membership.plan_name}`,
+        ...methodPayload(),
       });
       if (data.status === "pending") {
-        setTransferDialog({ amount: Number(data.amount), paymentId: data.id });
+        setTransferCtx({
+          paymentId: data.id,
+          amount: Number(data.amount),
+          reference: data.transfer_reference ?? null,
+          account: data.destination_account ?? null,
+          memberName: summary.member_name,
+          phone: summary.phone,
+          concept: data.concept,
+        });
       } else {
         toast.success(`Abono de ${formatCOP(partialAmount)} registrado`, {
           action: { label: "Imprimir", onClick: () => openReceipt(client, data.id) },
@@ -401,9 +275,18 @@ export function PosTab({
         status: "paid",
         concept: "Venta de productos",
         items: cartItems.map(({ product, qty }) => ({ product_id: product.id, quantity: qty })),
+        ...methodPayload(),
       });
       if (data.status === "pending") {
-        setTransferDialog({ amount: Number(data.amount), paymentId: data.id });
+        setTransferCtx({
+          paymentId: data.id,
+          amount: Number(data.amount),
+          reference: data.transfer_reference ?? null,
+          account: data.destination_account ?? null,
+          memberName: summary?.member_name ?? null,
+          phone: summary?.phone ?? null,
+          concept: "Venta de productos",
+        });
       } else {
         toast.success(`Venta de ${formatCOP(data.amount)} registrada`, {
           action: { label: "Imprimir", onClick: () => openReceipt(client, data.id) },
@@ -429,11 +312,8 @@ export function PosTab({
   return (
     <div className="grid gap-4 lg:grid-cols-5">
       <TransferPendingDialog
-        open={transferDialog !== null}
-        onClose={() => setTransferDialog(null)}
-        accounts={transferAccounts}
-        amount={transferDialog?.amount ?? 0}
-        paymentId={transferDialog?.paymentId ?? null}
+        ctx={transferCtx}
+        onClose={() => setTransferCtx(null)}
         onConfirmed={() => {
           void refreshSummary();
           onCharged?.();
@@ -501,7 +381,7 @@ export function PosTab({
                 )}
               </div>
 
-              <MethodPicker value={method} onChange={setMethod} />
+              <MethodPicker value={method} onChange={setMethod} accounts={transferAccounts} details={details} onDetailsChange={setDetails} />
 
               {summary.renewal && (
                 <>
@@ -689,8 +569,8 @@ export function PosTab({
                   </motion.div>
                 ))}
               </AnimatePresence>
-              <div className="flex items-center justify-between border-t border-[var(--border-base)] pt-2">
-                <MethodPicker value={method} onChange={setMethod} />
+              <div className="border-t border-[var(--border-base)] pt-2">
+                <MethodPicker value={method} onChange={setMethod} accounts={transferAccounts} details={details} onDetailsChange={setDetails} />
               </div>
               <Button
                 onClick={sellCart}

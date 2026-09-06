@@ -30,6 +30,8 @@ async def list_members(
     q: str = Query("", description="Buscar por nombre, email o cédula"),
     status: MemberStatus | None = Query(None),
     missing_id_number: bool = Query(False, description="Solo miembros sin cédula registrada"),
+    id_number: str | None = Query(None, description="Cédula exacta (lookup del pase del día)"),
+    member_type: str | None = Query(None, description="member | visitor"),
     limit: int = Query(50, ge=1, le=100),
     offset: int = Query(0, ge=0),
 ):
@@ -47,6 +49,10 @@ async def list_members(
         stmt = stmt.where(Member.status == status)
     if missing_id_number:
         stmt = stmt.where(Member.id_number.is_(None))
+    if id_number:
+        stmt = stmt.where(Member.id_number == id_number.strip())
+    if member_type:
+        stmt = stmt.where(Member.member_type == member_type)
     stmt = stmt.order_by(Member.created_at.desc()).limit(limit).offset(offset)
     result = await db.execute(stmt)
     members = result.scalars().all()
@@ -94,9 +100,10 @@ async def create_member(
     payload: MemberCreate,
     db: AsyncSession = Depends(get_tenant_db_from_token),
 ):
-    existing = await db.execute(select(Member).where(Member.email == payload.email))
-    if existing.scalar_one_or_none():
-        raise HTTPException(status_code=400, detail="Email ya registrado")
+    if payload.email:
+        existing = await db.execute(select(Member).where(Member.email == payload.email))
+        if existing.scalar_one_or_none():
+            raise HTTPException(status_code=400, detail="Email ya registrado")
 
     duplicate = await db.execute(
         select(Member.full_name).where(Member.id_number == payload.id_number)
@@ -134,6 +141,61 @@ async def create_member(
         payload.payment_method,
     )
 
+    await db.commit()
+    await db.refresh(member)
+    return member
+
+
+@router.post("/{member_id}/convert-to-member", response_model=MemberResponse)
+async def convert_visitor_to_member(
+    member_id: uuid.UUID,
+    payload: MemberCreate,
+    db: AsyncSession = Depends(get_tenant_db_from_token),
+    current_user=Depends(get_current_staff),
+):
+    """Un visitante del pase del día completa el alta (datos, salud, plan) y
+    pasa a ser socio conservando su cédula, pases y pagos."""
+    member = (await db.execute(select(Member).where(Member.id == member_id))).scalar_one_or_none()
+    if not member:
+        raise HTTPException(status_code=404, detail="Miembro no encontrado")
+    if member.member_type != "visitor":
+        raise HTTPException(status_code=400, detail="Este registro ya es un socio")
+    if payload.id_number != member.id_number:
+        dup = (await db.execute(
+            select(Member.full_name).where(Member.id_number == payload.id_number, Member.id != member_id)
+        )).scalar_one_or_none()
+        if dup:
+            raise HTTPException(status_code=409, detail=f"La cédula {payload.id_number} ya está registrada a nombre de {dup}")
+    if payload.email:
+        dup_email = (await db.execute(
+            select(Member.id).where(Member.email == payload.email, Member.id != member_id)
+        )).scalar_one_or_none()
+        if dup_email:
+            raise HTTPException(status_code=400, detail="Email ya registrado")
+
+    member_data = payload.model_dump(exclude={"plan_id", "payment_method"})
+    if not member_data.get("parq_completed_at"):
+        member_data["parq_completed_at"] = today_bogota()
+    for field, value in member_data.items():
+        setattr(member, field, value)
+    member.member_type = "member"
+    member.status = MemberStatus.active
+    await db.flush()
+
+    from app.models.tenant.member_plan import MemberPlan
+    from app.api.v1.member_plans import _create_membership
+    from app.services.audit import audit
+    from app.services.membership_status import next_chain_start
+    plan = (await db.execute(select(MemberPlan).where(MemberPlan.id == payload.plan_id))).scalar_one_or_none()
+    if not plan:
+        raise HTTPException(status_code=404, detail="Plan no encontrado")
+    gym = await get_gym_settings(db)
+    today = today_bogota()
+    start = await next_chain_start(db, member.id, gym.grace_days, today, today=today)
+    await _create_membership(db, member.id, plan, start, payload.payment_method)
+    audit(db, current_user, "member.convert", "member", member.id, {
+        "member_name": member.full_name, "plan_name": plan.name,
+    })
     await db.commit()
     await db.refresh(member)
     return member
@@ -394,6 +456,7 @@ async def create_renewal_link(
         status=PaymentStatus.pending,
         concept=f"Renovación {plan.name}",
         received_by=current_user.id,
+        kind="membership",
     )
     db.add(payment)
     await db.flush()
