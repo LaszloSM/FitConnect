@@ -175,6 +175,16 @@ def resolve_media_url(value: str | None, ttl: int = SIGNED_URL_TTL) -> str | Non
         return None
 
 
+async def ensure_bucket() -> None:
+    """Crea el bucket si falta y aplica la política pública restrictiva. Se
+    llama al arrancar: un bucket creado por una versión anterior tenía
+    `bucket/*` legible por cualquiera y debe cerrarse aunque nadie suba nada."""
+    try:
+        await asyncio.to_thread(_ensure_bucket_sync)
+    except Exception as e:  # el arranque nunca depende del almacenamiento
+        logger.warning("No se pudo preparar el bucket al arrancar: %s", e)
+
+
 def _upload_sync(data: bytes, key: str, content_type: str) -> str:
     _ensure_bucket_sync()
     _s3().put_object(

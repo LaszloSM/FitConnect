@@ -30,6 +30,8 @@ async def lifespan(app: FastAPI):
     if settings.run_migrations_on_startup:
         from app.db.migrate import run_master_migrations
         await run_master_migrations()
+    from app.services.storage import ensure_bucket
+    await ensure_bucket()
     start_scheduler()
     yield
     stop_scheduler()

@@ -6,6 +6,11 @@ Uso (dentro del contenedor backend o con las env vars del backend):
 """
 import asyncio
 import sys
+from pathlib import Path
+
+# El script vive en backend/scripts/: sin esto, `python scripts/import_exercises.py`
+# no encuentra el paquete `app` (solo pone scripts/ en sys.path).
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
 from app.db.master_session import MasterSessionLocal
 from app.services.exercise_catalog import import_exercises, load_dataset
