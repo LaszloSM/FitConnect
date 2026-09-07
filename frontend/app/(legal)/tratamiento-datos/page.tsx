@@ -41,6 +41,23 @@ export default function TratamientoDatosPage() {
         expresa e informada.
       </p>
 
+      <h2 id="biometricos">3a. Datos biométricos (huella y rostro)</h2>
+      <p>
+        Cuando el gimnasio utiliza torniquetes o lectores biométricos, la huella dactilar o la imagen
+        facial son datos <strong>sensibles</strong>. Su tratamiento es <strong>opcional</strong>: el titular
+        siempre puede ingresar con su documento de identidad o su carné. Solo se enrola una credencial
+        biométrica con autorización previa, expresa e informada del titular, registrada por el gimnasio con
+        fecha, versión de este texto y persona que la tomó.
+      </p>
+      <ul>
+        <li>La plantilla biométrica se almacena únicamente en el equipo lector del gimnasio; FitConnect guarda
+          solo el identificador interno que ese equipo asigna al titular y el registro del consentimiento.</li>
+        <li>Finalidad exclusiva: verificar la identidad del titular para controlar su ingreso a las instalaciones.</li>
+        <li>El titular puede revocar la autorización en cualquier momento en recepción. La revocación elimina el
+          vínculo en FitConnect y obliga al gimnasio a borrar al titular del equipo lector.</li>
+        <li>No se comparten con terceros ni se usan para perfilamiento.</li>
+      </ul>
+
       <h2>4. Derechos de los titulares</h2>
       <ol>
         <li>Conocer, actualizar y rectificar sus datos.</li>

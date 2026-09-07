@@ -57,5 +57,62 @@ J4_CONSENTIMIENTOS: list[str] = [
     "ALTER TABLE members ADD COLUMN IF NOT EXISTS consent_image_at TIMESTAMP NULL",
 ]
 
+J6_ACCESO: list[str] = [
+    "ALTER TABLE kiosk_devices ADD COLUMN IF NOT EXISTS kind VARCHAR(20) NOT NULL DEFAULT 'kiosk'",
+    "ALTER TABLE kiosk_devices ADD COLUMN IF NOT EXISTS vendor VARCHAR(30) NULL",
+    "ALTER TABLE kiosk_devices ADD COLUMN IF NOT EXISTS model VARCHAR(60) NULL",
+    "ALTER TABLE kiosk_devices ADD COLUMN IF NOT EXISTS serial VARCHAR(80) NULL",
+    "ALTER TABLE kiosk_devices ADD COLUMN IF NOT EXISTS location VARCHAR(80) NULL",
+    "ALTER TABLE kiosk_devices ADD COLUMN IF NOT EXISTS offline_policy VARCHAR(20) NOT NULL DEFAULT 'deny'",
+    "ALTER TABLE kiosk_devices ADD COLUMN IF NOT EXISTS config JSONB NOT NULL DEFAULT '{}'::jsonb",
+    """CREATE TABLE IF NOT EXISTS biometric_consents (
+        id UUID PRIMARY KEY,
+        member_id UUID NOT NULL REFERENCES members(id) ON DELETE CASCADE,
+        kind VARCHAR(20) NOT NULL,
+        text_version VARCHAR(20) NOT NULL DEFAULT 'v1',
+        signature_method VARCHAR(20) NOT NULL DEFAULT 'checkbox',
+        document_key VARCHAR(500) NULL,
+        signed_at TIMESTAMP NOT NULL DEFAULT now(),
+        signed_by_staff UUID NULL REFERENCES users(id),
+        revoked_at TIMESTAMP NULL,
+        revoked_by UUID NULL REFERENCES users(id)
+    )""",
+    "CREATE INDEX IF NOT EXISTS ix_biometric_consents_member_id ON biometric_consents (member_id)",
+    """CREATE TABLE IF NOT EXISTS member_credentials (
+        id UUID PRIMARY KEY,
+        member_id UUID NOT NULL REFERENCES members(id) ON DELETE CASCADE,
+        device_id UUID NULL REFERENCES kiosk_devices(id) ON DELETE SET NULL,
+        kind VARCHAR(20) NOT NULL,
+        device_user_id VARCHAR(64) NOT NULL,
+        label VARCHAR(80) NULL,
+        consent_id UUID NULL REFERENCES biometric_consents(id) ON DELETE SET NULL,
+        enrolled_at TIMESTAMP NOT NULL DEFAULT now(),
+        enrolled_by UUID NULL REFERENCES users(id),
+        revoked_at TIMESTAMP NULL,
+        revoked_by UUID NULL REFERENCES users(id)
+    )""",
+    "CREATE INDEX IF NOT EXISTS ix_member_credentials_member_id ON member_credentials (member_id)",
+    "CREATE INDEX IF NOT EXISTS ix_member_credentials_lookup ON member_credentials (kind, device_user_id)",
+    "CREATE UNIQUE INDEX IF NOT EXISTS uq_member_credentials_global ON member_credentials (kind, device_user_id) WHERE revoked_at IS NULL AND device_id IS NULL",
+    """CREATE TABLE IF NOT EXISTS access_events (
+        id UUID PRIMARY KEY,
+        device_id UUID NULL REFERENCES kiosk_devices(id) ON DELETE SET NULL,
+        member_id UUID NULL REFERENCES members(id) ON DELETE SET NULL,
+        credential_kind VARCHAR(20) NOT NULL DEFAULT 'id_number',
+        credential_ref VARCHAR(64) NULL,
+        direction VARCHAR(10) NOT NULL DEFAULT 'entry',
+        decision VARCHAR(20) NOT NULL,
+        reason VARCHAR(40) NULL,
+        offline BOOLEAN NOT NULL DEFAULT false,
+        client_event_id VARCHAR(64) NULL,
+        checkin_id UUID NULL REFERENCES checkins(id) ON DELETE SET NULL,
+        occurred_at TIMESTAMP NOT NULL DEFAULT now(),
+        created_at TIMESTAMP NOT NULL DEFAULT now()
+    )""",
+    "CREATE INDEX IF NOT EXISTS ix_access_events_member_id ON access_events (member_id)",
+    "CREATE INDEX IF NOT EXISTS ix_access_events_device_time ON access_events (device_id, occurred_at)",
+    "CREATE UNIQUE INDEX IF NOT EXISTS uq_access_events_client ON access_events (device_id, client_event_id) WHERE client_event_id IS NOT NULL",
+]
+
 # Orden cronológico: el aligner las aplica todas, en orden, tras create_all.
-ALIGN_STATEMENTS: list[str] = [*J1_INGRESOS_PASE_TRANSFERENCIAS, *J2_INVENTARIO, *J4_CONSENTIMIENTOS]
+ALIGN_STATEMENTS: list[str] = [*J1_INGRESOS_PASE_TRANSFERENCIAS, *J2_INVENTARIO, *J4_CONSENTIMIENTOS, *J6_ACCESO]

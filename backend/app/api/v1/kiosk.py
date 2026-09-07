@@ -1,6 +1,8 @@
 import uuid
 from datetime import datetime, timezone, timedelta
 from fastapi import APIRouter, Depends, HTTPException, Request
+from typing import Literal, Optional
+
 from pydantic import BaseModel, Field, model_validator
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -113,8 +115,26 @@ async def kiosk_ping(
 
 # ─── Gestión de dispositivos (staff, solo owner/admin) ───
 
+DeviceKind = Literal["kiosk", "turnstile", "reader", "screen"]
+OfflinePolicy = Literal["deny", "allow_recent"]
+
+
 class DeviceCreate(BaseModel):
     name: str = Field(min_length=1, max_length=100)
+    kind: DeviceKind = "kiosk"
+    vendor: Optional[str] = Field(default=None, max_length=30)
+    model: Optional[str] = Field(default=None, max_length=60)
+    serial: Optional[str] = Field(default=None, max_length=80)
+    location: Optional[str] = Field(default=None, max_length=80)
+    offline_policy: OfflinePolicy = "deny"
+
+
+def _device_out(d: KioskDevice) -> dict:
+    return {
+        "id": str(d.id), "name": d.name, "kind": d.kind, "vendor": d.vendor, "model": d.model, "serial": d.serial,
+        "location": d.location, "offline_policy": d.offline_policy, "is_active": d.is_active,
+        "last_seen_at": d.last_seen_at.isoformat() if d.last_seen_at else None, "created_at": d.created_at.isoformat(),
+    }
 
 
 @router.get("/devices")
@@ -125,16 +145,7 @@ async def list_devices(
     devices = (await db.execute(
         select(KioskDevice).order_by(KioskDevice.created_at.desc())
     )).scalars().all()
-    return [
-        {
-            "id": str(d.id),
-            "name": d.name,
-            "is_active": d.is_active,
-            "last_seen_at": d.last_seen_at.isoformat() if d.last_seen_at else None,
-            "created_at": d.created_at.isoformat(),
-        }
-        for d in devices
-    ]
+    return [_device_out(d) for d in devices]
 
 
 @router.post("/devices", status_code=201)
@@ -146,17 +157,24 @@ async def create_device(
 ):
     """Crea el dispositivo y devuelve su token UNA sola vez (no se vuelve a mostrar)."""
     jti = str(uuid.uuid4())
-    device = KioskDevice(name=payload.name, token_jti=jti, created_by=current_user.id)
+    device = KioskDevice(name=payload.name, token_jti=jti, created_by=current_user.id, kind=payload.kind, vendor=payload.vendor,
+                         model=payload.model, serial=payload.serial, location=payload.location, offline_policy=payload.offline_policy)
     db.add(device)
     await db.flush()
     token = create_kiosk_token(str(device.id), db_name, jti)
-    audit(db, current_user, "kiosk.device_create", "kiosk_device", device.id, {"name": device.name})
+    audit(db, current_user, "kiosk.device_create", "kiosk_device", device.id, {"name": device.name, "kind": device.kind})
     await db.commit()
-    return {"id": str(device.id), "name": device.name, "token": token}
+    return {**_device_out(device), "token": token}
 
 
 class DeviceUpdate(BaseModel):
-    name: str = Field(min_length=1, max_length=100)
+    name: Optional[str] = Field(default=None, min_length=1, max_length=100)
+    kind: Optional[DeviceKind] = None
+    vendor: Optional[str] = Field(default=None, max_length=30)
+    model: Optional[str] = Field(default=None, max_length=60)
+    serial: Optional[str] = Field(default=None, max_length=80)
+    location: Optional[str] = Field(default=None, max_length=80)
+    offline_policy: Optional[OfflinePolicy] = None
 
 
 @router.patch("/devices/{device_id}")
@@ -171,12 +189,12 @@ async def rename_device(
     )).scalar_one_or_none()
     if not device:
         raise HTTPException(status_code=404, detail="Dispositivo no encontrado")
-    old_name = device.name
-    device.name = payload.name
-    audit(db, current_user, "kiosk.device_rename", "kiosk_device", device.id,
-          {"old_name": old_name, "new_name": payload.name})
+    changes = payload.model_dump(exclude_none=True)
+    for k, v in changes.items():
+        setattr(device, k, v)
+    audit(db, current_user, "kiosk.device_update", "kiosk_device", device.id, changes)
     await db.commit()
-    return {"id": str(device.id), "name": device.name}
+    return _device_out(device)
 
 
 @router.post("/devices/{device_id}/regenerate-link")

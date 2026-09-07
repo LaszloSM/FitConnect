@@ -32,8 +32,10 @@ import {
   UserPlus,
   Ticket,
   Dumbbell,
+  Fingerprint,
 } from "lucide-react";
 import { MemberRoutineTab } from "@/components/routines/MemberRoutineTab";
+import { MemberAccessTab } from "@/components/access/MemberAccessTab";
 import { QRCodeDisplay } from "@/components/common/QRCodeDisplay";
 import {
   Dialog,
@@ -48,7 +50,7 @@ import { toast } from "sonner";
 import { formatDistanceToNow, format } from "date-fns";
 import { es } from "date-fns/locale";
 
-type Tab = "info" | "timeline" | "memberships" | "payments" | "checkins" | "routine" | "qr";
+type Tab = "info" | "timeline" | "memberships" | "payments" | "checkins" | "routine" | "access" | "qr";
 
 const TAB_CONFIG: { key: Tab; label: string; icon: React.ReactNode }[] = [
   { key: "info",        label: "Perfil",       icon: <User className="h-3.5 w-3.5" /> },
@@ -57,6 +59,7 @@ const TAB_CONFIG: { key: Tab; label: string; icon: React.ReactNode }[] = [
   { key: "payments",    label: "Pagos",         icon: <CreditCard className="h-3.5 w-3.5" /> },
   { key: "checkins",    label: "Check-ins",     icon: <Activity className="h-3.5 w-3.5" /> },
   { key: "routine",     label: "Rutina",        icon: <Dumbbell className="h-3.5 w-3.5" /> },
+  { key: "access",      label: "Acceso",        icon: <Fingerprint className="h-3.5 w-3.5" /> },
   { key: "qr",          label: "Carné QR",      icon: <QrCode className="h-3.5 w-3.5" /> },
 ];
 
@@ -834,6 +837,7 @@ export default function MemberDetailClient({ memberId }: { memberId: string }) {
           )}
 
           {tab === "routine" && <MemberRoutineTab memberId={memberId} />}
+          {tab === "access" && <MemberAccessTab memberId={memberId} idNumber={member.id_number} />}
 
           {/* QR CARNÉ */}
           {tab === "qr" && (

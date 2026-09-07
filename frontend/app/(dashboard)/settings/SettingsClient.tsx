@@ -38,7 +38,7 @@ const TABS: Tab[] = [
   { key: "operations",    label: "Operación",        icon: SlidersHorizontal },
   { key: "billing",       label: "Recaudo",          icon: Landmark },
   { key: "daypass",       label: "Pases",            icon: Ticket },
-  { key: "kiosk",         label: "Kiosko",           icon: MonitorSmartphone },
+  { key: "kiosk",         label: "Dispositivos",     icon: MonitorSmartphone },
   { key: "integrations",  label: "Integraciones",    icon: Plug },
   { key: "notifications", label: "Notificaciones",   icon: Bell },
   { key: "messages",      label: "Mensajes",         icon: MessageSquare },
