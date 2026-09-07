@@ -242,7 +242,24 @@ async def get_dashboard_insights(db: AsyncSession = Depends(get_tenant_db_from_t
     if new_members:
         insights.append({"tone": "positive", "text": f"{new_members} {'socio nuevo' if new_members == 1 else 'socios nuevos'} este mes.", "href": "/members"})
 
-    return {"insights": insights[:4], "generated_for": today.isoformat()}
+    # Señales del motor de BI (proyección del mes y socios en riesgo alto) van
+    # primero: son las que más plata mueven. Nunca tumban el dashboard.
+    bi: list[dict] = []
+    try:
+        from app.services import report_data as _rd
+        fc = await _rd.forecast(db)
+        if fc["avg_previous_months"] and fc["elapsed_days"] >= 5 and fc["vs_previous_pct"] is not None:
+            if fc["vs_previous_pct"] <= -10:
+                bi.append({"tone": "negative", "text": f"Al ritmo actual el mes cerraría {abs(fc['vs_previous_pct'])}% por debajo del promedio reciente.", "href": "/reports?tab=inteligencia"})
+            elif fc["vs_previous_pct"] >= 10:
+                bi.append({"tone": "positive", "text": f"Al ritmo actual el mes cerraría {fc['vs_previous_pct']}% por encima del promedio reciente.", "href": "/reports?tab=inteligencia"})
+        risk = await _rd.churn_risk(db, 200)
+        high = sum(1 for r in risk if r["level"] == "alto")
+        if high:
+            bi.append({"tone": "warning", "text": f"{high} {'socio' if high == 1 else 'socios'} con riesgo alto de abandono — contáctalos hoy.", "href": "/reports?tab=inteligencia"})
+    except Exception:
+        pass
+    return {"insights": (bi + insights)[:4], "generated_for": today.isoformat()}
 
 
 @router.get("/operations", dependencies=[Depends(require_role(UserRole.owner, UserRole.admin))])

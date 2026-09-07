@@ -343,10 +343,11 @@ async def list_pending_transfers(
 async def cash_box(
     db: AsyncSession = Depends(get_tenant_db_from_token),
 ):
-    """Caja: ingresos pagados de hoy y del mes, con desglose por método."""
-    now = datetime.now()
-    today_start = now.replace(hour=0, minute=0, second=0, microsecond=0)
-    month_start = today_start.replace(day=1)
+    """Caja: ingresos pagados de hoy y del mes (días de Bogotá), con desglose por método y fuente."""
+    from app.core.timeutil import utc_day_bounds
+    today = today_bogota()
+    today_start, _ = utc_day_bounds(today)
+    month_start, _ = utc_day_bounds(today.replace(day=1))
 
     async def _totals(since: datetime) -> dict:
         stmt = (

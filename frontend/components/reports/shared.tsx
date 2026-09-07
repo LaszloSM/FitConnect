@@ -1,0 +1,152 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
+"use client";
+
+import { useEffect, useState } from "react";
+import { useSession } from "next-auth/react";
+import { motion, type Variants } from "framer-motion";
+import { toast } from "sonner";
+import { apiClient } from "@/lib/api";
+import { GlassCard } from "@/components/common/GlassCard";
+import { cn } from "@/lib/utils";
+import { FileSpreadsheet, FileText, Loader2 } from "lucide-react";
+import type { Period } from "./PeriodPicker";
+
+export const chartTooltipStyle = {
+  contentStyle: { background: "var(--bg-card)", border: "1px solid var(--border-base)", borderRadius: 8 },
+  labelStyle: { color: "var(--text-base)", fontSize: 12 },
+};
+
+export const containerVariants: Variants = { hidden: {}, visible: { transition: { staggerChildren: 0.06 } } };
+export const cardVariants: Variants = { hidden: { opacity: 0, y: 12 }, visible: { opacity: 1, y: 0 } };
+
+export const compact = (v: number) => new Intl.NumberFormat("es-CO", { notation: "compact", compactDisplay: "short" }).format(v);
+
+/** Carga varias rutas del API con el período; re-ejecuta al cambiar el período. */
+export function usePeriodData<T extends Record<string, any>>(
+  urls: Record<keyof T, string>,
+  period: Period | null,
+): { data: Partial<T>; loading: boolean; error: string } {
+  const { data: session } = useSession();
+  const [data, setData] = useState<Partial<T>>({});
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
+  const key = JSON.stringify(urls) + (period ? `${period.from}|${period.to}` : "");
+
+  useEffect(() => {
+    if (!session?.accessToken) return;
+    let cancelled = false;
+    setLoading(true);
+    const client = apiClient(session.accessToken as string);
+    const params = period ? { from: period.from, to: period.to } : {};
+    const entries = Object.entries(urls) as [keyof T, string][];
+    Promise.all(entries.map(([, url]) => client.get(url, { params })))
+      .then((results) => {
+        if (cancelled) return;
+        const next: Partial<T> = {};
+        entries.forEach(([k], i) => { next[k] = results[i].data; });
+        setData(next);
+        setError("");
+      })
+      .catch((err: any) => {
+        if (!cancelled) setError(typeof err.response?.data?.detail === "string" ? err.response.data.detail : "Error cargando reportes");
+      })
+      .finally(() => { if (!cancelled) setLoading(false); });
+    return () => { cancelled = true; };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [session?.accessToken, key]);
+
+  return { data, loading, error };
+}
+
+/** Descarga un blob sin que el navegador revoque la URL antes de iniciar. */
+export function downloadBlob(blob: Blob, filename: string) {
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = filename;
+  document.body.appendChild(a);
+  a.click();
+  setTimeout(() => { URL.revokeObjectURL(url); a.remove(); }, 1000);
+}
+
+export function ExportButtons({ tab, period, label }: { tab: string; period: Period | null; label?: string }) {
+  const { data: session } = useSession();
+  const [busy, setBusy] = useState<null | "xlsx" | "pdf">(null);
+
+  const download = async (fmt: "xlsx" | "pdf") => {
+    if (!session?.accessToken) return;
+    setBusy(fmt);
+    try {
+      const client = apiClient(session.accessToken as string);
+      const { data } = await client.get(`/api/v1/reports/${tab}/export.${fmt}`, {
+        params: period ? { from: period.from, to: period.to } : {},
+        responseType: "blob",
+      });
+      downloadBlob(data as Blob, `${label ?? tab}-${period ? `${period.from}_${period.to}` : "reporte"}.${fmt}`);
+    } catch {
+      toast.error("No se pudo generar el archivo");
+    } finally {
+      setBusy(null);
+    }
+  };
+
+  const btn = "flex items-center gap-1.5 h-8 px-2.5 rounded-lg border border-[var(--border-base)] bg-[var(--bg-card)] text-xs font-medium text-[var(--text-base)] hover:bg-[var(--bg-muted)] transition-colors disabled:opacity-50";
+  return (
+    <div className="flex items-center gap-1.5">
+      <button type="button" onClick={() => void download("xlsx")} disabled={busy !== null} className={btn}>
+        {busy === "xlsx" ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <FileSpreadsheet className="h-3.5 w-3.5 text-emerald-500" />} Excel
+      </button>
+      <button type="button" onClick={() => void download("pdf")} disabled={busy !== null} className={btn}>
+        {busy === "pdf" ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <FileText className="h-3.5 w-3.5 text-red-500" />} PDF
+      </button>
+    </div>
+  );
+}
+
+export function Tile({ label, value, tone = "base", hint }: { label: string; value: string; tone?: "base" | "positive" | "negative" | "warning" | "muted"; hint?: string }) {
+  const cls = {
+    base: "text-[var(--text-base)]",
+    positive: "text-emerald-600 dark:text-emerald-400",
+    negative: "text-red-500",
+    warning: "text-amber-600 dark:text-amber-400",
+    muted: "text-[var(--text-muted)]",
+  }[tone];
+  return (
+    <GlassCard className="p-4">
+      <p className="text-[10px] uppercase tracking-wider text-[var(--text-muted)]">{label}</p>
+      <p className={cn("text-lg font-bold font-mono", cls)}>{value}</p>
+      {hint && <p className="text-[10px] text-[var(--text-muted)] mt-0.5">{hint}</p>}
+    </GlassCard>
+  );
+}
+
+export function Card({ title, icon, children, className, right }: { title: string; icon?: React.ReactNode; children: React.ReactNode; className?: string; right?: React.ReactNode }) {
+  return (
+    <motion.div variants={cardVariants} className={className}>
+      <GlassCard className="p-5 h-full">
+        <div className="flex items-center justify-between gap-2 mb-4">
+          <div className="flex items-center gap-2">
+            {icon}
+            <h3 className="text-[var(--text-base)] font-semibold text-sm">{title}</h3>
+          </div>
+          {right}
+        </div>
+        {children}
+      </GlassCard>
+    </motion.div>
+  );
+}
+
+export function Empty({ text }: { text: string }) {
+  return <p className="text-[var(--text-muted)] text-xs text-center py-8">{text}</p>;
+}
+
+export function TabSkeleton() {
+  return (
+    <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+      {Array.from({ length: 4 }).map((_, i) => (
+        <div key={i} className={`skeleton rounded-xl ${i === 0 ? "h-40 lg:col-span-2" : "h-56"}`} />
+      ))}
+    </div>
+  );
+}

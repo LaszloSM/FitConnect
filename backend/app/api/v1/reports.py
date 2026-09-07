@@ -132,14 +132,16 @@ async def member_status_report(db: AsyncSession = Depends(get_tenant_db_from_tok
 
 
 @router.get("/payment-methods")
-async def payment_methods_report(db: AsyncSession = Depends(get_tenant_db_from_token)):
-    today = date.today()
-    month_start = today.replace(day=1)
-    month_start_dt = datetime.combine(month_start, datetime.min.time())
+async def payment_methods_report(
+    db: AsyncSession = Depends(get_tenant_db_from_token),
+    from_date: date | None = Query(None, alias="from"),
+    to_date: date | None = Query(None, alias="to"),
+):
+    start, end = _range_bounds(from_date, to_date)
     stmt = (
         select(Payment.method, func.coalesce(func.sum(Payment.amount), Decimal("0")))
         .where(
-            Payment.created_at >= month_start_dt,
+            Payment.created_at >= start, Payment.created_at < end,
             Payment.status == PaymentStatus.paid,
         )
         .group_by(Payment.method)
@@ -241,6 +243,10 @@ async def retention_report(
     """Tasa de renovación mensual: de las membresías que vencieron en el mes,
     cuántas tuvieron una renovación (otra membresía que arranca al terminar).
     churn = 1 - renovación. El número de ROI para el dueño."""
+    return await _retention_data(db, months)
+
+
+async def _retention_data(db: AsyncSession, months: int) -> list[dict]:
     from sqlalchemy.orm import aliased
     today = today_bogota()
     M2 = aliased(Membership)
@@ -384,20 +390,24 @@ async def birthdays_report(
 
 @router.get("/revenue-by-plan")
 async def revenue_by_plan_report(
-    months: int = Query(1, ge=1, le=12, description="Últimos N meses"),
+    months: int = Query(1, ge=1, le=12, description="Últimos N meses (si no hay from/to)"),
     db: AsyncSession = Depends(get_tenant_db_from_token),
+    from_date: date | None = Query(None, alias="from"),
+    to_date: date | None = Query(None, alias="to"),
 ):
-    """Revenue grouped by payment concept for the last N months."""
-    today = date.today()
-    # Go back N months
-    m = today.month - months
-    y = today.year
-    while m <= 0:
-        m += 12
-        y -= 1
-    start = date(y, m, 1)
-    start_dt = datetime.combine(start, datetime.min.time())
-    end_dt = datetime.combine(today, datetime.min.time()) + timedelta(days=1)
+    """Ingresos por concepto en el período (o últimos N meses)."""
+    if from_date or to_date:
+        start_dt, end_dt = _range_bounds(from_date, to_date)
+    else:
+        from app.core.timeutil import utc_day_bounds
+        today = today_bogota()
+        m = today.month - months
+        y = today.year
+        while m <= 0:
+            m += 12
+            y -= 1
+        start_dt, _ = utc_day_bounds(date(y, m, 1))
+        _, end_dt = utc_day_bounds(today)
 
     stmt = (
         select(Payment.concept, func.coalesce(func.sum(Payment.amount), 0).label("total"))
@@ -505,12 +515,8 @@ async def generate_expiry_notifications(
 
 def _range_bounds(from_date: date | None, to_date: date | None) -> tuple[datetime, datetime]:
     """Rango [from, to] en fechas de negocio → límites UTC naive para created_at."""
-    from app.core.timeutil import utc_day_bounds
-    today = today_bogota()
-    start_day = from_date or today.replace(day=1)
-    end_day = to_date or today
-    start, _ = utc_day_bounds(start_day)
-    _, end = utc_day_bounds(end_day)
+    from app.services.report_data import period_bounds
+    _, _, start, end = period_bounds(from_date, to_date)
     return start, end
 
 
@@ -589,6 +595,10 @@ async def day_passes_report(
     to_date: date | None = Query(None, alias="to"),
 ):
     """Pases vendidos por tipo y por día, más cuántos visitantes se volvieron socios."""
+    return await _day_passes_data(db, from_date, to_date)
+
+
+async def _day_passes_data(db: AsyncSession, from_date: date | None, to_date: date | None) -> dict:
     today = today_bogota()
     start_day = from_date or today.replace(day=1)
     end_day = to_date or today
@@ -643,6 +653,10 @@ async def product_sales_report(
 ):
     """Ventas por producto en el período (pagos confirmados): unidades, ingreso
     neto (descuento del POS prorrateado por renglón), costo snapshot y margen."""
+    return await _product_sales_data(db, from_date, to_date)
+
+
+async def _product_sales_data(db: AsyncSession, from_date: date | None, to_date: date | None) -> dict:
     start, end = _range_bounds(from_date, to_date)
     rows = (await db.execute(
         select(
@@ -711,3 +725,94 @@ async def product_sales_report(
         "total_cost": total_cost,
         "total_margin": total_revenue - total_cost,
     }
+
+
+# ─── Reportes por período (dashboard analítico) ───
+
+from app.services import report_data as _rd
+from app.services import report_exports as _rx
+
+
+@router.get("/summary")
+async def summary_report(
+    db: AsyncSession = Depends(get_tenant_db_from_token),
+    from_date: date | None = Query(None, alias="from"),
+    to_date: date | None = Query(None, alias="to"),
+):
+    return await _rd.summary(db, from_date, to_date)
+
+
+@router.get("/revenue-daily")
+async def revenue_daily_report(
+    db: AsyncSession = Depends(get_tenant_db_from_token),
+    from_date: date | None = Query(None, alias="from"),
+    to_date: date | None = Query(None, alias="to"),
+):
+    return await _rd.revenue_daily(db, from_date, to_date)
+
+
+@router.get("/revenue-breakdown")
+async def revenue_breakdown_report(
+    db: AsyncSession = Depends(get_tenant_db_from_token),
+    from_date: date | None = Query(None, alias="from"),
+    to_date: date | None = Query(None, alias="to"),
+):
+    data = await _rd.revenue_by_kind_and_method(db, from_date, to_date)
+    data["by_plan"] = await _rd.revenue_by_plan(db, from_date, to_date)
+    data["expenses"] = await _rd.expenses_by_category(db, from_date, to_date)
+    return data
+
+
+@router.get("/members-overview")
+async def members_overview_report(
+    db: AsyncSession = Depends(get_tenant_db_from_token),
+    from_date: date | None = Query(None, alias="from"),
+    to_date: date | None = Query(None, alias="to"),
+):
+    return await _rd.members_overview(db, from_date, to_date)
+
+
+@router.get("/attendance")
+async def attendance_report(
+    db: AsyncSession = Depends(get_tenant_db_from_token),
+    from_date: date | None = Query(None, alias="from"),
+    to_date: date | None = Query(None, alias="to"),
+):
+    return await _rd.attendance(db, from_date, to_date)
+
+
+@router.get("/{tab}/export.{fmt}")
+async def export_tab(
+    tab: str,
+    fmt: str,
+    db: AsyncSession = Depends(get_tenant_db_from_token),
+    tenant: Tenant = Depends(get_tenant_from_claims),
+    from_date: date | None = Query(None, alias="from"),
+    to_date: date | None = Query(None, alias="to"),
+):
+    """Export de una pestaña (ingresos, ventas, pases, socios, asistencia,
+    retencion) o del cierre de mes ('cierre' usa el mes de `from`)."""
+    from fastapi import HTTPException
+    from app.services.gym_settings import get_gym_settings
+    if fmt not in ("xlsx", "pdf"):
+        raise HTTPException(status_code=404, detail="Formato no soportado")
+    if tab == "cierre":
+        ref = from_date or today_bogota().replace(day=1)
+        spec = await _rx.spec_cierre(db, ref.year, ref.month)
+    elif tab in _rx.SPECS:
+        spec = await _rx.SPECS[tab](db, from_date, to_date)
+    else:
+        raise HTTPException(status_code=404, detail="Reporte no encontrado")
+    logo = await fetch_logo_png(tenant.logo_url)
+    gym = await get_gym_settings(db)
+    stamp = today_bogota().strftime("%Y-%m-%d")
+    if fmt == "pdf":
+        content = _rx.build_pdf(spec, gym_name=tenant.name, logo_png=logo, nit=gym.nit)
+        media = "application/pdf"
+    else:
+        content = _rx.build_xlsx(spec, gym_name=tenant.name, logo_png=logo)
+        media = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+    return Response(
+        content=content, media_type=media,
+        headers={"Content-Disposition": f'attachment; filename="{tab}-{stamp}.{fmt}"'},
+    )
