@@ -151,7 +151,7 @@ export default function MachinesClient() {
       .finally(() => { if (!cancelled) setLoading(false); });
     return () => { cancelled = true; };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [session]);
+  }, [session?.accessToken]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();

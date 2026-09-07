@@ -273,7 +273,7 @@ export default function MembersClient() {
       if (!cancelled) setLoading(false);
     });
     return () => { cancelled = true; };
-  }, [session, search, statusFilter, missingIdOnly]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [session?.accessToken, search, statusFilter, missingIdOnly]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // Contador para el banner de miembros antiguos sin cédula
   useEffect(() => {
@@ -282,7 +282,7 @@ export default function MembersClient() {
     client.get("/api/v1/members/missing-id-number/count")
       .then((res) => setMissingIdCount(res.data?.count ?? 0))
       .catch(() => {});
-  }, [session, members.length]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [session?.accessToken, members.length]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // Cargar planes: al abrir el wizard de creación, o al activar la pestaña de
   // membresía en edición (lazy)

@@ -89,7 +89,7 @@ export function HistoryTab({ refreshSignal }: { refreshSignal: number }) {
     return () => {
       cancelled = true;
     };
-  }, [session, dateFrom, dateTo, refreshSignal]);
+  }, [session?.accessToken, dateFrom, dateTo, refreshSignal]);
 
   const markAsPaid = async (paymentId: string) => {
     if (!session?.accessToken) return;

@@ -42,7 +42,7 @@ export default function OperationsSection() {
       setLocations(locs.data);
     }).catch(() => toast.error("Error cargando configuración"));
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [session]);
+  }, [session?.accessToken]);
 
   const handleSaveOps = async (e: React.FormEvent) => {
     e.preventDefault();

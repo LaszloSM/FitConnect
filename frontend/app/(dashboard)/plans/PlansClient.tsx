@@ -244,7 +244,7 @@ export default function PlansClient() {
 
   useEffect(() => {
     if (session?.accessToken) fetchPlans();
-  }, [session]);
+  }, [session?.accessToken]);
 
   const openCreate = () => {
     setEditing(null);

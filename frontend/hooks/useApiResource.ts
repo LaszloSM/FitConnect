@@ -4,6 +4,7 @@
 import { useCallback, useEffect, useState } from "react";
 import { useSession } from "next-auth/react";
 import { apiClient } from "@/lib/api";
+import { parseApiError } from "@/lib/errors";
 
 interface ApiResource<T> {
   data: T;
@@ -29,6 +30,10 @@ export function useApiResource<T>(
   options: ApiResourceOptions = {}
 ): ApiResource<T> {
   const { data: session } = useSession();
+  // El token (string) y no el objeto session: useSession devuelve un objeto nuevo
+  // cada vez que NextAuth revalida (p.ej. al recuperar el foco de la ventana), y
+  // eso volvía a disparar todas las peticiones de la pantalla.
+  const accessToken = session?.accessToken as string | undefined;
   const [data, setData] = useState<T>(initial);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -37,24 +42,20 @@ export function useApiResource<T>(
   const paramsKey = JSON.stringify(options.params ?? {});
 
   const refetch = useCallback(async (background = false) => {
-    if (!session?.accessToken) return;
+    if (!accessToken) return;
     if (!background) setLoading(true);
     try {
-      const client = apiClient(session.accessToken as string);
+      const client = apiClient(accessToken);
       const params = JSON.parse(paramsKey);
       const res = await client.get(path, { params });
       setData(res.data);
       setError("");
     } catch (err: any) {
-      setError(
-        typeof err.response?.data?.detail === "string"
-          ? err.response.data.detail
-          : "Error cargando datos"
-      );
+      setError(parseApiError(err, "Error cargando datos"));
     } finally {
       setLoading(false);
     }
-  }, [session, path, paramsKey]);
+  }, [accessToken, path, paramsKey]);
 
   useEffect(() => {
     void refetch();

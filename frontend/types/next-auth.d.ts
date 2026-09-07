@@ -6,6 +6,8 @@ declare module "next-auth" {
     role: string;
     tenantId: string;
     dbName: string;
+    /** "RefreshFailed": el token venció y no se pudo renovar; hay que volver a entrar. */
+    error?: string;
   }
 }
 
@@ -15,5 +17,7 @@ declare module "next-auth/jwt" {
     role: string;
     tenantId: string;
     dbName: string;
+    accessTokenExpires?: number;
+    error?: string;
   }
 }

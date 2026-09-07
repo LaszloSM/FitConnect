@@ -103,7 +103,7 @@ export default function GymSection() {
       }
     });
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [session]);
+  }, [session?.accessToken]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();

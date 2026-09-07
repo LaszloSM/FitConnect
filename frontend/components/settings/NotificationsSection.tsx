@@ -97,7 +97,7 @@ export default function NotificationsSection() {
       setPrefs(res.data);
     });
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [session]);
+  }, [session?.accessToken]);
 
   const handleToggle = async (key: keyof NotificationPrefs, value: boolean) => {
     if (!session?.accessToken || saving) return;

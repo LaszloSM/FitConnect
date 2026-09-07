@@ -83,7 +83,7 @@ export function DayPassTab({ onSold }: { onSold?: () => void }) {
       .then((res) => setAccounts(res.data.transfer_accounts ?? []))
       .catch(() => {});
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [session]);
+  }, [session?.accessToken]);
 
   useEffect(() => {
     if (!typeId && types.data.length > 0) setTypeId(types.data[0].id);

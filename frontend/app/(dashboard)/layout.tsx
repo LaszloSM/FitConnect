@@ -4,6 +4,7 @@ import { Sidebar } from "@/components/layout/Sidebar";
 import { Header } from "@/components/layout/Header";
 import { SidebarProvider, useSidebar } from "@/components/layout/SidebarContext";
 import { CheckinToaster } from "@/components/common/CheckinToaster";
+import { SessionGuard } from "@/components/common/SessionGuard";
 import { motion } from "framer-motion";
 
 function DashboardShell({ children }: { children: React.ReactNode }) {
@@ -21,6 +22,7 @@ function DashboardShell({ children }: { children: React.ReactNode }) {
         {children}
       </motion.main>
       <CheckinToaster />
+      <SessionGuard />
     </div>
   );
 }

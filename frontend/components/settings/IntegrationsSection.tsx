@@ -33,7 +33,7 @@ export default function IntegrationsSection() {
       setWhatsapp((w) => ({ ...w, phone_number_id: res.data.whatsapp_phone_number_id ?? "" }));
     }).catch(() => {});
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [session]);
+  }, [session?.accessToken]);
 
   if (!isOwner) {
     return (

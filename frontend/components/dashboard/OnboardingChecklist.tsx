@@ -38,7 +38,7 @@ export function OnboardingChecklist() {
       .get<OnboardingStatus>("/api/v1/onboarding/status")
       .then((res) => setStatus(res.data))
       .catch(() => {});
-  }, [session]);
+  }, [session?.accessToken]);
 
   // Se oculta cuando los pasos esenciales están completos (o si el dueño lo cierra)
   if (!status || status.done || dismissed) return null;

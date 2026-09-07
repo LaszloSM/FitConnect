@@ -32,7 +32,7 @@ export function InsightsStrip() {
       .get<{ insights: Insight[] }>("/api/v1/dashboard/insights")
       .then((res) => setInsights(res.data.insights))
       .catch(() => {});
-  }, [session]);
+  }, [session?.accessToken]);
 
   if (insights.length === 0) return null;
 

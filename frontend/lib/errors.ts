@@ -6,10 +6,12 @@ type PydanticError = { loc: string[]; msg: string; type: string };
  * Extrae un mensaje legible del error de Axios/FastAPI.
  * FastAPI retorna: { detail: string } o { detail: PydanticError[] }
  */
-export function parseApiError(err: unknown): string {
+export function parseApiError(err: unknown, fallback?: string): string {
   if (err instanceof AxiosError) {
     const data = err.response?.data;
-    if (!data) return err.message ?? "Error de conexión";
+    // Sin respuesta: la petición ni llegó (red caída, backend abajo, CORS).
+    // Decirlo así ahorra buscar el problema donde no está.
+    if (!data) return fallback ?? err.message ?? "Error de conexión";
 
     if (typeof data.detail === "string") return data.detail;
 
@@ -22,6 +24,6 @@ export function parseApiError(err: unknown): string {
     if (data.message) return String(data.message);
   }
 
-  if (err instanceof Error) return err.message;
-  return "Ocurrió un error inesperado";
+  if (err instanceof Error) return fallback ?? err.message;
+  return fallback ?? "Ocurrió un error inesperado";
 }

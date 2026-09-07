@@ -71,7 +71,7 @@ export default function PlanSection() {
       setGymData(res.data);
     });
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [session]);
+  }, [session?.accessToken]);
 
   const currentPlan = gymData?.plan ?? null;
 

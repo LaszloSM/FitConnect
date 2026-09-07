@@ -63,7 +63,7 @@ export default function BillingSection() {
       })
       .catch(() => toast.error("Error cargando configuración de recaudo"));
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [session]);
+  }, [session?.accessToken]);
 
   const persist = async (nextAccounts: TransferAccount[], okMessage: string) => {
     if (!session?.accessToken) return;

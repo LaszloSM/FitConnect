@@ -1,18 +1,21 @@
 from datetime import datetime, timezone
 
 from fastapi import APIRouter, Depends, HTTPException, Request
+from fastapi.security import HTTPAuthorizationCredentials
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
 
 from sqlalchemy.ext.asyncio import async_sessionmaker
 
 from app.core.config import settings
+from app.api.deps import get_current_staff, security
 from app.core.security import (
     verify_password,
     hash_password,
     create_access_token,
     create_staff_token,
     hash_invite_token,
+    decode_token,
 )
 from app.core.rate_limit import limiter
 from app.db.master_session import get_master_db
@@ -184,4 +187,43 @@ async def accept_invite(request: Request, payload: AcceptInviteRequest, db: Asyn
         tenant_id=str(invite.tenant_id),
         db_name=invite.db_name,
         full_name=staff_full_name,
+    )
+
+
+@router.post("/refresh", response_model=TokenResponse)
+@limiter.limit("60/minute")
+async def refresh(
+    request: Request,
+    credentials: HTTPAuthorizationCredentials = Depends(security),
+    staff: UserStaff = Depends(get_current_staff),
+):
+    """Renueva el token de una sesión todavía vigente.
+
+    `get_current_staff` ya rechazó el token vencido y comprobó que la persona
+    siga activa en el gym, así que aquí solo se reemite con la misma identidad.
+    Un token vencido NO se renueva: el frontend refresca antes de que caduque y,
+    si no lo logró, la sesión se cierra.
+    """
+    payload = decode_token(credentials.credentials)
+    db_name = payload.get("db_name")
+    role = payload.get("role") or getattr(staff.role, "value", staff.role)
+    tenant_id = payload.get("tenant_id")
+
+    if tenant_id:
+        token = create_access_token(
+            owner_id=payload["sub"],
+            tenant_id=tenant_id,
+            db_name=db_name,
+            role=role,
+            staff_id=str(staff.id),
+        )
+    else:
+        token = create_staff_token(str(staff.id), db_name, role)
+
+    return TokenResponse(
+        access_token=token,
+        role=role,
+        tenant_id=tenant_id or "",
+        db_name=db_name,
+        full_name=staff.full_name,
     )

@@ -72,3 +72,31 @@ async def test_login_wrong_password_fails(client):
         "password": "WrongPassword",
     })
     assert response.status_code == 401
+
+
+async def test_refresh_issues_new_working_token(client):
+    """La renovación silenciosa: el token nuevo sirve y conserva la identidad."""
+    email = f"refresh-{uuid.uuid4().hex[:8]}@gym.com"
+    await client.post("/api/v1/auth/register", json=_payload(email))
+    login = await client.post("/api/v1/auth/login", json={"email": email, "password": "SecurePass123!"})
+    old = login.json()
+    h = {"Authorization": f"Bearer {old['access_token']}"}
+
+    r = await client.post("/api/v1/auth/refresh", headers=h)
+    assert r.status_code == 200, r.text
+    new = r.json()
+    assert new["access_token"] != old["access_token"]
+    assert new["role"] == old["role"] == "owner"
+    assert new["tenant_id"] == old["tenant_id"]
+    assert new["db_name"] == old["db_name"]
+    assert new["full_name"] == old["full_name"]
+
+    # El token nuevo abre un endpoint protegido de la misma tenant DB
+    me = await client.get("/api/v1/members", headers={"Authorization": f"Bearer {new['access_token']}"})
+    assert me.status_code == 200, me.text
+
+
+async def test_refresh_rejects_invalid_and_missing_token(client):
+    assert (await client.post("/api/v1/auth/refresh")).status_code == 403
+    bad = {"Authorization": "Bearer no-es-un-token"}
+    assert (await client.post("/api/v1/auth/refresh", headers=bad)).status_code == 401

@@ -390,6 +390,54 @@ async def spec_retencion(db: AsyncSession, from_date, to_date) -> ReportSpec:
     )
 
 
+async def spec_inteligencia(db: AsyncSession, from_date, to_date) -> ReportSpec:
+    """Exporta lo mismo que muestra la pestaña Inteligencia: proyección de
+    ingresos, horas pico, riesgo de abandono y stock por agotarse."""
+    fc = await rd.forecast(db)
+    a = await rd.attendance(db, from_date, to_date)
+    peak = a["peak"]
+    risk = await rd.churn_risk(db, 50)
+    stock = await rd.stockout(db)
+    if peak["busiest_hour"] is not None:
+        busiest = f"{rd.eng.WEEKDAYS_ES[peak['busiest_weekday']]} · {peak['busiest_hour']:02d}:00"
+    else:
+        busiest = "—"
+    vs_prev = f"{fc['vs_previous_pct']:+.0f}%" if fc.get("vs_previous_pct") is not None else "—"
+    return ReportSpec(
+        title="Inteligencia", subtitle=_period_label(a["from"], a["to"]),
+        tiles=[Tile("Proyección del mes", _cop(fc["projection"])),
+               Tile("Va del mes", _cop(fc["month_to_date"])),
+               Tile("Contra meses previos", vs_prev),
+               Tile("Hora pico", busiest)],
+        sections=[
+            Section("Proyección de ingresos del mes",
+                    [Column("concepto", "Concepto"), Column("valor", "Valor", align_right=True, width_mm=40)],
+                    [{"concepto": "Ingresos en lo que va del mes", "valor": _cop(fc["month_to_date"])},
+                     {"concepto": f"Ritmo diario ({fc['elapsed_days']} de {fc['days_in_month']} días)", "valor": _cop(fc["daily_pace"])},
+                     {"concepto": "Proyección al cierre", "valor": _cop(fc["projection"])},
+                     {"concepto": "Rango probable", "valor": f"{_cop(fc['projection_low'])} a {_cop(fc['projection_high'])}"},
+                     {"concepto": "Promedio de los 3 meses previos",
+                      "valor": _cop(fc["avg_previous_months"]) if fc.get("avg_previous_months") is not None else "sin historial"}]),
+            Section("Horas pico", [Column("hour", "Hora", align_right=True, width_mm=20), Column("count", "Ingresos", align_right=True, width_mm=30)],
+                    [{"hour": f"{h['hour']:02d}:00", "count": h["count"]} for h in peak["by_hour"] if h["count"] > 0]),
+            Section("Días más movidos", [Column("label", "Día"), Column("count", "Ingresos", align_right=True, width_mm=30)], peak["by_weekday"]),
+            Section("Socios en riesgo de abandono",
+                    [Column("full_name", "Socio"), Column("phone", "Teléfono", width_mm=30),
+                     Column("score", "Puntaje", align_right=True, width_mm=20), Column("level", "Nivel", width_mm=18),
+                     Column("reasons_txt", "Por qué")],
+                    [{**r, "reasons_txt": "; ".join(r["reasons"])} for r in risk]),
+            Section("Inventario por agotarse",
+                    [Column("name", "Producto"), Column("stock", "Stock", align_right=True, width_mm=20),
+                     Column("units_sold_30d", "Vendidos 30d", align_right=True, width_mm=28),
+                     Column("days_left_txt", "Días restantes", align_right=True, width_mm=28),
+                     Column("runs_out_on_txt", "Se agota", width_mm=26)],
+                    [{**p, "days_left_txt": p["days_left"] if p["days_left"] is not None else "—",
+                      "runs_out_on_txt": date.fromisoformat(p["runs_out_on"]).strftime("%d/%m/%Y") if p.get("runs_out_on") else "—"}
+                     for p in stock]),
+        ],
+    )
+
+
 async def spec_cierre(db: AsyncSession, year: int, month: int) -> ReportSpec:
     start = date(year, month, 1)
     end = (date(year + 1, 1, 1) if month == 12 else date(year, month + 1, 1)) - timedelta(days=1)
@@ -428,4 +476,5 @@ SPECS = {
     "socios": spec_socios,
     "asistencia": spec_asistencia,
     "retencion": spec_retencion,
+    "inteligencia": spec_inteligencia,
 }

@@ -100,7 +100,7 @@ export function PosTab({
       .get("/api/v1/settings/billing")
       .then((res) => setTransferAccounts(res.data.transfer_accounts ?? []))
       .catch(() => {});
-  }, [session]);
+  }, [session?.accessToken]);
 
   const sendWompiLink = async () => {
     if (!session?.accessToken || !summary?.renewal?.plan_id) return;
@@ -148,7 +148,7 @@ export function PosTab({
       .catch(() => { if (!cancelled) setSummary(null); })
       .finally(() => { if (!cancelled) setLoadingSummary(false); });
     return () => { cancelled = true; };
-  }, [session, memberId]);
+  }, [session?.accessToken, memberId]);
 
   const refreshSummary = async () => {
     if (!session?.accessToken || !memberId) return;

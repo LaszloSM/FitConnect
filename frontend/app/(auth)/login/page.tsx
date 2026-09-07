@@ -1,7 +1,7 @@
 "use client";
 import { signIn } from "next-auth/react";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -11,7 +11,16 @@ import { AuthCardHeader } from "@/components/common/AuthCardHeader";
 export default function LoginPage() {
   const router = useRouter();
   const [error, setError] = useState("");
+  const [notice, setNotice] = useState("");
   const [loading, setLoading] = useState(false);
+
+  // Se lee de window y no con useSearchParams para no exigir un boundary de
+  // Suspense en esta página (rompía el build de producción).
+  useEffect(() => {
+    if (new URLSearchParams(window.location.search).has("expired")) {
+      setNotice("Tu sesión se cerró por seguridad. Ingresa de nuevo.");
+    }
+  }, []);
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -50,6 +59,9 @@ export default function LoginPage() {
           <Input id="password" name="password" type="password" required
             className="bg-white border-slate-200 text-slate-800 placeholder:text-slate-400 focus:border-[var(--color-primary)] focus:ring-[var(--color-primary)]" />
         </div>
+        {notice && !error && (
+          <p className="text-sm rounded-lg border border-amber-200 bg-amber-50 dark:bg-amber-950/20 px-3 py-2 text-amber-700 dark:text-amber-300">{notice}</p>
+        )}
         {error && <p className="text-red-500 text-sm">{error}</p>}
         <Button type="submit" disabled={loading}
           className="w-full bg-[var(--color-primary)] text-[var(--color-primary-contrast)] font-semibold hover:bg-[var(--color-primary-hover)] transition-colors duration-150">
