@@ -74,7 +74,7 @@ export default function ScreenClient() {
         <BrandMark />
         <AlertTriangle className="h-10 w-10 text-amber-400" />
         <p className="text-lg font-semibold">Esta pantalla no está vinculada al gym</p>
-        <p className="text-sm text-white/60 max-w-md">Abre el enlace del dispositivo que se genera en Ajustes › Kiosko (sirve el mismo del kiosko) en este equipo.</p>
+        <p className="text-sm text-white/60 max-w-md">Abre en este equipo el enlace que se genera en Ajustes › Dispositivos, creando uno de tipo Pantalla.</p>
       </div>
     );
   }

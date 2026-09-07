@@ -94,8 +94,12 @@ for r in day-passes/types products/categories insights/peak-hours exercises/face
 done
 echo "  (401/403 = desplegado y pidiendo login · 404 = no llegó)"
 echo
-echo "  Bucket privado: un GET anónimo a un dato personal debe dar 403"
-printf '  %-28s %s\n' "minio members/" "$(curl -s -m 15 -o /dev/null -w '%{http_code}' "http://$PUBLIC_IP:9000/fitconnect/members/prueba-inexistente.webp")"
-printf '  %-28s %s\n' "minio gyms/ (404=ok)" "$(curl -s -m 15 -o /dev/null -w '%{http_code}' "http://$PUBLIC_IP:9000/fitconnect/gyms/prueba-inexistente.png")"
+# El bucket es fitconnect-media (settings.s3_bucket). Ojo: un bucket con nombre
+# equivocado también responde 403, así que el nombre tiene que ser el real.
+BUCKET=fitconnect-media
+echo "  Bucket: los datos personales deben dar 403 y la marca del gym 404 (público, sin objeto)"
+for k in members/prueba-inexistente.webp proofs/prueba-inexistente.jpg gyms/prueba-inexistente.png exercises/prueba-inexistente.jpg; do
+  printf '  %-34s %s\n' "$k" "$(curl -s -m 15 -o /dev/null -w '%{http_code}' "http://$PUBLIC_IP:9000/$BUCKET/$k")"
+done
 echo
 echo "Listo. App: http://$PUBLIC_IP"
