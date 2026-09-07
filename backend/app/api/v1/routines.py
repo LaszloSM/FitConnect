@@ -3,19 +3,21 @@ días y ejercicios, asignación a socios y lectura desde la pantalla del gym."""
 import uuid
 from typing import Optional
 
-from fastapi import APIRouter, Depends, HTTPException, Query
+from fastapi import APIRouter, Depends, File, HTTPException, Query, UploadFile
 from pydantic import BaseModel, Field
 from sqlalchemy import select, or_, desc, func, delete
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.api.deps import get_tenant_db_from_token, get_current_staff, get_master_db, get_kiosk_db, get_kiosk_payload, require_role
+from app.api.deps import get_tenant_db_from_token, get_current_staff, get_master_db, get_kiosk_db, get_kiosk_payload, require_role, get_tenant_slug
 from app.core.timeutil import utcnow_naive
 from app.models.master.exercise import Exercise
 from app.models.tenant.member import Member
+from app.models.tenant.exercise_media import ExerciseMedia
 from app.models.tenant.routine import Routine, RoutineDay, RoutineExercise, MemberRoutine
 from app.models.tenant.user_staff import UserStaff, UserRole
 from app.services.audit import audit
 from app.services.exercise_catalog import exercise_out, MUSCLES_ES, EQUIPMENT_ES, CATEGORY_ES, LEVEL_ES
+from app.services.storage import upload_image, delete_object
 
 router = APIRouter(tags=["routines"])
 
@@ -43,6 +45,26 @@ async def _search_exercises(db: AsyncSession, q: str, muscle: str | None, equipm
     return [exercise_out(e) for e in (await db.execute(stmt)).scalars().all()]
 
 
+async def _with_gym_video(db: AsyncSession, items: list[dict]) -> list[dict]:
+    """Cadena de respaldo del medio: video del gym → video del catálogo → fotos.
+    El del gym gana porque muestra las máquinas que el socio tiene enfrente."""
+    if not items:
+        return items
+    ids = {uuid.UUID(i["id"]) for i in items}
+    rows = (await db.execute(select(ExerciseMedia).where(ExerciseMedia.exercise_id.in_(ids)))).scalars().all()
+    by_id = {str(r.exercise_id): r for r in rows}
+    for item in items:
+        own = by_id.get(item["id"])
+        if own:
+            item["video_url"] = own.video_url
+            item["video_source"] = "gym"
+            item["video_license"] = None
+            item["video_author"] = None
+        else:
+            item["video_source"] = "catalogo" if item.get("video_url") else None
+    return items
+
+
 @router.get("/exercises", dependencies=[Depends(get_current_staff)])
 async def list_exercises(
     master: AsyncSession = Depends(get_master_db),
@@ -53,8 +75,10 @@ async def list_exercises(
     level: str | None = Query(None),
     limit: int = Query(40, ge=1, le=200),
     offset: int = Query(0, ge=0),
+    db: AsyncSession = Depends(get_tenant_db_from_token),
 ):
-    return await _search_exercises(master, q.strip(), muscle, equipment, category, level, limit, offset)
+    found = await _search_exercises(master, q.strip(), muscle, equipment, category, level, limit, offset)
+    return await _with_gym_video(db, found)
 
 
 @router.get("/exercises/facets", dependencies=[Depends(get_current_staff)])
@@ -130,6 +154,8 @@ async def _routine_detail(db: AsyncSession, master: AsyncSession | None, routine
             "rest_seconds": ex.rest_seconds, "notes": ex.notes, "video_url": ex.video_url,
             "exercise": exercise_out(cat) if cat else None,
         })
+    # Overlay del video del gym sobre los ejercicios de la rutina
+    await _with_gym_video(db, [e["exercise"] for lst in by_day.values() for e in lst if e["exercise"]])
     assigned = (await db.execute(
         select(func.count()).select_from(MemberRoutine).where(MemberRoutine.routine_id == routine.id, MemberRoutine.ended_at.is_(None))
     )).scalar() or 0
@@ -359,3 +385,82 @@ async def screen_routine_detail(
     if not routine:
         raise HTTPException(status_code=404, detail="Rutina no disponible")
     return await _routine_detail(db, master, routine)
+
+
+# ─── Video propio del gym por ejercicio ───
+
+# Solo formatos que un navegador reproduce sin plugins.
+_VIDEO_TYPES = {"video/mp4": "mp4", "video/webm": "webm"}
+MAX_VIDEO_BYTES = 25 * 1024 * 1024
+
+
+def _sniff_video(data: bytes) -> str | None:
+    """Tipo real por magic bytes: no confiar en el content-type del cliente."""
+    if len(data) > 12 and data[4:8] == b"ftyp":
+        return "video/mp4"
+    if data[:4] == b"\x1a\x45\xdf\xa3":
+        return "video/webm"
+    return None
+
+
+@router.post("/exercises/{exercise_id}/video", status_code=201,
+             dependencies=[Depends(require_role(UserRole.owner, UserRole.admin))])
+async def upload_exercise_video(
+    exercise_id: uuid.UUID,
+    file: UploadFile = File(...),
+    db: AsyncSession = Depends(get_tenant_db_from_token),
+    master: AsyncSession = Depends(get_master_db),
+    current_user: UserStaff = Depends(get_current_staff),
+    slug: str = Depends(get_tenant_slug),
+):
+    """Sube el video del gym para un ejercicio: "así se hace en ESTA máquina".
+    Pisa al video del catálogo en las pantallas de este gym."""
+    exercise = (await master.execute(select(Exercise).where(Exercise.id == exercise_id))).scalar_one_or_none()
+    if not exercise:
+        raise HTTPException(status_code=404, detail="Ejercicio no encontrado")
+
+    # Lectura por trozos con corte temprano: `await file.read()` traería el
+    # archivo entero a memoria antes de poder rechazarlo, y el servidor de
+    # producción tiene 2 GB de RAM.
+    chunks: list[bytes] = []
+    total = 0
+    while chunk := await file.read(1024 * 1024):
+        total += len(chunk)
+        if total > MAX_VIDEO_BYTES:
+            raise HTTPException(status_code=400, detail="El video supera 25 MB. Graba un clip corto del movimiento.")
+        chunks.append(chunk)
+    data = b"".join(chunks)
+    real_type = _sniff_video(data)
+    ext = _VIDEO_TYPES.get(real_type or "")
+    if not ext:
+        raise HTTPException(status_code=400, detail="Formato no soportado (usa MP4 o WebM)")
+
+    # Prefijo público: un ejercicio no es dato personal y la pantalla del gym
+    # lo reproduce sin sesión.
+    url = await upload_image(data, f"exercises/{slug}/{exercise_id}.{ext}", real_type)
+    row = (await db.execute(select(ExerciseMedia).where(ExerciseMedia.exercise_id == exercise_id))).scalar_one_or_none()
+    if row:
+        row.video_url = url
+    else:
+        row = ExerciseMedia(exercise_id=exercise_id, video_url=url, uploaded_by=current_user.id)
+        db.add(row)
+    audit(db, current_user, "exercise.video_upload", "exercise", exercise_id, {"name": exercise.name_es})
+    await db.commit()
+    return {"exercise_id": str(exercise_id), "video_url": url, "source": "gym"}
+
+
+@router.delete("/exercises/{exercise_id}/video",
+               dependencies=[Depends(require_role(UserRole.owner, UserRole.admin))])
+async def delete_exercise_video(
+    exercise_id: uuid.UUID,
+    db: AsyncSession = Depends(get_tenant_db_from_token),
+    current_user: UserStaff = Depends(get_current_staff),
+):
+    row = (await db.execute(select(ExerciseMedia).where(ExerciseMedia.exercise_id == exercise_id))).scalar_one_or_none()
+    if not row:
+        raise HTTPException(status_code=404, detail="Este ejercicio no tiene video del gym")
+    await delete_object(row.video_url)
+    await db.delete(row)
+    audit(db, current_user, "exercise.video_delete", "exercise", exercise_id, None)
+    await db.commit()
+    return {"deleted": True}

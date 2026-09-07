@@ -114,5 +114,17 @@ J6_ACCESO: list[str] = [
     "CREATE UNIQUE INDEX IF NOT EXISTS uq_access_events_client ON access_events (device_id, client_event_id) WHERE client_event_id IS NOT NULL",
 ]
 
+J7_VIDEO_EJERCICIOS: list[str] = [
+    """CREATE TABLE IF NOT EXISTS exercise_media (
+        id UUID PRIMARY KEY,
+        exercise_id UUID NOT NULL,
+        video_url VARCHAR(500) NOT NULL,
+        poster_url VARCHAR(500) NULL,
+        uploaded_by UUID NULL REFERENCES users(id),
+        created_at TIMESTAMP NOT NULL DEFAULT now()
+    )""",
+    "CREATE UNIQUE INDEX IF NOT EXISTS uq_exercise_media_exercise ON exercise_media (exercise_id)",
+]
+
 # Orden cronológico: el aligner las aplica todas, en orden, tras create_all.
-ALIGN_STATEMENTS: list[str] = [*J1_INGRESOS_PASE_TRANSFERENCIAS, *J2_INVENTARIO, *J4_CONSENTIMIENTOS, *J6_ACCESO]
+ALIGN_STATEMENTS: list[str] = [*J1_INGRESOS_PASE_TRANSFERENCIAS, *J2_INVENTARIO, *J4_CONSENTIMIENTOS, *J6_ACCESO, *J7_VIDEO_EJERCICIOS]

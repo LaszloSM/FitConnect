@@ -6,15 +6,15 @@ import { useSearchParams } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import axios from "axios";
 import { BrandMark } from "@/components/common/BrandMark";
-import { ExerciseFigure } from "@/components/routines/ExerciseFigure";
+import { ExerciseFigure, youtubeSearchUrl } from "@/components/routines/ExerciseFigure";
 import { cn } from "@/lib/utils";
-import { ArrowLeft, ChevronRight, Dumbbell, Timer, AlertTriangle } from "lucide-react";
+import { ArrowLeft, ChevronRight, Dumbbell, Timer, AlertTriangle, PlayCircle } from "lucide-react";
 
 const TOKEN_KEY = "fitconnect_kiosk_token";
 const IDLE_MS = 90_000;
 
 interface RoutineCard { id: string; name: string; description: string | null; goal_label: string | null; level_es: string; days_per_week: number }
-interface Exercise { name_es: string; name_en: string; primary_muscles_es: string[]; equipment_es: string; instructions: string[]; instructions_lang: string; images: string[] }
+interface Exercise { name_es: string; name_en: string; primary_muscles_es: string[]; equipment_es: string; instructions: string[]; instructions_lang: string; images: string[]; video_url?: string | null; video_source?: string | null; video_author?: string | null; video_license?: string | null }
 interface DayEx { id: string; exercise_name: string; sets: number; reps: string; rest_seconds: number; notes: string | null; exercise: Exercise | null }
 interface Day { id: string; title: string; notes: string | null; exercises: DayEx[] }
 interface RoutineDetail extends RoutineCard { days: Day[] }
@@ -112,7 +112,7 @@ export default function ScreenClient() {
           ) : focus ? (
             <motion.div key="focus" initial={{ opacity: 0, scale: 0.98 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0 }} className="grid grid-cols-1 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)] gap-8 items-start">
               <div className="flex justify-center">
-                <ExerciseFigure images={focus.exercise?.images ?? []} alt={focus.exercise_name} size="lg" className="!h-[28rem] !w-[28rem] max-w-full" intervalMs={1000} />
+                <ExerciseFigure images={focus.exercise?.images ?? []} videoUrl={focus.exercise?.video_url} alt={focus.exercise_name} size="lg" className="!h-[28rem] !w-[28rem] max-w-full" playable />
               </div>
               <div className="space-y-5">
                 <div>
@@ -126,10 +126,26 @@ export default function ScreenClient() {
                 </div>
                 {focus.notes && <p className="text-lg text-[#D4FF00]">{focus.notes}</p>}
                 {focus.exercise && (
-                  <ol className="list-decimal pl-6 space-y-2 text-lg text-white/85 max-h-72 overflow-y-auto">
+                  <ol className="list-decimal pl-6 space-y-2 text-lg text-white/85 max-h-64 overflow-y-auto">
                     {focus.exercise.instructions.map((s, i) => <li key={i}>{s}</li>)}
                   </ol>
                 )}
+                <div className="flex items-center gap-4 flex-wrap text-sm">
+                  <a
+                    href={youtubeSearchUrl(focus.exercise_name)}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="inline-flex items-center gap-2 rounded-xl border border-white/20 px-4 py-2 text-white/80 hover:text-white hover:border-[#D4FF00]/60"
+                  >
+                    <PlayCircle className="h-4 w-4" /> Ver en video
+                  </a>
+                  {focus.exercise?.video_author && (
+                    <span className="text-white/40 text-xs">
+                      Video: {focus.exercise.video_author}
+                      {focus.exercise.video_license ? ` · ${focus.exercise.video_license}` : ""}
+                    </span>
+                  )}
+                </div>
               </div>
             </motion.div>
           ) : (
@@ -148,7 +164,7 @@ export default function ScreenClient() {
                 {day?.exercises.map((ex, i) => (
                   <button key={ex.id} type="button" onClick={() => setFocus(ex)} className="text-left flex items-center gap-4 rounded-2xl border border-white/10 bg-white/5 p-4 hover:border-[#D4FF00]/60 transition-colors active:scale-[0.99]">
                     <span className="text-white/40 font-bold text-xl w-6">{i + 1}</span>
-                    <ExerciseFigure images={ex.exercise?.images ?? []} alt={ex.exercise_name} size="md" />
+                    <ExerciseFigure images={ex.exercise?.images ?? []} videoUrl={ex.exercise?.video_url} alt={ex.exercise_name} size="md" />
                     <div className="min-w-0 flex-1">
                       <p className="text-lg font-bold leading-tight line-clamp-2">{ex.exercise_name}</p>
                       <p className="text-sm text-white/60">{ex.sets} × {ex.reps} <span className="inline-flex items-center gap-1 ml-2"><Timer className="h-3.5 w-3.5" />{ex.rest_seconds}s</span></p>

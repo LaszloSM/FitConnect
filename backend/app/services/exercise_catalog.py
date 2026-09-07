@@ -71,7 +71,7 @@ _MODIFIERS = [
     "Smith Machine", "Bent Over", "Bent-Over", "Two-Dumbbell", "Bodyweight", "Barbell", "Dumbbells", "Dumbbell", "Kettlebell",
     "Cable", "Machine", "Bands", "Band", "One-Arm", "One Arm", "Single-Arm", "Two-Arm", "Double", "Alternating", "Alternate",
     "Incline", "Decline", "Seated", "Standing", "Lying", "Kneeling", "Close-Grip", "Wide-Grip", "Single-Leg", "One-Leg",
-    "Weighted", "Palms-Up", "Stiff-Legged", "Bent-Arm",
+    "Weighted", "Palms-Up", "Stiff-Legged", "Bent-Arm", "Romanian", "Hammer", "Side", "Walking", "Front", "Rear",
 ]
 _MOD_RE = re.compile(r"\b(" + "|".join(re.escape(m) for m in sorted(_MODIFIERS, key=len, reverse=True)) + r")\b(?! Grip)")
 
@@ -86,11 +86,51 @@ def _reorder(main: str) -> str:
     return f"{core} {' '.join(mods)}"
 
 
+# Traducciones exactas para los ejercicios más comunes: el traductor por términos
+# acierta el grueso pero destroza algunos nombres compuestos.
+NAME_OVERRIDES = {
+    "Romanian Deadlift": "Peso muerto rumano",
+    "Barbell Hip Thrust": "Hip thrust con barra",
+    "Lying Leg Curls": "Curl femoral acostado",
+    "Standing Leg Curl": "Curl femoral de pie",
+    "Seated Leg Curl": "Curl femoral sentado",
+    "Hammer Curls": "Curl martillo",
+    "Side Lateral Raise": "Elevaciones laterales",
+    "Front Dumbbell Raise": "Elevaciones frontales con mancuernas",
+    "Machine Preacher Curls": "Curl en banco Scott en máquina",
+    "Preacher Curl": "Curl en banco Scott",
+    "Calf-Machine Shoulder Shrug": "Encogimiento de hombros en máquina de pantorrilla",
+    "Barbell Walking Lunge": "Zancada caminando con barra",
+    "Cable One Arm Tricep Extension": "Extensión de tríceps en polea a una mano",
+    "Tricep Dumbbell Kickback": "Patada de tríceps con mancuerna",
+    "Decline Dumbbell Triceps Extension": "Extensión de tríceps con mancuerna en declinado",
+    "Cable Incline Triceps Extension": "Extensión de tríceps en polea inclinado",
+    "Dip Machine": "Fondos en máquina",
+    "Pullups": "Dominadas",
+    "Weighted Pull Ups": "Dominadas con peso",
+    "Face Pull": "Face pull",
+    "Leg Press": "Prensa de piernas",
+    "Front Barbell Squat": "Sentadilla frontal con barra",
+    "Machine Bench Press": "Press de banca en máquina",
+    "Standing Biceps Cable Curl": "Curl de bíceps en polea de pie",
+    "Barbell Squat": "Sentadilla con barra",
+    "Barbell Deadlift": "Peso muerto con barra",
+    "Barbell Bench Press - Medium Grip": "Press de banca con barra",
+    "Pushups": "Flexiones de pecho",
+    "Plank": "Plancha",
+}
+
+
 def translate_name(name_en: str) -> str:
     """Traducción aproximada por términos (suficiente para reconocer el ejercicio;
     el gym puede renombrar al armar la rutina)."""
+    if name_en in NAME_OVERRIDES:
+        return NAME_OVERRIDES[name_en]
     main, sep, tail = name_en.partition(" - ")
-    text = _reorder(main) + (f" - {tail}" if sep else "")
+    # "Romanian Deadlift from Deficit": lo que sigue a "from" es una aclaración,
+    # no parte del movimiento; se reordena solo la cabeza.
+    head, from_sep, from_tail = main.partition(" from ")
+    text = _reorder(head) + (f" desde {from_tail}" if from_sep else "") + (f" - {tail}" if sep else "")
     for en, es in sorted(_NAME_TERMS, key=lambda t: -len(t[0])):
         text = re.sub(rf"\b{re.escape(en)}\b", es, text)
     text = re.sub(r"\s+", " ", text).strip(" -")
@@ -180,4 +220,99 @@ def exercise_out(e: Exercise) -> dict:
         "instructions": e.instructions_es or e.instructions_en,
         "instructions_lang": "es" if e.instructions_es else "en",
         "images": e.images,
+        "video_url": e.video_url,
+        "video_license": e.video_license,
+        "video_author": e.video_author,
     }
+
+
+WGER_API = "https://wger.de/api/v2"
+# Lo que un navegador reproduce sin plugins (HEVC no entra: Chrome no lo abre)
+PLAYABLE_VIDEO_EXT = {"mp4", "webm"}
+PLAYABLE_VIDEO_CODECS = {"h264", "avc1", "vp8", "vp9", "av1", ""}
+
+
+# Palabras que no distinguen un ejercicio de otro
+_STOPWORDS = {"the", "a", "with", "on", "of", "and", "in", "to", "for", "version", "machine", "laying", "sitting"}
+
+
+def _tokens(name: str) -> frozenset[str]:
+    """Palabras significativas en singular: los catálogos escriben el mismo
+    ejercicio de formas distintas ("Front Squats" vs "Front Squat")."""
+    words = re.findall(r"[a-z]+", name.lower())
+    return frozenset(w.rstrip("s") if len(w) > 3 else w for w in words if w not in _STOPWORDS)
+
+
+def _best_match(name: str, catalog: list) -> object | None:
+    """El ejercicio del catálogo que contiene todas las palabras del nombre de
+    wger y agrega las menos posibles. "Bench Press" cae en "Barbell Bench Press",
+    no en "Decline Bench Press" si ambos existen; a igual cercanía gana el más
+    popular (sort_weight)."""
+    want = _tokens(name)
+    if not want:
+        return None
+    best, best_extra = None, 99
+    for e in catalog:
+        have = _tokens(e.name_en)
+        if not want <= have:
+            continue
+        extra = len(have - want)
+        if extra < best_extra or (extra == best_extra and best is not None and e.sort_weight > best.sort_weight):
+            best, best_extra = e, extra
+    return best
+
+
+async def import_wger_videos(db: AsyncSession) -> dict:
+    """Trae los videos de wger (CC-BY-SA) y los cruza por nombre con el catálogo.
+
+    Son pocos (~78 de 876) pero cubren los básicos, que son justo los que más se
+    consultan en la pantalla del gym. La atribución se guarda porque la licencia
+    la exige. Idempotente: vuelve a correr sin duplicar nada.
+    """
+    import httpx
+
+    async with httpx.AsyncClient(timeout=60.0, follow_redirects=True) as http:
+        videos = (await http.get(f"{WGER_API}/video/", params={"limit": 500, "format": "json"})).json().get("results", [])
+        # El nombre vive en /exerciseinfo, no en el video
+        infos = (await http.get(f"{WGER_API}/exerciseinfo/", params={"limit": 1000, "format": "json"})).json().get("results", [])
+
+    names: dict[int, str] = {}
+    for info in infos:
+        for tr in info.get("translations", []):
+            if tr.get("language") == 2 and tr.get("name"):  # 2 = inglés, como free-exercise-db
+                names[info["id"]] = tr["name"]
+                break
+
+    catalog = (await db.execute(select(Exercise))).scalars().all()
+
+    # Se reconstruye desde cero: si un video dejó de servir (formato, o wger lo
+    # quitó) no puede quedar una URL muerta apuntando a un cuadro negro.
+    for e in catalog:
+        e.video_url = e.video_license = e.video_author = None
+
+    linked = 0
+    taken: set = set()
+    skipped_format = 0
+    for v in videos:
+        name = names.get(v.get("exercise"))
+        url = v.get("video")
+        if not name or not url:
+            continue
+        # Un video que el navegador no reproduce deja un cuadro negro en la
+        # pantalla del gym, peor que las dos fotos. wger publica casi todo en
+        # .MOV/HEVC, que Chrome no abre: solo entra lo que se ve seguro.
+        if not url.lower().rsplit(".", 1)[-1] in PLAYABLE_VIDEO_EXT or (v.get("codec") or "").lower() not in PLAYABLE_VIDEO_CODECS:
+            skipped_format += 1
+            continue
+        target = _best_match(name, catalog)
+        # Un mismo ejercicio del catálogo no se queda con dos videos distintos
+        if target is None or target.id in taken:
+            continue
+        taken.add(target.id)
+        target.video_url = url[:500]
+        target.video_license = (v.get("license_title") or "CC-BY-SA")[:80]
+        target.video_author = (v.get("license_author") or "wger")[:120]
+        linked += 1
+
+    await db.commit()
+    return {"videos": len(videos), "linked": linked, "skipped_format": skipped_format}

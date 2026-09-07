@@ -12,7 +12,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Switch } from "@/components/ui/switch";
 import { StatusBadge } from "@/components/ui/status-badge";
-import { ExerciseFigure } from "@/components/routines/ExerciseFigure";
+import { ExerciseFigure, youtubeSearchUrl } from "@/components/routines/ExerciseFigure";
 import { apiClient } from "@/lib/api";
 import { useApiResource } from "@/hooks/useApiResource";
 import { cn } from "@/lib/utils";
@@ -24,6 +24,7 @@ interface Exercise {
   id: string; slug: string; name_es: string; name_en: string; category_es: string; level_es: string;
   equipment: string | null; equipment_es: string; primary_muscles: string[]; primary_muscles_es: string[];
   instructions: string[]; instructions_lang: string; images: string[];
+  video_url?: string | null; video_source?: string | null; video_author?: string | null; video_license?: string | null;
 }
 interface RoutineExercise { key: string; exercise: Exercise; sets: number; reps: string; rest_seconds: number; notes: string }
 interface RoutineDay { key: string; title: string; notes: string; exercises: RoutineExercise[] }
@@ -280,7 +281,7 @@ function RoutineEditor({ form, facets, onChange, onCancel, onSave, saving, isNew
                 {day.exercises.map((x, idx) => (
                   <motion.div key={x.key} layout initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} className="flex items-start gap-3 rounded-xl border border-[var(--border-base)] bg-[var(--bg-base)] p-2.5">
                     <span className="text-[10px] font-bold text-[var(--text-muted)] w-4 pt-1">{idx + 1}</span>
-                    <ExerciseFigure images={x.exercise.images} alt={x.exercise.name_es} size="sm" />
+                    <ExerciseFigure images={x.exercise.images} videoUrl={x.exercise.video_url} alt={x.exercise.name_es} size="sm" />
                     <div className="flex-1 min-w-0 space-y-1.5">
                       <div className="flex items-center justify-between gap-2">
                         <button type="button" onClick={() => setPreview(x.exercise)} className="text-sm font-semibold text-[var(--text-base)] truncate hover:text-[var(--color-primary)] text-left">{x.exercise.name_es}</button>
@@ -320,7 +321,7 @@ function RoutineEditor({ form, facets, onChange, onCancel, onSave, saving, isNew
               <p className="text-xs text-[var(--text-muted)] text-center py-6">{facets && facets.total === 0 ? "La biblioteca está vacía: ejecuta scripts/import_exercises.py en el backend." : "Sin resultados"}</p>
             ) : results.map((e) => (
               <div key={e.id} className="flex items-center gap-2.5 rounded-xl border border-[var(--border-base)] bg-[var(--bg-base)] p-2 group">
-                <ExerciseFigure images={e.images} alt={e.name_es} size="sm" />
+                <ExerciseFigure images={e.images} videoUrl={e.video_url} alt={e.name_es} size="sm" />
                 <button type="button" onClick={() => setPreview(e)} className="flex-1 min-w-0 text-left">
                   <p className="text-xs font-semibold text-[var(--text-base)] truncate group-hover:text-[var(--color-primary)]">{e.name_es}</p>
                   <p className="text-[10px] text-[var(--text-muted)] truncate">{e.primary_muscles_es.join(", ")} · {e.equipment_es} · {e.level_es}</p>
@@ -343,16 +344,94 @@ function RoutineEditor({ form, facets, onChange, onCancel, onSave, saving, isNew
                 </div>
                 <button type="button" onClick={() => setPreview(null)} className="text-[var(--text-muted)] hover:text-[var(--text-base)]"><X className="h-5 w-5" /></button>
               </div>
-              <div className="flex justify-center"><ExerciseFigure images={preview.images} alt={preview.name_es} size="lg" /></div>
+              <div className="flex justify-center"><ExerciseFigure images={preview.images} videoUrl={preview.video_url} alt={preview.name_es} size="lg" playable /></div>
               <ol className="list-decimal pl-5 space-y-1 text-sm text-[var(--text-base)] max-h-48 overflow-y-auto">
                 {preview.instructions.map((s, i) => <li key={i}>{s}</li>)}
               </ol>
               {preview.instructions_lang === "en" && <p className="text-[10px] text-[var(--text-muted)]">Instrucciones en inglés (fuente abierta); la traducción llega con la app.</p>}
+              <ExerciseVideoBox exercise={preview} onChanged={(url, source) => setPreview({ ...preview, video_url: url, video_source: source })} />
               <Button onClick={() => { addExercise(preview); setPreview(null); }} className="w-full bg-[var(--color-primary)] text-[var(--color-primary-contrast)] font-semibold"><Plus className="h-4 w-4 mr-1.5" /> Agregar a {day.title || "este día"}</Button>
             </motion.div>
           </motion.div>
         )}
       </AnimatePresence>
     </motion.div>
+  );
+}
+
+
+function ExerciseVideoBox({ exercise, onChanged }: { exercise: Exercise; onChanged: (url: string | null, source: string | null) => void }) {
+  const { data: session } = useSession();
+  const isOwnerOrAdmin = session?.role === "owner" || session?.role === "admin";
+  const [busy, setBusy] = useState(false);
+  const client = () => apiClient(session?.accessToken as string);
+
+  const upload = async (file: File) => {
+    setBusy(true);
+    try {
+      const form = new FormData();
+      form.append("file", file);
+      // Content-Type en undefined: axios pone el boundary del multipart
+      const { data } = await client().post(`/api/v1/exercises/${exercise.id}/video`, form, {
+        headers: { "Content-Type": undefined },
+      });
+      toast.success("Video del gym guardado");
+      onChanged(data.video_url, "gym");
+    } catch (err: any) {
+      toast.error(err.response?.data?.detail ?? "No se pudo subir el video");
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  const remove = async () => {
+    setBusy(true);
+    try {
+      await client().delete(`/api/v1/exercises/${exercise.id}/video`);
+      toast.success("Video del gym eliminado");
+      onChanged(null, null);
+    } catch (err: any) {
+      toast.error(err.response?.data?.detail ?? "No se pudo eliminar");
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  return (
+    <div className="rounded-xl border border-[var(--border-base)] p-3 space-y-2">
+      <p className="text-xs text-[var(--text-muted)]">
+        {exercise.video_source === "gym"
+          ? "Se está mostrando el video de tu gym."
+          : exercise.video_source === "catalogo"
+          ? `Video del catálogo abierto${exercise.video_author ? ` · ${exercise.video_author}` : ""}.`
+          : "Este ejercicio solo tiene las dos fotos. Graba un clip corto con tus máquinas y el socio verá el movimiento real."}
+      </p>
+      <div className="flex items-center gap-2 flex-wrap">
+        {isOwnerOrAdmin && (
+          <label className="text-xs rounded-lg border border-[var(--border-base)] px-3 py-1.5 cursor-pointer hover:bg-[var(--bg-muted)]">
+            {busy ? "Subiendo..." : exercise.video_source === "gym" ? "Reemplazar video" : "Subir video del gym"}
+            <input
+              type="file"
+              accept="video/mp4,video/webm"
+              className="hidden"
+              disabled={busy}
+              onChange={(e) => { const f = e.target.files?.[0]; if (f) void upload(f); e.target.value = ""; }}
+            />
+          </label>
+        )}
+        {isOwnerOrAdmin && exercise.video_source === "gym" && (
+          <button type="button" onClick={remove} disabled={busy} className="text-xs text-[var(--text-muted)] hover:text-red-500">Quitar</button>
+        )}
+        <a
+          href={youtubeSearchUrl(exercise.name_es)}
+          target="_blank"
+          rel="noreferrer"
+          className="text-xs rounded-lg border border-[var(--border-base)] px-3 py-1.5 hover:bg-[var(--bg-muted)]"
+        >
+          Ver en video
+        </a>
+      </div>
+      <p className="text-[10px] text-[var(--text-muted)]">MP4 o WebM, hasta 25 MB. Con 5-8 segundos en bucle basta.</p>
+    </div>
   );
 }

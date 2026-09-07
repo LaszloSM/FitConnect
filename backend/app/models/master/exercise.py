@@ -28,5 +28,10 @@ class Exercise(MasterBase, MasterTimestampMixin):
     instructions_en: Mapped[list] = mapped_column(JSONB, nullable=False, default=list)
     instructions_es: Mapped[list] = mapped_column(JSONB, nullable=False, default=list)
     images: Mapped[list] = mapped_column(JSONB, nullable=False, default=list)  # URLs inicio/fin
+    # Video del catálogo global (wger, CC-BY-SA): movimiento real donde exista.
+    # La atribución es obligación de la licencia, por eso viaja con el video.
+    video_url: Mapped[Optional[str]] = mapped_column(String(500), nullable=True)
+    video_license: Mapped[Optional[str]] = mapped_column(String(80), nullable=True)
+    video_author: Mapped[Optional[str]] = mapped_column(String(120), nullable=True)
     sort_weight: Mapped[int] = mapped_column(Integer, nullable=False, default=0)  # populares primero
     is_active: Mapped[bool] = mapped_column(Boolean, nullable=False, default=True)

@@ -80,7 +80,7 @@ export function MemberRoutineTab({ memberId }: { memberId: string }) {
               {day?.exercises.map((ex: any, i: number) => (
                 <div key={ex.id} className="flex items-center gap-3 text-sm">
                   <span className="text-[10px] text-[var(--text-muted)] w-4">{i + 1}</span>
-                  <ExerciseFigure images={ex.exercise?.images ?? []} alt={ex.exercise_name} size="sm" />
+                  <ExerciseFigure images={ex.exercise?.images ?? []} videoUrl={ex.exercise?.video_url} alt={ex.exercise_name} size="sm" />
                   <div className="min-w-0 flex-1">
                     <p className="text-[var(--text-base)] font-medium truncate">{ex.exercise_name}</p>
                     <p className="text-xs text-[var(--text-muted)]">{ex.sets} × {ex.reps} <Timer className="h-3 w-3 inline ml-1" /> {ex.rest_seconds}s{ex.notes ? ` · ${ex.notes}` : ""}</p>

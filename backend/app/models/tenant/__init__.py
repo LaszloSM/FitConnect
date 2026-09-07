@@ -26,6 +26,7 @@ from app.models.tenant.notification_outbox import NotificationOutbox
 from app.models.tenant.product import Product
 from app.models.tenant.inventory import ProductCategory, StockMovement, StockMovementType
 from app.models.tenant.routine import Routine, RoutineDay, RoutineExercise, MemberRoutine
+from app.models.tenant.exercise_media import ExerciseMedia
 from app.models.tenant.access import BiometricConsent, MemberCredential, AccessEvent
 from app.models.tenant.payment_item import PaymentItem
 from app.models.tenant.kiosk_device import KioskDevice

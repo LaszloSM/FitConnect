@@ -128,3 +128,50 @@ async def test_routine_crud_assign_and_screen(client):
     await client.delete(f"/api/v1/routines/{routine['id']}", headers=h)
     listed = (await client.get("/api/v1/kiosk/routines", headers=kh)).json()
     assert all(x["id"] != routine["id"] for x in listed)
+
+
+def test_video_names_and_playable_filter():
+    """Los nombres curados ganan y solo entran videos que el navegador abre."""
+    from app.services.exercise_catalog import PLAYABLE_VIDEO_CODECS, PLAYABLE_VIDEO_EXT, translate_name
+
+    assert translate_name("Romanian Deadlift") == "Peso muerto rumano"
+    assert translate_name("Romanian Deadlift from Deficit").startswith("Peso muerto rumano")
+    assert translate_name("Lying Leg Curls") == "Curl femoral acostado"
+    # HEVC en .MOV es lo que publica casi todo wger: no debe pasar el filtro
+    assert "mov" not in PLAYABLE_VIDEO_EXT
+    assert "hevc" not in PLAYABLE_VIDEO_CODECS
+
+
+async def test_gym_video_overrides_catalog_and_can_be_removed(client):
+    """Cadena de respaldo: video del gym → video del catálogo → fotos."""
+    token = await _owner_token(client)
+    h = _auth(token)
+    await _seed_catalog()
+    found = (await client.get("/api/v1/exercises", params={"q": "Barbell Full Squat"}, headers=h)).json()
+    ex = next(e for e in found if e["slug"] == "barbell-full-squat")
+    assert ex["video_source"] is None, "el ejercicio de muestra no trae video"
+
+    # MP4 mínimo: lo que valida el endpoint son los magic bytes, no la extensión
+    mp4 = b"\x00\x00\x00\x18ftypmp42" + b"\x00" * 64
+    up = await client.post(
+        f"/api/v1/exercises/{ex['id']}/video",
+        files={"file": ("clip.mp4", mp4, "video/mp4")}, headers=h,
+    )
+    assert up.status_code == 201, up.text
+    assert up.json()["source"] == "gym"
+
+    again = (await client.get("/api/v1/exercises", params={"q": "Barbell Full Squat"}, headers=h)).json()
+    mine = next(e for e in again if e["slug"] == "barbell-full-squat")
+    assert mine["video_source"] == "gym" and mine["video_url"]
+
+    # Un archivo que no es video se rechaza aunque diga que lo es
+    bad = await client.post(
+        f"/api/v1/exercises/{ex['id']}/video",
+        files={"file": ("x.mp4", b"no soy un video", "video/mp4")}, headers=h,
+    )
+    assert bad.status_code == 400
+
+    gone = await client.delete(f"/api/v1/exercises/{ex['id']}/video", headers=h)
+    assert gone.status_code == 200
+    back = (await client.get("/api/v1/exercises", params={"q": "Barbell Full Squat"}, headers=h)).json()
+    assert next(e for e in back if e["slug"] == "barbell-full-squat")["video_source"] is None
