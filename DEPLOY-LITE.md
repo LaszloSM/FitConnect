@@ -24,7 +24,27 @@ Internet ──► EIP:80 ──► Caddy ──► /api/*, /docs, /openapi.json
   contenedores en la instancia con volúmenes Docker
 - **Backups**: snapshots EBS (ver abajo)
 
-## Despliegue
+## Despliegue en un comando (redeploy)
+
+Con la infraestructura ya creada, todo el despliegue está automatizado:
+
+```bash
+bash scripts/deploy-lite.sh
+```
+
+Abre SSH para tu IP actual, construye y sube las dos imágenes a ECR, copia
+`docker-compose.prod.yml` y el `Caddyfile`, levanta la nueva versión, **alinea
+las tenant DBs** (`migrate_tenants.py`) e **importa la biblioteca de ejercicios**,
+y al final verifica ruta por ruta. Es idempotente. El `.env` del servidor no se
+toca nunca: ahí viven los secretos.
+
+Requiere Docker Desktop corriendo. Si dice "Virtualization support not detected",
+el problema es la BIOS: habilita **SVM Mode** (Gigabyte: Tweaker › Advanced CPU
+Settings) o **Intel VT-x**, y reinicia.
+
+Correr desde **Git Bash**, no desde PowerShell 5.1 (rompe el login de ECR).
+
+## Despliegue desde cero
 
 ### 1. Terraform
 

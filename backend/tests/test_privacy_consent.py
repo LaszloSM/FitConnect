@@ -112,3 +112,29 @@ async def test_photo_key_is_signed_on_read(client, monkeypatch):
     # Lo persistido es la key, no una URL pública
     listed = (await client.get("/api/v1/members", params={"id_number": member["id_number"]}, headers=h)).json()
     assert "X-Amz-Signature" in listed[0]["photo_url"]
+
+
+def test_bucket_policy_only_exposes_brand_prefixes():
+    """La política pública del bucket es el único punto donde un objeto queda
+    legible sin firma. Este test la fija: si alguien agrega un prefijo con datos
+    personales a PUBLIC_PREFIXES, o vuelve a abrir el bucket entero, falla aquí.
+
+    Equivale a la comprobación manual contra MinIO (GET anónimo a members/ → 403)
+    sin necesitar el contenedor levantado."""
+    import json
+
+    policy = json.loads(st._public_policy("fitconnect-media"))
+    resources = policy["Statement"][0]["Resource"]
+    assert policy["Statement"][0]["Action"] == ["s3:GetObject"], "la política pública solo debe permitir lectura"
+    assert set(resources) == {
+        "arn:aws:s3:::fitconnect-media/gyms/*",
+        "arn:aws:s3:::fitconnect-media/exercises/*",
+    }
+    # Ningún prefijo con datos personales queda expuesto
+    for personal in ("members/", "proofs/", "receipts/", "consents/", ""):
+        assert f"arn:aws:s3:::fitconnect-media/{personal}*" not in resources
+    # Y el bucket completo nunca se abre
+    assert "arn:aws:s3:::fitconnect-media/*" not in resources
+    assert st.is_public_key("gyms/g/logo.png") and st.is_public_key("exercises/x.jpg")
+    assert not st.is_public_key("members/g/foto.webp")
+    assert not st.is_public_key("proofs/g/comprobante.jpg")
