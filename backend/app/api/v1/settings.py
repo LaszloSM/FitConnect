@@ -262,8 +262,9 @@ class BillingSettingsUpdate(BaseModel):
 
 def _billing_response(gym) -> BillingSettingsResponse:
     from app.services.payments import transfer_accounts
+    from app.services.storage import resolve_media_url
     return BillingSettingsResponse(
-        transfer_accounts=[TransferAccount(**a) for a in transfer_accounts(gym)],
+        transfer_accounts=[TransferAccount(**{**a, "qr_url": resolve_media_url(a.get("qr_url"))}) for a in transfer_accounts(gym)],
         legal_name=gym.legal_name,
         nit=gym.nit,
         tax_regime=gym.tax_regime,
@@ -297,7 +298,7 @@ async def update_billing_settings(
             if not data.get("id"):
                 data["id"] = str(uuid.uuid4())
             old = previous.get(data["id"])
-            if old and not data.get("qr_url"):
+            if old and (not data.get("qr_url") or data["qr_url"].startswith("http")):
                 data["qr_url"] = old.get("qr_url")
             accounts.append(data)
         gym.transfer_accounts = accounts

@@ -27,6 +27,7 @@ import { GenderSelect } from "@/components/ui/gender-select";
 import { CityCombobox } from "@/components/ui/city-combobox";
 import { CountrySelect } from "@/components/ui/country-select";
 import { FileUpload } from "@/components/ui/file-upload";
+import { CameraCapture } from "@/components/common/CameraCapture";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import {
@@ -171,6 +172,8 @@ export default function MembersClient() {
   const [submitting, setSubmitting] = useState(false);
   const [form, setForm] = useState<FormState>(emptyForm);
   const [photoFile, setPhotoFile] = useState<File | null>(null);
+  const [consentData, setConsentData] = useState(false);
+  const [consentImage, setConsentImage] = useState(false);
   const [deleteId, setDeleteId] = useState<string | null>(null);
   const [qrMember, setQrMember] = useState<Member | null>(null);
   // Visitante del pase del día que se está convirtiendo en socio (wizard precargado)
@@ -328,6 +331,8 @@ export default function MembersClient() {
   const resetForm = () => {
     setForm(emptyForm);
     setPhotoFile(null);
+    setConsentData(false);
+    setConsentImage(false);
     setEditing(null);
     setStep(0);
     setMembershipTabActive(false);
@@ -408,6 +413,8 @@ export default function MembersClient() {
       if (!form.emergency_contact_phone.trim()) return "El teléfono de emergencia es obligatorio";
     }
     if (s === 2 && !assignPlanId) return "Selecciona el plan de membresía";
+    if (s === 2 && !consentData) return "El socio debe aceptar la política de tratamiento de datos";
+    if (s === 2 && photoFile && !consentImage) return "Para guardar la foto el socio debe autorizar el uso de su imagen";
     return null;
   };
 
@@ -431,8 +438,8 @@ export default function MembersClient() {
       gender: form.gender || undefined,
       training_goal: form.training_goal || undefined,
       blood_type: form.blood_type || undefined,
-      // No persistir blobs locales (URL.createObjectURL no sobrevive)
-      photo_url: form.photo_url.startsWith("blob:") ? undefined : form.photo_url || undefined,
+      // No persistir blobs locales ni URLs firmadas (el backend guarda la key)
+      photo_url: form.photo_url.startsWith("blob:") || form.photo_url.startsWith("http") ? undefined : form.photo_url || undefined,
       parq_completed_at: Object.keys(form.parq_answers).length > 0 ? new Date().toISOString().split("T")[0] : undefined,
     };
 
@@ -459,6 +466,8 @@ export default function MembersClient() {
           status: "active",
           plan_id: assignPlanId,
           payment_method: assignPaymentMethod || undefined,
+          consent_data: consentData,
+          consent_image: consentImage,
         });
         memberId = created.id;
       } else {
@@ -468,6 +477,8 @@ export default function MembersClient() {
           status: "active",
           plan_id: assignPlanId,
           payment_method: assignPaymentMethod || undefined,
+          consent_data: consentData,
+          consent_image: consentImage,
         });
         memberId = created.id;
       }
@@ -571,7 +582,15 @@ export default function MembersClient() {
         <Input value={form.address} onChange={(e) => setForm({ ...form, address: e.target.value })} className={inputCls} />
       </div>
       <div className="col-span-2 space-y-2">
-        <Label className="text-[var(--text-muted)] text-sm">Foto del miembro (opcional)</Label>
+        <div className="flex items-center justify-between">
+          <Label className="text-[var(--text-muted)] text-sm">Foto del miembro (opcional)</Label>
+          <CameraCapture
+            onCapture={(file) => {
+              setPhotoFile(file);
+              setForm({ ...form, photo_url: URL.createObjectURL(file) });
+            }}
+          />
+        </div>
         <FileUpload
           value={form.photo_url || undefined}
           onChange={(file) => {
@@ -585,6 +604,7 @@ export default function MembersClient() {
           }}
           shape="rect"
         />
+        <p className="text-[11px] text-[var(--text-muted)]">La foto se guarda de forma privada: solo el staff la ve al hacer check-in.</p>
       </div>
     </div>
   );
@@ -786,6 +806,21 @@ export default function MembersClient() {
                 {step === 1 && healthFields}
                 {step === 2 && (
                   <div className="space-y-4">
+                    <div className="rounded-xl border border-[var(--border-base)] bg-[var(--bg-base)] p-4 space-y-3">
+                      <p className="text-xs font-semibold uppercase tracking-wider text-[var(--text-muted)]">Tratamiento de datos *</p>
+                      <label className="flex items-start gap-2.5 text-sm text-[var(--text-base)] cursor-pointer">
+                        <input type="checkbox" checked={consentData} onChange={(e) => setConsentData(e.target.checked)} className="mt-0.5 h-4 w-4 accent-[var(--color-primary)]" />
+                        <span>
+                          El socio acepta la{" "}
+                          <a href="/tratamiento-datos" target="_blank" rel="noopener noreferrer" className="font-semibold text-[var(--color-primary)] hover:underline">política de tratamiento de datos personales</a>{" "}
+                          (Ley 1581 de 2012). Queda registrada la fecha de aceptación.
+                        </span>
+                      </label>
+                      <label className="flex items-start gap-2.5 text-sm text-[var(--text-base)] cursor-pointer">
+                        <input type="checkbox" checked={consentImage} onChange={(e) => setConsentImage(e.target.checked)} className="mt-0.5 h-4 w-4 accent-[var(--color-primary)]" />
+                        <span>Autoriza el uso de su foto para identificarlo en el check-in{photoFile ? " (obligatorio porque adjuntaste una foto)" : ""}.</span>
+                      </label>
+                    </div>
                     <div className="rounded-xl border border-[var(--border-base)] bg-[var(--bg-base)] p-4 space-y-3">
                       <p className="text-xs font-semibold uppercase tracking-wider text-[var(--text-muted)]">Membresía inicial *</p>
                       {availablePlans.length === 0 ? (

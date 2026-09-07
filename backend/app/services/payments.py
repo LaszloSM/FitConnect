@@ -14,6 +14,7 @@ from app.models.tenant.day_pass import DayPass, DayPassStatus
 from app.models.tenant.gym_settings import GymSettings
 from app.models.tenant.membership import Membership, MembershipStatus
 from app.models.tenant.payment import Payment, PaymentMethod, PaymentStatus
+from app.services.storage import resolve_media_url
 
 
 async def open_cash_shift(db: AsyncSession) -> CashShift | None:
@@ -110,7 +111,7 @@ def public_account(account: dict | None) -> dict | None:
         "account_number": account.get("account_number"),
         "holder_name": account.get("holder_name"),
         "breb_key": account.get("breb_key"),
-        "qr_url": account.get("qr_url"),
+        "qr_url": resolve_media_url(account.get("qr_url")),
     }
 
 

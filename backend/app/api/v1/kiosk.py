@@ -20,6 +20,7 @@ from app.models.tenant.member import Member
 from app.models.tenant.user_staff import UserStaff, UserRole
 from app.services.audit import audit
 from app.services.checkin import register_checkin, DuplicateCheckin
+from app.services.storage import resolve_media_url
 
 router = APIRouter(prefix="/kiosk", tags=["kiosk"])
 
@@ -85,7 +86,7 @@ async def kiosk_checkin(
         "decision": checkin.decision,
         "membership_status": status,
         "member_name": member.full_name,
-        "photo_url": member.photo_url,
+        "photo_url": resolve_media_url(member.photo_url),
         "upcoming_class": upcoming_class,
         "message": message,
     }

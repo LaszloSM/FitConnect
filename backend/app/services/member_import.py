@@ -18,6 +18,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.models.tenant.member import Member, IdType, Gender, TrainingGoal
 from app.schemas.member import MemberBase
+from app.core.timeutil import utcnow_naive
 
 _VOLT = "D4FF00"
 
@@ -159,7 +160,8 @@ async def import_members(db: AsyncSession, file_bytes: bytes) -> dict:
 
         try:
             async with db.begin_nested():
-                db.add(Member(**member_in.model_dump()))
+                # El owner atesta al importar que sus socios ya firmaron la política de datos
+                db.add(Member(**member_in.model_dump(), consent_data_at=utcnow_naive()))
             created += 1
         except IntegrityError as exc:
             field, message = _integrity_field(exc)

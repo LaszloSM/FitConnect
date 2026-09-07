@@ -5,6 +5,8 @@ from decimal import Decimal
 from typing import Optional, Literal
 from pydantic import BaseModel, EmailStr, Field, field_validator, model_validator
 
+from app.services.storage import resolve_media_url
+
 from app.models.tenant.member import MemberStatus, IdType, Gender, TrainingGoal
 from app.models.tenant.payment import PaymentMethod, PaymentStatus, PaymentKind
 from app.models.tenant.membership import MembershipStatus
@@ -84,6 +86,17 @@ class MemberCreate(MemberBase):
     # La membresía es parte del alta: inicia hoy (Bogotá) siempre
     plan_id: uuid.UUID
     payment_method: Optional[str] = None  # "cash" | "transfer" | "card" | None
+    # Ley 1581: el socio acepta la política de tratamiento de datos (obligatorio)
+    # y, aparte, el uso de su foto (opcional)
+    consent_data: bool = True
+    consent_image: bool = False
+
+    @field_validator("consent_data")
+    @classmethod
+    def consent_required(cls, v: bool) -> bool:
+        if not v:
+            raise ValueError("El socio debe aceptar la política de tratamiento de datos")
+        return v
 
     @field_validator("parq_answers")
     @classmethod
@@ -120,6 +133,16 @@ class MemberResponse(MemberBase):
     id: uuid.UUID
     qr_code: Optional[str] = None
     member_type: str = "member"
+    consent_data_at: Optional[datetime] = None
+    consent_image_at: Optional[datetime] = None
+    # Sin max_length: las URLs firmadas de AWS (con security token) pasan de 500 chars
+    photo_url: Optional[str] = None
+
+    @field_validator("photo_url", mode="before")
+    @classmethod
+    def _signed_photo(cls, v):
+        return resolve_media_url(v)
+
     created_at: datetime
     updated_at: datetime
     # Populated by list endpoint via JOIN — None if no membership
@@ -129,6 +152,11 @@ class MemberResponse(MemberBase):
 
     class Config:
         from_attributes = True
+
+
+class ConsentUpdate(BaseModel):
+    consent_data: Optional[bool] = None
+    consent_image: Optional[bool] = None
 
 
 # ─── Membership ───
@@ -211,6 +239,11 @@ class PaymentResponse(PaymentBase):
     destination_account_id: Optional[str] = None
     transfer_reference: Optional[str] = None
     proof_url: Optional[str] = None
+
+    @field_validator("proof_url", mode="before")
+    @classmethod
+    def _signed_proof(cls, v):
+        return resolve_media_url(v)
     proof_uploaded_at: Optional[datetime] = None
     refunded_at: Optional[datetime] = None
     refund_reason: Optional[str] = None

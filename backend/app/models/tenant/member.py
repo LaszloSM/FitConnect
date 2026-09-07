@@ -1,7 +1,8 @@
 import uuid
 import enum
 from datetime import date
-from sqlalchemy import String, Enum as SAEnum, Date, Index, text
+from sqlalchemy import String, Enum as SAEnum, Date, DateTime, Index, text
+from datetime import datetime
 from sqlalchemy.dialects.postgresql import UUID, JSONB
 from sqlalchemy.orm import mapped_column, Mapped
 from typing import Optional
@@ -83,7 +84,11 @@ class Member(TenantBase, TenantTimestampMixin):
     emergency_contact_name: Mapped[Optional[str]] = mapped_column(String(255), nullable=True)
     emergency_contact_phone: Mapped[Optional[str]] = mapped_column(String(50), nullable=True)
     blood_type: Mapped[Optional[str]] = mapped_column(String(5), nullable=True)
+    # Se guarda la KEY del objeto (privado, se firma al leer); las filas viejas traen URL completa
     photo_url: Mapped[Optional[str]] = mapped_column(String(500), nullable=True)
+    # Ley 1581: cuándo aceptó la política de datos y el uso de su imagen
+    consent_data_at: Mapped[Optional[datetime]] = mapped_column(DateTime, nullable=True)
+    consent_image_at: Mapped[Optional[datetime]] = mapped_column(DateTime, nullable=True)
     # PAR-Q: {"q1": true, "q2": false, ...} — 7 preguntas estándar
     parq_answers: Mapped[Optional[dict]] = mapped_column(JSONB, nullable=True)
     parq_completed_at: Mapped[Optional[date]] = mapped_column(Date, nullable=True)

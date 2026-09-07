@@ -7,7 +7,7 @@ from sqlalchemy import select, func, or_
 from decimal import Decimal
 
 from app.api.deps import get_tenant_db_from_token, get_current_staff, get_tenant_slug, require_role
-from app.schemas.member import MemberCreate, MemberUpdate, MemberResponse, MembershipResponse
+from app.schemas.member import MemberCreate, MemberUpdate, MemberResponse, MembershipResponse, ConsentUpdate
 from app.models.tenant.member import Member, MemberStatus
 from app.models.tenant.membership import Membership
 from app.models.tenant.user_staff import UserRole
@@ -15,6 +15,7 @@ from app.core.timeutil import today_bogota
 from app.services.gym_settings import get_gym_settings
 from app.services.membership_status import effective_status
 from app.services.member_import import build_template, import_members
+from app.services.storage import resolve_media_url, delete_object, scoped_key
 
 # Todo /members exige staff activo; el borrado además exige owner/admin.
 router = APIRouter(prefix="/members", tags=["members"], dependencies=[Depends(get_current_staff)])
@@ -99,6 +100,7 @@ async def list_members(
 async def create_member(
     payload: MemberCreate,
     db: AsyncSession = Depends(get_tenant_db_from_token),
+    slug: str = Depends(get_tenant_slug),
 ):
     if payload.email:
         existing = await db.execute(select(Member).where(Member.email == payload.email))
@@ -115,11 +117,16 @@ async def create_member(
             detail=f"La cédula {payload.id_number} ya está registrada a nombre de {holder}",
         )
 
-    # Separar los campos de membresía del payload del miembro
-    member_data = payload.model_dump(exclude={"plan_id", "payment_method"})
+    # Separar los campos de membresía y consentimiento del payload del miembro
+    member_data = payload.model_dump(exclude={"plan_id", "payment_method", "consent_data", "consent_image"})
     if not member_data.get("parq_completed_at"):
         member_data["parq_completed_at"] = today_bogota()
+    member_data["photo_url"] = scoped_key(member_data.get("photo_url"), f"members/{slug}/")
     member = Member(**member_data)
+    from app.core.timeutil import utcnow_naive
+    member.consent_data_at = utcnow_naive()
+    if payload.consent_image:
+        member.consent_image_at = utcnow_naive()
     db.add(member)
     await db.flush()  # obtener member.id sin cerrar la transacción
 
@@ -152,6 +159,7 @@ async def convert_visitor_to_member(
     payload: MemberCreate,
     db: AsyncSession = Depends(get_tenant_db_from_token),
     current_user=Depends(get_current_staff),
+    slug: str = Depends(get_tenant_slug),
 ):
     """Un visitante del pase del día completa el alta (datos, salud, plan) y
     pasa a ser socio conservando su cédula, pases y pagos."""
@@ -173,11 +181,16 @@ async def convert_visitor_to_member(
         if dup_email:
             raise HTTPException(status_code=400, detail="Email ya registrado")
 
-    member_data = payload.model_dump(exclude={"plan_id", "payment_method"})
+    member_data = payload.model_dump(exclude={"plan_id", "payment_method", "consent_data", "consent_image"})
     if not member_data.get("parq_completed_at"):
         member_data["parq_completed_at"] = today_bogota()
+    member_data["photo_url"] = scoped_key(member_data.get("photo_url"), f"members/{slug}/") or member.photo_url
     for field, value in member_data.items():
         setattr(member, field, value)
+    from app.core.timeutil import utcnow_naive
+    member.consent_data_at = utcnow_naive()
+    if payload.consent_image:
+        member.consent_image_at = utcnow_naive()
     member.member_type = "member"
     member.status = MemberStatus.active
     await db.flush()
@@ -495,11 +508,48 @@ async def upload_member_photo(
     if not member:
         raise HTTPException(status_code=404, detail="Miembro no encontrado")
 
+    if member.consent_image_at is None:
+        raise HTTPException(
+            status_code=409,
+            detail="El socio no ha autorizado el uso de su imagen. Registra el consentimiento antes de subir la foto.",
+        )
     key = f"members/{slug}/{member_id}.{ext}"
-    url = await upload_image(data, key, file.content_type)
-    member.photo_url = url
+    # Se persiste la key: la foto es dato personal y se sirve firmada
+    member.photo_url = await upload_image(data, key, file.content_type)
     await db.commit()
-    return {"photo_url": url}
+    return {"photo_url": resolve_media_url(member.photo_url)}
+
+
+@router.post("/{member_id}/consent")
+async def record_consent(
+    member_id: uuid.UUID,
+    payload: ConsentUpdate,
+    db: AsyncSession = Depends(get_tenant_db_from_token),
+    current_user=Depends(get_current_staff),
+):
+    """Registra (o revoca) el consentimiento de datos/imagen de un socio.
+    Revocar la imagen borra la foto del almacenamiento (supresión real)."""
+    from app.core.timeutil import utcnow_naive
+    from app.services.audit import audit
+    member = (await db.execute(select(Member).where(Member.id == member_id))).scalar_one_or_none()
+    if not member:
+        raise HTTPException(status_code=404, detail="Miembro no encontrado")
+    revoking = (payload.consent_data is False) or (payload.consent_image is False)
+    if revoking and current_user.role == UserRole.receptionist:
+        raise HTTPException(status_code=403, detail="Solo owner o admin revocan consentimientos")
+    changes = {}
+    if payload.consent_data is not None:
+        member.consent_data_at = utcnow_naive() if payload.consent_data else None
+        changes["consent_data"] = payload.consent_data
+    if payload.consent_image is not None:
+        member.consent_image_at = utcnow_naive() if payload.consent_image else None
+        changes["consent_image"] = payload.consent_image
+        if not payload.consent_image and member.photo_url:
+            changes["photo_deleted"] = await delete_object(member.photo_url)
+            member.photo_url = None
+    audit(db, current_user, "member.consent", "member", member.id, changes)
+    await db.commit()
+    return {"consent_data_at": member.consent_data_at, "consent_image_at": member.consent_image_at, "photo_url": resolve_media_url(member.photo_url) if member.photo_url else None}
 
 
 @router.get("/{member_id}", response_model=MemberResponse)
@@ -519,12 +569,15 @@ async def update_member(
     member_id: uuid.UUID,
     payload: MemberUpdate,
     db: AsyncSession = Depends(get_tenant_db_from_token),
+    slug: str = Depends(get_tenant_slug),
 ):
     result = await db.execute(select(Member).where(Member.id == member_id))
     member = result.scalar_one_or_none()
     if not member:
         raise HTTPException(status_code=404, detail="Miembro no encontrado")
 
+    if payload.photo_url is not None:
+        payload.photo_url = scoped_key(payload.photo_url, f"members/{slug}/") or member.photo_url
     if payload.id_number and payload.id_number != member.id_number:
         duplicate = await db.execute(
             select(Member.full_name).where(
@@ -555,6 +608,8 @@ async def delete_member(
     member = result.scalar_one_or_none()
     if not member:
         raise HTTPException(status_code=404, detail="Miembro no encontrado")
+    if member.photo_url:
+        await delete_object(member.photo_url)
     await db.delete(member)
     await db.commit()
     return None

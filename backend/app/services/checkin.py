@@ -19,6 +19,7 @@ from app.models.tenant.session_booking import SessionBooking
 from app.services.gym_settings import get_gym_settings
 from app.services.membership_status import effective_status
 from app.services import realtime
+from app.services.storage import resolve_media_url
 
 # Ventana anti-doble-registro: mismo miembro no puede registrar asistencia
 # dos veces en este intervalo (no aplica entre un denegado y su override).
@@ -168,7 +169,7 @@ def publish_event(
         "denial_reason": denial_reason,
         "member_id": str(member.id),
         "member_name": member.full_name,
-        "photo_url": member.photo_url,
+        "photo_url": resolve_media_url(member.photo_url),
         "membership_status": status,
         "day_pass": status == "ok" and membership is None,
         "plan_name": membership.plan_name if membership else ("Pase del día" if status == "ok" else None),

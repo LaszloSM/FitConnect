@@ -52,5 +52,10 @@ J2_INVENTARIO: list[str] = [
     "FROM products p WHERE p.stock <> 0 AND NOT EXISTS (SELECT 1 FROM stock_movements m WHERE m.product_id = p.id)",
 ]
 
+J4_CONSENTIMIENTOS: list[str] = [
+    "ALTER TABLE members ADD COLUMN IF NOT EXISTS consent_data_at TIMESTAMP NULL",
+    "ALTER TABLE members ADD COLUMN IF NOT EXISTS consent_image_at TIMESTAMP NULL",
+]
+
 # Orden cronológico: el aligner las aplica todas, en orden, tras create_all.
-ALIGN_STATEMENTS: list[str] = [*J1_INGRESOS_PASE_TRANSFERENCIAS, *J2_INVENTARIO]
+ALIGN_STATEMENTS: list[str] = [*J1_INGRESOS_PASE_TRANSFERENCIAS, *J2_INVENTARIO, *J4_CONSENTIMIENTOS]
