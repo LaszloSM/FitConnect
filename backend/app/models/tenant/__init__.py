@@ -25,6 +25,7 @@ from app.models.tenant.payment_link import PaymentLink, WebhookEvent
 from app.models.tenant.notification_outbox import NotificationOutbox
 from app.models.tenant.product import Product
 from app.models.tenant.inventory import ProductCategory, StockMovement, StockMovementType
+from app.models.tenant.routine import Routine, RoutineDay, RoutineExercise, MemberRoutine
 from app.models.tenant.payment_item import PaymentItem
 from app.models.tenant.kiosk_device import KioskDevice
 from app.models.tenant.instructor import Instructor
@@ -57,6 +58,7 @@ __all__ = [
     "WebhookEvent",
     "NotificationOutbox",
     "Product", "ProductCategory", "StockMovement", "StockMovementType",
+    "Routine", "RoutineDay", "RoutineExercise", "MemberRoutine",
     "PaymentItem",
     "KioskDevice",
     "Instructor",

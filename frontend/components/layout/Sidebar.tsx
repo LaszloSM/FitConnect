@@ -36,6 +36,7 @@ const navGroups: NavGroup[] = [
       { href: "/members", label: "Miembros", icon: Users },
       { href: "/checkins", label: "Check-ins", icon: Activity },
       { href: "/classes", label: "Clases", icon: Calendar },
+      { href: "/routines", label: "Rutinas", icon: Dumbbell },
     ],
   },
   {
