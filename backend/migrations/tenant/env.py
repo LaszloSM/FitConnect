@@ -16,7 +16,9 @@ config.set_main_option("sqlalchemy.url", db_url)
 target_metadata = TenantBase.metadata
 
 if config.config_file_name is not None:
-    fileConfig(config.config_file_name)
+    # Ver la nota en migrations/env.py: con el default (True) este fileConfig deja
+    # mudo al proceso entero, y los tenants se migran desde la app en caliente.
+    fileConfig(config.config_file_name, disable_existing_loggers=False)
 
 
 def run_migrations_offline():

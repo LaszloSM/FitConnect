@@ -13,7 +13,12 @@ config.set_main_option("sqlalchemy.url", db_url)
 target_metadata = MasterBase.metadata
 
 if config.config_file_name is not None:
-    fileConfig(config.config_file_name)
+    # disable_existing_loggers=False es obligatorio. En producción el backend corre
+    # `alembic upgrade head` sobre este env al arrancar (app/db/migrate.py, con
+    # RUN_MIGRATIONS_ON_STARTUP=true). Con el default (True), fileConfig apaga los
+    # loggers ya configurados —uvicorn.access, uvicorn.error y los de la app— y el
+    # proceso queda mudo el resto de su vida: así estuvo dos días sin registrar nada.
+    fileConfig(config.config_file_name, disable_existing_loggers=False)
 
 
 def run_migrations_offline():

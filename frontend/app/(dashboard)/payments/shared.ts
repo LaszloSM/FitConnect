@@ -1,4 +1,5 @@
 import { toast } from "sonner";
+import { formatDateTime } from "@/lib/format";
 import type { AxiosInstance } from "axios";
 
 export const METHOD_LABELS: Record<string, string> = {
@@ -169,7 +170,7 @@ export async function openReceipt(client: AxiosInstance, paymentId: string) {
       <div class="row"><span>Método</span><span>${METHOD_LABELS[data.method] ?? data.method ?? "-"}</span></div>
       ${itemRows ? `<div class="items">${itemRows}</div>` : ""}
       <div class="row total"><span>Total</span><span>$${Number(data.amount).toLocaleString("es-CO")}</span></div>
-      <div class="foot">${new Date(data.issued_at).toLocaleString("es-CO")}</div>
+      <div class="foot">${formatDateTime(data.issued_at)}</div>
       <script>window.onload = () => window.print();</script>
       </body></html>`;
     const w = window.open("", "_blank", "width=380,height=600");

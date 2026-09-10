@@ -138,7 +138,7 @@ export function HistoryTab({ refreshSignal }: { refreshSignal: number }) {
         p.destination_account?.label ?? "",
         p.status,
         p.transfer_reference ?? p.external_ref ?? "",
-        new Date(p.created_at).toLocaleDateString("es-CO"),
+        formatDate(p.created_at, "dd/MM/yyyy"),
       ]),
     ];
     const csv = rows.map((r) => r.map((v) => `"${String(v).replace(/"/g, '""')}"`).join(",")).join("\n");

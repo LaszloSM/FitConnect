@@ -126,5 +126,12 @@ J7_VIDEO_EJERCICIOS: list[str] = [
     "CREATE UNIQUE INDEX IF NOT EXISTS uq_exercise_media_exercise ON exercise_media (exercise_id)",
 ]
 
+J8_GYM_SETTINGS_FLAGS: list[str] = [
+    # b7c8d9e0f1a2_cash_shifts_enabled.py
+    "ALTER TABLE gym_settings ADD COLUMN IF NOT EXISTS cash_shifts_enabled BOOLEAN NOT NULL DEFAULT true",
+    # c9d0e1f2a3b4_tour_completed_at.py
+    "ALTER TABLE gym_settings ADD COLUMN IF NOT EXISTS tour_completed_at TIMESTAMP NULL",
+]
+
 # Orden cronológico: el aligner las aplica todas, en orden, tras create_all.
-ALIGN_STATEMENTS: list[str] = [*J1_INGRESOS_PASE_TRANSFERENCIAS, *J2_INVENTARIO, *J4_CONSENTIMIENTOS, *J6_ACCESO, *J7_VIDEO_EJERCICIOS]
+ALIGN_STATEMENTS: list[str] = [*J1_INGRESOS_PASE_TRANSFERENCIAS, *J2_INVENTARIO, *J4_CONSENTIMIENTOS, *J6_ACCESO, *J7_VIDEO_EJERCICIOS, *J8_GYM_SETTINGS_FLAGS]

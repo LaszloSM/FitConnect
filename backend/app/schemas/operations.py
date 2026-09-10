@@ -151,7 +151,6 @@ class MachineResponse(MachineBase):
 
 # ─── MaintenanceLog ───
 class MaintenanceLogBase(BaseModel):
-    machine_id: uuid.UUID
     description: str = Field(min_length=1, max_length=1000)
     technician: str = Field(min_length=1, max_length=255)
     cost: Optional[Decimal] = Field(default=None, ge=0, decimal_places=2)
@@ -159,10 +158,13 @@ class MaintenanceLogBase(BaseModel):
 
 
 class MaintenanceLogCreate(MaintenanceLogBase):
+    # Sin machine_id: ya viaja en la ruta /machines/{machine_id}/maintenance.
+    # Pedirlo también en el cuerpo permitía que ambos se contradijeran.
     pass
 
 
 class MaintenanceLogResponse(MaintenanceLogBase):
+    machine_id: uuid.UUID
     id: uuid.UUID
     created_at: datetime
     updated_at: datetime

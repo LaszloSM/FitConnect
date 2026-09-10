@@ -108,7 +108,7 @@ async def create_maintenance(
     machine = (await db.execute(select(Machine).where(Machine.id == machine_id))).scalar_one_or_none()
     if not machine:
         raise HTTPException(status_code=404, detail="Maquina no encontrada")
-    log = MaintenanceLog(machine_id=machine_id, **payload.model_dump(exclude={"machine_id"}))
+    log = MaintenanceLog(machine_id=machine_id, **payload.model_dump())
     db.add(log)
     # Registrar mantenimiento reinicia el contador del preventivo
     from app.core.timeutil import today_bogota

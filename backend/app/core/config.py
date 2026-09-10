@@ -1,3 +1,6 @@
+import logging
+from typing import Literal
+
 from pydantic import model_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
@@ -18,7 +21,10 @@ class Settings(BaseSettings):
 
     redis_url: str
     secret_key: str
-    environment: str = "development"
+    # Tipado cerrado a propósito: el compose arrancaba con "prod", que no es
+    # ninguno de estos, y el guard de abajo (que compara con "production") nunca
+    # corría. Producción quedó dos meses sin validar su propia configuración.
+    environment: Literal["development", "test", "production"] = "development"
     log_level: str = "INFO"
     # Si está activo, el backend corre `alembic upgrade head` del Master al arrancar
     # (con advisory lock para que solo una réplica migre). Default False: en dev la
@@ -64,7 +70,15 @@ class Settings(BaseSettings):
         if any("localhost" in o or "127.0.0.1" in o for o in self.cors_origins):
             errors.append(f"cors_origins apunta a localhost en producción: {self.cors_origins}")
         if "sandbox.wompi.co" in self.wompi_api_url:
-            errors.append("wompi_api_url sigue en sandbox en producción")
+            # Excepción temporal: todavía no hay cuenta de Wompi de producción, así
+            # que esto avisa en vez de impedir el arranque. Cuando exista la cuenta,
+            # mover esta línea de vuelta a `errors` y borrar el warning.
+            # Ojo: las llaves de Wompi son POR GYM (cifradas en gym_settings), pero
+            # esta URL es de plataforma. Si un gym configura llaves de producción
+            # mientras esto siga en sandbox, sus cobros fallan sin explicación.
+            logging.getLogger(__name__).warning(
+                "wompi_api_url apunta a sandbox en producción: los pagos en línea NO cobran de verdad"
+            )
         if errors:
             raise ValueError("Configuración de producción insegura -> " + "; ".join(errors))
         return self

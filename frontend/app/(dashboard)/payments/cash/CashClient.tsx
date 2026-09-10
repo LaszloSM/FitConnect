@@ -12,11 +12,9 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { CurrencyInput } from "@/components/ui/currency-input";
 import { apiClient } from "@/lib/api";
-import { formatCOP } from "@/lib/format";
+import { formatCOP, formatDateTime } from "@/lib/format";
 import { ArrowLeft, Lock, Unlock, Loader2, TrendingDown, Plus } from "lucide-react";
 import { toast } from "sonner";
-import { format } from "date-fns";
-import { es } from "date-fns/locale";
 
 const EXPENSE_CATEGORIES = [
   { value: "servicios", label: "Servicios" },
@@ -282,7 +280,7 @@ export default function CashClient() {
             {history.filter((s) => s.status === "closed").map((s) => (
               <div key={s.id} className="flex items-center justify-between p-2.5 rounded-lg border border-[var(--border-base)] bg-[var(--bg-muted)] text-sm">
                 <span className="text-[var(--text-muted)]">
-                  {s.closed_at ? format(new Date(s.closed_at), "d MMM yyyy, HH:mm", { locale: es }) : "—"}
+                  {s.closed_at ? formatDateTime(s.closed_at) : "—"}
                 </span>
                 <div className="flex items-center gap-4">
                   <span className="text-[var(--text-base)]">Esperado {formatCOP(Number(s.expected_cash ?? 0))}</span>

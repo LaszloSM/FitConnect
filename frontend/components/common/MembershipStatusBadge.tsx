@@ -1,3 +1,4 @@
+import { daysUntil } from "@/lib/format"
 import { cn } from "@/lib/utils"
 
 type MembershipStatus = "ok" | "expired" | "no_membership"
@@ -6,14 +7,6 @@ interface MembershipStatusBadgeProps {
   status: MembershipStatus
   endDate?: string
   className?: string
-}
-
-function getDaysDiff(isoDate: string): number {
-  const end = new Date(isoDate)
-  const now = new Date()
-  end.setHours(0, 0, 0, 0)
-  now.setHours(0, 0, 0, 0)
-  return Math.round((end.getTime() - now.getTime()) / (1000 * 60 * 60 * 24))
 }
 
 function MembershipStatusBadge({ status, endDate, className }: MembershipStatusBadgeProps) {
@@ -26,14 +19,14 @@ function MembershipStatusBadge({ status, endDate, className }: MembershipStatusB
     badgeClass = "bg-[var(--bg-muted)] border-[var(--border-base)] text-[var(--text-muted)]"
     dotClass = "bg-[var(--text-muted)]"
   } else if (status === "expired") {
-    const days = endDate ? Math.abs(getDaysDiff(endDate)) : null
+    const days = endDate ? Math.abs(daysUntil(endDate)) : null
     label = days !== null ? `Vencida · hace ${days} día${days !== 1 ? "s" : ""}` : "Vencida"
     badgeClass = "bg-red-50 border-red-200 text-red-700 dark:bg-red-950/30 dark:border-red-800/50 dark:text-red-400"
     dotClass = "bg-red-500"
   } else {
     // status === "ok"
     if (endDate) {
-      const days = getDaysDiff(endDate)
+      const days = daysUntil(endDate)
       if (days <= 7) {
         label = `Por vencer · ${days} día${days !== 1 ? "s" : ""}`
         badgeClass = "bg-amber-50 border-amber-200 text-amber-700 dark:bg-amber-950/30 dark:border-amber-800/50 dark:text-amber-400"

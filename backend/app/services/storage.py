@@ -13,7 +13,7 @@ from urllib.parse import urlparse
 
 import boto3
 from botocore.client import Config as BotoConfig
-from botocore.exceptions import ClientError
+from botocore.exceptions import BotoCoreError, ClientError
 
 from app.core.config import settings
 
@@ -193,7 +193,19 @@ def _upload_sync(data: bytes, key: str, content_type: str) -> str:
     return public_url(key) if is_public_key(key) else key
 
 
+class StorageUnavailable(Exception):
+    """El almacenamiento no respondió. Se traduce a un 503 con mensaje claro en vez
+    de un 500 mudo: cuando MinIO estaba caído, el usuario veía un error genérico y
+    el log no decía nada."""
+
+
 async def upload_image(data: bytes, key: str, content_type: str) -> str:
     """Sube bytes y devuelve lo que se persiste: URL pública si el prefijo es
     público (marca), la key si es dato personal (se firma al leer)."""
-    return await asyncio.to_thread(_upload_sync, data, key, content_type)
+    try:
+        return await asyncio.to_thread(_upload_sync, data, key, content_type)
+    except (BotoCoreError, ClientError) as e:
+        logger.error("Fallo al subir %s al almacenamiento: %s", key, e)
+        raise StorageUnavailable(
+            "El almacenamiento de archivos no está disponible; intenta de nuevo en unos minutos"
+        ) from e

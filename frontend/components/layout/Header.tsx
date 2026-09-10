@@ -6,8 +6,7 @@ import { useTheme } from "next-themes";
 import Link from "next/link";
 import { AnimatePresence, motion } from "framer-motion";
 import { Bell, LogOut, Moon, Settings, Sun } from "lucide-react";
-import { formatDistanceToNow } from "date-fns";
-import { es } from "date-fns/locale";
+import { formatTimeAgo } from "@/lib/format";
 import { Button } from "@/components/ui/button";
 import { apiClient } from "@/lib/api";
 import { useSidebar } from "@/components/layout/SidebarContext";
@@ -298,10 +297,7 @@ export function Header() {
                             {n.message}
                           </p>
                           <p className="text-[10px] mt-1 text-[var(--text-subtle)]">
-                            {formatDistanceToNow(new Date(n.created_at), {
-                              addSuffix: true,
-                              locale: es,
-                            })}
+                            {formatTimeAgo(n.created_at)}
                           </p>
                         </div>
                       </div>

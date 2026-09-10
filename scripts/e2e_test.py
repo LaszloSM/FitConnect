@@ -59,6 +59,51 @@ async def test_login(email: str, password: str):
         return data["access_token"]
 
 
+PARQ_OK = {f"q{i}": False for i in range(1, 8)}
+
+
+def full_member_fields(**overrides):
+    """Mismo contrato que backend/tests/helpers.py: el alta exige contacto, salud
+    (PAR-Q + emergencia) y un plan. Este script quedó dos fases atrás y fallaba en
+    el primer paso; si vuelve a pasar, mira ese helper."""
+    fields = {
+        "full_name": "Miembro E2E",
+        "email": f"m-{uuid.uuid4().hex[:10]}@test.com",
+        "id_type": "CC",
+        "id_number": str(uuid.uuid4().int)[:10],
+        "phone": "3001112233",
+        "birth_date": "1995-05-10",
+        "address": "Calle 1 # 2-33",
+        "city": "Bogota",
+        "emergency_contact_name": "Contacto Emergencia",
+        "emergency_contact_phone": "3009998877",
+        "parq_answers": dict(PARQ_OK),
+    }
+    fields.update(overrides)
+    return fields
+
+
+async def _create_plan(client, token: str) -> str:
+    r = await client.post(
+        f"{API}/member-plans/",
+        headers={"Authorization": f"Bearer {token}"},
+        json={"name": f"Mensual {uuid.uuid4().hex[:6]}", "price": "80000.00", "duration_days": 30},
+    )
+    assert r.status_code in (200, 201), f"Plan create failed: {r.text}"
+    return r.json()["id"]
+
+
+async def _create_member(client, token: str, **overrides) -> str:
+    plan_id = overrides.pop("plan_id", None) or await _create_plan(client, token)
+    r = await client.post(
+        f"{API}/members",
+        headers={"Authorization": f"Bearer {token}"},
+        json=full_member_fields(plan_id=plan_id, **overrides),
+    )
+    assert r.status_code == 201, f"Member create failed: {r.text}"
+    return r.json()["id"]
+
+
 async def test_dashboard_kpis(token: str):
     async with httpx.AsyncClient() as client:
         r = await client.get(
@@ -75,19 +120,7 @@ async def test_dashboard_kpis(token: str):
 
 async def test_members_crud(token: str):
     async with httpx.AsyncClient() as client:
-        # Create
-        r = await client.post(
-            f"{API}/members",
-            headers={"Authorization": f"Bearer {token}"},
-            json={
-                "full_name": "Juan Perez",
-                "email": "juan@test.com",
-                "phone": "3001234567",
-                "status": "active",
-            },
-        )
-        assert r.status_code == 201, f"Member create failed: {r.text}"
-        member_id = r.json()["id"]
+        member_id = await _create_member(client, token, full_name="Juan Perez")
         print(f"[PASS] Member created -> {member_id}")
 
         # List
@@ -121,13 +154,14 @@ async def test_members_crud(token: str):
 
 async def test_payments(token: str):
     async with httpx.AsyncClient() as client:
-        # First create a member to attach payment to
-        r = await client.post(
-            f"{API}/members",
+        # Los turnos de caja vienen activos por defecto; este gym de prueba cobra directo.
+        await client.patch(
+            f"{API}/settings/operations",
             headers={"Authorization": f"Bearer {token}"},
-            json={"full_name": "Pago Test", "email": "pago@test.com", "status": "active"},
+            json={"cash_shifts_enabled": False},
         )
-        member_id = r.json()["id"]
+        # First create a member to attach payment to
+        member_id = await _create_member(client, token, full_name="Pago Test")
 
         r = await client.post(
             f"{API}/payments",
@@ -137,6 +171,7 @@ async def test_payments(token: str):
                 "amount": "50000.00",
                 "method": "cash",
                 "concept": "Mensualidad mayo",
+                "status": "paid",
             },
         )
         assert r.status_code == 201, f"Payment create failed: {r.text}"
@@ -145,12 +180,7 @@ async def test_payments(token: str):
 
 async def test_checkins(token: str):
     async with httpx.AsyncClient() as client:
-        r = await client.post(
-            f"{API}/members",
-            headers={"Authorization": f"Bearer {token}"},
-            json={"full_name": "Checkin Test", "email": "checkin@test.com", "status": "active"},
-        )
-        member_id = r.json()["id"]
+        member_id = await _create_member(client, token, full_name="Checkin Test")
 
         r = await client.post(
             f"{API}/checkins",
@@ -210,7 +240,8 @@ async def test_reports(token: str):
 
 
 async def test_frontend_build():
-    async with httpx.AsyncClient() as client:
+    # El dev server compila cada ruta en el primer request: sin margen da ReadTimeout.
+    async with httpx.AsyncClient(timeout=120) as client:
         for path in ["/login", "/register", "/dashboard", "/members"]:
             r = await client.get(f"{FRONTEND_URL}{path}", follow_redirects=True)
             assert r.status_code == 200, f"Frontend {path} failed: {r.status_code}"

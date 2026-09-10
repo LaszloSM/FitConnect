@@ -6,7 +6,7 @@ import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { motion, type Variants } from "framer-motion";
 import { apiClient } from "@/lib/api";
-import { formatCOP, formatTimeAgo } from "@/lib/format";
+import { formatCOP, formatTimeAgo, formatDate, formatDateTime, parseDateOnly, todayISO, daysUntil } from "@/lib/format";
 import { GlassCard } from "@/components/common/GlassCard";
 import { Button } from "@/components/ui/button";
 import {
@@ -47,8 +47,6 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
-import { formatDistanceToNow, format } from "date-fns";
-import { es } from "date-fns/locale";
 
 type Tab = "info" | "timeline" | "memberships" | "payments" | "checkins" | "routine" | "access" | "qr";
 
@@ -127,7 +125,7 @@ export default function MemberDetailClient({ memberId }: { memberId: string }) {
   const [loading, setLoading] = useState(true);
   const [plans, setPlans] = useState<any[]>([]);
   const [selectedPlan, setSelectedPlan] = useState("");
-  const [startDate, setStartDate] = useState(new Date().toISOString().slice(0, 10));
+  const [startDate, setStartDate] = useState(todayISO());
   const [paymentMethod, setPaymentMethod] = useState("");
   const [assigning, setAssigning] = useState(false);
   const [editOpen, setEditOpen] = useState(false);
@@ -243,7 +241,7 @@ export default function MemberDetailClient({ memberId }: { memberId: string }) {
       const chained = realStart && realStart !== startDate;
       toast.success(
         chained
-          ? `Membresía programada desde el ${format(new Date(realStart + "T00:00:00"), "d 'de' MMMM yyyy", { locale: es })} (al terminar la vigente)`
+          ? `Membresía programada desde el ${formatDate(realStart, "d 'de' MMMM yyyy")} (al terminar la vigente)`
           : paymentMethod ? "Membresía asignada y pago generado" : "Membresía asignada correctamente"
       );
       setSelectedPlan("");
@@ -522,13 +520,13 @@ export default function MemberDetailClient({ memberId }: { memberId: string }) {
                   { label: "Correo", value: member.email, icon: <Mail className="h-3.5 w-3.5" /> },
                   { label: "Teléfono", value: member.phone, icon: <Phone className="h-3.5 w-3.5" /> },
                   { label: "Documento", value: [member.id_type, member.id_number].filter(Boolean).join(" "), icon: <IdCard className="h-3.5 w-3.5" /> },
-                  { label: "Fecha nacimiento", value: member.birth_date ? format(new Date(member.birth_date + "T00:00"), "d MMMM yyyy", { locale: es }) : null, icon: <Calendar className="h-3.5 w-3.5" /> },
+                  { label: "Fecha nacimiento", value: member.birth_date ? formatDate(member.birth_date, "d MMMM yyyy") : null, icon: <Calendar className="h-3.5 w-3.5" /> },
                   { label: "Ciudad", value: member.city, icon: null },
                   { label: "Dirección", value: member.address, icon: null },
                   { label: "Contacto emergencia", value: member.emergency_contact_name, icon: null },
                   { label: "Tel. emergencia", value: member.emergency_contact_phone, icon: null },
                   { label: "Grupo sanguíneo", value: member.blood_type, icon: null },
-                  { label: "Miembro desde", value: format(new Date(member.created_at), "d MMM yyyy", { locale: es }), icon: null },
+                  { label: "Miembro desde", value: formatDate(member.created_at), icon: null },
                 ] as { label: string; value: string | null | undefined; icon: React.ReactNode }[])
                   .filter(({ value }) => value)
                   .map(({ label, value, icon }) => (
@@ -648,9 +646,7 @@ export default function MemberDetailClient({ memberId }: { memberId: string }) {
               {/* Renewal alert + quick pre-fill */}
               {(() => {
                 if (!activeMembership?.end_date) return null;
-                const daysLeft = Math.ceil(
-                  (new Date(activeMembership.end_date).getTime() - Date.now()) / 86_400_000
-                );
+                const daysLeft = daysUntil(activeMembership.end_date);
                 if (daysLeft > 7) return null;
                 const activePlanObj = plans.find((p: any) => p.name === activeMembership.plan_name);
                 const renewDate = activeMembership.end_date; // start day after current end
@@ -820,7 +816,7 @@ export default function MemberDetailClient({ memberId }: { memberId: string }) {
                       <div className="flex-1 min-w-0">
                         <p className="text-[var(--text-base)] font-medium truncate">{p.concept || "Pago"}</p>
                         <p className="text-[var(--text-muted)] text-[11px]">
-                          {p.method ? p.method.charAt(0).toUpperCase() + p.method.slice(1) : ""} · {format(new Date(p.created_at), "d MMM yyyy", { locale: es })}
+                          {p.method ? p.method.charAt(0).toUpperCase() + p.method.slice(1) : ""} · {formatDate(p.created_at)}
                         </p>
                       </div>
                       <div className="text-right shrink-0">
@@ -898,10 +894,10 @@ export default function MemberDetailClient({ memberId }: { memberId: string }) {
                       detail = ev.status === "paid" ? "Pagado" : ev.status === "pending" ? "Pendiente" : ev.status;
                     } else if (ev.type === "membership") {
                       title = `Membresía ${ev.plan_name}`;
-                      detail = `${format(new Date(ev.start_date + "T12:00"), "d MMM", { locale: es })} → ${format(new Date(ev.end_date + "T12:00"), "d MMM yyyy", { locale: es })} · ${formatCOP(ev.price)}`;
+                      detail = `${formatDate(ev.start_date, "d MMM")} → ${formatDate(ev.end_date)} · ${formatCOP(ev.price)}`;
                     } else if (ev.type === "booking") {
                       title = `Reserva: ${ev.class_name}`;
-                      detail = `${format(new Date(ev.session_date + "T12:00"), "d MMM", { locale: es })}${ev.start_time ? ` ${ev.start_time.slice(0, 5)}` : ""} · ${
+                      detail = `${formatDate(ev.session_date, "d MMM")}${ev.start_time ? ` ${ev.start_time.slice(0, 5)}` : ""} · ${
                         ev.status === "attended" ? "asistió" : ev.status === "no_show" ? "no vino" : ev.status === "cancelled" ? "cancelada" : ev.status === "waitlisted" ? "lista de espera" : "reservada"
                       }`;
                     }
@@ -953,10 +949,10 @@ export default function MemberDetailClient({ memberId }: { memberId: string }) {
                       </div>
                       <div className="text-right">
                         <p className="text-[var(--text-muted)] text-xs">
-                          {formatDistanceToNow(new Date(c.created_at), { addSuffix: true, locale: es })}
+                          {formatTimeAgo(c.created_at)}
                         </p>
                         <p className="text-[var(--text-muted)] text-[10px]">
-                          {format(new Date(c.created_at), "d MMM, HH:mm", { locale: es })}
+                          {formatDateTime(c.created_at, "d MMM, HH:mm")}
                         </p>
                       </div>
                     </div>

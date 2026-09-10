@@ -4,6 +4,7 @@
 import { useEffect, useState } from "react";
 import { useSession } from "next-auth/react";
 import { toast } from "sonner";
+import { formatDate, parseDateOnly } from "@/lib/format";
 import { motion } from "framer-motion";
 import { GlassCard } from "@/components/common/GlassCard";
 import { PageHeader } from "@/components/common/PageHeader";
@@ -46,7 +47,7 @@ interface Machine {
 function maintenanceOverdue(m: Machine): boolean {
   if (!m.maintenance_interval_days) return false;
   if (!m.last_maintenance_date) return true;
-  const due = new Date(m.last_maintenance_date + "T12:00:00");
+  const due = parseDateOnly(m.last_maintenance_date);
   due.setDate(due.getDate() + m.maintenance_interval_days);
   return due.getTime() <= Date.now();
 }
@@ -300,7 +301,7 @@ export default function MachinesClient() {
               <div className="space-y-2">
                 <Label className="text-[var(--text-muted)] text-sm">Último mantenimiento</Label>
                 <DatePicker
-                  value={form.last_maintenance_date ? new Date(form.last_maintenance_date + "T12:00:00") : undefined}
+                  value={form.last_maintenance_date ? parseDateOnly(form.last_maintenance_date) : undefined}
                   onChange={(d) => setForm({ ...form, last_maintenance_date: d.toISOString().split("T")[0] })}
                   placeholder="Seleccionar fecha"
                   maxDate={new Date()}
@@ -488,7 +489,7 @@ export default function MachinesClient() {
                         <div className="space-y-3">
                           {m.last_maintenance_date && (
                             <div className="flex flex-wrap gap-3 text-xs text-[var(--text-muted)]">
-                              <span>Último mantenimiento: {new Date(m.last_maintenance_date + "T12:00:00").toLocaleDateString("es-ES")}</span>
+                              <span>Último mantenimiento: {formatDate(m.last_maintenance_date, "dd/MM/yyyy")}</span>
                             </div>
                           )}
 
@@ -507,7 +508,7 @@ export default function MachinesClient() {
                                   {log.cost != null && (
                                     <span>Costo: ${Number(log.cost).toLocaleString("es-CO")}</span>
                                   )}
-                                  <span>{new Date(log.created_at).toLocaleDateString("es-ES")}</span>
+                                  <span>{formatDate(log.created_at, "dd/MM/yyyy")}</span>
                                 </div>
                               </div>
                             ))}

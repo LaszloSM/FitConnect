@@ -1,7 +1,15 @@
+# Rotación de logs: json-file sin límite llenaba el disco de la instancia sin aviso.
+x-logging: &default-logging
+  driver: json-file
+  options:
+    max-size: "10m"
+    max-file: "3"
+
 services:
   db:
     image: postgres:16-alpine
     restart: always
+    logging: *default-logging
     environment:
       POSTGRES_USER: gymuser
       POSTGRES_PASSWORD: ${DB_PASSWORD}
@@ -24,6 +32,7 @@ services:
   redis:
     image: redis:7-alpine
     restart: always
+    logging: *default-logging
     healthcheck:
       test: ["CMD", "redis-cli", "ping"]
       interval: 5s
@@ -33,6 +42,7 @@ services:
   minio:
     image: minio/minio:latest
     restart: always
+    logging: *default-logging
     command: server /data
     environment:
       MINIO_ROOT_USER: fitconnect
@@ -50,13 +60,14 @@ services:
   backend:
     image: ${BACKEND_IMAGE}
     restart: always
+    logging: *default-logging
     environment:
       - MASTER_DATABASE_URL=postgresql+asyncpg://gymuser:${DB_PASSWORD}@db:5432/gymdb_master
       - TENANT_DATABASE_URL_TEMPLATE=postgresql+asyncpg://gymuser:${DB_PASSWORD}@db:5432/{db_name}
       - DATABASE_URL=postgresql+asyncpg://gymuser:${DB_PASSWORD}@db:5432/gymdb_master
       - REDIS_URL=redis://redis:6379
       - SECRET_KEY=${SECRET_KEY}
-      - ENVIRONMENT=prod
+      - ENVIRONMENT=production
       - RUN_MIGRATIONS_ON_STARTUP=true
       - CORS_ORIGINS=["${PUBLIC_URL}"]
       - FRONTEND_URL=${PUBLIC_URL}
@@ -78,6 +89,7 @@ services:
   frontend:
     image: ${FRONTEND_IMAGE}
     restart: always
+    logging: *default-logging
     environment:
       - NEXTAUTH_URL=${PUBLIC_URL}
       - NEXTAUTH_SECRET=${NEXTAUTH_SECRET}
@@ -89,6 +101,7 @@ services:
   caddy:
     image: caddy:2-alpine
     restart: always
+    logging: *default-logging
     ports:
       - "80:80"
       - "443:443"

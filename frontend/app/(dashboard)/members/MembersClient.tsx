@@ -13,7 +13,7 @@ import { EmptyState } from "@/components/common/EmptyState";
 import { QRCodeDisplay } from "@/components/common/QRCodeDisplay";
 import { PARQForm, PARQ_KEYS } from "@/components/common/PARQForm";
 import { apiClient } from "@/lib/api";
-import { formatCOP } from "@/lib/format";
+import { formatCOP, formatDate, parseDateOnly, todayISO, toISODate } from "@/lib/format";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -101,7 +101,7 @@ const selectCls =
 function calcAge(birthDate: string): number | null {
   if (!birthDate) return null;
   const today = new Date();
-  const birth = new Date(birthDate);
+  const birth = parseDateOnly(birthDate);
   let age = today.getFullYear() - birth.getFullYear();
   const m = today.getMonth() - birth.getMonth();
   if (m < 0 || (m === 0 && today.getDate() < birth.getDate())) age--;
@@ -207,7 +207,7 @@ export default function MembersClient() {
       m.status === "active" ? "Activo" : "Inactivo",
       m.membership_plan_name ?? "",
       m.membership_end_date ?? "",
-      new Date(m.created_at).toLocaleDateString("es-CO"),
+      formatDate(m.created_at, "dd/MM/yyyy"),
     ]);
     const csv = [headers, ...rows]
       .map((r) => r.map((v) => `"${String(v).replace(/"/g, '""')}"`).join(","))
@@ -216,7 +216,7 @@ export default function MembersClient() {
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
     a.href = url;
-    a.download = `miembros-${new Date().toISOString().slice(0, 10)}.csv`;
+    a.download = `miembros-${todayISO()}.csv`;
     a.click();
     URL.revokeObjectURL(url);
   };
@@ -440,7 +440,7 @@ export default function MembersClient() {
       blood_type: form.blood_type || undefined,
       // No persistir blobs locales ni URLs firmadas (el backend guarda la key)
       photo_url: form.photo_url.startsWith("blob:") || form.photo_url.startsWith("http") ? undefined : form.photo_url || undefined,
-      parq_completed_at: Object.keys(form.parq_answers).length > 0 ? new Date().toISOString().split("T")[0] : undefined,
+      parq_completed_at: Object.keys(form.parq_answers).length > 0 ? todayISO() : undefined,
     };
 
     if (!editing) {
@@ -558,8 +558,8 @@ export default function MembersClient() {
       <div className="space-y-2">
         <Label className="text-[var(--text-muted)] text-sm">Fecha de nacimiento {req && "*"}</Label>
         <DatePicker
-          value={form.birth_date ? new Date(form.birth_date + "T12:00:00") : undefined}
-          onChange={(d) => setForm({ ...form, birth_date: d.toISOString().split("T")[0] })}
+          value={form.birth_date ? parseDateOnly(form.birth_date) : undefined}
+          onChange={(d) => setForm({ ...form, birth_date: toISODate(d) })}
           placeholder="Seleccionar fecha"
           maxDate={new Date()}
           fromYear={1920}
@@ -700,9 +700,9 @@ export default function MembersClient() {
                         </div>
                         <div className="flex items-center gap-1.5 text-sm text-[var(--text-muted)]">
                           <Clock className="h-3.5 w-3.5" />
-                          {new Date(currentMembership.start_date).toLocaleDateString("es-CO")}
+                          {formatDate(currentMembership.start_date, "dd/MM/yyyy")}
                           {" → "}
-                          {new Date(currentMembership.end_date).toLocaleDateString("es-CO")}
+                          {formatDate(currentMembership.end_date, "dd/MM/yyyy")}
                         </div>
                       </div>
                     ) : (
@@ -1057,7 +1057,7 @@ export default function MembersClient() {
                           </span>
                           {m.membership_end_date && (
                             <span className="text-[10px] text-[var(--text-muted)] pl-1">
-                              Vence {new Date(m.membership_end_date).toLocaleDateString("es-CO")}
+                              Vence {formatDate(m.membership_end_date, "dd/MM/yyyy")}
                             </span>
                           )}
                         </div>
@@ -1069,7 +1069,7 @@ export default function MembersClient() {
                           </span>
                           {m.membership_end_date && (
                             <span className="text-[10px] text-[var(--text-muted)] pl-1">
-                              {new Date(m.membership_end_date).toLocaleDateString("es-CO")}
+                              {formatDate(m.membership_end_date, "dd/MM/yyyy")}
                             </span>
                           )}
                         </div>
@@ -1078,7 +1078,7 @@ export default function MembersClient() {
                       )}
                     </TableCell>
                     <TableCell className="text-[var(--text-muted)] text-sm">
-                      {new Date(m.created_at).toLocaleDateString("es-ES")}
+                      {formatDate(m.created_at, "dd/MM/yyyy")}
                     </TableCell>
                     <TableCell>
                       {m.qr_code ? (

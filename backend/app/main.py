@@ -4,6 +4,7 @@ from contextlib import asynccontextmanager
 
 from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import JSONResponse
 
 from slowapi import _rate_limit_exceeded_handler
 from slowapi.errors import RateLimitExceeded
@@ -13,8 +14,10 @@ from app.core.logging import setup_logging, request_id_ctx
 from app.core.rate_limit import limiter
 from app.api.v1.router import router as api_router
 from app.services.scheduler import start_scheduler, stop_scheduler
+from app.services.storage import StorageUnavailable
 
 setup_logging(settings.log_level)
+logger = logging.getLogger(__name__)
 
 # Sentry opcional: solo se activa si hay DSN (no exige cuenta ni la dependencia).
 if settings.sentry_dsn:
@@ -46,6 +49,24 @@ app = FastAPI(
 
 app.state.limiter = limiter
 app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
+
+
+@app.exception_handler(StorageUnavailable)
+async def storage_unavailable_handler(request: Request, exc: StorageUnavailable):
+    """El almacenamiento caído es un 503 con mensaje claro, no un 500 mudo."""
+    logger.warning("Almacenamiento no disponible en %s: %s", request.url.path, exc)
+    return JSONResponse(status_code=503, content={"detail": str(exc)})
+
+
+@app.exception_handler(Exception)
+async def unhandled_exception_handler(request: Request, exc: Exception):
+    """Toda excepción no controlada deja traza antes de convertirse en 500.
+
+    Sin esto un 500 sale mudo: el cliente ve "Error cargando datos" y en el
+    servidor no queda nada que explique por qué (así estuvieron 13 endpoints
+    caídos dos días). El request_id ya viaja en el contexto de logging."""
+    logger.exception("Error no controlado en %s %s", request.method, request.url.path)
+    return JSONResponse(status_code=500, content={"detail": "Internal Server Error"})
 
 
 @app.middleware("http")

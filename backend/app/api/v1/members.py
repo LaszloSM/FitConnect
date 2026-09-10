@@ -3,13 +3,19 @@ from fastapi import APIRouter, Depends, File, HTTPException, Query, UploadFile
 from fastapi.responses import Response
 from pydantic import BaseModel
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import select, func, or_
+from sqlalchemy import select, func, or_, delete
 from decimal import Decimal
 
 from app.api.deps import get_tenant_db_from_token, get_current_staff, get_tenant_slug, require_role
 from app.schemas.member import MemberCreate, MemberUpdate, MemberResponse, MembershipResponse, ConsentUpdate
 from app.models.tenant.member import Member, MemberStatus
 from app.models.tenant.membership import Membership
+from app.models.tenant.payment import Payment
+from app.models.tenant.checkin import CheckIn
+from app.models.tenant.class_enrollment import ClassEnrollment
+from app.models.tenant.session_booking import SessionBooking
+from app.models.tenant.routine import MemberRoutine
+from app.models.tenant.day_pass import DayPass
 from app.models.tenant.user_staff import UserRole
 from app.core.timeutil import today_bogota
 from app.services.gym_settings import get_gym_settings
@@ -33,7 +39,7 @@ async def list_members(
     missing_id_number: bool = Query(False, description="Solo miembros sin cédula registrada"),
     id_number: str | None = Query(None, description="Cédula exacta (lookup del pase del día)"),
     member_type: str | None = Query(None, description="member | visitor"),
-    limit: int = Query(50, ge=1, le=100),
+    limit: int = Query(50, ge=1, le=200),
     offset: int = Query(0, ge=0),
 ):
     stmt = select(Member)
@@ -608,6 +614,27 @@ async def delete_member(
     member = result.scalar_one_or_none()
     if not member:
         raise HTTPException(status_code=404, detail="Miembro no encontrado")
+
+    # El historial de dinero no se borra nunca: si el socio ya pagó algo o compró
+    # un pase (los pases llevan precio), se desactiva en vez de borrarse. Antes
+    # esto reventaba con un 500 por la llave foránea de memberships.
+    pagos = await db.scalar(
+        select(func.count()).select_from(Payment).where(Payment.member_id == member_id)
+    )
+    pases = await db.scalar(
+        select(func.count()).select_from(DayPass).where(DayPass.member_id == member_id)
+    )
+    if pagos or pases:
+        raise HTTPException(
+            status_code=409,
+            detail="Este socio tiene movimientos de dinero registrados: desactívalo en vez "
+                   "de borrarlo (el historial de caja debe conservarse)",
+        )
+
+    # Sin dinero de por medio, lo demás es historial operativo del propio socio.
+    for modelo in (Membership, CheckIn, ClassEnrollment, SessionBooking, MemberRoutine):
+        await db.execute(delete(modelo).where(modelo.member_id == member_id))
+
     if member.photo_url:
         await delete_object(member.photo_url)
     await db.delete(member)

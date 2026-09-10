@@ -1,5 +1,5 @@
 aws_region     = "us-east-1"
-environment    = "prod"
+environment    = "production"
 db_username    = "gymuser"
 db_password    = "change-me-strong-password"
 secret_key     = "change-me-fastapi-secret"
