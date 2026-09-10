@@ -1,26 +1,23 @@
 import { test, expect } from "@playwright/test";
 
-test("login redirects to dashboard", async ({ page }) => {
-  await page.goto("/login");
-  await page.fill('[type="email"]', "owner@test.com");
-  await page.fill('[type="password"]', "testpass123");
-  await page.click('[type="submit"]');
-  await expect(page).toHaveURL(/\/dashboard/, { timeout: 10000 });
+import { cuentaDePrueba, entrar } from "./helpers";
+
+test("entrar lleva al dashboard", async ({ page, request }) => {
+  const email = await cuentaDePrueba(request);
+  await entrar(page, email);
+  await expect(page).toHaveURL(/\/dashboard/);
 });
 
-test("unauthenticated redirect to login", async ({ page }) => {
+test("sin sesión, el dashboard manda al login", async ({ page }) => {
   await page.goto("/dashboard");
   await expect(page).toHaveURL(/\/login/);
 });
 
-test("logout redirects to login", async ({ page }) => {
-  // Login first
-  await page.goto("/login");
-  await page.fill('[type="email"]', "owner@test.com");
-  await page.fill('[type="password"]', "testpass123");
-  await page.click('[type="submit"]');
-  await page.waitForURL(/\/dashboard/);
-  // Logout
-  await page.click('[aria-label="Cerrar sesión"]');
-  await expect(page).toHaveURL(/\/login/);
+test("cerrar sesión vuelve al login", async ({ page, request }) => {
+  const email = await cuentaDePrueba(request);
+  await entrar(page, email);
+
+  // El botón vive en el pie del menú lateral (expandido) o como icono (colapsado).
+  await page.getByRole("button", { name: "Cerrar sesión" }).first().click();
+  await expect(page).toHaveURL(/\/login/, { timeout: 20_000 });
 });

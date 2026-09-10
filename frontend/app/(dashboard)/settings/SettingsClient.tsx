@@ -7,20 +7,24 @@ import { motion, AnimatePresence } from "framer-motion";
 import { PageHeader } from "@/components/common/PageHeader";
 import { cn } from "@/lib/utils";
 import { User, Building2, Bell, CreditCard, Palette, SlidersHorizontal, Plug, MonitorSmartphone, Landmark, MessageSquare, Users, Ticket } from "lucide-react";
-import dynamic from "next/dynamic";
 
-const ProfileSection      = dynamic(() => import("@/components/settings/ProfileSection"));
-const GymSection          = dynamic(() => import("@/components/settings/GymSection"));
-const OperationsSection   = dynamic(() => import("@/components/settings/OperationsSection"));
-const BillingSection      = dynamic(() => import("@/components/settings/BillingSection"));
-const IntegrationsSection = dynamic(() => import("@/components/settings/IntegrationsSection"));
-const NotificationsSection = dynamic(() => import("@/components/settings/NotificationsSection"));
-const PlanSection         = dynamic(() => import("@/components/settings/PlanSection"));
-const AppearanceSection   = dynamic(() => import("@/components/settings/AppearanceSection"));
-const KioskSection        = dynamic(() => import("@/components/settings/KioskSection"));
-const MessagesSection     = dynamic(() => import("@/components/settings/MessagesSection"));
-const TeamSection         = dynamic(() => import("@/components/settings/TeamSection"));
-const DayPassSection      = dynamic(() => import("@/components/settings/DayPassSection"));
+// Imports estáticos a propósito. Con `next/dynamic` y sin fallback, un chunk que
+// no llegaba (típico tras un despliegue: el navegador conserva el HTML viejo y
+// pide chunks que ya no existen) dejaba el área de contenido en NEGRO para
+// siempre, sin error visible. Configuración era la única pantalla con carga
+// perezosa y la única que se quedaba en blanco.
+import ProfileSection from "@/components/settings/ProfileSection";
+import GymSection from "@/components/settings/GymSection";
+import OperationsSection from "@/components/settings/OperationsSection";
+import BillingSection from "@/components/settings/BillingSection";
+import IntegrationsSection from "@/components/settings/IntegrationsSection";
+import NotificationsSection from "@/components/settings/NotificationsSection";
+import PlanSection from "@/components/settings/PlanSection";
+import AppearanceSection from "@/components/settings/AppearanceSection";
+import KioskSection from "@/components/settings/KioskSection";
+import MessagesSection from "@/components/settings/MessagesSection";
+import TeamSection from "@/components/settings/TeamSection";
+import DayPassSection from "@/components/settings/DayPassSection";
 
 type TabKey = "profile" | "gym" | "operations" | "billing" | "daypass" | "kiosk" | "integrations" | "notifications" | "messages" | "team" | "plan" | "appearance";
 const TAB_KEYS: TabKey[] = ["profile", "gym", "operations", "billing", "daypass", "kiosk", "integrations", "notifications", "messages", "team", "plan", "appearance"];

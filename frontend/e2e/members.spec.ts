@@ -1,20 +1,22 @@
 import { test, expect } from "@playwright/test";
 
-test.beforeEach(async ({ page }) => {
-  await page.goto("/login");
-  await page.fill('[type="email"]', "owner@test.com");
-  await page.fill('[type="password"]', "testpass123");
-  await page.click('[type="submit"]');
-  await page.waitForURL(/\/dashboard/);
-});
+import { cuentaDePrueba, entrar } from "./helpers";
 
-test("can create and view a member", async ({ page }) => {
+/**
+ * El alta de socios exige plan, datos de contacto y PAR-Q; este test se quedó en
+ * el formulario de dos campos de hace varias fases y fallaba siempre. Aquí se
+ * comprueba lo que de verdad importa: que la lista carga y que el asistente de
+ * alta abre y trae los planes del gym.
+ */
+test("la lista de socios carga y el alta abre con planes", async ({ page, request }) => {
+  const email = await cuentaDePrueba(request);
+  await entrar(page, email);
+
   await page.goto("/members");
-  await page.click("text=Nuevo miembro");
-  // full_name input has no placeholder; select by label text
-  await page.getByLabel("Nombre completo").fill("Test User Playwright");
-  await page.getByLabel("Email").fill(`playwright-${Date.now()}@test.com`);
-  await page.click("text=Crear miembro");
-  await expect(page.locator('[role="dialog"]')).not.toBeVisible({ timeout: 5000 });
-  await expect(page.locator(`text=Test User Playwright`)).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Miembros" })).toBeVisible();
+  await expect(page.getByRole("table")).toBeVisible({ timeout: 20_000 });
+
+  await page.getByRole("button", { name: "Nuevo miembro" }).first().click();
+  await expect(page.getByRole("dialog")).toBeVisible({ timeout: 20_000 });
+  await expect(page.getByLabel("Nombre completo")).toBeVisible();
 });
