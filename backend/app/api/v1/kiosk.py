@@ -12,14 +12,15 @@ from app.api.deps import (
     get_kiosk_payload,
     get_tenant_db_from_token,
     get_db_name,
-    require_role,
+    require_perm,
 )
+from app.core import permissions as perm
 from app.core.rate_limit import limiter
 from app.core.security import create_kiosk_token
 from app.core.timeutil import utcnow_naive
 from app.models.tenant.kiosk_device import KioskDevice
 from app.models.tenant.member import Member
-from app.models.tenant.user_staff import UserStaff, UserRole
+from app.models.tenant.user_staff import UserStaff
 from app.services.audit import audit
 from app.services.checkin import register_checkin, DuplicateCheckin
 from app.services.storage import resolve_media_url
@@ -140,7 +141,7 @@ def _device_out(d: KioskDevice) -> dict:
 @router.get("/devices")
 async def list_devices(
     db: AsyncSession = Depends(get_tenant_db_from_token),
-    current_user: UserStaff = Depends(require_role(UserRole.owner, UserRole.admin)),
+    current_user: UserStaff = Depends(require_perm(perm.KIOSK_MANAGE)),
 ):
     devices = (await db.execute(
         select(KioskDevice).order_by(KioskDevice.created_at.desc())
@@ -153,7 +154,7 @@ async def create_device(
     payload: DeviceCreate,
     db: AsyncSession = Depends(get_tenant_db_from_token),
     db_name: str = Depends(get_db_name),
-    current_user: UserStaff = Depends(require_role(UserRole.owner, UserRole.admin)),
+    current_user: UserStaff = Depends(require_perm(perm.KIOSK_MANAGE)),
 ):
     """Crea el dispositivo y devuelve su token UNA sola vez (no se vuelve a mostrar)."""
     jti = str(uuid.uuid4())
@@ -182,7 +183,7 @@ async def rename_device(
     device_id: uuid.UUID,
     payload: DeviceUpdate,
     db: AsyncSession = Depends(get_tenant_db_from_token),
-    current_user: UserStaff = Depends(require_role(UserRole.owner, UserRole.admin)),
+    current_user: UserStaff = Depends(require_perm(perm.KIOSK_MANAGE)),
 ):
     device = (await db.execute(
         select(KioskDevice).where(KioskDevice.id == device_id)
@@ -202,7 +203,7 @@ async def regenerate_device_link(
     device_id: uuid.UUID,
     db: AsyncSession = Depends(get_tenant_db_from_token),
     db_name: str = Depends(get_db_name),
-    current_user: UserStaff = Depends(require_role(UserRole.owner, UserRole.admin)),
+    current_user: UserStaff = Depends(require_perm(perm.KIOSK_MANAGE)),
 ):
     """Emite un token nuevo para el dispositivo rotando el jti: el enlace
     anterior deja de funcionar (no se guardan tokens en claro)."""
@@ -225,7 +226,7 @@ async def regenerate_device_link(
 async def revoke_device(
     device_id: uuid.UUID,
     db: AsyncSession = Depends(get_tenant_db_from_token),
-    current_user: UserStaff = Depends(require_role(UserRole.owner, UserRole.admin)),
+    current_user: UserStaff = Depends(require_perm(perm.KIOSK_MANAGE)),
 ):
     device = (await db.execute(
         select(KioskDevice).where(KioskDevice.id == device_id)

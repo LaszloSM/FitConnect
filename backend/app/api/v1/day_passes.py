@@ -5,12 +5,13 @@ from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy import select, desc, func
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.api.deps import get_tenant_db_from_token, get_current_staff, get_tenant_slug, require_role
+from app.api.deps import get_tenant_db_from_token, get_current_staff, get_tenant_slug, require_perm
+from app.core import permissions as perm
 from app.core.timeutil import today_bogota
 from app.models.tenant.day_pass import DayPass, DayPassType
 from app.models.tenant.member import Member
 from app.models.tenant.payment import Payment, PaymentMethod, PaymentStatus
-from app.models.tenant.user_staff import UserStaff, UserRole
+from app.models.tenant.user_staff import UserStaff
 from app.schemas.day_pass import (
     DayPassTypeCreate, DayPassTypeUpdate, DayPassTypeResponse,
     DayPassSell, DayPassResponse, DayPassSellResponse,
@@ -40,7 +41,7 @@ async def list_pass_types(
 
 
 @router.post("/types", response_model=DayPassTypeResponse, status_code=201,
-             dependencies=[Depends(require_role(UserRole.owner, UserRole.admin))])
+             dependencies=[Depends(require_perm(perm.DAY_PASSES_WRITE))])
 async def create_pass_type(
     payload: DayPassTypeCreate,
     db: AsyncSession = Depends(get_tenant_db_from_token),
@@ -56,7 +57,7 @@ async def create_pass_type(
 
 
 @router.put("/types/{type_id}", response_model=DayPassTypeResponse,
-            dependencies=[Depends(require_role(UserRole.owner, UserRole.admin))])
+            dependencies=[Depends(require_perm(perm.DAY_PASSES_WRITE))])
 async def update_pass_type(
     type_id: uuid.UUID,
     payload: DayPassTypeUpdate,
@@ -72,7 +73,7 @@ async def update_pass_type(
     return row
 
 
-@router.delete("/types/{type_id}", dependencies=[Depends(require_role(UserRole.owner, UserRole.admin))])
+@router.delete("/types/{type_id}", dependencies=[Depends(require_perm(perm.DAY_PASSES_WRITE))])
 async def archive_pass_type(
     type_id: uuid.UUID,
     db: AsyncSession = Depends(get_tenant_db_from_token),
@@ -99,7 +100,7 @@ def _pass_response(dp: DayPass, member: Member | None, payment: Payment | None) 
     return data
 
 
-@router.post("/sell", response_model=DayPassSellResponse, status_code=201)
+@router.post("/sell", response_model=DayPassSellResponse, status_code=201, dependencies=[Depends(require_perm(perm.DAY_PASSES_SELL))])
 async def sell(
     payload: DayPassSell,
     db: AsyncSession = Depends(get_tenant_db_from_token),

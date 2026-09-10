@@ -5,7 +5,8 @@ from pydantic import BaseModel, Field
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select, func
 
-from app.api.deps import get_tenant_db_from_token, get_current_staff
+from app.api.deps import get_tenant_db_from_token, get_current_staff, require_perm
+from app.core import permissions as perm
 from app.core.timeutil import today_bogota, now_bogota
 from app.models.tenant.class_session import ClassSession
 from app.models.tenant.gym_class import GymClass
@@ -16,7 +17,7 @@ from app.services.class_access import validate_class_access
 from app.services.class_sessions import materialize_sessions
 from app.services.gym_settings import get_gym_settings
 
-router = APIRouter(prefix="/class-sessions", tags=["class_sessions"], dependencies=[Depends(get_current_staff)])
+router = APIRouter(prefix="/class-sessions", tags=["class_sessions"], dependencies=[Depends(require_perm(perm.CLASSES_READ))])
 
 
 class BookingRequest(BaseModel):
@@ -87,7 +88,7 @@ async def list_sessions(
     ]
 
 
-@router.post("/materialize")
+@router.post("/materialize", dependencies=[Depends(require_perm(perm.CLASSES_WRITE))])
 async def materialize(
     db: AsyncSession = Depends(get_tenant_db_from_token),
     _: UserStaff = Depends(get_current_staff),
@@ -152,7 +153,7 @@ async def _locked_session(session_id: uuid.UUID, db: AsyncSession):
     return row
 
 
-@router.post("/{session_id}/bookings", status_code=201)
+@router.post("/{session_id}/bookings", status_code=201, dependencies=[Depends(require_perm(perm.CLASSES_ATTEND))])
 async def book_session(
     session_id: uuid.UUID,
     payload: BookingRequest,
@@ -217,7 +218,7 @@ async def book_session(
     }
 
 
-@router.delete("/{session_id}/bookings/{booking_id}")
+@router.delete("/{session_id}/bookings/{booking_id}", dependencies=[Depends(require_perm(perm.CLASSES_ATTEND))])
 async def cancel_booking(
     session_id: uuid.UUID,
     booking_id: uuid.UUID,
@@ -251,7 +252,7 @@ async def cancel_booking(
     return {"cancelled": True, "promoted_member_id": promoted}
 
 
-@router.patch("/{session_id}/bookings/{booking_id}")
+@router.patch("/{session_id}/bookings/{booking_id}", dependencies=[Depends(require_perm(perm.CLASSES_ATTEND))])
 async def mark_attendance(
     session_id: uuid.UUID,
     booking_id: uuid.UUID,
@@ -269,7 +270,7 @@ async def mark_attendance(
     return {"booking_id": str(booking.id), "status": booking.status}
 
 
-@router.patch("/{session_id}")
+@router.patch("/{session_id}", dependencies=[Depends(require_perm(perm.CLASSES_WRITE))])
 async def patch_session(
     session_id: uuid.UUID,
     payload: SessionPatch,

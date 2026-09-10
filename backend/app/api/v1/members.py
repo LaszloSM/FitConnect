@@ -6,7 +6,8 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select, func, or_, delete
 from decimal import Decimal
 
-from app.api.deps import get_tenant_db_from_token, get_current_staff, get_tenant_slug, require_role
+from app.api.deps import get_tenant_db_from_token, get_current_staff, get_tenant_slug, require_perm
+from app.core import permissions as perm
 from app.schemas.member import MemberCreate, MemberUpdate, MemberResponse, MembershipResponse, ConsentUpdate
 from app.models.tenant.member import Member, MemberStatus
 from app.models.tenant.membership import Membership
@@ -24,7 +25,7 @@ from app.services.member_import import build_template, import_members
 from app.services.storage import resolve_media_url, delete_object, scoped_key
 
 # Todo /members exige staff activo; el borrado además exige owner/admin.
-router = APIRouter(prefix="/members", tags=["members"], dependencies=[Depends(get_current_staff)])
+router = APIRouter(prefix="/members", tags=["members"], dependencies=[Depends(require_perm(perm.MEMBERS_READ))])
 
 
 class RenewalLinkRequest(BaseModel):
@@ -102,7 +103,7 @@ async def list_members(
     return []
 
 
-@router.post("", response_model=MemberResponse, status_code=201)
+@router.post("", response_model=MemberResponse, status_code=201, dependencies=[Depends(require_perm(perm.MEMBERS_WRITE))])
 async def create_member(
     payload: MemberCreate,
     db: AsyncSession = Depends(get_tenant_db_from_token),
@@ -159,7 +160,7 @@ async def create_member(
     return member
 
 
-@router.post("/{member_id}/convert-to-member", response_model=MemberResponse)
+@router.post("/{member_id}/convert-to-member", response_model=MemberResponse, dependencies=[Depends(require_perm(perm.MEMBERS_WRITE))])
 async def convert_visitor_to_member(
     member_id: uuid.UUID,
     payload: MemberCreate,
@@ -220,7 +221,7 @@ async def convert_visitor_to_member(
     return member
 
 
-@router.get("/import/template.xlsx", dependencies=[Depends(require_role(UserRole.owner, UserRole.admin))])
+@router.get("/import/template.xlsx", dependencies=[Depends(require_perm(perm.MEMBERS_IMPORT))])
 async def download_import_template():
     return Response(
         content=build_template(),
@@ -229,7 +230,7 @@ async def download_import_template():
     )
 
 
-@router.post("/import", dependencies=[Depends(require_role(UserRole.owner, UserRole.admin))])
+@router.post("/import", dependencies=[Depends(require_perm(perm.MEMBERS_IMPORT))])
 async def import_members_file(
     file: UploadFile = File(...),
     db: AsyncSession = Depends(get_tenant_db_from_token),
@@ -446,7 +447,7 @@ async def get_member_memberships(
     return responses
 
 
-@router.post("/{member_id}/renewal-link")
+@router.post("/{member_id}/renewal-link", dependencies=[Depends(require_perm(perm.PAYMENTS_WRITE))])
 async def create_renewal_link(
     member_id: uuid.UUID,
     payload: RenewalLinkRequest,
@@ -492,7 +493,7 @@ _ALLOWED_PHOTO_TYPES = {"image/jpeg": "jpg", "image/png": "png", "image/webp": "
 _MAX_PHOTO_BYTES = 5 * 1024 * 1024
 
 
-@router.post("/{member_id}/photo")
+@router.post("/{member_id}/photo", dependencies=[Depends(require_perm(perm.MEMBERS_WRITE))])
 async def upload_member_photo(
     member_id: uuid.UUID,
     file: UploadFile = File(...),
@@ -526,7 +527,7 @@ async def upload_member_photo(
     return {"photo_url": resolve_media_url(member.photo_url)}
 
 
-@router.post("/{member_id}/consent")
+@router.post("/{member_id}/consent", dependencies=[Depends(require_perm(perm.MEMBERS_WRITE))])
 async def record_consent(
     member_id: uuid.UUID,
     payload: ConsentUpdate,
@@ -570,7 +571,7 @@ async def get_member(
     return member
 
 
-@router.put("/{member_id}", response_model=MemberResponse)
+@router.put("/{member_id}", response_model=MemberResponse, dependencies=[Depends(require_perm(perm.MEMBERS_WRITE))])
 async def update_member(
     member_id: uuid.UUID,
     payload: MemberUpdate,
@@ -605,7 +606,7 @@ async def update_member(
     return member
 
 
-@router.delete("/{member_id}", status_code=204, dependencies=[Depends(require_role(UserRole.owner, UserRole.admin))])
+@router.delete("/{member_id}", status_code=204, dependencies=[Depends(require_perm(perm.MEMBERS_DELETE))])
 async def delete_member(
     member_id: uuid.UUID,
     db: AsyncSession = Depends(get_tenant_db_from_token),

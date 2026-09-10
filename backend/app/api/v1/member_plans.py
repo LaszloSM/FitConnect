@@ -1,13 +1,15 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
-from app.api.deps import get_tenant_db_from_token, get_current_staff
+from app.api.deps import get_tenant_db_from_token, get_current_staff, require_perm
+from app.core import permissions as perm
+from app.services.audit import audit
 from pydantic import BaseModel
 from datetime import date, timedelta
 from typing import Literal
 import uuid
 
-router = APIRouter(prefix="/member-plans", tags=["member_plans"], dependencies=[Depends(get_current_staff)])
+router = APIRouter(prefix="/member-plans", tags=["member_plans"], dependencies=[Depends(require_perm(perm.PLANS_READ))])
 
 
 class PlanCreate(BaseModel):
@@ -51,32 +53,53 @@ async def list_plans(db: AsyncSession = Depends(get_tenant_db_from_token)):
 
 
 @router.post("/")
-async def create_plan(data: PlanCreate, db: AsyncSession = Depends(get_tenant_db_from_token)):
+async def create_plan(
+    data: PlanCreate,
+    db: AsyncSession = Depends(get_tenant_db_from_token),
+    current_user=Depends(require_perm(perm.PLANS_WRITE)),
+):
     from app.models.tenant.member_plan import MemberPlan
     plan = MemberPlan(**data.model_dump())
     db.add(plan)
+    await db.flush()
+    audit(db, current_user, "plan.create", "member_plan", plan.id,
+          {"name": plan.name, "price": str(plan.price), "duration_days": plan.duration_days})
     await db.commit()
     await db.refresh(plan)
     return plan
 
 
 @router.put("/{plan_id}")
-async def update_plan(plan_id: str, data: PlanUpdate, db: AsyncSession = Depends(get_tenant_db_from_token)):
+async def update_plan(
+    plan_id: str,
+    data: PlanUpdate,
+    db: AsyncSession = Depends(get_tenant_db_from_token),
+    current_user=Depends(require_perm(perm.PLANS_WRITE)),
+):
     from app.models.tenant.member_plan import MemberPlan
     result = await db.execute(select(MemberPlan).where(MemberPlan.id == uuid.UUID(plan_id)))
     plan = result.scalar_one_or_none()
     if not plan:
         raise HTTPException(status_code=404, detail="Plan no encontrado")
+    changes = data.model_dump(exclude_unset=True)
+    # El precio es la puerta trasera clásica: se deja rastro del antes y el después
+    before = {f: str(getattr(plan, f)) for f in changes if hasattr(plan, f)}
     # exclude_unset (no exclude_none): poner créditos en None = volver a ilimitadas
-    for field, val in data.model_dump(exclude_unset=True).items():
+    for field, val in changes.items():
         setattr(plan, field, val)
+    audit(db, current_user, "plan.update", "member_plan", plan.id,
+          {"before": before, "after": {f: str(v) for f, v in changes.items()}})
     await db.commit()
     await db.refresh(plan)
     return plan
 
 
 @router.delete("/{plan_id}")
-async def delete_plan(plan_id: str, db: AsyncSession = Depends(get_tenant_db_from_token)):
+async def delete_plan(
+    plan_id: str,
+    db: AsyncSession = Depends(get_tenant_db_from_token),
+    current_user=Depends(require_perm(perm.PLANS_WRITE)),
+):
     """Borra un plan. Si tiene membresías asociadas, lo archiva (soft-delete)
     para no romper los cobros históricos — nunca falla con 500."""
     from app.models.tenant.member_plan import MemberPlan
@@ -91,9 +114,12 @@ async def delete_plan(plan_id: str, db: AsyncSession = Depends(get_tenant_db_fro
     )
     if in_use.scalar_one_or_none():
         plan.is_active = False
+        audit(db, current_user, "plan.archive", "member_plan", plan.id, {"name": plan.name})
         await db.commit()
         return {"archived": True, "detail": "Plan archivado: tiene membresías asociadas"}
 
+    audit(db, current_user, "plan.delete", "member_plan", plan.id,
+          {"name": plan.name, "price": str(plan.price)})
     await db.delete(plan)
     await db.commit()
     return {"archived": False, "detail": "Plan eliminado"}
@@ -216,12 +242,11 @@ async def _create_membership(
 async def assign_membership(
     data: AssignMembership,
     db: AsyncSession = Depends(get_tenant_db_from_token),
-    current_user=Depends(get_current_staff),
+    current_user=Depends(require_perm(perm.MEMBERSHIPS_WRITE)),
 ):
     from app.core.timeutil import today_bogota
     from app.models.tenant.member import Member
     from app.models.tenant.member_plan import MemberPlan
-    from app.services.audit import audit
     from app.services.gym_settings import get_gym_settings
     from app.services.membership_status import next_chain_start
 
@@ -276,7 +301,7 @@ class ChargeMembership(BaseModel):
 async def charge_membership(
     data: ChargeMembership,
     db: AsyncSession = Depends(get_tenant_db_from_token),
-    current_user=Depends(get_current_staff),
+    current_user=Depends(require_perm(perm.PAYMENTS_WRITE)),
 ):
     """Cobro POS en un paso: crea/renueva la membresía, marca el pago como pagado
     y emite el recibo. Si hay membresía vigente, la renovación arranca cuando esa
@@ -286,7 +311,6 @@ async def charge_membership(
     from app.models.tenant.member_plan import MemberPlan
     from app.models.tenant.payment import PaymentStatus
     from app.models.tenant.cash_shift import CashShift
-    from app.services.audit import audit
     from app.services.gym_settings import get_gym_settings
     from app.services.membership_status import next_chain_start
     from app.services.receipts import issue_receipt

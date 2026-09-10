@@ -3,16 +3,16 @@ from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select, desc
 
-from app.api.deps import get_tenant_db_from_token, require_role, get_current_staff
+from app.api.deps import get_tenant_db_from_token, get_current_staff, require_perm
+from app.core import permissions as perm
 from app.schemas.operations import NotificationCreate, NotificationResponse
 from app.models.tenant.notification import Notification
 from app.models.tenant.notification_outbox import NotificationOutbox
-from app.models.tenant.user_staff import UserRole
 
 router = APIRouter(prefix="/notifications", tags=["notifications"], dependencies=[Depends(get_current_staff)])
 
 
-@router.get("/outbox", dependencies=[Depends(require_role(UserRole.owner))])
+@router.get("/outbox", dependencies=[Depends(require_perm(perm.NOTIFICATIONS_OUTBOX))])
 async def list_outbox(
     db: AsyncSession = Depends(get_tenant_db_from_token),
     limit: int = Query(50, ge=1, le=200),
@@ -49,18 +49,6 @@ async def list_notifications(
     stmt = stmt.order_by(desc(Notification.created_at)).limit(limit).offset(offset)
     result = await db.execute(stmt)
     return result.scalars().all()
-
-
-@router.post("", response_model=NotificationResponse, status_code=201)
-async def create_notification(
-    payload: NotificationCreate,
-    db: AsyncSession = Depends(get_tenant_db_from_token),
-):
-    notification = Notification(**payload.model_dump())
-    db.add(notification)
-    await db.commit()
-    await db.refresh(notification)
-    return notification
 
 
 @router.post("/{notification_id}/read", response_model=NotificationResponse)

@@ -6,13 +6,13 @@ from pydantic import BaseModel, Field, field_validator
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
 
-from app.api.deps import get_tenant_db_from_token, require_role, get_current_staff
+from app.api.deps import get_tenant_db_from_token, get_current_staff, require_perm
+from app.core import permissions as perm
 from app.models.tenant.promo_code import PromoCode
-from app.models.tenant.user_staff import UserRole
 
 router = APIRouter(prefix="/promo-codes", tags=["promo_codes"], dependencies=[Depends(get_current_staff)])
 
-_STAFF_WRITE = Depends(require_role(UserRole.owner, UserRole.admin))
+_STAFF_WRITE = Depends(require_perm(perm.PROMOS_WRITE))
 
 
 class PromoCodeCreate(BaseModel):

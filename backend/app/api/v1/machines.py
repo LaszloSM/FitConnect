@@ -4,7 +4,8 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select, desc
 from typing import Optional
 
-from app.api.deps import get_tenant_db_from_token, get_current_staff
+from app.api.deps import get_tenant_db_from_token, get_current_staff, require_perm
+from app.core import permissions as perm
 from app.schemas.operations import (
     MachineCreate, MachineUpdate, MachineResponse,
     MaintenanceLogCreate, MaintenanceLogResponse,
@@ -12,7 +13,7 @@ from app.schemas.operations import (
 from app.models.tenant.machine import Machine
 from app.models.tenant.maintenance import MaintenanceLog
 
-router = APIRouter(prefix="/machines", tags=["machines"], dependencies=[Depends(get_current_staff)])
+router = APIRouter(prefix="/machines", tags=["machines"], dependencies=[Depends(require_perm(perm.MACHINES_READ))])
 
 
 @router.get("", response_model=list[MachineResponse])
@@ -30,7 +31,7 @@ async def list_machines(
     return result.scalars().all()
 
 
-@router.post("", response_model=MachineResponse, status_code=201)
+@router.post("", response_model=MachineResponse, status_code=201, dependencies=[Depends(require_perm(perm.MACHINES_WRITE))])
 async def create_machine(
     payload: MachineCreate,
     db: AsyncSession = Depends(get_tenant_db_from_token),
@@ -54,7 +55,7 @@ async def get_machine(
     return machine
 
 
-@router.put("/{machine_id}", response_model=MachineResponse)
+@router.put("/{machine_id}", response_model=MachineResponse, dependencies=[Depends(require_perm(perm.MACHINES_WRITE))])
 async def update_machine(
     machine_id: uuid.UUID,
     payload: MachineUpdate,
@@ -71,7 +72,7 @@ async def update_machine(
     return machine
 
 
-@router.delete("/{machine_id}", status_code=204)
+@router.delete("/{machine_id}", status_code=204, dependencies=[Depends(require_perm(perm.MACHINES_WRITE))])
 async def delete_machine(
     machine_id: uuid.UUID,
     db: AsyncSession = Depends(get_tenant_db_from_token),
@@ -99,7 +100,7 @@ async def list_maintenance(
     return result.scalars().all()
 
 
-@router.post("/{machine_id}/maintenance", response_model=MaintenanceLogResponse, status_code=201)
+@router.post("/{machine_id}/maintenance", response_model=MaintenanceLogResponse, status_code=201, dependencies=[Depends(require_perm(perm.MACHINES_MAINTAIN))])
 async def create_maintenance(
     machine_id: uuid.UUID,
     payload: MaintenanceLogCreate,

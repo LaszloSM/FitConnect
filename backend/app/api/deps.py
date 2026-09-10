@@ -9,7 +9,8 @@ from app.core.config import settings
 from app.db.master_session import get_master_db
 from app.db.tenant_session import get_tenant_engine
 from app.models.master.owner import Owner
-from app.models.tenant.user_staff import UserStaff, UserRole
+from app.models.tenant.user_staff import UserStaff
+from app.core.permissions import has_perm
 from app.models.master.tenant import Tenant, TenantStatus
 from sqlalchemy import select
 
@@ -32,20 +33,6 @@ async def get_current_owner(
     if not owner or not owner.is_active:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Usuario no encontrado")
     return owner
-
-
-async def get_master_tenant(
-    current_owner: Owner = Depends(get_current_owner),
-    db: AsyncSession = Depends(get_master_db),
-) -> Tenant:
-    """Obtiene el Tenant desde la Master DB usando el owner autenticado."""
-    if not current_owner.tenant_id:
-        raise HTTPException(status_code=404, detail="Owner no tiene gym asignado")
-    result = await db.execute(select(Tenant).where(Tenant.id == current_owner.tenant_id))
-    tenant = result.scalar_one_or_none()
-    if not tenant:
-        raise HTTPException(status_code=404, detail="Tenant no encontrado")
-    return tenant
 
 
 async def get_tenant_db_from_token(
@@ -74,16 +61,28 @@ async def get_tenant_from_claims(
     credentials: HTTPAuthorizationCredentials = Depends(security),
     db: AsyncSession = Depends(get_master_db),
 ) -> Tenant:
-    """Tenant desde el claim tenant_id del JWT: funciona para owner y staff
-    (get_master_tenant solo resuelve owners)."""
+    """Tenant desde el JWT, para owner y staff por igual.
+
+    Los tokens de staff (`create_staff_token`) no llevan `tenant_id`, solo
+    `db_name`; por eso se cae a resolver por nombre de DB en vez de rechazar.
+    """
     try:
         payload = decode_token(credentials.credentials)
     except JWTError:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Token inválido")
+    # Kiosko y realtime tienen scope propio y viven en tablets/pantallas del gym:
+    # no son un principal del panel aunque lleven db_name firmado.
+    if payload.get("scope"):
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Token sin identidad de staff")
     tenant_id = payload.get("tenant_id")
-    if not tenant_id:
+    db_name = payload.get("db_name")
+    if tenant_id:
+        criterion = Tenant.id == tenant_id
+    elif db_name:
+        criterion = Tenant.db_name == db_name
+    else:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Token sin contexto de tenant")
-    result = await db.execute(select(Tenant).where(Tenant.id == tenant_id))
+    result = await db.execute(select(Tenant).where(criterion))
     tenant = result.scalar_one_or_none()
     if not tenant:
         raise HTTPException(status_code=404, detail="Tenant no encontrado")
@@ -161,15 +160,22 @@ async def get_current_staff(
     return user
 
 
-def require_role(*roles: UserRole):
+def require_perm(*perms: str):
+    """Autoriza por capacidad, no por lista de roles.
+
+    La política vive en `app.core.permissions`; aquí solo se comprueba. Exigir
+    varias capacidades a la vez significa "todas", no "alguna".
+    """
     async def checker(current_user: UserStaff = Depends(get_current_staff)):
-        if current_user.role not in roles:
+        if any(not has_perm(current_user.role, p) for p in perms):
             raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Sin permisos suficientes")
         return current_user
     return checker
 
 
-def check_tenant_active(tenant: Tenant = Depends(get_master_tenant)):
+def check_tenant_active(tenant: Tenant = Depends(get_tenant_from_claims)):
+    """Resuelve por claim, no por Owner: el perfil del gym también lo consulta
+    y edita el staff (admin/recepción), no solo el dueño."""
     if tenant.status == TenantStatus.suspended:
         raise HTTPException(status_code=403, detail="Cuenta suspendida")
     return tenant

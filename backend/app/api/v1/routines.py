@@ -8,18 +8,21 @@ from pydantic import BaseModel, Field
 from sqlalchemy import select, or_, desc, func, delete
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.api.deps import get_tenant_db_from_token, get_current_staff, get_master_db, get_kiosk_db, get_kiosk_payload, require_role, get_tenant_slug
+from app.api.deps import get_tenant_db_from_token, get_current_staff, get_master_db, get_kiosk_db, get_kiosk_payload, get_tenant_slug, require_perm
+from app.core import permissions as perm
 from app.core.timeutil import utcnow_naive
 from app.models.master.exercise import Exercise
 from app.models.tenant.member import Member
 from app.models.tenant.exercise_media import ExerciseMedia
 from app.models.tenant.routine import Routine, RoutineDay, RoutineExercise, MemberRoutine
-from app.models.tenant.user_staff import UserStaff, UserRole
+from app.models.tenant.user_staff import UserStaff
 from app.services.audit import audit
 from app.services.exercise_catalog import exercise_out, MUSCLES_ES, EQUIPMENT_ES, CATEGORY_ES, LEVEL_ES
 from app.services.storage import upload_image, delete_object
 
-router = APIRouter(tags=["routines"])
+router = APIRouter(tags=["routines"], dependencies=[Depends(require_perm(perm.ROUTINES_READ))])
+# La pantalla del gym (kiosko) se autentica con el token del dispositivo, no con staff.
+kiosk_router = APIRouter(tags=["routines"])
 
 GOALS = {"hipertrofia": "Hipertrofia", "fuerza": "Fuerza", "perdida_grasa": "Pérdida de grasa",
          "resistencia": "Resistencia", "movilidad": "Movilidad", "general": "Acondicionamiento general"}
@@ -216,7 +219,7 @@ async def list_routines(
     ]
 
 
-@router.post("/routines", status_code=201, dependencies=[Depends(require_role(UserRole.owner, UserRole.admin))])
+@router.post("/routines", status_code=201, dependencies=[Depends(require_perm(perm.ROUTINES_WRITE))])
 async def create_routine(
     payload: RoutineIn,
     db: AsyncSession = Depends(get_tenant_db_from_token),
@@ -248,7 +251,7 @@ async def get_routine(
     return await _routine_detail(db, master, routine)
 
 
-@router.put("/routines/{routine_id}", dependencies=[Depends(require_role(UserRole.owner, UserRole.admin))])
+@router.put("/routines/{routine_id}", dependencies=[Depends(require_perm(perm.ROUTINES_WRITE))])
 async def update_routine(
     routine_id: uuid.UUID,
     payload: RoutineIn,
@@ -268,7 +271,7 @@ async def update_routine(
     return await _routine_detail(db, master, routine)
 
 
-@router.delete("/routines/{routine_id}", dependencies=[Depends(require_role(UserRole.owner, UserRole.admin))])
+@router.delete("/routines/{routine_id}", dependencies=[Depends(require_perm(perm.ROUTINES_WRITE))])
 async def archive_routine(
     routine_id: uuid.UUID,
     db: AsyncSession = Depends(get_tenant_db_from_token),
@@ -291,7 +294,7 @@ class AssignRoutine(BaseModel):
     notes: Optional[str] = Field(default=None, max_length=500)
 
 
-@router.post("/members/{member_id}/routines", status_code=201, dependencies=[Depends(get_current_staff)])
+@router.post("/members/{member_id}/routines", status_code=201, dependencies=[Depends(require_perm(perm.ROUTINES_ASSIGN))])
 async def assign_routine(
     member_id: uuid.UUID,
     payload: AssignRoutine,
@@ -340,7 +343,7 @@ async def member_routines(
     return {"current": current, "history": history}
 
 
-@router.delete("/members/{member_id}/routines/current", dependencies=[Depends(get_current_staff)])
+@router.delete("/members/{member_id}/routines/current", dependencies=[Depends(require_perm(perm.ROUTINES_ASSIGN))])
 async def end_member_routine(
     member_id: uuid.UUID,
     db: AsyncSession = Depends(get_tenant_db_from_token),
@@ -356,7 +359,7 @@ async def end_member_routine(
 
 # ─── Pantalla del gym (token de dispositivo, sin login) ───
 
-@router.get("/kiosk/routines")
+@kiosk_router.get("/kiosk/routines")
 async def screen_routines(
     db: AsyncSession = Depends(get_kiosk_db),
     _payload: dict = Depends(get_kiosk_payload),
@@ -372,7 +375,7 @@ async def screen_routines(
     ]
 
 
-@router.get("/kiosk/routines/{routine_id}")
+@kiosk_router.get("/kiosk/routines/{routine_id}")
 async def screen_routine_detail(
     routine_id: uuid.UUID,
     db: AsyncSession = Depends(get_kiosk_db),
@@ -404,7 +407,7 @@ def _sniff_video(data: bytes) -> str | None:
 
 
 @router.post("/exercises/{exercise_id}/video", status_code=201,
-             dependencies=[Depends(require_role(UserRole.owner, UserRole.admin))])
+             dependencies=[Depends(require_perm(perm.ROUTINES_WRITE))])
 async def upload_exercise_video(
     exercise_id: uuid.UUID,
     file: UploadFile = File(...),
@@ -450,7 +453,7 @@ async def upload_exercise_video(
 
 
 @router.delete("/exercises/{exercise_id}/video",
-               dependencies=[Depends(require_role(UserRole.owner, UserRole.admin))])
+               dependencies=[Depends(require_perm(perm.ROUTINES_WRITE))])
 async def delete_exercise_video(
     exercise_id: uuid.UUID,
     db: AsyncSession = Depends(get_tenant_db_from_token),

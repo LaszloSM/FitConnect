@@ -4,14 +4,14 @@ from fastapi import APIRouter, Depends, Query
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select, desc, func
 
-from app.api.deps import get_tenant_db_from_token, require_role
+from app.api.deps import get_tenant_db_from_token, require_perm
+from app.core import permissions as perm
 from app.models.tenant.audit_log import AuditLog
-from app.models.tenant.user_staff import UserRole
 
 router = APIRouter(
     prefix="/audit",
     tags=["audit"],
-    dependencies=[Depends(require_role(UserRole.owner))],
+    dependencies=[Depends(require_perm(perm.AUDIT_READ))],
 )
 
 

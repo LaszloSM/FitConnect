@@ -5,7 +5,8 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select, desc
 from datetime import timedelta
 
-from app.api.deps import get_tenant_db_from_token, get_current_staff, get_db_name
+from app.api.deps import get_tenant_db_from_token, get_current_staff, get_db_name, require_perm
+from app.core import permissions as perm
 from app.core.timeutil import today_bogota, utc_day_bounds, utcnow_naive
 from app.schemas.member import CheckInCreate, CheckInResponse
 from app.models.tenant.checkin import CheckIn, CheckInType
@@ -104,7 +105,7 @@ async def list_today_checkins(
     return responses
 
 
-@router.post("", response_model=CheckInResponse, status_code=201, dependencies=[Depends(get_current_staff)])
+@router.post("", response_model=CheckInResponse, status_code=201, dependencies=[Depends(require_perm(perm.CHECKINS_WRITE))])
 async def create_checkin(
     payload: CheckInCreate,
     db: AsyncSession = Depends(get_tenant_db_from_token),
@@ -116,7 +117,7 @@ async def create_checkin(
     return await _register(member, db, source="reception", db_name=db_name)
 
 
-@router.post("/qr/{qr_code}", response_model=CheckInResponse, status_code=201, dependencies=[Depends(get_current_staff)])
+@router.post("/qr/{qr_code}", response_model=CheckInResponse, status_code=201, dependencies=[Depends(require_perm(perm.CHECKINS_WRITE))])
 async def checkin_by_qr(
     qr_code: str,
     db: AsyncSession = Depends(get_tenant_db_from_token),
@@ -129,7 +130,7 @@ async def checkin_by_qr(
     return await _register(member, db, source="qr", db_name=db_name)
 
 
-@router.post("/override", response_model=CheckInResponse, status_code=201)
+@router.post("/override", response_model=CheckInResponse, status_code=201, dependencies=[Depends(require_perm(perm.ACCESS_OVERRIDE))])
 async def override_checkin(
     payload: OverrideRequest,
     db: AsyncSession = Depends(get_tenant_db_from_token),

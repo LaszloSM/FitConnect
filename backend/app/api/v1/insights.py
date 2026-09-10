@@ -5,11 +5,11 @@ from datetime import date
 from fastapi import APIRouter, Depends, Query
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.api.deps import get_tenant_db_from_token, require_role
-from app.models.tenant.user_staff import UserRole
+from app.api.deps import get_tenant_db_from_token, require_perm
+from app.core import permissions as perm
 from app.services import report_data as rd
 
-router = APIRouter(prefix="/insights", tags=["insights"], dependencies=[Depends(require_role(UserRole.owner, UserRole.admin))])
+router = APIRouter(prefix="/insights", tags=["insights"], dependencies=[Depends(require_perm(perm.REPORTS_READ))])
 
 
 @router.get("/peak-hours")

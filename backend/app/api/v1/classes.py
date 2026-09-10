@@ -5,7 +5,8 @@ from sqlalchemy import select, func
 from sqlalchemy.exc import IntegrityError
 from typing import Optional
 
-from app.api.deps import get_tenant_db_from_token, get_current_staff
+from app.api.deps import get_tenant_db_from_token, get_current_staff, require_perm
+from app.core import permissions as perm
 from app.schemas.operations import (
     GymClassCreate, GymClassUpdate, GymClassResponse,
     ClassEnrollmentCreate, ClassEnrollmentResponse,
@@ -15,7 +16,7 @@ from app.models.tenant.gym_class import GymClass
 from app.models.tenant.class_enrollment import ClassEnrollment
 from app.models.tenant.member import Member
 
-router = APIRouter(prefix="/classes", tags=["classes"], dependencies=[Depends(get_current_staff)])
+router = APIRouter(prefix="/classes", tags=["classes"], dependencies=[Depends(require_perm(perm.CLASSES_READ))])
 
 
 @router.get("", response_model=list[GymClassResponse])
@@ -33,7 +34,7 @@ async def list_classes(
     return result.scalars().all()
 
 
-@router.post("", response_model=GymClassResponse, status_code=201)
+@router.post("", response_model=GymClassResponse, status_code=201, dependencies=[Depends(require_perm(perm.CLASSES_WRITE))])
 async def create_class(
     payload: GymClassCreate,
     db: AsyncSession = Depends(get_tenant_db_from_token),
@@ -60,7 +61,7 @@ async def get_class(
     return gym_class
 
 
-@router.put("/{class_id}", response_model=GymClassResponse)
+@router.put("/{class_id}", response_model=GymClassResponse, dependencies=[Depends(require_perm(perm.CLASSES_WRITE))])
 async def update_class(
     class_id: uuid.UUID,
     payload: GymClassUpdate,
@@ -77,7 +78,7 @@ async def update_class(
     return gym_class
 
 
-@router.delete("/{class_id}", status_code=204)
+@router.delete("/{class_id}", status_code=204, dependencies=[Depends(require_perm(perm.CLASSES_WRITE))])
 async def delete_class(
     class_id: uuid.UUID,
     db: AsyncSession = Depends(get_tenant_db_from_token),
@@ -114,7 +115,7 @@ async def list_enrollments(
     ]
 
 
-@router.post("/{class_id}/enrollments", response_model=ClassEnrollmentResponse, status_code=201)
+@router.post("/{class_id}/enrollments", response_model=ClassEnrollmentResponse, status_code=201, dependencies=[Depends(require_perm(perm.CLASSES_ATTEND))])
 async def create_enrollment(
     class_id: uuid.UUID,
     payload: ClassEnrollmentCreate,
@@ -146,7 +147,7 @@ async def create_enrollment(
     return enrollment
 
 
-@router.post("/{class_id}/enroll", response_model=ClassEnrollmentResponse, status_code=201)
+@router.post("/{class_id}/enroll", response_model=ClassEnrollmentResponse, status_code=201, dependencies=[Depends(require_perm(perm.CLASSES_ATTEND))])
 async def enroll_member(
     class_id: uuid.UUID,
     payload: EnrollRequest,
@@ -193,7 +194,7 @@ async def enroll_member(
         raise HTTPException(status_code=400, detail="El miembro ya está inscrito en esta clase")
 
 
-@router.delete("/{class_id}/enrollments/{enrollment_id}", status_code=204)
+@router.delete("/{class_id}/enrollments/{enrollment_id}", status_code=204, dependencies=[Depends(require_perm(perm.CLASSES_ATTEND))])
 async def delete_enrollment(
     class_id: uuid.UUID,
     enrollment_id: uuid.UUID,

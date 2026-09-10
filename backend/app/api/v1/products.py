@@ -5,7 +5,8 @@ from sqlalchemy import select
 
 from sqlalchemy import desc, or_
 
-from app.api.deps import get_tenant_db_from_token, get_current_staff, require_role
+from app.api.deps import get_tenant_db_from_token, get_current_staff, require_perm
+from app.core import permissions as perm
 from app.models.tenant.product import Product
 from app.models.tenant.inventory import ProductCategory, StockMovement, StockMovementType
 from app.models.tenant.payment_item import PaymentItem
@@ -17,7 +18,7 @@ from app.schemas.pos import (
 from app.services.audit import audit
 from app.services.inventory import apply_stock_movement
 
-router = APIRouter(prefix="/products", tags=["products"], dependencies=[Depends(get_current_staff)])
+router = APIRouter(prefix="/products", tags=["products"], dependencies=[Depends(require_perm(perm.PRODUCTS_READ))])
 
 
 def _with_category(product: Product, names: dict) -> ProductResponse:
@@ -44,7 +45,7 @@ async def list_categories(
     return (await db.execute(stmt.order_by(ProductCategory.sort_order, ProductCategory.name))).scalars().all()
 
 
-@router.post("/categories", response_model=ProductCategoryOut, status_code=201)
+@router.post("/categories", response_model=ProductCategoryOut, status_code=201, dependencies=[Depends(require_perm(perm.PRODUCTS_WRITE))])
 async def create_category(
     payload: ProductCategoryIn,
     db: AsyncSession = Depends(get_tenant_db_from_token),
@@ -64,7 +65,7 @@ async def create_category(
 
 
 @router.put("/categories/{category_id}", response_model=ProductCategoryOut,
-            dependencies=[Depends(require_role(UserRole.owner, UserRole.admin))])
+            dependencies=[Depends(require_perm(perm.PRODUCTS_WRITE))])
 async def update_category(
     category_id: uuid.UUID,
     payload: ProductCategoryIn,
@@ -79,7 +80,7 @@ async def update_category(
     return row
 
 
-@router.delete("/categories/{category_id}", dependencies=[Depends(require_role(UserRole.owner, UserRole.admin))])
+@router.delete("/categories/{category_id}", dependencies=[Depends(require_perm(perm.PRODUCTS_WRITE))])
 async def delete_category(
     category_id: uuid.UUID,
     db: AsyncSession = Depends(get_tenant_db_from_token),
@@ -121,7 +122,7 @@ async def list_products(
     return [_with_category(p, names) for p in products]
 
 
-@router.post("", response_model=ProductResponse, status_code=201)
+@router.post("", response_model=ProductResponse, status_code=201, dependencies=[Depends(require_perm(perm.PRODUCTS_WRITE))])
 async def create_product(
     payload: ProductCreate,
     db: AsyncSession = Depends(get_tenant_db_from_token),
@@ -145,7 +146,7 @@ async def create_product(
     return _with_category(product, await _category_names(db))
 
 
-@router.put("/{product_id}", response_model=ProductResponse)
+@router.put("/{product_id}", response_model=ProductResponse, dependencies=[Depends(require_perm(perm.PRODUCTS_WRITE))])
 async def update_product(
     product_id: uuid.UUID,
     payload: ProductUpdate,
@@ -178,7 +179,7 @@ async def update_product(
 
 # ─── Movimientos de inventario ───
 
-@router.post("/{product_id}/movements", response_model=StockMovementOut, status_code=201)
+@router.post("/{product_id}/movements", response_model=StockMovementOut, status_code=201, dependencies=[Depends(require_perm(perm.STOCK_MOVEMENT))])
 async def create_movement(
     product_id: uuid.UUID,
     payload: StockMovementIn,
@@ -227,7 +228,7 @@ async def list_movements(
     return out
 
 
-@router.delete("/{product_id}")
+@router.delete("/{product_id}", dependencies=[Depends(require_perm(perm.PRODUCTS_WRITE))])
 async def archive_product(
     product_id: uuid.UUID,
     db: AsyncSession = Depends(get_tenant_db_from_token),

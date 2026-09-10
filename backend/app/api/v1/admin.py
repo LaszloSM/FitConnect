@@ -4,12 +4,12 @@ from sqlalchemy import select
 from sqlalchemy.ext.asyncio import create_async_engine, async_sessionmaker
 from sqlalchemy.pool import NullPool
 
-from app.api.deps import require_role, security
+from app.api.deps import security, require_perm
+from app.core import permissions as perm
 from app.core.config import settings
 from app.core.security import decode_token
 from app.db.master_session import MasterSessionLocal
 from app.models.master.tenant import Tenant
-from app.models.tenant.user_staff import UserRole
 from app.services.jobs import _daily_tenant_tasks, _reconcile_tenant_payments, _process_tenant_outbox
 
 router = APIRouter(prefix="/admin", tags=["admin"])
@@ -21,7 +21,7 @@ _PER_TENANT_JOBS = {
 }
 
 
-@router.post("/run-job/{job_name}", dependencies=[Depends(require_role(UserRole.owner))])
+@router.post("/run-job/{job_name}", dependencies=[Depends(require_perm(perm.JOBS_RUN))])
 async def run_job(
     job_name: str,
     credentials: HTTPAuthorizationCredentials = Depends(security),

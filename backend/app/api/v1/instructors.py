@@ -4,12 +4,13 @@ from pydantic import BaseModel, Field
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.api.deps import get_tenant_db_from_token, get_current_staff
+from app.api.deps import get_tenant_db_from_token, get_current_staff, require_perm
+from app.core import permissions as perm
 from app.models.tenant.gym_class import GymClass
 from app.models.tenant.instructor import Instructor
 from app.models.tenant.user_staff import UserStaff
 
-router = APIRouter(prefix="/instructors", tags=["instructors"], dependencies=[Depends(get_current_staff)])
+router = APIRouter(prefix="/instructors", tags=["instructors"], dependencies=[Depends(require_perm(perm.INSTRUCTORS_READ))])
 
 
 class InstructorCreate(BaseModel):
@@ -61,7 +62,7 @@ async def list_instructors(
     return [_serialize(i, counts.get(i.id, 0)) for i in instructors]
 
 
-@router.post("", status_code=201)
+@router.post("", status_code=201, dependencies=[Depends(require_perm(perm.INSTRUCTORS_WRITE))])
 async def create_instructor(
     payload: InstructorCreate,
     db: AsyncSession = Depends(get_tenant_db_from_token),
@@ -74,7 +75,7 @@ async def create_instructor(
     return _serialize(instructor)
 
 
-@router.put("/{instructor_id}")
+@router.put("/{instructor_id}", dependencies=[Depends(require_perm(perm.INSTRUCTORS_WRITE))])
 async def update_instructor(
     instructor_id: uuid.UUID,
     payload: InstructorUpdate,
@@ -100,7 +101,7 @@ async def update_instructor(
     return _serialize(instructor)
 
 
-@router.delete("/{instructor_id}")
+@router.delete("/{instructor_id}", dependencies=[Depends(require_perm(perm.INSTRUCTORS_WRITE))])
 async def archive_instructor(
     instructor_id: uuid.UUID,
     db: AsyncSession = Depends(get_tenant_db_from_token),

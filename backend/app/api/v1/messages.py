@@ -3,9 +3,9 @@ from pydantic import BaseModel, Field
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.api.deps import get_tenant_db_from_token, require_role, get_current_staff
+from app.api.deps import get_tenant_db_from_token, get_current_staff, require_perm
+from app.core import permissions as perm
 from app.models.tenant.message_template import MessageTemplate
-from app.models.tenant.user_staff import UserRole
 from app.services.message_templates import CATALOG, get_or_seed_templates, render
 
 router = APIRouter(prefix="/messages", tags=["messages"], dependencies=[Depends(get_current_staff)])
@@ -43,7 +43,7 @@ def _to_out(t: MessageTemplate) -> MessageOut:
 @router.get("", response_model=list[MessageOut])
 async def list_messages(
     db: AsyncSession = Depends(get_tenant_db_from_token),
-    _=Depends(require_role(UserRole.owner, UserRole.admin)),
+    _=Depends(require_perm(perm.MESSAGES_READ)),
 ):
     """Mensajes editables del gym, sembrando los defaults la primera vez."""
     return [_to_out(t) for t in await get_or_seed_templates(db)]
@@ -54,7 +54,7 @@ async def update_message(
     occasion: str,
     payload: MessageUpdate,
     db: AsyncSession = Depends(get_tenant_db_from_token),
-    _=Depends(require_role(UserRole.owner, UserRole.admin)),
+    _=Depends(require_perm(perm.MESSAGES_WRITE)),
 ):
     if occasion not in CATALOG:
         raise HTTPException(status_code=404, detail="Ocasión desconocida")
@@ -82,7 +82,7 @@ class PreviewRequest(BaseModel):
 async def preview_message(
     occasion: str,
     payload: PreviewRequest,
-    _=Depends(require_role(UserRole.owner, UserRole.admin)),
+    _=Depends(require_perm(perm.MESSAGES_READ)),
 ):
     """Previsualiza el mensaje con valores de ejemplo para cada variable."""
     if occasion not in CATALOG:

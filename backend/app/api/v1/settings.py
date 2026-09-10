@@ -7,18 +7,20 @@ from pydantic import BaseModel, Field
 
 from app.api.deps import (
     get_current_staff,
-    get_master_tenant,
+    get_tenant_from_claims,
     get_master_db,
     get_tenant_db_from_token,
     check_tenant_active,
-    require_role,
     get_tenant_slug,
+    require_perm,
 )
+from app.core import permissions as perm
+from app.services.audit import audit
 # Alias: en este módulo hay un handler de ruta que también se llama get_gym_settings
 from app.services.gym_settings import get_gym_settings as load_gym_settings
 from app.core.security import hash_password, verify_password
 from app.models.master.tenant import Tenant
-from app.models.tenant.user_staff import UserStaff, UserRole
+from app.models.tenant.user_staff import UserStaff
 from app.schemas.settings import (
     GymSettingsResponse,
     GymSettingsUpdate,
@@ -64,7 +66,7 @@ async def get_operations_settings(
 async def update_operations_settings(
     payload: OperationsSettingsUpdate,
     db: AsyncSession = Depends(get_tenant_db_from_token),
-    current_user: UserStaff = Depends(require_role(UserRole.owner)),
+    current_user: UserStaff = Depends(require_perm(perm.SETTINGS_WRITE)),
 ) -> OperationsSettingsResponse:
     gym = await load_gym_settings(db)
     if payload.grace_days is not None:
@@ -73,6 +75,8 @@ async def update_operations_settings(
         gym.receipt_prefix = payload.receipt_prefix
     if payload.cash_shifts_enabled is not None:
         gym.cash_shifts_enabled = payload.cash_shifts_enabled
+    audit(db, current_user, "settings.operations", "gym_settings", gym.id,
+          payload.model_dump(exclude_unset=True))
     await db.commit()
     await db.refresh(gym)
     return OperationsSettingsResponse(
@@ -141,9 +145,9 @@ async def update_profile(
 
 # ─── Gym ─────────────────────────────────────────────────────────────────────
 
-@router.get("/gym", response_model=GymSettingsResponse)
+@router.get("/gym", response_model=GymSettingsResponse, dependencies=[Depends(get_current_staff)])
 async def get_gym_settings(
-    tenant: Tenant = Depends(get_master_tenant),
+    tenant: Tenant = Depends(get_tenant_from_claims),
 ) -> GymSettingsResponse:
     return GymSettingsResponse(
         name=tenant.name,
@@ -162,6 +166,8 @@ async def update_gym_settings(
     payload: GymSettingsUpdate,
     tenant: Tenant = Depends(check_tenant_active),
     master_db: AsyncSession = Depends(get_master_db),
+    db: AsyncSession = Depends(get_tenant_db_from_token),
+    current_user: UserStaff = Depends(require_perm(perm.SETTINGS_PROFILE)),
 ) -> GymSettingsResponse:
     if payload.name is not None:
         tenant.name = payload.name
@@ -177,6 +183,12 @@ async def update_gym_settings(
         tenant.logo_url = payload.logo_url
     if payload.operating_hours is not None:
         tenant.operating_hours = payload.operating_hours
+
+    # El perfil del gym vive en la Master DB, pero la auditoría es del tenant:
+    # se confirma primero, para que un cambio nunca quede sin rastro.
+    audit(db, current_user, "settings.gym", "tenant", tenant.id,
+          payload.model_dump(exclude_unset=True, exclude={"operating_hours"}))
+    await db.commit()
 
     await master_db.commit()
     await master_db.refresh(tenant)
@@ -197,7 +209,8 @@ _ALLOWED_LOGO_TYPES = {"image/jpeg": "jpg", "image/png": "png", "image/webp": "w
 _MAX_LOGO_BYTES = 2 * 1024 * 1024
 
 
-@router.post("/gym/logo", response_model=GymSettingsResponse)
+@router.post("/gym/logo", response_model=GymSettingsResponse,
+             dependencies=[Depends(require_perm(perm.SETTINGS_PROFILE))])
 async def upload_gym_logo(
     file: UploadFile = File(...),
     tenant: Tenant = Depends(check_tenant_active),
@@ -276,7 +289,7 @@ def _billing_response(gym) -> BillingSettingsResponse:
 @router.get("/billing", response_model=BillingSettingsResponse)
 async def get_billing_settings(
     db: AsyncSession = Depends(get_tenant_db_from_token),
-    _: UserStaff = Depends(require_role(UserRole.owner, UserRole.admin)),
+    _: UserStaff = Depends(require_perm(perm.SETTINGS_READ)),
 ) -> BillingSettingsResponse:
     gym = await load_gym_settings(db)
     return _billing_response(gym)
@@ -286,7 +299,7 @@ async def get_billing_settings(
 async def update_billing_settings(
     payload: BillingSettingsUpdate,
     db: AsyncSession = Depends(get_tenant_db_from_token),
-    _: UserStaff = Depends(require_role(UserRole.owner)),
+    current_user: UserStaff = Depends(require_perm(perm.SETTINGS_WRITE)),
 ) -> BillingSettingsResponse:
     gym = await load_gym_settings(db)
     if payload.transfer_accounts is not None:
@@ -310,6 +323,10 @@ async def update_billing_settings(
         gym.nit = payload.nit
     if payload.tax_regime is not None:
         gym.tax_regime = payload.tax_regime
+    audit(db, current_user, "settings.billing", "gym_settings", gym.id, {
+        "fields": sorted(payload.model_dump(exclude_unset=True).keys()),
+        "transfer_accounts": len(gym.transfer_accounts or []),
+    })
     await db.commit()
     await db.refresh(gym)
     return _billing_response(gym)
@@ -328,7 +345,7 @@ async def upload_transfer_account_qr(
     account_id: str,
     file: UploadFile = File(...),
     db: AsyncSession = Depends(get_tenant_db_from_token),
-    _: UserStaff = Depends(require_role(UserRole.owner)),
+    _: UserStaff = Depends(require_perm(perm.SETTINGS_WRITE)),
     slug: str = Depends(get_tenant_slug),
 ) -> BillingSettingsResponse:
     """Sube el QR del banco/Nequi de una cuenta de recaudo."""
@@ -382,7 +399,7 @@ def _integrations_response(gym) -> "IntegrationsResponse":
 @router.get("/integrations", response_model=IntegrationsResponse)
 async def get_integrations(
     db: AsyncSession = Depends(get_tenant_db_from_token),
-    _: UserStaff = Depends(require_role(UserRole.owner)),
+    _: UserStaff = Depends(require_perm(perm.SETTINGS_SECRETS)),
 ) -> IntegrationsResponse:
     gym = await load_gym_settings(db)
     return _integrations_response(gym)
@@ -392,7 +409,7 @@ async def get_integrations(
 async def update_integrations(
     payload: IntegrationsUpdate,
     db: AsyncSession = Depends(get_tenant_db_from_token),
-    _: UserStaff = Depends(require_role(UserRole.owner)),
+    current_user: UserStaff = Depends(require_perm(perm.SETTINGS_SECRETS)),
 ) -> IntegrationsResponse:
     from app.services.gym_settings import set_secret
     gym = await load_gym_settings(db)
@@ -405,6 +422,8 @@ async def update_integrations(
         value = getattr(payload, field)
         if value is not None:
             set_secret(gym, field, value)
+    audit(db, current_user, "settings.integrations", "gym_settings", gym.id,
+          {"fields": sorted(payload.model_dump(exclude_unset=True).keys())})
     await db.commit()
     await db.refresh(gym)
     return _integrations_response(gym)

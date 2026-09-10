@@ -4,9 +4,9 @@ from pydantic import BaseModel, Field
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
 
-from app.api.deps import get_tenant_db_from_token, require_role, get_current_staff
+from app.api.deps import get_tenant_db_from_token, get_current_staff, require_perm
+from app.core import permissions as perm
 from app.models.tenant.location import Location
-from app.models.tenant.user_staff import UserRole
 
 router = APIRouter(prefix="/locations", tags=["locations"], dependencies=[Depends(get_current_staff)])
 
@@ -46,7 +46,7 @@ async def list_locations(
     return (await db.execute(stmt)).scalars().all()
 
 
-@router.post("", status_code=201, dependencies=[Depends(require_role(UserRole.owner, UserRole.admin))])
+@router.post("", status_code=201, dependencies=[Depends(require_perm(perm.LOCATIONS_WRITE))])
 async def create_location(
     data: LocationCreate,
     db: AsyncSession = Depends(get_tenant_db_from_token),
@@ -58,7 +58,7 @@ async def create_location(
     return location
 
 
-@router.patch("/{location_id}", dependencies=[Depends(require_role(UserRole.owner, UserRole.admin))])
+@router.patch("/{location_id}", dependencies=[Depends(require_perm(perm.LOCATIONS_WRITE))])
 async def update_location(
     location_id: uuid.UUID,
     data: LocationUpdate,
@@ -72,7 +72,7 @@ async def update_location(
     return location
 
 
-@router.delete("/{location_id}", dependencies=[Depends(require_role(UserRole.owner, UserRole.admin))])
+@router.delete("/{location_id}", dependencies=[Depends(require_perm(perm.LOCATIONS_WRITE))])
 async def deactivate_location(
     location_id: uuid.UUID,
     db: AsyncSession = Depends(get_tenant_db_from_token),

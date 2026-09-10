@@ -13,14 +13,15 @@ from pydantic import BaseModel, Field, model_validator
 from sqlalchemy import select, desc
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.api.deps import get_kiosk_db, get_kiosk_payload, get_tenant_db_from_token, get_current_staff, require_role
+from app.api.deps import get_kiosk_db, get_kiosk_payload, get_tenant_db_from_token, get_current_staff, require_perm
+from app.core import permissions as perm
 from app.core.rate_limit import limiter
 from app.core.security import create_kiosk_token
 from app.core.timeutil import utcnow_naive
 from app.models.tenant.access import AccessEvent, BiometricConsent, MemberCredential, BIOMETRIC_KINDS
 from app.models.tenant.kiosk_device import KioskDevice
 from app.models.tenant.member import Member
-from app.models.tenant.user_staff import UserStaff, UserRole
+from app.models.tenant.user_staff import UserStaff
 from app.services.audit import audit
 from app.services.access import verify_access, record_offline_events, allowlist
 
@@ -134,7 +135,7 @@ async def access_allowlist(
 
 # ─── Staff: bitácora ───
 
-@router.get("/events/recent", dependencies=[Depends(get_current_staff)])
+@router.get("/events/recent", dependencies=[Depends(require_perm(perm.ACCESS_VALIDATE))])
 async def recent_access_events(
     db: AsyncSession = Depends(get_tenant_db_from_token),
     device_id: Optional[uuid.UUID] = Query(None),
@@ -190,7 +191,7 @@ class ConsentIn(BaseModel):
         return self
 
 
-@member_router.get("/members/{member_id}/access", dependencies=[Depends(get_current_staff)])
+@member_router.get("/members/{member_id}/access", dependencies=[Depends(require_perm(perm.ACCESS_VALIDATE))])
 async def member_access(member_id: uuid.UUID, db: AsyncSession = Depends(get_tenant_db_from_token)):
     await _member_or_404(db, member_id)
     consents = (await db.execute(
@@ -219,7 +220,7 @@ async def create_biometric_consent(
     member_id: uuid.UUID,
     payload: ConsentIn,
     db: AsyncSession = Depends(get_tenant_db_from_token),
-    current_user: UserStaff = Depends(require_role(UserRole.owner, UserRole.admin, UserRole.receptionist)),
+    current_user: UserStaff = Depends(require_perm(perm.CONSENT_WRITE)),
 ):
     await _member_or_404(db, member_id)
     active = (await db.execute(select(BiometricConsent).where(
@@ -241,7 +242,7 @@ async def revoke_biometric_consent(
     member_id: uuid.UUID,
     consent_id: uuid.UUID,
     db: AsyncSession = Depends(get_tenant_db_from_token),
-    current_user: UserStaff = Depends(require_role(UserRole.owner, UserRole.admin)),
+    current_user: UserStaff = Depends(require_perm(perm.CONSENT_WRITE)),
 ):
     consent = (await db.execute(select(BiometricConsent).where(
         BiometricConsent.id == consent_id, BiometricConsent.member_id == member_id
@@ -274,7 +275,7 @@ async def enroll_credential(
     member_id: uuid.UUID,
     payload: CredentialIn,
     db: AsyncSession = Depends(get_tenant_db_from_token),
-    current_user: UserStaff = Depends(require_role(UserRole.owner, UserRole.admin, UserRole.receptionist)),
+    current_user: UserStaff = Depends(require_perm(perm.CREDENTIALS_WRITE)),
 ):
     await _member_or_404(db, member_id)
     consent_id = None
@@ -320,7 +321,7 @@ async def revoke_credential(
     member_id: uuid.UUID,
     credential_id: uuid.UUID,
     db: AsyncSession = Depends(get_tenant_db_from_token),
-    current_user: UserStaff = Depends(require_role(UserRole.owner, UserRole.admin, UserRole.receptionist)),
+    current_user: UserStaff = Depends(require_perm(perm.CREDENTIALS_WRITE)),
 ):
     cred = (await db.execute(select(MemberCredential).where(
         MemberCredential.id == credential_id, MemberCredential.member_id == member_id

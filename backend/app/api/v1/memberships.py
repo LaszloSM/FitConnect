@@ -5,7 +5,8 @@ from pydantic import BaseModel, Field
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
 
-from app.api.deps import get_tenant_db_from_token, get_current_staff
+from app.api.deps import get_tenant_db_from_token, get_current_staff, require_perm
+from app.core import permissions as perm
 from app.core.timeutil import today_bogota
 from app.models.tenant.membership import Membership, MembershipStatus
 from app.models.tenant.membership_freeze import MembershipFreeze
@@ -37,7 +38,7 @@ async def _get_membership(membership_id: uuid.UUID, db: AsyncSession) -> Members
     return membership
 
 
-@router.post("/{membership_id}/cancel", response_model=MembershipResponse)
+@router.post("/{membership_id}/cancel", response_model=MembershipResponse, dependencies=[Depends(require_perm(perm.MEMBERSHIPS_WRITE))])
 async def cancel_membership(
     membership_id: uuid.UUID,
     db: AsyncSession = Depends(get_tenant_db_from_token),
@@ -54,7 +55,7 @@ async def cancel_membership(
     return await _to_response(membership, db)
 
 
-@router.post("/{membership_id}/freeze", response_model=MembershipResponse)
+@router.post("/{membership_id}/freeze", response_model=MembershipResponse, dependencies=[Depends(require_perm(perm.MEMBERSHIPS_WRITE))])
 async def freeze_membership(
     membership_id: uuid.UUID,
     payload: FreezeRequest,
@@ -90,7 +91,7 @@ async def freeze_membership(
     return await _to_response(membership, db)
 
 
-@router.post("/{membership_id}/unfreeze", response_model=MembershipResponse)
+@router.post("/{membership_id}/unfreeze", response_model=MembershipResponse, dependencies=[Depends(require_perm(perm.MEMBERSHIPS_WRITE))])
 async def unfreeze_membership(
     membership_id: uuid.UUID,
     db: AsyncSession = Depends(get_tenant_db_from_token),

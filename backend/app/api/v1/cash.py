@@ -5,12 +5,13 @@ from pydantic import BaseModel, Field
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select, func, desc
 
-from app.api.deps import get_tenant_db_from_token, get_current_staff, require_role
+from app.api.deps import get_tenant_db_from_token, get_current_staff, require_perm
+from app.core import permissions as perm
 from app.core.timeutil import now_bogota
 from app.models.tenant.cash_shift import CashShift
 from app.models.tenant.expense import Expense
 from app.models.tenant.payment import Payment, PaymentMethod, PaymentStatus
-from app.models.tenant.user_staff import UserStaff, UserRole
+from app.models.tenant.user_staff import UserStaff
 from app.services.audit import audit
 
 router = APIRouter(prefix="/cash", tags=["cash"])
@@ -85,7 +86,7 @@ async def current_shift(
     }
 
 
-@router.get("/shifts", dependencies=[Depends(require_role(UserRole.owner, UserRole.admin))])
+@router.get("/shifts", dependencies=[Depends(require_perm(perm.CASH_READ))])
 async def list_shifts(
     db: AsyncSession = Depends(get_tenant_db_from_token),
     limit: int = Query(30, ge=1, le=100),
@@ -97,7 +98,7 @@ async def list_shifts(
     return rows
 
 
-@router.post("/shifts/open", status_code=201)
+@router.post("/shifts/open", status_code=201, dependencies=[Depends(require_perm(perm.CASH_OPEN))])
 async def open_shift(
     payload: OpenShiftRequest,
     db: AsyncSession = Depends(get_tenant_db_from_token),
@@ -120,7 +121,7 @@ async def open_shift(
     return shift
 
 
-@router.post("/shifts/{shift_id}/close")
+@router.post("/shifts/{shift_id}/close", dependencies=[Depends(require_perm(perm.CASH_CLOSE))])
 async def close_shift(
     shift_id: uuid.UUID,
     payload: CloseShiftRequest,
@@ -155,7 +156,7 @@ async def close_shift(
     return shift
 
 
-@router.get("/expenses", dependencies=[Depends(require_role(UserRole.owner, UserRole.admin))])
+@router.get("/expenses", dependencies=[Depends(require_perm(perm.CASH_READ))])
 async def list_expenses(
     db: AsyncSession = Depends(get_tenant_db_from_token),
     shift_id: uuid.UUID | None = Query(None),
@@ -167,7 +168,7 @@ async def list_expenses(
     return (await db.execute(stmt)).scalars().all()
 
 
-@router.post("/expenses", status_code=201)
+@router.post("/expenses", status_code=201, dependencies=[Depends(require_perm(perm.CASH_EXPENSE))])
 async def create_expense(
     payload: ExpenseCreate,
     db: AsyncSession = Depends(get_tenant_db_from_token),

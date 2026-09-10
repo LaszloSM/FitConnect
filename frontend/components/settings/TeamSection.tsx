@@ -18,7 +18,7 @@ import {
 import { FormDialog, FormField } from "@/components/ui/form-dialog";
 import { apiClient } from "@/lib/api";
 import { useApiResource } from "@/hooks/useApiResource";
-import { Copy, Users, UserPlus, UserMinus } from "lucide-react";
+import { Copy, Users, UserPlus, UserMinus, UserCheck } from "lucide-react";
 
 type Role = "owner" | "admin" | "receptionist";
 
@@ -42,7 +42,9 @@ const renderRoleValue = (v: Role | null) => (v ? ROLE_META[v]?.label ?? v : "Rol
 
 export default function TeamSection() {
   const { data: session } = useSession();
-  const staff = useApiResource<Staff[]>("/api/v1/users", []);
+  // include_inactive: desactivar a alguien por error lo hacía desaparecer sin
+  // forma de recuperarlo. Ahora sigue en la lista, apagado y reactivable.
+  const staff = useApiResource<Staff[]>("/api/v1/users?include_inactive=true", []);
 
   const [inviteOpen, setInviteOpen] = useState(false);
   const [email, setEmail] = useState("");
@@ -102,6 +104,18 @@ export default function TeamSection() {
       toast.error(err.response?.data?.detail ?? "Error desactivando");
     } finally {
       setRemoving(false);
+    }
+  };
+
+  const reactivate = async (member: Staff) => {
+    if (!session?.accessToken) return;
+    try {
+      const client = apiClient(session.accessToken as string);
+      await client.post(`/api/v1/users/${member.id}/reactivate`);
+      toast.success(`${member.full_name} recuperó el acceso`);
+      await staff.refetch();
+    } catch (err: any) {
+      toast.error(err.response?.data?.detail ?? "Error reactivando");
     }
   };
 
@@ -169,13 +183,21 @@ export default function TeamSection() {
                   key={m.id}
                   className="flex items-center gap-3 rounded-xl border border-[var(--border-base)] bg-[var(--bg-base)] px-4 py-3"
                 >
-                  <div className="flex-1 min-w-0">
+                  <div className={`flex-1 min-w-0 ${m.is_active ? "" : "opacity-60"}`}>
                     <p className="text-sm font-medium text-[var(--text-base)] truncate">
                       {m.full_name}
                     </p>
                     <p className="text-xs text-[var(--text-muted)] truncate">{m.email}</p>
                   </div>
-                  {isOwner ? (
+                  {!m.is_active ? (
+                    <>
+                      <StatusBadge status="inactive" label="Sin acceso" tone="neutral" />
+                      <Button type="button" variant="outline" size="sm" onClick={() => reactivate(m)}>
+                        <UserCheck className="h-3.5 w-3.5 mr-1.5" />
+                        Reactivar
+                      </Button>
+                    </>
+                  ) : isOwner ? (
                     <StatusBadge status="owner" label={ROLE_META.owner.label} tone={ROLE_META.owner.tone} />
                   ) : (
                     <Select value={m.role} onValueChange={(v) => changeRole(m, v as string)}>
@@ -191,7 +213,7 @@ export default function TeamSection() {
                       </SelectContent>
                     </Select>
                   )}
-                  {!isOwner && (
+                  {!isOwner && m.is_active && (
                     <button
                       onClick={() => setToRemove(m)}
                       title="Quitar acceso"
@@ -254,7 +276,7 @@ export default function TeamSection() {
         title="Quitar acceso"
         description={
           toRemove
-            ? `${toRemove.full_name} dejará de poder ingresar al sistema. Podrás volver a invitarlo después.`
+            ? `${toRemove.full_name} dejará de poder ingresar al sistema. Queda en la lista como "Sin acceso" y puedes reactivarlo cuando quieras.`
             : ""
         }
         onSubmit={deactivate}
