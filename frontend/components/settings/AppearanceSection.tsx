@@ -1,5 +1,7 @@
 "use client";
 
+import { useEffect, useState } from "react";
+
 import { useTheme } from "next-themes";
 import { motion, AnimatePresence } from "framer-motion";
 import { GlassCard } from "@/components/common/GlassCard";
@@ -38,6 +40,10 @@ const THEMES: ThemeChoice[] = [
 
 export default function AppearanceSection() {
   const { theme, setTheme } = useTheme();
+  // El tema solo se conoce en el cliente: marcar la opción activa antes de
+  // montar rompe la hidratación (ver Header).
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => { setMounted(true); }, []);
 
   return (
     <GlassCard className="p-6">
@@ -49,7 +55,7 @@ export default function AppearanceSection() {
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
         {THEMES.map((t) => {
           const Icon = t.icon;
-          const isActive = theme === t.key;
+          const isActive = mounted && theme === t.key;
 
           return (
             <button

@@ -45,6 +45,11 @@ export function Header() {
   const [mounted, setMounted] = useState(false);
   useEffect(() => { setMounted(true); }, []);
   const effectiveCollapsed = mounted ? collapsed : false;
+  // El tema vive en localStorage: el servidor no lo conoce. Si el icono se
+  // pinta según el tema antes de montar, el HTML del servidor y el del cliente
+  // no coinciden y React aborta la hidratación (#418) en TODAS las pantallas
+  // para quien use modo oscuro.
+  const esOscuro = mounted && resolvedTheme === "dark";
 
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [gymName, setGymName] = useState<string | null>(null);
@@ -161,12 +166,12 @@ export function Header() {
         <Button
           variant="ghost"
           size="icon"
-          aria-label={resolvedTheme === "dark" ? "Cambiar a modo claro" : "Cambiar a modo oscuro"}
-          onClick={() => setTheme(resolvedTheme === "dark" ? "light" : "dark")}
+          aria-label={esOscuro ? "Cambiar a modo claro" : "Cambiar a modo oscuro"}
+          onClick={() => setTheme(esOscuro ? "light" : "dark")}
           className="text-[var(--text-muted)] hover:text-[var(--text-base)]"
         >
           <AnimatePresence mode="wait">
-            {resolvedTheme === "dark" ? (
+            {esOscuro ? (
               <motion.span
                 key="dark"
                 initial={{ rotate: -90, opacity: 0 }}

@@ -45,3 +45,29 @@ test("la pantalla de Configuración pinta su contenido, no solo el menú", async
   );
   expect(hidratacion, `errores de hidratación:\n${hidratacion.join("\n")}`).toHaveLength(0);
 });
+
+test("en modo oscuro no hay errores de hidratación", async ({ page, request }) => {
+  // El tema vive en localStorage y el servidor no lo conoce: cualquier componente
+  // que se pinte según el tema antes de montar rompe la hidratación en TODAS las
+  // pantallas para quien use modo oscuro (era el caso del icono del Header).
+  const errores: string[] = [];
+  page.on("console", (msg) => {
+    if (msg.type() === "error") errores.push(msg.text());
+  });
+  page.on("pageerror", (err) => errores.push(String(err)));
+
+  const email = await cuentaDePrueba(request);
+  await entrar(page, email);
+  await page.evaluate(() => localStorage.setItem("theme", "dark"));
+
+  // Nada de networkidle: la app mantiene abierta la conexión en vivo de recepción
+  // y el silencio de red nunca llega.
+  for (const ruta of ["/dashboard", "/settings", "/members"]) {
+    await page.goto(ruta);
+    await expect(page.locator("main")).toBeVisible();
+    await page.waitForTimeout(1500);
+  }
+
+  const hidratacion = errores.filter((e) => /#(418|423|425)|hydrat/i.test(e));
+  expect(hidratacion, "errores de hidratación: " + hidratacion.join(" | ")).toHaveLength(0);
+});
