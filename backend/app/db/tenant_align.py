@@ -255,4 +255,26 @@ K3_ENTRENADORES: list[str] = [
     "ALTER TABLE class_sessions ADD COLUMN IF NOT EXISTS instructor_override_id UUID NULL REFERENCES instructors(id)",
 ]
 
-ALIGN_STATEMENTS: list[str] = [*J1_INGRESOS_PASE_TRANSFERENCIAS, *J2_INVENTARIO, *J4_CONSENTIMIENTOS, *J6_ACCESO, *J7_VIDEO_EJERCICIOS, *J8_GYM_SETTINGS_FLAGS, *K1_LIBRO_MOVIMIENTOS, *K2_MENSAJERIA, *K3_ENTRENADORES]
+K4_MAQUINAS: list[str] = [
+    # k4d5e6f7a8b9_maquinas.py
+    # Preventivo y correctivo no son lo mismo: solo el primero reinicia el ciclo.
+    "ALTER TABLE maintenance_logs ADD COLUMN IF NOT EXISTS kind VARCHAR(20) NOT NULL DEFAULT 'preventivo'",
+    "ALTER TABLE maintenance_logs ADD COLUMN IF NOT EXISTS reported_by VARCHAR(255) NULL",
+    # Borrar una máquina con historial devolvía 500: la FK no tenía cascada.
+    """DO $$
+    DECLARE nombre text;
+    BEGIN
+        SELECT conname INTO nombre FROM pg_constraint
+        WHERE conrelid = 'maintenance_logs'::regclass AND contype = 'f'
+          AND confrelid = 'machines'::regclass
+        LIMIT 1;
+        IF nombre IS NOT NULL THEN
+            EXECUTE format('ALTER TABLE maintenance_logs DROP CONSTRAINT %I', nombre);
+        END IF;
+        ALTER TABLE maintenance_logs
+            ADD CONSTRAINT maintenance_logs_machine_id_fkey
+            FOREIGN KEY (machine_id) REFERENCES machines(id) ON DELETE CASCADE;
+    END $$""",
+]
+
+ALIGN_STATEMENTS: list[str] = [*J1_INGRESOS_PASE_TRANSFERENCIAS, *J2_INVENTARIO, *J4_CONSENTIMIENTOS, *J6_ACCESO, *J7_VIDEO_EJERCICIOS, *J8_GYM_SETTINGS_FLAGS, *K1_LIBRO_MOVIMIENTOS, *K2_MENSAJERIA, *K3_ENTRENADORES, *K4_MAQUINAS]

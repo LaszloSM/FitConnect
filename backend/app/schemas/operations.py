@@ -1,8 +1,8 @@
 import uuid
 from datetime import date, datetime, time
 from decimal import Decimal
-from typing import Optional
-from pydantic import BaseModel, Field
+from typing import Literal, Optional
+from pydantic import BaseModel, Field, field_validator
 
 from app.models.tenant.gym_class import ClassCategory, ClassDifficulty
 
@@ -144,6 +144,19 @@ class MachineResponse(MachineBase):
     id: uuid.UUID
     created_at: datetime
     updated_at: datetime
+    # Estado de mantenimiento calculado por el backend (fuente única de verdad).
+    next_maintenance_date: Optional[date] = None
+    is_overdue: bool = False
+    is_due_soon: bool = False
+    days_until_maintenance: Optional[int] = None
+    # Sin max_length: la URL firmada de S3 pasa de 500 caracteres.
+    photo_url: Optional[str] = None
+
+    @field_validator("photo_url", mode="before")
+    @classmethod
+    def _signed_photo(cls, v):
+        from app.services.storage import resolve_media_url
+        return resolve_media_url(v)
 
     class Config:
         from_attributes = True
@@ -155,6 +168,9 @@ class MaintenanceLogBase(BaseModel):
     technician: str = Field(min_length=1, max_length=255)
     cost: Optional[Decimal] = Field(default=None, ge=0, decimal_places=2)
     resolved_at: Optional[date] = None
+    # Solo el preventivo reinicia el ciclo de mantenimiento de la máquina.
+    kind: Literal["preventivo", "correctivo"] = "preventivo"
+    reported_by: Optional[str] = Field(default=None, max_length=255)
 
 
 class MaintenanceLogCreate(MaintenanceLogBase):

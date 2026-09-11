@@ -98,9 +98,9 @@ OCCASIONS: dict[str, Occasion] = {
         key="maintenance_due",
         event="maintenance.due",
         label="Mantenimiento pendiente",
-        description="Aviso interno: una máquina pasó su fecha de mantenimiento.",
-        variables=["maquina", "dias"],
-        default_body="La máquina {maquina} tiene el mantenimiento preventivo vencido.",
+        description="Aviso interno: a una máquina le toca mantenimiento (una semana antes y al vencer).",
+        variables=["maquina", "cuando"],
+        default_body="La máquina {maquina} tiene el mantenimiento preventivo {cuando}.",
         whatsapp=False,  # es para el equipo, no para un socio
         tone="warning",
     ),
@@ -129,5 +129,5 @@ SAMPLE_VALUES = {
     "link": "https://pago.fitconnect.co/abc",
     "gym": "Tu Gimnasio",
     "maquina": "Trotadora 3",
-    "dias": "12",
+    "cuando": "vencido hace 12 días",
 }

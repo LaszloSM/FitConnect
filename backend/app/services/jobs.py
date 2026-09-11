@@ -196,9 +196,15 @@ async def _emit_expiry_reminders(session: AsyncSession, tenant: Tenant) -> None:
 
 
 async def _emit_maintenance_alerts(session: AsyncSession, tenant: Tenant) -> None:
-    """Alerta de mantenimiento preventivo vencido (idempotente por día)."""
+    """Preventivo: un aviso al acercarse la fecha y otro al vencer.
+
+    Enterarse el día que vence es enterarse tarde: ni el repuesto ni el técnico
+    aparecen esa misma tarde. Por eso el pre-aviso de una semana.
+    """
     from app.models.tenant.machine import Machine, MachineStatus
     from app.services.events import emit_occasion
+    from app.services.machine_status import maintenance_state
+
     today = today_bogota()
     machines = (await session.execute(
         select(Machine).where(
@@ -208,20 +214,27 @@ async def _emit_maintenance_alerts(session: AsyncSession, tenant: Tenant) -> Non
         )
     )).scalars().all()
     for machine in machines:
-        if not machine.last_maintenance_date:
-            due = today  # nunca se le hizo: vencido
-        else:
-            due = machine.last_maintenance_date + timedelta(days=machine.maintenance_interval_days)
-        if due > today:
+        estado = maintenance_state(machine, today)
+        if estado.next_date is None:
             continue
-        # La clave lleva el CICLO (la fecha en que venció), no el día de hoy:
-        # con la fecha de hoy una máquina vencida avisaba TODOS los días para
-        # siempre, y diez máquinas así ahogaban la campanita hasta que el dueño
-        # aprendía a ignorarla entera.
+        if estado.is_overdue:
+            atraso = -(estado.days_until or 0)
+            fase = "vencido"
+            cuando = "vencido hoy" if atraso == 0 else f"vencido hace {atraso} día{'s' if atraso != 1 else ''}"
+        elif estado.is_due_soon:
+            faltan = estado.days_until or 0
+            fase = "proximo"
+            cuando = f"programado en {faltan} día{'s' if faltan != 1 else ''}"
+        else:
+            continue
+        # La clave lleva el CICLO (la fecha de vencimiento) y la fase, no el día
+        # de hoy: con la fecha de hoy una máquina vencida avisaba TODOS los días
+        # para siempre, y diez máquinas así ahogaban la campanita hasta que el
+        # dueño aprendía a ignorarla entera.
         await emit_occasion(
             session, "maintenance_due",
-            idempotency_key=f"maint:{machine.id}:{due.isoformat()}",
-            values={"maquina": machine.name, "dias": str((today - due).days)},
+            idempotency_key=f"maint:{machine.id}:{estado.next_date.isoformat()}:{fase}",
+            values={"maquina": machine.name, "cuando": cuando},
         )
     await session.commit()
 
