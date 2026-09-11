@@ -20,7 +20,7 @@ import { apiClient } from "@/lib/api";
 import { useApiResource } from "@/hooks/useApiResource";
 import { Copy, Users, UserPlus, UserMinus, UserCheck } from "lucide-react";
 
-type Role = "owner" | "admin" | "receptionist";
+type Role = "owner" | "admin" | "receptionist" | "trainer";
 
 interface Staff {
   id: string;
@@ -34,9 +34,10 @@ const ROLE_META: Record<Role, { label: string; tone: StatusTone }> = {
   owner: { label: "Dueño", tone: "violet" },
   admin: { label: "Administrador", tone: "info" },
   receptionist: { label: "Recepcionista", tone: "neutral" },
+  trainer: { label: "Entrenador", tone: "success" },
 };
 
-const ASSIGNABLE_ROLES: Exclude<Role, "owner">[] = ["admin", "receptionist"];
+const ASSIGNABLE_ROLES: Exclude<Role, "owner">[] = ["admin", "receptionist", "trainer"];
 
 const renderRoleValue = (v: Role | null) => (v ? ROLE_META[v]?.label ?? v : "Rol");
 
@@ -136,7 +137,8 @@ export default function TeamSection() {
             </h3>
             <p className="text-sm text-[var(--text-muted)] mt-1">
               Invita a tu personal y asigna su rol. El administrador gestiona el gym; el
-              recepcionista solo opera check-in y cobros del día.
+              recepcionista solo opera check-in y cobros del día; el entrenador ve sus
+              clases, sus socios y sus rutinas, nunca el dinero.
             </p>
           </div>
           <Button

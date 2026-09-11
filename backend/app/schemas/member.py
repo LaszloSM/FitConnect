@@ -35,6 +35,7 @@ class MemberBase(BaseModel):
     training_goal: Optional[TrainingGoal] = None
     status: MemberStatus = MemberStatus.active
     notes: Optional[str] = Field(default=None, max_length=1000)
+    trainer_id: Optional[uuid.UUID] = None
 
     @field_validator("phone", "emergency_contact_phone", mode="before")
     @classmethod
@@ -127,6 +128,7 @@ class MemberUpdate(BaseModel):
     training_goal: Optional[TrainingGoal] = None
     status: Optional[MemberStatus] = None
     notes: Optional[str] = Field(default=None, max_length=1000)
+    trainer_id: Optional[uuid.UUID] = None
 
 
 class MemberResponse(MemberBase):

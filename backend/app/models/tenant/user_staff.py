@@ -10,10 +10,11 @@ class UserRole(str, enum.Enum):
     owner = "owner"
     admin = "admin"
     receptionist = "receptionist"
+    trainer = "trainer"
 
 
 class UserStaff(TenantBase, TenantTimestampMixin):
-    """Staff del gym: owner, admin, receptionist.
+    """Staff del gym: owner, admin, receptionist, trainer.
     Cada gym tiene su propia tabla de staff en su DB independiente.
     El owner aquí es el mismo email del Owner de la Master DB (para login unificado).
     """

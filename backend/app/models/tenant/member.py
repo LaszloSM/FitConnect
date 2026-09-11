@@ -1,7 +1,7 @@
 import uuid
 import enum
 from datetime import date
-from sqlalchemy import String, Enum as SAEnum, Date, DateTime, Index, text
+from sqlalchemy import String, Enum as SAEnum, Date, DateTime, ForeignKey, Index, text
 from datetime import datetime
 from sqlalchemy.dialects.postgresql import UUID, JSONB
 from sqlalchemy.orm import mapped_column, Mapped
@@ -99,3 +99,7 @@ class Member(TenantBase, TenantTimestampMixin):
     )
     status: Mapped[MemberStatus] = mapped_column(SAEnum(MemberStatus), default=MemberStatus.active, nullable=False)
     notes: Mapped[Optional[str]] = mapped_column(String(1000), nullable=True)
+    #: Entrenador asignado. El plan puede exigirlo (`includes_trainer`).
+    trainer_id: Mapped[Optional[uuid.UUID]] = mapped_column(
+        UUID(as_uuid=True), ForeignKey("instructors.id"), nullable=True, index=True
+    )

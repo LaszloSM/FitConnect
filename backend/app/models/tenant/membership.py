@@ -2,7 +2,7 @@ import uuid
 import enum
 from datetime import date, datetime
 from decimal import Decimal
-from sqlalchemy import String, ForeignKey, Date, DateTime, Numeric, Integer
+from sqlalchemy import String, ForeignKey, Date, DateTime, Numeric, Integer, Boolean
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import mapped_column, Mapped
 from typing import Optional
@@ -45,4 +45,8 @@ class Membership(TenantBase, TenantTimestampMixin):
         String(20), default="gym_and_classes", server_default="gym_and_classes", nullable=False
     )
     class_credits_per_month: Mapped[Optional[int]] = mapped_column(Integer, nullable=True)
+    includes_trainer: Mapped[bool] = mapped_column(
+        Boolean, default=False, server_default="false", nullable=False
+    )
+    trainer_sessions_per_month: Mapped[Optional[int]] = mapped_column(Integer, nullable=True)
     notes: Mapped[Optional[str]] = mapped_column(String(500), nullable=True)

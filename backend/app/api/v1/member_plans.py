@@ -23,6 +23,9 @@ class PlanCreate(BaseModel):
     # gym_only | gym_and_classes; créditos: None = ilimitadas
     access_type: Literal["gym_only", "gym_and_classes"] = "gym_and_classes"
     class_credits_per_month: int | None = None
+    # Plan con entrenador; sesiones: None = sin tope
+    includes_trainer: bool = False
+    trainer_sessions_per_month: int | None = None
 
 
 class PlanUpdate(BaseModel):
@@ -33,6 +36,8 @@ class PlanUpdate(BaseModel):
     is_active: bool | None = None
     access_type: Literal["gym_only", "gym_and_classes"] | None = None
     class_credits_per_month: int | None = None
+    includes_trainer: bool | None = None
+    trainer_sessions_per_month: int | None = None
 
 
 class AssignMembership(BaseModel):
@@ -196,6 +201,20 @@ async def _create_membership(
         db, plan.price, discount_amount, discount_reason, promo_code
     )
 
+    # Vender "plan con entrenador" sin entrenador asignado es vender humo: el
+    # socio paga por algo que nadie va a darle. Se corta aquí, que es el único
+    # embudo por el que pasan el alta, /assign y el cobro del POS.
+    if getattr(plan, "includes_trainer", False):
+        from app.models.tenant.member import Member as _Member
+        socio = (await db.execute(
+            select(_Member).where(_Member.id == member_id)
+        )).scalar_one_or_none()
+        if socio is not None and not socio.trainer_id:
+            raise HTTPException(
+                status_code=400,
+                detail=f"«{plan.name}» incluye entrenador: asígnale uno al socio antes de cobrarlo",
+            )
+
     membership = Membership(
         member_id=member_id,
         plan_id=plan.id,
@@ -203,6 +222,8 @@ async def _create_membership(
         # Snapshot de derechos: editar el plan luego no cambia lo ya vendido
         access_type=getattr(plan, "access_type", "gym_and_classes"),
         class_credits_per_month=getattr(plan, "class_credits_per_month", None),
+        includes_trainer=bool(getattr(plan, "includes_trainer", False)),
+        trainer_sessions_per_month=getattr(plan, "trainer_sessions_per_month", None),
         price=net_price,
         discount_amount=discount,
         discount_reason=reason,

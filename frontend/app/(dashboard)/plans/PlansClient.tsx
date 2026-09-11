@@ -43,6 +43,8 @@ const planSchema = z.object({
   is_active: z.boolean(),
   access_type: z.enum(["gym_only", "gym_and_classes"]),
   class_credits_per_month: z.number().int().min(1).nullable(),
+  includes_trainer: z.boolean(),
+  trainer_sessions_per_month: z.number().int().min(1).nullable(),
 });
 
 type PlanForm = z.infer<typeof planSchema>;
@@ -56,6 +58,8 @@ interface Plan {
   is_active: boolean;
   access_type: "gym_only" | "gym_and_classes";
   class_credits_per_month: number | null;
+  includes_trainer: boolean;
+  trainer_sessions_per_month: number | null;
 }
 
 const ACCESS_OPTIONS = [
@@ -163,14 +167,23 @@ function PlanCardItem({ plan, onEdit, onDelete }: PlanCardItemProps) {
             )}
           </div>
 
-          {(() => {
-            const badge = accessBadge(plan);
-            return (
-              <span className={cn("inline-flex w-fit items-center rounded-full px-2 py-0.5 text-[11px] font-semibold mb-3", badge.cls)}>
-                {badge.label}
+          <div className="flex flex-wrap gap-1.5 mb-3">
+            {(() => {
+              const badge = accessBadge(plan);
+              return (
+                <span className={cn("inline-flex w-fit items-center rounded-full px-2 py-0.5 text-[11px] font-semibold", badge.cls)}>
+                  {badge.label}
+                </span>
+              );
+            })()}
+            {plan.includes_trainer && (
+              <span className="inline-flex w-fit items-center rounded-full px-2 py-0.5 text-[11px] font-semibold bg-emerald-100 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-400">
+                {plan.trainer_sessions_per_month == null
+                  ? "Con entrenador"
+                  : `Entrenador · ${plan.trainer_sessions_per_month} ses./mes`}
               </span>
-            );
-          })()}
+            )}
+          </div>
 
           {/* Actions */}
           <div className="flex gap-2 pt-1">
@@ -215,6 +228,8 @@ const emptyForm: PlanForm = {
   is_active: true,
   access_type: "gym_and_classes" as const,
   class_credits_per_month: null,
+  includes_trainer: false,
+  trainer_sessions_per_month: null,
 };
 
 export default function PlansClient() {
@@ -263,6 +278,8 @@ export default function PlansClient() {
       is_active: plan.is_active,
       access_type: plan.access_type ?? "gym_and_classes",
       class_credits_per_month: plan.class_credits_per_month ?? null,
+      includes_trainer: plan.includes_trainer ?? false,
+      trainer_sessions_per_month: plan.trainer_sessions_per_month ?? null,
     });
     setErrors({});
     setDialogOpen(true);
@@ -465,6 +482,63 @@ export default function PlansClient() {
                   })}
                 </div>
               </div>
+
+              <label
+                className={cn(
+                  "flex items-center gap-3 rounded-xl border px-3 py-2.5 cursor-pointer transition-colors",
+                  form.includes_trainer
+                    ? "border-[var(--color-primary)] bg-[var(--color-primary)]/10"
+                    : "border-[var(--border-base)] hover:border-[var(--color-primary)]/50"
+                )}
+              >
+                <input
+                  type="checkbox"
+                  checked={form.includes_trainer}
+                  onChange={(e) =>
+                    setForm({
+                      ...form,
+                      includes_trainer: e.target.checked,
+                      trainer_sessions_per_month: e.target.checked
+                        ? form.trainer_sessions_per_month ?? 8
+                        : null,
+                    })
+                  }
+                  className="sr-only"
+                />
+                <span
+                  className={cn(
+                    "h-4 w-4 rounded border-2 shrink-0",
+                    form.includes_trainer
+                      ? "border-[var(--color-primary)] bg-[var(--color-primary)]"
+                      : "border-[var(--border-base)]"
+                  )}
+                />
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm font-medium text-[var(--text-base)]">Incluye entrenador</p>
+                  <p className="text-xs text-[var(--text-muted)]">
+                    No se puede cobrar sin asignarle un entrenador al socio.
+                  </p>
+                </div>
+                {form.includes_trainer && (
+                  <div className="flex items-center gap-2 shrink-0">
+                    <input
+                      type="number"
+                      min={1}
+                      max={99}
+                      value={form.trainer_sessions_per_month ?? 8}
+                      onClick={(e) => e.stopPropagation()}
+                      onChange={(e) =>
+                        setForm({
+                          ...form,
+                          trainer_sessions_per_month: Math.max(1, Number(e.target.value)),
+                        })
+                      }
+                      className="w-16 h-8 rounded-md border border-[var(--border-base)] bg-[var(--bg-base)] px-2 text-sm text-center text-[var(--text-base)]"
+                    />
+                    <span className="text-xs text-[var(--text-muted)]">ses./mes</span>
+                  </div>
+                )}
+              </label>
 
               <div className="flex items-center gap-3">
                 <button

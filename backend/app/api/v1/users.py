@@ -96,6 +96,40 @@ async def list_staff(
     return [UserResponse.model_validate(u) for u in result.scalars().all()]
 
 
+async def _sync_trainer_profile(db: AsyncSession, user: UserStaff) -> None:
+    """Mantiene la ficha de `instructors` alineada con el rol.
+
+    Ascender a alguien a entrenador desde Equipo tiene que dejarlo listo para
+    trabajar; quitarle el rol lo desenlaza pero NO borra la ficha: sus clases
+    pasadas siguen apuntando a ella.
+    """
+    from sqlalchemy import func
+    from app.models.tenant.instructor import Instructor
+
+    ficha = (await db.execute(
+        select(Instructor).where(Instructor.staff_id == user.id)
+    )).scalar_one_or_none()
+
+    if user.role != UserRole.trainer:
+        if ficha is not None:
+            ficha.staff_id = None
+        return
+
+    if ficha is not None:
+        return
+    libre = (await db.execute(
+        select(Instructor).where(
+            Instructor.staff_id.is_(None),
+            func.lower(Instructor.full_name) == user.full_name.strip().lower(),
+        )
+    )).scalars().first()
+    if libre is None:
+        libre = Instructor(full_name=user.full_name)
+        db.add(libre)
+    libre.staff_id = user.id
+    libre.is_active = True
+
+
 @router.patch("/{user_id}/role", response_model=UserResponse)
 async def update_user_role(
     user_id: str,
@@ -114,6 +148,7 @@ async def update_user_role(
         raise HTTPException(status_code=400, detail="No se puede cambiar el rol del owner")
     previous = user.role.value
     user.role = payload.role
+    await _sync_trainer_profile(db, user)
     audit(db, current_user, "staff.role_change", "user", user.id,
           {"email": user.email, "from": previous, "to": payload.role.value})
     await db.commit()

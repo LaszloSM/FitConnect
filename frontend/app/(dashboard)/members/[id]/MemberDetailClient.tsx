@@ -63,6 +63,11 @@ const TAB_CONFIG: { key: Tab; label: string; icon: React.ReactNode }[] = [
   { key: "qr",          label: "Carné QR",      icon: <QrCode className="h-3.5 w-3.5" /> },
 ];
 
+// Un entrenador entra a la ficha de SUS socios, pero el dinero, la membresía
+// y las credenciales de acceso no son suyos: la matriz de permisos ya los
+// bloquea y la pantalla no debe ofrecerle puertas cerradas.
+const TRAINER_TABS: Tab[] = ["info", "timeline", "checkins", "routine"];
+
 interface TimelineEvent {
   type: "checkin" | "payment" | "membership" | "booking";
   at: string;
@@ -132,6 +137,9 @@ export default function MemberDetailClient({ memberId }: { memberId: string }) {
   const [assigning, setAssigning] = useState(false);
   const [editOpen, setEditOpen] = useState(false);
   const [editSaving, setEditSaving] = useState(false);
+  const esEntrenador = session?.role === "trainer";
+  const [trainers, setTrainers] = useState<{ id: string; full_name: string }[]>([]);
+  const [trainerId, setTrainerId] = useState("");
   const [msgOpen, setMsgOpen] = useState(false);
   const [msgSending, setMsgSending] = useState(false);
   // La clave se fija al montar y `postOnce` la rota tras un envío bueno: un
@@ -213,18 +221,27 @@ export default function MemberDetailClient({ memberId }: { memberId: string }) {
   useEffect(() => {
     if (!session?.accessToken) return;
     const client = apiClient(session.accessToken as string);
+    // Cada fuente cae en su propio vacío: un 403 en una pestaña que este rol no
+    // puede ver no puede dejar la ficha entera en "Miembro no encontrado".
+    const traer = async <T,>(url: string, vacio: T): Promise<T> => {
+      try {
+        return (await client.get<T>(url)).data;
+      } catch {
+        return vacio;
+      }
+    };
     Promise.all([
-      client.get(`/api/v1/members/${memberId}`),
-      client.get(`/api/v1/members/${memberId}/payments`),
-      client.get(`/api/v1/members/${memberId}/checkins`),
-      client.get(`/api/v1/members/${memberId}/memberships`),
-      client.get("/api/v1/member-plans"),
+      client.get(`/api/v1/members/${memberId}`).then((r) => r.data).catch(() => null),
+      traer<any[]>(`/api/v1/members/${memberId}/payments`, []),
+      traer<any[]>(`/api/v1/members/${memberId}/checkins`, []),
+      traer<any[]>(`/api/v1/members/${memberId}/memberships`, []),
+      traer<any[]>("/api/v1/member-plans", []),
     ]).then(([m, p, c, ms, pl]) => {
-      setMember(m.data);
-      setPayments(p.data);
-      setCheckins(c.data);
-      setMemberships(ms.data);
-      setPlans(pl.data);
+      setMember(m);
+      setPayments(p);
+      setCheckins(c);
+      setMemberships(ms);
+      setPlans(pl);
       setLoading(false);
     }).catch(() => setLoading(false));
   }, [session?.accessToken, memberId]);
@@ -267,14 +284,28 @@ export default function MemberDetailClient({ memberId }: { memberId: string }) {
     }
   };
 
+  useEffect(() => {
+    if (!editOpen || !session?.accessToken) return;
+    // El select es CONTROLADO a propósito: las opciones llegan después de montar
+    // el diálogo, y con `defaultValue` el entrenador ya guardado se perdía.
+    setTrainerId(member?.trainer_id ?? "");
+    apiClient(session.accessToken as string)
+      .get<{ id: string; full_name: string }[]>("/api/v1/instructors")
+      .then((r) => setTrainers(r.data))
+      .catch(() => setTrainers([]));
+  }, [editOpen, session?.accessToken, member?.trainer_id]);
+
   const handleEditSave = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (!session?.accessToken) return;
     const fd = new FormData(e.currentTarget);
-    const payload: Record<string, string> = {};
+    const payload: Record<string, string | null> = {};
     for (const [k, v] of fd.entries()) {
       if (typeof v === "string" && v.trim() !== "") payload[k] = v.trim();
     }
+    // Los vacíos se descartan arriba, así que quitar el entrenador nunca
+    // llegaría al backend: este campo necesita viajar como null explícito.
+    if (!trainerId) payload.trainer_id = null;
     setEditSaving(true);
     try {
       const client = apiClient(session.accessToken as string);
@@ -384,6 +415,7 @@ export default function MemberDetailClient({ memberId }: { memberId: string }) {
                 <HeartPulse className="h-3 w-3" /> Requiere aval médico
               </span>
             )}
+            {!esEntrenador && (
             <Dialog open={editOpen} onOpenChange={setEditOpen}>
               <DialogTrigger
                 render={
@@ -427,6 +459,20 @@ export default function MemberDetailClient({ memberId }: { memberId: string }) {
                         <option value="inactive">Inactivo</option>
                       </select>
                     </div>
+                    <div className="space-y-1 sm:col-span-2">
+                      <Label className="text-[var(--text-muted)] text-xs">Entrenador</Label>
+                      <select
+                        name="trainer_id"
+                        value={trainerId}
+                        onChange={(e) => setTrainerId(e.target.value)}
+                        className="w-full h-9 rounded-md border border-[var(--border-base)] bg-[var(--bg-base)] px-3 text-sm text-[var(--text-base)]"
+                      >
+                        <option value="">Sin entrenador asignado</option>
+                        {trainers.map((t) => (
+                          <option key={t.id} value={t.id}>{t.full_name}</option>
+                        ))}
+                      </select>
+                    </div>
                     <div className="space-y-1">
                       <Label className="text-[var(--text-muted)] text-xs">Contacto emergencia</Label>
                       <Input name="emergency_contact_name" defaultValue={member.emergency_contact_name ?? ""} className="bg-[var(--bg-base)] border-[var(--border-base)] text-[var(--text-base)]" />
@@ -456,6 +502,8 @@ export default function MemberDetailClient({ memberId }: { memberId: string }) {
                 </form>
               </DialogContent>
             </Dialog>
+            )}
+            {!esEntrenador && (
             <Dialog open={msgOpen} onOpenChange={setMsgOpen}>
               <DialogTrigger
                 render={
@@ -512,6 +560,7 @@ export default function MemberDetailClient({ memberId }: { memberId: string }) {
                 </form>
               </DialogContent>
             </Dialog>
+            )}
             <span
               className={
                 member.status === "active"
@@ -554,7 +603,7 @@ export default function MemberDetailClient({ memberId }: { memberId: string }) {
               <Phone className="h-4 w-4" />
             </a>
           )}
-          {member.member_type === "visitor" ? (
+          {esEntrenador ? null : member.member_type === "visitor" ? (
             <button
               onClick={() => router.push(`/members?convert=${memberId}`)}
               className="flex items-center gap-1.5 h-9 px-3 rounded-lg bg-[var(--color-primary)] text-[var(--color-primary-contrast)] text-sm font-semibold hover:bg-[var(--color-primary-hover)] transition-colors"
@@ -576,7 +625,7 @@ export default function MemberDetailClient({ memberId }: { memberId: string }) {
 
       {/* Tabs */}
       <div className="flex gap-0.5 border-b border-[var(--border-base)]">
-        {TAB_CONFIG.map(({ key, label, icon }) => (
+        {TAB_CONFIG.filter((t) => !esEntrenador || TRAINER_TABS.includes(t.key)).map(({ key, label, icon }) => (
           <button
             key={key}
             onClick={() => setTab(key)}

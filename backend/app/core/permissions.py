@@ -31,6 +31,9 @@ MEMBERS_DELETE = "members.delete"
 MEMBERS_IMPORT = "members.import"
 
 MEMBERSHIPS_WRITE = "memberships.write"
+# Historial de plata de un socio dentro de su ficha. Recepción lo necesita en
+# el mostrador ("¿ya pagué?"), el entrenador no tiene nada que hacer ahí.
+MEMBER_MONEY_READ = "members.money_read"
 
 DAY_PASSES_SELL = "day_passes.sell"
 DAY_PASSES_WRITE = "day_passes.write"
@@ -53,6 +56,10 @@ INSTRUCTORS_WRITE = "instructors.write"
 ROUTINES_READ = "routines.read"
 ROUTINES_WRITE = "routines.write"
 ROUTINES_ASSIGN = "routines.assign"
+
+# Ámbito del entrenador: lo suyo, no lo del gym. El handler filtra por
+# `trainer_id`; el permiso solo dice que puede pedirlo.
+TRAINER_PORTAL = "trainer.portal"
 
 CHECKINS_WRITE = "checkins.write"
 ACCESS_VALIDATE = "access.validate"
@@ -90,7 +97,7 @@ _RECEPTIONIST: frozenset[str] = frozenset({
     CASH_OPEN, CASH_CLOSE, CASH_EXPENSE,
     PLANS_READ,
     MEMBERS_READ, MEMBERS_WRITE,
-    MEMBERSHIPS_WRITE,
+    MEMBERSHIPS_WRITE, MEMBER_MONEY_READ,
     DAY_PASSES_SELL,
     PRODUCTS_READ, STOCK_MOVEMENT,
     MACHINES_READ, MACHINES_MAINTAIN,
@@ -98,6 +105,17 @@ _RECEPTIONIST: frozenset[str] = frozenset({
     INSTRUCTORS_READ,
     ROUTINES_READ,
     CHECKINS_WRITE, ACCESS_VALIDATE, CREDENTIALS_WRITE, CONSENT_WRITE,
+})
+
+_TRAINER: frozenset[str] = frozenset({
+    # Ve SUS socios, SUS clases y SUS rutinas. Nada de dinero, nada de ajustes.
+    # Deliberadamente NO hereda de recepción: un entrenador no cobra ni abre caja.
+    TRAINER_PORTAL,
+    MEMBERS_READ,
+    CLASSES_READ, CLASSES_ATTEND,
+    INSTRUCTORS_READ,
+    ROUTINES_READ, ROUTINES_WRITE, ROUTINES_ASSIGN,
+    PLANS_READ,
 })
 
 _ADMIN: frozenset[str] = _RECEPTIONIST | frozenset({
@@ -133,9 +151,10 @@ ROLE_PERMISSIONS: dict[UserRole, frozenset[str]] = {
     UserRole.owner: _OWNER,
     UserRole.admin: _ADMIN,
     UserRole.receptionist: _RECEPTIONIST,
+    UserRole.trainer: _TRAINER,
 }
 
-ALL_PERMISSIONS: frozenset[str] = _OWNER
+ALL_PERMISSIONS: frozenset[str] = _OWNER | _TRAINER
 
 
 def has_perm(role: UserRole, perm: str) -> bool:

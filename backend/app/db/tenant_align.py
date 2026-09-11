@@ -230,4 +230,29 @@ K2_MENSAJERIA: list[str] = [
 ]
 
 # Orden cronológico: el aligner las aplica todas, en orden, tras create_all.
-ALIGN_STATEMENTS: list[str] = [*J1_INGRESOS_PASE_TRANSFERENCIAS, *J2_INVENTARIO, *J4_CONSENTIMIENTOS, *J6_ACCESO, *J7_VIDEO_EJERCICIOS, *J8_GYM_SETTINGS_FLAGS, *K1_LIBRO_MOVIMIENTOS, *K2_MENSAJERIA]
+K3_ENTRENADORES: list[str] = [
+    # k3c4d5e6f7a8_entrenadores.py
+    # El rol nuevo en el enum de Postgres: `create_all` no toca un tipo que ya
+    # existe, así que un tenant viejo se quedaría sin poder guardar 'trainer'.
+    "ALTER TYPE userrole ADD VALUE IF NOT EXISTS 'trainer'",
+    # La persona del catálogo de instructores y su usuario son la misma: el
+    # vínculo se agrega, las clases ya existentes no se tocan.
+    "ALTER TABLE instructors ADD COLUMN IF NOT EXISTS staff_id UUID NULL REFERENCES users(id)",
+    """DO $$ BEGIN
+        IF NOT EXISTS (SELECT 1 FROM pg_constraint WHERE conname = 'uq_instructor_staff') THEN
+            ALTER TABLE instructors ADD CONSTRAINT uq_instructor_staff UNIQUE (staff_id);
+        END IF;
+    END $$""",
+    "ALTER TABLE members ADD COLUMN IF NOT EXISTS trainer_id UUID NULL REFERENCES instructors(id)",
+    "CREATE INDEX IF NOT EXISTS ix_members_trainer_id ON members (trainer_id)",
+    # Derechos del plan y su snapshot en la membresía: lo comprado no cambia
+    # aunque el plan se edite después.
+    "ALTER TABLE member_plans ADD COLUMN IF NOT EXISTS includes_trainer BOOLEAN NOT NULL DEFAULT false",
+    "ALTER TABLE member_plans ADD COLUMN IF NOT EXISTS trainer_sessions_per_month INTEGER NULL",
+    "ALTER TABLE memberships ADD COLUMN IF NOT EXISTS includes_trainer BOOLEAN NOT NULL DEFAULT false",
+    "ALTER TABLE memberships ADD COLUMN IF NOT EXISTS trainer_sessions_per_month INTEGER NULL",
+    # El reemplazo por sesión deja de ser texto libre.
+    "ALTER TABLE class_sessions ADD COLUMN IF NOT EXISTS instructor_override_id UUID NULL REFERENCES instructors(id)",
+]
+
+ALIGN_STATEMENTS: list[str] = [*J1_INGRESOS_PASE_TRANSFERENCIAS, *J2_INVENTARIO, *J4_CONSENTIMIENTOS, *J6_ACCESO, *J7_VIDEO_EJERCICIOS, *J8_GYM_SETTINGS_FLAGS, *K1_LIBRO_MOVIMIENTOS, *K2_MENSAJERIA, *K3_ENTRENADORES]

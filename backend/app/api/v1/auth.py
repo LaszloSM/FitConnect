@@ -3,7 +3,7 @@ from datetime import datetime, timezone
 from fastapi import APIRouter, Depends, HTTPException, Request
 from fastapi.security import HTTPAuthorizationCredentials
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import select
+from sqlalchemy import func, select
 
 from sqlalchemy.ext.asyncio import async_sessionmaker
 
@@ -164,6 +164,26 @@ async def accept_invite(request: Request, payload: AcceptInviteRequest, db: Asyn
             email_verified=True,
         )
         ts.add(staff)
+        await ts.flush()
+
+        if staff.role == UserRole.trainer:
+            # El entrenador necesita una ficha en `instructors`: es lo que lo
+            # vincula con sus clases y sus socios. Si ya existe una con su
+            # nombre y sin cuenta (el catálogo de siempre), se enlaza en vez de
+            # duplicarla; el historial de clases queda intacto.
+            from app.models.tenant.instructor import Instructor
+            ficha = (await ts.execute(
+                select(Instructor).where(
+                    Instructor.staff_id.is_(None),
+                    func.lower(Instructor.full_name) == invite.full_name.strip().lower(),
+                )
+            )).scalars().first()
+            if ficha is None:
+                ficha = Instructor(full_name=invite.full_name)
+                ts.add(ficha)
+            ficha.staff_id = staff.id
+            ficha.is_active = True
+
         await ts.commit()
         await ts.refresh(staff)
         staff_id = staff.id

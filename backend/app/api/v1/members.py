@@ -19,7 +19,8 @@ from app.models.tenant.class_enrollment import ClassEnrollment
 from app.models.tenant.session_booking import SessionBooking
 from app.models.tenant.routine import MemberRoutine
 from app.models.tenant.day_pass import DayPass
-from app.models.tenant.user_staff import UserRole
+from app.models.tenant.user_staff import UserRole, UserStaff
+from app.models.tenant.instructor import Instructor
 from app.core.timeutil import today_bogota
 from app.services.gym_settings import get_gym_settings
 from app.services.membership_status import effective_status
@@ -34,6 +35,41 @@ class RenewalLinkRequest(BaseModel):
     plan_id: uuid.UUID
 
 
+async def trainer_scope(
+    db: AsyncSession = Depends(get_tenant_db_from_token),
+    staff: UserStaff = Depends(get_current_staff),
+) -> uuid.UUID | None:
+    """Para un entrenador, el id de su ficha; para los demás roles, None.
+
+    `MEMBERS_READ` le deja abrir el módulo, pero "sus socios" tiene que ser
+    verdad también aquí: sin esto un entrenador listaba el gimnasio entero con
+    teléfonos incluidos. Un entrenador sin ficha enlazada no ve a nadie, que es
+    la respuesta segura.
+    """
+    if staff.role != UserRole.trainer:
+        return None
+    ficha = (await db.execute(
+        select(Instructor.id).where(Instructor.staff_id == staff.id)
+    )).scalar_one_or_none()
+    return ficha or uuid.UUID(int=0)
+
+
+async def ensure_member_visible(
+    member_id: uuid.UUID,
+    db: AsyncSession = Depends(get_tenant_db_from_token),
+    solo_mios: uuid.UUID | None = Depends(trainer_scope),
+) -> None:
+    """Las subrutas de la ficha heredan `MEMBERS_READ` del router: sin esto un
+    entrenador leía el historial de CUALQUIER socio poniendo su id en la URL."""
+    if solo_mios is None:
+        return
+    visible = (await db.execute(
+        select(Member.id).where(Member.id == member_id, Member.trainer_id == solo_mios)
+    )).scalar_one_or_none()
+    if not visible:
+        raise HTTPException(status_code=404, detail="Miembro no encontrado")
+
+
 @router.get("", response_model=list[MemberResponse])
 async def list_members(
     db: AsyncSession = Depends(get_tenant_db_from_token),
@@ -44,8 +80,11 @@ async def list_members(
     member_type: str | None = Query(None, description="member | visitor"),
     limit: int = Query(50, ge=1, le=200),
     offset: int = Query(0, ge=0),
+    solo_mios: uuid.UUID | None = Depends(trainer_scope),
 ):
     stmt = select(Member)
+    if solo_mios is not None:
+        stmt = stmt.where(Member.trainer_id == solo_mios)
     if q:
         search = f"%{q}%"
         stmt = stmt.where(
@@ -263,7 +302,8 @@ async def import_members_file(
         raise HTTPException(status_code=400, detail=str(exc))
 
 
-@router.get("/{member_id}/billing-summary")
+@router.get("/{member_id}/billing-summary", dependencies=[
+    Depends(require_perm(perm.MEMBER_MONEY_READ)), Depends(ensure_member_visible)])
 async def get_billing_summary(
     member_id: uuid.UUID,
     db: AsyncSession = Depends(get_tenant_db_from_token),
@@ -335,7 +375,7 @@ async def get_billing_summary(
     return summary
 
 
-@router.get("/{member_id}/timeline")
+@router.get("/{member_id}/timeline", dependencies=[Depends(ensure_member_visible)])
 async def get_member_timeline(
     member_id: uuid.UUID,
     db: AsyncSession = Depends(get_tenant_db_from_token),
@@ -424,7 +464,8 @@ async def count_missing_id_number(
     return {"count": count}
 
 
-@router.get("/{member_id}/payments")
+@router.get("/{member_id}/payments", dependencies=[
+    Depends(require_perm(perm.MEMBER_MONEY_READ)), Depends(ensure_member_visible)])
 async def get_member_payments(
     member_id: uuid.UUID,
     db: AsyncSession = Depends(get_tenant_db_from_token),
@@ -436,7 +477,7 @@ async def get_member_payments(
     return result.scalars().all()
 
 
-@router.get("/{member_id}/checkins")
+@router.get("/{member_id}/checkins", dependencies=[Depends(ensure_member_visible)])
 async def get_member_checkins(
     member_id: uuid.UUID,
     db: AsyncSession = Depends(get_tenant_db_from_token),
@@ -448,7 +489,8 @@ async def get_member_checkins(
     return result.scalars().all()
 
 
-@router.get("/{member_id}/memberships", response_model=list[MembershipResponse])
+@router.get("/{member_id}/memberships", response_model=list[MembershipResponse],
+            dependencies=[Depends(ensure_member_visible)])
 async def get_member_memberships(
     member_id: uuid.UUID,
     db: AsyncSession = Depends(get_tenant_db_from_token),
@@ -582,10 +624,15 @@ async def record_consent(
 async def get_member(
     member_id: uuid.UUID,
     db: AsyncSession = Depends(get_tenant_db_from_token),
+    solo_mios: uuid.UUID | None = Depends(trainer_scope),
 ):
     result = await db.execute(select(Member).where(Member.id == member_id))
     member = result.scalar_one_or_none()
     if not member:
+        raise HTTPException(status_code=404, detail="Miembro no encontrado")
+    # Para el entrenador, un socio ajeno no existe: 404, no 403. Un 403 confirma
+    # que ese id es de alguien del gym.
+    if solo_mios is not None and member.trainer_id != solo_mios:
         raise HTTPException(status_code=404, detail="Miembro no encontrado")
     return member
 

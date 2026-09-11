@@ -10,6 +10,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.api.deps import get_tenant_db_from_token, get_current_staff, get_master_db, get_kiosk_db, get_kiosk_payload, get_tenant_slug, require_perm
 from app.core import permissions as perm
+from app.api.v1.members import ensure_member_visible
 from app.core.timeutil import utcnow_naive
 from app.models.master.exercise import Exercise
 from app.models.tenant.member import Member
@@ -294,7 +295,8 @@ class AssignRoutine(BaseModel):
     notes: Optional[str] = Field(default=None, max_length=500)
 
 
-@router.post("/members/{member_id}/routines", status_code=201, dependencies=[Depends(require_perm(perm.ROUTINES_ASSIGN))])
+@router.post("/members/{member_id}/routines", status_code=201, dependencies=[
+    Depends(require_perm(perm.ROUTINES_ASSIGN)), Depends(ensure_member_visible)])
 async def assign_routine(
     member_id: uuid.UUID,
     payload: AssignRoutine,
@@ -321,7 +323,8 @@ async def assign_routine(
     return {"id": str(mr.id), "routine_id": str(routine.id), "routine_name": routine.name, "assigned_at": mr.assigned_at}
 
 
-@router.get("/members/{member_id}/routines", dependencies=[Depends(get_current_staff)])
+@router.get("/members/{member_id}/routines", dependencies=[
+    Depends(get_current_staff), Depends(ensure_member_visible)])
 async def member_routines(
     member_id: uuid.UUID,
     db: AsyncSession = Depends(get_tenant_db_from_token),
@@ -343,7 +346,8 @@ async def member_routines(
     return {"current": current, "history": history}
 
 
-@router.delete("/members/{member_id}/routines/current", dependencies=[Depends(require_perm(perm.ROUTINES_ASSIGN))])
+@router.delete("/members/{member_id}/routines/current", dependencies=[
+    Depends(require_perm(perm.ROUTINES_ASSIGN)), Depends(ensure_member_visible)])
 async def end_member_routine(
     member_id: uuid.UUID,
     db: AsyncSession = Depends(get_tenant_db_from_token),

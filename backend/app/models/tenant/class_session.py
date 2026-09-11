@@ -28,6 +28,11 @@ class ClassSession(TenantBase, TenantTimestampMixin):
     status: Mapped[SessionStatus] = mapped_column(String(20), default=SessionStatus.scheduled, nullable=False)
     notes: Mapped[Optional[str]] = mapped_column(String(500), nullable=True)
     location_id: Mapped[Optional[uuid.UUID]] = mapped_column(UUID(as_uuid=True), ForeignKey("locations.id"), nullable=True)
-    # Overrides opcionales para esta sesión específica
+    # Overrides opcionales para esta sesión específica.
+    # `instructor_override_id` es el vínculo real; el texto queda como snapshot
+    # de lo que se mostró ese día (mismo patrón que GymClass.instructor).
+    instructor_override_id: Mapped[Optional[uuid.UUID]] = mapped_column(
+        UUID(as_uuid=True), ForeignKey("instructors.id"), nullable=True
+    )
     instructor_override: Mapped[Optional[str]] = mapped_column(String(255), nullable=True)
     capacity_override: Mapped[Optional[int]] = mapped_column(Integer, nullable=True)

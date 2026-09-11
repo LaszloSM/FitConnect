@@ -22,12 +22,36 @@ import {
   ScrollText,
   HelpCircle,
   MessageSquare,
+  ClipboardList,
+  Sun,
 } from "lucide-react";
 import { BrandMark } from "@/components/common/BrandMark";
 
 // ── Nav structure — grouped by purpose so modules feel organized, not cloned ──
 type NavItem = { href: string; label: string; icon: typeof Users; ownerOnly?: boolean };
 type NavGroup = { label: string; items: NavItem[] };
+
+// El entrenador no ve un gimnasio recortado: ve SU día. La matriz de permisos
+// del backend ya le cierra el dinero y los ajustes; esto es para que la pantalla
+// no le ofrezca puertas cerradas.
+const trainerGroups: NavGroup[] = [
+  {
+    label: "Mi trabajo",
+    items: [
+      { href: "/entrenador", label: "Mi día", icon: Sun },
+      { href: "/entrenador/socios", label: "Mis socios", icon: Users },
+      { href: "/entrenador/rutinas", label: "Mis rutinas", icon: ClipboardList },
+    ],
+  },
+  {
+    label: "Gimnasio",
+    items: [
+      { href: "/classes", label: "Clases", icon: Calendar },
+      { href: "/routines", label: "Rutinas", icon: Dumbbell },
+      { href: "/ayuda", label: "Ayuda", icon: HelpCircle },
+    ],
+  },
+];
 
 const navGroups: NavGroup[] = [
   {
@@ -122,7 +146,10 @@ export function Sidebar() {
 
   const userName = session?.user?.name ?? null;
   const userEmail = session?.user?.email ?? null;
-  const userRole = (session?.user as { role?: string } | undefined)?.role ?? null;
+  // El rol vive en `session.role`, no en `session.user`: leerlo del user daba
+  // siempre null y el filtro `ownerOnly` no filtraba nada.
+  const userRole = session?.role ?? null;
+  const groups = userRole === "trainer" ? trainerGroups : navGroups;
   const initials = getInitials(userName);
   const subline = userRole ?? userEmail ?? "";
 
@@ -183,7 +210,7 @@ export function Sidebar() {
       {/* ── Navigation ──────────────────────────────────────────────────── */}
       <nav className="flex-1 overflow-y-auto overflow-x-hidden py-3 px-2" aria-label="Navegación principal">
         <div className="flex flex-col gap-4">
-          {navGroups.map((group) => (
+          {groups.map((group) => (
             <div key={group.label} className="flex flex-col gap-0.5">
               <AnimatePresence initial={false}>
                 {!effectiveCollapsed && (

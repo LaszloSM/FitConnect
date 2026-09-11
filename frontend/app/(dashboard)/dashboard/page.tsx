@@ -1,6 +1,9 @@
 "use client";
 export const dynamic = "force-dynamic";
 
+import { useEffect } from "react";
+import { useSession } from "next-auth/react";
+import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import Link from "next/link";
 import { GlassCard } from "@/components/common/GlassCard";
@@ -89,8 +92,17 @@ function DashboardSkeleton() {
 
 export default function DashboardPage() {
   const { data, loading, error } = useDashboardData();
+  const { data: session, status } = useSession();
+  const router = useRouter();
+  const rol = session?.role;
 
-  if (loading) return <DashboardSkeleton />;
+  // Un entrenador que llegue aquí por marcador vería un panel de gimnasio lleno
+  // de "—": su casa es su día.
+  useEffect(() => {
+    if (status === "authenticated" && rol === "trainer") router.replace("/entrenador");
+  }, [status, rol, router]);
+
+  if (loading || rol === "trainer") return <DashboardSkeleton />;
 
   if (error) {
     return <EmptyState icon={<AlertCircle className="h-10 w-10 text-red-500" />} title="Error cargando datos" description={error} />;

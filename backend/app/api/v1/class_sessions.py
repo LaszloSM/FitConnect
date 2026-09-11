@@ -10,12 +10,14 @@ from app.core import permissions as perm
 from app.core.timeutil import today_bogota, now_bogota
 from app.models.tenant.class_session import ClassSession
 from app.models.tenant.gym_class import GymClass
+from app.models.tenant.instructor import Instructor
 from app.models.tenant.member import Member
 from app.models.tenant.session_booking import SessionBooking
 from app.models.tenant.user_staff import UserStaff
 from app.services.class_access import validate_class_access
 from app.services.class_sessions import materialize_sessions
 from app.services.gym_settings import get_gym_settings
+from app.services.schedule_conflicts import find_session_conflict
 
 router = APIRouter(prefix="/class-sessions", tags=["class_sessions"], dependencies=[Depends(require_perm(perm.CLASSES_READ))])
 
@@ -30,7 +32,9 @@ class AttendanceUpdate(BaseModel):
 
 class SessionPatch(BaseModel):
     status: str | None = Field(default=None, pattern="^(scheduled|cancelled|completed)$")
-    instructor_override: str | None = None
+    #: Reemplazo para esta sesión. El id es la fuente de verdad; el texto se
+    #: deriva de la ficha para que nadie invente un nombre que no existe.
+    instructor_override_id: uuid.UUID | None = None
     capacity_override: int | None = Field(default=None, gt=0)
 
 
@@ -280,8 +284,42 @@ async def patch_session(
     session = (await db.execute(select(ClassSession).where(ClassSession.id == session_id))).scalar_one_or_none()
     if not session:
         raise HTTPException(status_code=404, detail="Sesión no encontrada")
-    for field, value in payload.model_dump(exclude_unset=True).items():
+    cambios = payload.model_dump(exclude_unset=True)
+
+    if "instructor_override_id" in cambios:
+        nuevo = cambios["instructor_override_id"]
+        if nuevo is None:
+            session.instructor_override_id = None
+            session.instructor_override = None
+        else:
+            ficha = (await db.execute(
+                select(Instructor).where(Instructor.id == nuevo)
+            )).scalar_one_or_none()
+            if not ficha:
+                raise HTTPException(status_code=404, detail="Entrenador no encontrado")
+            gc = (await db.execute(
+                select(GymClass).where(GymClass.id == session.gym_class_id)
+            )).scalar_one()
+            choque = await find_session_conflict(
+                db,
+                instructor_id=ficha.id,
+                session_date=session.session_date,
+                start_time=session.start_time,
+                duration_minutes=gc.duration_minutes,
+                exclude_session_id=session.id,
+            )
+            if choque:
+                raise HTTPException(status_code=409, detail=choque)
+            session.instructor_override_id = ficha.id
+            session.instructor_override = ficha.full_name
+        cambios.pop("instructor_override_id")
+
+    for field, value in cambios.items():
         setattr(session, field, value)
     await db.commit()
     await db.refresh(session)
-    return {"id": str(session.id), "status": session.status}
+    return {
+        "id": str(session.id),
+        "status": session.status,
+        "instructor_override": session.instructor_override,
+    }

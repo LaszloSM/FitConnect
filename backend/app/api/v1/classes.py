@@ -15,6 +15,7 @@ from app.schemas.operations import (
 from app.models.tenant.gym_class import GymClass
 from app.models.tenant.class_enrollment import ClassEnrollment
 from app.models.tenant.member import Member
+from app.services.schedule_conflicts import find_class_conflict
 
 router = APIRouter(prefix="/classes", tags=["classes"], dependencies=[Depends(require_perm(perm.CLASSES_READ))])
 
@@ -39,6 +40,16 @@ async def create_class(
     payload: GymClassCreate,
     db: AsyncSession = Depends(get_tenant_db_from_token),
 ):
+    choque = await find_class_conflict(
+        db,
+        instructor_id=payload.instructor_id,
+        weekdays=payload.weekdays,
+        start_time=payload.start_time,
+        duration_minutes=payload.duration_minutes,
+    )
+    if choque:
+        raise HTTPException(status_code=409, detail=choque)
+
     gym_class = GymClass(**payload.model_dump())
     db.add(gym_class)
     await db.commit()
@@ -71,7 +82,20 @@ async def update_class(
     gym_class = result.scalar_one_or_none()
     if not gym_class:
         raise HTTPException(status_code=404, detail="Clase no encontrada")
-    for field, value in payload.model_dump(exclude_unset=True).items():
+    cambios = payload.model_dump(exclude_unset=True)
+    # Se valida con los valores RESULTANTES, no solo con los que llegaron: mover
+    # la hora sin tocar el instructor también puede chocar.
+    choque = await find_class_conflict(
+        db,
+        instructor_id=cambios.get("instructor_id", gym_class.instructor_id),
+        weekdays=cambios.get("weekdays", gym_class.weekdays),
+        start_time=cambios.get("start_time", gym_class.start_time),
+        duration_minutes=cambios.get("duration_minutes", gym_class.duration_minutes),
+        exclude_class_id=gym_class.id,
+    )
+    if choque:
+        raise HTTPException(status_code=409, detail=choque)
+    for field, value in cambios.items():
         setattr(gym_class, field, value)
     await db.commit()
     await db.refresh(gym_class)

@@ -71,7 +71,9 @@ async def _shift_cash_movements(db: AsyncSession, shift_id: uuid.UUID) -> tuple[
     return Decimal(income), Decimal(outflow)
 
 
-@router.get("/shifts/current", dependencies=[Depends(get_current_staff)])
+# Quien puede abrir o cerrar turno puede ver el que está abierto. Un
+# entrenador no tiene nada que hacer mirando la caja del día.
+@router.get("/shifts/current", dependencies=[Depends(require_perm(perm.CASH_OPEN))])
 async def current_shift(
     db: AsyncSession = Depends(get_tenant_db_from_token),
     location_id: uuid.UUID | None = Query(None),

@@ -1,5 +1,5 @@
 "use client";
-import { signIn } from "next-auth/react";
+import { getSession, signIn } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import Link from "next/link";
@@ -42,7 +42,10 @@ export default function LoginPage() {
       );
       return;
     }
-    router.push("/dashboard");
+    // El entrenador no tiene panel de gimnasio: su casa es su día.
+    const sesion = await getSession();
+    const rol = sesion?.role;
+    router.push(rol === "trainer" ? "/entrenador" : "/dashboard");
   }
 
   return (

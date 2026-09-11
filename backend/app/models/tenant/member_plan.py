@@ -23,3 +23,8 @@ class MemberPlan(TenantBase, TenantTimestampMixin):
         String(20), default="gym_and_classes", server_default="gym_and_classes", nullable=False
     )
     class_credits_per_month: Mapped[Optional[int]] = mapped_column(Integer, nullable=True)
+    # Plan con entrenador incluido. trainer_sessions_per_month: NULL = sin tope.
+    includes_trainer: Mapped[bool] = mapped_column(
+        Boolean, default=False, server_default="false", nullable=False
+    )
+    trainer_sessions_per_month: Mapped[Optional[int]] = mapped_column(Integer, nullable=True)

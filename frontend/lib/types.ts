@@ -33,6 +33,7 @@ export interface Member {
   qr_code: string | null;
   status: MemberStatus;
   notes: string | null;
+  trainer_id: string | null;
   created_at: string;
   updated_at: string;
 }
@@ -217,7 +218,7 @@ export interface DashboardOverview {
   revenue_history: { month: string; amount: string }[];
 }
 
-export type UserRole = "owner" | "admin" | "receptionist";
+export type UserRole = "owner" | "admin" | "receptionist" | "trainer";
 
 export interface UserStaff {
   id: string;

@@ -119,7 +119,7 @@ async def test_deactivated_staff_token_rejected_on_operational(client):
 
 _TOKENS: dict[str, str] = {}
 
-ALL_ROLES = ("owner", "admin", "receptionist")
+ALL_ROLES = ("owner", "admin", "receptionist", "trainer")
 
 
 async def _role_token(client, role):
@@ -171,11 +171,11 @@ MUTATIONS = [
     ("post",   "/api/v1/classes", {"name": f"Clase {_TAG}", "instructor": "Ana", "capacity": 10}, ("owner", "admin")),
     ("put",    f"/api/v1/classes/{_FAKE}", {"capacity": 5}, ("owner", "admin")),
     ("delete", f"/api/v1/classes/{_FAKE}", None, ("owner", "admin")),
-    ("patch",  f"/api/v1/class-sessions/{_FAKE}", {"instructor_override": "Ana"}, ("owner", "admin")),
+    ("patch",  f"/api/v1/class-sessions/{_FAKE}", {"instructor_override_id": None}, ("owner", "admin")),
     ("post",   f"/api/v1/class-sessions/{_FAKE}/bookings", {"member_id": _FAKE},
-     ("owner", "admin", "receptionist")),
+     ("owner", "admin", "receptionist", "trainer")),
 
-    ("post",   f"/api/v1/members/{_FAKE}/routines", {"routine_id": _FAKE}, ("owner", "admin")),
+    ("post",   f"/api/v1/members/{_FAKE}/routines", {"routine_id": _FAKE}, ("owner", "admin", "trainer")),
 
     ("post",   f"/api/v1/memberships/{_FAKE}/cancel", None, ("owner", "admin", "receptionist")),
     ("post",   f"/api/v1/memberships/{_FAKE}/freeze", {"days": 7}, ("owner", "admin", "receptionist")),
