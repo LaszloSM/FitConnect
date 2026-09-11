@@ -1,6 +1,7 @@
 import re
 import uuid
 import asyncio
+import logging
 from sqlalchemy.ext.asyncio import create_async_engine, async_sessionmaker
 from alembic.config import Config
 from alembic import command
@@ -13,6 +14,8 @@ from app.models.master.owner import Owner
 from app.models.master.staff_directory import StaffDirectory
 from app.models.tenant.user_staff import UserStaff, UserRole
 from sqlalchemy import text
+
+logger = logging.getLogger(__name__)
 
 
 def slugify(name: str) -> str:
@@ -29,6 +32,17 @@ def get_tenant_db_name(gym_name: str) -> str:
 def get_tenant_connection_string(db_name: str) -> str:
     """Genera el connection string completo para una tenant DB."""
     return settings.tenant_database_url_template.replace("{db_name}", db_name)
+
+
+async def drop_database(db_name: str) -> None:
+    """Borra la DB física de un tenant que no llegó a existir del todo."""
+    base_url = settings.master_database_url.rsplit("/", 1)[0] + "/postgres"
+    engine = create_async_engine(base_url, isolation_level="AUTOCOMMIT")
+    try:
+        async with engine.connect() as conn:
+            await conn.execute(text(f'DROP DATABASE IF EXISTS "{db_name}" WITH (FORCE)'))
+    finally:
+        await engine.dispose()
 
 
 async def create_database(db_name: str) -> None:
@@ -103,6 +117,35 @@ async def create_tenant(owner_email: str, gym_name: str, city: str, owner_full_n
         await master_db.refresh(tenant)
         await master_db.refresh(owner)
 
+    # Si algo de aquí en adelante falla, el owner quedaría registrado en Master
+    # pero sin su fila UserStaff en la tenant DB: podría entrar, su token saldría
+    # sin `staff_id` y TODA la app le respondería 401. Un alta a medias es peor
+    # que un alta fallida, así que se deshace por completo.
+    try:
+        await _provision_tenant(tenant, owner_email, owner_full_name, password, connection_string, db_name)
+    except Exception:
+        try:
+            await _rollback_tenant(tenant.id, owner.id, db_name)
+        except Exception:
+            # Nunca tapar la causa real del alta fallida con el error del rollback.
+            logger.exception("rollback del alta falló; tenant %s puede quedar huérfano", tenant.id)
+        raise
+
+    return tenant
+
+
+async def _rollback_tenant(tenant_id, owner_id, db_name: str) -> None:
+    from sqlalchemy import delete
+
+    async with MasterSessionLocal() as master_db:
+        await master_db.execute(delete(StaffDirectory).where(StaffDirectory.tenant_id == tenant_id))
+        await master_db.execute(delete(Owner).where(Owner.id == owner_id))
+        await master_db.execute(delete(Tenant).where(Tenant.id == tenant_id))
+        await master_db.commit()
+    await drop_database(db_name)
+
+
+async def _provision_tenant(tenant, owner_email, owner_full_name, password, connection_string, db_name):
     # 3. Crear DB física
     await create_database(db_name)
 
@@ -148,5 +191,3 @@ async def create_tenant(owner_email: str, gym_name: str, city: str, owner_full_n
             staff_id=staff_owner_id,
         ))
         await master_db.commit()
-
-    return tenant

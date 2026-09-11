@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useSession } from "next-auth/react";
 import { motion, AnimatePresence } from "framer-motion";
 import Link from "next/link";
@@ -12,7 +12,7 @@ import { StatusBadge } from "@/components/ui/status-badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { CurrencyInput } from "@/components/ui/currency-input";
-import { apiClient } from "@/lib/api";
+import { apiClient, newIdempotencyKey, postOnce } from "@/lib/api";
 import { formatCOP, formatDate } from "@/lib/format";
 import { useApiResource } from "@/hooks/useApiResource";
 import { cn } from "@/lib/utils";
@@ -158,6 +158,12 @@ export function PosTab({
   };
 
   // Detalle del método que viaja con cada cobro: cuenta destino o voucher
+  // Una clave por intención de cobro: sobrevive al doble clic y al F5, y se
+  // renueva en cuanto el cobro se completa.
+  const renewalKey = useRef(newIdempotencyKey());
+  const balanceKey = useRef(newIdempotencyKey());
+  const cartKey = useRef(newIdempotencyKey());
+
   const methodPayload = () => ({
     transfer_account_id: method === "transfer" ? details.transfer_account_id : null,
     card_approval_code: method === "card" ? details.card_approval_code || null : null,
@@ -169,12 +175,12 @@ export function PosTab({
     setCharging(true);
     const client = apiClient(session.accessToken as string);
     try {
-      const { data } = await client.post("/api/v1/member-plans/charge", {
+      const { data } = await postOnce<any>(client, "/api/v1/member-plans/charge", {
         member_id: summary.member_id,
         plan_id: summary.renewal.plan_id,
         method,
         ...methodPayload(),
-      });
+      }, renewalKey);
       if (data.payment_status === "pending") {
         setTransferCtx({
           paymentId: data.payment_id,
@@ -205,7 +211,7 @@ export function PosTab({
     setPayingPartial(true);
     const client = apiClient(session.accessToken as string);
     try {
-      const { data } = await client.post("/api/v1/payments", {
+      const { data } = await postOnce<any>(client, "/api/v1/payments", {
         member_id: summary.member_id,
         membership_id: summary.membership.id,
         amount: partialAmount,
@@ -213,7 +219,7 @@ export function PosTab({
         status: "paid",
         concept: `Abono ${summary.membership.plan_name}`,
         ...methodPayload(),
-      });
+      }, balanceKey);
       if (data.status === "pending") {
         setTransferCtx({
           paymentId: data.id,
@@ -277,7 +283,7 @@ export function PosTab({
     setSelling(true);
     const client = apiClient(session.accessToken as string);
     try {
-      const { data } = await client.post("/api/v1/payments", {
+      const { data } = await postOnce<any>(client, "/api/v1/payments", {
         member_id: memberId || null,
         amount: cartTotal,
         method,
@@ -287,7 +293,7 @@ export function PosTab({
         discount_amount: effDiscount > 0 ? effDiscount : 0,
         discount_note: effDiscount > 0 && discountNote.trim() ? discountNote.trim() : null,
         ...methodPayload(),
-      });
+      }, cartKey);
       if (data.status === "pending") {
         setTransferCtx({
           paymentId: data.id,

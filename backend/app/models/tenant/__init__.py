@@ -29,6 +29,8 @@ from app.models.tenant.routine import Routine, RoutineDay, RoutineExercise, Memb
 from app.models.tenant.exercise_media import ExerciseMedia
 from app.models.tenant.access import BiometricConsent, MemberCredential, AccessEvent
 from app.models.tenant.payment_item import PaymentItem
+from app.models.tenant.payment_movement import PaymentMovement, MovementKind
+from app.models.tenant.idempotency import IdempotencyKey
 from app.models.tenant.kiosk_device import KioskDevice
 from app.models.tenant.instructor import Instructor
 from app.models.tenant.message_template import MessageTemplate
@@ -42,6 +44,8 @@ __all__ = [
     "MemberPlan",
     "PromoCode",
     "Payment", "PaymentMethod", "PaymentStatus", "PaymentKind",
+    "PaymentMovement", "MovementKind",
+    "IdempotencyKey",
     "DayPass", "DayPassType", "DayPassStatus",
     "CheckIn", "CheckInType",
     "GymClass",

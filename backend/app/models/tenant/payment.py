@@ -19,8 +19,9 @@ class PaymentMethod(str, enum.Enum):
 class PaymentStatus(str, enum.Enum):
     paid = "paid"
     pending = "pending"
-    failed = "failed"
-    refunded = "refunded"
+    failed = "failed"            # rechazado por la pasarela
+    voided = "voided"            # anulado a mano: un pendiente que nunca entró
+    refunded = "refunded"        # devuelto por completo
 
 
 class PaymentKind(str, enum.Enum):
@@ -83,3 +84,6 @@ class Payment(TenantBase, TenantTimestampMixin):
     voided_at: Mapped[Optional[datetime]] = mapped_column(DateTime, nullable=True)
     void_reason: Mapped[Optional[str]] = mapped_column(String(500), nullable=True)
     voided_by: Mapped[Optional[uuid.UUID]] = mapped_column(UUID(as_uuid=True), ForeignKey("users.id"), nullable=True)
+    # Proyección del libro de movimientos (payment_movements): cuánto se devolvió
+    # o corrigió. `amount` sigue siendo lo que se cobró.
+    refunded_amount: Mapped[Decimal] = mapped_column(Numeric(12, 2), nullable=False, default=0, server_default="0")

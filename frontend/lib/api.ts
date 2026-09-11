@@ -66,3 +66,55 @@ export function apiServer(accessToken: string): AxiosInstance {
     })
   );
 }
+
+/**
+ * Clave de idempotencia para una escritura de dinero.
+ *
+ * Se genera al ABRIR el formulario, no al enviarlo: así el reintento tras un
+ * spinner trabado, un F5 o un doble clic llevan la MISMA clave y el backend
+ * devuelve el cobro que ya hizo en vez de crear otro. Los guards de `setCharging`
+ * siguen ahí como cortesía, pero dejan de ser la única defensa.
+ */
+export function newIdempotencyKey(): string {
+  if (typeof crypto !== "undefined" && "randomUUID" in crypto) {
+    return crypto.randomUUID().replace(/-/g, "");
+  }
+  return `${Date.now().toString(36)}${Math.random().toString(36).slice(2, 12)}`;
+}
+
+export function idempotent(key: string) {
+  return { headers: { "Idempotency-Key": key } };
+}
+
+/**
+ * POST de dinero con reintento seguro.
+ *
+ * Reenvía la misma clave mientras sea el mismo cobro (el backend devuelve el
+ * que ya hizo) y la rota en cuanto uno se completa, para que el siguiente cobro
+ * sea de verdad otro cobro. Si el cuerpo cambió con la clave vieja —el cajero
+ * agregó un producto al carrito y volvió a cobrar— el backend responde 409 y
+ * aquí se reintenta una vez con clave nueva.
+ */
+export async function postOnce<T = unknown>(
+  client: AxiosInstance,
+  url: string,
+  body: unknown,
+  keyRef: { current: string }
+) {
+  const send = () => client.post<T>(url, body, idempotent(keyRef.current));
+  try {
+    const res = await send();
+    keyRef.current = newIdempotencyKey();
+    return res;
+  } catch (err: unknown) {
+    const e = err as { response?: { status?: number; data?: { detail?: string } } };
+    const isKeyReuse =
+      e?.response?.status === 409 &&
+      String(e.response?.data?.detail ?? "").includes("idempotencia");
+    if (!isKeyReuse) throw err;
+    keyRef.current = newIdempotencyKey();
+    const res = await send();
+    keyRef.current = newIdempotencyKey();
+    return res;
+  }
+}

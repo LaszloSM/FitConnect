@@ -105,7 +105,7 @@ async def test_void_pending_payment(client):
 
     r = await client.post(f"/api/v1/payments/{payment['id']}/void", headers=_auth(token))
     assert r.status_code == 200, r.text
-    assert r.json()["status"] == "failed"
+    assert r.json()["status"] == "voided"
 
     # No se puede anular dos veces
     r = await client.post(f"/api/v1/payments/{payment['id']}/void", headers=_auth(token))

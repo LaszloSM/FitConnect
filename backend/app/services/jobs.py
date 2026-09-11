@@ -331,16 +331,31 @@ async def _auto_void_stale_transfers(session: AsyncSession, tenant: Tenant) -> N
             Payment.proof_url.is_(None),
         )
     )).scalars().all()
+    from app.services.membership_status import recompute_member_chain
+
     for payment in stale:
-        mark_voided(payment, f"Sin confirmación en {hours} h (automático)", None)
+        await mark_voided(session, payment, f"Sin confirmación en {hours} h (automático)")
         await void_day_passes(session, payment.id)
-        await cancel_unpaid_membership(session, payment)
+        cancelled = await cancel_unpaid_membership(session, payment)
+        if cancelled and payment.member_id:
+            await recompute_member_chain(session, payment.member_id, gym.grace_days)
         audit(session, None, "payment.auto_void", "payment", payment.id, {
             "amount": str(payment.amount), "reference": payment.transfer_reference,
         })
     if stale:
         logger.info("auto-void %s transferencias en %s", len(stale), tenant.slug)
     await session.commit()
+
+
+async def _purge_idempotency_keys(session: AsyncSession, tenant: Tenant) -> None:
+    """Las claves solo sirven para la ventana de reintento; guardan la respuesta
+    completa de cada cobro, así que sin purga la tabla crece sin techo."""
+    from app.services.idempotency import purge_expired_keys
+
+    removed = await purge_expired_keys(session)
+    await session.commit()
+    if removed:
+        logger.info("purgadas %s claves de idempotencia en %s", removed, tenant.slug)
 
 
 async def _daily_tenant_tasks(session: AsyncSession, tenant: Tenant) -> None:
@@ -352,6 +367,7 @@ async def _daily_tenant_tasks(session: AsyncSession, tenant: Tenant) -> None:
     await _emit_maintenance_alerts(session, tenant)
     await _emit_birthday_greetings(session, tenant)
     await _emit_winback(session, tenant)
+    await _purge_idempotency_keys(session, tenant)
 
 
 async def expire_memberships_job() -> None:

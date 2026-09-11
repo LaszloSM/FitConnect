@@ -211,7 +211,7 @@ async def test_void_transfer_voids_pass(client):
     }, headers=_auth(token))).json()
     r = await client.post(f"/api/v1/payments/{body['payment_id']}/void", json={"reason": "No llegó"}, headers=_auth(token))
     assert r.status_code == 200, r.text
-    assert r.json()["status"] == "failed"
+    assert r.json()["status"] == "voided"
     assert r.json()["void_reason"] == "No llegó"
     passes = (await client.get("/api/v1/day-passes", headers=_auth(token))).json()
     assert next(p for p in passes if p["id"] == body["day_pass"]["id"])["status"] == "void"

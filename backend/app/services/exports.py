@@ -29,6 +29,7 @@ from app.models.tenant.expense import Expense
 from app.models.tenant.member import Member, MemberStatus
 from app.models.tenant.membership import Membership, MembershipStatus
 from app.models.tenant.payment import Payment, PaymentStatus
+from app.services.payment_ledger import net_amount
 
 logger = logging.getLogger(__name__)
 
@@ -112,7 +113,7 @@ async def _profit_rows(db: AsyncSession, months: int = 12) -> list[dict]:
         y, m = _months_back(today, i)
         start_dt, end_dt = _month_bounds(y, m)
         income = (await db.execute(
-            select(func.coalesce(func.sum(Payment.amount), Decimal("0"))).where(
+            select(func.coalesce(func.sum(net_amount()), Decimal("0"))).where(
                 Payment.created_at >= start_dt, Payment.created_at < end_dt,
                 Payment.status == PaymentStatus.paid,
             )
@@ -320,7 +321,7 @@ async def _summary_counts(db: AsyncSession) -> dict:
     today = today_bogota()
     month_start = datetime.combine(today.replace(day=1), datetime.min.time())
     month_income = (await db.execute(
-        select(func.coalesce(func.sum(Payment.amount), Decimal("0"))).where(
+        select(func.coalesce(func.sum(net_amount()), Decimal("0"))).where(
             Payment.created_at >= month_start, Payment.status == PaymentStatus.paid,
         )
     )).scalar() or Decimal("0")

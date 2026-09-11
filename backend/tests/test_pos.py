@@ -41,8 +41,9 @@ async def _product(client, token, stock=10, price=5000):
 async def test_product_sale_decrements_stock_and_issues_receipt(client):
     token = await _owner_token(client)
     product = await _product(client, token, stock=10, price=5000)
+    # Transferencia: queda pendiente y al confirmarla no exige turno de caja
     r = await client.post("/api/v1/payments", json={
-        "amount": 1, "method": "cash", "status": "pending",
+        "amount": 1, "method": "transfer", "status": "pending",
         "concept": "Venta de productos",
         "items": [{"product_id": product["id"], "quantity": 3}],
     }, headers=_auth(token))
@@ -59,8 +60,6 @@ async def test_product_sale_decrements_stock_and_issues_receipt(client):
     assert updated["stock"] == 7
 
     # Marcarlo pagado (transfer no exige turno) genera recibo con items
-    pay = await client.put(f"/api/v1/payments/{body['id']}", json={"method": "transfer"}, headers=_auth(token))
-    assert pay.status_code == 200
     paid = await client.patch(f"/api/v1/payments/{body['id']}/mark-paid", headers=_auth(token))
     assert paid.status_code == 200, paid.text
     receipt = (await client.get(f"/api/v1/payments/{body['id']}/receipt", headers=_auth(token))).json()

@@ -38,7 +38,7 @@ export interface Member {
 }
 
 export type PaymentMethod = "cash" | "transfer" | "card" | "wompi";
-export type PaymentStatus = "paid" | "pending" | "failed" | "refunded";
+export type PaymentStatus = "paid" | "pending" | "failed" | "voided" | "refunded";
 
 export interface Payment {
   id: string;

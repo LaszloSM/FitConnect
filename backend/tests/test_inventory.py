@@ -147,11 +147,11 @@ async def test_refund_cash_creates_expense_returns_stock_keeps_receipt(client):
     assert pdf.status_code == 200 and pdf.headers["content-type"].startswith("application/pdf")
     assert pdf.content[:5] == b"%PDF-"
 
-    # Devolver dos veces no procede; borrar un pago con recibo tampoco
+    # Devolver dos veces no procede; borrar el pago a mano ya no existe
     r = await client.post(f"/api/v1/payments/{sale['id']}/refund", json={"reason": "otra vez"}, headers=h)
     assert r.status_code == 400
     r = await client.delete(f"/api/v1/payments/{sale['id']}", headers=h)
-    assert r.status_code == 400
+    assert r.status_code == 405
 
 
 async def test_refund_pending_rejected(client):

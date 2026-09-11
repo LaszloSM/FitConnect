@@ -1,7 +1,9 @@
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Request
+from app.services.idempotency import Idempotent
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
 from app.api.deps import get_tenant_db_from_token, get_current_staff, require_perm
+from app.schemas.member import MembershipResponse
 from app.core import permissions as perm
 from app.services.audit import audit
 from pydantic import BaseModel
@@ -238,9 +240,10 @@ async def _create_membership(
     return membership, None
 
 
-@router.post("/assign")
+@router.post("/assign", response_model=MembershipResponse)
 async def assign_membership(
     data: AssignMembership,
+    request: Request,
     db: AsyncSession = Depends(get_tenant_db_from_token),
     current_user=Depends(require_perm(perm.MEMBERSHIPS_WRITE)),
 ):
@@ -249,6 +252,11 @@ async def assign_membership(
     from app.models.tenant.member_plan import MemberPlan
     from app.services.gym_settings import get_gym_settings
     from app.services.membership_status import next_chain_start
+
+    guard = Idempotent(db, request, "member_plans.assign", data.model_dump())
+    replay = await guard.check()
+    if replay is not None:
+        return replay
 
     member_result = await db.execute(select(Member).where(Member.id == uuid.UUID(data.member_id)))
     if not member_result.scalar_one_or_none():
@@ -278,9 +286,10 @@ async def assign_membership(
         "price": str(membership.price),
         "discount": str(membership.discount_amount) if membership.discount_amount else None,
     })
-    await db.commit()
-    await db.refresh(membership)
-    return membership
+    response = MembershipResponse.model_validate(membership, from_attributes=True)
+    guard.remember(response, 201)
+    won = await guard.commit()
+    return won if won is not None else response
 
 
 class ChargeMembership(BaseModel):
@@ -300,6 +309,7 @@ class ChargeMembership(BaseModel):
 @router.post("/charge")
 async def charge_membership(
     data: ChargeMembership,
+    request: Request,
     db: AsyncSession = Depends(get_tenant_db_from_token),
     current_user=Depends(require_perm(perm.PAYMENTS_WRITE)),
 ):
@@ -315,6 +325,14 @@ async def charge_membership(
     from app.services.membership_status import next_chain_start
     from app.services.receipts import issue_receipt
     from app.services.payments import apply_payment_policy, public_account
+
+    # Dos clics en "Cobrar" creaban dos pagos, dos recibos y DOS membresías
+    # encadenadas: la segunda arrancaba al terminar la primera, así que el socio
+    # quedaba con doble vigencia y la caja del día con plata que nadie entregó.
+    guard = Idempotent(db, request, "member_plans.charge", data.model_dump())
+    replay = await guard.check()
+    if replay is not None:
+        return replay
 
     if data.method not in ("cash", "transfer", "card"):
         raise HTTPException(status_code=400, detail="Método inválido para cobro directo (usa link Wompi)")
@@ -372,9 +390,9 @@ async def charge_membership(
         "price": str(membership.price), "method": data.method,
         "payment_status": payment.status.value,
     })
-    await db.commit()
-    await db.refresh(membership)
-    return {
+    from app.services.payment_ledger import backfill_charge
+    await backfill_charge(db, payment, current_user)
+    response = {
         "membership_id": str(membership.id),
         "payment_id": str(payment.id),
         "payment_status": payment.status.value,
@@ -385,3 +403,6 @@ async def charge_membership(
         "transfer_reference": payment.transfer_reference,
         "destination_account": public_account(account),
     }
+    guard.remember(response)
+    won = await guard.commit()
+    return won if won is not None else response

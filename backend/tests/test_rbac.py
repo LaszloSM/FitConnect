@@ -146,8 +146,6 @@ MUTATIONS = [
     ("post",   f"/api/v1/payments/{_FAKE}/void", {"reason": "prueba de permisos"}, ("owner", "admin")),
     ("post",   f"/api/v1/payments/{_FAKE}/refund", {"reason": "prueba de permisos"}, ("owner", "admin")),
     ("patch",  f"/api/v1/payments/{_FAKE}/mark-paid", None, ("owner", "admin", "receptionist")),
-    ("put",    f"/api/v1/payments/{_FAKE}", {"amount": 1}, ("owner", "admin")),
-    ("delete", f"/api/v1/payments/{_FAKE}", None, ("owner", "admin")),
 
     ("post",   "/api/v1/cash/shifts/open", {"opening_amount": 0}, ("owner", "admin", "receptionist")),
     ("post",   f"/api/v1/cash/shifts/{_FAKE}/close", {"counted_cash": 0}, ("owner", "admin", "receptionist")),

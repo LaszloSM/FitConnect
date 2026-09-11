@@ -133,5 +133,60 @@ J8_GYM_SETTINGS_FLAGS: list[str] = [
     "ALTER TABLE gym_settings ADD COLUMN IF NOT EXISTS tour_completed_at TIMESTAMP NULL",
 ]
 
+K1_LIBRO_MOVIMIENTOS: list[str] = [
+    # k1a2b3c4d5e6_libro_de_movimientos.py
+    """CREATE TABLE IF NOT EXISTS payment_movements (
+        id UUID PRIMARY KEY,
+        payment_id UUID NOT NULL REFERENCES payments(id) ON DELETE CASCADE,
+        kind VARCHAR(20) NOT NULL,
+        amount NUMERIC(12,2) NOT NULL,
+        reason VARCHAR(500) NULL,
+        actor_staff_id UUID NULL REFERENCES users(id),
+        actor_name VARCHAR(255) NOT NULL,
+        shift_id UUID NULL REFERENCES cash_shifts(id),
+        expense_id UUID NULL REFERENCES expenses(id),
+        created_at TIMESTAMP NOT NULL DEFAULT now(),
+        updated_at TIMESTAMP NOT NULL DEFAULT now()
+    )""",
+    "CREATE INDEX IF NOT EXISTS ix_payment_movements_payment_id ON payment_movements (payment_id)",
+    "CREATE INDEX IF NOT EXISTS ix_payment_movements_payment ON payment_movements (payment_id, created_at)",
+    """CREATE TABLE IF NOT EXISTS idempotency_keys (
+        id UUID PRIMARY KEY,
+        key VARCHAR(64) NOT NULL,
+        endpoint VARCHAR(80) NOT NULL,
+        request_hash VARCHAR(64) NOT NULL,
+        status_code INTEGER NOT NULL,
+        response JSONB NULL,
+        created_at TIMESTAMP NOT NULL DEFAULT now(),
+        updated_at TIMESTAMP NOT NULL DEFAULT now()
+    )""",
+    # El modelo declara UniqueConstraint, no un índice suelto: en pg_constraint,
+    # no solo en pg_indexes.
+    """DO $$ BEGIN
+        ALTER TABLE idempotency_keys ADD CONSTRAINT uq_idempotency_key UNIQUE (key);
+    EXCEPTION WHEN duplicate_table OR duplicate_object THEN NULL; END $$""",
+    "ALTER TABLE payments ADD COLUMN IF NOT EXISTS refunded_amount NUMERIC(12,2) NOT NULL DEFAULT 0",
+    # 'voided' separa la anulación manual del rechazo de la pasarela, que
+    # compartían el estado 'failed' y eran indistinguibles en los reportes.
+    "ALTER TYPE paymentstatus ADD VALUE IF NOT EXISTS 'voided' AFTER 'failed'",
+    "CREATE INDEX IF NOT EXISTS ix_audit_logs_entity ON audit_logs (entity_type, entity_id, created_at)",
+    "CREATE INDEX IF NOT EXISTS ix_idempotency_keys_created ON idempotency_keys (created_at)",
+    # Los pagos anteriores al libro tendrían la pantalla de movimientos en blanco:
+    # se les crea su línea de apertura de una vez para todo el fleet.
+    """INSERT INTO payment_movements (id, payment_id, kind, amount, reason, actor_name, created_at, updated_at)
+       SELECT gen_random_uuid(), p.id, 'charge', p.amount, p.concept, 'sistema', p.created_at, p.created_at
+       FROM payments p
+       WHERE NOT EXISTS (SELECT 1 FROM payment_movements m WHERE m.payment_id = p.id AND m.kind = 'charge')""",
+    # Los devueltos de antes del libro tienen refunded_amount en 0: sin esto
+    # conviven dos escalas en la misma columna de los reportes.
+    "UPDATE payments SET refunded_amount = amount WHERE status = 'refunded' AND refunded_amount = 0",
+    """INSERT INTO payment_movements (id, payment_id, kind, amount, reason, actor_name, created_at, updated_at)
+       SELECT gen_random_uuid(), p.id, 'refund', -p.amount, p.refund_reason, 'sistema',
+              COALESCE(p.refunded_at, p.created_at), COALESCE(p.refunded_at, p.created_at)
+       FROM payments p
+       WHERE p.status = 'refunded'
+         AND NOT EXISTS (SELECT 1 FROM payment_movements m WHERE m.payment_id = p.id AND m.kind = 'refund')""",
+]
+
 # Orden cronológico: el aligner las aplica todas, en orden, tras create_all.
-ALIGN_STATEMENTS: list[str] = [*J1_INGRESOS_PASE_TRANSFERENCIAS, *J2_INVENTARIO, *J4_CONSENTIMIENTOS, *J6_ACCESO, *J7_VIDEO_EJERCICIOS, *J8_GYM_SETTINGS_FLAGS]
+ALIGN_STATEMENTS: list[str] = [*J1_INGRESOS_PASE_TRANSFERENCIAS, *J2_INVENTARIO, *J4_CONSENTIMIENTOS, *J6_ACCESO, *J7_VIDEO_EJERCICIOS, *J8_GYM_SETTINGS_FLAGS, *K1_LIBRO_MOVIMIENTOS]

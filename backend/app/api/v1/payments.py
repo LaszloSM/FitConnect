@@ -1,15 +1,16 @@
 import uuid
-from fastapi import APIRouter, Depends, HTTPException, Query
+from fastapi import APIRouter, Depends, HTTPException, Query, Request
 from pydantic import BaseModel, Field
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select, func, desc, update
 from datetime import date, datetime, timedelta
 from decimal import Decimal
+from typing import Literal
 
 from app.api.deps import get_tenant_db_from_token, get_current_staff, get_tenant_slug, require_perm
 from app.core import permissions as perm
 from app.core.timeutil import today_bogota
-from app.schemas.member import PaymentCreate, PaymentUpdate, PaymentResponse
+from app.schemas.member import PaymentCreate, PaymentResponse
 from app.schemas.pos import PaymentItemOut, ReceivableOut
 from app.models.tenant.payment import Payment, PaymentStatus, PaymentMethod, PaymentKind
 from app.models.tenant.payment_item import PaymentItem
@@ -22,7 +23,7 @@ from app.models.tenant.inventory import StockMovement
 from app.models.tenant.user_staff import UserStaff
 from app.services.audit import audit
 from app.services.gym_settings import get_gym_settings
-from app.services.membership_status import effective_status
+from app.services.membership_status import effective_status, recompute_member_chain
 from app.services.receipts import issue_receipt
 from app.services.payment_links import create_payment_link_for
 from app.services.payments import (
@@ -32,7 +33,10 @@ from app.services.payments import (
 )
 from app.services.storage import upload_image
 from app.services.inventory import apply_stock_movement
-from app.services.refunds import refund_payment
+from app.services.refunds import reverse_payment
+from app.services.idempotency import Idempotent
+from app.services.payment_ledger import backfill_charge, movements_for, net_amount, outstanding
+from app.models.tenant.payment_movement import MovementKind
 from app.services.receipt_pdf import build_receipt_pdf
 from app.services.signed_links import sign as sign_link
 from app.services.exports import fetch_logo_png
@@ -165,9 +169,16 @@ async def _resolve_items(payload: PaymentCreate, db: AsyncSession) -> tuple[list
 @router.post("", response_model=PaymentResponse, status_code=201, dependencies=[Depends(require_perm(perm.PAYMENTS_WRITE))])
 async def create_payment(
     payload: PaymentCreate,
+    request: Request,
     db: AsyncSession = Depends(get_tenant_db_from_token),
     current_user: UserStaff = Depends(get_current_staff),
 ):
+    # Dos clics, un F5 o un reintento de red creaban dos pagos y dos recibos.
+    guard = Idempotent(db, request, "payments.create", payload.model_dump())
+    replay = await guard.check()
+    if replay is not None:
+        return replay
+
     member = None
     if payload.member_id is not None:
         member_result = await db.execute(select(Member).where(Member.id == payload.member_id))
@@ -227,17 +238,20 @@ async def create_payment(
 
     if payment.status == PaymentStatus.paid:
         await issue_receipt(db, payment)
+    await backfill_charge(db, payment, current_user)
     audit(db, current_user, "payment.create", "payment", payment.id, {
         "amount": str(payment.amount), "method": payment.method.value if payment.method else None,
         "status": payment.status.value, "items": len(items),
     })
-    await db.commit()
-    await db.refresh(payment)
     response = _payment_response(payment, member.full_name if member else None)
     response.destination_account = public_account(account)
     response.items = [PaymentItemOut.model_validate(i) for i in (await db.execute(
         select(PaymentItem).where(PaymentItem.payment_id == payment.id)
     )).scalars().all()]
+    guard.remember(response, 201)
+    won = await guard.commit()
+    if won is not None:
+        return won
     return response
 
 
@@ -259,9 +273,12 @@ async def void_pending_payment(
     if payment.status != PaymentStatus.pending:
         raise HTTPException(status_code=400, detail=f"Solo se anulan pagos pendientes (está {payment.status.value})")
     reason = payload.reason if payload else None
-    mark_voided(payment, reason, current_user.id)
+    await mark_voided(db, payment, reason, current_user)
     await void_day_passes(db, payment.id)
     membership_cancelled = await cancel_unpaid_membership(db, payment)
+    if membership_cancelled and payment.member_id:
+        gym = await get_gym_settings(db)
+        await recompute_member_chain(db, payment.member_id, gym.grace_days, actor=current_user)
     audit(db, current_user, "payment.void", "payment", payment.id, {
         "amount": str(payment.amount), "method": payment.method.value if payment.method else None,
         "reason": reason, "membership_cancelled": membership_cancelled,
@@ -352,7 +369,7 @@ async def cash_box(
 
     async def _totals(since: datetime) -> dict:
         stmt = (
-            select(Payment.method, Payment.kind, func.coalesce(func.sum(Payment.amount), 0), func.count())
+            select(Payment.method, Payment.kind, func.coalesce(func.sum(net_amount()), 0), func.count())
             .where(Payment.status == PaymentStatus.paid, Payment.created_at >= since)
             .group_by(Payment.method, Payment.kind)
         )
@@ -368,7 +385,7 @@ async def cash_box(
             total += amount
             count += n
         pending_transfers = (await db.execute(
-            select(func.count(), func.coalesce(func.sum(Payment.amount), 0))
+            select(func.count(), func.coalesce(func.sum(net_amount()), 0))
             .where(Payment.method == PaymentMethod.transfer, Payment.status == PaymentStatus.pending,
                    Payment.created_at >= since)
         )).one()
@@ -414,7 +431,7 @@ async def list_receivables(
 
     membership_ids = [m.id for m in latest.values()]
     paid_rows = (await db.execute(
-        select(Payment.membership_id, func.coalesce(func.sum(Payment.amount), 0))
+        select(Payment.membership_id, func.coalesce(func.sum(net_amount()), 0))
         .where(Payment.membership_id.in_(membership_ids), Payment.status == PaymentStatus.paid)
         .group_by(Payment.membership_id)
     )).all()
@@ -473,64 +490,46 @@ async def get_payment(
     return response
 
 
-@router.put("/{payment_id}", response_model=PaymentResponse, dependencies=[Depends(require_perm(perm.PAYMENTS_REVERSE))])
-async def update_payment(
-    payment_id: uuid.UUID,
-    payload: PaymentUpdate,
-    db: AsyncSession = Depends(get_tenant_db_from_token),
-):
-    result = await db.execute(select(Payment).where(Payment.id == payment_id))
-    payment = result.scalar_one_or_none()
-    if not payment:
-        raise HTTPException(status_code=404, detail="Pago no encontrado")
-
-    for field, value in payload.model_dump(exclude_unset=True).items():
-        setattr(payment, field, value)
-
-    await db.commit()
-    await db.refresh(payment)
-    names = await _member_names([payment.member_id], db)
-    return _payment_response(payment, names.get(payment.member_id))
+# `PUT /payments/{id}` permitía cambiar monto y estado a mano sin auditoría, y
+# `DELETE` borraba la fila físicamente: entre los dos eran la puerta trasera del
+# modelo de reversa. Toda corrección entra ahora como movimiento del libro.
 
 
-@router.delete("/{payment_id}", status_code=204, dependencies=[Depends(require_perm(perm.PAYMENTS_REVERSE))])
-async def delete_payment(
+@router.get("/{payment_id}/movements", dependencies=[Depends(require_perm(perm.PAYMENTS_READ))])
+async def payment_movements(
     payment_id: uuid.UUID,
     db: AsyncSession = Depends(get_tenant_db_from_token),
 ):
-    result = await db.execute(select(Payment).where(Payment.id == payment_id))
-    payment = result.scalar_one_or_none()
+    """Libro del pago: el cobro y cada anulación, devolución o corrección."""
+    payment = (await db.execute(select(Payment).where(Payment.id == payment_id))).scalar_one_or_none()
     if not payment:
         raise HTTPException(status_code=404, detail="Pago no encontrado")
-    receipt = (await db.execute(
-        select(Receipt.id).where(Receipt.payment_id == payment_id).limit(1)
-    )).scalar_one_or_none()
-    if receipt:
-        raise HTTPException(
-            status_code=400,
-            detail="Este pago ya tiene recibo emitido; usa un reembolso en vez de borrarlo",
-        )
-    # Devolver stock de los renglones de producto antes de borrar
-    items = (await db.execute(
-        select(PaymentItem).where(PaymentItem.payment_id == payment_id)
-    )).scalars().all()
-    for item in items:
-        if item.product_id:
-            await apply_stock_movement(
-                db, item.product_id, StockMovementType.return_, item.quantity,
-                note="Pago pendiente eliminado",
-            )
-        await db.delete(item)
-    await db.execute(
-        update(StockMovement).where(StockMovement.payment_id == payment_id).values(payment_id=None)
-    )
-    await db.delete(payment)
-    await db.commit()
-    return None
+    return {
+        "amount": str(payment.amount),
+        "refunded_amount": str(payment.refunded_amount or 0),
+        "outstanding": str(outstanding(payment)),
+        "status": payment.status.value,
+        "movements": [
+            {
+                "id": str(m.id),
+                "kind": m.kind,
+                "amount": str(m.amount),
+                "reason": m.reason,
+                "actor_name": m.actor_name,
+                "created_at": m.created_at.isoformat() if m.created_at else None,
+            }
+            for m in await movements_for(db, payment_id)
+        ],
+    }
 
 
 class RefundRequest(BaseModel):
     reason: str = Field(min_length=3, max_length=500)
+    # Sin monto se revierte el saldo vivo completo (el comportamiento de siempre).
+    amount: Decimal | None = Field(default=None, gt=0)
+    # "refund": la plata sale y genera egreso de caja.
+    # "correction": error de digitación, no sale plata y la caja no se descuadra.
+    kind: Literal["refund", "correction"] = "refund"
 
 
 @router.post("/{payment_id}/refund", response_model=PaymentResponse,
@@ -541,12 +540,21 @@ async def refund(
     db: AsyncSession = Depends(get_tenant_db_from_token),
     current_user: UserStaff = Depends(get_current_staff),
 ):
-    """Devolución de un pago confirmado: egreso de caja si fue efectivo, stock de
-    vuelta, pase/membresía sin efecto. El recibo original se conserva."""
+    """Revierte un pago confirmado, total o parcialmente.
+
+    Devolución: egreso de caja si fue efectivo, stock de vuelta, pase/membresía
+    sin efecto. Corrección: ajusta el monto sin mover caja. El recibo original se
+    conserva como evidencia en ambos casos."""
     payment = (await db.execute(select(Payment).where(Payment.id == payment_id))).scalar_one_or_none()
     if not payment:
         raise HTTPException(status_code=404, detail="Pago no encontrado")
-    await refund_payment(db, current_user, payment, payload.reason)
+    await reverse_payment(
+        db, current_user, payment, payload.reason,
+        amount=payload.amount, kind=MovementKind(payload.kind),
+    )
+    if payment.status == PaymentStatus.refunded and payment.member_id:
+        gym = await get_gym_settings(db)
+        await recompute_member_chain(db, payment.member_id, gym.grace_days, actor=current_user)
     await db.commit()
     await db.refresh(payment)
     names = await _member_names([payment.member_id], db)
@@ -613,8 +621,11 @@ async def mark_payment_paid(
     payment = result.scalar_one_or_none()
     if not payment:
         raise HTTPException(status_code=404, detail="Pago no encontrado")
-    if payment.status == PaymentStatus.paid:
-        raise HTTPException(status_code=400, detail="El pago ya está marcado como pagado")
+    if payment.status != PaymentStatus.pending:
+        raise HTTPException(
+            status_code=400,
+            detail=f"Solo se confirman pagos pendientes (está {payment.status.value})",
+        )
 
     if payment.method == PaymentMethod.cash and payment.shift_id is None:
         shift = await _open_cash_shift(db)
@@ -625,10 +636,19 @@ async def mark_payment_paid(
         else:
             payment.shift_id = shift.id
 
-    payment.status = PaymentStatus.paid
-    payment.received_by = current_user.id
-    await db.flush()
+    # Transición condicional pending→paid: dos clics simultáneos no emiten dos
+    # recibos ni cuentan el ingreso dos veces (el patrón que ya usan refunds.py
+    # y payment_confirmation.py).
+    confirmed = await db.execute(
+        update(Payment)
+        .where(Payment.id == payment.id, Payment.status == PaymentStatus.pending)
+        .values(status=PaymentStatus.paid, received_by=current_user.id, shift_id=payment.shift_id)
+    )
+    if confirmed.rowcount == 0:
+        raise HTTPException(status_code=409, detail="Este pago ya fue confirmado")
+    await db.refresh(payment)
     await issue_receipt(db, payment)
+    await backfill_charge(db, payment, current_user)
     await activate_day_passes(db, payment.id)
     audit(db, current_user, "payment.mark_paid", "payment", payment.id, {"amount": str(payment.amount)})
     await db.commit()

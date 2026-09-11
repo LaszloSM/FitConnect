@@ -16,13 +16,14 @@ import { Input } from "@/components/ui/input";
 import { format, startOfMonth, endOfMonth } from "date-fns";
 import { CheckCircle2, Download, FileText, Filter, Loader2, MessageCircle, Receipt, RotateCcw, XCircle } from "lucide-react";
 
-type StatusFilter = "" | "paid" | "pending" | "failed" | "refunded";
+type StatusFilter = "" | "paid" | "pending" | "voided" | "refunded";
+type ReverseKind = "refund" | "correction";
 
 const STATUS_FILTERS: { key: StatusFilter; label: string }[] = [
   { key: "", label: "Todos" },
   { key: "paid", label: "Pagados" },
   { key: "pending", label: "Pendientes" },
-  { key: "failed", label: "Anulados" },
+  { key: "voided", label: "Anulados" },
   { key: "refunded", label: "Devueltos" },
 ];
 
@@ -36,6 +37,8 @@ export function HistoryTab({ refreshSignal }: { refreshSignal: number }) {
   const [markingPaid, setMarkingPaid] = useState<string | null>(null);
   const [refundTarget, setRefundTarget] = useState<PaymentRow | null>(null);
   const [refundReason, setRefundReason] = useState("");
+  const [refundKind, setRefundKind] = useState<ReverseKind>("refund");
+  const [refundAmount, setRefundAmount] = useState("");
   const [refunding, setRefunding] = useState(false);
   const isOwnerOrAdmin = session?.role === "owner" || session?.role === "admin";
 
@@ -48,11 +51,28 @@ export function HistoryTab({ refreshSignal }: { refreshSignal: number }) {
     setRefunding(true);
     try {
       const client = apiClient(session.accessToken as string);
-      const { data } = await client.post(`/api/v1/payments/${refundTarget.id}/refund`, { reason: refundReason.trim() });
-      toast.success(`Devolución registrada${refundTarget.method === "cash" ? " · egreso en caja" : ""}`);
-      setPayments((prev) => prev.map((p) => (p.id === refundTarget.id ? { ...p, status: data.status, refunded_at: data.refunded_at, refund_reason: data.refund_reason } : p)));
+      const partial = refundAmount.trim() ? Number(refundAmount) : null;
+      const live = Number(refundTarget.amount) - Number(refundTarget.refunded_amount ?? 0);
+      if (partial !== null && (!Number.isFinite(partial) || partial <= 0 || partial > live)) {
+        toast.error(`El monto debe estar entre 1 y ${formatCOP(live)}`);
+        setRefunding(false);
+        return;
+      }
+      const { data } = await client.post(`/api/v1/payments/${refundTarget.id}/refund`, {
+        reason: refundReason.trim(),
+        kind: refundKind,
+        ...(partial !== null ? { amount: partial } : {}),
+      });
+      toast.success(
+        refundKind === "correction"
+          ? "Monto corregido — la caja no se movió"
+          : `Devolución registrada${refundTarget.method === "cash" ? " · egreso en caja" : ""}`
+      );
+      setPayments((prev) => prev.map((p) => (p.id === refundTarget.id ? { ...p, status: data.status, refunded_at: data.refunded_at, refund_reason: data.refund_reason, refunded_amount: data.refunded_amount } : p)));
       setRefundTarget(null);
       setRefundReason("");
+      setRefundAmount("");
+      setRefundKind("refund");
     } catch (err: any) {
       toast.error(err.response?.data?.detail ?? "Error registrando la devolución");
     } finally {
@@ -123,7 +143,8 @@ export function HistoryTab({ refreshSignal }: { refreshSignal: number }) {
   const filtered = payments.filter(
     (p) => (!statusFilter || p.status === statusFilter) && (!kindFilter || (p.kind ?? "other") === kindFilter)
   );
-  const totalPaid = payments.filter((p) => p.status === "paid").reduce((acc, p) => acc + Number(p.amount), 0);
+  const netOf = (p: PaymentRow) => Number(p.amount) - Number(p.refunded_amount ?? 0);
+  const totalPaid = payments.filter((p) => p.status === "paid").reduce((acc, p) => acc + netOf(p), 0);
   const totalPending = payments.filter((p) => p.status === "pending").reduce((acc, p) => acc + Number(p.amount), 0);
 
   const exportCSV = () => {
@@ -175,7 +196,22 @@ export function HistoryTab({ refreshSignal }: { refreshSignal: number }) {
     {
       key: "amount",
       header: "Monto",
-      cell: (p) => <span className="font-semibold font-mono text-[var(--text-base)]">{formatCOP(p.amount)}</span>,
+      cell: (p) => {
+        const reversed = Number(p.refunded_amount ?? 0);
+        const partial = reversed > 0 && p.status === "paid";
+        return (
+          <div className="font-mono">
+            <span className="font-semibold text-[var(--text-base)]">
+              {formatCOP(partial ? netOf(p) : p.amount)}
+            </span>
+            {partial && (
+              <p className="text-[11px] text-[var(--text-muted)]">
+                de {formatCOP(p.amount)} · {formatCOP(reversed)} revertido
+              </p>
+            )}
+          </div>
+        );
+      },
     },
     {
       key: "method",
@@ -274,17 +310,60 @@ export function HistoryTab({ refreshSignal }: { refreshSignal: number }) {
       <FormDialog
         open={refundTarget !== null}
         onOpenChange={(o) => !o && setRefundTarget(null)}
-        title={refundTarget ? `Devolver ${formatCOP(refundTarget.amount)}` : ""}
+        title={refundTarget ? `Revertir ${formatCOP(refundTarget.amount)}` : ""}
         description={
-          refundTarget?.method === "cash"
-            ? "Se registra un egreso de caja por el valor, el stock vuelve al inventario y el recibo queda como devuelto."
-            : "El stock vuelve al inventario y el recibo queda como devuelto. La plata la devuelves por el mismo medio."
+          refundKind === "correction"
+            ? "Corrección de digitación: ajusta el monto cobrado sin mover la caja. Úsala cuando el socio pagó bien y lo mal digitado fue el registro."
+            : refundTarget?.method === "cash"
+              ? "Devolución: se registra un egreso de caja por el valor. Si es total, el stock vuelve al inventario y el recibo queda como devuelto."
+              : "Devolución: si es total, el stock vuelve al inventario y el recibo queda como devuelto. La plata la devuelves por el mismo medio."
         }
         onSubmit={doRefund}
-        submitLabel="Registrar devolución"
+        submitLabel={refundKind === "correction" ? "Corregir monto" : "Registrar devolución"}
         submitting={refunding}
-        destructive
+        destructive={refundKind === "refund"}
       >
+        <FormField label="Qué pasó" required>
+          <div className="flex gap-2">
+            {([
+              ["refund", "Devolví la plata"],
+              ["correction", "Me equivoqué al digitar"],
+            ] as [ReverseKind, string][]).map(([key, label]) => (
+              <button
+                key={key}
+                type="button"
+                onClick={() => setRefundKind(key)}
+                aria-pressed={refundKind === key}
+                className={cn(
+                  "flex-1 rounded-lg border px-3 py-2 text-sm font-medium transition-colors",
+                  refundKind === key
+                    ? "border-[var(--color-primary)] bg-[var(--color-primary-muted)] text-[var(--text-base)]"
+                    : "border-[var(--border-base)] text-[var(--text-muted)] hover:text-[var(--text-base)]"
+                )}
+              >
+                {label}
+              </button>
+            ))}
+          </div>
+        </FormField>
+        <FormField
+          label="Monto"
+          hint={
+            refundTarget
+              ? `Déjalo vacío para revertir todo el saldo vivo (${formatCOP(
+                  Number(refundTarget.amount) - Number(refundTarget.refunded_amount ?? 0)
+                )})`
+              : undefined
+          }
+        >
+          <Input
+            type="number"
+            inputMode="numeric"
+            value={refundAmount}
+            onChange={(e) => setRefundAmount(e.target.value)}
+            placeholder="Todo el saldo"
+          />
+        </FormField>
         <FormField label="Motivo" required>
           <Input value={refundReason} onChange={(e) => setRefundReason(e.target.value)} placeholder="Producto defectuoso, cobro equivocado..." autoFocus />
         </FormField>

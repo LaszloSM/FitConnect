@@ -12,6 +12,7 @@ from app.schemas.member import MemberCreate, MemberUpdate, MemberResponse, Membe
 from app.models.tenant.member import Member, MemberStatus
 from app.models.tenant.membership import Membership
 from app.models.tenant.payment import Payment
+from app.services.payment_ledger import net_amount
 from app.models.tenant.checkin import CheckIn
 from app.models.tenant.class_enrollment import ClassEnrollment
 from app.models.tenant.session_booking import SessionBooking
@@ -278,7 +279,7 @@ async def get_billing_summary(
     if latest:
         st = effective_status(latest, today=today, grace_days=gym.grace_days)
         paid_sum = (await db.execute(
-            select(func.coalesce(func.sum(Payment.amount), 0)).where(
+            select(func.coalesce(func.sum(net_amount()), 0)).where(
                 Payment.membership_id == latest.id, Payment.status == PaymentStatus.paid
             )
         )).scalar_one()

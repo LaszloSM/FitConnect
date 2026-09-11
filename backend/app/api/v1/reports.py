@@ -12,6 +12,7 @@ from app.services.exports import build_reports_xlsx, build_report_pdf, fetch_log
 from app.core.timeutil import today_bogota
 from app.models.tenant.member import Member, MemberStatus
 from app.models.tenant.payment import Payment, PaymentStatus, PaymentMethod
+from app.services.payment_ledger import net_amount
 from app.models.tenant.day_pass import DayPass
 from app.models.tenant.payment_item import PaymentItem
 from app.models.tenant.product import Product
@@ -80,7 +81,7 @@ async def profit_report(
             y -= 1
         start_dt, end_dt = _month_bounds(y, m)
         income = (await db.execute(
-            select(func.coalesce(func.sum(Payment.amount), Decimal("0"))).where(
+            select(func.coalesce(func.sum(net_amount()), Decimal("0"))).where(
                 Payment.created_at >= start_dt, Payment.created_at < end_dt,
                 Payment.status == PaymentStatus.paid,
             )
@@ -109,7 +110,7 @@ async def revenue_compare_report(db: AsyncSession = Depends(get_tenant_db_from_t
 
     async def _sum(start, end):
         return (await db.execute(
-            select(func.coalesce(func.sum(Payment.amount), Decimal("0"))).where(
+            select(func.coalesce(func.sum(net_amount()), Decimal("0"))).where(
                 Payment.created_at >= start, Payment.created_at < end,
                 Payment.status == PaymentStatus.paid,
             )
@@ -139,7 +140,7 @@ async def payment_methods_report(
 ):
     start, end = _range_bounds(from_date, to_date)
     stmt = (
-        select(Payment.method, func.coalesce(func.sum(Payment.amount), Decimal("0")))
+        select(Payment.method, func.coalesce(func.sum(net_amount()), Decimal("0")))
         .where(
             Payment.created_at >= start, Payment.created_at < end,
             Payment.status == PaymentStatus.paid,
@@ -219,7 +220,7 @@ async def revenue_history_report(
         month_start_dt = datetime.combine(month_start, datetime.min.time())
         month_end_dt = datetime.combine(month_end, datetime.min.time())
         stmt = (
-            select(func.coalesce(func.sum(Payment.amount), Decimal("0")))
+            select(func.coalesce(func.sum(net_amount()), Decimal("0")))
             .where(
                 Payment.created_at >= month_start_dt,
                 Payment.created_at < month_end_dt,
@@ -410,14 +411,14 @@ async def revenue_by_plan_report(
         _, end_dt = utc_day_bounds(today)
 
     stmt = (
-        select(Payment.concept, func.coalesce(func.sum(Payment.amount), 0).label("total"))
+        select(Payment.concept, func.coalesce(func.sum(net_amount()), 0).label("total"))
         .where(
             Payment.created_at >= start_dt,
             Payment.created_at < end_dt,
             Payment.status == PaymentStatus.paid,
         )
         .group_by(Payment.concept)
-        .order_by(func.sum(Payment.amount).desc())
+        .order_by(func.sum(net_amount()).desc())
     )
     result = await db.execute(stmt)
     return [
@@ -530,7 +531,7 @@ async def revenue_by_kind_report(
     y método, para saber por dónde entra la plata."""
     start, end = _range_bounds(from_date, to_date)
     rows = (await db.execute(
-        select(Payment.kind, Payment.method, func.coalesce(func.sum(Payment.amount), 0), func.count())
+        select(Payment.kind, Payment.method, func.coalesce(func.sum(net_amount()), 0), func.count())
         .where(Payment.status == PaymentStatus.paid, Payment.created_at >= start, Payment.created_at < end)
         .group_by(Payment.kind, Payment.method)
     )).all()
@@ -566,25 +567,35 @@ async def transfers_by_account_report(
     gym = await get_gym_settings(db)
     accounts = {a["id"]: a for a in transfer_accounts(gym)}
     rows = (await db.execute(
-        select(Payment.destination_account_id, Payment.status, func.coalesce(func.sum(Payment.amount), 0), func.count())
+        select(
+            Payment.destination_account_id, Payment.status,
+            func.coalesce(func.sum(net_amount()), 0),
+            func.coalesce(func.sum(Payment.amount), 0),
+            func.count(),
+        )
         .where(Payment.method == PaymentMethod.transfer, Payment.created_at >= start, Payment.created_at < end)
         .group_by(Payment.destination_account_id, Payment.status)
     )).all()
     out: dict[str, dict] = {}
-    for account_id, status, amount, n in rows:
+    for account_id, status, net, gross, n in rows:
         key = account_id or "sin_cuenta"
         entry = out.setdefault(key, {
             "account": public_account(accounts.get(account_id)) if account_id else None,
-            "paid": 0.0, "paid_count": 0, "pending": 0.0, "pending_count": 0, "failed": 0.0, "refunded": 0.0,
+            "paid": 0.0, "paid_count": 0, "pending": 0.0, "pending_count": 0,
+            "failed": 0.0, "voided": 0.0, "refunded": 0.0,
         })
         if status == PaymentStatus.paid:
-            entry["paid"] += float(amount); entry["paid_count"] += n
+            entry["paid"] += float(net); entry["paid_count"] += n
         elif status == PaymentStatus.pending:
-            entry["pending"] += float(amount); entry["pending_count"] += n
+            entry["pending"] += float(net); entry["pending_count"] += n
         elif status == PaymentStatus.refunded:
-            entry["refunded"] += float(amount)
+            # Lo devuelto se reporta por su valor original: el neto de un pago
+            # totalmente devuelto siempre da 0.
+            entry["refunded"] += float(gross)
+        elif status == PaymentStatus.voided:
+            entry["voided"] += float(gross)
         else:
-            entry["failed"] += float(amount)
+            entry["failed"] += float(gross)
     return {"accounts": list(out.values())}
 
 

@@ -1,6 +1,7 @@
 import uuid
 from decimal import Decimal
-from fastapi import APIRouter, Depends, HTTPException, Query
+from fastapi import APIRouter, Depends, HTTPException, Query, Request
+from app.services.idempotency import Idempotent
 from pydantic import BaseModel, Field
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select, func, desc
@@ -11,6 +12,8 @@ from app.core.timeutil import now_bogota
 from app.models.tenant.cash_shift import CashShift
 from app.models.tenant.expense import Expense
 from app.models.tenant.payment import Payment, PaymentMethod, PaymentStatus
+from app.services.payment_ledger import net_amount
+from app.services.refunds import REFUND_EXPENSE_CATEGORY
 from app.models.tenant.user_staff import UserStaff
 from app.services.audit import audit
 
@@ -49,16 +52,20 @@ async def _current_open_shift(db: AsyncSession, location_id: uuid.UUID | None) -
 async def _shift_cash_movements(db: AsyncSession, shift_id: uuid.UUID) -> tuple[Decimal, Decimal]:
     """(ingresos cash pagados del turno, egresos cash del turno)."""
     income = (await db.execute(
-        select(func.coalesce(func.sum(Payment.amount), 0)).where(
+        select(func.coalesce(func.sum(net_amount()), 0)).where(
             Payment.shift_id == shift_id,
             Payment.method == PaymentMethod.cash,
             Payment.status == PaymentStatus.paid,
         )
     )).scalar() or Decimal(0)
+    # El ingreso ya viene NETO (net_amount resta lo devuelto), así que contar aquí
+    # el egreso de la devolución restaría la misma plata dos veces y el cierre
+    # mostraría un sobrante fantasma que acusa al cajero.
     outflow = (await db.execute(
         select(func.coalesce(func.sum(Expense.amount), 0)).where(
             Expense.shift_id == shift_id,
             Expense.method == "cash",
+            Expense.category != REFUND_EXPENSE_CATEGORY,
         )
     )).scalar() or Decimal(0)
     return Decimal(income), Decimal(outflow)
@@ -115,6 +122,7 @@ async def open_shift(
         status="open",
     )
     db.add(shift)
+    await db.flush()
     audit(db, current_user, "cash.open", "cash_shift", shift.id, {"opening_amount": str(payload.opening_amount)})
     await db.commit()
     await db.refresh(shift)
@@ -156,6 +164,51 @@ async def close_shift(
     return shift
 
 
+class ReopenShiftRequest(BaseModel):
+    reason: str = Field(min_length=10, max_length=500)
+
+
+@router.post("/shifts/{shift_id}/reopen", dependencies=[Depends(require_perm(perm.CASH_REOPEN))])
+async def reopen_shift(
+    shift_id: uuid.UUID,
+    payload: ReopenShiftRequest,
+    db: AsyncSession = Depends(get_tenant_db_from_token),
+    current_user: UserStaff = Depends(get_current_staff),
+):
+    """Reabre un turno cerrado con un conteo errado.
+
+    Un cierre quedaba fijo para siempre: la única salida a un error después de
+    cerrar era borrar pagos, que es justo el camino sin rastro. Solo el dueño, y
+    solo si no hay otro turno abierto (el efectivo nuevo iría al turno equivocado).
+    """
+    shift = (await db.execute(
+        select(CashShift).where(CashShift.id == shift_id)
+    )).scalar_one_or_none()
+    if not shift:
+        raise HTTPException(status_code=404, detail="Turno no encontrado")
+    if shift.status != "closed":
+        raise HTTPException(status_code=400, detail="El turno no está cerrado")
+    other = await _current_open_shift(db, shift.location_id)
+    if other is not None:
+        raise HTTPException(status_code=409, detail="Ya hay un turno abierto: ciérralo antes de reabrir este")
+
+    audit(db, current_user, "cash.reopen", "cash_shift", shift.id, {
+        "reason": payload.reason,
+        "counted": str(shift.counted_cash) if shift.counted_cash is not None else None,
+        "difference": str(shift.difference) if shift.difference is not None else None,
+        "closed_at": shift.closed_at.isoformat() if shift.closed_at else None,
+    })
+    shift.status = "open"
+    shift.closed_at = None
+    shift.closed_by = None
+    shift.counted_cash = None
+    shift.expected_cash = None
+    shift.difference = None
+    await db.commit()
+    await db.refresh(shift)
+    return shift
+
+
 @router.get("/expenses", dependencies=[Depends(require_perm(perm.CASH_READ))])
 async def list_expenses(
     db: AsyncSession = Depends(get_tenant_db_from_token),
@@ -171,9 +224,15 @@ async def list_expenses(
 @router.post("/expenses", status_code=201, dependencies=[Depends(require_perm(perm.CASH_EXPENSE))])
 async def create_expense(
     payload: ExpenseCreate,
+    request: Request,
     db: AsyncSession = Depends(get_tenant_db_from_token),
     current_user: UserStaff = Depends(get_current_staff),
 ):
+    guard = Idempotent(db, request, "cash.expense", payload.model_dump())
+    replay = await guard.check()
+    if replay is not None:
+        return replay
+
     if payload.category not in _EXPENSE_CATEGORIES:
         raise HTTPException(status_code=400, detail=f"Categoría inválida. Válidas: {', '.join(sorted(_EXPENSE_CATEGORIES))}")
     # Asociar al turno abierto (sede única) si existe
@@ -190,6 +249,16 @@ async def create_expense(
     audit(db, current_user, "expense.create", "expense", expense.id, {
         "amount": str(payload.amount), "category": payload.category, "concept": payload.concept,
     })
-    await db.commit()
-    await db.refresh(expense)
-    return expense
+    await db.flush()
+    response = {
+        "id": str(expense.id),
+        "shift_id": str(expense.shift_id) if expense.shift_id else None,
+        "amount": str(expense.amount),
+        "category": expense.category,
+        "concept": expense.concept,
+        "method": expense.method,
+        "created_at": expense.created_at.isoformat() if expense.created_at else None,
+    }
+    guard.remember(response, 201)
+    won = await guard.commit()
+    return won if won is not None else response

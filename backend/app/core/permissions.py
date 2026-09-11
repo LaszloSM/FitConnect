@@ -20,6 +20,7 @@ CASH_READ = "cash.read"
 CASH_OPEN = "cash.open"
 CASH_CLOSE = "cash.close"
 CASH_EXPENSE = "cash.expense"
+CASH_REOPEN = "cash.reopen"
 
 PLANS_READ = "plans.read"
 PLANS_WRITE = "plans.write"
@@ -119,6 +120,7 @@ _ADMIN: frozenset[str] = _RECEPTIONIST | frozenset({
 })
 
 _OWNER: frozenset[str] = _ADMIN | frozenset({
+    CASH_REOPEN,
     SETTINGS_WRITE, SETTINGS_SECRETS,
     NOTIFICATIONS_OUTBOX,
     USERS_MANAGE,

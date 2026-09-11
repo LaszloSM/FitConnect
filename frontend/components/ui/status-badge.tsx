@@ -38,7 +38,8 @@ const STATUS_PRESETS: Record<string, { label: string; tone: StatusTone }> = {
   // Pagos
   paid: { label: "Pagado", tone: "success" },
   pending: { label: "Pendiente", tone: "warning" },
-  failed: { label: "Fallido", tone: "danger" },
+  failed: { label: "Rechazado", tone: "danger" },
+  voided: { label: "Anulado", tone: "neutral" },
   refunded: { label: "Reembolsado", tone: "neutral" },
   // Check-ins
   allowed: { label: "Permitido", tone: "success" },

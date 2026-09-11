@@ -63,6 +63,8 @@ export interface PaymentRow {
   discount_amount?: number;
   void_reason?: string | null;
   refund_reason?: string | null;
+  /** Proyección del libro de movimientos: cuánto se devolvió o corrigió. */
+  refunded_amount?: number | string;
   refunded_at?: string | null;
   created_at: string;
   items?: PaymentItemRow[];

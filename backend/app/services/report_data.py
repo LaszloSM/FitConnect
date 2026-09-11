@@ -17,6 +17,9 @@ from app.models.tenant.inventory import StockMovement
 from app.models.tenant.member import Member, MemberStatus
 from app.models.tenant.membership import Membership, MembershipStatus
 from app.models.tenant.payment import Payment, PaymentMethod, PaymentStatus
+from app.services.payment_ledger import net_amount
+from app.models.tenant.payment_movement import MovementKind, PaymentMovement
+from app.services.refunds import REFUND_EXPENSE_CATEGORY
 from app.models.tenant.payment_item import PaymentItem
 from app.models.tenant.product import Product
 from app.services import insights_engine as eng
@@ -55,20 +58,31 @@ def _to_bogota(ts: datetime) -> datetime:
 async def summary(db: AsyncSession, from_date: date | None, to_date: date | None) -> dict:
     start_day, end_day, start, end = period_bounds(from_date, to_date)
     paid = (await db.execute(
-        select(func.coalesce(func.sum(Payment.amount), 0), func.count())
+        select(func.coalesce(func.sum(net_amount()), 0), func.count())
         .where(Payment.status == PaymentStatus.paid, Payment.created_at >= start, Payment.created_at < end)
     )).one()
     pending = (await db.execute(
-        select(func.coalesce(func.sum(Payment.amount), 0), func.count())
+        select(func.coalesce(func.sum(net_amount()), 0), func.count())
         .where(Payment.status == PaymentStatus.pending, Payment.created_at >= start, Payment.created_at < end)
     )).one()
+    # Lo devuelto se lee del libro de movimientos: `net_amount()` sobre un pago
+    # devuelto da 0 por definición, y las devoluciones parciales ni siquiera
+    # cambian el estado del pago.
     refunded = (await db.execute(
-        select(func.coalesce(func.sum(Payment.amount), 0))
-        .where(Payment.status == PaymentStatus.refunded, Payment.refunded_at >= start, Payment.refunded_at < end)
+        select(func.coalesce(func.sum(-PaymentMovement.amount), 0))
+        .where(
+            PaymentMovement.kind == MovementKind.refund.value,
+            PaymentMovement.created_at >= start, PaymentMovement.created_at < end,
+        )
     )).scalar() or 0
+    # Sin excluir la devolución, la utilidad la restaría dos veces: una en el
+    # ingreso neto y otra como egreso.
     expenses = (await db.execute(
         select(func.coalesce(func.sum(Expense.amount), 0))
-        .where(Expense.created_at >= start, Expense.created_at < end)
+        .where(
+            Expense.created_at >= start, Expense.created_at < end,
+            Expense.category != REFUND_EXPENSE_CATEGORY,
+        )
     )).scalar() or 0
     new_members = (await db.execute(
         select(func.count()).select_from(Member)
@@ -96,7 +110,7 @@ async def summary(db: AsyncSession, from_date: date | None, to_date: date | None
 async def revenue_daily(db: AsyncSession, from_date: date | None, to_date: date | None) -> list[dict]:
     start_day, end_day, start, end = period_bounds(from_date, to_date)
     rows = (await db.execute(
-        select(Payment.created_at, Payment.amount, Payment.kind)
+        select(Payment.created_at, Payment.amount - Payment.refunded_amount, Payment.kind)
         .where(Payment.status == PaymentStatus.paid, Payment.created_at >= start, Payment.created_at < end)
     )).all()
     by_day: dict[date, dict] = {}
@@ -115,7 +129,7 @@ async def revenue_daily(db: AsyncSession, from_date: date | None, to_date: date 
 async def revenue_by_kind_and_method(db: AsyncSession, from_date: date | None, to_date: date | None) -> dict:
     _, _, start, end = period_bounds(from_date, to_date)
     rows = (await db.execute(
-        select(Payment.kind, Payment.method, func.coalesce(func.sum(Payment.amount), 0), func.count())
+        select(Payment.kind, Payment.method, func.coalesce(func.sum(net_amount()), 0), func.count())
         .where(Payment.status == PaymentStatus.paid, Payment.created_at >= start, Payment.created_at < end)
         .group_by(Payment.kind, Payment.method)
     )).all()
@@ -139,11 +153,11 @@ async def revenue_by_kind_and_method(db: AsyncSession, from_date: date | None, t
 async def revenue_by_plan(db: AsyncSession, from_date: date | None, to_date: date | None) -> list[dict]:
     _, _, start, end = period_bounds(from_date, to_date)
     rows = (await db.execute(
-        select(Membership.plan_name, func.coalesce(func.sum(Payment.amount), 0), func.count())
+        select(Membership.plan_name, func.coalesce(func.sum(net_amount()), 0), func.count())
         .join(Membership, Membership.id == Payment.membership_id)
         .where(Payment.status == PaymentStatus.paid, Payment.created_at >= start, Payment.created_at < end)
         .group_by(Membership.plan_name)
-        .order_by(func.sum(Payment.amount).desc())
+        .order_by(func.sum(net_amount()).desc())
     )).all()
     return [{"plan_name": p, "amount": float(a), "count": n} for p, a, n in rows]
 
@@ -176,7 +190,10 @@ async def payments_list(db: AsyncSession, from_date: date | None, to_date: date 
             "concept": p.concept,
             "kind": KIND_LABELS.get(p.kind, p.kind),
             "method": METHOD_LABELS.get(p.method.value if p.method else "", "—"),
-            "status": {"paid": "Pagado", "pending": "Pendiente", "failed": "Anulado", "refunded": "Devuelto"}.get(p.status.value, p.status.value),
+            "status": {
+                "paid": "Pagado", "pending": "Pendiente", "failed": "Rechazado",
+                "voided": "Anulado", "refunded": "Devuelto",
+            }.get(p.status.value, p.status.value),
             "amount": float(p.amount),
             "reference": p.transfer_reference or p.card_approval_code or "",
         }
@@ -277,7 +294,7 @@ async def forecast(db: AsyncSession) -> dict:
         s_utc, _ = utc_day_bounds(s)
         e_utc, _ = utc_day_bounds(e)
         total = (await db.execute(
-            select(func.coalesce(func.sum(Payment.amount), 0))
+            select(func.coalesce(func.sum(net_amount()), 0))
             .where(Payment.status == PaymentStatus.paid, Payment.created_at >= s_utc, Payment.created_at < e_utc)
         )).scalar() or 0
         prev.append(float(total))

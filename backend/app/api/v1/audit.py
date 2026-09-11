@@ -46,3 +46,24 @@ async def list_audit_logs(
         stmt.order_by(desc(AuditLog.created_at)).limit(limit).offset(offset)
     )).scalars().all()
     return {"total": total, "items": rows}
+
+
+@router.get("/entity/{entity_type}/{entity_id}")
+async def entity_history(
+    entity_type: str,
+    entity_id: str,
+    db: AsyncSession = Depends(get_tenant_db_from_token),
+    limit: int = Query(100, ge=1, le=200),
+):
+    """Historial de una entidad concreta: "qué le pasó a este pago".
+
+    La auditoría solo se podía recorrer en orden cronológico, así que servía para
+    cumplir y no para responder la pregunta que el dueño hace de verdad.
+    """
+    rows = (await db.execute(
+        select(AuditLog)
+        .where(AuditLog.entity_type == entity_type, AuditLog.entity_id == entity_id)
+        .order_by(desc(AuditLog.created_at))
+        .limit(limit)
+    )).scalars().all()
+    return {"total": len(rows), "items": rows}

@@ -10,6 +10,7 @@ from app.core.timeutil import today_bogota, utc_day_bounds
 from app.schemas.member import DashboardOverview, DashboardKPIs, MemberGrowthPoint, RevenuePoint
 from app.models.tenant.member import Member, MemberStatus
 from app.models.tenant.payment import Payment, PaymentStatus
+from app.services.payment_ledger import net_amount
 from app.models.tenant.checkin import CheckIn
 from app.models.tenant.membership import Membership, MembershipStatus
 from app.models.tenant.machine import Machine, MachineStatus
@@ -58,7 +59,7 @@ async def get_dashboard_kpis(
     # Payments in date range — solo pagos efectivamente pagados (consistente con
     # revenue_history y con la caja). Lo pendiente se reporta aparte.
     payments_month_result = await db.execute(
-        select(func.coalesce(func.sum(Payment.amount), Decimal("0")))
+        select(func.coalesce(func.sum(net_amount()), Decimal("0")))
         .where(
             Payment.created_at >= start_dt,
             Payment.created_at < end_dt,
@@ -68,7 +69,7 @@ async def get_dashboard_kpis(
     total_payments_month = payments_month_result.scalar() or Decimal("0")
 
     pending_payments_month_result = await db.execute(
-        select(func.coalesce(func.sum(Payment.amount), Decimal("0")))
+        select(func.coalesce(func.sum(net_amount()), Decimal("0")))
         .where(
             Payment.created_at >= start_dt,
             Payment.created_at < end_dt,
@@ -158,7 +159,7 @@ async def get_dashboard_kpis(
         start_dt = datetime.combine(start, datetime.min.time())
         end_dt = datetime.combine(end, datetime.min.time())
         amount_result = await db.execute(
-            select(func.coalesce(func.sum(Payment.amount), Decimal("0")))
+            select(func.coalesce(func.sum(net_amount()), Decimal("0")))
             .where(
                 Payment.created_at >= start_dt,
                 Payment.created_at < end_dt,
@@ -196,7 +197,7 @@ async def get_dashboard_insights(db: AsyncSession = Depends(get_tenant_db_from_t
 
     async def _paid_sum(s, e):
         return (await db.execute(
-            select(func.coalesce(func.sum(Payment.amount), Decimal("0"))).where(
+            select(func.coalesce(func.sum(net_amount()), Decimal("0"))).where(
                 Payment.created_at >= s, Payment.created_at < e,
                 Payment.status == PaymentStatus.paid,
             )

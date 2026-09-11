@@ -14,6 +14,7 @@ from app.models.tenant.day_pass import DayPass, DayPassStatus
 from app.models.tenant.gym_settings import GymSettings
 from app.models.tenant.membership import Membership, MembershipStatus
 from app.models.tenant.payment import Payment, PaymentMethod, PaymentStatus
+from app.models.tenant.user_staff import UserStaff
 from app.services.storage import resolve_media_url
 
 
@@ -134,11 +135,28 @@ async def void_day_passes(db: AsyncSession, payment_id: uuid.UUID, *, include_ac
     await db.execute(stmt.values(status=DayPassStatus.void.value))
 
 
-def mark_voided(payment: Payment, reason: str | None, user_id: uuid.UUID | None) -> None:
-    payment.status = PaymentStatus.failed
+async def mark_voided(
+    db: AsyncSession,
+    payment: Payment,
+    reason: str | None,
+    user: "UserStaff | None" = None,
+) -> None:
+    """Anula un pendiente que nunca entró y lo deja en el libro.
+
+    Antes reutilizaba `failed`, el mismo estado de una tarjeta rechazada por
+    Wompi: en los reportes no había forma de responder "¿cuántas ventas perdí
+    por la pasarela?" frente a "¿cuántas anuló mi recepcionista?".
+    """
+    from app.models.tenant.payment_movement import MovementKind
+    from app.services.payment_ledger import backfill_charge, record
+
+    await backfill_charge(db, payment)
+    payment.status = PaymentStatus.voided
     payment.voided_at = utcnow_naive()
     payment.void_reason = reason
-    payment.voided_by = user_id
+    payment.voided_by = user.id if user else None
+    record(db, payment, kind=MovementKind.void, amount=-payment.amount,
+           actor=user, reason=reason)
 
 
 async def cancel_unpaid_membership(db: AsyncSession, payment: Payment) -> bool:

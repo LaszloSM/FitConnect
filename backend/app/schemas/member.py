@@ -223,14 +223,6 @@ class PaymentCreate(PaymentBase):
         return self
 
 
-class PaymentUpdate(BaseModel):
-    amount: Optional[Decimal] = Field(default=None, gt=0, decimal_places=2)
-    method: Optional[PaymentMethod] = None
-    status: Optional[PaymentStatus] = None
-    concept: Optional[str] = Field(default=None, min_length=1, max_length=500)
-    external_ref: Optional[str] = Field(default=None, max_length=255)
-
-
 class PaymentResponse(PaymentBase):
     id: uuid.UUID
     created_at: datetime
@@ -247,6 +239,7 @@ class PaymentResponse(PaymentBase):
     proof_uploaded_at: Optional[datetime] = None
     refunded_at: Optional[datetime] = None
     refund_reason: Optional[str] = None
+    refunded_amount: Decimal = Decimal("0")
     voided_at: Optional[datetime] = None
     void_reason: Optional[str] = None
     # Inyectados por el endpoint — no vienen directo de la tabla payments

@@ -18,7 +18,11 @@ from app.services.exports import _INK, _VOLT, _cop
 from app.services.gym_settings import get_gym_settings
 
 _METHOD_LABELS = {"cash": "Efectivo", "transfer": "Transferencia", "card": "Tarjeta", "wompi": "Wompi"}
-_STATUS_WATERMARK = {PaymentStatus.refunded: "DEVUELTO", PaymentStatus.failed: "ANULADO"}
+_STATUS_WATERMARK = {
+    PaymentStatus.refunded: "DEVUELTO",
+    PaymentStatus.voided: "ANULADO",
+    PaymentStatus.failed: "RECHAZADO",
+}
 
 
 async def build_receipt_pdf(

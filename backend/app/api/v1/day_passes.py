@@ -1,7 +1,8 @@
 import uuid
 from datetime import date
 
-from fastapi import APIRouter, Depends, HTTPException, Query
+from fastapi import APIRouter, Depends, HTTPException, Query, Request
+from app.services.idempotency import Idempotent
 from sqlalchemy import select, desc, func
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -103,6 +104,7 @@ def _pass_response(dp: DayPass, member: Member | None, payment: Payment | None) 
 @router.post("/sell", response_model=DayPassSellResponse, status_code=201, dependencies=[Depends(require_perm(perm.DAY_PASSES_SELL))])
 async def sell(
     payload: DayPassSell,
+    request: Request,
     db: AsyncSession = Depends(get_tenant_db_from_token),
     current_user: UserStaff = Depends(get_current_staff),
     slug: str = Depends(get_tenant_slug),
@@ -110,6 +112,11 @@ async def sell(
     """Registro exprés + venta del pase de hoy. cash/card: pagado y activo al
     instante. transfer: pendiente con referencia y cuenta destino. wompi:
     pendiente con link de pago."""
+    guard = Idempotent(db, request, "day_passes.sell", payload.model_dump())
+    replay = await guard.check()
+    if replay is not None:
+        return replay
+
     pass_type = (await db.execute(
         select(DayPassType).where(DayPassType.id == payload.pass_type_id)
     )).scalar_one_or_none()
@@ -132,6 +139,11 @@ async def sell(
         receipt = await issue_receipt(db, payment)
         receipt_number = receipt.snapshot.get("receipt_number")
     elif payment.method == PaymentMethod.wompi:
+        # LIMITACIÓN CONOCIDA: esto es un POST a Wompi, fuera de la transacción.
+        # Si esta petición pierde la carrera de idempotencia, el rollback deshace
+        # el pago pero el link queda vivo en Wompi sin nada que lo respalde.
+        # Se resuelve al integrar Wompi de verdad (hoy no hay cuenta): el link
+        # debe crearse DESPUÉS de ganar la clave, en una segunda confirmación.
         link = await create_payment_link_for(db, payment, slug, member_name=member.full_name)
         checkout_url = link.checkout_url
 
@@ -140,10 +152,10 @@ async def sell(
         "pass_name": pass_type.name, "price": str(payment.amount),
         "method": payment.method.value if payment.method else None, "payment_status": payment.status.value,
     })
-    await db.commit()
-    await db.refresh(day_pass)
-    await db.refresh(payment)
-    return DayPassSellResponse(
+    from app.services.payment_ledger import backfill_charge
+    await backfill_charge(db, payment, current_user)
+    await db.flush()
+    response = DayPassSellResponse(
         day_pass=_pass_response(day_pass, member, payment),
         payment_id=payment.id,
         payment_status=payment.status.value,
@@ -154,6 +166,9 @@ async def sell(
         destination_account=public_account(account),
         checkout_url=checkout_url,
     )
+    guard.remember(response, 201)
+    won = await guard.commit()
+    return won if won is not None else response
 
 
 @router.get("", response_model=list[DayPassResponse])
