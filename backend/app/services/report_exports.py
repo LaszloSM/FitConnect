@@ -17,7 +17,7 @@ from reportlab.lib.pagesizes import A4
 from reportlab.lib.styles import ParagraphStyle, getSampleStyleSheet
 from reportlab.lib.units import mm
 from reportlab.lib.utils import ImageReader
-from reportlab.platypus import Image as PdfImage, KeepTogether, PageBreak, Paragraph, SimpleDocTemplate, Spacer, Table, TableStyle
+from reportlab.platypus import Image as PdfImage, KeepTogether, Paragraph, SimpleDocTemplate, Spacer, Table, TableStyle
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.timeutil import today_bogota

@@ -39,7 +39,7 @@ _NAME_TERMS = [
     ("Bent-Over", "inclinado"), ("Triceps Extension", "Extensión de tríceps"), ("Long Bar Row", "Remo con barra larga"), ("Floor Press", "Press en el suelo"), ("Preacher Curl", "Curl en banco Scott"),
     ("Two-Dumbbell", "con dos mancuernas"), ("Two-Arm", "a dos manos"), ("Double", "doble"), ("Bent-Arm", "con brazos flexionados"), ("Stiff-Legged", "con piernas rígidas"), ("Palms-Up", "con palmas arriba"), ("Upright Row", "Remo al mentón"), ("Long Bar", "con barra larga"), ("Low-Pulley", "en polea baja"), ("Side Lateral", "Elevación lateral"), ("Walking", "caminando"), ("Mid Row", "Remo medio"), ("Flyes", "Aperturas"), ("Rows", "Remo"), ("EZ-Bar", "con barra Z"), ("Bosu Ball", "en bosu"), ("Arnold", "Arnold"),
     ("Bodyweight", "con peso corporal"), ("Chair", "en silla"), ("Hack Squat", "Sentadilla hack"), ("Goblet Squat", "Sentadilla goblet"), ("Front Squat", "Sentadilla frontal"), ("Sumo", "sumo"), ("Split Squat", "Sentadilla búlgara"), ("Jump Squat", "Sentadilla con salto"),
-    ("Full Squat", "Sentadilla profunda"), ("Bicep Curl", "Curl de bíceps"), ("Pushups", "Flexiones"), ("Push-Ups", "Flexiones"), ("Shoulder Press", "Press de hombro"), 
+    ("Full Squat", "Sentadilla profunda"), ("Bicep Curl", "Curl de bíceps"), ("Pushups", "Flexiones"), ("Push-Ups", "Flexiones"), ("Shoulder Press", "Press de hombro"),
     ("Barbell", "con barra"), ("Dumbbell", "con mancuernas"), ("Dumbbells", "con mancuernas"), ("Kettlebell", "con kettlebell"),
     ("Cable", "en polea"), ("Machine", "en máquina"), ("Smith Machine", "en multipower"), ("Band", "con banda"), ("Bands", "con bandas"),
     ("Bench Press", "Press de banca"), ("Incline", "inclinado"), ("Decline", "declinado"), ("Press", "Press"),
@@ -301,7 +301,7 @@ async def import_wger_videos(db: AsyncSession) -> dict:
         # Un video que el navegador no reproduce deja un cuadro negro en la
         # pantalla del gym, peor que las dos fotos. wger publica casi todo en
         # .MOV/HEVC, que Chrome no abre: solo entra lo que se ve seguro.
-        if not url.lower().rsplit(".", 1)[-1] in PLAYABLE_VIDEO_EXT or (v.get("codec") or "").lower() not in PLAYABLE_VIDEO_CODECS:
+        if url.lower().rsplit(".", 1)[-1] not in PLAYABLE_VIDEO_EXT or (v.get("codec") or "").lower() not in PLAYABLE_VIDEO_CODECS:
             skipped_format += 1
             continue
         target = _best_match(name, catalog)

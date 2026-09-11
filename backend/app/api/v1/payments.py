@@ -17,9 +17,7 @@ from app.models.tenant.payment_item import PaymentItem
 from app.models.tenant.product import Product
 from app.models.tenant.member import Member
 from app.models.tenant.membership import Membership, MembershipStatus
-from app.models.tenant.cash_shift import CashShift
 from app.models.tenant.receipt import Receipt
-from app.models.tenant.inventory import StockMovement
 from app.models.tenant.user_staff import UserStaff
 from app.services.audit import audit
 from app.services.gym_settings import get_gym_settings
@@ -28,7 +26,7 @@ from app.services.receipts import issue_receipt
 from app.services.payment_links import create_payment_link_for
 from app.services.payments import (
     apply_payment_policy, activate_day_passes, void_day_passes, mark_voided, cancel_unpaid_membership,
-    resolve_transfer_account, transfer_accounts, public_account, elapsed_minutes,
+    transfer_accounts, public_account, elapsed_minutes,
     open_cash_shift as _open_cash_shift,
 )
 from app.services.storage import upload_image

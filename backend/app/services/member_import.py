@@ -12,7 +12,6 @@ from datetime import date, datetime
 from openpyxl import Workbook, load_workbook
 from openpyxl.styles import Font, PatternFill
 from pydantic import ValidationError
-from sqlalchemy import select
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 

@@ -2,7 +2,7 @@ from fastapi import APIRouter, Depends, HTTPException, Request
 from app.services.idempotency import Idempotent
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
-from app.api.deps import get_tenant_db_from_token, get_current_staff, require_perm
+from app.api.deps import get_tenant_db_from_token, require_perm
 from app.schemas.member import MembershipResponse
 from app.core import permissions as perm
 from app.services.audit import audit

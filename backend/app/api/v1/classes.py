@@ -5,7 +5,7 @@ from sqlalchemy import select, func
 from sqlalchemy.exc import IntegrityError
 from typing import Optional
 
-from app.api.deps import get_tenant_db_from_token, get_current_staff, require_perm
+from app.api.deps import get_tenant_db_from_token, require_perm
 from app.core import permissions as perm
 from app.schemas.operations import (
     GymClassCreate, GymClassUpdate, GymClassResponse,

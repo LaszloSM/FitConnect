@@ -20,6 +20,8 @@ from app.models.tenant.inventory import StockMovement
 from app.services.payments import transfer_accounts, public_account
 from app.services.gym_settings import get_gym_settings
 from app.models.tenant.expense import Expense
+from app.services import report_data as _rd
+from app.services import report_exports as _rx
 from app.models.tenant.checkin import CheckIn
 from app.models.tenant.membership import Membership, MembershipStatus
 
@@ -543,9 +545,11 @@ async def transfers_by_account_report(
             "failed": 0.0, "voided": 0.0, "refunded": 0.0,
         })
         if status == PaymentStatus.paid:
-            entry["paid"] += float(net); entry["paid_count"] += n
+            entry["paid"] += float(net)
+            entry["paid_count"] += n
         elif status == PaymentStatus.pending:
-            entry["pending"] += float(net); entry["pending_count"] += n
+            entry["pending"] += float(net)
+            entry["pending_count"] += n
         elif status == PaymentStatus.refunded:
             # Lo devuelto se reporta por su valor original: el neto de un pago
             # totalmente devuelto siempre da 0.
@@ -697,9 +701,6 @@ async def _product_sales_data(db: AsyncSession, from_date: date | None, to_date:
 
 
 # ─── Reportes por período (dashboard analítico) ───
-
-from app.services import report_data as _rd
-from app.services import report_exports as _rx
 
 
 @router.get("/summary")

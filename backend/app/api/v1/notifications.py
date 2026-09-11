@@ -5,7 +5,7 @@ from sqlalchemy import select, desc
 
 from app.api.deps import get_tenant_db_from_token, get_current_staff, require_perm
 from app.core import permissions as perm
-from app.schemas.operations import NotificationCreate, NotificationResponse
+from app.schemas.operations import NotificationResponse
 from app.models.tenant.notification import Notification
 from app.models.tenant.notification_outbox import NotificationOutbox
 

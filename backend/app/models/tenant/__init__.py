@@ -71,4 +71,6 @@ __all__ = [
     "Instructor",
     "MessageTemplate",
     "Announcement",
+    "ExerciseMedia",
+    "BiometricConsent", "MemberCredential", "AccessEvent",
 ]

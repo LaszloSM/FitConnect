@@ -13,7 +13,7 @@ from pydantic import BaseModel, Field, model_validator
 from sqlalchemy import select, desc
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.api.deps import get_kiosk_db, get_kiosk_payload, get_tenant_db_from_token, get_current_staff, require_perm
+from app.api.deps import get_kiosk_db, get_kiosk_payload, get_tenant_db_from_token, require_perm
 from app.core import permissions as perm
 from app.core.rate_limit import limiter
 from app.core.security import create_kiosk_token

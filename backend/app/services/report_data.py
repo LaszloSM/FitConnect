@@ -3,7 +3,6 @@ PDF/Excel y el motor de señales, para que todos cuenten lo mismo."""
 from __future__ import annotations
 
 from datetime import date, datetime, timedelta
-from decimal import Decimal
 from zoneinfo import ZoneInfo
 
 from sqlalchemy import func, select
@@ -11,16 +10,14 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.timeutil import BOGOTA, today_bogota, utc_day_bounds, utcnow_naive
 from app.models.tenant.checkin import CheckIn
-from app.models.tenant.day_pass import DayPass
 from app.models.tenant.expense import Expense
 from app.models.tenant.inventory import StockMovement
 from app.models.tenant.member import Member, MemberStatus
 from app.models.tenant.membership import Membership, MembershipStatus
-from app.models.tenant.payment import Payment, PaymentMethod, PaymentStatus
+from app.models.tenant.payment import Payment, PaymentStatus
 from app.services.payment_ledger import net_amount
 from app.models.tenant.payment_movement import MovementKind, PaymentMovement
 from app.services.refunds import REFUND_EXPENSE_CATEGORY
-from app.models.tenant.payment_item import PaymentItem
 from app.models.tenant.product import Product
 from app.services import insights_engine as eng
 from app.services.membership_status import effective_status
@@ -139,9 +136,11 @@ async def revenue_by_kind_and_method(db: AsyncSession, from_date: date | None, t
     for kind, method, amount, n in rows:
         k, m = kind or "other", (method.value if method else "unknown")
         e = by_kind.setdefault(k, {"label": KIND_LABELS.get(k, k), "amount": 0.0, "count": 0})
-        e["amount"] += float(amount); e["count"] += n
+        e["amount"] += float(amount)
+        e["count"] += n
         me = by_method.setdefault(m, {"label": METHOD_LABELS.get(m, m), "amount": 0.0, "count": 0})
-        me["amount"] += float(amount); me["count"] += n
+        me["amount"] += float(amount)
+        me["count"] += n
         total += float(amount)
     return {
         "total": total,

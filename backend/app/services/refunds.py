@@ -10,7 +10,6 @@ Dos cosas que antes se confundían y ahora no:
 
 Y la reversa ya no es total obligatoriamente: se devuelve hasta el saldo vivo.
 """
-import uuid
 from decimal import Decimal
 
 from fastapi import HTTPException
