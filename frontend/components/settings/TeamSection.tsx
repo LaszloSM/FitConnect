@@ -131,7 +131,7 @@ export default function TeamSection() {
         <div className="flex items-start justify-between gap-3 flex-wrap">
           <div>
             <h3 className="text-base font-semibold text-[var(--text-base)] flex items-center gap-2">
-              <Users className="h-4 w-4 text-[var(--color-primary)]" />
+              <Users className="h-4 w-4 text-[var(--color-primary-ink)]" />
               Equipo
             </h3>
             <p className="text-sm text-[var(--text-muted)] mt-1">

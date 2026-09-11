@@ -245,7 +245,7 @@ export default function AgendaClient() {
             description="Crea clases con horario semanal y las sesiones se generan solas."
             action={
               <Link href="/classes">
-                <Button className="bg-[var(--color-primary)] text-[var(--color-primary-contrast)] hover:bg-[var(--color-primary-hover)]">
+                <Button>
                   Ir a clases
                 </Button>
               </Link>
@@ -261,7 +261,7 @@ export default function AgendaClient() {
                   const today = isSameDay(day, new Date());
                   return (
                     <div key={day.toISOString()} className="px-2 pb-2 text-center">
-                      <p className={cn("text-xs uppercase tracking-wide", today ? "text-[var(--color-primary-hover)] dark:text-[var(--color-primary)] font-bold" : "text-[var(--text-muted)]")}>
+                      <p className={cn("text-xs uppercase tracking-wide", today ? "text-[var(--color-primary-hover)] dark:text-[var(--color-primary-ink)] font-bold" : "text-[var(--text-muted)]")}>
                         {format(day, "EEE", { locale: es })}
                       </p>
                       <p className={cn(

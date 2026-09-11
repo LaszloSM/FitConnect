@@ -82,7 +82,7 @@ export default function DayPassSection() {
       header: "Pase",
       cell: (t) => (
         <span className="font-medium text-[var(--text-base)] flex items-center gap-2">
-          {t.includes_trainer && <Dumbbell className="h-3.5 w-3.5 text-[var(--color-primary)]" />}
+          {t.includes_trainer && <Dumbbell className="h-3.5 w-3.5 text-[var(--color-primary-ink)]" />}
           {t.name}
         </span>
       ),
@@ -163,7 +163,7 @@ export default function DayPassSection() {
 
       <div className="flex items-center justify-between gap-3 flex-wrap">
         <div className="flex items-start gap-2">
-          <Ticket className="h-4 w-4 text-[var(--color-primary)] mt-0.5" />
+          <Ticket className="h-4 w-4 text-[var(--color-primary-ink)] mt-0.5" />
           <div>
             <h3 className="text-sm font-semibold text-[var(--text-base)]">Tipos de pase del día</h3>
             <p className="text-xs text-[var(--text-muted)] mt-0.5">
@@ -188,7 +188,7 @@ export default function DayPassSection() {
         emptyTitle="Sin tipos de pase"
         emptyDescription='Crea "Pase del día" y "Pase con entrenador" para empezar a venderlos'
         emptyAction={
-          <Button onClick={openCreate} className="bg-[var(--color-primary)] text-[var(--color-primary-contrast)] font-semibold hover:bg-[var(--color-primary-hover)]">
+          <Button onClick={openCreate}>
             <Plus className="h-4 w-4 mr-1" /> Crear el primero
           </Button>
         }

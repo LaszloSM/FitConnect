@@ -71,7 +71,7 @@ export function LiveNowStrip({ expiring7d }: { expiring7d: number }) {
             </p>
             <Link
               href="/checkins"
-              className="flex items-center gap-1.5 text-xs font-medium text-[var(--text-muted)] hover:text-[var(--color-primary)] transition-colors"
+              className="flex items-center gap-1.5 text-xs font-medium text-[var(--text-muted)] hover:text-[var(--color-primary-ink)] transition-colors"
             >
               <Tv className="h-3.5 w-3.5" /> Ver todo
             </Link>

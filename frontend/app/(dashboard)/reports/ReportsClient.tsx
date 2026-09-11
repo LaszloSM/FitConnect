@@ -81,7 +81,7 @@ export default function ReportsClient() {
             onClick={() => setActiveTab(key)}
             className={cn(
               "flex items-center gap-2 px-3.5 py-2.5 text-sm font-medium transition-colors relative",
-              activeTab === key ? "text-[var(--color-primary)]" : "text-[var(--text-muted)] hover:text-[var(--text-base)]"
+              activeTab === key ? "text-[var(--color-primary-ink)]" : "text-[var(--text-muted)] hover:text-[var(--text-base)]"
             )}
           >
             <Icon className="h-4 w-4" />

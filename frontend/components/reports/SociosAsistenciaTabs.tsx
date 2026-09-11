@@ -64,7 +64,7 @@ export function SociosTab({ period }: { period: Period }) {
         <Tile label="Visitantes (pase del día)" value={String(o.visitors)} tone="muted" />
       </motion.div>
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-        <Card title="Socios activos por estado de membresía" icon={<Users className="h-4 w-4 text-[var(--color-primary)]" />}>
+        <Card title="Socios activos por estado de membresía" icon={<Users className="h-4 w-4 text-[var(--color-primary-ink)]" />}>
           {statusData.length === 0 ? <Empty text="Sin socios activos" /> : (
             <ResponsiveContainer width="100%" height={200}>
               <BarChart data={statusData} margin={{ top: 4, right: 0, left: -20, bottom: 0 }}>
@@ -161,7 +161,7 @@ export function AsistenciaTab({ period }: { period: Period }) {
         )}
       </Card>
       <div className="grid grid-cols-1 lg:grid-cols-[minmax(0,2fr)_minmax(0,1fr)] gap-4">
-        <Card title="Mapa de calor: día × hora" icon={<Activity className="h-4 w-4 text-[var(--color-primary)]" />}>
+        <Card title="Mapa de calor: día × hora" icon={<Activity className="h-4 w-4 text-[var(--color-primary-ink)]" />}>
           {a.total === 0 ? <Empty text="Sin datos" /> : <Heatmap cells={a.peak.cells} />}
           <p className="text-[10px] text-[var(--text-muted)] mt-2">Más verde = más gente. Úsalo para poner instructores y clases en las horas de más flujo.</p>
         </Card>

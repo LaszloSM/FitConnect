@@ -37,8 +37,8 @@ export default function TerminosPage() {
       <p>
         El gimnasio es responsable de la veracidad de los datos que registra y de contar con la
         autorización de tratamiento de sus miembros. El tratamiento de datos se rige por la{" "}
-        <a href="/privacidad" className="text-[var(--color-primary)] underline">Política de Privacidad</a> y la{" "}
-        <a href="/tratamiento-datos" className="text-[var(--color-primary)] underline">Política de Tratamiento de Datos</a>.
+        <a href="/privacidad" className="text-[var(--color-primary-ink)] underline">Política de Privacidad</a> y la{" "}
+        <a href="/tratamiento-datos" className="text-[var(--color-primary-ink)] underline">Política de Tratamiento de Datos</a>.
       </p>
 
       <h2>4. Pagos e integraciones</h2>

@@ -94,7 +94,7 @@ function FileUpload({ value, onChange, shape = "rect", accept = "image/jpeg,imag
             </div>
             {!isCircle && (
               <p className="text-xs text-[var(--text-muted)] text-center">
-                Arrastra tu imagen aquí o <span className="text-[var(--color-primary)] font-medium">haz clic para seleccionar</span>
+                Arrastra tu imagen aquí o <span className="text-[var(--color-primary-ink)] font-medium">haz clic para seleccionar</span>
               </p>
             )}
             <p className="text-[10px] text-[var(--text-placeholder)]">JPG, PNG, WEBP · Máx 2MB</p>

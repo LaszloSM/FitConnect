@@ -253,7 +253,6 @@ export default function BillingSection() {
               <Button
                 type="submit"
                 disabled={saving}
-                className="bg-[var(--color-primary)] text-[var(--color-primary-contrast)] font-semibold hover:bg-[var(--color-primary-hover)]"
               >
                 {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : "Guardar cuenta"}
               </Button>
@@ -338,7 +337,7 @@ export default function BillingSection() {
 
       <div className="pt-6 border-t border-[var(--border-base)] space-y-3">
         <div className="flex items-center gap-2">
-          <Clock className="h-4 w-4 text-[var(--color-primary)]" />
+          <Clock className="h-4 w-4 text-[var(--color-primary-ink)]" />
           <div>
             <h3 className="text-sm font-semibold text-[var(--text-base)]">Transferencias sin confirmar</h3>
             <p className="text-xs text-[var(--text-muted)] mt-0.5">
@@ -367,7 +366,7 @@ export default function BillingSection() {
 
       <form onSubmit={handleSaveFiscal} className="pt-6 border-t border-[var(--border-base)] space-y-4">
         <div className="flex items-center gap-2">
-          <FileText className="h-4 w-4 text-[var(--color-primary)]" />
+          <FileText className="h-4 w-4 text-[var(--color-primary-ink)]" />
           <div>
             <h3 className="text-sm font-semibold text-[var(--text-base)]">Datos fiscales</h3>
             <p className="text-xs text-[var(--text-muted)] mt-0.5">
@@ -394,7 +393,6 @@ export default function BillingSection() {
             <Button
               type="submit"
               disabled={saving}
-              className="bg-[var(--color-primary)] text-[var(--color-primary-contrast)] font-semibold hover:bg-[var(--color-primary-hover)]"
             >
               {saving ? "Guardando..." : "Guardar datos fiscales"}
             </Button>

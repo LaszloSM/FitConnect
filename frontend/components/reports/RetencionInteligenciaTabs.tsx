@@ -43,7 +43,7 @@ export function RetencionTab() {
         <Tile label="Cohorte más reciente" value={cohorts.length ? `${cohorts[cohorts.length - 1].size} socios` : "—"} hint={cohorts.length ? `${cohorts[cohorts.length - 1].active_pct ?? 0}% siguen activos` : undefined} />
         <Tile label="Meses analizados" value={String(retention.length)} tone="muted" />
       </motion.div>
-      <Card title="Renovación mensual" icon={<Activity className="h-4 w-4 text-[var(--color-primary)]" />}>
+      <Card title="Renovación mensual" icon={<Activity className="h-4 w-4 text-[var(--color-primary-ink)]" />}>
         {retention.every((r) => r.ended === 0) ? <Empty text="Aún no hay vencimientos para medir renovación" /> : (
           <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
             {retention.map((r) => (
@@ -98,7 +98,7 @@ export function InteligenciaTab({ period }: { period: Period }) {
 
   const columns: DataTableColumn<Risk>[] = [
     { key: "member", header: "Socio", cell: (r) => (
-      <Link href={`/members/${r.member_id}`} className="hover:text-[var(--color-primary)]">
+      <Link href={`/members/${r.member_id}`} className="hover:text-[var(--color-primary-ink)]">
         <p className="font-medium text-[var(--text-base)]">{r.full_name}</p>
         <p className="text-xs text-[var(--text-muted)]">{r.plan_name ?? "Sin plan"}{r.end_date ? ` · vence ${r.end_date.split("-").reverse().join("/")}` : ""}</p>
       </Link>
@@ -146,7 +146,7 @@ export function InteligenciaTab({ period }: { period: Period }) {
       </Card>
 
       {peak && peak.total > 0 && (
-        <Card title="Cuándo se llena el gym (período)" icon={<Sparkles className="h-4 w-4 text-[var(--color-primary)]" />}>
+        <Card title="Cuándo se llena el gym (período)" icon={<Sparkles className="h-4 w-4 text-[var(--color-primary-ink)]" />}>
           <Heatmap cells={peak.cells} />
           {peak.top?.length > 0 && (
             <p className="text-xs text-[var(--text-muted)] mt-2">

@@ -34,10 +34,12 @@ const Toaster = ({ ...props }: ToasterProps) => {
       }}
       style={
         {
-          "--normal-bg": "var(--popover)",
-          "--normal-text": "var(--popover-foreground)",
-          "--normal-border": "var(--border)",
-          "--border-radius": "var(--radius)",
+          // Vars de shadcn que este proyecto nunca definió: el toast salía con
+          // los colores por defecto de sonner, ajenos al tema.
+          "--normal-bg": "var(--bg-card)",
+          "--normal-text": "var(--text-base)",
+          "--normal-border": "var(--border-base)",
+          "--border-radius": "var(--radius-md)",
         } as React.CSSProperties
       }
       toastOptions={{

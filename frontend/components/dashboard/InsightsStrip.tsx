@@ -44,7 +44,7 @@ export function InsightsStrip() {
       className="mb-6"
     >
       <div className="flex items-center gap-1.5 mb-2 text-xs font-medium text-[var(--text-muted)]">
-        <Sparkles className="h-3.5 w-3.5 text-[var(--color-primary)]" />
+        <Sparkles className="h-3.5 w-3.5 text-[var(--color-primary-ink)]" />
         Lo que deberías saber hoy
       </div>
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
@@ -55,7 +55,7 @@ export function InsightsStrip() {
               <Icon className={`h-4 w-4 shrink-0 ${cls}`} />
               <p className="text-sm text-[var(--text-base)] flex-1 min-w-0">{ins.text}</p>
               {ins.href && (
-                <ArrowRight className="h-3.5 w-3.5 text-[var(--text-muted)] group-hover:text-[var(--color-primary)] group-hover:translate-x-0.5 transition-all shrink-0" />
+                <ArrowRight className="h-3.5 w-3.5 text-[var(--text-muted)] group-hover:text-[var(--color-primary-ink)] group-hover:translate-x-0.5 transition-all shrink-0" />
               )}
             </div>
           );

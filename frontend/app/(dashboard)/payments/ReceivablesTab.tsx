@@ -126,7 +126,7 @@ export function ReceivablesTab({ onCollect }: { onCollect: (memberId: string) =>
                   e.stopPropagation();
                   void sendWompiLink(r);
                 }}
-                className="h-8 w-8 rounded-lg border border-[var(--border-base)] flex items-center justify-center text-[var(--text-muted)] hover:text-[var(--color-primary)] hover:border-[var(--color-primary)]/50 transition-ui disabled:opacity-50"
+                className="h-8 w-8 rounded-lg border border-[var(--border-base)] flex items-center justify-center text-[var(--text-muted)] hover:text-[var(--color-primary-ink)] hover:border-[var(--color-primary)]/50 transition-ui disabled:opacity-50"
               >
                 {linkBusy === `${r.member_id}-${r.kind}` ? (
                   <Loader2 className="h-4 w-4 animate-spin" />
@@ -170,7 +170,7 @@ export function ReceivablesTab({ onCollect }: { onCollect: (memberId: string) =>
     <GlassCard className="p-4 space-y-4">
       <div className="flex items-center justify-between gap-3 flex-wrap">
         <div className="flex items-center gap-2">
-          <Wallet className="h-4 w-4 text-[var(--color-primary)]" />
+          <Wallet className="h-4 w-4 text-[var(--color-primary-ink)]" />
           <h2 className="text-sm font-semibold text-[var(--text-base)]">Cuentas por cobrar</h2>
         </div>
         {receivables.data.length > 0 && (

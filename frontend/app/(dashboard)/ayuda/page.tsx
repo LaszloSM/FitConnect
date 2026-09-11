@@ -151,13 +151,13 @@ export default function AyudaPage() {
           return (
             <GlassCard key={g.title} className="p-5 space-y-3">
               <h3 className="text-base font-semibold text-[var(--text-base)] flex items-center gap-2">
-                <Icon className="h-4 w-4 text-[var(--color-primary)]" />
+                <Icon className="h-4 w-4 text-[var(--color-primary-ink)]" />
                 {g.title}
               </h3>
               <ol className="space-y-2">
                 {g.steps.map((s, i) => (
                   <li key={i} className="flex gap-2.5 text-sm text-[var(--text-muted)]">
-                    <span className="shrink-0 h-5 w-5 rounded-full bg-[var(--color-primary-muted)] text-[var(--color-primary)] text-xs font-semibold flex items-center justify-center">
+                    <span className="shrink-0 h-5 w-5 rounded-full bg-[var(--color-primary-muted)] text-[var(--color-primary-ink)] text-xs font-semibold flex items-center justify-center">
                       {i + 1}
                     </span>
                     <span className="leading-relaxed">{s}</span>

@@ -96,7 +96,7 @@ function QRCodeDisplay({ qrCode, memberName, className }: QRCodeDisplayProps) {
         <button
           type="button"
           onClick={downloadQR}
-          className="flex-1 flex items-center justify-center gap-2 h-9 rounded-lg border border-[var(--border-base)] bg-[var(--bg-muted)] text-sm font-medium text-[var(--text-base)] hover:bg-[var(--color-primary-muted)] hover:border-[var(--color-primary)] hover:text-[var(--color-primary)] transition-colors"
+          className="flex-1 flex items-center justify-center gap-2 h-9 rounded-lg border border-[var(--border-base)] bg-[var(--bg-muted)] text-sm font-medium text-[var(--text-base)] hover:bg-[var(--color-primary-muted)] hover:border-[var(--color-primary)] hover:text-[var(--color-primary-ink)] transition-colors"
         >
           <Download className="size-4" />
           Descargar QR
@@ -104,7 +104,7 @@ function QRCodeDisplay({ qrCode, memberName, className }: QRCodeDisplayProps) {
         <button
           type="button"
           onClick={printQR}
-          className="flex-1 flex items-center justify-center gap-2 h-9 rounded-lg border border-[var(--border-base)] bg-[var(--bg-muted)] text-sm font-medium text-[var(--text-base)] hover:bg-[var(--color-primary-muted)] hover:border-[var(--color-primary)] hover:text-[var(--color-primary)] transition-colors"
+          className="flex-1 flex items-center justify-center gap-2 h-9 rounded-lg border border-[var(--border-base)] bg-[var(--bg-muted)] text-sm font-medium text-[var(--text-base)] hover:bg-[var(--color-primary-muted)] hover:border-[var(--color-primary)] hover:text-[var(--color-primary-ink)] transition-colors"
         >
           <Printer className="size-4" />
           Imprimir

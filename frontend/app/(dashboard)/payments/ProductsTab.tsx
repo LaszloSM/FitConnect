@@ -292,7 +292,7 @@ export function ProductsTab() {
       <GlassCard className="p-4 space-y-4">
         <div className="flex items-center justify-between gap-3 flex-wrap">
           <div className="flex items-center gap-2">
-            <Package className="h-4 w-4 text-[var(--color-primary)]" />
+            <Package className="h-4 w-4 text-[var(--color-primary-ink)]" />
             <div>
               <h2 className="text-sm font-semibold text-[var(--text-base)]">Inventario</h2>
               <p className="text-xs text-[var(--text-muted)]">
@@ -396,7 +396,7 @@ export function ProductsTab() {
             title="Sin productos"
             description="Agrega lo que vendes en mostrador: agua, proteína, accesorios..."
             action={
-              <Button onClick={openCreate} className="bg-[var(--color-primary)] text-[var(--color-primary-contrast)] hover:bg-[var(--color-primary-hover)]">
+              <Button onClick={openCreate}>
                 <Plus className="h-4 w-4 mr-2" /> Nuevo producto
               </Button>
             }

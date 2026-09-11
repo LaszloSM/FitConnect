@@ -95,7 +95,7 @@ export default function IntegrationsSection() {
       {/* Wompi */}
       <GlassCard className="p-6 space-y-4">
         <div className="flex items-center gap-2">
-          <CreditCard className="h-4 w-4 text-[var(--color-primary)]" />
+          <CreditCard className="h-4 w-4 text-[var(--color-primary-ink)]" />
           <h3 className="text-sm font-semibold text-[var(--text-base)]">Wompi (cobros en línea)</h3>
           {status?.wompi_configured && (
             <span className="ml-auto inline-flex items-center gap-1 text-xs text-emerald-600 dark:text-emerald-400">
@@ -129,7 +129,7 @@ export default function IntegrationsSection() {
             URL del webhook (configúrala en tu panel Wompi): <code className="text-[var(--text-base)]">{typeof window !== "undefined" ? window.location.origin.replace(":3000", ":8000") : ""}/api/v1/webhooks/wompi</code>
           </div>
           <div className="flex justify-end">
-            <Button type="submit" disabled={savingWompi} className="bg-[var(--color-primary)] text-[var(--color-primary-contrast)] font-semibold hover:bg-[var(--color-primary-hover)]">
+            <Button type="submit" disabled={savingWompi}>
               {savingWompi ? "Guardando..." : "Guardar Wompi"}
             </Button>
           </div>
@@ -162,7 +162,7 @@ export default function IntegrationsSection() {
             </div>
           </div>
           <div className="flex justify-end">
-            <Button type="submit" disabled={savingWa} className="bg-[var(--color-primary)] text-[var(--color-primary-contrast)] font-semibold hover:bg-[var(--color-primary-hover)]">
+            <Button type="submit" disabled={savingWa}>
               {savingWa ? "Guardando..." : "Guardar WhatsApp"}
             </Button>
           </div>

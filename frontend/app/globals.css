@@ -1,6 +1,47 @@
 @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&family=DM+Mono:wght@400;500&display=swap');
 @import "tailwindcss";
 
+/* ── Puente con Tailwind ─────────────────────────────────────────────────────
+   Tailwind v4 NO lee `tailwind.config.ts` salvo con un `@config` explícito, así
+   que durante meses `bg-primary`, `text-muted-foreground`, `shadow-glow` y
+   `font-display` generaron CERO CSS: los componentes que los usaban salían sin
+   fondo y cada pantalla los reemplazaba a mano con `bg-[var(--color-primary)]`.
+   Declarar los tokens aquí los convierte en utilidades reales, y como apuntan a
+   las mismas CSS vars que `.dark` redefine, el tema cambia solo.             */
+@theme inline {
+  --color-primary: var(--brand-volt);
+  --color-primary-hover: var(--brand-volt-hover);
+  --color-primary-muted: var(--brand-volt-muted);
+  --color-primary-contrast: var(--brand-volt-contrast);
+  --color-primary-ink: var(--brand-volt-ink);
+
+  --color-surface: var(--bg-base);
+  --color-panel: var(--bg-card);
+  --color-sidebar: var(--bg-sidebar);
+  --color-field: var(--bg-input);
+  --color-muted: var(--bg-muted);
+
+  --color-ink: var(--text-base);
+  --color-ink-muted: var(--text-muted);
+  --color-ink-subtle: var(--text-subtle);
+  --color-ink-placeholder: var(--text-placeholder);
+
+  --color-line: var(--border-base);
+
+  --font-sans: 'Plus Jakarta Sans', ui-sans-serif, system-ui, sans-serif;
+  --font-mono: 'DM Mono', ui-monospace, SFMono-Regular, monospace;
+  /* `font-display` se usa en 14 sitios (las cifras grandes) y no existía. */
+  --font-display: 'Plus Jakarta Sans', ui-sans-serif, system-ui, sans-serif;
+
+  /* Sombras que el marcado ya nombraba y no existían. */
+  --shadow-card: var(--elev-card);
+  --shadow-card-hover: var(--elev-card-high);
+
+  /* `shadow-glow` es la prop `glow` de GlassCard, que no hacía nada. */
+  --shadow-glow: 0 0 0 1px color-mix(in oklch, var(--color-primary) 35%, transparent),
+                 0 8px 32px -8px color-mix(in oklch, var(--color-primary) 30%, transparent);
+}
+
 /* ── Keyframes — defined here so raw CSS animation: references work ── */
 @keyframes fadeInUp {
   0% { opacity: 0; transform: translateY(10px); }
@@ -29,32 +70,44 @@
   --border-base: oklch(0.90 0.004 150);
   --text-base: oklch(0.20 0.012 150);
   --text-muted: oklch(0.50 0.008 150);
-  --text-subtle: oklch(0.65 0.006 150);
-  --text-placeholder: oklch(0.70 0.006 150);
-  --shadow-card: 0 1px 3px 0 rgb(0 0 0 / 0.08), 0 1px 2px -1px rgb(0 0 0 / 0.06);
-  --shadow-card-elevated: 0 4px 6px -1px rgb(0 0 0 / 0.08), 0 2px 4px -2px rgb(0 0 0 / 0.06);
+  --text-subtle: oklch(0.55 0.006 150);
+  --text-placeholder: oklch(0.66 0.006 150);
+  --elev-card: 0 1px 3px 0 rgb(0 0 0 / 0.08), 0 1px 2px -1px rgb(0 0 0 / 0.06);
+  --elev-card-high: 0 4px 6px -1px rgb(0 0 0 / 0.08), 0 2px 4px -2px rgb(0 0 0 / 0.06);
   --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
   --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
   --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
   --shadow-dialog: 0 20px 60px -10px rgb(0 0 0 / 0.15), 0 8px 20px -4px rgb(0 0 0 / 0.08);
+  --shadow-card: var(--elev-card);
+  --shadow-card-elevated: var(--elev-card-high);
   --skeleton-highlight: oklch(0.93 0.004 150);
 
-  /* Brand — Volt (lime green) */
-  --color-primary: oklch(0.78 0.19 128);
-  --color-primary-hover: oklch(0.72 0.20 128);
-  --color-primary-muted: oklch(0.96 0.05 128);
-  --color-primary-contrast: oklch(0.22 0.05 128); /* near-black text on Volt fills */
+  /* Brand — Volt (lime green).
+     Los valores viven en vars privadas `--brand-*` y las públicas son alias:
+     así el puente @theme puede apuntar a ellos sin declarar un ciclo. */
+  --brand-volt: oklch(0.78 0.19 128);
+  --brand-volt-hover: oklch(0.72 0.20 128);
+  --brand-volt-muted: oklch(0.96 0.05 128);
+  --brand-volt-contrast: oklch(0.22 0.05 128); /* near-black text on Volt fills */
+  /* Volt como TEXTO: el relleno da 1.9:1 sobre tarjeta blanca, ilegible. */
+  --brand-volt-ink: oklch(0.52 0.19 128);
+
+  --color-primary: var(--brand-volt);
+  --color-primary-hover: var(--brand-volt-hover);
+  --color-primary-muted: var(--brand-volt-muted);
+  --color-primary-contrast: var(--brand-volt-contrast);
+  --color-primary-ink: var(--brand-volt-ink);
 
   /* Per-module accents (solid) — eyebrow / borders / focus context */
-  --accent-dashboard: oklch(0.78 0.19 128); /* volt   */
-  --accent-members:   oklch(0.70 0.12 195); /* teal   */
-  --accent-checkins:  oklch(0.68 0.15 235); /* sky    */
-  --accent-classes:   oklch(0.62 0.20 295); /* violet */
-  --accent-machines:  oklch(0.74 0.15 75);  /* amber  */
-  --accent-payments:  oklch(0.70 0.16 155); /* emerald*/
-  --accent-plans:     oklch(0.68 0.24 350); /* fuchsia*/
-  --accent-reports:   oklch(0.58 0.20 275); /* indigo */
-  --accent-settings:  oklch(0.60 0.02 150); /* slate  */
+  --accent-dashboard: oklch(0.54 0.19 128); /* volt   */
+  --accent-members:   oklch(0.53 0.12 195); /* teal   */
+  --accent-checkins:  oklch(0.54 0.15 235); /* sky    */
+  --accent-classes:   oklch(0.57 0.20 295); /* violet */
+  --accent-machines:  oklch(0.56 0.15 75);  /* amber  */
+  --accent-payments:  oklch(0.53 0.16 155); /* emerald*/
+  --accent-plans:     oklch(0.58 0.24 350); /* fuchsia*/
+  --accent-reports:   oklch(0.55 0.20 275); /* indigo */
+  --accent-settings:  oklch(0.55 0.02 150); /* slate  */
 
   --radius-sm: 0.375rem;
   --radius-md: 0.625rem;
@@ -72,20 +125,25 @@
   --bg-sidebar: oklch(0.11 0.012 150);
   --bg-input: oklch(0.18 0.012 150);
   --bg-muted: oklch(0.20 0.010 150);
-  --border-base: oklch(0.24 0.010 150);
+  --border-base: oklch(0.29 0.010 150);
   --text-base: oklch(0.96 0.006 150);
   --text-muted: oklch(0.66 0.010 150);
-  --text-subtle: oklch(0.50 0.008 150);
-  --text-placeholder: oklch(0.45 0.008 150);
-  --shadow-card: 0 1px 3px 0 rgb(0 0 0 / 0.35), 0 1px 2px -1px rgb(0 0 0 / 0.25);
-  --shadow-card-elevated: 0 4px 6px -1px rgb(0 0 0 / 0.32), 0 2px 4px -2px rgb(0 0 0 / 0.22);
+  --text-subtle: oklch(0.60 0.008 150);
+  --text-placeholder: oklch(0.50 0.008 150);
+  --elev-card: 0 1px 3px 0 rgb(0 0 0 / 0.35), 0 1px 2px -1px rgb(0 0 0 / 0.25);
+  --elev-card-high: 0 4px 6px -1px rgb(0 0 0 / 0.32), 0 2px 4px -2px rgb(0 0 0 / 0.22);
   --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.25);
   --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.4), 0 2px 4px -2px rgb(0 0 0 / 0.3);
   --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.45), 0 4px 6px -4px rgb(0 0 0 / 0.35);
   --shadow-dialog: 0 20px 60px -10px rgb(0 0 0 / 0.65), 0 8px 20px -4px rgb(0 0 0 / 0.45);
+  --shadow-card: var(--elev-card);
+  --shadow-card-elevated: var(--elev-card-high);
   --skeleton-highlight: oklch(0.27 0.010 150);
 
-  --color-primary-muted: oklch(0.24 0.06 128);
+  --brand-volt-muted: oklch(0.24 0.06 128);
+  /* En oscuro el volt de relleno ya se lee sobre la tarjeta (10:1), así que
+     --brand-volt no cambia; el ink sí, para que el texto no deslumbre. */
+  --brand-volt-ink: oklch(0.80 0.19 128);
 
   /* Per-module accents — slightly brighter for dark surfaces */
   --accent-dashboard: oklch(0.82 0.20 128);

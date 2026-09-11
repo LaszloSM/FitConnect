@@ -123,7 +123,7 @@ export default function RoutinesClient() {
         title="Rutinas"
         subtitle={facets.data ? `Biblioteca de ${facets.data.total} ejercicios con animación. Arma rutinas, asígnalas a socios y muéstralas en la pantalla del gym.` : "Arma rutinas con la biblioteca de ejercicios"}
         action={isOwnerOrAdmin ? (
-          <Button onClick={openNew} className="bg-[var(--color-primary)] text-[var(--color-primary-contrast)] font-semibold hover:bg-[var(--color-primary-hover)]">
+          <Button onClick={openNew}>
             <Plus className="h-4 w-4 mr-2" /> Nueva rutina
           </Button>
         ) : undefined}
@@ -166,10 +166,10 @@ export default function RoutinesClient() {
       )}
 
       <GlassCard className="p-4 flex items-start gap-3">
-        <MonitorPlay className="h-5 w-5 text-[var(--color-primary)] shrink-0 mt-0.5" />
+        <MonitorPlay className="h-5 w-5 text-[var(--color-primary-ink)] shrink-0 mt-0.5" />
         <div className="text-sm text-[var(--text-muted)]">
           <p className="text-[var(--text-base)] font-medium">Pantalla del gym</p>
-          Las rutinas marcadas "En pantalla" se ven en <code className="text-xs">/screen</code> con el mismo enlace de dispositivo del kiosko (Ajustes › Kiosko). Ideal para una TV o tablet en el salón: cada socio toca una rutina y ve el movimiento de cada ejercicio.
+          Las rutinas marcadas &ldquo;En pantalla&rdquo; se ven en <code className="text-xs">/screen</code> con el mismo enlace de dispositivo del kiosko (Ajustes › Kiosko). Ideal para una TV o tablet en el salón: cada socio toca una rutina y ve el movimiento de cada ejercicio.
         </div>
       </GlassCard>
     </motion.div>
@@ -227,7 +227,7 @@ function RoutineEditor({ form, facets, onChange, onCancel, onSave, saving, isNew
         <div className="flex items-center gap-2">
           <span className="text-xs text-[var(--text-muted)]">{form.days.length} día{form.days.length === 1 ? "" : "s"} · {totalExercises} ejercicio{totalExercises === 1 ? "" : "s"}</span>
           <Button variant="outline" onClick={onCancel}>Cancelar</Button>
-          <Button onClick={onSave} disabled={saving} className="bg-[var(--color-primary)] text-[var(--color-primary-contrast)] font-semibold hover:bg-[var(--color-primary-hover)]">
+          <Button onClick={onSave} disabled={saving}>
             {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : isNew ? "Crear rutina" : "Guardar cambios"}
           </Button>
         </div>
@@ -284,7 +284,7 @@ function RoutineEditor({ form, facets, onChange, onCancel, onSave, saving, isNew
                     <ExerciseFigure images={x.exercise.images} videoUrl={x.exercise.video_url} alt={x.exercise.name_es} size="sm" />
                     <div className="flex-1 min-w-0 space-y-1.5">
                       <div className="flex items-center justify-between gap-2">
-                        <button type="button" onClick={() => setPreview(x.exercise)} className="text-sm font-semibold text-[var(--text-base)] truncate hover:text-[var(--color-primary)] text-left">{x.exercise.name_es}</button>
+                        <button type="button" onClick={() => setPreview(x.exercise)} className="text-sm font-semibold text-[var(--text-base)] truncate hover:text-[var(--color-primary-ink)] text-left">{x.exercise.name_es}</button>
                         <div className="flex items-center gap-0.5 shrink-0">
                           <button type="button" onClick={() => move(x.key, -1)} className="h-6 w-6 rounded-md text-[var(--text-muted)] hover:text-[var(--text-base)] flex items-center justify-center"><ArrowUp className="h-3 w-3" /></button>
                           <button type="button" onClick={() => move(x.key, 1)} className="h-6 w-6 rounded-md text-[var(--text-muted)] hover:text-[var(--text-base)] flex items-center justify-center"><ArrowDown className="h-3 w-3" /></button>
@@ -323,7 +323,7 @@ function RoutineEditor({ form, facets, onChange, onCancel, onSave, saving, isNew
               <div key={e.id} className="flex items-center gap-2.5 rounded-xl border border-[var(--border-base)] bg-[var(--bg-base)] p-2 group">
                 <ExerciseFigure images={e.images} videoUrl={e.video_url} alt={e.name_es} size="sm" />
                 <button type="button" onClick={() => setPreview(e)} className="flex-1 min-w-0 text-left">
-                  <p className="text-xs font-semibold text-[var(--text-base)] truncate group-hover:text-[var(--color-primary)]">{e.name_es}</p>
+                  <p className="text-xs font-semibold text-[var(--text-base)] truncate group-hover:text-[var(--color-primary-ink)]">{e.name_es}</p>
                   <p className="text-[10px] text-[var(--text-muted)] truncate">{e.primary_muscles_es.join(", ")} · {e.equipment_es} · {e.level_es}</p>
                 </button>
                 <button type="button" onClick={() => addExercise(e)} className="h-7 w-7 rounded-lg bg-[var(--color-primary)] text-[var(--color-primary-contrast)] flex items-center justify-center shrink-0 hover:bg-[var(--color-primary-hover)]" title="Agregar al día"><Plus className="h-4 w-4" /></button>

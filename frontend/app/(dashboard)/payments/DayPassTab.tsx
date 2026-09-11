@@ -185,7 +185,7 @@ export function DayPassTab({ onSold }: { onSold?: () => void }) {
       header: "Pase",
       cell: (p) => (
         <span className="text-[var(--text-muted)] flex items-center gap-1.5">
-          {p.includes_trainer && <Dumbbell className="h-3.5 w-3.5 text-[var(--color-primary)]" />}
+          {p.includes_trainer && <Dumbbell className="h-3.5 w-3.5 text-[var(--color-primary-ink)]" />}
           {p.pass_name}
         </span>
       ),
@@ -222,7 +222,7 @@ export function DayPassTab({ onSold }: { onSold?: () => void }) {
               type="button"
               title="Imprimir recibo"
               onClick={() => openReceipt(client(), p.payment_id!)}
-              className="h-7 w-7 rounded-lg flex items-center justify-center text-[var(--text-muted)] hover:text-[var(--color-primary)] hover:bg-[var(--bg-base)] transition-colors"
+              className="h-7 w-7 rounded-lg flex items-center justify-center text-[var(--text-muted)] hover:text-[var(--color-primary-ink)] hover:bg-[var(--bg-base)] transition-colors"
             >
               <Printer className="h-3.5 w-3.5" />
             </button>
@@ -245,7 +245,7 @@ export function DayPassTab({ onSold }: { onSold?: () => void }) {
 
       <GlassCard className="p-4 lg:col-span-2 space-y-4 self-start">
         <div className="flex items-center gap-2">
-          <Ticket className="h-4 w-4 text-[var(--color-primary)]" />
+          <Ticket className="h-4 w-4 text-[var(--color-primary-ink)]" />
           <h2 className="text-sm font-semibold text-[var(--text-base)]">Vender pase del día</h2>
         </div>
 
@@ -254,7 +254,7 @@ export function DayPassTab({ onSold }: { onSold?: () => void }) {
             <p className="text-sm text-[var(--text-muted)]">Aún no tienes tipos de pase.</p>
             <Link
               href="/settings?tab=daypass"
-              className="text-sm font-semibold text-[var(--color-primary)] hover:underline"
+              className="text-sm font-semibold text-[var(--color-primary-ink)] hover:underline"
             >
               Crear tipos de pase en Ajustes › Pases
             </Link>
@@ -314,7 +314,7 @@ export function DayPassTab({ onSold }: { onSold?: () => void }) {
                     )}
                   >
                     <span className="flex items-center gap-2">
-                      {t.includes_trainer && <Dumbbell className="h-3.5 w-3.5 text-[var(--color-primary)]" />}
+                      {t.includes_trainer && <Dumbbell className="h-3.5 w-3.5 text-[var(--color-primary-ink)]" />}
                       {t.name}
                     </span>
                     <span className="font-mono font-semibold">{formatCOP(t.price)}</span>

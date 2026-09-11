@@ -197,7 +197,7 @@ function DatePicker({
                   className={cn(
                     "flex size-8 mx-auto items-center justify-center rounded-full text-sm transition-colors",
                     selected && "bg-[var(--color-primary)] text-[var(--color-primary-contrast)] font-semibold",
-                    !selected && todayDay && "border-2 border-[var(--color-primary)] text-[var(--color-primary)] font-semibold",
+                    !selected && todayDay && "border-2 border-[var(--color-primary)] text-[var(--color-primary-ink)] font-semibold",
                     !selected && !todayDay && !disabled && "text-[var(--text-base)] hover:bg-[var(--bg-muted)]",
                     disabled && "opacity-30 cursor-not-allowed"
                   )}

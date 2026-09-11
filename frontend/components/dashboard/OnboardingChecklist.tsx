@@ -68,7 +68,7 @@ export function OnboardingChecklist() {
             <button
               type="button"
               onClick={() => window.dispatchEvent(new Event("fitconnect:start-tour"))}
-              className="text-xs font-medium text-[var(--color-primary)] hover:underline"
+              className="text-xs font-medium text-[var(--color-primary-ink)] hover:underline"
             >
               Ver tutorial
             </button>
@@ -114,7 +114,7 @@ export function OnboardingChecklist() {
                   {!done && <p className="text-xs text-[var(--text-muted)]">{step.hint}</p>}
                 </div>
                 {!done && (
-                  <ArrowRight className="h-4 w-4 text-[var(--text-muted)] group-hover:text-[var(--color-primary)] group-hover:translate-x-0.5 transition-all shrink-0" />
+                  <ArrowRight className="h-4 w-4 text-[var(--text-muted)] group-hover:text-[var(--color-primary-ink)] group-hover:translate-x-0.5 transition-all shrink-0" />
                 )}
               </Link>
             );

@@ -240,7 +240,7 @@ export default function MachinesClient() {
           action={
             <DialogTrigger
               render={
-                <Button className="bg-[var(--color-primary)] text-[var(--color-primary-contrast)] hover:bg-[var(--color-primary-hover)]">
+                <Button>
                   <Plus className="h-4 w-4 mr-2" />
                   Nueva máquina
                 </Button>
@@ -361,7 +361,6 @@ export default function MachinesClient() {
               <Button
                 type="submit"
                 disabled={submitting}
-                className="bg-[var(--color-primary)] text-[var(--color-primary-contrast)] font-semibold hover:bg-[var(--color-primary-hover)]"
               >
                 {submitting ? "Creando..." : "Crear máquina"}
               </Button>

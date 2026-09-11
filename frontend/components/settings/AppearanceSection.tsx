@@ -92,7 +92,7 @@ export default function AppearanceSection() {
                 <p
                   className={cn(
                     "text-sm font-semibold",
-                    isActive ? "text-[var(--color-primary-hover)] dark:text-[var(--color-primary)]" : "text-[var(--text-base)]"
+                    isActive ? "text-[var(--color-primary-hover)] dark:text-[var(--color-primary-ink)]" : "text-[var(--text-base)]"
                   )}
                 >
                   {t.label}

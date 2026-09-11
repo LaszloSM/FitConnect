@@ -652,7 +652,7 @@ export default function MembersClient() {
               <MemberImportDialog onImported={() => fetchMembers(0)} />
               <DialogTrigger
                 render={
-                  <Button onClick={openCreate} className="bg-[var(--color-primary)] text-[var(--color-primary-contrast)] hover:bg-[var(--color-primary-hover)]">
+                  <Button onClick={openCreate}>
                     <Plus className="h-4 w-4 mr-2" />
                     Nuevo miembro
                   </Button>
@@ -691,7 +691,7 @@ export default function MembersClient() {
                     {currentMembership ? (
                       <div className="space-y-2">
                         <div className="flex items-center gap-2">
-                          <Tag className="h-4 w-4 text-[var(--color-primary)]" />
+                          <Tag className="h-4 w-4 text-[var(--color-primary-ink)]" />
                           <span className="font-semibold text-[var(--text-base)]">{currentMembership.plan_name}</span>
                           <MembershipStatusBadge
                             status={new Date(currentMembership.end_date) >= new Date() ? "ok" : "expired"}
@@ -782,7 +782,7 @@ export default function MembersClient() {
                           className={cn(
                             "h-7 w-7 rounded-full flex items-center justify-center shrink-0 border transition-colors",
                             done && "bg-[var(--color-primary)] border-[var(--color-primary)] text-[var(--color-primary-contrast)]",
-                            current && "border-[var(--color-primary)] text-[var(--color-primary)]",
+                            current && "border-[var(--color-primary)] text-[var(--color-primary-ink)]",
                             !done && !current && "border-[var(--border-base)] text-[var(--text-muted)]"
                           )}
                         >
@@ -812,7 +812,7 @@ export default function MembersClient() {
                         <input type="checkbox" checked={consentData} onChange={(e) => setConsentData(e.target.checked)} className="mt-0.5 h-4 w-4 accent-[var(--color-primary)]" />
                         <span>
                           El socio acepta la{" "}
-                          <a href="/tratamiento-datos" target="_blank" rel="noopener noreferrer" className="font-semibold text-[var(--color-primary)] hover:underline">política de tratamiento de datos personales</a>{" "}
+                          <a href="/tratamiento-datos" target="_blank" rel="noopener noreferrer" className="font-semibold text-[var(--color-primary-ink)] hover:underline">política de tratamiento de datos personales</a>{" "}
                           (Ley 1581 de 2012). Queda registrada la fecha de aceptación.
                         </span>
                       </label>
@@ -888,7 +888,7 @@ export default function MembersClient() {
             <div className="flex items-center justify-between gap-2 pt-4 mt-2 border-t border-[var(--border-base)]">
               <Button type="button" variant="ghost" onClick={() => setDialogOpen(false)} className="text-[var(--text-muted)]">Cancelar</Button>
               {editing ? (
-                <Button type="submit" disabled={submitting} className="bg-[var(--color-primary)] text-[var(--color-primary-contrast)] font-semibold hover:bg-[var(--color-primary-hover)]">
+                <Button type="submit" disabled={submitting}>
                   {submitting ? "Guardando..." : "Guardar cambios"}
                 </Button>
               ) : (
@@ -899,11 +899,11 @@ export default function MembersClient() {
                     </Button>
                   )}
                   {step < 2 ? (
-                    <Button type="button" onClick={goNext} className="bg-[var(--color-primary)] text-[var(--color-primary-contrast)] font-semibold hover:bg-[var(--color-primary-hover)]">
+                    <Button type="button" onClick={goNext}>
                       Siguiente
                     </Button>
                   ) : (
-                    <Button type="submit" disabled={submitting} className="bg-[var(--color-primary)] text-[var(--color-primary-contrast)] font-semibold hover:bg-[var(--color-primary-hover)]">
+                    <Button type="submit" disabled={submitting}>
                       {submitting ? "Creando..." : "Crear socio"}
                     </Button>
                   )}
@@ -1009,7 +1009,7 @@ export default function MembersClient() {
                       title="Sin miembros"
                       description="Crea tu primer miembro para comenzar"
                       action={
-                        <Button onClick={openCreate} className="bg-[var(--color-primary)] text-[var(--color-primary-contrast)] hover:bg-[var(--color-primary-hover)]">
+                        <Button onClick={openCreate}>
                           <Plus className="h-4 w-4 mr-2" />
                           Nuevo miembro
                         </Button>
@@ -1045,7 +1045,7 @@ export default function MembersClient() {
                     <TableCell className="text-[var(--text-muted)]">{m.email ?? "—"}</TableCell>
                     <TableCell className="text-[var(--text-muted)]">{m.phone || "-"}</TableCell>
                     <TableCell className="text-[var(--text-muted)]">
-                      {m.id_type && <span className="text-xs font-medium text-[var(--color-primary)] mr-1">{m.id_type}</span>}
+                      {m.id_type && <span className="text-xs font-medium text-[var(--color-primary-ink)] mr-1">{m.id_type}</span>}
                       {m.id_number || "-"}
                     </TableCell>
                     <TableCell onClick={(e) => e.stopPropagation()}>
@@ -1085,7 +1085,7 @@ export default function MembersClient() {
                         <Button
                           variant="ghost"
                           size="icon"
-                          className="text-[var(--text-muted)] hover:text-[var(--color-primary)]"
+                          className="text-[var(--text-muted)] hover:text-[var(--color-primary-ink)]"
                           onClick={(e) => { e.stopPropagation(); setQrMember(m); }}
                           title="Ver QR"
                         >

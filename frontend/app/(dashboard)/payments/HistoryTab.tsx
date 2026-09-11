@@ -271,7 +271,7 @@ export function HistoryTab({ refreshSignal }: { refreshSignal: number }) {
               <button
                 onClick={() => openReceiptPdf(apiClient(session.accessToken as string), p.id)}
                 title="Comprobante PDF"
-                className="h-7 w-7 rounded-lg flex items-center justify-center text-[var(--text-muted)] hover:text-[var(--color-primary)] hover:bg-[var(--bg-base)] transition-colors"
+                className="h-7 w-7 rounded-lg flex items-center justify-center text-[var(--text-muted)] hover:text-[var(--color-primary-ink)] hover:bg-[var(--bg-base)] transition-colors"
               >
                 <FileText className="h-3.5 w-3.5" />
               </button>

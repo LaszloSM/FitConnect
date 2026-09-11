@@ -38,7 +38,7 @@ const PLANS: PlanConfig[] = [
     key: "advanced",
     label: "Advanced",
     icon: Star,
-    color: "text-[var(--color-primary)]",
+    color: "text-[var(--color-primary-ink)]",
     features: [
       "Miembros ilimitados",
       "Todo lo de Basic",
@@ -105,7 +105,7 @@ export default function PlanSection() {
                   <div className="flex items-center gap-2">
                     <p className="text-[var(--text-base)] font-semibold">{plan.label}</p>
                     {isActive && (
-                      <span className="px-2 py-0.5 bg-[var(--color-primary-muted)] dark:bg-[var(--color-primary)]/30 text-[var(--color-primary)] dark:text-[var(--color-primary)] text-xs rounded-full font-medium">
+                      <span className="px-2 py-0.5 bg-[var(--color-primary-muted)] dark:bg-[var(--color-primary)]/30 text-[var(--color-primary-ink)] dark:text-[var(--color-primary-ink)] text-xs rounded-full font-medium">
                         Activo
                       </span>
                     )}
@@ -125,7 +125,7 @@ export default function PlanSection() {
                 <Button
                   variant="outline"
                   size="sm"
-                  className="shrink-0 border-[var(--border-base)] text-[var(--text-muted)] hover:text-[var(--text-base)] hover:border-[var(--color-primary)] hover:text-[var(--color-primary)]"
+                  className="shrink-0 border-[var(--border-base)] text-[var(--text-muted)] hover:border-[var(--color-primary)] hover:text-[var(--color-primary-ink)]"
                   onClick={() => {
                     // Placeholder — upgrade flow would open here
                   }}

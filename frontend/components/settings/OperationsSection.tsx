@@ -167,7 +167,6 @@ export default function OperationsSection() {
             <Button
               type="submit"
               disabled={savingOps}
-              className="bg-[var(--color-primary)] text-[var(--color-primary-contrast)] font-semibold hover:bg-[var(--color-primary-hover)]"
             >
               {savingOps ? "Guardando..." : "Guardar cambios"}
             </Button>
@@ -242,7 +241,6 @@ export default function OperationsSection() {
               <Button
                 type="submit"
                 disabled={savingLocation}
-                className="bg-[var(--color-primary)] text-[var(--color-primary-contrast)] font-semibold hover:bg-[var(--color-primary-hover)]"
               >
                 {savingLocation ? <Loader2 className="h-4 w-4 animate-spin" /> : "Crear sede"}
               </Button>

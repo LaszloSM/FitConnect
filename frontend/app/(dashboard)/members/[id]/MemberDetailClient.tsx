@@ -301,7 +301,7 @@ export default function MemberDetailClient({ memberId }: { memberId: string }) {
       <div className="flex flex-col items-center justify-center py-20 gap-3">
         <BadgeX className="h-10 w-10 text-[var(--text-muted)]" />
         <p className="text-[var(--text-muted)] text-sm">Miembro no encontrado</p>
-        <button onClick={() => router.back()} className="text-xs text-[var(--color-primary)] hover:underline">Volver</button>
+        <button onClick={() => router.back()} className="text-xs text-[var(--color-primary-ink)] hover:underline">Volver</button>
       </div>
     );
   }
@@ -416,7 +416,7 @@ export default function MemberDetailClient({ memberId }: { memberId: string }) {
                     <Button type="button" variant="ghost" onClick={() => setEditOpen(false)} className="text-[var(--text-muted)]">
                       Cancelar
                     </Button>
-                    <Button type="submit" disabled={editSaving} className="bg-[var(--color-primary)] text-[var(--color-primary-contrast)] hover:bg-[var(--color-primary-hover)]">
+                    <Button type="submit" disabled={editSaving}>
                       {editSaving ? <Loader2 className="h-4 w-4 animate-spin" /> : "Guardar cambios"}
                     </Button>
                   </div>
@@ -493,7 +493,7 @@ export default function MemberDetailClient({ memberId }: { memberId: string }) {
             onClick={() => setTab(key)}
             className={`flex items-center gap-1.5 px-4 py-2 text-xs font-medium border-b-2 -mb-px transition-colors ${
               tab === key
-                ? "border-[var(--color-primary)] text-[var(--color-primary)]"
+                ? "border-[var(--color-primary)] text-[var(--color-primary-ink)]"
                 : "border-transparent text-[var(--text-muted)] hover:text-[var(--text-base)]"
             }`}
           >
@@ -739,7 +739,7 @@ export default function MemberDetailClient({ memberId }: { memberId: string }) {
                       <button
                         type="button"
                         onClick={() => setShowDiscount(!showDiscount)}
-                        className="text-xs text-[var(--color-primary)] hover:underline"
+                        className="text-xs text-[var(--color-primary-ink)] hover:underline"
                       >
                         {showDiscount ? "− Quitar descuento" : "+ Aplicar descuento o código promo"}
                       </button>

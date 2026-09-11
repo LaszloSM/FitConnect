@@ -54,8 +54,8 @@ const DELTA_DOWN = 'text-rose-600 dark:text-rose-400';
 // Calm cards: neutral surface + colored icon chip + colored sparkline.
 const toneStyles: Record<Tone, ToneStyle> = {
   default: { card: '', value: 'text-[var(--text-base)]', chip: 'bg-[var(--bg-muted)] text-[var(--text-muted)]', spark: 'oklch(0.55 0.010 150)' },
-  primary: { card: '', value: 'text-[var(--text-base)]', chip: 'bg-[var(--color-primary-muted)] text-[var(--color-primary)]', spark: 'oklch(0.78 0.19 128)' },
-  volt:    { card: '', value: 'text-[var(--text-base)]', chip: 'bg-[var(--color-primary-muted)] text-[var(--color-primary)]', spark: 'oklch(0.78 0.19 128)' },
+  primary: { card: '', value: 'text-[var(--text-base)]', chip: 'bg-[var(--color-primary-muted)] text-[var(--color-primary-ink)]', spark: 'oklch(0.78 0.19 128)' },
+  volt:    { card: '', value: 'text-[var(--text-base)]', chip: 'bg-[var(--color-primary-muted)] text-[var(--color-primary-ink)]', spark: 'oklch(0.78 0.19 128)' },
   teal:    { card: '', value: 'text-[var(--text-base)]', chip: 'bg-teal-500/15 text-teal-600 dark:text-teal-400', spark: '#14b8a6' },
   sky:     { card: '', value: 'text-[var(--text-base)]', chip: 'bg-sky-500/15 text-sky-600 dark:text-sky-400', spark: '#0ea5e9' },
   violet:  { card: '', value: 'text-[var(--text-base)]', chip: 'bg-violet-500/15 text-violet-600 dark:text-violet-400', spark: '#8b5cf6' },

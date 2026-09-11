@@ -250,7 +250,7 @@ export function Header() {
                   {unreadCount > 0 && (
                     <button
                       onClick={markAllRead}
-                      className="text-xs text-[var(--color-primary)] hover:underline"
+                      className="text-xs text-[var(--color-primary-ink)] hover:underline"
                     >
                       Marcar leído
                     </button>

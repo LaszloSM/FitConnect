@@ -1,70 +1,76 @@
-# FitConnect — Design System
+# FitConnect — Sistema de color
 
-## Colors
+**La fuente de verdad de los valores es `frontend/app/globals.css`.** Este documento
+tiene las reglas, no los números: durante meses hubo tres documentos con la paleta
+copiada y los tres describían un azul (hue 264) mientras el código era verde
+(hue 150), con un `tailwind.config.ts` que Tailwind v4 ni siquiera leía.
 
-Strategy: **Restrained** with committed Volt accent on primary actions and active states.
+## Cómo funcionan los tokens
 
-### CSS Variables (already defined in globals.css)
-- `--bg-base`: oklch(0.98 0.003 264) / dark: oklch(0.12 0.010 264)
-- `--bg-card`: oklch(1.00 0.00 0) / dark: oklch(0.16 0.008 264)
-- `--bg-sidebar`: oklch(1.00 0.00 0) / dark: oklch(0.14 0.009 264)
-- `--bg-input`: oklch(1.00 0.00 0) / dark: oklch(0.18 0.008 264)
-- `--bg-muted`: oklch(0.96 0.003 264) / dark: oklch(0.19 0.007 264)
-- `--border-base`: oklch(0.90 0.005 264) / dark: oklch(0.25 0.008 264)
-- `--text-base`: oklch(0.20 0.015 264) / dark: oklch(0.95 0.005 264)
-- `--text-muted`: oklch(0.50 0.010 264) / dark: oklch(0.65 0.008 264)
-- `--color-primary`: oklch(0.78 0.19 128) — Volt brand accent
-- `--color-primary-hover`: oklch(0.72 0.20 128)
-- `--color-primary-muted`: oklch(0.96 0.05 128) / dark: oklch(0.20 0.05 47)
+`globals.css` declara las CSS vars en `:root` (claro) y `.dark` (oscuro), y un
+bloque `@theme inline` las publica como utilidades de Tailwind. Por eso
+`bg-primary`, `text-ink-muted` o `border-line` existen de verdad **y** cambian
+solas al alternar el tema: apuntan a la misma var que `.dark` redefine.
 
-### Tailwind semantic colors (tailwind.config.ts)
-- `primary`, `primary-hover`, `primary-light`, `primary-dark`
-- `success` #22C55E, `danger` #EF4444, `warning` #F59E0B, `info` #3B82F6
-- `bg-base`, `bg-card`, `bg-sidebar`, `border-base`, `text-base`, `text-muted`, `text-subtle`
+| Utilidad | Var | Para qué |
+|---|---|---|
+| `bg-primary` / `bg-primary-hover` | `--color-primary` | Rellenos de marca: botón primario, item activo del menú |
+| `text-primary-contrast` | `--color-primary-contrast` | **La única** tinta sobre relleno volt (casi-negro, nunca blanco) |
+| `text-primary-ink` | `--color-primary-ink` | Volt como **texto**: enlaces, acciones en línea, iconos de marca |
+| `bg-base` / `bg-card` / `bg-sidebar` / `bg-input` / `bg-muted` | `--bg-*` | Superficies |
+| `text-ink` / `text-ink-muted` / `text-ink-subtle` | `--text-*` | Jerarquía de texto |
+| `border-line` | `--border-base` | Todos los bordes |
+| `font-display` / `font-mono` | — | Cifras grandes / datos tabulares |
 
-## Typography
-- **Font:** Plus Jakarta Sans (display + body), DM Mono (code/numbers)
-- **Scale:** sm(12)/base(14)/md(16)/lg(18)/xl(20)/2xl(24)/3xl(30)
-- **Weights:** 400 (body), 500 (labels), 600 (headings), 700 (display KPIs)
+### Volt de relleno ≠ volt de texto
 
-## Spacing
-8pt grid. Common values: 4/8/12/16/24/32/48px.
+El volt de marca tiene 1.9:1 contra una tarjeta blanca: como relleno es la
+identidad del producto, como texto es ilegible. Son dos tokens distintos a
+propósito:
 
-## Shadows
-- `--shadow-sm`: subtle lift
-- `--shadow-card` / `--shadow-card-elevated`: card surfaces
-- `--shadow-dialog`: modal/dialog panels
-- `--shadow-md/lg`: intermediate elevation
+```tsx
+<button className="bg-primary text-primary-contrast">Cobrar</button>   {/* relleno */}
+<Link className="text-primary-ink">Ver caja</Link>                      {/* texto   */}
+```
 
-## Border Radius
-- `--radius-sm`: 0.375rem (6px) — badges, inputs
-- `--radius-md`: 0.625rem (10px) — buttons
-- `--radius-lg`: 0.875rem (14px) — cards
-- `--radius-xl`: 1rem (16px) — dialogs, panels
+### Acentos por módulo
 
-## Transitions
-- `--transition-fast`: 150ms expo
-- `--transition-base`: 250ms expo
-- `--transition-slow`: 350ms expo
+`--accent-*` colorea el eyebrow y los iconos de cada módulo (`lib/module-accents.ts`).
+Están calibrados para leerse **como texto** en ambos temas, así que en claro son
+más oscuros de lo que sugiere el nombre del color.
 
-## Components
+## Reglas
 
-### Surfaces
-- `.surface-0`: page background
-- `.surface-1`: cards (border + shadow-card)
-- `.surface-2`: elevated cards (shadow-card-elevated)
+- **Nunca** tokens de shadcn: `text-muted-foreground`, `bg-popover`, `bg-background`,
+  `text-primary-foreground`, `border-input`, `bg-secondary`, `text-foreground`,
+  `bg-destructive`. Este proyecto no los define y generan cero CSS.
+- Sobre un relleno volt va `text-primary-contrast`, nunca `text-white`.
+- Nada de `border-l-4` en banners. Alertas: `bg-{c}-50 dark:bg-{c}-950/20 border border-{c}-200 dark:border-{c}-800/40`.
+- `--text-muted` no baja de 12px: a 10-11px queda al límite de legibilidad.
+- Superficies claras forzadas (tarjetas de login, QR): si fijas `bg-white`, fija
+  también los colores de texto; el ink de marca es claro en modo oscuro y
+  desaparecería.
+- Todo overlay decorativo lleva `pointer-events-none`.
 
-### Forms
-- Input height: h-9 (36px)
-- All inputs use CSS vars (not Tailwind hardcoded colors)
-- Focus ring: `--color-primary` with /20 ring
+## Cómo se hace cumplir
 
-### Animations
-- Page entrance: `animate-fade-in-up` (35ms, expo)
-- List stagger: delay 0.05s per item
-- Sidebar nav: `slide-in-left`
+```bash
+cd frontend && npm run check:contrast
+```
 
-## Layout
-- Sidebar: fixed left, 240px width on desktop
-- Header: sticky top, 56px height
-- Content: ml-[240px] on desktop, full-width mobile with hamburger
+Lee los tokens de `globals.css`, calcula el ratio WCAG de cada par que el
+producto usa de verdad —en claro y en oscuro— y falla si alguno baja del mínimo
+(4.5:1 texto, 3:1 pistas como el placeholder, 1.3:1 bordes). Corre en CI en cada
+push. Si cambias un token y el script pasa, el contraste está bien; si lo cambias
+y no corres el script, no lo sabes.
+
+Para ver la tabla completa, incluidos los pares que pasan:
+
+```bash
+cd frontend && node scripts/check-contrast.mjs --all
+```
+
+---
+
+Las reglas de tipografía, espaciado, layout y movimiento están en
+`FITCONNECT_DESIGN_SYSTEM.md`.

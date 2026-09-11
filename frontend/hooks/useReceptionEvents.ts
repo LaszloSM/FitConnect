@@ -25,8 +25,12 @@ export interface ReceptionEvent {
  * ya está suscrita, ej. el toaster global vs la página de Check-ins). */
 export function useReceptionEvents(onEvent: (event: ReceptionEvent) => void, enabled = true) {
   const { data: session } = useSession();
+  // El handler se guarda en una ref para que cambiarlo no reabra el SSE, pero
+  // escribirla durante el render rompe con React 19 en concurrente.
   const handlerRef = useRef(onEvent);
-  handlerRef.current = onEvent;
+  useEffect(() => {
+    handlerRef.current = onEvent;
+  }, [onEvent]);
 
   useEffect(() => {
     const token = session?.accessToken as string | undefined;

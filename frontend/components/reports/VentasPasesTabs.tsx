@@ -107,12 +107,12 @@ export function PasesTab({ period }: { period: Period }) {
             </ResponsiveContainer>
           )}
         </Card>
-        <Card title="Por tipo de pase" icon={<Dumbbell className="h-4 w-4 text-[var(--color-primary)]" />}>
+        <Card title="Por tipo de pase" icon={<Dumbbell className="h-4 w-4 text-[var(--color-primary-ink)]" />}>
           {p.by_type.length === 0 ? <Empty text="Sin pases en el período" /> : (
             <div className="space-y-1.5">
               {p.by_type.map((t) => (
                 <div key={t.name} className="flex items-center justify-between text-sm py-1.5 border-b border-[var(--border-base)] last:border-0">
-                  <span className="text-[var(--text-base)] flex items-center gap-1.5">{t.includes_trainer && <Dumbbell className="h-3.5 w-3.5 text-[var(--color-primary)]" />}{t.name} <span className="text-xs text-[var(--text-muted)]">· {t.count}</span></span>
+                  <span className="text-[var(--text-base)] flex items-center gap-1.5">{t.includes_trainer && <Dumbbell className="h-3.5 w-3.5 text-[var(--color-primary-ink)]" />}{t.name} <span className="text-xs text-[var(--text-muted)]">· {t.count}</span></span>
                   <span className="font-mono text-[var(--text-base)]">{formatCOP(t.amount)}</span>
                 </div>
               ))}

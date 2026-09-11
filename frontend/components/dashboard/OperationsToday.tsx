@@ -117,7 +117,7 @@ export function OperationsToday() {
           </div>
           <Link
             href="/payments/cash"
-            className="shrink-0 text-[11px] font-semibold text-[var(--color-primary)] border border-[var(--border-base)] rounded-lg px-2 py-1 hover:bg-[var(--bg-base)] transition-colors"
+            className="shrink-0 text-[11px] font-semibold text-[var(--color-primary-ink)] border border-[var(--border-base)] rounded-lg px-2 py-1 hover:bg-[var(--bg-base)] transition-colors"
           >
             {shift?.open || shift?.cash_shifts_enabled === false ? "Ver caja" : "Abrir turno"}
           </Link>
@@ -147,7 +147,7 @@ export function OperationsToday() {
           </div>
           <Link
             href="/payments"
-            className="shrink-0 text-[11px] font-semibold text-[var(--color-primary)] border border-[var(--border-base)] rounded-lg px-2 py-1 hover:bg-[var(--bg-base)] transition-colors"
+            className="shrink-0 text-[11px] font-semibold text-[var(--color-primary-ink)] border border-[var(--border-base)] rounded-lg px-2 py-1 hover:bg-[var(--bg-base)] transition-colors"
           >
             Productos
           </Link>
@@ -169,7 +169,7 @@ export function OperationsToday() {
             {expiring_this_week.slice(0, 8).map((item) => (
               <div key={item.membership_id} className="flex items-center gap-2 text-sm">
                 <div className="min-w-0 flex-1">
-                  <Link href={`/members/${item.member_id}`} className="text-[var(--text-base)] hover:text-[var(--color-primary)] truncate block">
+                  <Link href={`/members/${item.member_id}`} className="text-[var(--text-base)] hover:text-[var(--color-primary-ink)] truncate block">
                     {item.member_name}
                   </Link>
                   <p className="text-[11px] text-[var(--text-muted)]">
@@ -178,7 +178,7 @@ export function OperationsToday() {
                 </div>
                 <Link
                   href={`/payments?member=${item.member_id}`}
-                  className="shrink-0 text-[11px] font-semibold text-[var(--color-primary)] border border-[var(--border-base)] rounded-lg px-2 py-1 hover:bg-[var(--bg-base)] transition-colors"
+                  className="shrink-0 text-[11px] font-semibold text-[var(--color-primary-ink)] border border-[var(--border-base)] rounded-lg px-2 py-1 hover:bg-[var(--bg-base)] transition-colors"
                 >
                   Cobrar
                 </Link>
@@ -204,7 +204,7 @@ export function OperationsToday() {
               return (
                 <div key={item.membership_id} className="flex items-center gap-2 text-sm">
                   <div className="min-w-0 flex-1">
-                    <Link href={`/members/${item.member_id}`} className="text-[var(--text-base)] hover:text-[var(--color-primary)] truncate block">
+                    <Link href={`/members/${item.member_id}`} className="text-[var(--text-base)] hover:text-[var(--color-primary-ink)] truncate block">
                       {item.member_name}
                     </Link>
                     <p className="text-[11px] text-orange-500">venció hace {item.days_overdue} día{item.days_overdue !== 1 ? "s" : ""}</p>
@@ -234,7 +234,7 @@ export function OperationsToday() {
           <div className="space-y-1.5 max-h-56 overflow-y-auto">
             {denied_today.slice(0, 8).map((item) => (
               <div key={item.checkin_id} className="flex items-center gap-2 text-sm">
-                <Link href={`/members/${item.member_id}`} className="text-[var(--text-base)] hover:text-[var(--color-primary)] truncate flex-1">
+                <Link href={`/members/${item.member_id}`} className="text-[var(--text-base)] hover:text-[var(--color-primary-ink)] truncate flex-1">
                   {item.member_name}
                 </Link>
                 <span className="shrink-0 text-[11px] text-red-500">

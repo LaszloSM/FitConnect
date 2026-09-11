@@ -354,7 +354,7 @@ export function PosTab({
       {/* Cobro rápido */}
       <GlassCard className="p-4 lg:col-span-2 space-y-4 self-start">
         <div className="flex items-center gap-2">
-          <Zap className="h-4 w-4 text-[var(--color-primary)]" />
+          <Zap className="h-4 w-4 text-[var(--color-primary-ink)]" />
           <h2 className="text-sm font-semibold text-[var(--text-base)]">Cobro rápido</h2>
         </div>
 
@@ -485,7 +485,7 @@ export function PosTab({
       <GlassCard className="p-4 lg:col-span-3 space-y-4 self-start">
         <div className="flex items-center justify-between gap-3 flex-wrap">
           <div className="flex items-center gap-2">
-            <Package className="h-4 w-4 text-[var(--color-primary)]" />
+            <Package className="h-4 w-4 text-[var(--color-primary-ink)]" />
             <h2 className="text-sm font-semibold text-[var(--text-base)]">Venta de productos</h2>
           </div>
           <div className="relative w-48">

@@ -285,7 +285,7 @@ export default function ClassesClient() {
               </Link>
               <DialogTrigger
                 render={
-                  <Button className="bg-[var(--color-primary)] text-[var(--color-primary-contrast)] hover:bg-[var(--color-primary-hover)]">
+                  <Button>
                     <Plus className="h-4 w-4 mr-2" />
                     Nueva clase
                   </Button>
@@ -421,7 +421,7 @@ export default function ClassesClient() {
 
             {/* Schedule preview */}
             {schedulePreview && (
-              <div className="flex items-center gap-2 px-3 py-2 rounded-lg bg-[var(--color-primary)]/10 border border-[var(--color-primary)]/20 text-[var(--color-primary-hover)] dark:text-[var(--color-primary)]">
+              <div className="flex items-center gap-2 px-3 py-2 rounded-lg bg-[var(--color-primary)]/10 border border-[var(--color-primary)]/20 text-[var(--color-primary-hover)] dark:text-[var(--color-primary-ink)]">
                 <span className="text-xs font-medium">{schedulePreview}</span>
               </div>
             )}
@@ -468,7 +468,6 @@ export default function ClassesClient() {
               <Button
                 type="submit"
                 disabled={submitting}
-                className="bg-[var(--color-primary)] text-[var(--color-primary-contrast)] font-semibold hover:bg-[var(--color-primary-hover)]"
               >
                 {submitting ? "Creando..." : "Crear clase"}
               </Button>
@@ -602,7 +601,7 @@ export default function ClassesClient() {
                           <div className="space-y-3">
                             <p className="text-sm font-medium text-[var(--text-base)]">
                               Inscritos (
-                              <span className="text-[var(--color-primary)] font-bold">
+                              <span className="text-[var(--color-primary-ink)] font-bold">
                                 {(enrollments[cls.id] || []).length}
                               </span>
                               /{cls.max_capacity})

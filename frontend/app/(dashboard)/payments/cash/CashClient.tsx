@@ -134,7 +134,7 @@ export default function CashClient() {
           <p className="text-sm text-[var(--text-base)] font-medium">Turnos de caja desactivados</p>
           <p className="text-xs text-[var(--text-muted)] mt-1">
             Este gym cobra en efectivo sin abrir turno. Puedes activarlos en{" "}
-            <Link href="/settings" className="text-[var(--color-primary)] font-medium hover:underline">
+            <Link href="/settings" className="text-[var(--color-primary-ink)] font-medium hover:underline">
               Configuración → Operación
             </Link>{" "}
             si quieres cuadre de caja por empleado. Abrir un turno abajo sigue siendo opcional.
@@ -156,7 +156,7 @@ export default function CashClient() {
               <Label className="text-[var(--text-muted)] text-xs">Base inicial</Label>
               <CurrencyInput value={openingAmount} onChange={setOpeningAmount} />
             </div>
-            <Button onClick={openShift} disabled={busy} className="bg-[var(--color-primary)] text-[var(--color-primary-contrast)] font-semibold hover:bg-[var(--color-primary-hover)]">
+            <Button onClick={openShift} disabled={busy}>
               {busy ? <Loader2 className="h-4 w-4 animate-spin" /> : "Abrir turno"}
             </Button>
           </div>

@@ -96,7 +96,7 @@ export function IngresosTab({ period }: { period: Period }) {
             </ResponsiveContainer>
           )}
         </Card>
-        <Card title="Por plan" icon={<Layers className="h-4 w-4 text-[var(--color-primary)]" />}>
+        <Card title="Por plan" icon={<Layers className="h-4 w-4 text-[var(--color-primary-ink)]" />}>
           {b.by_plan.length === 0 ? <Empty text="Sin cobros de membresía en el período" /> : (
             <div className="space-y-1.5">
               {b.by_plan.map((p) => (

@@ -104,7 +104,7 @@ function MessageCard({ msg, onSaved }: { msg: Message; onSaved: () => void }) {
             key={v}
             type="button"
             onClick={() => insertVar(v)}
-            className="text-[11px] font-mono px-2 py-0.5 rounded-md border border-[var(--border-base)] text-[var(--text-muted)] hover:text-[var(--color-primary)] hover:border-[var(--color-primary)]/50 transition-colors"
+            className="text-[11px] font-mono px-2 py-0.5 rounded-md border border-[var(--border-base)] text-[var(--text-muted)] hover:text-[var(--color-primary-ink)] hover:border-[var(--color-primary)]/50 transition-colors"
           >
             {`{${v}}`}
           </button>

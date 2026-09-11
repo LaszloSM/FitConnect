@@ -151,7 +151,7 @@ export default function KioskSection() {
       <GlassCard className="p-5 space-y-4">
         <div>
           <h3 className="text-base font-semibold text-[var(--text-base)] flex items-center gap-2">
-            <DoorOpen className="h-4 w-4 text-[var(--color-primary)]" />
+            <DoorOpen className="h-4 w-4 text-[var(--color-primary-ink)]" />
             Dispositivos de entrada y pantalla
           </h3>
           <p className="text-sm text-[var(--text-muted)] mt-1">
@@ -191,7 +191,7 @@ export default function KioskSection() {
                 </select>
               </div>
             )}
-            <Button type="submit" disabled={creating || !name.trim()} className="bg-[var(--color-primary)] text-[var(--color-primary-contrast)] hover:bg-[var(--color-primary-hover)]">
+            <Button type="submit" disabled={creating || !name.trim()}>
               {creating ? <Loader2 className="h-4 w-4 animate-spin" /> : <Plus className="h-4 w-4 mr-1.5" />} Crear
             </Button>
           </div>
@@ -257,7 +257,7 @@ export default function KioskSection() {
                 <StatusBadge status={d.is_active ? "active" : "cancelled"} label={d.is_active ? "Activo" : "Revocado"} />
                 {d.is_active && renamingId !== d.id && (
                   <div className="flex items-center gap-1 shrink-0">
-                    <button onClick={() => regenerateLink(d)} disabled={busyId === d.id} title="Regenerar token (el anterior deja de funcionar)" className="h-8 w-8 rounded-lg flex items-center justify-center text-[var(--text-muted)] hover:text-[var(--color-primary)] hover:bg-[var(--color-primary-muted)] transition-colors disabled:opacity-50">
+                    <button onClick={() => regenerateLink(d)} disabled={busyId === d.id} title="Regenerar token (el anterior deja de funcionar)" className="h-8 w-8 rounded-lg flex items-center justify-center text-[var(--text-muted)] hover:text-[var(--color-primary-ink)] hover:bg-[var(--color-primary-muted)] transition-colors disabled:opacity-50">
                       {busyId === d.id ? <Loader2 className="h-4 w-4 animate-spin" /> : <Link2 className="h-4 w-4" />}
                     </button>
                     <button onClick={() => { setRenamingId(d.id); setRenameValue(d.name); }} title="Renombrar" className="h-8 w-8 rounded-lg flex items-center justify-center text-[var(--text-muted)] hover:text-[var(--text-base)] hover:bg-[var(--bg-muted)] transition-colors"><Pencil className="h-4 w-4" /></button>
@@ -272,7 +272,7 @@ export default function KioskSection() {
 
       <GlassCard className="p-5 space-y-3">
         <div className="flex items-center justify-between gap-2">
-          <h3 className="text-base font-semibold text-[var(--text-base)] flex items-center gap-2"><ScrollText className="h-4 w-4 text-[var(--color-primary)]" /> Últimos intentos de acceso</h3>
+          <h3 className="text-base font-semibold text-[var(--text-base)] flex items-center gap-2"><ScrollText className="h-4 w-4 text-[var(--color-primary-ink)]" /> Últimos intentos de acceso</h3>
           <button type="button" onClick={() => events.refetch()} className="text-xs text-[var(--text-muted)] hover:text-[var(--text-base)]">Actualizar</button>
         </div>
         {events.loading ? <div className="skeleton h-10 rounded-xl" /> : events.data.length === 0 ? (

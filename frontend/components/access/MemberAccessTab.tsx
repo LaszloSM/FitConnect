@@ -85,7 +85,7 @@ export function MemberAccessTab({ memberId, idNumber }: { memberId: string; idNu
           <p className="text-sm text-[var(--text-muted)]">Sin credenciales adicionales.</p>
         ) : activeCreds.map((c) => (
           <div key={c.id} className="flex items-center gap-3 text-sm">
-            <span className="text-[var(--color-primary)]">{KIND_META[c.kind]?.icon}</span>
+            <span className="text-[var(--color-primary-ink)]">{KIND_META[c.kind]?.icon}</span>
             <div className="flex-1 min-w-0">
               <p className="text-[var(--text-base)] font-medium">{KIND_META[c.kind]?.label ?? c.kind} · ID en el lector <code className="text-xs">{c.device_user_id}</code>{c.label ? ` · ${c.label}` : ""}</p>
               <p className="text-xs text-[var(--text-muted)]">{c.device_name ? `Solo en ${c.device_name}` : "Todos los dispositivos"} · enrolada {formatTimeAgo(c.enrolled_at)}</p>

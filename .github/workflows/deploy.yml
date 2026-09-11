@@ -82,6 +82,11 @@ jobs:
       - name: Lint (eslint)
         run: cd frontend && npm run lint
 
+      # El contraste se degradaba sin que nadie se enterara: el volt como texto
+      # daba 1.8:1 sobre tarjeta blanca. Ahora se mide en cada push.
+      - name: Contraste de los tokens (claro y oscuro)
+        run: cd frontend && npm run check:contrast
+
       - run: cd frontend && npm run build
       - name: Install Playwright
         run: cd frontend && npx playwright install --with-deps chromium

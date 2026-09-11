@@ -63,61 +63,33 @@ Rules:
 
 Strategy: **Restrained**. Volt carries primary actions and active states; each module adds one functional accent for identity. Color as signal, not decoration.
 
-### CSS Variables (globals.css)
+### Dónde viven los colores
 
-```css
-/* Light */
---bg-base:            oklch(0.98 0.003 264)   /* page background */
---bg-card:            oklch(1.00 0.00 0)       /* card surfaces */
---bg-sidebar:         oklch(1.00 0.00 0)       /* sidebar panel */
---bg-input:           oklch(1.00 0.00 0)       /* form inputs */
---bg-muted:           oklch(0.96 0.003 264)    /* subtle backgrounds, trend footers */
---border-base:        oklch(0.90 0.005 264)    /* all borders */
---text-base:          oklch(0.20 0.015 264)    /* primary text */
---text-muted:         oklch(0.50 0.010 264)    /* secondary text, labels */
---text-subtle:        oklch(0.65 0.008 264)    /* de-emphasized text */
---text-placeholder:   oklch(0.70 0.008 264)    /* input placeholders */
+Los valores están en `frontend/app/globals.css` y las reglas en `DESIGN.md`.
+No se copian aquí: esta sección tuvo la paleta duplicada describiendo un azul
+(hue 264) mientras el código ya era verde (hue 150), y nadie lo notó en meses.
 
-/* Dark overrides (same variable names, .dark scope) */
---bg-base:            oklch(0.12 0.010 264)
---bg-card:            oklch(0.16 0.008 264)
---bg-sidebar:         oklch(0.14 0.009 264)
---bg-input:           oklch(0.18 0.008 264)
---bg-muted:           oklch(0.19 0.007 264)
---border-base:        oklch(0.25 0.008 264)
---text-base:          oklch(0.95 0.005 264)
---text-muted:         oklch(0.65 0.008 264)
---text-subtle:        oklch(0.50 0.006 264)
---text-placeholder:   oklch(0.45 0.006 264)
+Lo mínimo que hay que saber:
 
-/* Brand — Volt (lime green) */
---color-primary:          oklch(0.78 0.19 128)  /* Volt — buttons, active, accent */
---color-primary-hover:    oklch(0.72 0.20 128)  /* darker on hover */
---color-primary-contrast: oklch(0.22 0.05 128)  /* near-black ink on Volt fills (NOT white) */
---color-primary-muted:    oklch(0.96 0.05 128)  /* light tint — light mode */
-                          oklch(0.24 0.06 128)  /* dark tint — dark mode */
+- El volt de **relleno** (`bg-primary`) y el volt de **texto** (`text-primary-ink`)
+  son tokens distintos: el de relleno da 1.9:1 como texto.
+- Sobre relleno volt siempre `text-primary-contrast` (casi-negro), nunca blanco.
+- Prohibidos los tokens de shadcn (`text-muted-foreground`, `bg-popover`,
+  `text-foreground`…): este proyecto no los define y generan cero CSS.
+- `npm run check:contrast` mide todos los pares en claro y oscuro, y corre en CI.
 
-/* Per-module accents (eyebrow / chips / charts) — see lib/module-accents.ts */
---accent-dashboard  Volt    --accent-members  teal    --accent-checkins sky
---accent-classes    violet  --accent-machines amber   --accent-payments emerald
---accent-plans      fuchsia --accent-reports  indigo  --accent-settings slate
-```
-
-### Semantic Status Colors
+### Colores de estado
 
 ```
-success   #22C55E    emerald-500    membership active, payment recorded
-danger    #EF4444    red-500        expired membership, machine broken
-warning   #F59E0B    amber-500      expiring soon, pending payment
-info      #3B82F6    blue-500       informational, check-ins, neutral stats
+success   emerald-500    membresía activa, pago registrado
+danger    red-500        membresía vencida, máquina dañada
+warning   amber-500      por vencer, pago pendiente
+info      blue-500       informativo, check-ins, datos neutros
 ```
 
-### Rules
-
-- Never use `text-muted-foreground`, `bg-popover`, `bg-card` from shadcn — use `var(--text-muted)`, `var(--bg-card)` etc.
-- Orange (`--color-primary`) for: primary buttons, active nav item, focus rings, KPI accent
-- Status colors for semantic meaning only — not decoration
-- Alerts/banners: `bg-{color}-50 dark:bg-{color}-950/20 border border-{color}-200 dark:border-{color}-800/40`
+Se usan por su significado, nunca como decoración. Alertas y banners:
+`bg-{c}-50 dark:bg-{c}-950/20 border border-{c}-200 dark:border-{c}-800/40`
+(sin `border-l-4`).
 
 ---
 

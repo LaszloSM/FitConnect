@@ -135,7 +135,7 @@ function PlanCardItem({ plan, onEdit, onDelete }: PlanCardItemProps) {
           {/* Plan name + status badge */}
           <PricingCard.Plan>
             <PricingCard.PlanName>
-              <Tag className="h-4 w-4 text-[var(--color-primary)]" />
+              <Tag className="h-4 w-4 text-[var(--color-primary-ink)]" />
               <span className="text-[var(--text-base)] font-semibold">{plan.name}</span>
             </PricingCard.PlanName>
             {plan.is_active ? (
@@ -196,7 +196,7 @@ function PlanCardItem({ plan, onEdit, onDelete }: PlanCardItemProps) {
           <PricingCard.List>
             {features.map((feature) => (
               <PricingCard.ListItem key={feature}>
-                <CheckCircle2 className="h-3.5 w-3.5 text-[var(--color-primary)] shrink-0 mt-0.5" />
+                <CheckCircle2 className="h-3.5 w-3.5 text-[var(--color-primary-ink)] shrink-0 mt-0.5" />
                 <span>{feature}</span>
               </PricingCard.ListItem>
             ))}

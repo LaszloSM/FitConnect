@@ -126,7 +126,7 @@ export function CameraCapture({ onCapture, trigger }: { onCapture: (file: File) 
                 <Button type="button" variant="outline" onClick={() => { setPreview((p) => { if (p) URL.revokeObjectURL(p); return null; }); blobRef.current = null; void start(); }}>
                   <RefreshCw className="h-4 w-4 mr-1.5" /> Repetir
                 </Button>
-                <Button type="button" onClick={confirm} className="bg-[var(--color-primary)] text-[var(--color-primary-contrast)] font-semibold hover:bg-[var(--color-primary-hover)]">
+                <Button type="button" onClick={confirm}>
                   <Check className="h-4 w-4 mr-1.5" /> Usar esta foto
                 </Button>
               </>
@@ -137,7 +137,7 @@ export function CameraCapture({ onCapture, trigger }: { onCapture: (file: File) 
                 </Button>
                 <div className="flex gap-2">
                   <Button type="button" variant="ghost" onClick={() => setOpen(false)}><X className="h-4 w-4 mr-1" /> Cancelar</Button>
-                  <Button type="button" onClick={shoot} disabled={!!error} className="bg-[var(--color-primary)] text-[var(--color-primary-contrast)] font-semibold hover:bg-[var(--color-primary-hover)]">
+                  <Button type="button" onClick={shoot} disabled={!!error}>
                     <Camera className="h-4 w-4 mr-1.5" /> Capturar
                   </Button>
                 </div>

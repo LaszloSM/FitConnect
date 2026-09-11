@@ -79,7 +79,7 @@ export function PendingTransfers({ onChanged }: { onChanged?: () => void }) {
               concept: p.concept,
             })
           }
-          className="font-mono font-semibold text-[var(--text-base)] hover:text-[var(--color-primary)]"
+          className="font-mono font-semibold text-[var(--text-base)] hover:text-[var(--color-primary-ink)]"
         >
           {p.transfer_reference ?? "—"}
         </button>
@@ -140,7 +140,7 @@ export function PendingTransfers({ onChanged }: { onChanged?: () => void }) {
             href={p.proof_url}
             target="_blank"
             rel="noopener noreferrer"
-            className="inline-flex items-center gap-1 text-xs text-[var(--color-primary)] hover:underline"
+            className="inline-flex items-center gap-1 text-xs text-[var(--color-primary-ink)] hover:underline"
           >
             <ImageIcon className="h-3.5 w-3.5" /> Ver
           </a>

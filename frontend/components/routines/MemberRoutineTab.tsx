@@ -67,7 +67,7 @@ export function MemberRoutineTab({ memberId }: { memberId: string }) {
         {current ? (
           <>
             <div className="flex items-center gap-2">
-              <Dumbbell className="h-4 w-4 text-[var(--color-primary)]" />
+              <Dumbbell className="h-4 w-4 text-[var(--color-primary-ink)]" />
               <span className="font-semibold text-[var(--text-base)]">{current.routine_name}</span>
               <span className="text-xs text-[var(--text-muted)]">· {current.goal_label ?? ""} · asignada {formatTimeAgo(current.assigned_at)}</span>
             </div>

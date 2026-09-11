@@ -93,7 +93,7 @@ export function InstructorsCard({ onChanged }: { onChanged?: () => void }) {
     <GlassCard className="p-4 space-y-4">
       <div className="flex items-center justify-between gap-3">
         <div className="flex items-center gap-2">
-          <UserRound className="h-4 w-4 text-[var(--color-primary)]" />
+          <UserRound className="h-4 w-4 text-[var(--color-primary-ink)]" />
           <h2 className="text-sm font-semibold text-[var(--text-base)]">Instructores</h2>
         </div>
         <FormDialog

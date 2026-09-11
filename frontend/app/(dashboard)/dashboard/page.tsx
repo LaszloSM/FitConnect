@@ -189,7 +189,7 @@ export default function DashboardPage() {
             <p className="flex items-center gap-2 text-xs uppercase tracking-wider font-bold text-[var(--text-muted)]">
               <Banknote className="h-3.5 w-3.5 text-emerald-500" /> Caja de hoy
             </p>
-            <Link href="/payments/cash" className="text-[11px] font-semibold text-[var(--color-primary)] hover:underline">Ver caja</Link>
+            <Link href="/payments/cash" className="text-[11px] font-semibold text-[var(--color-primary-ink)] hover:underline">Ver caja</Link>
           </div>
           <p className="text-2xl font-extrabold text-[var(--text-base)] font-display">{formatCOP(cash?.total ?? 0)}</p>
           {methods.length === 0 ? (
@@ -216,7 +216,7 @@ export default function DashboardPage() {
             <p className="flex items-center gap-2 text-xs uppercase tracking-wider font-bold text-[var(--text-muted)]">
               <Landmark className="h-3.5 w-3.5 text-amber-500" /> Por confirmar
             </p>
-            <Link href="/payments?tab=receivables" className="text-[11px] font-semibold text-[var(--color-primary)] hover:underline">Conciliar</Link>
+            <Link href="/payments?tab=receivables" className="text-[11px] font-semibold text-[var(--color-primary-ink)] hover:underline">Conciliar</Link>
           </div>
           <p className={cn("text-2xl font-extrabold font-display", pendingTransfers.length ? "text-amber-600 dark:text-amber-400" : "text-[var(--text-base)]")}>
             {formatCOP(pendingTotal)}
@@ -227,7 +227,7 @@ export default function DashboardPage() {
             <div className="space-y-1">
               {pendingTransfers.slice(0, 4).map((p) => (
                 <Link key={p.id} href="/payments?tab=receivables" className="flex items-center justify-between text-xs group">
-                  <span className="truncate text-[var(--text-base)] group-hover:text-[var(--color-primary)]">
+                  <span className="truncate text-[var(--text-base)] group-hover:text-[var(--color-primary-ink)]">
                     <span className="font-mono text-[var(--text-muted)] mr-1.5">{p.transfer_reference}</span>{p.member_name ?? "Mostrador"}
                   </span>
                   <span className="flex items-center gap-1 text-[var(--text-muted)] shrink-0"><Clock className="h-3 w-3" />{elapsed(p.elapsed_minutes)}</span>
@@ -243,7 +243,7 @@ export default function DashboardPage() {
             <p className="flex items-center gap-2 text-xs uppercase tracking-wider font-bold text-[var(--text-muted)]">
               <HandCoins className="h-3.5 w-3.5 text-violet-500" /> Por cobrar
             </p>
-            <Link href="/payments?tab=receivables" className="text-[11px] font-semibold text-[var(--color-primary)] hover:underline">Ver cartera</Link>
+            <Link href="/payments?tab=receivables" className="text-[11px] font-semibold text-[var(--color-primary-ink)] hover:underline">Ver cartera</Link>
           </div>
           <p className="text-2xl font-extrabold text-[var(--text-base)] font-display">{formatCOP(receivableTotal)}</p>
           <p className="text-xs text-[var(--text-muted)]">
@@ -296,7 +296,7 @@ export default function DashboardPage() {
           <InsightsStrip />
 
           <Link href="/reports" className="flex items-center gap-3 rounded-xl border border-dashed border-[var(--border-base)] px-4 py-3 text-sm text-[var(--text-muted)] hover:text-[var(--text-base)] hover:border-[var(--color-primary)]/50 transition-colors group">
-            <BarChart3 className="h-4 w-4 text-[var(--color-primary)]" />
+            <BarChart3 className="h-4 w-4 text-[var(--color-primary-ink)]" />
             <span className="flex-1">Ingresos por período, ventas, asistencia y retención están en <strong className="text-[var(--text-base)]">Reportes</strong>.</span>
             <ArrowRight className="h-4 w-4 group-hover:translate-x-0.5 transition-transform" />
           </Link>

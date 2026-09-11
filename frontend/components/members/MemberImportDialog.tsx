@@ -156,7 +156,6 @@ export function MemberImportDialog({ onImported }: { onImported: () => void }) {
             type="button"
             onClick={upload}
             disabled={!file || working}
-            className="bg-[var(--color-primary)] text-[var(--color-primary-contrast)] hover:bg-[var(--color-primary-hover)]"
           >
             {working ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : <Upload className="h-4 w-4 mr-2" />}
             Importar
