@@ -40,7 +40,11 @@ services:
       retries: 5
 
   minio:
-    image: minio/minio:latest
+    # quay.io es el registro propio de MinIO. `minio/minio` en Docker Hub ya no
+    # se puede bajar (pull access denied), y la instancia solo seguía
+    # levantándolo porque tenía la imagen en caché: recrearla la habría dejado
+    # sin almacenamiento de fotos y comprobantes.
+    image: quay.io/minio/minio:latest
     restart: always
     logging: *default-logging
     command: server /data
