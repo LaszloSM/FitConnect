@@ -3,7 +3,8 @@
 
 # Node dependencies
 node_modules/
-package-lock.json
+# package-lock.json SÍ se versiona: el Dockerfile y CI usan `npm ci`, que sin
+# lockfile no arranca. Ignorarlo dejaba el job de frontend rojo desde siempre.
 
 # Vite
 dist/
