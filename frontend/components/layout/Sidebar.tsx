@@ -142,7 +142,7 @@ export function Sidebar() {
       style={{ willChange: "width" }}
     >
       {/* ── Brand ───────────────────────────────────────────────────────── */}
-      <div className="relative flex items-center h-[68px] shrink-0 px-3 border-b border-[var(--border-base)]">
+      <div className="relative flex items-center h-16 shrink-0 px-3 border-b border-[var(--border-base)]">
         <div className="flex items-center gap-2.5 overflow-hidden min-w-0">
           <BrandMark size={32} />
           <AnimatePresence initial={false}>

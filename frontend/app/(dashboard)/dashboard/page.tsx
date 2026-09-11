@@ -1,20 +1,18 @@
 "use client";
 export const dynamic = "force-dynamic";
 
-import { useEffect, useState } from "react";
-import { useSession } from "next-auth/react";
 import { motion } from "framer-motion";
 import Link from "next/link";
 import { GlassCard } from "@/components/common/GlassCard";
 import { EmptyState } from "@/components/common/EmptyState";
 import { PageHeader } from "@/components/common/PageHeader";
-import { OperationsToday } from "@/components/dashboard/OperationsToday";
+import { OperationsStatusCards, OperationsLists } from "@/components/dashboard/OperationsToday";
 import { OnboardingChecklist } from "@/components/dashboard/OnboardingChecklist";
 import { OnboardingTour } from "@/components/dashboard/OnboardingTour";
 import { InsightsStrip } from "@/components/dashboard/InsightsStrip";
 import { LiveNowStrip } from "@/components/dashboard/LiveNowStrip";
-import { apiClient } from "@/lib/api";
-import { formatCOP } from "@/lib/format";
+import { useDashboardData } from "@/hooks/useDashboardData";
+import { formatCOP, gymHour, todayInGym } from "@/lib/format";
 import { cn } from "@/lib/utils";
 import {
   AlertCircle,
@@ -30,45 +28,17 @@ import {
   Wrench,
   Zap,
 } from "lucide-react";
-import { format } from "date-fns";
-import { es } from "date-fns/locale";
-
-interface CashToday {
-  total: number;
-  count: number;
-  by_method: Record<string, number>;
-  by_kind: Record<string, number>;
-  pending_transfers: { count: number; amount: number };
-}
-
-interface PendingTransfer {
-  id: string;
-  transfer_reference: string | null;
-  member_name: string | null;
-  amount: number;
-  elapsed_minutes: number;
-}
-
-interface Receivable {
-  member_id: string;
-  amount_due: number;
-}
-
-interface Kpis {
-  expiring_memberships_7d: number;
-  machines_total: number;
-  machines_maintenance: number;
-  machines_active: number;
-}
 
 function greeting(): string {
-  const h = new Date().getHours();
+  const h = gymHour();
   if (h < 12) return "Buenos días";
   if (h < 19) return "Buenas tardes";
   return "Buenas noches";
 }
 
 const WEEKDAY_MAP: Record<number, string> = { 0: "Dom", 1: "Lun", 2: "Mar", 3: "Mié", 4: "Jue", 5: "Vie", 6: "Sáb" };
+/** Una fuente NO cargada no puede afirmar "no hay nada": no se comprobó. */
+const SIN_DATO = "No se pudo cargar.";
 const KIND_LABEL: Record<string, string> = { membership: "Membresías", day_pass: "Pases", product: "Productos", other: "Otros" };
 const METHOD_LABEL: Record<string, string> = { cash: "Efectivo", transfer: "Transferencia", card: "Tarjeta", wompi: "Wompi" };
 
@@ -84,73 +54,49 @@ const QUICK_ACTIONS = [
   { href: "/members", label: "Nuevo socio", icon: UserPlus, tone: "border border-[var(--border-base)] bg-[var(--bg-card)] text-[var(--text-base)] hover:bg-[var(--bg-muted)]" },
 ];
 
-export default function DashboardPage() {
-  const sessionData = useSession();
-  const session = sessionData?.data;
-  const status = sessionData?.status;
-
-  const [kpis, setKpis] = useState<Kpis | null>(null);
-  const [cash, setCash] = useState<CashToday | null>(null);
-  const [pendingTransfers, setPendingTransfers] = useState<PendingTransfer[]>([]);
-  const [receivables, setReceivables] = useState<Receivable[]>([]);
-  const [todayClasses, setTodayClasses] = useState<any[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState("");
-
-  const firstName = session?.user?.name?.split(" ")[0] ?? "";
-
-  useEffect(() => {
-    if (status !== "authenticated" || !session?.accessToken) {
-      if (status === "unauthenticated") setLoading(false);
-      return;
-    }
-    const client = apiClient(session.accessToken as string);
-    client.post("/api/v1/reports/generate-expiry-notifications").catch(() => {});
-
-    const todayWeekday = new Date().getDay();
-    client.get("/api/v1/classes", { params: { is_active: true, limit: 50 } })
-      .then((res) => {
-        const gymWeekday = todayWeekday === 0 ? 6 : todayWeekday - 1;
-        setTodayClasses((res.data as any[]).filter((c) => Array.isArray(c.weekdays) && c.weekdays.includes(gymWeekday)));
-      })
-      .catch(() => {});
-
-    Promise.all([
-      client.get("/api/v1/dashboard/kpis"),
-      client.get("/api/v1/payments/cash"),
-      client.get("/api/v1/payments/pending-transfers").catch(() => ({ data: [] })),
-      client.get("/api/v1/payments/receivables").catch(() => ({ data: [] })),
-    ])
-      .then(([k, c, p, r]) => {
-        setKpis(k.data.kpis);
-        setCash(c.data.today);
-        setPendingTransfers(p.data);
-        setReceivables(r.data);
-        setLoading(false);
-      })
-      .catch((err) => {
-        setError(err.response?.data?.detail || "Error cargando el panel");
-        setLoading(false);
-      });
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [session?.accessToken, status]);
-
-  if (loading) {
-    return (
-      <div className="space-y-4">
-        <div className="skeleton h-12 w-72 rounded-lg mb-6" />
-        <div className="skeleton h-32 rounded-xl" />
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
-          {Array.from({ length: 3 }).map((_, i) => <div key={i} className="skeleton h-36 rounded-xl" />)}
+/** El esqueleto reproduce la rejilla real: al llegar los datos nada se mueve. */
+function DashboardSkeleton() {
+  return (
+    <div className="space-y-6">
+      <div className="flex justify-between items-end gap-4">
+        <div className="space-y-2">
+          <div className="skeleton h-3 w-40 rounded" />
+          <div className="skeleton h-8 w-64 rounded-lg" />
+          <div className="skeleton h-4 w-96 rounded" />
+        </div>
+        <div className="flex gap-2 shrink-0">
+          {Array.from({ length: 3 }).map((_, i) => (
+            <div key={`action-${i}`} className="skeleton h-9 w-28 rounded-lg" />
+          ))}
         </div>
       </div>
-    );
-  }
+      <div className="grid grid-cols-12 gap-4">
+        <div className="skeleton col-span-12 h-36 rounded-xl" />
+        {Array.from({ length: 3 }).map((_, i) => (
+          <div key={`money-${i}`} className="skeleton col-span-12 md:col-span-4 h-40 rounded-xl" />
+        ))}
+        {Array.from({ length: 2 }).map((_, i) => (
+          <div key={`status-${i}`} className="skeleton col-span-12 md:col-span-6 h-20 rounded-xl" />
+        ))}
+        {Array.from({ length: 3 }).map((_, i) => (
+          <div key={`list-${i}`} className="skeleton col-span-12 md:col-span-6 xl:col-span-4 h-44 rounded-xl" />
+        ))}
+        <div className="skeleton col-span-12 h-12 rounded-xl" />
+      </div>
+    </div>
+  );
+}
+
+export default function DashboardPage() {
+  const { data, loading, error } = useDashboardData();
+
+  if (loading) return <DashboardSkeleton />;
 
   if (error) {
     return <EmptyState icon={<AlertCircle className="h-10 w-10 text-red-500" />} title="Error cargando datos" description={error} />;
   }
 
+  const { kpis, cash, pendingTransfers, receivables, todayClasses } = data;
   const receivableTotal = receivables.reduce((a, r) => a + Number(r.amount_due), 0);
   const pendingTotal = pendingTransfers.reduce((a, p) => a + Number(p.amount), 0);
   const methods = Object.entries(cash?.by_method ?? {}).filter(([, v]) => v > 0);
@@ -158,11 +104,17 @@ export default function DashboardPage() {
   const maintenance = kpis && kpis.machines_total > 0 && kpis.machines_maintenance > 0;
 
   return (
-    <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ ease: [0.16, 1, 0.3, 1], duration: 0.35 }}>
+    <motion.div
+      initial={{ opacity: 0, y: 8 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ ease: [0.16, 1, 0.3, 1], duration: 0.35 }}
+      className="space-y-6"
+    >
       <PageHeader
+        className="mb-0"
         module="dashboard"
-        eyebrow={format(new Date(), "EEEE · d 'de' MMMM", { locale: es })}
-        title={firstName ? `${greeting()}, ${firstName}` : greeting()}
+        eyebrow="Panel de hoy"
+        title={greeting()}
         subtitle="Lo que pasa hoy en tu gym. Para analizar períodos, ve a Reportes."
         action={
           <div className="flex gap-2 flex-wrap justify-end">
@@ -178,21 +130,29 @@ export default function DashboardPage() {
       <OnboardingTour />
       <div data-tour="checklist"><OnboardingChecklist /></div>
 
-      <div data-tour="live-now">
-        <LiveNowStrip expiring7d={kpis?.expiring_memberships_7d ?? 0} />
-      </div>
+      {/* Una sola rejilla de 12 para TODO el panel: antes se apilaban cinco
+          distintas y las tarjetas cambiaban de ancho sin motivo aparente. */}
+      <div className="grid grid-cols-12 gap-4 items-start">
+        <LiveNowStrip
+          expiring7d={kpis?.expiring_memberships_7d ?? 0}
+          initialEntries={data.checkinsToday}
+          birthdays={data.birthdaysToday}
+        />
 
-      {/* La plata de hoy: caja, por confirmar, por cobrar */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 mb-6">
-        <GlassCard className="p-4 flex flex-col gap-3">
+        {/* La plata de hoy */}
+        <GlassCard className="col-span-12 md:col-span-4 p-4 flex flex-col gap-3">
           <div className="flex items-center justify-between">
             <p className="flex items-center gap-2 text-xs uppercase tracking-wider font-bold text-[var(--text-muted)]">
               <Banknote className="h-3.5 w-3.5 text-emerald-500" /> Caja de hoy
             </p>
             <Link href="/payments/cash" className="text-[11px] font-semibold text-[var(--color-primary-ink)] hover:underline">Ver caja</Link>
           </div>
-          <p className="text-2xl font-extrabold text-[var(--text-base)] font-display">{formatCOP(cash?.total ?? 0)}</p>
-          {methods.length === 0 ? (
+          <p className="text-3xl font-extrabold text-[var(--text-base)] font-display">
+            {data.failed.has("cash") ? "—" : formatCOP(cash?.total ?? 0)}
+          </p>
+          {data.failed.has("cash") ? (
+            <p className="text-xs text-amber-600 dark:text-amber-400">{SIN_DATO}</p>
+          ) : methods.length === 0 ? (
             <p className="text-xs text-[var(--text-muted)]">Aún no hay cobros hoy.</p>
           ) : (
             <div className="space-y-1">
@@ -203,7 +163,7 @@ export default function DashboardPage() {
                 </div>
               ))}
               {kinds.length > 1 && (
-                <p className="text-[10px] text-[var(--text-muted)] pt-1 border-t border-[var(--border-base)]">
+                <p className="text-[11px] text-[var(--text-muted)] pt-1 border-t border-[var(--border-base)]">
                   {kinds.map(([k, v]) => `${KIND_LABEL[k] ?? k} ${formatCOP(v)}`).join(" · ")}
                 </p>
               )}
@@ -211,17 +171,19 @@ export default function DashboardPage() {
           )}
         </GlassCard>
 
-        <GlassCard className="p-4 flex flex-col gap-3">
+        <GlassCard className="col-span-12 md:col-span-4 p-4 flex flex-col gap-3">
           <div className="flex items-center justify-between">
             <p className="flex items-center gap-2 text-xs uppercase tracking-wider font-bold text-[var(--text-muted)]">
               <Landmark className="h-3.5 w-3.5 text-amber-500" /> Por confirmar
             </p>
             <Link href="/payments?tab=receivables" className="text-[11px] font-semibold text-[var(--color-primary-ink)] hover:underline">Conciliar</Link>
           </div>
-          <p className={cn("text-2xl font-extrabold font-display", pendingTransfers.length ? "text-amber-600 dark:text-amber-400" : "text-[var(--text-base)]")}>
-            {formatCOP(pendingTotal)}
+          <p className={cn("text-3xl font-extrabold font-display", pendingTransfers.length ? "text-amber-600 dark:text-amber-400" : "text-[var(--text-base)]")}>
+            {data.failed.has("pendingTransfers") ? "—" : formatCOP(pendingTotal)}
           </p>
-          {pendingTransfers.length === 0 ? (
+          {data.failed.has("pendingTransfers") ? (
+            <p className="text-xs text-amber-600 dark:text-amber-400">{SIN_DATO}</p>
+          ) : pendingTransfers.length === 0 ? (
             <p className="text-xs text-[var(--text-muted)]">Ninguna transferencia pendiente.</p>
           ) : (
             <div className="space-y-1">
@@ -233,74 +195,80 @@ export default function DashboardPage() {
                   <span className="flex items-center gap-1 text-[var(--text-muted)] shrink-0"><Clock className="h-3 w-3" />{elapsed(p.elapsed_minutes)}</span>
                 </Link>
               ))}
-              {pendingTransfers.length > 4 && <p className="text-[10px] text-[var(--text-muted)]">y {pendingTransfers.length - 4} más</p>}
+              {pendingTransfers.length > 4 && <p className="text-[11px] text-[var(--text-muted)]">y {pendingTransfers.length - 4} más</p>}
             </div>
           )}
         </GlassCard>
 
-        <GlassCard className="p-4 flex flex-col gap-3">
+        <GlassCard className="col-span-12 md:col-span-4 p-4 flex flex-col gap-3">
           <div className="flex items-center justify-between">
             <p className="flex items-center gap-2 text-xs uppercase tracking-wider font-bold text-[var(--text-muted)]">
               <HandCoins className="h-3.5 w-3.5 text-violet-500" /> Por cobrar
             </p>
             <Link href="/payments?tab=receivables" className="text-[11px] font-semibold text-[var(--color-primary-ink)] hover:underline">Ver cartera</Link>
           </div>
-          <p className="text-2xl font-extrabold text-[var(--text-base)] font-display">{formatCOP(receivableTotal)}</p>
-          <p className="text-xs text-[var(--text-muted)]">
-            {receivables.length === 0 ? "Nadie debe nada." : `${receivables.length} socio${receivables.length === 1 ? "" : "s"} con renovación vencida o saldo pendiente.`}
+          <p className="text-3xl font-extrabold text-[var(--text-base)] font-display">
+            {data.failed.has("receivables") ? "—" : formatCOP(receivableTotal)}
           </p>
+          {data.failed.has("receivables") ? (
+            <p className="text-xs text-amber-600 dark:text-amber-400">{SIN_DATO}</p>
+          ) : (
+            <p className="text-xs text-[var(--text-muted)]">
+              {receivables.length === 0 ? "Nadie debe nada." : `${receivables.length} socio${receivables.length === 1 ? "" : "s"} con renovación vencida o saldo pendiente.`}
+            </p>
+          )}
         </GlassCard>
-      </div>
 
-      <div className="grid grid-cols-1 xl:grid-cols-[minmax(0,7fr)_minmax(0,5fr)] gap-4 items-start">
-        <div>
-          <OperationsToday />
-        </div>
-        <div className="space-y-4">
-          {todayClasses.length > 0 && (
-            <GlassCard className="p-4">
-              <div className="flex items-center gap-2 mb-3">
-                <Dumbbell className="h-4 w-4 text-[var(--accent-classes)]" />
-                <h3 className="text-sm font-semibold text-[var(--text-base)]">Clases de hoy — {WEEKDAY_MAP[new Date().getDay()]}</h3>
+        {/* Estado operativo y lo que hay que atender */}
+        <OperationsStatusCards shift={data.shift} lowStock={data.lowStock} />
+        <OperationsLists data={data.operations} />
+
+        {/* Contexto del día */}
+        {todayClasses.length > 0 && (
+          <GlassCard className="col-span-12 md:col-span-6 xl:col-span-4 p-4">
+            <div className="flex items-center gap-2 mb-3">
+              <Dumbbell className="h-4 w-4 text-[var(--accent-classes)]" />
+              <h3 className="text-sm font-semibold text-[var(--text-base)]">Clases de hoy — {WEEKDAY_MAP[todayInGym().getDay()]}</h3>
+            </div>
+            <div className="space-y-1.5 max-h-56 overflow-y-auto">
+              {todayClasses.map((c) => (
+                <Link key={String(c.id)} href="/classes" className="flex items-center gap-2 px-3 py-2 rounded-lg border border-[var(--border-base)] bg-[var(--bg-base)] hover:border-[var(--accent-classes)] transition-colors">
+                  {typeof c.color === "string" && <span className="h-6 w-1 rounded-full shrink-0" style={{ background: c.color }} aria-hidden />}
+                  <div className="min-w-0 flex-1">
+                    <p className="text-xs font-medium text-[var(--text-base)] truncate">{String(c.name)}</p>
+                    <p className="text-[11px] text-[var(--text-muted)]">
+                      {typeof c.start_time === "string" ? c.start_time.slice(0, 5) : "—"} · {String(c.instructor ?? "")}
+                    </p>
+                  </div>
+                  <span className="text-[11px] text-[var(--text-muted)] border border-[var(--border-base)] rounded px-1.5 py-0.5 shrink-0">{String(c.duration_minutes)}min</span>
+                </Link>
+              ))}
+            </div>
+          </GlassCard>
+        )}
+
+        {maintenance && kpis && (
+          <Link href="/machines" className="col-span-12 md:col-span-6 xl:col-span-4 block">
+            <div className="h-full rounded-xl border border-red-200 dark:border-red-800/40 bg-red-50 dark:bg-red-950/20 p-4 flex items-center gap-3 hover:border-red-300 transition-colors group">
+              <div className="w-9 h-9 rounded-full bg-red-100 dark:bg-red-900/40 flex items-center justify-center shrink-0">
+                <Wrench className="h-4 w-4 text-red-600 dark:text-red-400" />
               </div>
-              <div className="space-y-1.5">
-                {todayClasses.map((c: any) => (
-                  <Link key={c.id} href="/classes" className="flex items-center gap-2 px-3 py-2 rounded-lg border border-[var(--border-base)] bg-[var(--bg-base)] hover:border-[var(--accent-classes)] transition-colors">
-                    {c.color && <span className="h-6 w-1 rounded-full shrink-0" style={{ background: c.color }} aria-hidden />}
-                    <div className="min-w-0 flex-1">
-                      <p className="text-xs font-medium text-[var(--text-base)] truncate">{c.name}</p>
-                      <p className="text-[10px] text-[var(--text-muted)]">{c.start_time ? c.start_time.slice(0, 5) : "—"} · {c.instructor}</p>
-                    </div>
-                    <span className="text-[10px] text-[var(--text-muted)] border border-[var(--border-base)] rounded px-1.5 py-0.5 shrink-0">{c.duration_minutes}min</span>
-                  </Link>
-                ))}
+              <div className="flex-1">
+                <p className="text-sm font-semibold text-red-800 dark:text-red-300">Equipos fuera de servicio</p>
+                <p className="text-xs text-red-700/80 dark:text-red-400/80 mt-0.5">{kpis.machines_maintenance} de {kpis.machines_total} en mantenimiento o dañados</p>
               </div>
-            </GlassCard>
-          )}
-
-          {maintenance && kpis && (
-            <Link href="/machines" className="block">
-              <div className="rounded-xl border border-red-200 dark:border-red-800/40 bg-red-50 dark:bg-red-950/20 p-4 flex items-center gap-3 hover:border-red-300 transition-colors group">
-                <div className="w-9 h-9 rounded-full bg-red-100 dark:bg-red-900/40 flex items-center justify-center shrink-0">
-                  <Wrench className="h-4 w-4 text-red-600 dark:text-red-400" />
-                </div>
-                <div className="flex-1">
-                  <p className="text-sm font-semibold text-red-800 dark:text-red-300">Equipos fuera de servicio</p>
-                  <p className="text-xs text-red-700/80 dark:text-red-400/80 mt-0.5">{kpis.machines_maintenance} de {kpis.machines_total} en mantenimiento o dañados</p>
-                </div>
-                <ArrowRight className="h-4 w-4 text-red-600 dark:text-red-400 group-hover:translate-x-0.5 transition-transform" />
-              </div>
-            </Link>
-          )}
-
-          <InsightsStrip />
-
-          <Link href="/reports" className="flex items-center gap-3 rounded-xl border border-dashed border-[var(--border-base)] px-4 py-3 text-sm text-[var(--text-muted)] hover:text-[var(--text-base)] hover:border-[var(--color-primary)]/50 transition-colors group">
-            <BarChart3 className="h-4 w-4 text-[var(--color-primary-ink)]" />
-            <span className="flex-1">Ingresos por período, ventas, asistencia y retención están en <strong className="text-[var(--text-base)]">Reportes</strong>.</span>
-            <ArrowRight className="h-4 w-4 group-hover:translate-x-0.5 transition-transform" />
+              <ArrowRight className="h-4 w-4 text-red-600 dark:text-red-400 group-hover:translate-x-0.5 transition-transform" />
+            </div>
           </Link>
-        </div>
+        )}
+
+        <InsightsStrip insights={data.insights} />
+
+        <Link href="/reports" className="col-span-12 flex items-center gap-3 rounded-xl border border-dashed border-[var(--border-base)] px-4 py-3 text-sm text-[var(--text-muted)] hover:text-[var(--text-base)] hover:border-[var(--color-primary)]/50 transition-colors group">
+          <BarChart3 className="h-4 w-4 text-[var(--color-primary-ink)]" />
+          <span className="flex-1">Ingresos por período, ventas, asistencia y retención están en <strong className="text-[var(--text-base)]">Reportes</strong>.</span>
+          <ArrowRight className="h-4 w-4 group-hover:translate-x-0.5 transition-transform" />
+        </Link>
       </div>
     </motion.div>
   );

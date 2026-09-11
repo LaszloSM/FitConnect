@@ -1,11 +1,9 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useSession } from "next-auth/react";
 import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
 import { GlassCard } from "@/components/common/GlassCard";
-import { apiClient } from "@/lib/api";
 import { formatTimeAgo } from "@/lib/format";
 import { useReceptionEvents } from "@/hooks/useReceptionEvents";
 import { cn } from "@/lib/utils";
@@ -24,21 +22,26 @@ interface Birthday {
   days_until: number;
 }
 
-/** Franja "Ahora": lo que está pasando HOY en el gym, en vivo (SSE). */
-export function LiveNowStrip({ expiring7d }: { expiring7d: number }) {
-  const { data: session } = useSession();
-  const [entries, setEntries] = useState<TodayEntry[]>([]);
-  const [birthdays, setBirthdays] = useState<Birthday[]>([]);
+/** Franja "Ahora": lo que está pasando HOY en el gym, en vivo (SSE).
+ *
+ * Los datos iniciales llegan por props desde la única espera del panel; aquí
+ * solo se mantiene el flujo en vivo, que es lo que justifica el bloque. */
+export function LiveNowStrip({
+  expiring7d,
+  initialEntries,
+  birthdays,
+  className = "col-span-12",
+}: {
+  expiring7d: number;
+  initialEntries: TodayEntry[];
+  birthdays: Birthday[];
+  className?: string;
+}) {
+  const [entries, setEntries] = useState<TodayEntry[]>(initialEntries);
 
-  useEffect(() => {
-    if (!session?.accessToken) return;
-    const client = apiClient(session.accessToken as string);
-    client.get("/api/v1/checkins/today").then((res) => setEntries(res.data)).catch(() => {});
-    client
-      .get("/api/v1/reports/birthdays")
-      .then((res) => setBirthdays((res.data as Birthday[]).filter((b) => b.days_until === 0)))
-      .catch(() => {});
-  }, [session?.accessToken]);
+  // El valor de `useState` solo cuenta en el primer render: sin esto, un
+  // refetch del panel refrescaba los cumpleaños pero no los ingresos de hoy.
+  useEffect(() => { setEntries(initialEntries); }, [initialEntries]);
 
   useReceptionEvents((event) => {
     if (event.type !== "checkin") return;
@@ -57,7 +60,7 @@ export function LiveNowStrip({ expiring7d }: { expiring7d: number }) {
   const lastEntries = entries.slice(0, 3);
 
   return (
-    <GlassCard className="p-0 overflow-hidden mb-6">
+    <GlassCard className={`${className} p-0 overflow-hidden`}>
       <div className="grid grid-cols-1 lg:grid-cols-[1.6fr_1fr] divide-y lg:divide-y-0 lg:divide-x divide-[var(--border-base)]">
         {/* En el gym ahora */}
         <div className="p-5 bg-[var(--color-primary)]/5">

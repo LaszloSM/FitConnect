@@ -6,7 +6,9 @@ import { useTheme } from "next-themes";
 import Link from "next/link";
 import { AnimatePresence, motion } from "framer-motion";
 import { Bell, LogOut, Moon, Settings, Sun } from "lucide-react";
-import { formatTimeAgo } from "@/lib/format";
+import { format } from "date-fns";
+import { es } from "date-fns/locale";
+import { formatTimeAgo, todayInGym } from "@/lib/format";
 import { Button } from "@/components/ui/button";
 import { apiClient } from "@/lib/api";
 import { useSidebar } from "@/components/layout/SidebarContext";
@@ -50,6 +52,12 @@ export function Header() {
   // no coinciden y React aborta la hidratación (#418) en TODAS las pantallas
   // para quien use modo oscuro.
   const esOscuro = mounted && resolvedTheme === "dark";
+
+  // Fecha del gym (Bogotá), no la del navegador. `capitalize` de CSS pondría
+  // mayúscula a CADA palabra ("Viernes 11 De Septiembre"), así que solo se
+  // levanta la inicial.
+  const fecha = format(todayInGym(), "EEEE d 'de' MMMM", { locale: es });
+  const hoy = fecha.charAt(0).toUpperCase() + fecha.slice(1);
 
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [gymName, setGymName] = useState<string | null>(null);
@@ -153,10 +161,16 @@ export function Header() {
         borderBottom: "1px solid var(--border-base)",
       }}
     >
-      {/* Left: gym identity — the page title lives in each page's PageHeader */}
-      <nav aria-label="Ubicación" className="flex items-center gap-2 min-w-0">
-        <span className="text-sm font-medium text-[var(--text-base)] truncate max-w-[16rem]">
+      {/* La identidad de la cuenta es el GIMNASIO, no la persona: el nombre
+          propio vive en el avatar. La fecha va al lado, no suelta en la página. */}
+      <nav aria-label="Ubicación" className="flex items-baseline gap-3 min-w-0">
+        <span className="text-base font-semibold text-[var(--text-base)] truncate max-w-[18rem]">
           {gymName ?? "FitConnect"}
+        </span>
+        {/* Tras montar: el HTML del servidor puede traer la fecha de ayer si el
+            render cae justo en el cambio de día, y eso rompe la hidratación. */}
+        <span className="hidden sm:inline text-xs text-[var(--text-muted)] whitespace-nowrap">
+          {mounted ? hoy : ""}
         </span>
       </nav>
 

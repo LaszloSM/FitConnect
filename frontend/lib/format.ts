@@ -55,6 +55,38 @@ export function todayISO(): string {
   return new Intl.DateTimeFormat("en-CA", { timeZone: GYM_TIMEZONE }).format(new Date());
 }
 
+/** HOY en el gym como fecha de calendario, para formatear sin que un navegador
+ * en otra zona muestre el día equivocado.
+ *
+ * No es un instante: es medianoche local de la fecha del gym. Para "hace
+ * cuánto" usa `formatTimeAgo`, que sí trabaja con instantes. */
+export function todayInGym(): Date {
+  return parseDateOnly(todayISO());
+}
+
+/** Día de la semana del gym con la convención del backend (0 = lunes).
+ * `new Date().getDay()` es el del navegador y numera desde el domingo: con las
+ * dos cosas juntas, un equipo con la zona corrida mostraba las clases del día
+ * equivocado bajo un encabezado con la fecha correcta. */
+export function gymWeekday(): number {
+  const js = todayInGym().getDay();
+  return js === 0 ? 6 : js - 1;
+}
+
+/** Hora del gym (Bogotá), no la del navegador.
+ * Un recepcionista que abra el panel desde otra zona —o con el reloj del PC
+ * corrido— veía "Buenos días" a las 8 de la noche.
+ *
+ * `hourCycle: "h23"` explícito: con `hour12: false` el ciclo lo decide el
+ * locale y algunos devuelven "24" a medianoche. */
+export function gymHour(): number {
+  return Number(
+    new Intl.DateTimeFormat("en-GB", {
+      timeZone: GYM_TIMEZONE, hour: "numeric", hourCycle: "h23",
+    }).format(new Date())
+  );
+}
+
 /** Días de calendario entre hoy (en el gym) y una fecha pura del backend.
  * Negativo = ya pasó. Se calcula con aritmética de calendario, no con instantes:
  * comparar `new Date(end_date)` contra `Date.now()` daba "vencido" un día antes en

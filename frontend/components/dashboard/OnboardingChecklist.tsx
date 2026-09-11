@@ -51,7 +51,7 @@ export function OnboardingChecklist() {
       initial={{ opacity: 0, y: 8 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.3 }}
-      className="mb-6"
+      className=""
     >
       <GlassCard className="p-5">
         <div className="flex items-start justify-between gap-3 mb-4">

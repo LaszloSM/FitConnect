@@ -40,7 +40,6 @@ def _auth(token):
 FINANCIAL_GET = [
     "/api/v1/dashboard/kpis",
     "/api/v1/dashboard/insights",
-    "/api/v1/dashboard/operations",
     "/api/v1/payments",
     "/api/v1/payments/cash",
     "/api/v1/payments/receivables",
@@ -74,6 +73,9 @@ async def test_receptionist_allowed_on_operational(client):
     # Recepción sí puede operar: ver miembros y check-ins del día
     assert (await client.get("/api/v1/members", headers=_auth(recep))).status_code == 200
     assert (await client.get("/api/v1/checkins/today", headers=_auth(recep))).status_code == 200
+    # Y las listas de a quién hay que llamar: vencen esta semana, morosos en
+    # gracia, denegados hoy. Es su trabajo, no información financiera.
+    assert (await client.get("/api/v1/dashboard/operations", headers=_auth(recep))).status_code == 200
 
 
 async def test_receptionist_cannot_delete_member(client):

@@ -1,10 +1,7 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { useSession } from "next-auth/react";
 import Link from "next/link";
 import { motion } from "framer-motion";
-import { apiClient } from "@/lib/api";
 import { TrendingUp, TrendingDown, AlertTriangle, Sparkles, ArrowRight } from "lucide-react";
 
 type Tone = "positive" | "negative" | "warning";
@@ -21,19 +18,13 @@ const TONE: Record<Tone, { icon: typeof TrendingUp; cls: string }> = {
   warning: { icon: AlertTriangle, cls: "text-amber-600 dark:text-amber-400" },
 };
 
-export function InsightsStrip() {
-  const { data: session } = useSession();
-  const [insights, setInsights] = useState<Insight[]>([]);
-
-  useEffect(() => {
-    if (!session?.accessToken) return;
-    const client = apiClient(session.accessToken as string);
-    client
-      .get<{ insights: Insight[] }>("/api/v1/dashboard/insights")
-      .then((res) => setInsights(res.data.insights))
-      .catch(() => {});
-  }, [session?.accessToken]);
-
+export function InsightsStrip({
+  insights,
+  className = "col-span-12",
+}: {
+  insights: Insight[];
+  className?: string;
+}) {
   if (insights.length === 0) return null;
 
   return (
@@ -41,7 +32,7 @@ export function InsightsStrip() {
       initial={{ opacity: 0, y: 8 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.3 }}
-      className="mb-6"
+      className={className}
     >
       <div className="flex items-center gap-1.5 mb-2 text-xs font-medium text-[var(--text-muted)]">
         <Sparkles className="h-3.5 w-3.5 text-[var(--color-primary-ink)]" />

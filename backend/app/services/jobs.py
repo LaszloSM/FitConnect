@@ -358,11 +358,23 @@ async def _purge_idempotency_keys(session: AsyncSession, tenant: Tenant) -> None
         logger.info("purgadas %s claves de idempotencia en %s", removed, tenant.slug)
 
 
+async def _generate_expiry_notices(session: AsyncSession, tenant: Tenant) -> None:
+    """Avisos in-app de "por vencer". Antes los creaba el panel al montar, así
+    que un gym sin nadie mirando la pantalla no los tenía."""
+    from app.services.expiry_notices import generate_expiry_notices
+
+    result = await generate_expiry_notices(session)
+    await session.commit()
+    if result["created"]:
+        logger.info("%s avisos de vencimiento en %s", result["created"], tenant.slug)
+
+
 async def _daily_tenant_tasks(session: AsyncSession, tenant: Tenant) -> None:
     from app.services.class_sessions import materialize_sessions
     await _expire_tenant_memberships(session, tenant)
     await _auto_void_stale_transfers(session, tenant)
     await materialize_sessions(session, horizon_days=14)
+    await _generate_expiry_notices(session, tenant)
     await _emit_expiry_reminders(session, tenant)
     await _emit_maintenance_alerts(session, tenant)
     await _emit_birthday_greetings(session, tenant)

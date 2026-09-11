@@ -47,6 +47,9 @@ export function apiClient(accessToken?: string): AxiosInstance {
   return addResponseInterceptor(
     axios.create({
       baseURL: process.env.NEXT_PUBLIC_API_URL,
+      // Sin tope, una petición que nunca resuelve deja la pantalla cargando
+      // indefinidamente: ni datos ni error, solo el esqueleto.
+      timeout: 20_000,
       headers: {
         "Content-Type": "application/json",
         ...(accessToken ? { Authorization: `Bearer ${accessToken}` } : {}),

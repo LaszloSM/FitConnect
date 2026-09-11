@@ -462,56 +462,14 @@ async def generate_expiry_notifications(
     days: int = Query(7, ge=1, le=30, description="Notificar membresías que vencen en N días"),
     db: AsyncSession = Depends(get_tenant_db_from_token),
 ):
-    """Create notifications for memberships expiring in N days (idempotent — dedup by title)."""
-    from app.models.tenant.notification import Notification
-    today = date.today()
-    cutoff = today + timedelta(days=days)
+    """Disparo manual de los avisos de vencimiento. El job diario ya los crea;
+    esto sirve para forzarlos sin esperar a medianoche."""
+    from app.services.expiry_notices import generate_expiry_notices
 
-    stmt = (
-        select(Membership, Member.full_name, Member.id.label("member_id"))
-        .join(Member, Member.id == Membership.member_id)
-        .where(
-            Membership.end_date <= cutoff,
-            Membership.end_date >= today,
-            Membership.status == MembershipStatus.active.value,
-        )
-        .order_by(Membership.end_date)
-    )
-    result = await db.execute(stmt)
-    rows = result.all()
-
-    created = 0
-    for membership, full_name, member_id in rows:
-        days_left = (membership.end_date - today).days
-        title = f"Membresía por vencer: {full_name}"
-        # Dedup: skip if there's already an unread notification with this exact title today
-        existing = await db.execute(
-            select(Notification).where(
-                Notification.title == title,
-                Notification.is_read.is_(False),
-            )
-        )
-        if existing.scalar_one_or_none():
-            continue
-
-        msg = (
-            f"La membresía '{membership.plan_name}' de {full_name} vence "
-            f"{'hoy' if days_left == 0 else 'mañana' if days_left == 1 else f'en {days_left} días'} "
-            f"({membership.end_date.isoformat()})."
-        )
-        notification = Notification(
-            title=title,
-            message=msg,
-            type="warning",
-            is_read=False,
-        )
-        db.add(notification)
-        created += 1
-
-    if created:
+    result = await generate_expiry_notices(db, days)
+    if result["created"]:
         await db.commit()
-
-    return {"created": created, "total_expiring": len(rows)}
+    return result
 
 
 def _range_bounds(from_date: date | None, to_date: date | None) -> tuple[datetime, datetime]:

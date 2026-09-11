@@ -263,7 +263,11 @@ async def get_dashboard_insights(db: AsyncSession = Depends(get_tenant_db_from_t
     return {"insights": (bi + insights)[:4], "generated_for": today.isoformat()}
 
 
-@router.get("/operations", dependencies=[Depends(require_perm(perm.REPORTS_READ))])
+# Las tres listas operativas —vencen esta semana, morosos en gracia, denegados
+# hoy— son la lista de socios a los que hay que llamar, no información
+# financiera: es justo el trabajo de recepción. Exigir REPORTS_READ le
+# borraba del panel lo único que necesita.
+@router.get("/operations", dependencies=[Depends(require_perm(perm.MEMBERS_READ))])
 async def get_operations_dashboard(
     db: AsyncSession = Depends(get_tenant_db_from_token),
 ):
