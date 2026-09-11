@@ -63,14 +63,17 @@ async def confirm_payment(db: AsyncSession, payment_id: uuid.UUID, transaction_i
             await _apply_membership_intent(db, link.membership_intent)
 
     member = (await db.execute(select(Member).where(Member.id == payment.member_id))).scalar_one_or_none()
-    from app.services.events import emit
-    await emit(
-        db, "payment.confirmed",
+    from app.core.timeutil import today_bogota
+    from app.services.events import try_emit_occasion
+    await try_emit_occasion(
+        db, "payment_confirmed",
         idempotency_key=f"payconfirm:{payment.id}",
-        title="Pago confirmado",
-        message=f"{member.full_name if member else 'Un miembro'} pagó {payment.amount} por {payment.concept}.",
+        values={
+            "nombre": member.full_name if member else "Miembro",
+            "plan": payment.concept,
+            "fecha": today_bogota().isoformat(),
+        },
         member_id=payment.member_id,
         phone=member.phone if member else None,
-        template_params=[member.full_name if member else "Miembro", str(payment.amount), payment.concept],
     )
     return True

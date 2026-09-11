@@ -31,7 +31,7 @@ from app.db.tenant_align import ALIGN_STATEMENTS
 from app.db.tenant_base import TenantBase
 import app.models.tenant  # noqa: F401  registra los modelos en el metadata
 
-from tests.test_tenant_migrations import _create_all, _exec_admin
+from tests.test_tenant_migrations import _create_all, _drop_db, _exec_admin
 
 FIXTURES = pathlib.Path(__file__).parent / "fixtures"
 
@@ -155,8 +155,8 @@ async def test_existing_tenant_reaches_current_schema():
         antiguo = await _read_schema(url_viejo)
         actual = await _read_schema(url_nuevo)
     finally:
-        await _exec_admin(f'DROP DATABASE IF EXISTS "{viejo}" WITH (FORCE)')
-        await _exec_admin(f'DROP DATABASE IF EXISTS "{nuevo}" WITH (FORCE)')
+        await _drop_db(viejo)
+        await _drop_db(nuevo)
 
     # Comparación asimétrica a propósito: solo importa lo que le FALTA al tenant
     # viejo. Lo que le sobra (residuos históricos) no rompe nada.

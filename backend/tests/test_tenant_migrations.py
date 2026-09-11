@@ -44,6 +44,26 @@ async def _exec_admin(sql: str) -> None:
     await engine.dispose()
 
 
+async def _drop_db(name: str, intentos: int = 5) -> None:
+    """Borra la DB de trabajo sin depender de WITH (FORCE).
+
+    `gymuser` no es superusuario ni tiene `pg_signal_backend`: si en ese momento
+    hay un worker de autovacuum enganchado a la DB recién escrita, el FORCE falla
+    con InsufficientPrivilege y tumba el test en el teardown, después de que la
+    comprobación real ya pasó. Se reintenta el DROP simple, que solo necesita que
+    no queden sesiones (las nuestras ya están dispuestas) y que el worker termine.
+    """
+    import asyncio
+    for intento in range(intentos):
+        try:
+            await _exec_admin(f'DROP DATABASE IF EXISTS "{name}"')
+            return
+        except Exception:  # noqa: BLE001
+            if intento == intentos - 1:
+                return  # una DB de test huérfana no justifica romper la suite
+            await asyncio.sleep(0.5 * (intento + 1))
+
+
 async def _create_all(url: str) -> None:
     engine = create_async_engine(url)
     async with engine.begin() as conn:
@@ -69,4 +89,4 @@ async def test_new_tenant_migration_is_idempotent_over_create_all():
         await loop.run_in_executor(None, lambda: command.stamp(cfg, prev))
         await loop.run_in_executor(None, lambda: command.upgrade(cfg, "head"))
     finally:
-        await _exec_admin(f'DROP DATABASE IF EXISTS "{name}" WITH (FORCE)')
+        await _drop_db(name)

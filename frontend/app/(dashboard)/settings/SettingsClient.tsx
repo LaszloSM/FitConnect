@@ -6,7 +6,7 @@ import { useSession } from "next-auth/react";
 import { motion, AnimatePresence } from "framer-motion";
 import { PageHeader } from "@/components/common/PageHeader";
 import { cn } from "@/lib/utils";
-import { User, Building2, Bell, CreditCard, Palette, SlidersHorizontal, Plug, MonitorSmartphone, Landmark, MessageSquare, Users, Ticket } from "lucide-react";
+import { User, Building2, CreditCard, Palette, SlidersHorizontal, Plug, MonitorSmartphone, Landmark, Users, Ticket } from "lucide-react";
 
 // Imports estáticos a propósito. Con `next/dynamic` y sin fallback, un chunk que
 // no llegaba (típico tras un despliegue: el navegador conserva el HTML viejo y
@@ -18,16 +18,14 @@ import GymSection from "@/components/settings/GymSection";
 import OperationsSection from "@/components/settings/OperationsSection";
 import BillingSection from "@/components/settings/BillingSection";
 import IntegrationsSection from "@/components/settings/IntegrationsSection";
-import NotificationsSection from "@/components/settings/NotificationsSection";
 import PlanSection from "@/components/settings/PlanSection";
 import AppearanceSection from "@/components/settings/AppearanceSection";
 import KioskSection from "@/components/settings/KioskSection";
-import MessagesSection from "@/components/settings/MessagesSection";
 import TeamSection from "@/components/settings/TeamSection";
 import DayPassSection from "@/components/settings/DayPassSection";
 
-type TabKey = "profile" | "gym" | "operations" | "billing" | "daypass" | "kiosk" | "integrations" | "notifications" | "messages" | "team" | "plan" | "appearance";
-const TAB_KEYS: TabKey[] = ["profile", "gym", "operations", "billing", "daypass", "kiosk", "integrations", "notifications", "messages", "team", "plan", "appearance"];
+type TabKey = "profile" | "gym" | "operations" | "billing" | "daypass" | "kiosk" | "integrations" | "team" | "plan" | "appearance";
+const TAB_KEYS: TabKey[] = ["profile", "gym", "operations", "billing", "daypass", "kiosk", "integrations", "team", "plan", "appearance"];
 
 interface Tab {
   key: TabKey;
@@ -44,8 +42,6 @@ const TABS: Tab[] = [
   { key: "daypass",       label: "Pases",            icon: Ticket },
   { key: "kiosk",         label: "Dispositivos",     icon: MonitorSmartphone },
   { key: "integrations",  label: "Integraciones",    icon: Plug },
-  { key: "notifications", label: "Notificaciones",   icon: Bell },
-  { key: "messages",      label: "Mensajes",         icon: MessageSquare },
   { key: "team",          label: "Equipo",           icon: Users, ownerOnly: true },
   { key: "plan",          label: "Plan",             icon: CreditCard },
   { key: "appearance",    label: "Apariencia",       icon: Palette },
@@ -59,8 +55,6 @@ const SECTION_MAP: Record<TabKey, React.ComponentType> = {
   daypass:       DayPassSection,
   kiosk:         KioskSection,
   integrations:  IntegrationsSection,
-  notifications: NotificationsSection,
-  messages:      MessagesSection,
   team:          TeamSection,
   plan:          PlanSection,
   appearance:    AppearanceSection,

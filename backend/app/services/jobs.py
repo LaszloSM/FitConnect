@@ -139,7 +139,7 @@ async def _emit_expiry_reminders(session: AsyncSession, tenant: Tenant) -> None:
     por key). Si Wompi está configurado, incluye link de pago de renovación.
     No recuerda a quien ya tiene una renovación encadenada."""
     from app.models.tenant.member import Member
-    from app.services.events import emit
+    from app.services.events import emit_occasion
     today = today_bogota()
 
     for days in (3, 0):
@@ -157,15 +157,15 @@ async def _emit_expiry_reminders(session: AsyncSession, tenant: Tenant) -> None:
             if await _has_renewal_after(session, m):
                 continue
             link = await _renewal_checkout_url(session, tenant, m, name)
-            label = "hoy" if days == 0 else f"en {days} días"
             pay_hint = link or "en recepción"
-            await emit(
-                session, "membership.expiring",
+            await emit_occasion(
+                session, "membership_expiring",
                 idempotency_key=f"expiring:{m.id}:{m.end_date.isoformat()}:{days}",
-                title="Membresía por vencer",
-                message=f"La membresía de {name} ({m.plan_name}) vence {label} ({m.end_date.isoformat()}).",
+                values={
+                    "nombre": name, "plan": m.plan_name,
+                    "fecha": m.end_date.isoformat(), "link": pay_hint,
+                },
                 member_id=m.member_id, phone=phone,
-                template_params=[name, m.plan_name, m.end_date.isoformat(), pay_hint],
             )
 
     # Vencida hace 3 días: el empujón que recupera cartera
@@ -183,37 +183,46 @@ async def _emit_expiry_reminders(session: AsyncSession, tenant: Tenant) -> None:
             continue
         link = await _renewal_checkout_url(session, tenant, m, name)
         pay_hint = link or "en recepción"
-        await emit(
-            session, "membership.overdue",
+        await emit_occasion(
+            session, "membership_overdue",
             idempotency_key=f"overdue:{m.id}:{m.end_date.isoformat()}",
-            title="Membresía vencida",
-            message=f"La membresía de {name} ({m.plan_name}) venció hace 3 días ({m.end_date.isoformat()}).",
+            values={
+                "nombre": name, "plan": m.plan_name,
+                "fecha": m.end_date.isoformat(), "link": pay_hint,
+            },
             member_id=m.member_id, phone=phone,
-            template_params=[name, m.plan_name, m.end_date.isoformat(), pay_hint],
         )
     await session.commit()
 
 
 async def _emit_maintenance_alerts(session: AsyncSession, tenant: Tenant) -> None:
     """Alerta de mantenimiento preventivo vencido (idempotente por día)."""
-    from app.models.tenant.machine import Machine
-    from app.services.events import emit
+    from app.models.tenant.machine import Machine, MachineStatus
+    from app.services.events import emit_occasion
     today = today_bogota()
     machines = (await session.execute(
-        select(Machine).where(Machine.maintenance_interval_days.isnot(None))
+        select(Machine).where(
+            Machine.maintenance_interval_days.isnot(None),
+            # Una máquina retirada no necesita mantenimiento preventivo.
+            Machine.status != MachineStatus.retired,
+        )
     )).scalars().all()
     for machine in machines:
         if not machine.last_maintenance_date:
             due = today  # nunca se le hizo: vencido
         else:
             due = machine.last_maintenance_date + timedelta(days=machine.maintenance_interval_days)
-        if due <= today:
-            await emit(
-                session, "maintenance.due",
-                idempotency_key=f"maint:{machine.id}:{today.isoformat()}",
-                title="Mantenimiento preventivo pendiente",
-                message=f"La máquina {machine.name} tiene mantenimiento preventivo vencido.",
-            )
+        if due > today:
+            continue
+        # La clave lleva el CICLO (la fecha en que venció), no el día de hoy:
+        # con la fecha de hoy una máquina vencida avisaba TODOS los días para
+        # siempre, y diez máquinas así ahogaban la campanita hasta que el dueño
+        # aprendía a ignorarla entera.
+        await emit_occasion(
+            session, "maintenance_due",
+            idempotency_key=f"maint:{machine.id}:{due.isoformat()}",
+            values={"maquina": machine.name, "dias": str((today - due).days)},
+        )
     await session.commit()
 
 
@@ -222,12 +231,8 @@ async def _emit_birthday_greetings(session: AsyncSession, tenant: Tenant) -> Non
     (idempotente por año). Engagement = retención."""
     from sqlalchemy import extract
     from app.models.tenant.member import Member, MemberStatus
-    from app.services.events import emit
-    from app.services.message_templates import CATALOG, get_body, render
+    from app.services.events import emit_occasion
 
-    body = await get_body(session, "birthday")
-    if not body:
-        return
     today = today_bogota()
     gym = await get_gym_settings(session)
     gym_name = getattr(gym, "legal_name", None) or tenant.name
@@ -239,15 +244,12 @@ async def _emit_birthday_greetings(session: AsyncSession, tenant: Tenant) -> Non
             extract("day", Member.birth_date) == today.day,
         )
     )).scalars().all()
-    variables = CATALOG["birthday"]["variables"]
     for m in rows:
-        values = {"nombre": m.full_name.split(" ")[0], "gym": gym_name}
-        await emit(
-            session, "member.birthday",
+        await emit_occasion(
+            session, "birthday",
             idempotency_key=f"birthday:{m.id}:{today.year}",
-            title="Cumpleaños", message=render(body, values),
+            values={"nombre": m.full_name.split(" ")[0], "gym": gym_name},
             member_id=m.id, phone=m.phone,
-            template_params=[values.get(v, "") for v in variables],
         )
     await session.commit()
 
@@ -259,12 +261,8 @@ async def _emit_winback(session: AsyncSession, tenant: Tenant) -> None:
     from app.core.timeutil import utcnow_naive
     from app.models.tenant.member import Member, MemberStatus
     from app.models.tenant.checkin import CheckIn
-    from app.services.events import emit
-    from app.services.message_templates import CATALOG, get_body, render
+    from app.services.events import emit_occasion
 
-    body = await get_body(session, "winback")
-    if not body:
-        return
     today = today_bogota()
     # checkins.created_at es UTC naive: el cutoff debe ser naive (no aware).
     cutoff = utcnow_naive() - timedelta(days=21)
@@ -295,17 +293,14 @@ async def _emit_winback(session: AsyncSession, tenant: Tenant) -> None:
             .where(CheckIn.member_id.in_(ids)).group_by(CheckIn.member_id)
         )).all()
     }
-    variables = CATALOG["winback"]["variables"]
     for m in rows:
         last = last_map.get(m.id)
         episode = last.date().isoformat() if last else "never"
-        values = {"nombre": m.full_name.split(" ")[0], "gym": gym_name}
-        await emit(
-            session, "member.winback",
+        await emit_occasion(
+            session, "winback",
             idempotency_key=f"winback:{m.id}:{episode}",
-            title="Te extrañamos", message=render(body, values),
+            values={"nombre": m.full_name.split(" ")[0], "gym": gym_name},
             member_id=m.id, phone=m.phone,
-            template_params=[values.get(v, "") for v in variables],
         )
     await session.commit()
 
@@ -435,6 +430,11 @@ async def reconcile_payments_job() -> None:
     )
 
 
+OUTBOX_BATCH = 50
+OUTBOX_MAX_ATTEMPTS = 4
+OUTBOX_BACKOFF_MINUTES = 5
+
+
 async def _process_tenant_outbox(session: AsyncSession, tenant: Tenant) -> None:
     from app.models.tenant.notification_outbox import NotificationOutbox
     from app.services.whatsapp import send_template
@@ -442,6 +442,9 @@ async def _process_tenant_outbox(session: AsyncSession, tenant: Tenant) -> None:
     wa_phone = gym.whatsapp_phone_number_id
     wa_token = secret(gym, "whatsapp_access_token")
 
+    # Los más viejos primero (un recordatorio tarde no sirve de nada) y con
+    # SKIP LOCKED: el advisory lock protege contra dos corridas del job, pero no
+    # contra otra transacción que ya esté trabajando una fila.
     pending = (await session.execute(
         select(NotificationOutbox)
         .where(
@@ -449,12 +452,18 @@ async def _process_tenant_outbox(session: AsyncSession, tenant: Tenant) -> None:
             NotificationOutbox.status == "pending",
             NotificationOutbox.scheduled_for <= now_bogota(),
         )
-        .limit(50)
+        .order_by(NotificationOutbox.scheduled_for)
+        .limit(OUTBOX_BATCH)
+        .with_for_update(skip_locked=True)
     )).scalars().all()
     for item in pending:
         if not wa_phone or not wa_token:
             item.status = "skipped"
             item.last_error = "WhatsApp no configurado"
+            continue
+        if not item.recipient_phone or not item.template_name:
+            item.status = "skipped"
+            item.last_error = "Sin teléfono o sin plantilla de WhatsApp"
             continue
         try:
             params = (item.template_params or {}).get("params", [])
@@ -467,13 +476,21 @@ async def _process_tenant_outbox(session: AsyncSession, tenant: Tenant) -> None:
         except Exception as e:  # noqa: BLE001
             item.attempts += 1
             item.last_error = str(e)[:500]
-            if item.attempts >= 3:
+            if item.attempts >= OUTBOX_MAX_ATTEMPTS:
                 item.status = "failed"
+            else:
+                # Backoff DE VERDAD: antes se decía "con backoff" en el
+                # docstring pero nunca se tocaba `scheduled_for`, así que los
+                # tres intentos se gastaban en tres minutos seguidos — justo
+                # cuando un corte de red aún no se ha resuelto.
+                item.scheduled_for = now_bogota() + timedelta(
+                    minutes=OUTBOX_BACKOFF_MINUTES * (2 ** (item.attempts - 1))
+                )
     await session.commit()
 
 
 async def process_outbox_job() -> None:
-    """Procesa la cola de WhatsApp con backoff (3 intentos)."""
+    """Procesa la cola de WhatsApp: 4 intentos con backoff exponencial (5, 10, 20 min)."""
     await _run_with_advisory_lock(
         _OUTBOX_LOCK_KEY, "process_outbox_job",
         lambda: for_each_tenant(_process_tenant_outbox),

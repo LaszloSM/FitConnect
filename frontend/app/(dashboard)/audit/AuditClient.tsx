@@ -68,6 +68,10 @@ const ACTION_LABELS: Record<string, string> = {
   "settings.operations": "Cambió reglas de operación",
   "settings.billing": "Cambió datos de recaudo",
   "settings.integrations": "Cambió integraciones",
+  "message.update": "Editó un mensaje automático",
+  "message.send": "Envió un mensaje a un socio",
+  "message.retry": "Reintentó un envío",
+  "announcement.send": "Envió un anuncio",
 };
 
 const ACTION_DOT: Record<string, string> = {
@@ -89,6 +93,8 @@ const ACTION_DOT: Record<string, string> = {
   kiosk: "bg-violet-500",
   staff: "bg-violet-500",
   settings: "bg-slate-500",
+  message: "bg-sky-500",
+  announcement: "bg-sky-500",
 };
 
 function dayLabel(date: Date): string {
@@ -106,6 +112,8 @@ const ACTION_FILTERS = [
   { value: "plan", label: "Planes" },
   { value: "staff", label: "Equipo" },
   { value: "settings", label: "Configuración" },
+  { value: "message", label: "Mensajes" },
+  { value: "announcement", label: "Anuncios" },
 ];
 
 function actionLabel(action: string): string {

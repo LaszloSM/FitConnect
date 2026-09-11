@@ -21,6 +21,7 @@ import {
   Tag,
   ScrollText,
   HelpCircle,
+  MessageSquare,
 } from "lucide-react";
 import { BrandMark } from "@/components/common/BrandMark";
 
@@ -37,6 +38,7 @@ const navGroups: NavGroup[] = [
       { href: "/checkins", label: "Check-ins", icon: Activity },
       { href: "/classes", label: "Clases", icon: Calendar },
       { href: "/routines", label: "Rutinas", icon: Dumbbell },
+      { href: "/messages", label: "Mensajes", icon: MessageSquare },
     ],
   },
   {

@@ -188,5 +188,46 @@ K1_LIBRO_MOVIMIENTOS: list[str] = [
          AND NOT EXISTS (SELECT 1 FROM payment_movements m WHERE m.payment_id = p.id AND m.kind = 'refund')""",
 ]
 
+K2_MENSAJERIA: list[str] = [
+    # k2b3c4d5e6f7_mensajeria_real.py
+    """CREATE TABLE IF NOT EXISTS announcements (
+        id UUID PRIMARY KEY,
+        title VARCHAR(120) NOT NULL,
+        body TEXT NOT NULL,
+        segment VARCHAR(40) NOT NULL,
+        segment_params JSONB NULL,
+        meta_template_name VARCHAR(100) NULL,
+        recipients INTEGER NOT NULL,
+        sent_at TIMESTAMP NULL,
+        sent_by UUID NULL REFERENCES users(id),
+        sent_by_name VARCHAR(255) NOT NULL,
+        created_at TIMESTAMP NOT NULL DEFAULT now(),
+        updated_at TIMESTAMP NOT NULL DEFAULT now()
+    )""",
+    # El ciclo de aprobación de Meta no existe dentro de esta app: `meta_status`
+    # solo se movía a 'draft' y la UI pintaba estados imposibles.
+    "ALTER TABLE message_templates DROP COLUMN IF EXISTS meta_status",
+    # `channel` y `header_image_url` se persistían y no los leía el envío.
+    "ALTER TABLE message_templates DROP COLUMN IF EXISTS channel",
+    "ALTER TABLE message_templates DROP COLUMN IF EXISTS header_image_url",
+    # Cuatro toggles que ningún emisor consultaba.
+    "ALTER TABLE users DROP COLUMN IF EXISTS notification_prefs",
+    # Las claves de ocasión se unifican con el catálogo (antes convivían
+    # `membership_expiring` y `membership.expiring` en dos catálogos paralelos).
+    "UPDATE message_templates SET meta_template_name = 'recordatorio_vencimiento' "
+    "WHERE occasion = 'membership_expiring' AND meta_template_name IS NULL",
+    "UPDATE message_templates SET meta_template_name = 'recordatorio_vencido' "
+    "WHERE occasion = 'membership_overdue' AND meta_template_name IS NULL",
+    "UPDATE message_templates SET meta_template_name = 'confirmacion_pago' "
+    "WHERE occasion = 'payment_confirmed' AND meta_template_name IS NULL",
+    "UPDATE message_templates SET meta_template_name = 'bienvenida' "
+    "WHERE occasion = 'welcome' AND meta_template_name IS NULL",
+    "UPDATE message_templates SET meta_template_name = 'cumpleanos' "
+    "WHERE occasion = 'birthday' AND meta_template_name IS NULL",
+    "UPDATE message_templates SET meta_template_name = 'te_extranamos' "
+    "WHERE occasion = 'winback' AND meta_template_name IS NULL",
+    "CREATE INDEX IF NOT EXISTS ix_notification_outbox_status ON notification_outbox (status, scheduled_for)",
+]
+
 # Orden cronológico: el aligner las aplica todas, en orden, tras create_all.
-ALIGN_STATEMENTS: list[str] = [*J1_INGRESOS_PASE_TRANSFERENCIAS, *J2_INVENTARIO, *J4_CONSENTIMIENTOS, *J6_ACCESO, *J7_VIDEO_EJERCICIOS, *J8_GYM_SETTINGS_FLAGS, *K1_LIBRO_MOVIMIENTOS]
+ALIGN_STATEMENTS: list[str] = [*J1_INGRESOS_PASE_TRANSFERENCIAS, *J2_INVENTARIO, *J4_CONSENTIMIENTOS, *J6_ACCESO, *J7_VIDEO_EJERCICIOS, *J8_GYM_SETTINGS_FLAGS, *K1_LIBRO_MOVIMIENTOS, *K2_MENSAJERIA]

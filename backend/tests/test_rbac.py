@@ -188,6 +188,15 @@ MUTATIONS = [
     ("patch",  "/api/v1/settings/billing", {"transfer_auto_void_hours": 48}, ("owner",)),
     ("patch",  "/api/v1/settings/integrations", {"wompi_public_key": "pub_test"}, ("owner",)),
 
+    # Mensajeria: un anuncio le llega a todo el gym y no se puede deshacer.
+    ("put",    "/api/v1/messages/welcome",
+     {"body": "Hola {nombre}", "is_active": True, "meta_template_name": None}, ("owner", "admin")),
+    ("post",   "/api/v1/messages/announcements",
+     {"title": "Aviso", "body": "Mensaje de prueba", "segment": "all_members"}, ("owner", "admin")),
+    ("post",   "/api/v1/messages/send",
+     {"member_id": _FAKE, "title": "Hola", "body": "Mensaje de prueba"}, ("owner", "admin")),
+    ("post",   f"/api/v1/messages/outbox/{_FAKE}/retry", None, ("owner", "admin")),
+
     ("post",   "/api/v1/users/invite",
      {"email": f"x-{uuid.uuid4().hex[:8]}@gym.com", "full_name": "X", "role": "receptionist"}, ("owner",)),
     ("patch",  f"/api/v1/users/{_FAKE}/role", {"role": "admin"}, ("owner",)),

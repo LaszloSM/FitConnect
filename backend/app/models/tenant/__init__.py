@@ -34,6 +34,7 @@ from app.models.tenant.idempotency import IdempotencyKey
 from app.models.tenant.kiosk_device import KioskDevice
 from app.models.tenant.instructor import Instructor
 from app.models.tenant.message_template import MessageTemplate
+from app.models.tenant.announcement import Announcement
 
 __all__ = [
     "UserStaff", "UserRole",
@@ -69,4 +70,5 @@ __all__ = [
     "KioskDevice",
     "Instructor",
     "MessageTemplate",
+    "Announcement",
 ]

@@ -64,6 +64,7 @@ REPORTS_READ = "reports.read"
 
 MESSAGES_READ = "messages.read"
 MESSAGES_WRITE = "messages.write"
+MESSAGES_SEND = "messages.send"   # anuncios y mensajes a un socio
 NOTIFICATIONS_OUTBOX = "notifications.outbox"
 
 SETTINGS_READ = "settings.read"
@@ -113,7 +114,7 @@ _ADMIN: frozenset[str] = _RECEPTIONIST | frozenset({
     ROUTINES_WRITE, ROUTINES_ASSIGN,
     ACCESS_OVERRIDE,
     REPORTS_READ,
-    MESSAGES_READ, MESSAGES_WRITE,
+    MESSAGES_READ, MESSAGES_WRITE, MESSAGES_SEND,
     SETTINGS_READ, SETTINGS_PROFILE,
     LOCATIONS_WRITE, PROMOS_WRITE, KIOSK_MANAGE,
     USERS_READ,

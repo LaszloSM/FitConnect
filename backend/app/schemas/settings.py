@@ -41,17 +41,3 @@ class GymSettingsUpdate(BaseModel):
     operating_hours: Optional[dict] = None
 
 
-class NotificationPreferences(BaseModel):
-    model_config = ConfigDict(from_attributes=True)
-
-    expiring_memberships: bool = True
-    payment_alerts: bool = True
-    new_members: bool = True
-    low_attendance: bool = False
-
-
-class NotificationPreferencesUpdate(BaseModel):
-    expiring_memberships: Optional[bool] = None
-    payment_alerts: Optional[bool] = None
-    new_members: Optional[bool] = None
-    low_attendance: Optional[bool] = None

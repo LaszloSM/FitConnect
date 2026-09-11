@@ -1,11 +1,11 @@
 "use client";
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { motion, type Variants } from "framer-motion";
-import { apiClient } from "@/lib/api";
+import { apiClient, newIdempotencyKey, postOnce } from "@/lib/api";
 import { formatCOP, formatTimeAgo, formatDate, formatDateTime, parseDateOnly, todayISO, daysUntil } from "@/lib/format";
 import { GlassCard } from "@/components/common/GlassCard";
 import { Button } from "@/components/ui/button";
@@ -33,6 +33,8 @@ import {
   Ticket,
   Dumbbell,
   Fingerprint,
+  MessageSquare,
+  Send,
 } from "lucide-react";
 import { MemberRoutineTab } from "@/components/routines/MemberRoutineTab";
 import { MemberAccessTab } from "@/components/access/MemberAccessTab";
@@ -130,6 +132,11 @@ export default function MemberDetailClient({ memberId }: { memberId: string }) {
   const [assigning, setAssigning] = useState(false);
   const [editOpen, setEditOpen] = useState(false);
   const [editSaving, setEditSaving] = useState(false);
+  const [msgOpen, setMsgOpen] = useState(false);
+  const [msgSending, setMsgSending] = useState(false);
+  // La clave se fija al montar y `postOnce` la rota tras un envío bueno: un
+  // doble clic o un reintento por timeout no manda el mensaje dos veces.
+  const msgKey = useRef(newIdempotencyKey());
   const [showDiscount, setShowDiscount] = useState(false);
   const [promoCode, setPromoCode] = useState("");
   const [discountAmount, setDiscountAmount] = useState("");
@@ -283,6 +290,32 @@ export default function MemberDetailClient({ memberId }: { memberId: string }) {
     }
   };
 
+  const handleSendMessage = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    if (!session?.accessToken) return;
+    const fd = new FormData(e.currentTarget);
+    const title = String(fd.get("title") ?? "").trim();
+    const body = String(fd.get("body") ?? "").trim();
+    if (title.length < 3 || body.length < 3) {
+      toast.error("Escribe un asunto y un mensaje");
+      return;
+    }
+    setMsgSending(true);
+    try {
+      const client = apiClient(session.accessToken as string);
+      await postOnce(client, "/api/v1/messages/send", {
+        member_id: memberId, title, body,
+      }, msgKey);
+      setMsgOpen(false);
+      toast.success("Mensaje enviado");
+    } catch (err: any) {
+      const detail = err.response?.data?.detail;
+      toast.error(typeof detail === "string" ? detail : "No se pudo enviar el mensaje");
+    } finally {
+      setMsgSending(false);
+    }
+  };
+
   if (loading) {
     return (
       <div className="space-y-4">
@@ -418,6 +451,62 @@ export default function MemberDetailClient({ memberId }: { memberId: string }) {
                     </Button>
                     <Button type="submit" disabled={editSaving}>
                       {editSaving ? <Loader2 className="h-4 w-4 animate-spin" /> : "Guardar cambios"}
+                    </Button>
+                  </div>
+                </form>
+              </DialogContent>
+            </Dialog>
+            <Dialog open={msgOpen} onOpenChange={setMsgOpen}>
+              <DialogTrigger
+                render={
+                  <button
+                    className="flex items-center gap-1 px-2 py-1 rounded-lg border border-[var(--border-base)] text-xs text-[var(--text-muted)] hover:text-[var(--text-base)] hover:bg-[var(--bg-base)] transition-colors"
+                    title="Enviar un mensaje a este socio"
+                  >
+                    <MessageSquare className="h-3 w-3" />
+                    Mensaje
+                  </button>
+                }
+              />
+              <DialogContent className="bg-[var(--bg-card)] border border-[var(--border-base)] text-[var(--text-base)] max-w-lg">
+                <DialogHeader>
+                  <DialogTitle className="text-[var(--text-base)] font-display">
+                    Mensaje para {member.full_name}
+                  </DialogTitle>
+                </DialogHeader>
+                <p className="text-xs text-[var(--text-muted)] -mt-1">
+                  Queda como aviso dentro de la app para el socio. Puedes usar{" "}
+                  <code className="font-mono">{"{nombre}"}</code> y{" "}
+                  <code className="font-mono">{"{gym}"}</code>.
+                </p>
+                <form onSubmit={handleSendMessage} className="space-y-3 mt-2">
+                  <div className="space-y-1">
+                    <Label className="text-[var(--text-muted)] text-xs">Asunto</Label>
+                    <Input
+                      name="title"
+                      maxLength={120}
+                      required
+                      placeholder="Recordatorio"
+                      className="bg-[var(--bg-base)] border-[var(--border-base)] text-[var(--text-base)]"
+                    />
+                  </div>
+                  <div className="space-y-1">
+                    <Label className="text-[var(--text-muted)] text-xs">Mensaje</Label>
+                    <textarea
+                      name="body"
+                      rows={4}
+                      maxLength={2000}
+                      required
+                      placeholder="Hola {nombre}, te dejamos la rutina nueva en recepción."
+                      className="w-full rounded-md border border-[var(--border-base)] bg-[var(--bg-base)] px-3 py-2 text-sm text-[var(--text-base)] resize-none outline-none focus:ring-2 focus:ring-[var(--color-primary)]/30 focus:border-[var(--color-primary)]"
+                    />
+                  </div>
+                  <div className="flex justify-end gap-2 pt-1">
+                    <Button type="button" variant="ghost" onClick={() => setMsgOpen(false)} className="text-[var(--text-muted)]">
+                      Cancelar
+                    </Button>
+                    <Button type="submit" disabled={msgSending}>
+                      {msgSending ? <Loader2 className="h-4 w-4 animate-spin" /> : <><Send className="h-3.5 w-3.5" /> Enviar</>}
                     </Button>
                   </div>
                 </form>

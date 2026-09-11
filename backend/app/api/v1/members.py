@@ -6,8 +6,9 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select, func, or_, delete
 from decimal import Decimal
 
-from app.api.deps import get_tenant_db_from_token, get_current_staff, get_tenant_slug, require_perm
+from app.api.deps import get_tenant_db_from_token, get_current_staff, get_tenant_slug, require_perm, get_tenant_from_claims
 from app.core import permissions as perm
+from app.models.master.tenant import Tenant
 from app.schemas.member import MemberCreate, MemberUpdate, MemberResponse, MembershipResponse, ConsentUpdate
 from app.models.tenant.member import Member, MemberStatus
 from app.models.tenant.membership import Membership
@@ -109,6 +110,7 @@ async def create_member(
     payload: MemberCreate,
     db: AsyncSession = Depends(get_tenant_db_from_token),
     slug: str = Depends(get_tenant_slug),
+    tenant: Tenant = Depends(get_tenant_from_claims),
 ):
     if payload.email:
         existing = await db.execute(select(Member).where(Member.email == payload.email))
@@ -154,6 +156,22 @@ async def create_member(
         plan,
         today_bogota(),
         payload.payment_method,
+    )
+
+    # La ocasión "bienvenida" existía en el catálogo, se podía editar desde la
+    # pantalla de Mensajes... y no la emitía nadie.
+    from app.services.events import try_emit_occasion
+    from app.services.gym_settings import get_gym_settings
+
+    gym = await get_gym_settings(db)
+    await try_emit_occasion(
+        db, "welcome",
+        idempotency_key=f"welcome:{member.id}",
+        values={
+            "nombre": member.full_name.split(" ")[0],
+            "gym": getattr(gym, "legal_name", None) or tenant.name,
+        },
+        member_id=member.id, phone=member.phone,
     )
 
     await db.commit()

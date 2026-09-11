@@ -2,17 +2,10 @@ import httpx
 
 WHATSAPP_API_URL = "https://graph.facebook.com/v18.0"
 
-# Plantillas que el gym debe crear y aprobar en su WhatsApp Business (es_CO).
-# recordatorio_vencimiento / recordatorio_vencido reciben 4 parámetros:
-# {{1}} nombre, {{2}} plan, {{3}} fecha de vencimiento, {{4}} link de pago o "en recepción"
-TEMPLATES = {
-    "membership.expiring": "recordatorio_vencimiento",
-    "membership.overdue": "recordatorio_vencido",
-    "payment.confirmed": "confirmacion_pago",
-    "payment.link_created": "link_de_pago",
-    "member.birthday": "cumpleanos",
-    "member.winback": "te_extranamos",
-}
+# Los nombres de plantilla viven en `message_occasions.py` (sugeridos) y en
+# `message_templates.meta_template_name` (el que el gym tiene aprobado). Aquí
+# quedaba un segundo catálogo con claves distintas que nadie reconciliaba, y una
+# entrada —link_de_pago— que ningún emisor usó jamás.
 
 
 def normalize_phone(phone: str | None) -> str | None:

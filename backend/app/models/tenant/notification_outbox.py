@@ -1,6 +1,6 @@
 import uuid
 from datetime import datetime
-from sqlalchemy import String, Integer, DateTime, func
+from sqlalchemy import String, Integer, DateTime, Index, func
 from sqlalchemy.dialects.postgresql import UUID, JSONB
 from sqlalchemy.orm import mapped_column, Mapped
 from typing import Optional
@@ -11,6 +11,9 @@ class NotificationOutbox(TenantBase):
     """Cola de notificaciones salientes (WhatsApp / in-app).
     idempotency_key evita duplicados (ej. mismo recordatorio de vencimiento)."""
     __tablename__ = "notification_outbox"
+    # El job toma los pendientes vencidos ordenados por fecha; sin índice es un
+    # seq scan sobre toda la cola en cada corrida (cada minuto).
+    __table_args__ = (Index("ix_notification_outbox_status", "status", "scheduled_for"),)
 
     id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     event_type: Mapped[str] = mapped_column(String(50), nullable=False)

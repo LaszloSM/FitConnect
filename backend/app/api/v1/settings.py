@@ -24,8 +24,6 @@ from app.models.tenant.user_staff import UserStaff
 from app.schemas.settings import (
     GymSettingsResponse,
     GymSettingsUpdate,
-    NotificationPreferences,
-    NotificationPreferencesUpdate,
     UserProfileResponse,
     UserProfileUpdate,
 )
@@ -429,32 +427,8 @@ async def update_integrations(
     return _integrations_response(gym)
 
 
-# ─── Notifications ────────────────────────────────────────────────────────────
-
-_DEFAULT_PREFS = NotificationPreferences()
-
-
-@router.get("/notifications", response_model=NotificationPreferences)
-async def get_notification_prefs(
-    current_user: UserStaff = Depends(get_current_staff),
-) -> NotificationPreferences:
-    if not current_user.notification_prefs:
-        return _DEFAULT_PREFS
-    return NotificationPreferences(**current_user.notification_prefs)
-
-
-@router.patch("/notifications", response_model=NotificationPreferences)
-async def update_notification_prefs(
-    payload: NotificationPreferencesUpdate,
-    current_user: UserStaff = Depends(get_current_staff),
-    db: AsyncSession = Depends(get_tenant_db_from_token),
-) -> NotificationPreferences:
-    # Merge partial update into existing prefs (preserves fields not in payload)
-    current = NotificationPreferences(**(current_user.notification_prefs or {}))
-    updates = payload.model_dump(exclude_none=True)
-    merged = current.model_dump()
-    merged.update(updates)
-    current_user.notification_prefs = merged
-    await db.commit()
-    await db.refresh(current_user)
-    return NotificationPreferences(**current_user.notification_prefs)
+# ─── Notificaciones ───────────────────────────────────────────────────────────
+# Aquí vivían cuatro toggles por usuario (`notification_prefs`) que NINGÚN
+# emisor consultaba, y dos de ellos ni siquiera tenían un emisor detrás. El
+# interruptor de verdad es `is_active` por ocasión, en la pantalla de Mensajes:
+# un solo sitio decide qué manda el gym.
