@@ -69,7 +69,10 @@ scp -i "$PEM" -o StrictHostKeyChecking=no deploy/docker-compose.prod.yml "ec2-us
 scp -i "$PEM" -o StrictHostKeyChecking=no deploy/Caddyfile "ec2-user@$PUBLIC_IP:$REMOTE_DIR/Caddyfile"
 
 step "7/9 Levantar la nueva versión"
-$SSH "cd $REMOTE_DIR && aws ecr get-login-password --region $REGION | docker login --username AWS --password-stdin $REGISTRY >/dev/null && docker compose pull && docker compose up -d && docker compose restart caddy"
+# Solo backend y frontend: son las únicas que cambian y vienen de ECR. Un
+# `docker compose pull` a secas también intenta bajar postgres/redis/minio/caddy
+# de Docker Hub, que limita los pulls anónimos y aborta el despliegue entero.
+$SSH "cd $REMOTE_DIR && aws ecr get-login-password --region $REGION | docker login --username AWS --password-stdin $REGISTRY >/dev/null && docker compose pull backend frontend && docker compose up -d && docker compose restart caddy"
 echo "  esperando a que el backend responda..."
 for i in $(seq 1 30); do
   if curl -sf -m 10 "http://$PUBLIC_IP/health" >/dev/null; then echo "  backend arriba"; break; fi

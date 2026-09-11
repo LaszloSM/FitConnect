@@ -120,7 +120,9 @@ Las migraciones del Master DB corren solas al arrancar el backend
 
 ```bash
 # build + push (paso 2) y luego:
-ssh -i $PEM ec2-user@$PUBLIC_IP "cd /opt/fitconnect && docker compose pull && docker compose up -d"
+# Solo backend y frontend: `docker compose pull` a secas también baja
+# postgres/redis/minio/caddy de Docker Hub, que limita los pulls anónimos.
+ssh -i $PEM ec2-user@$PUBLIC_IP   "cd /opt/fitconnect && docker compose pull backend frontend && docker compose up -d"
 ```
 
 ## Backups
