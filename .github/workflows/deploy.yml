@@ -45,6 +45,15 @@ jobs:
       REDIS_URL: redis://localhost:6379
       SECRET_KEY: ci-test-secret-key
       ENVIRONMENT: development
+      # Almacenamiento de objetos: sin esto el test que sube un video falla con
+      # "Unable to locate credentials" y nadie se enteraba, porque el lint de
+      # ruff reventaba antes de llegar a pytest.
+      S3_ENDPOINT_URL: http://localhost:9000
+      S3_PUBLIC_URL: http://localhost:9000
+      S3_BUCKET: fitconnect-media
+      S3_ACCESS_KEY: minioadmin
+      S3_SECRET_KEY: minioadmin
+      S3_REGION: us-east-1
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
@@ -63,6 +72,16 @@ jobs:
           # necesario para que los tests provisionen tenant DBs dinámicamente.
           psql -h localhost -U gymuser -d gymdb_master -c "ALTER USER gymuser CREATEDB;"
           psql -h localhost -U gymuser -d gymdb_master -c "CREATE DATABASE gymdb_test;"
+
+      # MinIO no va en `services:` porque necesita el comando `server /data` y
+      # los service containers de Actions no admiten `command`.
+      - name: Almacenamiento de objetos (MinIO)
+        run: |
+          docker run -d --name minio -p 9000:9000             -e MINIO_ROOT_USER=minioadmin -e MINIO_ROOT_PASSWORD=minioadmin             minio/minio:latest server /data
+          for i in $(seq 1 30); do
+            curl -sf http://localhost:9000/minio/health/live && echo "MinIO listo" && break
+            sleep 2
+          done
 
       - name: Run master migrations
         run: cd backend && alembic upgrade head
