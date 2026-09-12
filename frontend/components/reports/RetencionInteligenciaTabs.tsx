@@ -49,7 +49,7 @@ export function RetencionTab() {
             {retention.map((r) => (
               <div key={r.month} className="rounded-lg border border-[var(--border-base)] bg-[var(--bg-muted)] p-3">
                 <p className="text-[10px] text-[var(--text-muted)] uppercase">{r.month}</p>
-                <p className={cn("text-lg font-bold font-mono", r.renewal_rate === null ? "text-[var(--text-muted)]" : r.renewal_rate >= 70 ? "text-emerald-600 dark:text-emerald-400" : "text-amber-600 dark:text-amber-400")}>{r.renewal_rate === null ? "—" : `${r.renewal_rate}%`}</p>
+                <p className={cn("text-lg font-bold font-mono", r.renewal_rate === null ? "text-[var(--text-muted)]" : r.renewal_rate >= 70 ? "text-[var(--signal-ok)]" : "text-[var(--signal-warn)]")}>{r.renewal_rate === null ? "—" : `${r.renewal_rate}%`}</p>
                 <p className="text-[10px] text-[var(--text-muted)]">{r.renewed}/{r.ended} renovaron</p>
               </div>
             ))}
@@ -141,7 +141,7 @@ export function InteligenciaTab({ period }: { period: Period }) {
         )}
       </Card>
 
-      <Card title="Socios en riesgo de abandono" icon={<Brain className="h-4 w-4 text-red-500" />} right={<span className="text-[10px] text-[var(--text-muted)]">puntaje por reglas: visitas, mora, vencimiento</span>}>
+      <Card title="Socios en riesgo de abandono" icon={<Brain className="h-4 w-4 text-[var(--signal-danger)]" />} right={<span className="text-[10px] text-[var(--text-muted)]">puntaje por reglas: visitas, mora, vencimiento</span>}>
         {risk.length === 0 ? <Empty text="Ningún socio con señales de abandono. Buen trabajo." /> : <DataTable columns={columns} rows={risk} rowKey={(r) => r.member_id} />}
       </Card>
 

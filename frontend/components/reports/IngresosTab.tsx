@@ -57,7 +57,15 @@ export function IngresosTab({ period }: { period: Period }) {
               <XAxis dataKey="label" tick={{ fill: "var(--text-muted)", fontSize: 10 }} axisLine={false} tickLine={false} />
               <YAxis tick={{ fill: "var(--text-muted)", fontSize: 10 }} axisLine={false} tickLine={false} tickFormatter={compact} />
               <Tooltip {...chartTooltipStyle} formatter={(v: any, name: any) => [formatCOP(Number(v) || 0), name]} />
-              <Legend wrapperStyle={{ fontSize: 11 }} />
+              {/* El color de la serie identifica la LÍNEA, no su nombre: a 11px no
+                  llega a 4.5:1 sobre la tarjeta. El símbolo lleva el color y el
+                  texto la tinta normal, que es como se leen los datos. */}
+              <Legend
+                wrapperStyle={{ fontSize: 11 }}
+                formatter={(value) => (
+                  <span style={{ color: "var(--text-muted)" }}>{value}</span>
+                )}
+              />
               <Area type="monotone" stackId="1" dataKey="membership" name="Membresías" stroke={KIND_COLORS.membership} fill={KIND_COLORS.membership} fillOpacity={0.35} />
               <Area type="monotone" stackId="1" dataKey="day_pass" name="Pases" stroke={KIND_COLORS.day_pass} fill={KIND_COLORS.day_pass} fillOpacity={0.35} />
               <Area type="monotone" stackId="1" dataKey="product" name="Productos" stroke={KIND_COLORS.product} fill={KIND_COLORS.product} fillOpacity={0.35} />
@@ -108,13 +116,13 @@ export function IngresosTab({ period }: { period: Period }) {
             </div>
           )}
         </Card>
-        <Card title="Egresos por categoría" icon={<Wallet className="h-4 w-4 text-red-500" />}>
+        <Card title="Egresos por categoría" icon={<Wallet className="h-4 w-4 text-[var(--signal-danger)]" />}>
           {b.expenses.length === 0 ? <Empty text="Sin egresos registrados en el período" /> : (
             <div className="space-y-1.5">
               {b.expenses.map((e) => (
                 <div key={e.category} className="flex items-center justify-between text-sm py-1 border-b border-[var(--border-base)] last:border-0">
                   <span className="text-[var(--text-base)]">{e.label ?? EXPENSE_LABEL[e.category] ?? e.category} <span className="text-xs text-[var(--text-muted)]">· {e.count}</span></span>
-                  <span className="font-mono text-red-500">−{formatCOP(e.amount)}</span>
+                  <span className="font-mono text-[var(--signal-danger)]">−{formatCOP(e.amount)}</span>
                 </div>
               ))}
             </div>

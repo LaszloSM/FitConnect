@@ -149,6 +149,10 @@ const PAIRS = [
 // claro es oscuro y desaparecería sobre el negro.
 const FIXED_DARK = [0.039, 0.059, 0.039];
 
+// Señales semánticas: cada una sobre su propio banner y sobre las superficies
+// del producto. Un aviso que no se lee no avisa de nada.
+const SIGNALS = ["ok", "warn", "danger", "info"];
+
 const ACCENTS = [
   "--accent-dashboard", "--accent-members", "--accent-checkins", "--accent-classes",
   "--accent-machines", "--accent-payments", "--accent-plans", "--accent-reports",
@@ -176,6 +180,13 @@ for (const [theme, tokens] of [["claro", light], ["oscuro", dark]]) {
     ...PAIRS,
     // Los acentos se usan como eyebrow en texto pequeño sobre la tarjeta.
     ...ACCENTS.map((a) => [a, "--bg-card", 4.5, `acento ${a.replace("--accent-", "")} como texto`]),
+    // Cada señal sobre su banner, sobre la tarjeta y sobre el fondo.
+    ...SIGNALS.flatMap((n) => [
+      [`--signal-${n}`, `--signal-${n}-bg`, 4.5, `señal ${n} sobre su banner`],
+      [`--signal-${n}`, "--bg-card", 4.5, `señal ${n} sobre tarjeta`],
+      [`--signal-${n}`, "--bg-base", 4.5, `señal ${n} sobre el fondo`],
+      [`--signal-${n}-line`, `--signal-${n}-bg`, 1.3, `borde del banner de ${n}`],
+    ]),
   ];
   for (const [fg, bg, min, label] of checks) {
     if (!tokens[fg] || !tokens[bg]) {

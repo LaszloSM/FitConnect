@@ -252,7 +252,7 @@ export function Sidebar() {
                                      focus-visible:outline-none focus-visible:ring-2
                                      focus-visible:ring-[var(--color-primary)] w-full"
                           style={{
-                            color: active ? "var(--color-primary)" : "var(--text-muted)",
+                            color: active ? "var(--color-primary-ink)" : "var(--text-muted)",
                           }}
                         >
                           {active && (
@@ -323,8 +323,8 @@ export function Sidebar() {
               <button
                 onClick={() => signOut({ callbackUrl: "/login" })}
                 className="flex items-center gap-2 w-full px-2 py-1.5 rounded-lg
-                           text-xs font-medium text-red-500
-                           hover:bg-red-500/10 transition-colors duration-150
+                           text-xs font-medium text-[var(--signal-danger)]
+                           hover:bg-[var(--signal-danger-bg)] transition-colors duration-150
                            focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-400/50"
               >
                 <LogOut className="h-3.5 w-3.5 shrink-0" />

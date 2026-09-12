@@ -82,7 +82,7 @@ export function SociosTab({ period }: { period: Period }) {
         </Card>
         <Card title="Por vencer (14 días)" icon={<Calendar className="h-4 w-4 text-amber-500" />}>
           <PersonList items={data.expiring ?? []} empty="Ninguna membresía por vencer en dos semanas" tone="group-hover:text-amber-500" right={(i) => (
-            <span className={i.days_remaining <= 2 ? "text-red-500 text-xs font-semibold ml-3 shrink-0" : "text-amber-600 dark:text-amber-400 text-xs font-medium ml-3 shrink-0"}>
+            <span className={i.days_remaining <= 2 ? "text-[var(--signal-danger)] text-xs font-semibold ml-3 shrink-0" : "text-[var(--signal-warn)] text-xs font-medium ml-3 shrink-0"}>
               {i.days_remaining === 0 ? "Hoy" : i.days_remaining === 1 ? "Mañana" : `${i.days_remaining}d`}
             </span>
           )} />

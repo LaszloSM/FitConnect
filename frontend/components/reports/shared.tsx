@@ -106,7 +106,7 @@ export function ExportButtons({ tab, period, label }: { tab: string; period: Per
         {busy === "xlsx" ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <FileSpreadsheet className="h-3.5 w-3.5 text-emerald-500" />} Excel
       </button>
       <button type="button" onClick={() => void download("pdf")} disabled={busy !== null} className={btn}>
-        {busy === "pdf" ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <FileText className="h-3.5 w-3.5 text-red-500" />} PDF
+        {busy === "pdf" ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <FileText className="h-3.5 w-3.5 text-[var(--signal-danger)]" />} PDF
       </button>
     </div>
   );
@@ -115,9 +115,9 @@ export function ExportButtons({ tab, period, label }: { tab: string; period: Per
 export function Tile({ label, value, tone = "base", hint }: { label: string; value: string; tone?: "base" | "positive" | "negative" | "warning" | "muted"; hint?: string }) {
   const cls = {
     base: "text-[var(--text-base)]",
-    positive: "text-emerald-600 dark:text-emerald-400",
-    negative: "text-red-500",
-    warning: "text-amber-600 dark:text-amber-400",
+    positive: "text-[var(--signal-ok)]",
+    negative: "text-[var(--signal-danger)]",
+    warning: "text-[var(--signal-warn)]",
     muted: "text-[var(--text-muted)]",
   }[tone];
   return (

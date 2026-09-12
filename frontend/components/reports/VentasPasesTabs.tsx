@@ -30,14 +30,14 @@ export function VentasTab({ period }: { period: Period }) {
     { key: "units", header: "Unid.", cell: (r) => <span className="font-mono">{r.units}</span> },
     { key: "revenue", header: "Neto", cell: (r) => <span className="font-mono text-[var(--text-base)]">{formatCOP(r.revenue)}{r.discount > 0 && <span className="text-[10px] text-[var(--text-muted)]"> (−{formatCOP(r.discount)})</span>}</span> },
     { key: "cost", header: "Costo", hideOnMobile: true, cell: (r) => <span className="font-mono text-[var(--text-muted)]">{formatCOP(r.cost)}</span> },
-    { key: "margin", header: "Margen", cell: (r) => <span className={cn("font-mono font-semibold", r.margin >= 0 ? "text-emerald-600 dark:text-emerald-400" : "text-red-500")}>{formatCOP(r.margin)}</span> },
-    { key: "stock", header: "Stock", hideOnMobile: true, cell: (r) => <span className={cn("font-mono", r.low_stock ? "text-amber-600 dark:text-amber-400 font-semibold" : "text-[var(--text-muted)]")}>{r.stock ?? "—"}</span> },
+    { key: "margin", header: "Margen", cell: (r) => <span className={cn("font-mono font-semibold", r.margin >= 0 ? "text-[var(--signal-ok)]" : "text-[var(--signal-danger)]")}>{formatCOP(r.margin)}</span> },
+    { key: "stock", header: "Stock", hideOnMobile: true, cell: (r) => <span className={cn("font-mono", r.low_stock ? "text-[var(--signal-warn)] font-semibold" : "text-[var(--text-muted)]")}>{r.stock ?? "—"}</span> },
   ];
   const stockCols: DataTableColumn<Stockout>[] = [
     { key: "name", header: "Producto", cell: (r) => <span className="font-medium text-[var(--text-base)] flex items-center gap-1.5">{r.stock <= r.low_stock_threshold && <TriangleAlert className="h-3.5 w-3.5 text-amber-500" />}{r.name}</span> },
     { key: "stock", header: "Stock", cell: (r) => <span className="font-mono">{r.stock}</span> },
     { key: "v", header: "Ritmo (30d)", hideOnMobile: true, cell: (r) => <span className="text-[var(--text-muted)] text-sm">{r.units_sold_30d} vend. · {r.daily_velocity}/día</span> },
-    { key: "eta", header: "Se agota", cell: (r) => r.days_left === null ? <span className="text-xs text-[var(--text-muted)]">Sin ventas recientes</span> : <span className={cn("text-sm font-semibold", r.days_left <= 7 ? "text-red-500" : r.days_left <= 21 ? "text-amber-600 dark:text-amber-400" : "text-[var(--text-base)]")}>{r.days_left === 0 ? "Hoy" : `en ${r.days_left} d`}</span> },
+    { key: "eta", header: "Se agota", cell: (r) => r.days_left === null ? <span className="text-xs text-[var(--text-muted)]">Sin ventas recientes</span> : <span className={cn("text-sm font-semibold", r.days_left <= 7 ? "text-[var(--signal-danger)]" : r.days_left <= 21 ? "text-[var(--signal-warn)]" : "text-[var(--text-base)]")}>{r.days_left === 0 ? "Hoy" : `en ${r.days_left} d`}</span> },
   ];
 
   return (

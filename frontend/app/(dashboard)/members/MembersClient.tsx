@@ -1066,7 +1066,7 @@ export default function MembersClient() {
                     <TableCell className="text-[var(--text-muted)]">{m.email ?? "—"}</TableCell>
                     <TableCell className="text-[var(--text-muted)]">{m.phone || "-"}</TableCell>
                     <TableCell className="text-[var(--text-muted)]">
-                      {m.id_type && <span className="text-xs font-medium text-[var(--color-primary-ink)] mr-1">{m.id_type}</span>}
+                      {m.id_type && <span className="text-xs font-medium text-[var(--text-subtle)] mr-1">{m.id_type}</span>}
                       {m.id_number || "-"}
                     </TableCell>
                     <TableCell onClick={(e) => e.stopPropagation()}>
