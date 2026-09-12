@@ -10,7 +10,7 @@ from app.core import permissions as perm
 from app.models.master.tenant import Tenant
 from app.services.exports import build_reports_xlsx, build_report_pdf, fetch_logo_png
 from app.core.timeutil import today_bogota
-from app.models.tenant.member import Member, MemberStatus
+from app.models.tenant.member import Member, MemberStatus, is_business_member
 from app.models.tenant.payment import Payment, PaymentStatus, PaymentMethod
 from app.services.payment_ledger import net_amount
 from app.models.tenant.day_pass import DayPass
@@ -314,6 +314,7 @@ async def inactive_members_report(
         .where(
             Member.status == MemberStatus.active,
             Member.id.not_in(recent_checkins),
+            is_business_member(),
         )
         .order_by(Member.full_name)
         .limit(50)
@@ -365,6 +366,7 @@ async def birthdays_report(
                 Member.status == MemberStatus.active,
                 extract("month", Member.birth_date) == check_date.month,
                 extract("day", Member.birth_date) == check_date.day,
+                is_business_member(),
             )
         )
         result = await db.execute(stmt)

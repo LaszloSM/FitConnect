@@ -165,7 +165,10 @@ class ConsentUpdate(BaseModel):
 class MembershipBase(BaseModel):
     member_id: uuid.UUID
     plan_name: str = Field(min_length=1, max_length=100)
-    price: Decimal = Field(gt=0, decimal_places=2)
+    # `gt=0` rompía la LECTURA: este schema también es el response, así que una
+    # membresía de $0 —la cortesía del personal, una promoción gratuita— daba
+    # 500 al abrir la ficha del socio. Negativo sigue sin tener sentido.
+    price: Decimal = Field(ge=0, decimal_places=2)
     start_date: date
     end_date: date
     duration_days: int = Field(gt=0)

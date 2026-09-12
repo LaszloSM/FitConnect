@@ -1,3 +1,4 @@
+import uuid
 from datetime import datetime, timedelta, timezone
 
 from fastapi import APIRouter, Depends, HTTPException, Query
@@ -9,6 +10,7 @@ from app.core import permissions as perm
 from app.core.config import settings
 from app.core.security import generate_invite_token, hash_invite_token
 from app.services.audit import audit
+from app.services.staff_member import restore_staff_member, suspend_staff_member
 from app.models.master.staff_directory import StaffDirectory
 from app.models.master.staff_invitation import StaffInvitation
 from app.models.tenant.user_staff import UserStaff, UserRole
@@ -172,7 +174,7 @@ async def _sync_trainer_profile(db: AsyncSession, user: UserStaff) -> None:
 
 @router.post("/{user_id}/teaching", status_code=201)
 async def enable_teaching(
-    user_id: str,
+    user_id: uuid.UUID,
     current_user: UserStaff = Depends(require_perm(perm.INSTRUCTORS_WRITE)),
     db: AsyncSession = Depends(get_tenant_db_from_token),
 ):
@@ -189,7 +191,7 @@ async def enable_teaching(
 
 @router.delete("/{user_id}/teaching")
 async def disable_teaching(
-    user_id: str,
+    user_id: uuid.UUID,
     current_user: UserStaff = Depends(require_perm(perm.INSTRUCTORS_WRITE)),
     db: AsyncSession = Depends(get_tenant_db_from_token),
 ):
@@ -213,7 +215,7 @@ async def disable_teaching(
 
 @router.patch("/{user_id}/role", response_model=UserResponse)
 async def update_user_role(
-    user_id: str,
+    user_id: uuid.UUID,
     payload: UpdateUserRoleRequest,
     current_user: UserStaff = Depends(require_perm(perm.USERS_MANAGE)),
     db: AsyncSession = Depends(get_tenant_db_from_token),
@@ -239,7 +241,7 @@ async def update_user_role(
 
 @router.delete("/{user_id}")
 async def deactivate_user(
-    user_id: str,
+    user_id: uuid.UUID,
     current_user: UserStaff = Depends(require_perm(perm.USERS_MANAGE)),
     db: AsyncSession = Depends(get_tenant_db_from_token),
 ):
@@ -252,6 +254,9 @@ async def deactivate_user(
     if user.role == UserRole.owner:
         raise HTTPException(status_code=400, detail="No se puede desactivar al owner")
     user.is_active = False
+    # Quitarle el acceso al software tiene que quitarle también el del gimnasio:
+    # si no, sigue entrando por el torniquete despues de que lo desvincularon.
+    await suspend_staff_member(db, staff_id=user.id)
     audit(db, current_user, "staff.deactivate", "user", user.id, {"email": user.email})
     await db.commit()
     return {"ok": True}
@@ -259,7 +264,7 @@ async def deactivate_user(
 
 @router.post("/{user_id}/reactivate", response_model=UserResponse)
 async def reactivate_user(
-    user_id: str,
+    user_id: uuid.UUID,
     current_user: UserStaff = Depends(require_perm(perm.USERS_MANAGE)),
     db: AsyncSession = Depends(get_tenant_db_from_token),
 ):
@@ -270,6 +275,7 @@ async def reactivate_user(
     if not user:
         raise HTTPException(status_code=404, detail="Usuario no encontrado")
     user.is_active = True
+    await restore_staff_member(db, staff_id=user.id)
     audit(db, current_user, "staff.reactivate", "user", user.id, {"email": user.email})
     await db.commit()
     await db.refresh(user)

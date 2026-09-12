@@ -9,6 +9,7 @@ from app.core import permissions as perm
 from app.models.tenant.gym_class import GymClass
 from app.models.tenant.instructor import Instructor
 from app.models.tenant.user_staff import UserStaff
+from app.services.staff_member import ensure_staff_member, suspend_staff_member
 
 router = APIRouter(prefix="/instructors", tags=["instructors"], dependencies=[Depends(require_perm(perm.INSTRUCTORS_READ))])
 
@@ -86,6 +87,15 @@ async def create_instructor(
 ):
     instructor = Instructor(**payload.model_dump())
     db.add(instructor)
+    await db.flush()
+    # Un entrenador por horas no tiene cuenta en el software, pero sí tiene que
+    # poder cruzar el torniquete para dictar su clase.
+    await ensure_staff_member(
+        db,
+        full_name=instructor.full_name,
+        phone=instructor.phone,
+        instructor_id=instructor.id,
+    )
     await db.commit()
     await db.refresh(instructor)
     return _serialize(instructor)
@@ -130,5 +140,6 @@ async def archive_instructor(
     if not instructor:
         raise HTTPException(status_code=404, detail="Entrenador no encontrado")
     instructor.is_active = False
+    await suspend_staff_member(db, instructor_id=instructor.id)
     await db.commit()
     return {"archived": True}

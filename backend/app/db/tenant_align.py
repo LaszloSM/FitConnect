@@ -277,4 +277,15 @@ K4_MAQUINAS: list[str] = [
     END $$""",
 ]
 
-ALIGN_STATEMENTS: list[str] = [*J1_INGRESOS_PASE_TRANSFERENCIAS, *J2_INVENTARIO, *J4_CONSENTIMIENTOS, *J6_ACCESO, *J7_VIDEO_EJERCICIOS, *J8_GYM_SETTINGS_FLAGS, *K1_LIBRO_MOVIMIENTOS, *K2_MENSAJERIA, *K3_ENTRENADORES, *K4_MAQUINAS]
+K5_STAFF_SOCIO: list[str] = [
+    # k5e6f7a8b9c0_staff_socio.py
+    # El personal del gimnasio tambien entrena aqui: su ficha de socio le da QR,
+    # huella y torniquete sin tocar el motor de acceso.
+    "ALTER TABLE members ADD COLUMN IF NOT EXISTS staff_id UUID NULL REFERENCES users(id)",
+    "ALTER TABLE members ADD COLUMN IF NOT EXISTS instructor_profile_id UUID NULL REFERENCES instructors(id)",
+    "CREATE UNIQUE INDEX IF NOT EXISTS uq_members_staff_id ON members (staff_id) WHERE staff_id IS NOT NULL",
+    "CREATE UNIQUE INDEX IF NOT EXISTS uq_members_instructor_profile_id "
+    "ON members (instructor_profile_id) WHERE instructor_profile_id IS NOT NULL",
+]
+
+ALIGN_STATEMENTS: list[str] = [*J1_INGRESOS_PASE_TRANSFERENCIAS, *J2_INVENTARIO, *J4_CONSENTIMIENTOS, *J6_ACCESO, *J7_VIDEO_EJERCICIOS, *J8_GYM_SETTINGS_FLAGS, *K1_LIBRO_MOVIMIENTOS, *K2_MENSAJERIA, *K3_ENTRENADORES, *K4_MAQUINAS, *K5_STAFF_SOCIO]

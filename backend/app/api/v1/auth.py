@@ -8,6 +8,7 @@ from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import async_sessionmaker
 
 from app.core.config import settings
+from app.services.staff_member import ensure_staff_member
 from app.api.deps import get_current_staff, security
 from app.core.security import (
     verify_password,
@@ -183,6 +184,12 @@ async def accept_invite(request: Request, payload: AcceptInviteRequest, db: Asyn
                 ts.add(ficha)
             ficha.staff_id = staff.id
             ficha.is_active = True
+
+        # El personal entrena en el gimnasio donde trabaja: su ficha de socio le
+        # da QR, huella y torniquete sin tocar el motor de acceso.
+        await ensure_staff_member(
+            ts, full_name=staff.full_name, email=staff.email, staff_id=staff.id
+        )
 
         await ts.commit()
         await ts.refresh(staff)

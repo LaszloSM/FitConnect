@@ -35,6 +35,7 @@ import {
   Fingerprint,
   MessageSquare,
   Send,
+  Users,
 } from "lucide-react";
 import { MemberRoutineTab } from "@/components/routines/MemberRoutineTab";
 import { MemberAccessTab } from "@/components/access/MemberAccessTab";
@@ -573,6 +574,11 @@ export default function MemberDetailClient({ memberId }: { memberId: string }) {
             {member.member_type === "visitor" && (
               <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-semibold bg-violet-50 dark:bg-violet-950/40 text-violet-700 dark:text-violet-400 ring-1 ring-violet-200 dark:ring-violet-800/60">
                 <Ticket className="h-3 w-3" /> Visitante · pase del día
+              </span>
+            )}
+            {member.member_type === "staff" && (
+              <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-semibold bg-sky-50 dark:bg-sky-950/40 text-sky-700 dark:text-sky-400 ring-1 ring-sky-200 dark:ring-sky-800/60">
+                <Users className="h-3 w-3" /> Equipo · acceso de cortesía
               </span>
             )}
             {activeMembership && (

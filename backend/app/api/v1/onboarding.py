@@ -4,23 +4,29 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.api.deps import get_tenant_db_from_token, get_current_staff
 from app.core.timeutil import utcnow_naive
-from app.models.tenant.member import Member
+from app.models.tenant.member import Member, is_business_member
 from app.models.tenant.member_plan import MemberPlan
 from app.services.gym_settings import get_gym_settings
+from app.services.staff_member import STAFF_PLAN_NAME
 
 router = APIRouter(prefix="/onboarding", tags=["onboarding"], dependencies=[Depends(get_current_staff)])
 
 
-async def _exists(db: AsyncSession, model) -> bool:
-    return (await db.execute(select(model.id).limit(1))).scalar() is not None
-
-
 @router.get("/status")
 async def onboarding_status(db: AsyncSession = Depends(get_tenant_db_from_token)):
-    """Progreso de configuración del gym para el checklist y el tour de bienvenida."""
+    """Progreso de configuración del gym para el checklist y el tour de bienvenida.
+
+    Solo cuenta lo que el dueño crea. El sistema da de alta por su cuenta el plan
+    de cortesía del equipo y la ficha de socio del propio dueño; darlos por
+    progreso suyo le diría que ya tiene plan y socio antes de haber hecho nada.
+    """
     gym = await get_gym_settings(db)
-    has_plan = await _exists(db, MemberPlan)
-    has_member = await _exists(db, Member)
+    has_plan = (await db.execute(
+        select(MemberPlan.id).where(MemberPlan.name != STAFF_PLAN_NAME).limit(1)
+    )).scalar() is not None
+    has_member = (await db.execute(
+        select(Member.id).where(is_business_member()).limit(1)
+    )).scalar() is not None
 
     return {
         "has_plan": has_plan,

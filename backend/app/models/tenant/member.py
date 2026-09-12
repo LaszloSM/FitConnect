@@ -22,6 +22,10 @@ class MemberType(str, enum.Enum):
     member = "member"
     # Registro exprés del pase del día (cédula + nombre); convertible a socio
     visitor = "visitor"
+    # Personal del gimnasio que además entrena aquí. Ocupa el gimnasio como
+    # cualquiera (aforo, check-ins, horas pico) pero no es negocio: se excluye
+    # de ingresos, morosidad, churn y proyecciones.
+    staff = "staff"
 
 
 class IdType(str, enum.Enum):
@@ -46,6 +50,17 @@ class TrainingGoal(str, enum.Enum):
     general_fitness = "general_fitness"
 
 
+def is_business_member():
+    """Criterio único de «socio» para los indicadores de negocio.
+
+    La tabla `members` guarda tres poblaciones: los socios, los visitantes del
+    pase del día (registro exprés, no son socios) y el personal del gimnasio
+    (entrena aquí pero no paga). Contar las tres juntas infla el total de socios,
+    los nuevos del mes y el riesgo de abandono.
+    """
+    return Member.member_type == MemberType.member.value
+
+
 class Member(TenantBase, TenantTimestampMixin):
     __tablename__ = "members"
     __table_args__ = (
@@ -63,6 +78,19 @@ class Member(TenantBase, TenantTimestampMixin):
             "id_number",
             unique=True,
             postgresql_where=text("id_number IS NOT NULL"),
+        ),
+        # Una persona del equipo tiene una sola ficha de socio.
+        Index(
+            "uq_members_staff_id",
+            "staff_id",
+            unique=True,
+            postgresql_where=text("staff_id IS NOT NULL"),
+        ),
+        Index(
+            "uq_members_instructor_profile_id",
+            "instructor_profile_id",
+            unique=True,
+            postgresql_where=text("instructor_profile_id IS NOT NULL"),
         ),
     )
 
@@ -102,4 +130,14 @@ class Member(TenantBase, TenantTimestampMixin):
     #: Entrenador asignado. El plan puede exigirlo (`includes_trainer`).
     trainer_id: Mapped[Optional[uuid.UUID]] = mapped_column(
         UUID(as_uuid=True), ForeignKey("instructors.id"), nullable=True, index=True
+    )
+    #: Esta persona ES un usuario del sistema. No confundir con `trainer_id`,
+    #: que dice quién la entrena. Se llena solo para `member_type = staff`.
+    staff_id: Mapped[Optional[uuid.UUID]] = mapped_column(
+        UUID(as_uuid=True), ForeignKey("users.id"), nullable=True
+    )
+    #: Esta persona ES una ficha de entrenador. El equipo tiene dos poblaciones
+    #: —con cuenta y sin ella— y ambas entran al gimnasio.
+    instructor_profile_id: Mapped[Optional[uuid.UUID]] = mapped_column(
+        UUID(as_uuid=True), ForeignKey("instructors.id"), nullable=True
     )

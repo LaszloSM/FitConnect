@@ -8,7 +8,7 @@ from app.api.deps import get_tenant_db_from_token, require_perm
 from app.core import permissions as perm
 from app.core.timeutil import today_bogota, utc_day_bounds
 from app.schemas.member import DashboardOverview, DashboardKPIs, MemberGrowthPoint, RevenuePoint
-from app.models.tenant.member import Member, MemberStatus
+from app.models.tenant.member import Member, MemberStatus, is_business_member
 from app.models.tenant.payment import Payment, PaymentStatus
 from app.services.payment_ledger import net_amount
 from app.models.tenant.checkin import CheckIn
@@ -37,12 +37,15 @@ async def get_dashboard_kpis(
     end_dt = datetime.combine(end, datetime.min.time()) + timedelta(days=1)
 
     # Total members
-    total_members_result = await db.execute(select(func.count()).select_from(Member))
+    total_members_result = await db.execute(
+        select(func.count()).select_from(Member).where(is_business_member())
+    )
     total_members = total_members_result.scalar() or 0
 
     # Active / inactive
     active_members_result = await db.execute(
-        select(func.count()).select_from(Member).where(Member.status == MemberStatus.active)
+        select(func.count()).select_from(Member)
+        .where(Member.status == MemberStatus.active, is_business_member())
     )
     active_members = active_members_result.scalar() or 0
     inactive_members = total_members - active_members
@@ -52,6 +55,7 @@ async def get_dashboard_kpis(
         select(func.count()).select_from(Member).where(
             Member.created_at >= start_dt,
             Member.created_at < end_dt,
+            is_business_member(),
         )
     )
     new_members_this_month = new_members_result.scalar() or 0
@@ -147,6 +151,7 @@ async def get_dashboard_kpis(
             select(func.count()).select_from(Member).where(
                 Member.created_at >= start_dt,
                 Member.created_at < end_dt,
+                is_business_member(),
             )
         )
         member_growth.append(MemberGrowthPoint(month=month_label, count=count_result.scalar() or 0))
@@ -228,7 +233,7 @@ async def get_dashboard_insights(db: AsyncSession = Depends(get_tenant_db_from_t
     recent = select(CheckIn.member_id).where(CheckIn.created_at >= cutoff).distinct().scalar_subquery()
     inactive = (await db.execute(
         select(func.count()).select_from(Member).where(
-            Member.status == MemberStatus.active, Member.id.not_in(recent),
+            Member.status == MemberStatus.active, Member.id.not_in(recent), is_business_member(),
         )
     )).scalar() or 0
     if inactive:
@@ -237,7 +242,7 @@ async def get_dashboard_insights(db: AsyncSession = Depends(get_tenant_db_from_t
     # Nuevos socios este mes
     new_members = (await db.execute(
         select(func.count()).select_from(Member).where(
-            Member.created_at >= cur_s, Member.created_at < cur_e,
+            Member.created_at >= cur_s, Member.created_at < cur_e, is_business_member(),
         )
     )).scalar() or 0
     if new_members:

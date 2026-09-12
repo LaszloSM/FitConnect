@@ -67,7 +67,7 @@ interface Member {
   id: string;
   full_name: string;
   email: string | null;
-  member_type?: "member" | "visitor";
+  member_type?: "member" | "visitor" | "staff";
   phone: string | null;
   id_number: string | null;
   id_type: string | null;
@@ -164,6 +164,9 @@ export default function MembersClient() {
   const [error, setError] = useState("");
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState<"" | "active" | "inactive">("");
+  // El personal y los visitantes del pase viven en la misma tabla que los socios:
+  // sin filtro, un gimnasio con diez empleados los ve mezclados en su lista.
+  const [typeFilter, setTypeFilter] = useState<"" | "member" | "visitor" | "staff">("");
   const [missingIdOnly, setMissingIdOnly] = useState(false);
   const [missingIdCount, setMissingIdCount] = useState(0);
   const [dialogOpen, setDialogOpen] = useState(false);
@@ -231,6 +234,7 @@ export default function MembersClient() {
           limit: PAGE_SIZE,
           offset: currentPage * PAGE_SIZE,
           ...(statusFilter ? { status: statusFilter } : {}),
+          ...(typeFilter ? { member_type: typeFilter } : {}),
           ...(missingIdOnly ? { missing_id_number: true } : {}),
         },
       });
@@ -258,6 +262,7 @@ export default function MembersClient() {
         limit: PAGE_SIZE,
         offset: 0,
         ...(statusFilter ? { status: statusFilter } : {}),
+        ...(typeFilter ? { member_type: typeFilter } : {}),
         ...(missingIdOnly ? { missing_id_number: true } : {}),
       },
     }).then((res) => {
@@ -273,7 +278,7 @@ export default function MembersClient() {
       if (!cancelled) setLoading(false);
     });
     return () => { cancelled = true; };
-  }, [session?.accessToken, search, statusFilter, missingIdOnly]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [session?.accessToken, search, statusFilter, typeFilter, missingIdOnly]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // Contador para el banner de miembros antiguos sin cédula
   useEffect(() => {
@@ -960,6 +965,17 @@ export default function MembersClient() {
                 {s === "" ? "Todos" : s === "active" ? "Activos" : "Inactivos"}
               </button>
             ))}
+            <select
+              value={typeFilter}
+              onChange={(e) => setTypeFilter(e.target.value as typeof typeFilter)}
+              aria-label="Filtrar por tipo de persona"
+              className="rounded-full px-3 py-1 text-sm font-medium bg-[var(--bg-base)] border border-[var(--border-base)] text-[var(--text-muted)] hover:text-[var(--text-base)]"
+            >
+              <option value="">Todo el mundo</option>
+              <option value="member">Solo socios</option>
+              <option value="visitor">Solo visitantes</option>
+              <option value="staff">Solo equipo</option>
+            </select>
             <button
               onClick={exportCSV}
               disabled={members.length === 0}
@@ -1038,6 +1054,11 @@ export default function MembersClient() {
                         {m.member_type === "visitor" && (
                           <span className="inline-flex items-center px-1.5 py-0.5 rounded-full text-[10px] font-semibold bg-violet-50 dark:bg-violet-950/40 text-violet-700 dark:text-violet-400 ring-1 ring-violet-200 dark:ring-violet-800/60">
                             Visitante
+                          </span>
+                        )}
+                        {m.member_type === "staff" && (
+                          <span className="inline-flex items-center px-1.5 py-0.5 rounded-full text-[10px] font-semibold bg-sky-50 dark:bg-sky-950/40 text-sky-700 dark:text-sky-400 ring-1 ring-sky-200 dark:ring-sky-800/60">
+                            Equipo
                           </span>
                         )}
                       </div>

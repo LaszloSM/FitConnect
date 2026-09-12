@@ -7,6 +7,7 @@ from alembic.config import Config
 from alembic import command
 from app.core.config import settings
 from app.core.security import hash_password
+from app.services.staff_member import ensure_staff_member
 from app.db.master_session import MasterSessionLocal
 from app.db.tenant_base import TenantBase
 from app.models.master.tenant import Tenant, TenantStatus, SubscriptionPlan
@@ -177,6 +178,11 @@ async def _provision_tenant(tenant, owner_email, owner_full_name, password, conn
             role=UserRole.owner,
         )
         tenant_db.add(staff_owner)
+        await tenant_db.flush()
+        # El dueno entra a su propio gimnasio como cualquiera del equipo.
+        await ensure_staff_member(
+            tenant_db, full_name=owner_full_name, email=owner_email, staff_id=staff_owner.id
+        )
         await tenant_db.commit()
         await tenant_db.refresh(staff_owner)
         staff_owner_id = staff_owner.id
