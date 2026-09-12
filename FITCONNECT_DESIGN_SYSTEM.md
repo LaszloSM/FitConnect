@@ -1,9 +1,13 @@
 # FitConnect Design System
 
 Design register: **product** — design serves the workflow, not the other way around.
-Aesthetic target: **"Energía Atleta"** (Whoop/Strava/Nike Training) — dark-first, high contrast, bold display, motion with intent. Volt (lime green) is the brand; each module carries its own functional accent.
+Aesthetic target: **"Energía Atleta"** — high contrast, bold display, motion with intent. Hierro (rust orange) is the brand; each module carries its own functional accent.
 
-> **Identidad de marca:** Volt `oklch(0.78 0.19 128)`. Reemplazó por completo al naranja. Texto sobre rellenos Volt: `--color-primary-contrast` (casi-negro), NUNCA blanco (el lima es claro). Acentos por módulo en `lib/module-accents.ts` + tokens `--accent-*` en `globals.css`.
+**Light is designed first, dark is derived.** The product has two real scenes: a receptionist at the counter at 6am under hard light and an open window (the most-used screen), and the owner reviewing the month at 11pm with the room lights off. The first one forces light.
+
+> **Identidad de marca:** Hierro `oklch(0.700 0.200 45)`. Texto sobre el relleno: `--color-primary-contrast` (casi-negro, 6.3:1), NUNCA blanco. Los acentos por módulo salen del código de color de los discos olímpicos —un sistema real del gimnasio físico— y cada uno es el valor más vivo que aún se lee como texto a 4.5:1: `lib/module-accents.ts` + tokens `--accent-*` en `globals.css`.
+>
+> Ningún valor se eligió a ojo: cada token salió de un barrido sobre OKLCH y `npm run check:contrast` verifica los 60+ pares en claro y en oscuro.
 
 ---
 
@@ -61,7 +65,7 @@ Rules:
 
 ## 4. Color System
 
-Strategy: **Restrained**. Volt carries primary actions and active states; each module adds one functional accent for identity. Color as signal, not decoration.
+Strategy: **Restrained**. Hierro carries primary actions and active states; each module adds one functional accent for identity. Color as signal, not decoration.
 
 ### Dónde viven los colores
 
@@ -71,9 +75,9 @@ No se copian aquí: esta sección tuvo la paleta duplicada describiendo un azul
 
 Lo mínimo que hay que saber:
 
-- El volt de **relleno** (`bg-primary`) y el volt de **texto** (`text-primary-ink`)
+- El **relleno** (`bg-primary`) y la **tinta** (`text-primary-ink`)
   son tokens distintos: el de relleno da 1.9:1 como texto.
-- Sobre relleno volt siempre `text-primary-contrast` (casi-negro), nunca blanco.
+- Sobre el relleno de marca siempre `text-primary-contrast` (casi-negro), nunca blanco.
 - Prohibidos los tokens de shadcn (`text-muted-foreground`, `bg-popover`,
   `text-foreground`…): este proyecto no los define y generan cero CSS.
 - `npm run check:contrast` mide todos los pares en claro y oscuro, y corre en CI.
@@ -367,7 +371,9 @@ Touch targets: minimum 44px height for interactive elements on mobile/tablet.
 
 Props: `label`, `value` (number → AnimatedNumber, string → raw), `delta`, `trend`, `caption`, `icon`, `tone`, `size`, `compact`, `sparklineData`, `trendLabel`
 
-Tones: `volt`/`primary` (Volt — use `flagship` for the solid hero card), module tones (`teal`, `sky`, `violet`, `amber`, `emerald`, `fuchsia`, `indigo`, `slate`), plus `success`/`warning`/`danger`/`default`
+Tones: `primary` (la marca), las nueve claves de módulo (`dashboard`, `members`, `checkins`, `classes`, `machines`, `payments`, `plans`, `reports`, `settings`), y `success`/`warning`/`danger`/`neutral`.
+
+`failed` es el estado que importa: cuando la fuente no respondió la tarjeta muestra «—» y «No se pudo cargar», nunca un 0 que afirmaría que no hay plata sin haberlo comprobado.
 
 When to use: any scalar metric on a dashboard or summary panel. Pass `sparklineData` whenever historical series data is available.
 

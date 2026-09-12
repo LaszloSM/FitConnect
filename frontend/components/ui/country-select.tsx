@@ -11,17 +11,16 @@ interface CountrySelectProps {
   className?: string
   placeholder?: string
   /** Fuerza superficie blanca sobre cards claras (auth). */
-  surface?: "default" | "on-light"
 }
 
-function CountrySelect({ value, onChange, className, placeholder = "País", surface = "default" }: CountrySelectProps) {
-  const triggerBg = surface === "on-light" ? "bg-white border-slate-200 text-slate-800" : "bg-[var(--bg-input)] text-[var(--text-base)]"
+function CountrySelect({ value, onChange, className, placeholder = "País" }: CountrySelectProps) {
+  const triggerBg = "bg-[var(--bg-input)] text-[var(--text-base)]"
   return (
     <SelectPrimitive.Root value={value} onValueChange={onChange}>
       <SelectPrimitive.Trigger
         className={cn(
           "flex h-9 w-full items-center justify-between gap-1.5 rounded-lg border px-3 text-sm whitespace-nowrap transition-colors outline-none select-none",
-          surface === "on-light" ? "" : "border-[var(--border-base)]",
+          "border-[var(--border-base)]",
           triggerBg,
           "data-placeholder:text-[var(--text-placeholder)]",
           "focus-visible:border-[var(--color-primary)] focus-visible:ring-2 focus-visible:ring-[var(--color-primary)]/20",

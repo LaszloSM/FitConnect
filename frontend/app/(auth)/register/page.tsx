@@ -92,69 +92,69 @@ export default function RegisterPage() {
   }
 
   return (
-    <div className="rounded-2xl bg-white p-8 shadow-[0_20px_60px_-10px_rgb(0_0_0/0.5)]">
+    <div className="rounded-2xl bg-[var(--bg-card)] border border-[var(--border-base)] p-8 shadow-[var(--shadow-dialog)]">
       <AuthCardHeader title="Crea tu cuenta" subtitle="Comienza gratis — Plan Básico" />
       <form onSubmit={handleSubmit} className="space-y-5">
         {/* Gym name */}
         <div className="space-y-1.5">
-          <Label htmlFor="gym_name" className="text-slate-600 text-sm font-medium">Nombre del Gym</Label>
+          <Label htmlFor="gym_name" className="text-[var(--text-muted)] text-sm font-medium">Nombre del Gym</Label>
           <Input
             id="gym_name"
             name="gym_name"
             type="text"
             required
-            className="bg-white border-slate-200 text-slate-800 placeholder:text-slate-400 focus:border-[var(--color-primary)] focus:ring-[var(--color-primary)]"
+            className="focus:border-[var(--color-primary)] focus:ring-[var(--color-primary)]"
           />
         </div>
 
         {/* City + Country */}
         <div className="grid grid-cols-2 gap-3">
           <div className="space-y-1.5">
-            <Label htmlFor="city" className="text-slate-600 text-sm font-medium">Ciudad</Label>
-            <CityCombobox id="city" value={city} onChange={setCity} surface="on-light" />
+            <Label htmlFor="city" className="text-[var(--text-muted)] text-sm font-medium">Ciudad</Label>
+            <CityCombobox id="city" value={city} onChange={setCity} />
           </div>
           <div className="space-y-1.5">
-            <Label className="text-slate-600 text-sm font-medium">País</Label>
-            <CountrySelect value={country} onChange={(v) => setCountry(v || "CO")} surface="on-light" />
+            <Label className="text-[var(--text-muted)] text-sm font-medium">País</Label>
+            <CountrySelect value={country} onChange={(v) => setCountry(v || "CO")} />
           </div>
         </div>
 
         {/* Full name */}
         <div className="space-y-1.5">
-          <Label htmlFor="full_name" className="text-slate-600 text-sm font-medium">Tu nombre completo</Label>
+          <Label htmlFor="full_name" className="text-[var(--text-muted)] text-sm font-medium">Tu nombre completo</Label>
           <Input
             id="full_name"
             name="full_name"
             type="text"
             required
-            className="bg-white border-slate-200 text-slate-800 placeholder:text-slate-400 focus:border-[var(--color-primary)] focus:ring-[var(--color-primary)]"
+            className="focus:border-[var(--color-primary)] focus:ring-[var(--color-primary)]"
           />
         </div>
 
         {/* Email */}
         <div className="space-y-1.5">
-          <Label htmlFor="email" className="text-slate-600 text-sm font-medium">Email</Label>
+          <Label htmlFor="email" className="text-[var(--text-muted)] text-sm font-medium">Email</Label>
           <Input
             id="email"
             name="email"
             type="email"
             required
-            className="bg-white border-slate-200 text-slate-800 placeholder:text-slate-400 focus:border-[var(--color-primary)] focus:ring-[var(--color-primary)]"
+            className="focus:border-[var(--color-primary)] focus:ring-[var(--color-primary)]"
           />
         </div>
 
         {/* Phone (optional) */}
         <div className="space-y-1.5">
-          <Label className="text-slate-600 text-sm font-medium">Teléfono (opcional)</Label>
-          <PhoneInput value={phone} onChange={setPhone} surface="on-light" />
+          <Label className="text-[var(--text-muted)] text-sm font-medium">Teléfono (opcional)</Label>
+          <PhoneInput value={phone} onChange={setPhone} />
         </div>
 
         {/* Password with strength */}
         <div className="space-y-1.5">
-          <Label className="text-slate-600 text-sm font-medium">Contraseña</Label>
+          <Label className="text-[var(--text-muted)] text-sm font-medium">Contraseña</Label>
           <PasswordInput
             showStrength
-            surface="on-light"
+           
             value={password}
             onChange={(e) => setPassword((e.target as HTMLInputElement).value)}
             required
@@ -164,9 +164,9 @@ export default function RegisterPage() {
 
         {/* Confirm password */}
         <div className="space-y-1.5">
-          <Label className="text-slate-600 text-sm font-medium">Confirmar contraseña</Label>
+          <Label className="text-[var(--text-muted)] text-sm font-medium">Confirmar contraseña</Label>
           <PasswordInput
-            surface="on-light"
+           
             value={confirmPassword}
             onChange={(e) => setConfirmPassword((e.target as HTMLInputElement).value)}
             required
@@ -180,9 +180,9 @@ export default function RegisterPage() {
             type="checkbox"
             checked={termsAccepted}
             onChange={(e) => setTermsAccepted(e.target.checked)}
-            className="mt-0.5 h-4 w-4 rounded border-slate-300 accent-[var(--color-primary)]"
+            className="mt-0.5 h-4 w-4 rounded border-[var(--border-base)] accent-[var(--color-primary)]"
           />
-          <span className="text-sm text-slate-500">
+          <span className="text-sm text-[var(--text-muted)]">
             Acepto los{" "}
             <Link href="/terminos" target="_blank" className="text-lime-700 hover:underline font-medium">términos de servicio</Link>
             , la{" "}
@@ -201,7 +201,7 @@ export default function RegisterPage() {
           {loading ? "Registrando..." : "Crear cuenta"}
         </Button>
       </form>
-      <p className="mt-5 text-center text-slate-500 text-sm">
+      <p className="mt-5 text-center text-[var(--text-muted)] text-sm">
         ¿Ya tienes cuenta?{" "}
         <Link href="/login" className="text-lime-700 font-semibold hover:underline">Inicia sesión</Link>
       </p>

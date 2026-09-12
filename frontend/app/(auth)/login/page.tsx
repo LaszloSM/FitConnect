@@ -49,18 +49,18 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="rounded-2xl bg-white p-8 shadow-[0_20px_60px_-10px_rgb(0_0_0/0.5)]">
+    <div className="rounded-2xl bg-[var(--bg-card)] border border-[var(--border-base)] p-8 shadow-[var(--shadow-dialog)]">
       <AuthCardHeader title="Inicia sesión" subtitle="Accede a tu plataforma de gestión" />
       <form onSubmit={handleSubmit} className="space-y-5">
         <div className="space-y-1.5">
-          <Label htmlFor="email" className="text-slate-600 text-sm font-medium">Email</Label>
+          <Label htmlFor="email" className="text-[var(--text-muted)] text-sm font-medium">Email</Label>
           <Input id="email" name="email" type="email" required
-            className="bg-white border-slate-200 text-slate-800 placeholder:text-slate-400 focus:border-[var(--color-primary)] focus:ring-[var(--color-primary)]" />
+            className="focus:border-[var(--color-primary)] focus:ring-[var(--color-primary)]" />
         </div>
         <div className="space-y-1.5">
-          <Label htmlFor="password" className="text-slate-600 text-sm font-medium">Contraseña</Label>
+          <Label htmlFor="password" className="text-[var(--text-muted)] text-sm font-medium">Contraseña</Label>
           <Input id="password" name="password" type="password" required
-            className="bg-white border-slate-200 text-slate-800 placeholder:text-slate-400 focus:border-[var(--color-primary)] focus:ring-[var(--color-primary)]" />
+            className="focus:border-[var(--color-primary)] focus:ring-[var(--color-primary)]" />
         </div>
         {notice && !error && (
           <p className="text-sm rounded-lg border border-amber-200 bg-amber-50 dark:bg-amber-950/20 px-3 py-2 text-amber-700 dark:text-amber-300">{notice}</p>
@@ -71,7 +71,7 @@ export default function LoginPage() {
           {loading ? "Ingresando..." : "Ingresar"}
         </Button>
       </form>
-      <p className="mt-5 text-center text-slate-500 text-sm">
+      <p className="mt-5 text-center text-[var(--text-muted)] text-sm">
         ¿No tienes cuenta?{" "}
         <Link href="/register" className="text-lime-700 font-semibold hover:underline">Registra tu gym</Link>
       </p>

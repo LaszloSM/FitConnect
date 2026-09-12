@@ -46,13 +46,13 @@ function AcceptInviteForm() {
 
   if (!token) {
     return (
-      <div className="rounded-2xl bg-white p-8 shadow-[0_20px_60px_-10px_rgb(0_0_0/0.5)]">
+      <div className="rounded-2xl bg-[var(--bg-card)] border border-[var(--border-base)] p-8 shadow-[var(--shadow-dialog)]">
         <div className="flex items-center gap-2.5 mb-4">
           <BrandMark size={32} />
-          <span className="text-slate-900 font-extrabold text-xl tracking-tight">FitConnect</span>
+          <span className="text-[var(--text-base)] font-extrabold text-xl tracking-tight">FitConnect</span>
         </div>
-        <h2 className="text-slate-900 font-bold text-lg">Enlace inválido</h2>
-        <p className="text-slate-500 text-sm mt-1">
+        <h2 className="text-[var(--text-base)] font-bold text-lg">Enlace inválido</h2>
+        <p className="text-[var(--text-muted)] text-sm mt-1">
           El enlace de invitación no es válido. Pídele a tu gimnasio uno nuevo.
         </p>
       </div>
@@ -60,25 +60,25 @@ function AcceptInviteForm() {
   }
 
   return (
-    <div className="rounded-2xl bg-white p-8 shadow-[0_20px_60px_-10px_rgb(0_0_0/0.5)]">
+    <div className="rounded-2xl bg-[var(--bg-card)] border border-[var(--border-base)] p-8 shadow-[var(--shadow-dialog)]">
       <div className="mb-8">
         <div className="flex items-center gap-2.5 mb-4">
           <BrandMark size={32} />
-          <span className="text-slate-900 font-extrabold text-xl tracking-tight">FitConnect</span>
+          <span className="text-[var(--text-base)] font-extrabold text-xl tracking-tight">FitConnect</span>
         </div>
-        <h2 className="text-slate-900 font-bold text-lg">Activa tu cuenta</h2>
-        <p className="text-slate-500 text-sm mt-0.5">Crea tu contraseña para acceder a la plataforma</p>
+        <h2 className="text-[var(--text-base)] font-bold text-lg">Activa tu cuenta</h2>
+        <p className="text-[var(--text-muted)] text-sm mt-0.5">Crea tu contraseña para acceder a la plataforma</p>
       </div>
       <form onSubmit={handleSubmit} className="space-y-5">
         <div className="space-y-1.5">
-          <Label htmlFor="password" className="text-slate-600 text-sm font-medium">Nueva contraseña</Label>
+          <Label htmlFor="password" className="text-[var(--text-muted)] text-sm font-medium">Nueva contraseña</Label>
           <Input id="password" name="password" type="password" required minLength={8}
-            className="bg-white border-slate-200 text-slate-800 placeholder:text-slate-400 focus:border-[var(--color-primary)] focus:ring-[var(--color-primary)]" />
+            className="focus:border-[var(--color-primary)] focus:ring-[var(--color-primary)]" />
         </div>
         <div className="space-y-1.5">
-          <Label htmlFor="confirm" className="text-slate-600 text-sm font-medium">Confirmar contraseña</Label>
+          <Label htmlFor="confirm" className="text-[var(--text-muted)] text-sm font-medium">Confirmar contraseña</Label>
           <Input id="confirm" name="confirm" type="password" required minLength={8}
-            className="bg-white border-slate-200 text-slate-800 placeholder:text-slate-400 focus:border-[var(--color-primary)] focus:ring-[var(--color-primary)]" />
+            className="focus:border-[var(--color-primary)] focus:ring-[var(--color-primary)]" />
         </div>
         {error && <p className="text-red-500 text-sm">{error}</p>}
         <Button type="submit" disabled={loading}

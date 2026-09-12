@@ -139,7 +139,7 @@ function Controls({
           onClick={() => setSpeed(s)}
           className={cn(
             "text-xs px-1.5 py-0.5 rounded-full",
-            speed === s ? "bg-[#D4FF00] text-black font-semibold" : "text-white/70 hover:bg-white/20"
+            speed === s ? "bg-[var(--color-primary)] text-[var(--color-primary-contrast)] font-semibold" : "text-white/70 hover:bg-white/20"
           )}
         >
           {s}×

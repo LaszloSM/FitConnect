@@ -3,19 +3,20 @@ import { BrandMark } from "@/components/common/BrandMark";
 
 export default function AuthLayout({ children }: { children: React.ReactNode }) {
   return (
-    <div className="min-h-screen flex">
-      {/* Brand showcase — athletic Volt panel (desktop only) */}
+    <div className="min-h-screen flex bg-[var(--bg-base)]">
+      {/* Panel de marca: superficie oscura FIJA a propósito, como la landing y
+          la pantalla del gym. Por eso lleva el relleno de marca y nunca el ink,
+          que en tema claro es oscuro y desaparecería sobre el negro. */}
       <div
         className="hidden lg:flex flex-col justify-between w-[44%] max-w-[560px] p-12 relative overflow-hidden"
         style={{
           background:
-            "radial-gradient(120% 90% at 0% 0%, oklch(0.20 0.04 150), oklch(0.13 0.012 150) 60%)",
+            "radial-gradient(120% 90% at 0% 0%, oklch(0.22 0.05 45), oklch(0.14 0.014 45) 60%)",
         }}
       >
-        {/* Volt glow */}
         <div
-          className="absolute -top-24 -left-24 h-80 w-80 rounded-full blur-3xl opacity-30"
-          style={{ background: "oklch(0.78 0.19 128)" }}
+          className="absolute -top-24 -left-24 h-80 w-80 rounded-full blur-3xl opacity-25 pointer-events-none"
+          style={{ background: "var(--color-primary)" }}
           aria-hidden
         />
 
@@ -44,7 +45,7 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
                 key={label}
                 className="flex items-center gap-2 rounded-lg px-3 py-2 border border-white/10 bg-white/5"
               >
-                <Icon className="h-4 w-4" style={{ color: "oklch(0.82 0.20 128)" }} />
+                <Icon className="h-4 w-4 text-[var(--color-primary)]" />
                 <span className="text-white/80 text-xs font-medium">{label}</span>
               </div>
             ))}
@@ -54,14 +55,11 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
         <p className="relative text-white/40 text-xs">© {new Date().getFullYear()} FitConnect</p>
       </div>
 
-      {/* Form area */}
-      <div
-        className="flex-1 flex items-center justify-center p-6"
-        style={{
-          background:
-            "radial-gradient(ellipse at center, oklch(0.16 0.012 150) 0%, oklch(0.12 0.010 150) 70%)",
-        }}
-      >
+      {/* Área del formulario: SÍ sigue el tema. Antes era un degradado oscuro
+          fijo con una tarjeta blanca forzada encima, y esa contradicción obligó
+          a inventar una escala `slate-*` paralela (`surface="on-light"`) para
+          que los campos no salieran oscuros sobre blanco. */}
+      <div className="flex-1 flex items-center justify-center p-6 bg-[var(--bg-base)]">
         <div className="w-full max-w-md">{children}</div>
       </div>
     </div>

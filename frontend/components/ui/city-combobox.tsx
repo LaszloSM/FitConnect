@@ -12,7 +12,6 @@ interface CityComboboxProps {
   className?: string
   placeholder?: string
   /** Fuerza superficie blanca sobre cards claras (auth). */
-  surface?: "default" | "on-light"
   id?: string
 }
 
@@ -22,7 +21,7 @@ const fold = (s: string) => s.normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCa
 // Combobox con búsqueda por ciudad o departamento. Permite texto libre: si lo
 // escrito no coincide con la lista, ofrece "Usar: {texto}" para guardarlo igual
 // (un municipio pequeño no listado sigue siendo válido).
-function CityCombobox({ value, onChange, className, placeholder = "Ciudad", surface = "default", id }: CityComboboxProps) {
+function CityCombobox({ value, onChange, className, placeholder = "Ciudad", id }: CityComboboxProps) {
   const [inputValue, setInputValue] = useState(value ?? "")
 
   useEffect(() => {
@@ -45,10 +44,7 @@ function CityCombobox({ value, onChange, className, placeholder = "Ciudad", surf
   const deptOf = (city: string) =>
     COLOMBIA_CITIES.find((c) => c.city === city)?.department
 
-  const triggerBg =
-    surface === "on-light"
-      ? "bg-white border-slate-200 text-slate-800"
-      : "bg-[var(--bg-input)] border-[var(--border-base)] text-[var(--text-base)]"
+  const triggerBg = "bg-[var(--bg-input)] border-[var(--border-base)] text-[var(--text-base)]"
 
   return (
     <Combobox.Root

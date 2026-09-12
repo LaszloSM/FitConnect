@@ -133,10 +133,20 @@ const PAIRS = [
   // Hover de botones fantasma sobre superficie apagada
   ["--color-primary-ink", "--bg-muted", 4.5, "acción en texto sobre superficie apagada"],
   ["--text-muted", "--bg-sidebar", 4.5, "texto secundario del menú"],
+  // El menú también tiene su propia superficie apagada al pasar el cursor.
+  ["--color-primary-ink", "--bg-sidebar", 4.5, "acción en texto dentro del menú"],
+  ["--text-subtle", "--bg-base", 4.5, "etiqueta pequeña sobre el fondo"],
+  ["--text-subtle", "--bg-muted", 4.5, "etiqueta pequeña sobre superficie apagada"],
+  // El campo deshabilitado usa la superficie apagada de fondo.
+  ["--text-muted", "--bg-input", 4.5, "texto de un campo deshabilitado"],
+  ["--border-base", "--bg-base", 1.3, "borde sobre el fondo"],
+  ["--border-base", "--bg-input", 1.3, "borde de un campo"],
+  ["--border-base", "--bg-muted", 1.3, "borde sobre superficie apagada"],
 ];
 
-// La landing y el kiosko son superficies oscuras FIJAS: no siguen el tema, así
-// que el volt de relleno es el correcto ahí y el ink (claro en oscuro) no.
+// La landing, el kiosko y la pantalla del gym son superficies oscuras FIJAS:
+// no siguen el tema, así que ahí va el relleno de marca y NO el ink, que en
+// claro es oscuro y desaparecería sobre el negro.
 const FIXED_DARK = [0.039, 0.059, 0.039];
 
 const ACCENTS = [
@@ -149,15 +159,16 @@ const showAll = process.argv.includes("--all");
 let failures = 0;
 const rows = [];
 
-// Par fijo: el volt de marca sobre el fondo oscuro de la landing.
-{
-  const ratio = contrast(light["--color-primary"], FIXED_DARK);
-  if (ratio < 4.5) {
-    failures += 1;
-    rows.push({ theme: "landing", label: "volt sobre el fondo oscuro fijo", ratio, min: 4.5, ok: false });
-  } else if (showAll) {
-    rows.push({ theme: "landing", label: "volt sobre el fondo oscuro fijo", ratio, min: 4.5, ok: true });
-  }
+// Pares de las superficies oscuras fijas. Se comprueban aparte porque no
+// siguen el tema: sus colores son los mismos en claro y en oscuro.
+for (const [token, min, label] of [
+  ["--color-primary", 4.5, "marca sobre el fondo oscuro fijo"],
+  ["--color-primary-hover", 4.5, "marca en hover sobre el fondo oscuro fijo"],
+]) {
+  const ratio = contrast(light[token], FIXED_DARK);
+  const ok = ratio >= min;
+  if (!ok) failures += 1;
+  if (!ok || showAll) rows.push({ theme: "fija", label, ratio, min, ok });
 }
 
 for (const [theme, tokens] of [["claro", light], ["oscuro", dark]]) {

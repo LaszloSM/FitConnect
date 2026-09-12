@@ -15,16 +15,20 @@ solas al alternar el tema: apuntan a la misma var que `.dark` redefine.
 | Utilidad | Var | Para qué |
 |---|---|---|
 | `bg-primary` / `bg-primary-hover` | `--color-primary` | Rellenos de marca: botón primario, item activo del menú |
-| `text-primary-contrast` | `--color-primary-contrast` | **La única** tinta sobre relleno volt (casi-negro, nunca blanco) |
-| `text-primary-ink` | `--color-primary-ink` | Volt como **texto**: enlaces, acciones en línea, iconos de marca |
+| `text-primary-contrast` | `--color-primary-contrast` | **La única** tinta sobre el relleno de marca (casi-negro, nunca blanco) |
+| `text-primary-ink` | `--color-primary-ink` | La marca como **texto**: enlaces, acciones en línea, iconos |
 | `bg-base` / `bg-card` / `bg-sidebar` / `bg-input` / `bg-muted` | `--bg-*` | Superficies |
 | `text-ink` / `text-ink-muted` / `text-ink-subtle` | `--text-*` | Jerarquía de texto |
 | `border-line` | `--border-base` | Todos los bordes |
 | `font-display` / `font-mono` | — | Cifras grandes / datos tabulares |
 
-### Volt de relleno ≠ volt de texto
+### El relleno y la tinta son dos roles, y tienen que serlo
 
-El volt de marca tiene 1.9:1 contra una tarjeta blanca: como relleno es la
+Se buscó un valor único que sirviera para las dos cosas y **no existe para
+ningún tono**: la frontera del claro y la del oscuro no se solapan, así que
+`--color-primary-ink` se redefine en `.dark` por obligación, no por descuido.
+
+El relleno de marca tiene 2.0:1 contra una tarjeta clara: como relleno es la
 identidad del producto, como texto es ilegible. Son dos tokens distintos a
 propósito:
 
@@ -44,7 +48,7 @@ más oscuros de lo que sugiere el nombre del color.
 - **Nunca** tokens de shadcn: `text-muted-foreground`, `bg-popover`, `bg-background`,
   `text-primary-foreground`, `border-input`, `bg-secondary`, `text-foreground`,
   `bg-destructive`. Este proyecto no los define y generan cero CSS.
-- Sobre un relleno volt va `text-primary-contrast`, nunca `text-white`.
+- Sobre el relleno de marca va `text-primary-contrast`, nunca `text-white`.
 - Nada de `border-l-4` en banners. Alertas: `bg-{c}-50 dark:bg-{c}-950/20 border border-{c}-200 dark:border-{c}-800/40`.
 - `--text-muted` no baja de 12px: a 10-11px queda al límite de legibilidad.
 - Superficies claras forzadas (tarjetas de login, QR): si fijas `bg-white`, fija
