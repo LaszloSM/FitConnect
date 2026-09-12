@@ -121,15 +121,15 @@
   /* Acento por módulo. Los tonos salen del código de color de los discos
      olímpicos —un sistema real del gimnasio físico, no nueve colores sueltos—
      y cada uno es el valor más vivo que aún se lee como TEXTO a 4.5:1. */
-  --accent-dashboard: oklch(0.580 0.200 25);
-  --accent-members: oklch(0.550 0.094 205);
-  --accent-checkins: oklch(0.555 0.128 240);
-  --accent-classes: oklch(0.580 0.200 300);
+  --accent-dashboard: oklch(0.545 0.170 25);
+  --accent-members: oklch(0.520 0.090 205);
+  --accent-checkins: oklch(0.525 0.122 240);
+  --accent-classes: oklch(0.540 0.160 300);
   --accent-machines: oklch(0.530 0.110 95);
-  --accent-payments: oklch(0.540 0.150 150);
-  --accent-plans: oklch(0.585 0.200 330);
-  --accent-reports: oklch(0.570 0.200 265);
-  --accent-settings: oklch(0.585 0.200 0);
+  --accent-payments: oklch(0.515 0.144 150);
+  --accent-plans: oklch(0.545 0.165 330);
+  --accent-reports: oklch(0.530 0.165 265);
+  --accent-settings: oklch(0.470 0.016 45);
 
   /* Señales semánticas. Separadas del naranja de marca a propósito: un ámbar a
      15° del primario es EL MISMO color en pantalla, y el aviso dejaba de leerse
@@ -183,15 +183,15 @@
   --brand-iron-muted: oklch(0.275 0.075 45);
   --brand-iron-ink: oklch(0.665 0.192 45);
 
-  --accent-dashboard: oklch(0.620 0.200 25);
-  --accent-members: oklch(0.585 0.100 205);
-  --accent-checkins: oklch(0.590 0.136 240);
-  --accent-classes: oklch(0.615 0.200 300);
+  --accent-dashboard: oklch(0.650 0.170 25);
+  --accent-members: oklch(0.605 0.104 205);
+  --accent-checkins: oklch(0.610 0.140 240);
+  --accent-classes: oklch(0.660 0.160 300);
   --accent-machines: oklch(0.615 0.126 95);
-  --accent-payments: oklch(0.580 0.160 150);
-  --accent-plans: oklch(0.620 0.200 330);
-  --accent-reports: oklch(0.605 0.200 265);
-  --accent-settings: oklch(0.620 0.200 0);
+  --accent-payments: oklch(0.600 0.166 150);
+  --accent-plans: oklch(0.655 0.165 330);
+  --accent-reports: oklch(0.650 0.165 265);
+  --accent-settings: oklch(0.700 0.014 45);
 
   --signal-ok: oklch(0.600 0.166 150);
   --signal-ok-bg: oklch(0.220 0.070 150);

@@ -26,7 +26,7 @@ import {
   Sun,
 } from "lucide-react";
 import { BrandMark } from "@/components/common/BrandMark";
-import { P, useCan, type Permission } from "@/lib/permissions";
+import { P, rolLegible, useCan, type Permission } from "@/lib/permissions";
 
 // ── Nav structure — grouped by purpose so modules feel organized, not cloned ──
 type NavItem = {
@@ -160,7 +160,8 @@ export function Sidebar() {
   const { can } = useCan();
   const groups = userRole === "trainer" ? trainerGroups : navGroups;
   const initials = getInitials(userName);
-  const subline = userRole ?? userEmail ?? "";
+  // El rol se le enseña a una persona: "owner" es un valor del backend.
+  const subline = rolLegible(userRole) || userEmail || "";
 
   function isActive(href: string) {
     return (

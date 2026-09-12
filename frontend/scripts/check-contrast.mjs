@@ -180,6 +180,11 @@ for (const [theme, tokens] of [["claro", light], ["oscuro", dark]]) {
     ...PAIRS,
     // Los acentos se usan como eyebrow en texto pequeño sobre la tarjeta.
     ...ACCENTS.map((a) => [a, "--bg-card", 4.5, `acento ${a.replace("--accent-", "")} como texto`]),
+    // Los badges de estado se pintan sobre la superficie apagada, no sobre la
+    // tarjeta. Ojo: con croma alto este cálculo es OPTIMISTA — recorta por canal
+    // mientras el navegador baja el croma, así que el color real sale más
+    // oscuro. Por eso los acentos se mantienen dentro de la gama sRGB.
+    ...ACCENTS.map((a) => [a, "--bg-muted", 4.5, `acento ${a.replace("--accent-", "")} sobre superficie apagada`]),
     // Cada señal sobre su banner, sobre la tarjeta y sobre el fondo.
     ...SIGNALS.flatMap((n) => [
       [`--signal-${n}`, `--signal-${n}-bg`, 4.5, `señal ${n} sobre su banner`],

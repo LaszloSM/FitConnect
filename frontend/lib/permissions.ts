@@ -103,3 +103,14 @@ export function useCan() {
 
   return { can, canAny, ready, role: session?.role ?? null };
 }
+
+/** Roles tal como se le nombran a una persona, no como los guarda el backend. */
+export const ROLE_LABEL: Record<string, string> = {
+  owner: "Dueño",
+  admin: "Administrador",
+  receptionist: "Recepcionista",
+  trainer: "Entrenador",
+};
+
+export const rolLegible = (rol: string | null | undefined) =>
+  rol ? ROLE_LABEL[rol] ?? rol : "";
