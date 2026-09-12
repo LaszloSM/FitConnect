@@ -15,6 +15,7 @@ import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { FormDialog } from "@/components/ui/form-dialog";
 import { WeekdayPicker } from "@/components/ui/weekday-picker";
 import { TimePicker } from "@/components/ui/time-picker";
 import {
@@ -32,9 +33,8 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { Plus, AlertCircle, Users, ChevronDown, ChevronUp, CalendarClock, X } from "lucide-react";
+import { Plus, AlertCircle, Users, ChevronDown, ChevronUp, CalendarClock, Pencil, Trash2, X } from "lucide-react";
 import Link from "next/link";
-import { InstructorsCard } from "./InstructorsCard";
 import MemberSelect from "@/components/common/MemberSelect";
 
 interface Enrollment {
@@ -110,6 +110,7 @@ export default function ClassesClient() {
   const [dialogOpen, setDialogOpen] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [instructors, setInstructors] = useState<{ id: string; full_name: string; specialty: string | null }[]>([]);
+  const [trainersFailed, setTrainersFailed] = useState(false);
   const [form, setForm] = useState({
     name: "",
     instructor: "",
@@ -124,6 +125,8 @@ export default function ClassesClient() {
     start_time: "",
     color: "",
   });
+  const [editing, setEditing] = useState<GymClass | null>(null);
+  const [toDelete, setToDelete] = useState<GymClass | null>(null);
   const [expandedClass, setExpandedClass] = useState<string | null>(null);
   const [enrollments, setEnrollments] = useState<Record<string, Enrollment[]>>({});
   const [enrollMemberId, setEnrollMemberId] = useState<Record<string, string>>({});
@@ -166,11 +169,38 @@ export default function ClassesClient() {
       })
       .finally(() => { if (!cancelled) setLoading(false); });
     client.get("/api/v1/instructors")
-      .then((res) => { if (!cancelled) setInstructors(res.data); })
-      .catch(() => {});
+      .then((res) => { if (!cancelled) { setInstructors(res.data); setTrainersFailed(false); } })
+      .catch(() => { if (!cancelled) setTrainersFailed(true); });
     return () => { cancelled = true; };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [session?.accessToken]);
+
+  const openCreate = () => {
+    setEditing(null);
+    setForm({ name: "", instructor: "", instructor_id: "", schedule: "", max_capacity: "20", duration_minutes: "60", description: "", category: "", difficulty: "", weekdays: [], start_time: "", color: "" });
+    setDialogOpen(true);
+  };
+
+  const openEdit = (cls: GymClass) => {
+    setEditing(cls);
+    setForm({
+      name: cls.name,
+      // Una clase creada antes de que el entrenador fuera obligatorio guarda el
+      // nombre como texto suelto: el select arranca vacío y obliga a asignarlo.
+      instructor: cls.instructor ?? "",
+      instructor_id: cls.instructor_id ?? "",
+      schedule: cls.schedule ?? "",
+      max_capacity: String(cls.max_capacity),
+      duration_minutes: String(cls.duration_minutes),
+      description: cls.description ?? "",
+      category: cls.category ?? "",
+      difficulty: cls.difficulty ?? "",
+      weekdays: cls.weekdays ?? [],
+      start_time: cls.start_time ? cls.start_time.slice(0, 5) : "",
+      color: cls.color ?? "",
+    });
+    setDialogOpen(true);
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -178,30 +208,57 @@ export default function ClassesClient() {
     setSubmitting(true);
     const client = apiClient(session.accessToken as string);
 
-    // Build schedule string for compatibility
     const schedulePreview = buildSchedulePreview(form.weekdays, form.start_time, form.duration_minutes);
+    const payload = {
+      name: form.name,
+      instructor: form.instructor,
+      instructor_id: form.instructor_id || undefined,
+      schedule: schedulePreview || form.schedule || "",
+      max_capacity: parseInt(form.max_capacity),
+      duration_minutes: parseInt(form.duration_minutes),
+      description: form.description || undefined,
+      category: form.category || undefined,
+      difficulty: form.difficulty || undefined,
+      weekdays: form.weekdays.length > 0 ? form.weekdays : undefined,
+      start_time: form.start_time || undefined,
+      color: form.color || undefined,
+    };
 
     try {
-      await client.post("/api/v1/classes", {
-        name: form.name,
-        instructor: form.instructor,
-        instructor_id: form.instructor_id || undefined,
-        schedule: schedulePreview || form.schedule || "",
-        max_capacity: parseInt(form.max_capacity),
-        duration_minutes: parseInt(form.duration_minutes),
-        description: form.description || undefined,
-        category: form.category || undefined,
-        difficulty: form.difficulty || undefined,
-        weekdays: form.weekdays.length > 0 ? form.weekdays : undefined,
-        start_time: form.start_time || undefined,
-        color: form.color || undefined,
-      });
-      toast.success("Clase creada correctamente");
+      if (editing) {
+        await client.put(`/api/v1/classes/${editing.id}`, payload);
+        toast.success("Clase actualizada");
+      } else {
+        await client.post("/api/v1/classes", payload);
+        toast.success("Clase creada correctamente");
+      }
       setDialogOpen(false);
+      setEditing(null);
       setForm({ name: "", instructor: "", instructor_id: "", schedule: "", max_capacity: "20", duration_minutes: "60", description: "", category: "", difficulty: "", weekdays: [], start_time: "", color: "" });
       fetchClasses();
     } catch (err: unknown) {
       toast.error(parseApiError(err, "Error guardando clase"));
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  const handleDelete = async () => {
+    if (!session?.accessToken || !toDelete) return;
+    setSubmitting(true);
+    try {
+      const client = apiClient(session.accessToken as string);
+      const { data } = await client.delete(`/api/v1/classes/${toDelete.id}`);
+      // Con socios inscritos la clase no se destruye: se deja de dictar.
+      toast.success(
+        data?.archived
+          ? `"${toDelete.name}" ya no se dicta. Se conserva porque tiene socios inscritos.`
+          : `"${toDelete.name}" eliminada`
+      );
+      setToDelete(null);
+      fetchClasses();
+    } catch (err: unknown) {
+      toast.error(parseApiError(err, "No se pudo eliminar la clase"));
     } finally {
       setSubmitting(false);
     }
@@ -276,7 +333,7 @@ export default function ClassesClient() {
               </Link>
               <DialogTrigger
                 render={
-                  <Button>
+                  <Button onClick={openCreate}>
                     <Plus className="h-4 w-4 mr-2" />
                     Nueva clase
                   </Button>
@@ -289,7 +346,7 @@ export default function ClassesClient() {
         <DialogContent className="bg-[var(--bg-card)] border border-[var(--border-base)] text-[var(--text-base)] max-w-lg max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle className="text-[var(--text-base)] font-display">
-              Nueva clase
+              {editing ? "Editar clase" : "Nueva clase"}
             </DialogTitle>
           </DialogHeader>
           <form onSubmit={handleSubmit} className="space-y-4 mt-2">
@@ -304,7 +361,7 @@ export default function ClassesClient() {
                 />
               </div>
               <div className="space-y-2">
-                <Label className="text-[var(--text-muted)] text-sm">Instructor</Label>
+                <Label className="text-[var(--text-muted)] text-sm">Entrenador</Label>
                 {instructors.length > 0 ? (
                   <select
                     value={form.instructor_id}
@@ -313,13 +370,13 @@ export default function ClassesClient() {
                       setForm({
                         ...form,
                         instructor_id: e.target.value,
-                        instructor: selected?.full_name ?? form.instructor,
+                        instructor: selected?.full_name ?? "",
                       });
                     }}
                     required
                     className={selectCls}
                   >
-                    <option value="">Selecciona un instructor...</option>
+                    <option value="">Selecciona un entrenador...</option>
                     {instructors.map((i) => (
                       <option key={i.id} value={i.id}>
                         {i.full_name}{i.specialty ? ` — ${i.specialty}` : ""}
@@ -327,13 +384,22 @@ export default function ClassesClient() {
                     ))}
                   </select>
                 ) : (
-                  <Input
-                    value={form.instructor}
-                    onChange={(e) => setForm({ ...form, instructor: e.target.value })}
-                    required
-                    placeholder="Nombre del instructor"
-                    className={inputCls}
-                  />
+                  /* Sin lista no se cae a texto libre: una clase con un nombre
+                     suelto no tiene entrenador real y el detector de choques de
+                     horario no puede validarla. */
+                  <p className="text-xs text-[var(--text-muted)] rounded-md border border-[var(--border-base)] bg-[var(--bg-base)] px-3 py-2">
+                    {trainersFailed ? (
+                      <>No se pudo cargar el equipo. Recarga la página e inténtalo de nuevo.</>
+                    ) : (
+                      <>
+                        Aún no hay entrenadores.{" "}
+                        <Link href="/settings?tab=team" className="text-[var(--color-primary-ink)] font-medium underline">
+                          Agrégalos en Equipo
+                        </Link>{" "}
+                        para poder asignarlos.
+                      </>
+                    )}
+                  </p>
                 )}
               </div>
               <div className="space-y-2">
@@ -458,14 +524,31 @@ export default function ClassesClient() {
               </Button>
               <Button
                 type="submit"
-                disabled={submitting}
+                disabled={submitting || instructors.length === 0}
               >
-                {submitting ? "Creando..." : "Crear clase"}
+                {submitting ? "Guardando..." : editing ? "Guardar cambios" : "Crear clase"}
               </Button>
             </div>
           </form>
         </DialogContent>
       </Dialog>
+
+      <FormDialog
+        open={!!toDelete}
+        onOpenChange={(o) => !o && setToDelete(null)}
+        title="Eliminar clase"
+        description={
+          toDelete
+            ? `Se eliminan "${toDelete.name}" y sus sesiones programadas. Si tiene socios inscritos, la clase deja de dictarse pero se conserva.`
+            : ""
+        }
+        onSubmit={handleDelete}
+        submitLabel="Eliminar clase"
+        submitting={submitting}
+        destructive
+      >
+        <p className="text-sm text-[var(--text-muted)]">Esta acción no se puede deshacer.</p>
+      </FormDialog>
 
       <GlassCard className="p-4">
         {error && (
@@ -479,19 +562,20 @@ export default function ClassesClient() {
             <TableHeader>
               <TableRow className="border-[var(--border-base)] hover:bg-transparent">
                 <TableHead className="text-[var(--text-muted)]">Nombre</TableHead>
-                <TableHead className="text-[var(--text-muted)]">Instructor</TableHead>
+                <TableHead className="text-[var(--text-muted)]">Entrenador</TableHead>
                 <TableHead className="text-[var(--text-muted)]">Horario</TableHead>
                 <TableHead className="text-[var(--text-muted)]">Capacidad</TableHead>
                 <TableHead className="text-[var(--text-muted)]">Duración</TableHead>
                 <TableHead className="text-[var(--text-muted)]">Estado</TableHead>
                 <TableHead className="text-[var(--text-muted)]">Inscritos</TableHead>
+                <TableHead className="text-[var(--text-muted)] text-right">Acciones</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {loading ? (
                 Array.from({ length: 4 }).map((_, i) => (
                   <TableRow key={i} className="border-[var(--border-base)]">
-                    {Array.from({ length: 7 }).map((_, j) => (
+                    {Array.from({ length: 8 }).map((_, j) => (
                       <TableCell key={j}>
                         <div className="skeleton h-4 rounded" />
                       </TableCell>
@@ -500,13 +584,13 @@ export default function ClassesClient() {
                 ))
               ) : classes.length === 0 ? (
                 <TableRow>
-                  <TableCell colSpan={7}>
+                  <TableCell colSpan={8}>
                     <EmptyState
                       title="Sin clases registradas"
                       description="Crea la primera clase grupal del gym"
                       action={
                         <Button
-                          onClick={() => setDialogOpen(true)}
+                          onClick={openCreate}
                           className="bg-[var(--color-primary)] text-[var(--color-primary-contrast)] hover:bg-[var(--color-primary-hover)]"
                         >
                           <Plus className="h-4 w-4 mr-2" />
@@ -542,7 +626,16 @@ export default function ClassesClient() {
                           </div>
                         </div>
                       </TableCell>
-                      <TableCell className="text-[var(--text-muted)]">{cls.instructor}</TableCell>
+                      <TableCell className="text-[var(--text-muted)]">
+                        {cls.instructor_id ? (
+                          cls.instructor
+                        ) : (
+                          <span className="inline-flex items-center gap-1 text-amber-700 dark:text-amber-400">
+                            <AlertCircle className="h-3 w-3 shrink-0" aria-hidden />
+                            {cls.instructor || "Sin asignar"}
+                          </span>
+                        )}
+                      </TableCell>
                       <TableCell className="text-[var(--text-muted)] text-xs">
                         {cls.schedule || "-"}
                       </TableCell>
@@ -582,12 +675,34 @@ export default function ClassesClient() {
                           )}
                         </Button>
                       </TableCell>
+                      <TableCell className="text-right">
+                        <div className="inline-flex items-center gap-1">
+                          <button
+                            type="button"
+                            onClick={() => openEdit(cls)}
+                            title="Editar clase"
+                            aria-label={`Editar ${cls.name}`}
+                            className="h-8 w-8 rounded-lg flex items-center justify-center text-[var(--text-muted)] hover:text-[var(--text-base)] hover:bg-[var(--bg-muted)] transition-colors"
+                          >
+                            <Pencil className="h-3.5 w-3.5" />
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => setToDelete(cls)}
+                            title="Eliminar clase"
+                            aria-label={`Eliminar ${cls.name}`}
+                            className="h-8 w-8 rounded-lg flex items-center justify-center text-[var(--text-muted)] hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-950/30 transition-colors"
+                          >
+                            <Trash2 className="h-3.5 w-3.5" />
+                          </button>
+                        </div>
+                      </TableCell>
                     </TableRow>
 
                     {expandedClass === cls.id && (
                       <TableRow className="border-[var(--border-base)]">
                         <TableCell
-                          colSpan={7}
+                          colSpan={8}
                           className="bg-[var(--bg-base)] p-4"
                         >
                           <div className="space-y-3">
@@ -654,13 +769,6 @@ export default function ClassesClient() {
         </div>
       </GlassCard>
 
-      <InstructorsCard
-        onChanged={() => {
-          if (!session?.accessToken) return;
-          const client = apiClient(session.accessToken as string);
-          client.get("/api/v1/instructors").then((res) => setInstructors(res.data)).catch(() => {});
-        }}
-      />
     </motion.div>
   );
 }

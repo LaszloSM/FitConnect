@@ -28,7 +28,7 @@ class InstructorUpdate(BaseModel):
     is_active: bool | None = None
 
 
-def _serialize(i: Instructor, classes_count: int = 0) -> dict:
+def _serialize(i: Instructor, classes_count: int = 0, account: UserStaff | None = None) -> dict:
     return {
         "id": str(i.id),
         "full_name": i.full_name,
@@ -37,6 +37,11 @@ def _serialize(i: Instructor, classes_count: int = 0) -> dict:
         "specialty": i.specialty,
         "is_active": i.is_active,
         "classes_count": classes_count,
+        # Un entrenador por horas no tiene por que entrar al software: la ficha
+        # vale por si sola. La UI lo distingue para no ofrecer acciones de cuenta.
+        "staff_id": str(i.staff_id) if i.staff_id else None,
+        "account_email": account.email if account else None,
+        "account_role": account.role.value if account else None,
     }
 
 
@@ -51,6 +56,7 @@ async def list_instructors(
     instructors = (await db.execute(stmt.order_by(Instructor.full_name))).scalars().all()
 
     counts: dict[uuid.UUID, int] = {}
+    accounts: dict[uuid.UUID, UserStaff] = {}
     if instructors:
         from sqlalchemy import func
         rows = (await db.execute(
@@ -59,7 +65,17 @@ async def list_instructors(
             .group_by(GymClass.instructor_id)
         )).all()
         counts = {iid: n for iid, n in rows}
-    return [_serialize(i, counts.get(i.id, 0)) for i in instructors]
+
+        staff_ids = [i.staff_id for i in instructors if i.staff_id]
+        if staff_ids:
+            cuentas = (await db.execute(
+                select(UserStaff).where(UserStaff.id.in_(staff_ids))
+            )).scalars().all()
+            accounts = {u.id: u for u in cuentas}
+    return [
+        _serialize(i, counts.get(i.id, 0), accounts.get(i.staff_id) if i.staff_id else None)
+        for i in instructors
+    ]
 
 
 @router.post("", status_code=201, dependencies=[Depends(require_perm(perm.INSTRUCTORS_WRITE))])
@@ -86,7 +102,7 @@ async def update_instructor(
         select(Instructor).where(Instructor.id == instructor_id)
     )).scalar_one_or_none()
     if not instructor:
-        raise HTTPException(status_code=404, detail="Instructor no encontrado")
+        raise HTTPException(status_code=404, detail="Entrenador no encontrado")
     for field, value in payload.model_dump(exclude_unset=True).items():
         setattr(instructor, field, value)
     # Mantener el snapshot de texto en las clases vinculadas
@@ -112,7 +128,7 @@ async def archive_instructor(
         select(Instructor).where(Instructor.id == instructor_id)
     )).scalar_one_or_none()
     if not instructor:
-        raise HTTPException(status_code=404, detail="Instructor no encontrado")
+        raise HTTPException(status_code=404, detail="Entrenador no encontrado")
     instructor.is_active = False
     await db.commit()
     return {"archived": True}

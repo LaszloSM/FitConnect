@@ -130,14 +130,17 @@ async def test_without_key_nothing_changes(client):
 
 # ─────────────────────────── Reversa ───────────────────────────
 
-async def _refund_expenses_total(client, token) -> Decimal:
-    """Suma de los egresos por devolución. Contar filas de una lista paginada
-    deja de probar nada en cuanto el gym acumula 50 egresos."""
+async def _last_refund_expense(client, token) -> dict | None:
+    """El egreso de devolución más reciente, o None si no hay ninguno.
+
+    Sumar los egresos de una PÁGINA (el endpoint tope en 100) parecía evitar el
+    problema de contar filas, pero no lo evita: en cuanto el gym acumula más de
+    100 egresos, la ventana se desplaza y el agregado cambia solo. El egreso
+    concreto que acaba de crearse sí es determinista.
+    """
     rows = (await client.get("/api/v1/cash/expenses?limit=100", headers=_auth(token))).json()
-    return sum(
-        (Decimal(str(e["amount"])) for e in rows if e["category"] == "devolucion"),
-        Decimal("0"),
-    )
+    devoluciones = [e for e in rows if e["category"] == "devolucion"]
+    return devoluciones[0] if devoluciones else None
 
 
 async def _paid_payment(client, token, amount=100000):
@@ -195,14 +198,14 @@ async def test_correction_does_not_move_cash(client):
     """Corregir un typo no puede descuadrar la caja del día."""
     token = await _owner_token(client)
     payment = await _paid_payment(client, token, amount=150000)
-    before = await _refund_expenses_total(client, token)
+    before = await _last_refund_expense(client, token)
 
     r = await client.post(f"/api/v1/payments/{payment['id']}/refund", json={
         "reason": "Se digitó 150000 en vez de 120000", "amount": 30000, "kind": "correction",
     }, headers=_auth(token))
     assert r.status_code == 200, r.text
 
-    after = await _refund_expenses_total(client, token)
+    after = await _last_refund_expense(client, token)
     assert after == before, "la corrección generó un egreso de caja"
 
     ledger = (await client.get(f"/api/v1/payments/{payment['id']}/movements", headers=_auth(token))).json()
@@ -213,11 +216,15 @@ async def test_correction_does_not_move_cash(client):
 async def test_refund_does_move_cash(client):
     token = await _owner_token(client)
     payment = await _paid_payment(client, token, amount=80000)
-    before = await _refund_expenses_total(client, token)
-    await client.post(f"/api/v1/payments/{payment['id']}/refund",
-                      json={"reason": "Devolución real al socio", "amount": 20000}, headers=_auth(token))
-    after = await _refund_expenses_total(client, token)
-    assert after == before + 20000
+    before = await _last_refund_expense(client, token)
+    r = await client.post(f"/api/v1/payments/{payment['id']}/refund",
+                          json={"reason": "Devolución real al socio", "amount": 20000}, headers=_auth(token))
+    assert r.status_code == 200, r.text
+
+    after = await _last_refund_expense(client, token)
+    assert after is not None, "la devolución no generó ningún egreso de caja"
+    assert after != before, "el egreso de la devolución no se registró"
+    assert Decimal(str(after["amount"])) == Decimal("20000")
 
 
 async def test_void_has_its_own_status(client):

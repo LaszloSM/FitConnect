@@ -26,6 +26,9 @@ class UserResponse(BaseModel):
     full_name: str
     role: UserRole
     is_active: bool
+    #: Tiene ficha de entrenador enlazada, sea cual sea su rol. Lo llena el
+    #: listado; en las respuestas de una sola persona queda en None.
+    teaches_classes: bool | None = None
 
     model_config = {"from_attributes": True}
 

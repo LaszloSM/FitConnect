@@ -17,8 +17,11 @@ import {
 } from "@/components/ui/select";
 import { FormDialog, FormField } from "@/components/ui/form-dialog";
 import { apiClient } from "@/lib/api";
+import { parseApiError } from "@/lib/errors";
+import { cn } from "@/lib/utils";
+import { TrainersCard } from "@/components/settings/TrainersCard";
 import { useApiResource } from "@/hooks/useApiResource";
-import { Copy, Users, UserPlus, UserMinus, UserCheck } from "lucide-react";
+import { Copy, Dumbbell, Users, UserPlus, UserMinus, UserCheck } from "lucide-react";
 
 type Role = "owner" | "admin" | "receptionist" | "trainer";
 
@@ -28,6 +31,8 @@ interface Staff {
   full_name: string;
   role: Role;
   is_active: boolean;
+  /** Tiene ficha de entrenador: puede aparecer en el selector de clases. */
+  teaches_classes: boolean;
 }
 
 const ROLE_META: Record<Role, { label: string; tone: StatusTone }> = {
@@ -55,6 +60,7 @@ export default function TeamSection() {
   const [inviteUrl, setInviteUrl] = useState<{ name: string; url: string } | null>(null);
 
   const [toRemove, setToRemove] = useState<Staff | null>(null);
+  const [trainersKey, setTrainersKey] = useState(0);
   const [removing, setRemoving] = useState(false);
 
   const sendInvite = async () => {
@@ -120,6 +126,24 @@ export default function TeamSection() {
     }
   };
 
+  const toggleTeaching = async (member: Staff) => {
+    if (!session?.accessToken) return;
+    const client = apiClient(session.accessToken as string);
+    try {
+      if (member.teaches_classes) {
+        await client.delete(`/api/v1/users/${member.id}/teaching`);
+        toast.success(`${member.full_name} ya no aparece como entrenador`);
+      } else {
+        await client.post(`/api/v1/users/${member.id}/teaching`);
+        toast.success(`${member.full_name} ya puede dictar clases`);
+      }
+      await staff.refetch();
+      setTrainersKey((k) => k + 1);
+    } catch (err: unknown) {
+      toast.error(parseApiError(err, "No se pudo cambiar quién dicta clases"));
+    }
+  };
+
   const copyUrl = () => {
     if (!inviteUrl) return;
     void navigator.clipboard.writeText(inviteUrl.url);
@@ -138,7 +162,8 @@ export default function TeamSection() {
             <p className="text-sm text-[var(--text-muted)] mt-1">
               Invita a tu personal y asigna su rol. El administrador gestiona el gym; el
               recepcionista solo opera check-in y cobros del día; el entrenador ve sus
-              clases, sus socios y sus rutinas, nunca el dinero.
+              clases, sus socios y sus rutinas, nunca el dinero. El icono de pesa
+              marca quién puede dictar clases, sea cual sea su rol.
             </p>
           </div>
           <Button
@@ -215,6 +240,21 @@ export default function TeamSection() {
                       </SelectContent>
                     </Select>
                   )}
+                  {m.is_active && (
+                    <button
+                      onClick={() => toggleTeaching(m)}
+                      title={m.teaches_classes ? "Quitar las clases" : "Habilitar para dictar clases"}
+                      aria-pressed={m.teaches_classes}
+                      className={cn(
+                        "h-8 w-8 rounded-lg flex items-center justify-center transition-colors",
+                        m.teaches_classes
+                          ? "bg-[var(--color-primary-muted)] text-[var(--color-primary-ink)]"
+                          : "text-[var(--text-muted)] hover:text-[var(--text-base)] hover:bg-[var(--bg-muted)]"
+                      )}
+                    >
+                      <Dumbbell className="h-4 w-4" />
+                    </button>
+                  )}
                   {!isOwner && m.is_active && (
                     <button
                       onClick={() => setToRemove(m)}
@@ -230,6 +270,8 @@ export default function TeamSection() {
           )}
         </div>
       </GlassCard>
+
+      <TrainersCard key={trainersKey} onChanged={() => void staff.refetch()} />
 
       <FormDialog
         open={inviteOpen}

@@ -69,6 +69,8 @@ const ACTION_LABELS: Record<string, string> = {
   "staff.role_change": "Cambió rol del equipo",
   "staff.deactivate": "Quitó acceso al equipo",
   "staff.reactivate": "Devolvió acceso al equipo",
+  "staff.teaching_on": "Habilitó a alguien para dictar clases",
+  "staff.teaching_off": "Quitó las clases a alguien del equipo",
   "settings.gym": "Editó datos del gimnasio",
   "settings.operations": "Cambió reglas de operación",
   "settings.billing": "Cambió datos de recaudo",

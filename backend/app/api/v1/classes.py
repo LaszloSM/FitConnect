@@ -1,7 +1,7 @@
 import uuid
 from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import select, func
+from sqlalchemy import select, func, delete
 from sqlalchemy.exc import IntegrityError
 from typing import Optional
 
@@ -14,7 +14,10 @@ from app.schemas.operations import (
 )
 from app.models.tenant.gym_class import GymClass
 from app.models.tenant.class_enrollment import ClassEnrollment
+from app.models.tenant.class_session import ClassSession
+from app.models.tenant.session_booking import SessionBooking
 from app.models.tenant.member import Member
+from app.core.timeutil import today_bogota
 from app.services.schedule_conflicts import find_class_conflict
 
 router = APIRouter(prefix="/classes", tags=["classes"], dependencies=[Depends(require_perm(perm.CLASSES_READ))])
@@ -102,18 +105,54 @@ async def update_class(
     return gym_class
 
 
-@router.delete("/{class_id}", status_code=204, dependencies=[Depends(require_perm(perm.CLASSES_WRITE))])
+@router.delete("/{class_id}", dependencies=[Depends(require_perm(perm.CLASSES_WRITE))])
 async def delete_class(
     class_id: uuid.UUID,
     db: AsyncSession = Depends(get_tenant_db_from_token),
 ):
+    """Con socios de por medio se archiva; sin ellos se borra de verdad.
+
+    El borrado era físico contra dos FKs sin cascada (`class_sessions` y
+    `class_enrollments`), así que cualquier clase con horario —o sea, casi
+    todas— devolvía 500 al intentar eliminarla. Mismo criterio que máquinas y
+    socios: lo que tiene historia de gente se retira, no se destruye.
+    """
     result = await db.execute(select(GymClass).where(GymClass.id == class_id))
     gym_class = result.scalar_one_or_none()
     if not gym_class:
         raise HTTPException(status_code=404, detail="Clase no encontrada")
+
+    inscritos = (await db.execute(
+        select(func.count()).select_from(ClassEnrollment)
+        .where(ClassEnrollment.gym_class_id == class_id)
+    )).scalar_one()
+    reservas = (await db.execute(
+        select(func.count()).select_from(SessionBooking)
+        .join(ClassSession, SessionBooking.session_id == ClassSession.id)
+        .where(ClassSession.gym_class_id == class_id)
+    )).scalar_one()
+
+    if inscritos or reservas:
+        gym_class.is_active = False
+        # Las sesiones futuras se cancelan: la clase ya no se dicta, pero las
+        # pasadas siguen siendo el registro de quién asistió.
+        for sesion in (await db.execute(
+            select(ClassSession).where(
+                ClassSession.gym_class_id == class_id,
+                ClassSession.session_date >= today_bogota(),
+                ClassSession.status != "cancelled",
+            )
+        )).scalars().all():
+            sesion.status = "cancelled"
+        await db.commit()
+        return {"archived": True, "enrollments": inscritos, "bookings": reservas}
+
+    # Las sesiones son datos derivados (las materializa el sistema desde el
+    # horario), así que sin nadie inscrito no hay nada que conservar.
+    await db.execute(delete(ClassSession).where(ClassSession.gym_class_id == class_id))
     await db.delete(gym_class)
     await db.commit()
-    return None
+    return {"archived": False}
 
 
 # ─── Enrollments ───

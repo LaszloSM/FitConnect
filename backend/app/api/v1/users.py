@@ -89,34 +89,44 @@ async def list_staff(
     db: AsyncSession = Depends(get_tenant_db_from_token),
     include_inactive: bool = Query(False),
 ):
+    from app.models.tenant.instructor import Instructor
+
     stmt = select(UserStaff)
     if not include_inactive:
         stmt = stmt.where(UserStaff.is_active.is_(True))
     result = await db.execute(stmt.order_by(UserStaff.full_name))
-    return [UserResponse.model_validate(u) for u in result.scalars().all()]
+    usuarios = result.scalars().all()
+
+    con_ficha = set((await db.execute(
+        select(Instructor.staff_id).where(Instructor.staff_id.is_not(None))
+    )).scalars().all())
+
+    salida = []
+    for u in usuarios:
+        item = UserResponse.model_validate(u)
+        item.teaches_classes = u.id in con_ficha
+        salida.append(item)
+    return salida
 
 
-async def _sync_trainer_profile(db: AsyncSession, user: UserStaff) -> None:
-    """Mantiene la ficha de `instructors` alineada con el rol.
-
-    Ascender a alguien a entrenador desde Equipo tiene que dejarlo listo para
-    trabajar; quitarle el rol lo desenlaza pero NO borra la ficha: sus clases
-    pasadas siguen apuntando a ella.
-    """
-    from sqlalchemy import func
+async def _linked_trainer(db: AsyncSession, user: UserStaff):
     from app.models.tenant.instructor import Instructor
 
-    ficha = (await db.execute(
+    return (await db.execute(
         select(Instructor).where(Instructor.staff_id == user.id)
     )).scalar_one_or_none()
 
-    if user.role != UserRole.trainer:
-        if ficha is not None:
-            ficha.staff_id = None
-        return
 
+async def _link_trainer_profile(db: AsyncSession, user: UserStaff):
+    """Deja a esta persona lista para dictar clases, reusando su ficha si existe."""
+    from sqlalchemy import func
+    from app.models.tenant.instructor import Instructor
+
+    ficha = await _linked_trainer(db, user)
     if ficha is not None:
-        return
+        ficha.is_active = True
+        return ficha
+
     libre = (await db.execute(
         select(Instructor).where(
             Instructor.staff_id.is_(None),
@@ -128,6 +138,77 @@ async def _sync_trainer_profile(db: AsyncSession, user: UserStaff) -> None:
         db.add(libre)
     libre.staff_id = user.id
     libre.is_active = True
+    return libre
+
+
+async def _active_classes(db: AsyncSession, instructor_id) -> int:
+    from sqlalchemy import func
+    from app.models.tenant.gym_class import GymClass
+
+    return (await db.execute(
+        select(func.count()).select_from(GymClass).where(
+            GymClass.instructor_id == instructor_id, GymClass.is_active.is_(True)
+        )
+    )).scalar_one()
+
+
+async def _sync_trainer_profile(db: AsyncSession, user: UserStaff) -> None:
+    """Mantiene la ficha de `instructors` alineada con el rol.
+
+    Ascender a alguien a entrenador desde Equipo tiene que dejarlo listo para
+    trabajar. Quitarle el rol NO borra la ficha —sus clases pasadas apuntan a
+    ella— y solo la desenlaza si no tiene clases vigentes: un administrador que
+    además dicta spinning es un caso real, y perder su vínculo al cambiarle el
+    rol dejaría esas clases sin entrenador asignado.
+    """
+    if user.role == UserRole.trainer:
+        await _link_trainer_profile(db, user)
+        return
+
+    ficha = await _linked_trainer(db, user)
+    if ficha is not None and not await _active_classes(db, ficha.id):
+        ficha.staff_id = None
+
+
+@router.post("/{user_id}/teaching", status_code=201)
+async def enable_teaching(
+    user_id: str,
+    current_user: UserStaff = Depends(require_perm(perm.INSTRUCTORS_WRITE)),
+    db: AsyncSession = Depends(get_tenant_db_from_token),
+):
+    """Habilita a un miembro del equipo para dictar clases, sea cual sea su rol."""
+    user = (await db.execute(select(UserStaff).where(UserStaff.id == user_id))).scalar_one_or_none()
+    if not user:
+        raise HTTPException(status_code=404, detail="Usuario no encontrado")
+    ficha = await _link_trainer_profile(db, user)
+    audit(db, current_user, "staff.teaching_on", "user", user.id, {"email": user.email})
+    await db.commit()
+    await db.refresh(ficha)
+    return {"instructor_id": str(ficha.id), "full_name": ficha.full_name}
+
+
+@router.delete("/{user_id}/teaching")
+async def disable_teaching(
+    user_id: str,
+    current_user: UserStaff = Depends(require_perm(perm.INSTRUCTORS_WRITE)),
+    db: AsyncSession = Depends(get_tenant_db_from_token),
+):
+    user = (await db.execute(select(UserStaff).where(UserStaff.id == user_id))).scalar_one_or_none()
+    if not user:
+        raise HTTPException(status_code=404, detail="Usuario no encontrado")
+    ficha = await _linked_trainer(db, user)
+    if ficha is None:
+        return {"ok": True}
+    pendientes = await _active_classes(db, ficha.id)
+    if pendientes:
+        raise HTTPException(
+            status_code=409,
+            detail=f"{user.full_name} tiene {pendientes} clase(s) vigente(s). Reasignalas antes de quitarle las clases.",
+        )
+    ficha.staff_id = None
+    audit(db, current_user, "staff.teaching_off", "user", user.id, {"email": user.email})
+    await db.commit()
+    return {"ok": True}
 
 
 @router.patch("/{user_id}/role", response_model=UserResponse)
