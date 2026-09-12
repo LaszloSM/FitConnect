@@ -8,6 +8,7 @@ from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import async_sessionmaker
 
 from app.core.config import settings
+from app.core.permissions import ROLE_PERMISSIONS
 from app.services.staff_member import ensure_staff_member
 from app.api.deps import get_current_staff, security
 from app.core.security import (
@@ -102,6 +103,7 @@ async def login(request: Request, payload: LoginRequest, db: AsyncSession = Depe
         tenant_id=str(tenant.id),
         db_name=tenant.db_name,
         full_name=owner.full_name,
+        permissions=sorted(ROLE_PERMISSIONS[UserRole.owner]),
     )
 
 
@@ -135,6 +137,7 @@ async def staff_login(request: Request, payload: LoginRequest, db: AsyncSession 
         tenant_id=str(entry.tenant_id),
         db_name=entry.db_name,
         full_name=staff.full_name,
+        permissions=sorted(ROLE_PERMISSIONS.get(staff.role, frozenset())),
     )
 
 
@@ -214,6 +217,7 @@ async def accept_invite(request: Request, payload: AcceptInviteRequest, db: Asyn
         tenant_id=str(invite.tenant_id),
         db_name=invite.db_name,
         full_name=staff_full_name,
+        permissions=sorted(ROLE_PERMISSIONS.get(UserRole(staff_role), frozenset())),
     )
 
 

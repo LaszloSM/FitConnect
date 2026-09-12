@@ -25,11 +25,14 @@ export const compact = (v: number) => new Intl.NumberFormat("es-CO", { notation:
 export function usePeriodData<T extends Record<string, any>>(
   urls: Record<keyof T, string>,
   period: Period | null,
-): { data: Partial<T>; loading: boolean; error: string } {
+): { data: Partial<T>; loading: boolean; error: string; failed: Set<string> } {
   const { data: session } = useSession();
   const [data, setData] = useState<Partial<T>>({});
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  // Qué fuentes no respondieron: una tarjeta sin dato debe decir "no se pudo
+  // cargar", nunca pintar un cero que afirma que no hay plata.
+  const [failed, setFailed] = useState<Set<string>>(new Set());
   const key = JSON.stringify(urls) + (period ? `${period.from}|${period.to}` : "");
 
   useEffect(() => {
@@ -39,23 +42,29 @@ export function usePeriodData<T extends Record<string, any>>(
     const client = apiClient(session.accessToken as string);
     const params = period ? { from: period.from, to: period.to } : {};
     const entries = Object.entries(urls) as [keyof T, string][];
-    Promise.all(entries.map(([, url]) => client.get(url, { params })))
+    // allSettled, no all: una fuente caída no puede borrar el reporte entero.
+    // Con `all`, un 403 en una sola petición dejaba la pestaña en "Error
+    // cargando reportes" aunque las otras seis hubieran respondido.
+    Promise.allSettled(entries.map(([, url]) => client.get(url, { params })))
       .then((results) => {
         if (cancelled) return;
         const next: Partial<T> = {};
-        entries.forEach(([k], i) => { next[k] = results[i].data; });
+        const caidas: string[] = [];
+        entries.forEach(([k, url], i) => {
+          const r = results[i];
+          if (r.status === "fulfilled") next[k] = r.value.data;
+          else caidas.push(url);
+        });
         setData(next);
-        setError("");
-      })
-      .catch((err: any) => {
-        if (!cancelled) setError(typeof err.response?.data?.detail === "string" ? err.response.data.detail : "Error cargando reportes");
+        setFailed(new Set(caidas));
+        setError(caidas.length === entries.length ? "No se pudo cargar el reporte" : "");
       })
       .finally(() => { if (!cancelled) setLoading(false); });
     return () => { cancelled = true; };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [session?.accessToken, key]);
 
-  return { data, loading, error };
+  return { data, loading, error, failed };
 }
 
 /** Descarga un blob sin que el navegador revoque la URL antes de iniciar. */

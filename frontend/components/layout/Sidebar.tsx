@@ -26,9 +26,17 @@ import {
   Sun,
 } from "lucide-react";
 import { BrandMark } from "@/components/common/BrandMark";
+import { P, useCan, type Permission } from "@/lib/permissions";
 
 // ── Nav structure — grouped by purpose so modules feel organized, not cloned ──
-type NavItem = { href: string; label: string; icon: typeof Users; ownerOnly?: boolean };
+type NavItem = {
+  href: string;
+  label: string;
+  icon: typeof Users;
+  /** Capacidad que exige el módulo. Sin ella, el ítem no se muestra: ofrecer una
+   *  puerta que responde 403 es peor que no ofrecerla. */
+  needs?: Permission;
+};
 type NavGroup = { label: string; items: NavItem[] };
 
 // El entrenador no ve un gimnasio recortado: ve SU día. La matriz de permisos
@@ -62,7 +70,7 @@ const navGroups: NavGroup[] = [
       { href: "/checkins", label: "Check-ins", icon: Activity },
       { href: "/classes", label: "Clases", icon: Calendar },
       { href: "/routines", label: "Rutinas", icon: Dumbbell },
-      { href: "/messages", label: "Mensajes", icon: MessageSquare },
+      { href: "/messages", label: "Mensajes", icon: MessageSquare, needs: P.MESSAGES_READ },
     ],
   },
   {
@@ -71,13 +79,13 @@ const navGroups: NavGroup[] = [
       { href: "/payments", label: "Pagos", icon: CreditCard },
       { href: "/plans", label: "Planes", icon: Tag },
       { href: "/machines", label: "Máquinas", icon: Dumbbell },
-      { href: "/reports", label: "Reportes", icon: BarChart3 },
+      { href: "/reports", label: "Reportes", icon: BarChart3, needs: P.REPORTS_READ },
     ],
   },
   {
     label: "Sistema",
     items: [
-      { href: "/audit", label: "Auditoría", icon: ScrollText, ownerOnly: true },
+      { href: "/audit", label: "Auditoría", icon: ScrollText, needs: P.AUDIT_READ },
       { href: "/settings", label: "Configuración", icon: Settings },
       { href: "/ayuda", label: "Ayuda", icon: HelpCircle },
     ],
@@ -149,6 +157,7 @@ export function Sidebar() {
   // El rol vive en `session.role`, no en `session.user`: leerlo del user daba
   // siempre null y el filtro `ownerOnly` no filtraba nada.
   const userRole = session?.role ?? null;
+  const { can } = useCan();
   const groups = userRole === "trainer" ? trainerGroups : navGroups;
   const initials = getInitials(userName);
   const subline = userRole ?? userEmail ?? "";
@@ -229,7 +238,7 @@ export function Sidebar() {
 
               <ul className="flex flex-col gap-0.5 list-none m-0 p-0">
                 {group.items
-                  .filter((item) => !item.ownerOnly || userRole === "owner")
+                  .filter((item) => !item.needs || can(item.needs))
                   .map(({ href, label, icon: Icon }) => {
                   const active = isActive(href);
                   return (

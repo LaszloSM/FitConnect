@@ -3,6 +3,7 @@
 
 import { useCallback, useEffect, useState } from "react";
 import { useSession } from "next-auth/react";
+import { P, useCan } from "@/lib/permissions";
 import { toast } from "sonner";
 import { motion } from "framer-motion";
 import { GlassCard } from "@/components/common/GlassCard";
@@ -107,6 +108,10 @@ function maintenanceNote(m: Machine): { text: string; cls: string } | null {
 
 export default function MachinesClient() {
   const { data: session } = useSession();
+  // Recepción puede consultar y registrar mantenimiento, no dar de alta ni
+  // borrar equipos: ofrecerle esos botones solo la lleva a un 403.
+  const { can } = useCan();
+  const puedeEditar = can(P.MACHINES_WRITE);
   const token = session?.accessToken as string | undefined;
 
   const [machines, setMachines] = useState<Machine[]>([]);
@@ -355,10 +360,12 @@ export default function MachinesClient() {
         title="Máquinas"
         subtitle="Inventario, estado y mantenimiento de los equipos."
         action={
-          <Button onClick={openCreate}>
-            <Plus className="h-4 w-4 mr-2" />
-            Nueva máquina
-          </Button>
+          puedeEditar ? (
+            <Button onClick={openCreate}>
+              <Plus className="h-4 w-4 mr-2" />
+              Nueva máquina
+            </Button>
+          ) : undefined
         }
       />
 
@@ -428,7 +435,7 @@ export default function MachinesClient() {
             description={q || statusFilter || areaFilter || onlyOverdue
               ? "Prueba con otro filtro o limpia la búsqueda."
               : "Agrega el inventario de equipos del gym."}
-            action={<Button onClick={openCreate}><Plus className="h-4 w-4 mr-2" />Nueva máquina</Button>}
+            action={puedeEditar ? <Button onClick={openCreate}><Plus className="h-4 w-4 mr-2" />Nueva máquina</Button> : undefined}
           />
         ) : (
           <ul className="list-none m-0 p-0 space-y-2">
@@ -473,12 +480,16 @@ export default function MachinesClient() {
                       <IconButton title="Reportar avería" onClick={() => { setFaultTarget(m); setFaultText(""); }}>
                         <TriangleAlert className="h-3.5 w-3.5" />
                       </IconButton>
-                      <IconButton title="Editar" onClick={() => openEdit(m)}>
-                        <Pencil className="h-3.5 w-3.5" />
-                      </IconButton>
-                      <IconButton title="Eliminar" onClick={() => setDeleteTarget(m)}>
-                        <Trash2 className="h-3.5 w-3.5" />
-                      </IconButton>
+                      {puedeEditar && (
+                        <>
+                          <IconButton title="Editar" onClick={() => openEdit(m)}>
+                            <Pencil className="h-3.5 w-3.5" />
+                          </IconButton>
+                          <IconButton title="Eliminar" onClick={() => setDeleteTarget(m)}>
+                            <Trash2 className="h-3.5 w-3.5" />
+                          </IconButton>
+                        </>
+                      )}
                       <IconButton
                         title={abierta ? "Ocultar historial" : "Ver historial"}
                         onClick={() => toggle(m.id)}

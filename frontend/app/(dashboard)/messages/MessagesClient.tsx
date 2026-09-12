@@ -109,17 +109,24 @@ export default function MessagesClient() {
     if (!token) return;
     const client = apiClient(token);
     try {
-      const [a, s, ann, out] = await Promise.all([
+      // Por fuente: con Promise.all, una sola petición caída borraba las
+      // cuatro secciones de la pantalla.
+      const [a, sg, ann, out] = await Promise.allSettled([
         client.get<AutoMessage[]>("/api/v1/messages"),
         client.get<Segment[]>("/api/v1/messages/segments"),
         client.get<AnnouncementRow[]>("/api/v1/messages/announcements"),
         client.get<OutboxRow[]>("/api/v1/messages/outbox"),
       ]);
-      setAutos(a.data);
-      setSegments(s.data);
-      setAnnouncements(ann.data);
-      setOutbox(out.data);
-      setError("");
+      setAutos(a.status === "fulfilled" ? a.value.data : []);
+      setSegments(sg.status === "fulfilled" ? sg.value.data : []);
+      setAnnouncements(ann.status === "fulfilled" ? ann.value.data : []);
+      setOutbox(out.status === "fulfilled" ? out.value.data : []);
+      const todas = [a, sg, ann, out];
+      setError(
+        todas.every((r) => r.status === "rejected")
+          ? "No se pudieron cargar los mensajes"
+          : ""
+      );
     } catch (err: any) {
       setError(err.response?.data?.detail ?? "No se pudieron cargar los mensajes");
     } finally {

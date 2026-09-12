@@ -36,6 +36,9 @@ export default function CashClient() {
   const { data: session } = useSession();
   const [current, setCurrent] = useState<CurrentShift | null>(null);
   const [history, setHistory] = useState<any[]>([]);
+  // Una lista vacía y una lista que no se pudo leer no son lo mismo: decir
+  // "no hay cierres" cuando en realidad no se pudo mirar es afirmar algo falso.
+  const [historyDenied, setHistoryDenied] = useState(false);
   const [openingAmount, setOpeningAmount] = useState(0);
   const [countedCash, setCountedCash] = useState(0);
   const [busy, setBusy] = useState(false);
@@ -45,15 +48,24 @@ export default function CashClient() {
   const load = useCallback(async () => {
     if (!session?.accessToken) return;
     const client = apiClient(session.accessToken as string);
-    const [cur, hist] = await Promise.all([
-      client.get("/api/v1/cash/shifts/current"),
-      client.get("/api/v1/cash/shifts", { params: { limit: 20 } }),
-    ]);
-    setCurrent(cur.data);
-    setHistory(hist.data);
-    if (cur.data.open && cur.data.shift) {
-      const exp = await client.get("/api/v1/cash/expenses", { params: { shift_id: cur.data.shift.id } });
-      setExpenses(exp.data);
+
+    // Cada fuente cae por su cuenta. Antes iban en un Promise.all estricto y
+    // recepción —que puede abrir turno pero no leer el histórico— se quedaba
+    // SIN la tarjeta de abrir turno porque un 403 rechazaba el bloque entero.
+    const cur = await client.get("/api/v1/cash/shifts/current").catch(() => null);
+    if (cur) setCurrent(cur.data);
+
+    const hist = await client
+      .get("/api/v1/cash/shifts", { params: { limit: 20 } })
+      .catch(() => null);
+    setHistory(hist ? hist.data : []);
+    setHistoryDenied(!hist);
+
+    if (cur?.data?.open && cur.data.shift) {
+      const exp = await client
+        .get("/api/v1/cash/expenses", { params: { shift_id: cur.data.shift.id } })
+        .catch(() => null);
+      setExpenses(exp ? exp.data : []);
     } else {
       setExpenses([]);
     }
@@ -270,7 +282,9 @@ export default function CashClient() {
         </>
       )}
 
-      {/* Histórico de cierres */}
+      {/* Histórico de cierres — recepción no puede leerlo: se oculta en vez de
+          mostrarle una tarjeta vacía que parece un gimnasio sin cierres. */}
+      {!historyDenied && (
       <GlassCard className="p-4">
         <h3 className="text-sm font-semibold text-[var(--text-base)] mb-3">Cierres anteriores</h3>
         {history.filter((s) => s.status === "closed").length === 0 ? (
@@ -293,6 +307,7 @@ export default function CashClient() {
           </div>
         )}
       </GlassCard>
+      )}
     </motion.div>
   );
 }

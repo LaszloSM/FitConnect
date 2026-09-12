@@ -8,6 +8,7 @@ from sqlalchemy import select, func, desc
 
 from app.api.deps import get_tenant_db_from_token, get_current_staff, require_perm
 from app.core import permissions as perm
+from app.core.permissions import has_perm
 from app.core.timeutil import now_bogota
 from app.models.tenant.cash_shift import CashShift
 from app.models.tenant.expense import Expense
@@ -211,12 +212,24 @@ async def reopen_shift(
     return shift
 
 
-@router.get("/expenses", dependencies=[Depends(require_perm(perm.CASH_READ))])
+@router.get("/expenses")
 async def list_expenses(
     db: AsyncSession = Depends(get_tenant_db_from_token),
+    current_user: UserStaff = Depends(get_current_staff),
     shift_id: uuid.UUID | None = Query(None),
     limit: int = Query(50, ge=1, le=100),
 ):
+    """Los egresos de UN turno los ve quien puede registrarlos; el histórico
+    completo exige `cash.read`.
+
+    Recepción podía crear egresos y no verlos: sin la lista de lo que sacó de la
+    caja no hay forma de cuadrarla al cerrar.
+    """
+    puede_todo = has_perm(current_user.role, perm.CASH_READ)
+    if not puede_todo:
+        if shift_id is None or not has_perm(current_user.role, perm.CASH_EXPENSE):
+            raise HTTPException(status_code=403, detail="Sin permisos suficientes")
+
     stmt = select(Expense).order_by(desc(Expense.created_at)).limit(limit)
     if shift_id:
         stmt = stmt.where(Expense.shift_id == shift_id)

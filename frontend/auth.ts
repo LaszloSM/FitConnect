@@ -62,6 +62,9 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
           role: data.role,
           tenantId: data.tenant_id,
           dbName: data.db_name,
+          // Las capacidades las decide el backend y viajan con el login: la UI
+          // no mantiene su propia copia de la matriz, que se desincronizaría.
+          permissions: (data.permissions ?? []) as string[],
         };
       },
     }),
@@ -72,11 +75,12 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
     },
     async jwt({ token, user }) {
       if (user) {
-        const u = user as { accessToken: string; role: string; tenantId: string; dbName: string } & typeof user;
+        const u = user as { accessToken: string; role: string; tenantId: string; dbName: string; permissions?: string[] } & typeof user;
         token.accessToken = u.accessToken;
         token.role = u.role;
         token.tenantId = u.tenantId;
         token.dbName = u.dbName;
+        token.permissions = u.permissions ?? [];
         token.accessTokenExpires = expiryOf(u.accessToken);
         delete token.error;
         return token;
@@ -97,6 +101,8 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         token.accessToken = data.access_token;
         token.role = data.role;
         token.dbName = data.db_name;
+        // Un cambio de rol se aplica al renovar, sin obligar a cerrar sesión.
+        if (data.permissions) token.permissions = data.permissions;
         if (data.tenant_id) token.tenantId = data.tenant_id;
         token.accessTokenExpires = expiryOf(data.access_token);
         delete token.error;
@@ -110,6 +116,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
     async session({ session, token }) {
       session.accessToken = token.accessToken as string;
       session.role = token.role as string;
+      session.permissions = (token.permissions as string[]) ?? [];
       session.tenantId = token.tenantId as string;
       session.dbName = token.dbName as string;
       session.error = token.error as string | undefined;

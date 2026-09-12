@@ -4,6 +4,8 @@ declare module "next-auth" {
   interface Session extends DefaultSession {
     accessToken: string;
     role: string;
+    /** Capacidades del rol, tal cual las declara el backend. */
+    permissions: string[];
     tenantId: string;
     dbName: string;
     /** "RefreshFailed": el token venció y no se pudo renovar; hay que volver a entrar. */
@@ -15,6 +17,7 @@ declare module "next-auth/jwt" {
   interface JWT {
     accessToken: string;
     role: string;
+    permissions?: string[];
     tenantId: string;
     dbName: string;
     accessTokenExpires?: number;

@@ -41,6 +41,10 @@ class TokenResponse(BaseModel):
     tenant_id: str
     db_name: str
     full_name: str
+    #: Capacidades del rol, tal cual las declara `app.core.permissions`. Viajan
+    #: en el login para que la UI no tenga que mantener una copia de la matriz:
+    #: una copia se desincroniza y convierte un permiso en una pantalla rota.
+    permissions: list[str] = []
 
 
 class PasswordResetRequest(BaseModel):

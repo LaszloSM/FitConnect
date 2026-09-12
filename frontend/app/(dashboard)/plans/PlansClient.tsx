@@ -3,6 +3,7 @@
 
 import { useEffect, useState } from "react";
 import { useSession } from "next-auth/react";
+import { P, useCan } from "@/lib/permissions";
 import { motion, AnimatePresence } from "framer-motion";
 import { z } from "zod";
 import { toast } from "sonner";
@@ -119,9 +120,11 @@ interface PlanCardItemProps {
   plan: Plan;
   onEdit: (plan: Plan) => void;
   onDelete: (plan: Plan) => void;
+  /** Recepción consulta los planes para cobrar, pero no los edita ni los borra. */
+  editable: boolean;
 }
 
-function PlanCardItem({ plan, onEdit, onDelete }: PlanCardItemProps) {
+function PlanCardItem({ plan, onEdit, onDelete, editable }: PlanCardItemProps) {
   const duration = durationLabel(plan.duration_days);
   const features = [
     `Acceso por ${duration}`,
@@ -186,6 +189,7 @@ function PlanCardItem({ plan, onEdit, onDelete }: PlanCardItemProps) {
           </div>
 
           {/* Actions */}
+          {editable && (
           <div className="flex gap-2 pt-1">
             <button
               onClick={() => onEdit(plan)}
@@ -202,6 +206,7 @@ function PlanCardItem({ plan, onEdit, onDelete }: PlanCardItemProps) {
               Eliminar
             </button>
           </div>
+          )}
         </PricingCard.Header>
 
         {/* Features */}
@@ -233,6 +238,8 @@ const emptyForm: PlanForm = {
 };
 
 export default function PlansClient() {
+  const { can } = useCan();
+  const puedeEditar = can(P.PLANS_WRITE);
   const { data: session } = useSession();
   const [plans, setPlans] = useState<Plan[]>([]);
   const [loading, setLoading] = useState(true);
@@ -353,15 +360,17 @@ export default function PlansClient() {
           subtitle="Crea y gestiona los planes disponibles para tus miembros"
         />
         <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-          <DialogTrigger render={
-            <Button
-              onClick={openCreate}
-              className="bg-[var(--color-primary)] text-[var(--color-primary-contrast)] font-semibold hover:opacity-90 transition-opacity shrink-0"
-            >
-              <Plus className="h-4 w-4 mr-2" />
-              Nuevo plan
-            </Button>
-          } />
+          {puedeEditar && (
+            <DialogTrigger render={
+              <Button
+                onClick={openCreate}
+                className="bg-[var(--color-primary)] text-[var(--color-primary-contrast)] font-semibold hover:opacity-90 transition-opacity shrink-0"
+              >
+                <Plus className="h-4 w-4 mr-2" />
+                Nuevo plan
+              </Button>
+            } />
+          )}
           <DialogContent className="max-w-md">
             <DialogHeader>
               <DialogTitle>{editing ? "Editar plan" : "Nuevo plan"}</DialogTitle>
@@ -619,7 +628,8 @@ export default function PlansClient() {
               key={plan.id}
               plan={plan}
               onEdit={openEdit}
-              onDelete={(p) => setDeleteTarget(p)}
+              onDelete={(pl) => setDeleteTarget(pl)}
+              editable={puedeEditar}
             />
           ))}
         </motion.div>

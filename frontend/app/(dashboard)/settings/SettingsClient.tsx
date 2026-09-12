@@ -2,11 +2,11 @@
 
 import { useState } from "react";
 import { useSearchParams } from "next/navigation";
-import { useSession } from "next-auth/react";
 import { motion, AnimatePresence } from "framer-motion";
 import { PageHeader } from "@/components/common/PageHeader";
 import { cn } from "@/lib/utils";
 import { User, Building2, CreditCard, Palette, SlidersHorizontal, Plug, MonitorSmartphone, Landmark, Users, Ticket } from "lucide-react";
+import { P, useCan, type Permission } from "@/lib/permissions";
 
 // Imports estáticos a propósito. Con `next/dynamic` y sin fallback, un chunk que
 // no llegaba (típico tras un despliegue: el navegador conserva el HTML viejo y
@@ -31,19 +31,21 @@ interface Tab {
   key: TabKey;
   label: string;
   icon: React.ElementType;
-  ownerOnly?: boolean;
+  /** Capacidad que exige la pestaña. Recepción veía seis que le respondían 403. */
+  needs?: Permission;
 }
 
 const TABS: Tab[] = [
+  // Perfil y Apariencia son de la propia cuenta: no exigen nada.
   { key: "profile",       label: "Perfil",          icon: User },
-  { key: "gym",           label: "Gimnasio",         icon: Building2 },
-  { key: "operations",    label: "Operación",        icon: SlidersHorizontal },
-  { key: "billing",       label: "Recaudo",          icon: Landmark },
-  { key: "daypass",       label: "Pases",            icon: Ticket },
-  { key: "kiosk",         label: "Dispositivos",     icon: MonitorSmartphone },
-  { key: "integrations",  label: "Integraciones",    icon: Plug },
-  { key: "team",          label: "Equipo",           icon: Users, ownerOnly: true },
-  { key: "plan",          label: "Plan",             icon: CreditCard },
+  { key: "gym",           label: "Gimnasio",         icon: Building2,           needs: P.SETTINGS_PROFILE },
+  { key: "operations",    label: "Operación",        icon: SlidersHorizontal,   needs: P.SETTINGS_WRITE },
+  { key: "billing",       label: "Recaudo",          icon: Landmark,            needs: P.SETTINGS_READ },
+  { key: "daypass",       label: "Pases",            icon: Ticket,              needs: P.DAY_PASSES_WRITE },
+  { key: "kiosk",         label: "Dispositivos",     icon: MonitorSmartphone,   needs: P.KIOSK_MANAGE },
+  { key: "integrations",  label: "Integraciones",    icon: Plug,                needs: P.SETTINGS_SECRETS },
+  { key: "team",          label: "Equipo",           icon: Users,               needs: P.USERS_READ },
+  { key: "plan",          label: "Plan",             icon: CreditCard,          needs: P.SETTINGS_READ },
   { key: "appearance",    label: "Apariencia",       icon: Palette },
 ];
 
@@ -61,14 +63,19 @@ const SECTION_MAP: Record<TabKey, React.ComponentType> = {
 };
 
 export default function SettingsClient() {
-  const { data: session } = useSession();
-  const isOwner = session?.role === "owner";
-  const visibleTabs = TABS.filter((tab) => !tab.ownerOnly || isOwner);
+  const { can, ready } = useCan();
+  const visibleTabs = TABS.filter((tab) => !tab.needs || can(tab.needs));
   const searchParams = useSearchParams();
   const requested = searchParams.get("tab");
-  const [activeTab, setActiveTab] = useState<TabKey>(
+  const [wantedTab, setWantedTab] = useState<TabKey>(
     requested && TAB_KEYS.includes(requested as TabKey) ? (requested as TabKey) : "profile"
   );
+
+  // Llegar por URL a una pestaña que no le corresponde devolvía una pantalla de
+  // errores. Se resuelve en el render, no con un efecto que corrige el estado
+  // después: eso encadena un render de más y deja ver la pestaña un instante.
+  const activeTab: TabKey =
+    !ready || visibleTabs.some((t) => t.key === wantedTab) ? wantedTab : "profile";
 
   const ActiveSection = SECTION_MAP[activeTab];
 
@@ -93,7 +100,7 @@ export default function SettingsClient() {
             return (
               <button
                 key={tab.key}
-                onClick={() => setActiveTab(tab.key)}
+                onClick={() => setWantedTab(tab.key)}
                 aria-current={isActive ? "page" : undefined}
                 className={cn(
                   "flex items-center gap-2.5 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors whitespace-nowrap",
