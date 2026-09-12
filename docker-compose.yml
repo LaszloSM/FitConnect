@@ -67,6 +67,11 @@ services:
       - REDIS_URL=redis://redis:6379
       - SECRET_KEY=${SECRET_KEY:?SECRET_KEY is required. Copy .env.example to .env and fill in values}
       - ENVIRONMENT=development
+      # Igual que en producción: un `docker compose up` sobre una base limpia
+      # tiene que dar una app que funcione. Sin esto el Master no tiene tablas
+      # y `POST /auth/register` devuelve 500 ('relation "owners" does not
+      # exist'); en local no se notaba porque el volumen ya traía el esquema.
+      - RUN_MIGRATIONS_ON_STARTUP=true
       - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY:-}
       # Almacenamiento de objetos S3-compatible: MinIO en local, S3 real en prod
       # (basta cambiar estas env vars; el código usa boto3 sin cambios).
