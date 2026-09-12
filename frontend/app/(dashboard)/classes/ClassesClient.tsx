@@ -1,7 +1,7 @@
 "use client";
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
-import { useEffect, useState } from "react";
+import { Fragment, useEffect, useState } from "react";
 import { useSession } from "next-auth/react";
 import { toast } from "sonner";
 import { motion } from "framer-motion";
@@ -9,6 +9,8 @@ import { GlassCard } from "@/components/common/GlassCard";
 import { PageHeader } from "@/components/common/PageHeader";
 import { EmptyState } from "@/components/common/EmptyState";
 import { apiClient } from "@/lib/api";
+import { parseApiError } from "@/lib/errors";
+import type { ClassCategory, ClassDifficulty, GymClass } from "@/lib/types";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -35,22 +37,6 @@ import Link from "next/link";
 import { InstructorsCard } from "./InstructorsCard";
 import MemberSelect from "@/components/common/MemberSelect";
 
-interface GymClass {
-  id: string;
-  name: string;
-  instructor: string;
-  schedule: string | null;
-  max_capacity: number;
-  duration_minutes: number;
-  is_active: boolean;
-  description: string | null;
-  category: string | null;
-  difficulty: string | null;
-  weekdays: number[] | null;
-  start_time: string | null;
-  color: string | null;
-}
-
 interface Enrollment {
   id: string;
   member_id: string;
@@ -64,28 +50,40 @@ const selectCls =
   "w-full h-9 rounded-md border border-[var(--border-base)] bg-[var(--bg-base)] px-3 py-1 text-sm text-[var(--text-base)]";
 
 const CATEGORIES = [
-  "Yoga", "Crossfit", "Spinning", "Pilates", "Funcional", "Zumba", "Boxeo", "Natación", "Otro",
-];
+  { value: "yoga", label: "Yoga" },
+  { value: "crossfit", label: "Crossfit" },
+  { value: "spinning", label: "Spinning" },
+  { value: "pilates", label: "Pilates" },
+  { value: "funcional", label: "Funcional" },
+  { value: "zumba", label: "Zumba" },
+  { value: "boxeo", label: "Boxeo" },
+  { value: "natacion", label: "Natación" },
+  { value: "otro", label: "Otro" },
+] as const satisfies readonly { value: ClassCategory; label: string }[];
+
+const CATEGORY_LABEL = Object.fromEntries(
+  CATEGORIES.map((c) => [c.value, c.label])
+) as Record<ClassCategory, string>;
 
 const DIFFICULTIES = [
   { value: "beginner", label: "Principiante" },
   { value: "intermediate", label: "Intermedio" },
   { value: "advanced", label: "Avanzado" },
-];
+] as const satisfies readonly { value: ClassDifficulty; label: string }[];
 
 const DURATION_OPTIONS = [30, 45, 60, 90, 120];
 
 const DAY_LABELS = ["Lun", "Mar", "Mié", "Jue", "Vie", "Sáb", "Dom"];
 
 const COLOR_OPTIONS = [
-  { value: "orange", bg: "bg-orange-500", label: "Naranja" },
-  { value: "blue", bg: "bg-blue-500", label: "Azul" },
-  { value: "green", bg: "bg-green-500", label: "Verde" },
-  { value: "red", bg: "bg-red-500", label: "Rojo" },
-  { value: "purple", bg: "bg-purple-500", label: "Morado" },
-  { value: "pink", bg: "bg-pink-500", label: "Rosa" },
-  { value: "cyan", bg: "bg-cyan-500", label: "Cian" },
-  { value: "yellow", bg: "bg-yellow-400", label: "Amarillo" },
+  { value: "#F97316", label: "Naranja" },
+  { value: "#3B82F6", label: "Azul" },
+  { value: "#22C55E", label: "Verde" },
+  { value: "#EF4444", label: "Rojo" },
+  { value: "#A855F7", label: "Morado" },
+  { value: "#EC4899", label: "Rosa" },
+  { value: "#06B6D4", label: "Cian" },
+  { value: "#FACC15", label: "Amarillo" },
 ];
 
 function buildSchedulePreview(weekdays: number[], startTime: string, durationMinutes: string): string {
@@ -202,15 +200,8 @@ export default function ClassesClient() {
       setDialogOpen(false);
       setForm({ name: "", instructor: "", instructor_id: "", schedule: "", max_capacity: "20", duration_minutes: "60", description: "", category: "", difficulty: "", weekdays: [], start_time: "", color: "" });
       fetchClasses();
-    } catch (err: any) {
-      const detail = err.response?.data?.detail;
-      toast.error(
-        typeof detail === "string"
-          ? detail
-          : Array.isArray(detail)
-          ? detail[0]?.msg
-          : "Error guardando clase"
-      );
+    } catch (err: unknown) {
+      toast.error(parseApiError(err, "Error guardando clase"));
     } finally {
       setSubmitting(false);
     }
@@ -354,7 +345,7 @@ export default function ClassesClient() {
                 >
                   <option value="">Sin categoría</option>
                   {CATEGORIES.map((c) => (
-                    <option key={c} value={c}>{c}</option>
+                    <option key={c.value} value={c.value}>{c.label}</option>
                   ))}
                 </select>
               </div>
@@ -436,9 +427,9 @@ export default function ClassesClient() {
                     type="button"
                     onClick={() => setForm({ ...form, color: form.color === c.value ? "" : c.value })}
                     title={c.label}
+                    style={{ background: c.value }}
                     className={cn(
                       "h-7 w-7 rounded-full transition-all",
-                      c.bg,
                       form.color === c.value ? "ring-2 ring-offset-2 ring-[var(--color-primary)] scale-110" : "opacity-70 hover:opacity-100 hover:scale-105"
                     )}
                     aria-label={c.label}
@@ -527,20 +518,21 @@ export default function ClassesClient() {
                 </TableRow>
               ) : (
                 classes.map((cls) => (
-                  <>
-                    <TableRow key={cls.id} className="border-[var(--border-base)] hover:bg-[var(--bg-base)]">
+                  <Fragment key={cls.id}>
+                    <TableRow className="border-[var(--border-base)] hover:bg-[var(--bg-base)]">
                       <TableCell className="text-[var(--text-base)] font-medium">
                         <div className="flex items-center gap-2">
                           {cls.color && (
-                            <span className={cn(
-                              "h-2.5 w-2.5 rounded-full shrink-0",
-                              COLOR_OPTIONS.find((c) => c.value === cls.color)?.bg ?? "bg-gray-400"
-                            )} />
+                            <span
+                              className="h-2.5 w-2.5 rounded-full shrink-0"
+                              style={{ background: cls.color }}
+                              aria-hidden
+                            />
                           )}
                           <div>
                             {cls.name}
                             {cls.category && (
-                              <span className="ml-1.5 text-xs text-[var(--text-muted)] font-normal">· {cls.category}</span>
+                              <span className="ml-1.5 text-xs text-[var(--text-muted)] font-normal">· {CATEGORY_LABEL[cls.category] ?? cls.category}</span>
                             )}
                             {cls.description && (
                               <p className="text-xs text-[var(--text-muted)] font-normal mt-0.5 line-clamp-1">
@@ -593,7 +585,7 @@ export default function ClassesClient() {
                     </TableRow>
 
                     {expandedClass === cls.id && (
-                      <TableRow key={`${cls.id}-expanded`} className="border-[var(--border-base)]">
+                      <TableRow className="border-[var(--border-base)]">
                         <TableCell
                           colSpan={7}
                           className="bg-[var(--bg-base)] p-4"
@@ -654,7 +646,7 @@ export default function ClassesClient() {
                         </TableCell>
                       </TableRow>
                     )}
-                  </>
+                  </Fragment>
                 ))
               )}
             </TableBody>

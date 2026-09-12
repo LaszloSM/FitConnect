@@ -155,6 +155,7 @@ export interface GymClass {
   id: string;
   name: string;
   instructor: string;
+  instructor_id: string | null;
   schedule: string | null;
   weekdays: number[] | null;
   start_time: string | null;

@@ -1,3 +1,4 @@
+import re
 import uuid
 from datetime import date, datetime, time
 from decimal import Decimal
@@ -5,6 +6,16 @@ from typing import Literal, Optional
 from pydantic import BaseModel, Field, field_validator
 
 from app.models.tenant.gym_class import ClassCategory, ClassDifficulty
+
+HEX_COLOR = re.compile(r"^#[0-9A-Fa-f]{6}$")
+
+
+def _validate_hex_color(v: Optional[str]) -> Optional[str]:
+    if v is None or v == "":
+        return None
+    if not HEX_COLOR.match(v):
+        raise ValueError("El color debe ser hexadecimal, por ejemplo #F97316")
+    return v.upper()
 
 
 # ─── Location ───
@@ -49,7 +60,7 @@ class GymClassBase(BaseModel):
 
 
 class GymClassCreate(GymClassBase):
-    pass
+    _check_color = field_validator("color")(_validate_hex_color)
 
 
 class GymClassUpdate(BaseModel):
@@ -67,6 +78,8 @@ class GymClassUpdate(BaseModel):
     location_id: Optional[uuid.UUID] = None
     is_active: Optional[bool] = None
     description: Optional[str] = Field(default=None, max_length=1000)
+
+    _check_color = field_validator("color")(_validate_hex_color)
 
 
 class GymClassResponse(GymClassBase):
