@@ -1,4 +1,3 @@
-import pytest
 import inspect
 from app.api.deps import get_tenant_db_from_token
 

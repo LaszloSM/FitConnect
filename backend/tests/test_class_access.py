@@ -1,5 +1,5 @@
 import uuid
-from datetime import date, datetime, timedelta
+from datetime import datetime, timedelta
 from app.core.timeutil import today_bogota
 from zoneinfo import ZoneInfo
 

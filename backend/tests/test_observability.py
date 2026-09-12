@@ -3,7 +3,6 @@ import re
 from logging.config import fileConfig
 from pathlib import Path
 
-import pytest
 from httpx import ASGITransport, AsyncClient
 
 from app.core.logging import mask_pii, setup_logging

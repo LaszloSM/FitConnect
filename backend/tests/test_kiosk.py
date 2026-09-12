@@ -1,5 +1,5 @@
 import uuid
-from datetime import date, timedelta
+from datetime import timedelta
 
 from tests.helpers import create_member_without_membership
 
@@ -109,12 +109,28 @@ async def test_staff_token_rejected_on_kiosk(client):
 
 
 async def test_kiosk_token_rejected_on_staff_endpoints(client):
+    """La tablet del mostrador está al alcance de cualquiera que entre al gym.
+
+    Su token sirve para registrar asistencia y nada más: si abriera el listado de
+    socios, bastaría con tomar la tablet para llevarse los teléfonos de todos.
+
+    Antes este test pedía /members con el token del dispositivo y NO afirmaba
+    nada sobre la respuesta: un 200 habría pasado igual de verde.
+    """
     token = await _owner_token(client)
     device = await _device_token(client, token)
-    r = await client.get("/api/v1/members", headers=_auth(device["token"]))
-    # El token kiosko no tiene staff_id ni pasa get_current_staff; members usa
-    # get_tenant_db_from_token (db_name) → el guard es que /members exige rol staff
-    # en endpoints sensibles; al menos el stream de recepción lo rechaza:
+    kiosko = _auth(device["token"])
+
+    for ruta in (
+        "/api/v1/members",
+        "/api/v1/payments",
+        "/api/v1/users",
+        "/api/v1/dashboard/kpis",
+        "/api/v1/cash/shifts/current",
+    ):
+        r = await client.get(ruta, headers=kiosko)
+        assert r.status_code in (401, 403), f"{ruta} respondió {r.status_code} a un token de kiosko"
+
     rs = await client.get("/api/v1/realtime/reception", params={"token": device["token"]})
     assert rs.status_code == 401
 

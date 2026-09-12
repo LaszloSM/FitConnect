@@ -1,6 +1,4 @@
 import asyncio
-import uuid
-from datetime import date
 
 from tests.helpers import create_member_without_membership
 

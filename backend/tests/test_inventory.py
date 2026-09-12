@@ -2,7 +2,6 @@
 devoluciones y comprobante PDF."""
 import uuid
 
-from tests.helpers import create_member_without_membership
 
 _TOKENS: dict[str, str] = {}
 

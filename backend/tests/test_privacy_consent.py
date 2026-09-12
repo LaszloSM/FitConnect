@@ -1,5 +1,4 @@
 """Bloque 4: consentimiento de datos/imagen y medios privados firmados."""
-import uuid
 
 from app.services import storage as st
 from tests.helpers import create_member, full_member_fields, create_plan

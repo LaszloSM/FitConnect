@@ -12,7 +12,6 @@ from pathlib import Path
 import pytest
 
 from app.main import app
-from app.api.deps import require_perm
 from app.core import permissions as perm
 
 MUTATING = {"POST", "PUT", "PATCH", "DELETE"}
@@ -84,7 +83,7 @@ def test_every_mutation_requires_a_permission():
     ]
     assert not unguarded, (
         "Mutaciones sin require_perm (si es intencional, añádelas a EXEMPT_PATHS "
-        f"con su motivo):\n  " + "\n  ".join(sorted(unguarded))
+        "con su motivo):\n  " + "\n  ".join(sorted(unguarded))
     )
 
 

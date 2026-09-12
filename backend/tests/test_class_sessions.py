@@ -1,6 +1,5 @@
-import asyncio
 import uuid
-from datetime import date, timedelta
+from datetime import timedelta
 from app.core.timeutil import today_bogota
 
 from tests.helpers import create_member_without_membership

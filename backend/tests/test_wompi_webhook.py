@@ -1,7 +1,6 @@
 import hashlib
 import uuid
 
-import pytest_asyncio
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import async_sessionmaker, create_async_engine
 
@@ -10,7 +9,7 @@ from app.core.crypto import encrypt_secret
 from app.models.tenant.gym_settings import GymSettings
 from app.models.tenant.member import Member
 from app.models.tenant.member_plan import MemberPlan
-from app.models.tenant.membership import Membership, MembershipStatus
+from app.models.tenant.membership import Membership
 from app.models.tenant.payment import Payment, PaymentMethod, PaymentStatus
 from app.models.tenant.payment_link import PaymentLink
 from app.models.tenant.receipt import Receipt
