@@ -122,7 +122,7 @@ export function LiveNowStrip({
         {/* Ingresos de hoy + vencimientos */}
         <div className="p-5 flex flex-col justify-center gap-4">
           <Link href="/payments" className="flex items-center gap-2.5 group">
-            <span className="h-8 w-8 rounded-lg bg-amber-100 dark:bg-amber-950/40 text-amber-600 dark:text-amber-400 flex items-center justify-center shrink-0">
+            <span className="h-8 w-8 rounded-lg bg-amber-100 dark:bg-amber-950/40 text-[var(--signal-warn)] flex items-center justify-center shrink-0">
               <CalendarClock className="h-4 w-4" />
             </span>
             <span className="text-sm text-[var(--text-muted)] group-hover:text-[var(--text-base)] transition-colors">

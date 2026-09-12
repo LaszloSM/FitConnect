@@ -13,9 +13,9 @@ interface Insight {
 }
 
 const TONE: Record<Tone, { icon: typeof TrendingUp; cls: string }> = {
-  positive: { icon: TrendingUp, cls: "text-emerald-600 dark:text-emerald-400" },
-  negative: { icon: TrendingDown, cls: "text-red-500" },
-  warning: { icon: AlertTriangle, cls: "text-amber-600 dark:text-amber-400" },
+  positive: { icon: TrendingUp, cls: "text-[var(--signal-ok)]" },
+  negative: { icon: TrendingDown, cls: "text-[var(--signal-danger)]" },
+  warning: { icon: AlertTriangle, cls: "text-[var(--signal-warn)]" },
 };
 
 export function InsightsStrip({

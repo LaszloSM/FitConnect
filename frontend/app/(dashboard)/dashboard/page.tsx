@@ -105,7 +105,7 @@ export default function DashboardPage() {
   if (loading || rol === "trainer") return <DashboardSkeleton />;
 
   if (error) {
-    return <EmptyState icon={<AlertCircle className="h-10 w-10 text-red-500" />} title="Error cargando datos" description={error} />;
+    return <EmptyState icon={<AlertCircle className="h-10 w-10 text-[var(--signal-danger)]" />} title="Error cargando datos" description={error} />;
   }
 
   const { kpis, cash, pendingTransfers, receivables, todayClasses } = data;
@@ -155,7 +155,7 @@ export default function DashboardPage() {
         <GlassCard className="col-span-12 md:col-span-4 p-4 flex flex-col gap-3">
           <div className="flex items-center justify-between">
             <p className="flex items-center gap-2 text-xs uppercase tracking-wider font-bold text-[var(--text-muted)]">
-              <Banknote className="h-3.5 w-3.5 text-emerald-500" /> Caja de hoy
+              <Banknote className="h-3.5 w-3.5 text-[var(--signal-ok)]" /> Caja de hoy
             </p>
             <Link href="/payments/cash" className="text-[11px] font-semibold text-[var(--color-primary-ink)] hover:underline">Ver caja</Link>
           </div>
@@ -163,7 +163,7 @@ export default function DashboardPage() {
             {data.failed.has("cash") ? "—" : formatCOP(cash?.total ?? 0)}
           </p>
           {data.failed.has("cash") ? (
-            <p className="text-xs text-amber-600 dark:text-amber-400">{SIN_DATO}</p>
+            <p className="text-xs text-[var(--signal-warn)]">{SIN_DATO}</p>
           ) : methods.length === 0 ? (
             <p className="text-xs text-[var(--text-muted)]">Aún no hay cobros hoy.</p>
           ) : (
@@ -186,15 +186,15 @@ export default function DashboardPage() {
         <GlassCard className="col-span-12 md:col-span-4 p-4 flex flex-col gap-3">
           <div className="flex items-center justify-between">
             <p className="flex items-center gap-2 text-xs uppercase tracking-wider font-bold text-[var(--text-muted)]">
-              <Landmark className="h-3.5 w-3.5 text-amber-500" /> Por confirmar
+              <Landmark className="h-3.5 w-3.5 text-[var(--signal-warn)]" /> Por confirmar
             </p>
             <Link href="/payments?tab=receivables" className="text-[11px] font-semibold text-[var(--color-primary-ink)] hover:underline">Conciliar</Link>
           </div>
-          <p className={cn("text-3xl font-extrabold font-display", pendingTransfers.length ? "text-amber-600 dark:text-amber-400" : "text-[var(--text-base)]")}>
+          <p className={cn("text-3xl font-extrabold font-display", pendingTransfers.length ? "text-[var(--signal-warn)]" : "text-[var(--text-base)]")}>
             {data.failed.has("pendingTransfers") ? "—" : formatCOP(pendingTotal)}
           </p>
           {data.failed.has("pendingTransfers") ? (
-            <p className="text-xs text-amber-600 dark:text-amber-400">{SIN_DATO}</p>
+            <p className="text-xs text-[var(--signal-warn)]">{SIN_DATO}</p>
           ) : pendingTransfers.length === 0 ? (
             <p className="text-xs text-[var(--text-muted)]">Ninguna transferencia pendiente.</p>
           ) : (
@@ -223,7 +223,7 @@ export default function DashboardPage() {
             {data.failed.has("receivables") ? "—" : formatCOP(receivableTotal)}
           </p>
           {data.failed.has("receivables") ? (
-            <p className="text-xs text-amber-600 dark:text-amber-400">{SIN_DATO}</p>
+            <p className="text-xs text-[var(--signal-warn)]">{SIN_DATO}</p>
           ) : (
             <p className="text-xs text-[var(--text-muted)]">
               {receivables.length === 0 ? "Nadie debe nada." : `${receivables.length} socio${receivables.length === 1 ? "" : "s"} con renovación vencida o saldo pendiente.`}
@@ -263,13 +263,13 @@ export default function DashboardPage() {
           <Link href="/machines" className="col-span-12 md:col-span-6 xl:col-span-4 block">
             <div className="h-full rounded-xl border border-red-200 dark:border-red-800/40 bg-red-50 dark:bg-red-950/20 p-4 flex items-center gap-3 hover:border-red-300 transition-colors group">
               <div className="w-9 h-9 rounded-full bg-red-100 dark:bg-red-900/40 flex items-center justify-center shrink-0">
-                <Wrench className="h-4 w-4 text-red-600 dark:text-red-400" />
+                <Wrench className="h-4 w-4 text-[var(--signal-danger)]" />
               </div>
               <div className="flex-1">
                 <p className="text-sm font-semibold text-red-800 dark:text-red-300">Equipos fuera de servicio</p>
                 <p className="text-xs text-red-700/80 dark:text-red-400/80 mt-0.5">{kpis.machines_maintenance} de {kpis.machines_total} en mantenimiento o dañados</p>
               </div>
-              <ArrowRight className="h-4 w-4 text-red-600 dark:text-red-400 group-hover:translate-x-0.5 transition-transform" />
+              <ArrowRight className="h-4 w-4 text-[var(--signal-danger)] group-hover:translate-x-0.5 transition-transform" />
             </div>
           </Link>
         )}

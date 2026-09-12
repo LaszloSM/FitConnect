@@ -1021,16 +1021,42 @@ export default function MembersClient() {
               ) : members.length === 0 ? (
                 <TableRow>
                   <TableCell colSpan={8}>
-                    <EmptyState
-                      title="Sin miembros"
-                      description="Crea tu primer miembro para comenzar"
-                      action={
-                        <Button onClick={openCreate}>
-                          <Plus className="h-4 w-4 mr-2" />
-                          Nuevo miembro
-                        </Button>
-                      }
-                    />
+                    {/* Con un filtro puesto, "crea tu primer miembro" es falso:
+                        el gimnasio sí tiene socios, solo que ninguno encaja. */}
+                    {search || statusFilter || typeFilter || missingIdOnly ? (
+                      <EmptyState
+                        title="Ningún socio coincide"
+                        description={
+                          search
+                            ? `Nadie con «${search}» en nombre, correo o documento.`
+                            : "Prueba con otro filtro o quítalos para ver a todos."
+                        }
+                        action={
+                          <Button
+                            variant="outline"
+                            onClick={() => {
+                              setSearch("");
+                              setStatusFilter("");
+                              setTypeFilter("");
+                              setMissingIdOnly(false);
+                            }}
+                          >
+                            Quitar los filtros
+                          </Button>
+                        }
+                      />
+                    ) : (
+                      <EmptyState
+                        title="Sin socios todavía"
+                        description="Registra al primero y podrás cobrarle, darle su carné y controlar su entrada."
+                        action={
+                          <Button onClick={openCreate}>
+                            <Plus className="h-4 w-4 mr-2" />
+                            Nuevo miembro
+                          </Button>
+                        }
+                      />
+                    )}
                   </TableCell>
                 </TableRow>
               ) : (
