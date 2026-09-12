@@ -32,3 +32,5 @@ class MaintenanceLog(TenantBase, TenantTimestampMixin):
     )
     #: Quién reportó la falla (staff, o "Pantalla del gym" si vino del kiosko).
     reported_by: Mapped[Optional[str]] = mapped_column(String(255), nullable=True)
+    #: Key de la foto de la avería o del arreglo; se sirve firmada.
+    photo_url: Mapped[Optional[str]] = mapped_column(String(500), nullable=True)

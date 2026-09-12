@@ -288,4 +288,32 @@ K5_STAFF_SOCIO: list[str] = [
     "ON members (instructor_profile_id) WHERE instructor_profile_id IS NOT NULL",
 ]
 
-ALIGN_STATEMENTS: list[str] = [*J1_INGRESOS_PASE_TRANSFERENCIAS, *J2_INVENTARIO, *J4_CONSENTIMIENTOS, *J6_ACCESO, *J7_VIDEO_EJERCICIOS, *J8_GYM_SETTINGS_FLAGS, *K1_LIBRO_MOVIMIENTOS, *K2_MENSAJERIA, *K3_ENTRENADORES, *K4_MAQUINAS, *K5_STAFF_SOCIO]
+K6_CAJA: list[str] = [
+    # k6f7a8b9c0d1_arqueo_y_retiros.py
+    # Arqueo por denominaciones y retiros a boveda durante el turno.
+    "ALTER TABLE cash_shifts ADD COLUMN IF NOT EXISTS denominations JSONB NULL",
+    """CREATE TABLE IF NOT EXISTS cash_drops (
+        id UUID PRIMARY KEY,
+        shift_id UUID NOT NULL REFERENCES cash_shifts(id),
+        amount NUMERIC(12,2) NOT NULL,
+        note VARCHAR(255) NULL,
+        created_by UUID NULL REFERENCES users(id),
+        created_at TIMESTAMP NOT NULL DEFAULT now(),
+        updated_at TIMESTAMP NOT NULL DEFAULT now()
+    )""",
+    "CREATE INDEX IF NOT EXISTS ix_cash_drops_shift_id ON cash_drops (shift_id)",
+]
+
+K7_MANTENIMIENTO: list[str] = [
+    # k7a8b9c0d1e2_garantia_y_qr.py
+    # Garantia y proveedor de cada maquina, QR de reporte y foto en el historial.
+    "ALTER TABLE machines ADD COLUMN IF NOT EXISTS purchase_date DATE NULL",
+    "ALTER TABLE machines ADD COLUMN IF NOT EXISTS supplier VARCHAR(150) NULL",
+    "ALTER TABLE machines ADD COLUMN IF NOT EXISTS warranty_until DATE NULL",
+    "ALTER TABLE machines ADD COLUMN IF NOT EXISTS report_token VARCHAR(64) NULL",
+    "CREATE UNIQUE INDEX IF NOT EXISTS uq_machines_report_token "
+    "ON machines (report_token) WHERE report_token IS NOT NULL",
+    "ALTER TABLE maintenance_logs ADD COLUMN IF NOT EXISTS photo_url VARCHAR(500) NULL",
+]
+
+ALIGN_STATEMENTS: list[str] = [*J1_INGRESOS_PASE_TRANSFERENCIAS, *J2_INVENTARIO, *J4_CONSENTIMIENTOS, *J6_ACCESO, *J7_VIDEO_EJERCICIOS, *J8_GYM_SETTINGS_FLAGS, *K1_LIBRO_MOVIMIENTOS, *K2_MENSAJERIA, *K3_ENTRENADORES, *K4_MAQUINAS, *K5_STAFF_SOCIO, *K6_CAJA, *K7_MANTENIMIENTO]

@@ -2,7 +2,7 @@ import uuid
 from datetime import datetime
 from decimal import Decimal
 from sqlalchemy import String, ForeignKey, Numeric, DateTime
-from sqlalchemy.dialects.postgresql import UUID
+from sqlalchemy.dialects.postgresql import UUID, JSONB
 from sqlalchemy.orm import mapped_column, Mapped
 from typing import Optional
 from app.db.tenant_base import TenantBase, TenantTimestampMixin
@@ -21,7 +21,24 @@ class CashShift(TenantBase, TenantTimestampMixin):
     counted_cash: Mapped[Optional[Decimal]] = mapped_column(Numeric(12, 2), nullable=True)
     expected_cash: Mapped[Optional[Decimal]] = mapped_column(Numeric(12, 2), nullable=True)
     difference: Mapped[Optional[Decimal]] = mapped_column(Numeric(12, 2), nullable=True)
+    # Arqueo: {"50000": 3, "1000": 12}. Nulo si el cajero escribió solo el total.
+    denominations: Mapped[Optional[dict]] = mapped_column(JSONB, nullable=True)
     # open | closed
     status: Mapped[str] = mapped_column(String(10), nullable=False, default="open")
     location_id: Mapped[Optional[uuid.UUID]] = mapped_column(UUID(as_uuid=True), ForeignKey("locations.id"), nullable=True)
     notes: Mapped[Optional[str]] = mapped_column(String(500), nullable=True)
+
+
+class CashDrop(TenantBase, TenantTimestampMixin):
+    """Retiro a bóveda: efectivo que sale del cajón sin ser un gasto.
+
+    Registrarlo como egreso lo metía en la utilidad del mes; no registrarlo
+    dejaba todo el día en el cajón o un faltante falso al cerrar.
+    """
+    __tablename__ = "cash_drops"
+
+    id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    shift_id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), ForeignKey("cash_shifts.id"), nullable=False, index=True)
+    amount: Mapped[Decimal] = mapped_column(Numeric(12, 2), nullable=False)
+    note: Mapped[Optional[str]] = mapped_column(String(255), nullable=True)
+    created_by: Mapped[Optional[uuid.UUID]] = mapped_column(UUID(as_uuid=True), ForeignKey("users.id"), nullable=True)

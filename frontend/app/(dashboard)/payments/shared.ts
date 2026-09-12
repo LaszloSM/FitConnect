@@ -17,6 +17,23 @@ export const KIND_LABELS: Record<string, string> = {
   other: "Otro",
 };
 
+/**
+ * Catálogo de caja. Espejo de `backend/app/services/cash_catalog.py`;
+ * `test_cash_catalog_contract.py` falla si las dos listas divergen.
+ */
+export const EXPENSE_LABELS: Record<string, string> = {
+  servicios: "Servicios",
+  nomina: "Nómina",
+  insumos: "Insumos",
+  devolucion: "Devoluciones",
+  otros: "Otros",
+};
+
+// La devolución no se escoge a mano: la registra el flujo de devolución del pago.
+export const MANUAL_EXPENSE_CATEGORIES = ["servicios", "nomina", "insumos", "otros"] as const;
+
+export const DENOMINATIONS = [100_000, 50_000, 20_000, 10_000, 5_000, 2_000, 1_000, 500, 200, 100, 50] as const;
+
 export const KIND_TONES: Record<string, "success" | "info" | "violet" | "neutral"> = {
   membership: "success",
   day_pass: "violet",

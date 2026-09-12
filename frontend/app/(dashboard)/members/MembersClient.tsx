@@ -41,6 +41,15 @@ import {
 } from "@/components/ui/table";
 import { Plus, Search, Pencil, Trash2, AlertCircle, QrCode, X, Tag, Clock, CheckCircle2, Download, Check, User, HeartPulse, CreditCard } from "lucide-react";
 import { MembershipStatusBadge } from "@/components/common/MembershipStatusBadge";
+import type { TrainingGoal } from "@/lib/types";
+
+const TRAINING_GOALS = [
+  { value: "weight_loss", label: "Bajar de peso" },
+  { value: "muscle_gain", label: "Ganar masa muscular" },
+  { value: "endurance", label: "Resistencia" },
+  { value: "flexibility", label: "Flexibilidad" },
+  { value: "general_fitness", label: "Estado físico general" },
+] as const satisfies readonly { value: TrainingGoal; label: string }[];
 
 const memberSchema = z.object({
   full_name: z.string().min(2, "Nombre demasiado corto"),
@@ -624,6 +633,20 @@ export default function MembersClient() {
             value={form.blood_type}
             onChange={(v) => setForm({ ...form, blood_type: v || "" })}
           />
+        </div>
+        {/* Estaba en el schema, el estado y el payload, pero sin campo: se
+            mandaba siempre vacío y el importador de Excel era el único que lo llenaba. */}
+        <div className="space-y-2">
+          <Label htmlFor="training_goal" className="text-[var(--text-muted)] text-sm">Objetivo de entrenamiento</Label>
+          <select
+            id="training_goal"
+            value={form.training_goal}
+            onChange={(e) => setForm({ ...form, training_goal: e.target.value })}
+            className="w-full h-9 rounded-md border border-[var(--border-base)] bg-[var(--bg-input)] px-3 text-sm text-[var(--text-base)]"
+          >
+            <option value="">Sin definir</option>
+            {TRAINING_GOALS.map((g) => <option key={g.value} value={g.value}>{g.label}</option>)}
+          </select>
         </div>
         <div className="space-y-2">
           <Label className="text-[var(--text-muted)] text-sm">Contacto de emergencia {req && "*"}</Label>

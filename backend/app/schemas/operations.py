@@ -134,10 +134,23 @@ class MachineBase(BaseModel):
     maintenance_interval_days: Optional[int] = Field(default=None, ge=1)
     photo_url: Optional[str] = Field(default=None, max_length=500)
     notes: Optional[str] = Field(default=None, max_length=1000)
+    purchase_date: Optional[date] = None
+    supplier: Optional[str] = Field(default=None, max_length=150)
+    warranty_until: Optional[date] = None
+
+
+def _area_valida(v):
+    from app.services.machine_areas import normalize_area
+    return normalize_area(v)
 
 
 class MachineCreate(MachineBase):
-    pass
+    # Solo en la entrada: la respuesta tiene que poder leer filas viejas que
+    # todavía guardan la etiqueta, hasta correr `migrate_machine_areas.py`.
+    @field_validator("area", mode="before")
+    @classmethod
+    def _area(cls, v):
+        return _area_valida(v)
 
 
 class MachineUpdate(BaseModel):
@@ -151,6 +164,14 @@ class MachineUpdate(BaseModel):
     maintenance_interval_days: Optional[int] = Field(default=None, ge=1)
     photo_url: Optional[str] = Field(default=None, max_length=500)
     notes: Optional[str] = Field(default=None, max_length=1000)
+    purchase_date: Optional[date] = None
+    supplier: Optional[str] = Field(default=None, max_length=150)
+    warranty_until: Optional[date] = None
+
+    @field_validator("area", mode="before")
+    @classmethod
+    def _area(cls, v):
+        return _area_valida(v)
 
 
 class MachineResponse(MachineBase):
@@ -197,6 +218,13 @@ class MaintenanceLogResponse(MaintenanceLogBase):
     id: uuid.UUID
     created_at: datetime
     updated_at: datetime
+    photo_url: Optional[str] = None
+
+    @field_validator("photo_url", mode="before")
+    @classmethod
+    def _signed_photo(cls, v):
+        from app.services.storage import resolve_media_url
+        return resolve_media_url(v)
 
     class Config:
         from_attributes = True

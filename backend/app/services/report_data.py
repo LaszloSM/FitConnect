@@ -18,13 +18,14 @@ from app.models.tenant.payment import Payment, PaymentStatus
 from app.services.payment_ledger import net_amount
 from app.models.tenant.payment_movement import MovementKind, PaymentMovement
 from app.services.refunds import REFUND_EXPENSE_CATEGORY
+from app.services.cash_catalog import EXPENSE_LABELS as CASH_EXPENSE_LABELS
 from app.models.tenant.product import Product
 from app.services import insights_engine as eng
 from app.services.membership_status import effective_status
 
 KIND_LABELS = {"membership": "Membresías", "day_pass": "Pases del día", "product": "Productos", "other": "Otros"}
 METHOD_LABELS = {"cash": "Efectivo", "transfer": "Transferencia", "card": "Tarjeta", "wompi": "Wompi"}
-EXPENSE_LABELS = {"servicios": "Servicios", "nomina": "Nómina", "insumos": "Insumos", "devolucion": "Devoluciones", "otros": "Otros"}
+EXPENSE_LABELS = CASH_EXPENSE_LABELS
 
 
 MAX_PERIOD_DAYS = 366

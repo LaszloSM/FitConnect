@@ -7,6 +7,7 @@ import { formatCOP } from "@/lib/format";
 import { CreditCard, Layers, TrendingUp, Wallet } from "lucide-react";
 import type { Period } from "./PeriodPicker";
 import { Card, Empty, TabSkeleton, Tile, chartTooltipStyle, compact, containerVariants, cardVariants, usePeriodData } from "./shared";
+import { EXPENSE_LABELS } from "@/app/(dashboard)/payments/shared";
 
 interface Summary {
   revenue: number; payments_count: number; pending: number; pending_count: number; refunded: number;
@@ -22,7 +23,6 @@ interface Breakdown {
 interface Daily { date: string; amount: number; membership: number; day_pass: number; product: number; other: number }
 
 const KIND_COLORS: Record<string, string> = { membership: "#22C55E", day_pass: "#8B5CF6", product: "#0EA5E9", other: "#9CA3AF" };
-const EXPENSE_LABEL: Record<string, string> = { servicios: "Servicios", nomina: "Nómina", insumos: "Insumos", devolucion: "Devoluciones", otros: "Otros" };
 
 export function IngresosTab({ period }: { period: Period }) {
   const { data, loading, error } = usePeriodData<{ summary: Summary; breakdown: Breakdown; daily: Daily[] }>({
@@ -121,7 +121,7 @@ export function IngresosTab({ period }: { period: Period }) {
             <div className="space-y-1.5">
               {b.expenses.map((e) => (
                 <div key={e.category} className="flex items-center justify-between text-sm py-1 border-b border-[var(--border-base)] last:border-0">
-                  <span className="text-[var(--text-base)]">{e.label ?? EXPENSE_LABEL[e.category] ?? e.category} <span className="text-xs text-[var(--text-muted)]">· {e.count}</span></span>
+                  <span className="text-[var(--text-base)]">{e.label ?? EXPENSE_LABELS[e.category] ?? e.category} <span className="text-xs text-[var(--text-muted)]">· {e.count}</span></span>
                   <span className="font-mono text-[var(--signal-danger)]">−{formatCOP(e.amount)}</span>
                 </div>
               ))}
