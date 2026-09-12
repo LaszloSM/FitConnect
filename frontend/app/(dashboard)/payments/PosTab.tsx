@@ -19,6 +19,7 @@ import { cn } from "@/lib/utils";
 import { openReceipt, type DestinationAccount } from "./shared";
 import { MethodPicker, EMPTY_DETAILS, type Method, type MethodDetails } from "./MethodPicker";
 import { TransferPendingDialog, type TransferContext } from "./TransferPendingDialog";
+import { parseApiError } from "@/lib/errors";
 import {
   Link2,
   Loader2,
@@ -124,7 +125,7 @@ export function PosTab({
       }
       toast.success("Link de pago Wompi creado y copiado");
     } catch (err: any) {
-      toast.error(err.response?.data?.detail ?? "No se pudo generar el link");
+      toast.error(parseApiError(err, "No se pudo generar el link"));
     } finally {
       setSendingWompi(false);
     }
@@ -200,7 +201,7 @@ export function PosTab({
       await refreshSummary();
       onCharged?.();
     } catch (err: any) {
-      toast.error(err.response?.data?.detail ?? "Error cobrando la renovación");
+      toast.error(parseApiError(err, "Error cobrando la renovación"));
     } finally {
       setCharging(false);
     }
@@ -240,7 +241,7 @@ export function PosTab({
       await refreshSummary();
       onCharged?.();
     } catch (err: any) {
-      toast.error(err.response?.data?.detail ?? "Error registrando el abono");
+      toast.error(parseApiError(err, "Error registrando el abono"));
     } finally {
       setPayingPartial(false);
     }
@@ -316,7 +317,7 @@ export function PosTab({
       await products.refetch();
       onCharged?.();
     } catch (err: any) {
-      toast.error(err.response?.data?.detail ?? "Error registrando la venta");
+      toast.error(parseApiError(err, "Error registrando la venta"));
     } finally {
       setSelling(false);
     }

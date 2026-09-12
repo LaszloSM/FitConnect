@@ -6,6 +6,7 @@ import { useSession } from "next-auth/react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { apiClient } from "@/lib/api";
+import { parseApiError } from "@/lib/errors";
 import { formatCOP } from "@/lib/format";
 import { cn } from "@/lib/utils";
 import {
@@ -157,7 +158,7 @@ export function TransferPendingDialog({
       onConfirmed();
       onClose();
     } catch (err: any) {
-      toast.error(err.response?.data?.detail ?? "Error confirmando el pago");
+      toast.error(parseApiError(err, "Error confirmando el pago"));
     } finally {
       setConfirming(false);
     }
@@ -175,7 +176,7 @@ export function TransferPendingDialog({
       setProofName(file.name);
       toast.success("Comprobante adjuntado");
     } catch (err: any) {
-      toast.error(err.response?.data?.detail ?? "No se pudo subir el comprobante");
+      toast.error(parseApiError(err, "No se pudo subir el comprobante"));
     } finally {
       setUploading(false);
     }

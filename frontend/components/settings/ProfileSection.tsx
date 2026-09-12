@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { apiClient } from "@/lib/api";
+import { parseApiError } from "@/lib/errors";
 
 const inputCls =
   "bg-[var(--bg-base)] border-[var(--border-base)] text-[var(--text-base)] placeholder:text-[var(--text-muted)]";
@@ -63,8 +64,7 @@ export default function ProfileSection() {
       setForm((f) => ({ ...f, current_password: "", new_password: "" }));
       toast.success("Perfil actualizado");
     } catch (err: any) {
-      const detail = err.response?.data?.detail;
-      toast.error(typeof detail === "string" ? detail : "Error actualizando perfil");
+      toast.error(parseApiError(err, "Error actualizando perfil"));
     } finally {
       setSaving(false);
     }

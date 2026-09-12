@@ -50,6 +50,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
+import { parseApiError } from "@/lib/errors";
 
 type Tab = "info" | "timeline" | "memberships" | "payments" | "checkins" | "routine" | "access" | "qr";
 
@@ -183,7 +184,7 @@ export default function MemberDetailClient({ memberId }: { memberId: string }) {
       }
       toast.success("Link de pago creado y copiado");
     } catch (err: any) {
-      toast.error(err.response?.data?.detail ?? "No se pudo generar el link");
+      toast.error(parseApiError(err, "No se pudo generar el link"));
     } finally {
       setRenewalBusy(false);
     }
@@ -212,8 +213,7 @@ export default function MemberDetailClient({ memberId }: { memberId: string }) {
       setFreezeReason("");
       await refreshMemberships();
     } catch (err: any) {
-      const detail = err.response?.data?.detail;
-      toast.error(typeof detail === "string" ? detail : "No se pudo completar la acción");
+      toast.error(parseApiError(err, "No se pudo completar la acción"));
     } finally {
       setActionBusy(false);
     }
@@ -278,8 +278,7 @@ export default function MemberDetailClient({ memberId }: { memberId: string }) {
       const ms = await client.get(`/api/v1/members/${memberId}/memberships`);
       setMemberships(ms.data);
     } catch (err: any) {
-      const detail = err.response?.data?.detail;
-      toast.error(typeof detail === "string" ? detail : "Error asignando membresía");
+      toast.error(parseApiError(err, "Error asignando membresía"));
     } finally {
       setAssigning(false);
     }
@@ -315,8 +314,7 @@ export default function MemberDetailClient({ memberId }: { memberId: string }) {
       setEditOpen(false);
       toast.success("Datos actualizados correctamente");
     } catch (err: any) {
-      const detail = err.response?.data?.detail;
-      toast.error(typeof detail === "string" ? detail : "Error guardando cambios");
+      toast.error(parseApiError(err, "Error guardando cambios"));
     } finally {
       setEditSaving(false);
     }
@@ -341,8 +339,7 @@ export default function MemberDetailClient({ memberId }: { memberId: string }) {
       setMsgOpen(false);
       toast.success("Mensaje enviado");
     } catch (err: any) {
-      const detail = err.response?.data?.detail;
-      toast.error(typeof detail === "string" ? detail : "No se pudo enviar el mensaje");
+      toast.error(parseApiError(err, "No se pudo enviar el mensaje"));
     } finally {
       setMsgSending(false);
     }

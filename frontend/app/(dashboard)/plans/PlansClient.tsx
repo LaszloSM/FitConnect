@@ -11,6 +11,7 @@ import { GlassCard } from "@/components/common/GlassCard";
 import { PageHeader } from "@/components/common/PageHeader";
 import { EmptyState } from "@/components/common/EmptyState";
 import { apiClient } from "@/lib/api";
+import { parseApiError } from "@/lib/errors";
 import { formatCOP } from "@/lib/format";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
@@ -317,8 +318,7 @@ export default function PlansClient() {
       setDialogOpen(false);
       fetchPlans();
     } catch (err: any) {
-      const detail = err.response?.data?.detail;
-      toast.error(typeof detail === "string" ? detail : "Error guardando plan");
+      toast.error(parseApiError(err, "Error guardando plan"));
     } finally {
       setSaving(false);
     }
@@ -339,8 +339,7 @@ export default function PlansClient() {
       setDeleteTarget(null);
       fetchPlans();
     } catch (err: any) {
-      const detail = err.response?.data?.detail;
-      toast.error(typeof detail === "string" ? detail : "Error eliminando plan");
+      toast.error(parseApiError(err, "Error eliminando plan"));
     } finally {
       setDeleting(false);
     }

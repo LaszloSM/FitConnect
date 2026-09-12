@@ -13,6 +13,7 @@ import { Label } from "@/components/ui/label";
 import { StatusBadge } from "@/components/ui/status-badge";
 import { DataTable, type DataTableColumn } from "@/components/ui/data-table";
 import { apiClient } from "@/lib/api";
+import { parseApiError } from "@/lib/errors";
 import { formatCOP, formatTimeAgo } from "@/lib/format";
 import { useApiResource } from "@/hooks/useApiResource";
 import { cn } from "@/lib/utils";
@@ -163,7 +164,7 @@ export function DayPassTab({ onSold }: { onSold?: () => void }) {
       await today.refetch();
       onSold?.();
     } catch (err: any) {
-      toast.error(err.response?.data?.detail ?? "No se pudo vender el pase");
+      toast.error(parseApiError(err, "No se pudo vender el pase"));
     } finally {
       setSelling(false);
     }

@@ -8,6 +8,7 @@ import { GlassCard } from "@/components/common/GlassCard";
 import { DataTable, type DataTableColumn } from "@/components/ui/data-table";
 import { StatusBadge } from "@/components/ui/status-badge";
 import { apiClient } from "@/lib/api";
+import { parseApiError } from "@/lib/errors";
 import { formatCOP, formatDate } from "@/lib/format";
 import { cn } from "@/lib/utils";
 import { METHOD_LABELS, KIND_LABELS, KIND_TONES, openReceipt, openReceiptPdf, shareReceiptWhatsapp, type PaymentRow } from "./shared";
@@ -74,7 +75,7 @@ export function HistoryTab({ refreshSignal }: { refreshSignal: number }) {
       setRefundAmount("");
       setRefundKind("refund");
     } catch (err: any) {
-      toast.error(err.response?.data?.detail ?? "Error registrando la devolución");
+      toast.error(parseApiError(err, "Error registrando la devolución"));
     } finally {
       setRefunding(false);
     }
@@ -97,11 +98,7 @@ export function HistoryTab({ refreshSignal }: { refreshSignal: number }) {
       })
       .catch((err: any) => {
         if (!cancelled)
-          setError(
-            typeof err.response?.data?.detail === "string"
-              ? err.response.data.detail
-              : "Error cargando pagos"
-          );
+          setError(parseApiError(err, "Error cargando pagos"));
       })
       .finally(() => {
         if (!cancelled) setLoading(false);
@@ -120,7 +117,7 @@ export function HistoryTab({ refreshSignal }: { refreshSignal: number }) {
       toast.success("Pago marcado como pagado");
       setPayments((prev) => prev.map((p) => (p.id === paymentId ? { ...p, status: "paid" } : p)));
     } catch (err: any) {
-      toast.error(err.response?.data?.detail ?? "Error actualizando pago");
+      toast.error(parseApiError(err, "Error actualizando pago"));
     } finally {
       setMarkingPaid(null);
     }
@@ -136,7 +133,7 @@ export function HistoryTab({ refreshSignal }: { refreshSignal: number }) {
       toast.success("Pago anulado");
       setPayments((prev) => prev.map((p) => (p.id === paymentId ? { ...p, status: "failed" } : p)));
     } catch (err: any) {
-      toast.error(err.response?.data?.detail ?? "Error anulando el pago");
+      toast.error(parseApiError(err, "Error anulando el pago"));
     }
   };
 

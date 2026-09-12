@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { apiClient } from "@/lib/api";
+import { parseApiError } from "@/lib/errors";
 import { Lock, CreditCard, MessageCircle, CheckCircle2 } from "lucide-react";
 
 const inputCls =
@@ -64,7 +65,7 @@ export default function IntegrationsSection() {
       setWompi((w) => ({ ...w, private_key: "", events_secret: "", integrity_secret: "" }));
       toast.success("Llaves de Wompi guardadas");
     } catch (err: any) {
-      toast.error(err.response?.data?.detail ?? "Error guardando Wompi");
+      toast.error(parseApiError(err, "Error guardando Wompi"));
     } finally {
       setSavingWompi(false);
     }
@@ -84,7 +85,7 @@ export default function IntegrationsSection() {
       setWhatsapp((w) => ({ ...w, access_token: "" }));
       toast.success("Credenciales de WhatsApp guardadas");
     } catch (err: any) {
-      toast.error(err.response?.data?.detail ?? "Error guardando WhatsApp");
+      toast.error(parseApiError(err, "Error guardando WhatsApp"));
     } finally {
       setSavingWa(false);
     }

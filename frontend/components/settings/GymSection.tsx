@@ -13,6 +13,7 @@ import { TimePicker } from "@/components/ui/time-picker";
 import { CityCombobox } from "@/components/ui/city-combobox";
 import { CountrySelect } from "@/components/ui/country-select";
 import { apiClient } from "@/lib/api";
+import { parseApiError } from "@/lib/errors";
 import { ImageIcon, Loader2, Lock, Upload } from "lucide-react";
 
 const inputCls =
@@ -122,8 +123,7 @@ export default function GymSection() {
       setGymData(res.data);
       toast.success("Datos del gym actualizados");
     } catch (err: any) {
-      const detail = err.response?.data?.detail;
-      toast.error(typeof detail === "string" ? detail : "Error actualizando gym");
+      toast.error(parseApiError(err, "Error actualizando gym"));
     } finally {
       setSaving(false);
     }
@@ -143,8 +143,7 @@ export default function GymSection() {
       setGymData(res.data);
       toast.success("Logo actualizado");
     } catch (err: any) {
-      const detail = err.response?.data?.detail;
-      toast.error(typeof detail === "string" ? detail : "Error subiendo el logo");
+      toast.error(parseApiError(err, "Error subiendo el logo"));
     } finally {
       setUploadingLogo(false);
     }
@@ -158,8 +157,7 @@ export default function GymSection() {
       await client.patch("/api/v1/settings/gym", { operating_hours: operatingHours });
       toast.success("Horarios de atención guardados");
     } catch (err: any) {
-      const detail = err.response?.data?.detail;
-      toast.error(typeof detail === "string" ? detail : "Error guardando horarios");
+      toast.error(parseApiError(err, "Error guardando horarios"));
     } finally {
       setSavingHours(false);
     }

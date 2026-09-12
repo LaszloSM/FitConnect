@@ -6,6 +6,7 @@ import { useSession } from "next-auth/react";
 import { motion, AnimatePresence } from "framer-motion";
 import { toast } from "sonner";
 import { apiClient } from "@/lib/api";
+import { parseApiError } from "@/lib/errors";
 import { formatCOP } from "@/lib/format";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -159,7 +160,7 @@ export function CheckinToaster() {
       setEvents((prev) => prev.filter((e) => e.member_id !== memberId));
     } catch (err: unknown) {
       const e = err as { response?: { data?: { detail?: string } } };
-      toast.error(typeof e.response?.data?.detail === "string" ? e.response.data.detail : "Error autorizando la entrada");
+      toast.error(parseApiError(e, "Error autorizando la entrada"));
     } finally {
       setAuthorizing(false);
     }

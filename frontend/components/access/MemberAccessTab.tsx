@@ -8,6 +8,7 @@ import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { apiClient } from "@/lib/api";
+import { parseApiError } from "@/lib/errors";
 import { formatTimeAgo } from "@/lib/format";
 import { Fingerprint, ScanFace, CreditCard, KeyRound, Loader2, ShieldCheck, ShieldOff, X } from "lucide-react";
 
@@ -62,17 +63,17 @@ export function MemberAccessTab({ memberId, idNumber }: { memberId: string; idNu
       setLabel(""); setConsentChecked(false);
       load();
     } catch (err: any) {
-      toast.error(err.response?.data?.detail ?? "Error enrolando");
+      toast.error(parseApiError(err, "Error enrolando"));
     } finally {
       setBusy(false);
     }
   };
   const revokeCred = async (c: Credential) => {
-    try { await client().delete(`/api/v1/members/${memberId}/credentials/${c.id}`); load(); } catch (err: any) { toast.error(err.response?.data?.detail ?? "Error"); }
+    try { await client().delete(`/api/v1/members/${memberId}/credentials/${c.id}`); load(); } catch (err: any) { toast.error(parseApiError(err, "Error")); }
   };
   const revokeConsent = async (c: Consent) => {
     if (!window.confirm(`¿Revocar el consentimiento de ${c.kind === "face" ? "rostro" : "huella"}? Se revocan sus credenciales de ese tipo y hay que borrarlo del lector.`)) return;
-    try { await client().delete(`/api/v1/members/${memberId}/biometric-consents/${c.id}`); toast.success("Consentimiento revocado"); load(); } catch (err: any) { toast.error(err.response?.data?.detail ?? "Error"); }
+    try { await client().delete(`/api/v1/members/${memberId}/biometric-consents/${c.id}`); toast.success("Consentimiento revocado"); load(); } catch (err: any) { toast.error(parseApiError(err, "Error")); }
   };
 
   const activeCreds = data.credentials.filter((c) => !c.revoked_at);

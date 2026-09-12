@@ -15,6 +15,7 @@ import { FormDialog, FormField } from "@/components/ui/form-dialog";
 import { apiClient, newIdempotencyKey, postOnce } from "@/lib/api";
 import { formatDateTime } from "@/lib/format";
 import { cn } from "@/lib/utils";
+import { parseApiError } from "@/lib/errors";
 import {
   AlertTriangle, Bot, CheckCircle2, Clock, Megaphone, MessageSquare,
   RotateCcw, Send, SlidersHorizontal, XCircle,
@@ -128,7 +129,7 @@ export default function MessagesClient() {
           : ""
       );
     } catch (err: any) {
-      setError(err.response?.data?.detail ?? "No se pudieron cargar los mensajes");
+      setError(parseApiError(err, "No se pudieron cargar los mensajes"));
     } finally {
       setLoading(false);
     }
@@ -234,7 +235,7 @@ function AutoTab({
       });
       onSaved();
     } catch (err: any) {
-      toast.error(err.response?.data?.detail ?? "No se pudo guardar");
+      toast.error(parseApiError(err, "No se pudo guardar"));
     } finally {
       setSaving(null);
     }
@@ -375,7 +376,7 @@ function AnnouncementsTab({
       setTitle(""); setBody(""); setSegment(""); setMetaTemplate(""); setAudience(null);
       onSent();
     } catch (err: any) {
-      toast.error(err.response?.data?.detail ?? "No se pudo enviar el anuncio");
+      toast.error(parseApiError(err, "No se pudo enviar el anuncio"));
     } finally {
       setSending(false);
     }
@@ -510,7 +511,7 @@ function OutboxTab({
       toast.success("Vuelve a la cola");
       onRetried();
     } catch (err: any) {
-      toast.error(err.response?.data?.detail ?? "No se pudo reintentar");
+      toast.error(parseApiError(err, "No se pudo reintentar"));
     } finally {
       setRetrying(null);
     }

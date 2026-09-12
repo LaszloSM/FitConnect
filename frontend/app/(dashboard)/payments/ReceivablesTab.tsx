@@ -9,6 +9,7 @@ import { DataTable, type DataTableColumn } from "@/components/ui/data-table";
 import { StatusBadge } from "@/components/ui/status-badge";
 import { Button } from "@/components/ui/button";
 import { apiClient } from "@/lib/api";
+import { parseApiError } from "@/lib/errors";
 import { formatCOP, formatDate } from "@/lib/format";
 import { useApiResource } from "@/hooks/useApiResource";
 import { HandCoins, Link2, Loader2, MessageCircle, Wallet } from "lucide-react";
@@ -66,7 +67,7 @@ export function ReceivablesTab({ onCollect }: { onCollect: (memberId: string) =>
       }
       toast.success("Link de pago Wompi creado y copiado");
     } catch (err: any) {
-      toast.error(err.response?.data?.detail ?? "No se pudo generar el link");
+      toast.error(parseApiError(err, "No se pudo generar el link"));
     } finally {
       setLinkBusy(null);
     }

@@ -13,6 +13,7 @@ import { FormDialog, FormField } from "@/components/ui/form-dialog";
 import { DataTable, type DataTableColumn } from "@/components/ui/data-table";
 import { StatusBadge } from "@/components/ui/status-badge";
 import { apiClient } from "@/lib/api";
+import { parseApiError } from "@/lib/errors";
 import { formatCOP } from "@/lib/format";
 import { useApiResource } from "@/hooks/useApiResource";
 import { Archive, Dumbbell, Pencil, Plus, Ticket } from "lucide-react";
@@ -59,7 +60,7 @@ export default function DayPassSection() {
       setOpen(false);
       await types.refetch();
     } catch (err: any) {
-      toast.error(err.response?.data?.detail ?? "Error guardando");
+      toast.error(parseApiError(err, "Error guardando"));
     } finally {
       setSaving(false);
     }
@@ -72,7 +73,7 @@ export default function DayPassSection() {
       toast.success(`"${t.name}" archivado`);
       await types.refetch();
     } catch (err: any) {
-      toast.error(err.response?.data?.detail ?? "Error archivando");
+      toast.error(parseApiError(err, "Error archivando"));
     }
   };
 

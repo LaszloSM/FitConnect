@@ -1,5 +1,6 @@
 import { toast } from "sonner";
 import { formatDateTime } from "@/lib/format";
+import { parseApiError } from "@/lib/errors";
 import type { AxiosInstance } from "axios";
 
 export const METHOD_LABELS: Record<string, string> = {
@@ -115,8 +116,7 @@ export async function openReceiptPdf(client: AxiosInstance, paymentId: string) {
     window.open(url, "_blank");
     setTimeout(() => URL.revokeObjectURL(url), 60_000);
   } catch (err) {
-    const e = err as { response?: { data?: { detail?: string } } };
-    toast.error(e.response?.data?.detail ?? "No se pudo generar el PDF");
+    toast.error(parseApiError(err, "No se pudo generar el PDF"));
   }
 }
 
@@ -136,8 +136,7 @@ export async function shareReceiptWhatsapp(
     window.open(digits ? `https://wa.me/${digits}?text=${text}` : `https://wa.me/?text=${text}`, "_blank");
     toast.success("Enlace del comprobante copiado (válido 30 días)");
   } catch (err) {
-    const e = err as { response?: { data?: { detail?: string } } };
-    toast.error(e.response?.data?.detail ?? "No se pudo crear el enlace");
+    toast.error(parseApiError(err, "No se pudo crear el enlace"));
   }
 }
 
@@ -181,7 +180,6 @@ export async function openReceipt(client: AxiosInstance, paymentId: string) {
       w.document.close();
     }
   } catch (err) {
-    const e = err as { response?: { data?: { detail?: string } } };
-    toast.error(e.response?.data?.detail ?? "No se pudo abrir el recibo");
+    toast.error(parseApiError(err, "No se pudo abrir el recibo"));
   }
 }

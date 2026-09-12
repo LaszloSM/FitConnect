@@ -10,6 +10,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { StatusBadge } from "@/components/ui/status-badge";
 import { apiClient } from "@/lib/api";
+import { parseApiError } from "@/lib/errors";
 import { formatTimeAgo } from "@/lib/format";
 import { useApiResource } from "@/hooks/useApiResource";
 import {
@@ -87,7 +88,7 @@ export default function KioskSection() {
       setName(""); setVendor(""); setModel(""); setLocation("");
       await devices.refetch();
     } catch (err: any) {
-      toast.error(err.response?.data?.detail ?? "Error creando el dispositivo");
+      toast.error(parseApiError(err, "Error creando el dispositivo"));
     } finally {
       setCreating(false);
     }
@@ -101,7 +102,7 @@ export default function KioskSection() {
       setNewToken({ name: data.name, kind: device.kind, url: linkFor(device.kind, data.token), token: data.token, regenerated: true });
       toast.success("Token regenerado. El anterior dejó de funcionar");
     } catch (err: any) {
-      toast.error(err.response?.data?.detail ?? "Error regenerando el enlace");
+      toast.error(parseApiError(err, "Error regenerando el enlace"));
     } finally {
       setBusyId(null);
     }
@@ -115,7 +116,7 @@ export default function KioskSection() {
       setRenamingId(null);
       await devices.refetch();
     } catch (err: any) {
-      toast.error(err.response?.data?.detail ?? "Error renombrando");
+      toast.error(parseApiError(err, "Error renombrando"));
     } finally {
       setBusyId(null);
     }
@@ -127,7 +128,7 @@ export default function KioskSection() {
       await client().patch(`/api/v1/kiosk/devices/${device.id}`, { offline_policy: next });
       await devices.refetch();
     } catch (err: any) {
-      toast.error(err.response?.data?.detail ?? "Error actualizando");
+      toast.error(parseApiError(err, "Error actualizando"));
     }
   };
 
@@ -139,7 +140,7 @@ export default function KioskSection() {
       toast.success(`${device.name} revocado`);
       await devices.refetch();
     } catch (err: any) {
-      toast.error(err.response?.data?.detail ?? "Error revocando");
+      toast.error(parseApiError(err, "Error revocando"));
     }
   };
 

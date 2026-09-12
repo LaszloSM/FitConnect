@@ -10,6 +10,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { apiClient } from "@/lib/api";
+import { parseApiError } from "@/lib/errors";
 import type { Location } from "@/lib/types";
 import { Lock, MapPin, Plus, Trash2, Loader2 } from "lucide-react";
 
@@ -57,8 +58,7 @@ export default function OperationsSection() {
       });
       toast.success("Configuración operativa guardada");
     } catch (err: any) {
-      const detail = err.response?.data?.detail;
-      toast.error(typeof detail === "string" ? detail : "Error guardando configuración");
+      toast.error(parseApiError(err, "Error guardando configuración"));
     } finally {
       setSavingOps(false);
     }
@@ -81,8 +81,7 @@ export default function OperationsSection() {
       setShowNewLocation(false);
       toast.success("Sede creada");
     } catch (err: any) {
-      const detail = err.response?.data?.detail;
-      toast.error(typeof detail === "string" ? detail : "Error creando sede");
+      toast.error(parseApiError(err, "Error creando sede"));
     } finally {
       setSavingLocation(false);
     }

@@ -139,11 +139,7 @@ export default function ClassesClient() {
       setClasses(res.data);
       setError("");
     } catch (err: any) {
-      setError(
-        typeof err.response?.data?.detail === "string"
-          ? err.response.data.detail
-          : "Error cargando clases"
-      );
+      setError(parseApiError(err, "Error cargando clases"));
     } finally {
       setLoading(false);
     }
@@ -161,11 +157,7 @@ export default function ClassesClient() {
       })
       .catch((err: any) => {
         if (!cancelled)
-          setError(
-            typeof err.response?.data?.detail === "string"
-              ? err.response.data.detail
-              : "Error cargando clases"
-          );
+          setError(parseApiError(err, "Error cargando clases"));
       })
       .finally(() => { if (!cancelled) setLoading(false); });
     client.get("/api/v1/instructors")
@@ -289,8 +281,7 @@ export default function ClassesClient() {
       const res = await client.get(`/api/v1/classes/${classId}/enrollments`);
       setEnrollments((prev) => ({ ...prev, [classId]: res.data }));
     } catch (err: any) {
-      const detail = err.response?.data?.detail;
-      toast.error(typeof detail === "string" ? detail : "Error al inscribir");
+      toast.error(parseApiError(err, "Error al inscribir"));
     }
   };
 
@@ -303,8 +294,7 @@ export default function ClassesClient() {
       const res = await client.get(`/api/v1/classes/${classId}/enrollments`);
       setEnrollments((prev) => ({ ...prev, [classId]: res.data }));
     } catch (err: any) {
-      const detail = err.response?.data?.detail;
-      toast.error(typeof detail === "string" ? detail : "Error al cancelar la inscripción");
+      toast.error(parseApiError(err, "Error al cancelar la inscripción"));
     }
   };
 

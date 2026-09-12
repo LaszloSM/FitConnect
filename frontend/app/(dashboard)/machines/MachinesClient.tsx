@@ -15,6 +15,7 @@ import { FormDialog, FormField } from "@/components/ui/form-dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { apiClient } from "@/lib/api";
+import { parseApiError } from "@/lib/errors";
 import { formatDate, parseDateOnly, toISODate } from "@/lib/format";
 import { cn } from "@/lib/utils";
 import {
@@ -165,8 +166,7 @@ export default function MachinesClient() {
       setOverdueCount(res.data.overdue);
       setError("");
     } catch (err: any) {
-      const detail = err.response?.data?.detail;
-      setError(typeof detail === "string" ? detail : "Error cargando máquinas");
+      setError(parseApiError(err, "Error cargando máquinas"));
     } finally {
       setLoading(false);
     }
@@ -248,12 +248,7 @@ export default function MachinesClient() {
       setDialogOpen(false);
       await fetchMachines();
     } catch (err: any) {
-      const detail = err.response?.data?.detail;
-      toast.error(
-        typeof detail === "string" ? detail
-          : Array.isArray(detail) ? detail[0]?.msg
-          : "Error guardando la máquina",
-      );
+      toast.error(parseApiError(err, "Error guardando la máquina"));
     } finally {
       setSubmitting(false);
     }
@@ -272,8 +267,7 @@ export default function MachinesClient() {
       setDeleteTarget(null);
       await fetchMachines();
     } catch (err: any) {
-      const detail = err.response?.data?.detail;
-      toast.error(typeof detail === "string" ? detail : "No se pudo eliminar");
+      toast.error(parseApiError(err, "No se pudo eliminar"));
     } finally {
       setDeleting(false);
     }
@@ -299,8 +293,7 @@ export default function MachinesClient() {
       });
       await fetchMachines();
     } catch (err: any) {
-      const detail = err.response?.data?.detail;
-      toast.error(typeof detail === "string" ? detail : "No se pudo reportar");
+      toast.error(parseApiError(err, "No se pudo reportar"));
     } finally {
       setReporting(false);
     }
@@ -338,8 +331,7 @@ export default function MachinesClient() {
       setLogs((prev) => ({ ...prev, [id]: res.data }));
       await fetchMachines();
     } catch (err: any) {
-      const detail = err.response?.data?.detail;
-      toast.error(typeof detail === "string" ? detail : "Error registrando el mantenimiento");
+      toast.error(parseApiError(err, "Error registrando el mantenimiento"));
     } finally {
       setAddingLog(false);
     }

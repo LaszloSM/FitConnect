@@ -8,6 +8,7 @@ import { GlassCard } from "@/components/common/GlassCard";
 import { PageHeader } from "@/components/common/PageHeader";
 import { EmptyState } from "@/components/common/EmptyState";
 import { apiClient } from "@/lib/api";
+import { parseApiError } from "@/lib/errors";
 import { formatCOP, formatTimeAgo, parseUTC } from "@/lib/format";
 import { useApiResource } from "@/hooks/useApiResource";
 import { useReceptionEvents, type ReceptionEvent } from "@/hooks/useReceptionEvents";
@@ -249,8 +250,7 @@ export default function CheckinsClient() {
       setLiveAlerts((prev) => prev.filter((a) => a.member_id !== alertMemberId));
       void fetchToday();
     } catch (err: any) {
-      const detail = err.response?.data?.detail;
-      toast.error(typeof detail === "string" ? detail : "Error autorizando la entrada");
+      toast.error(parseApiError(err, "Error autorizando la entrada"));
     } finally {
       setOverriding(false);
     }

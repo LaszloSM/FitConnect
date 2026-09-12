@@ -15,6 +15,7 @@ import {
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { apiClient } from "@/lib/api";
+import { parseApiError } from "@/lib/errors";
 import { FileSpreadsheet, Download, Upload, Loader2, CheckCircle2 } from "lucide-react";
 
 interface ImportError {
@@ -80,7 +81,7 @@ export function MemberImportDialog({ onImported }: { onImported: () => void }) {
         toast.message("No se encontraron filas para importar");
       }
     } catch (err: any) {
-      toast.error(err.response?.data?.detail ?? "Error importando el archivo");
+      toast.error(parseApiError(err, "Error importando el archivo"));
     } finally {
       setWorking(false);
     }

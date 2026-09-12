@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { apiClient } from "@/lib/api";
+import { parseApiError } from "@/lib/errors";
 import { Switch } from "@/components/ui/switch";
 import { Landmark, Lock, Plus, Smartphone, Trash2, Loader2, FileText, KeyRound, QrCode, ImagePlus, Clock } from "lucide-react";
 
@@ -74,8 +75,7 @@ export default function BillingSection() {
       setAccounts(res.data.transfer_accounts ?? []);
       toast.success(okMessage);
     } catch (err: any) {
-      const detail = err.response?.data?.detail;
-      toast.error(typeof detail === "string" ? detail : "Error guardando cuentas");
+      toast.error(parseApiError(err, "Error guardando cuentas"));
     } finally {
       setSaving(false);
     }
@@ -107,7 +107,7 @@ export default function BillingSection() {
       setAccounts(res.data.transfer_accounts ?? []);
       toast.success("QR guardado");
     } catch (err: any) {
-      toast.error(err.response?.data?.detail ?? "No se pudo subir el QR");
+      toast.error(parseApiError(err, "No se pudo subir el QR"));
     } finally {
       setUploadingQr(null);
     }
@@ -126,7 +126,7 @@ export default function BillingSection() {
       await client.patch("/api/v1/settings/billing", { transfer_auto_void_hours: autoVoidHours });
       toast.success("Regla de anulación guardada");
     } catch (err: any) {
-      toast.error(err.response?.data?.detail ?? "Error guardando");
+      toast.error(parseApiError(err, "Error guardando"));
     } finally {
       setSaving(false);
     }
@@ -145,8 +145,7 @@ export default function BillingSection() {
       });
       toast.success("Datos fiscales guardados");
     } catch (err: any) {
-      const detail = err.response?.data?.detail;
-      toast.error(typeof detail === "string" ? detail : "Error guardando datos fiscales");
+      toast.error(parseApiError(err, "Error guardando datos fiscales"));
     } finally {
       setSaving(false);
     }

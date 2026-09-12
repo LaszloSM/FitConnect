@@ -20,6 +20,7 @@ import {
   SheetTitle,
 } from "@/components/ui/sheet";
 import { apiClient } from "@/lib/api";
+import { parseApiError } from "@/lib/errors";
 import { formatCOP, formatTimeAgo } from "@/lib/format";
 import { useApiResource } from "@/hooks/useApiResource";
 import { cn } from "@/lib/utils";
@@ -164,8 +165,7 @@ export function ProductsTab() {
       setDialogOpen(false);
       await products.refetch();
     } catch (err: any) {
-      const d = err.response?.data?.detail;
-      toast.error(typeof d === "string" ? d : "Error guardando el producto");
+      toast.error(parseApiError(err, "Error guardando el producto"));
     } finally {
       setSubmitting(false);
     }
@@ -178,7 +178,7 @@ export function ProductsTab() {
       toast.success(`${p.name} archivado`);
       await products.refetch();
     } catch (err: any) {
-      toast.error(err.response?.data?.detail ?? "Error archivando");
+      toast.error(parseApiError(err, "Error archivando"));
     }
   };
 
@@ -206,7 +206,7 @@ export function ProductsTab() {
       await products.refetch();
       if (historyFor?.id === movementFor.id) setHistory((h) => [data, ...h]);
     } catch (err: any) {
-      toast.error(err.response?.data?.detail ?? "Error registrando el movimiento");
+      toast.error(parseApiError(err, "Error registrando el movimiento"));
     } finally {
       setSavingMovement(false);
     }
@@ -220,7 +220,7 @@ export function ProductsTab() {
       setNewCat("");
       await categories.refetch();
     } catch (err: any) {
-      toast.error(err.response?.data?.detail ?? "Error creando la categoría");
+      toast.error(parseApiError(err, "Error creando la categoría"));
     } finally {
       setSavingCat(false);
     }
@@ -233,7 +233,7 @@ export function ProductsTab() {
       await client().delete(`/api/v1/products/categories/${c.id}`);
       await Promise.all([categories.refetch(), products.refetch()]);
     } catch (err: any) {
-      toast.error(err.response?.data?.detail ?? "Error eliminando");
+      toast.error(parseApiError(err, "Error eliminando"));
     }
   };
 

@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { useSession } from "next-auth/react";
 import { apiClient } from "@/lib/api";
+import { parseApiError } from "@/lib/errors";
 import { gymWeekday } from "@/lib/format";
 
 /** Las tres listas operativas del día (`GET /dashboard/operations`). */
@@ -147,7 +148,7 @@ export function useDashboardData() {
       })
       .catch((err) => {
         if (cancelled) return;
-        setError(err?.response?.data?.detail || "Error cargando el panel");
+        setError(parseApiError(err, "Error cargando el panel"));
         setLoading(false);
       });
 

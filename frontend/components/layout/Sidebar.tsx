@@ -265,7 +265,7 @@ export function Sidebar() {
                             />
                           )}
                           <span className="relative z-10 flex items-center gap-3 min-w-0 w-full">
-                            <Icon className="h-[18px] w-[18px] shrink-0" />
+                            <Icon className="h-5 w-5 shrink-0" />
                             <AnimatePresence initial={false}>
                               {!effectiveCollapsed && (
                                 <motion.span

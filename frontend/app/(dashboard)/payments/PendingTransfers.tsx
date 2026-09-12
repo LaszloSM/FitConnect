@@ -10,6 +10,7 @@ import { Button } from "@/components/ui/button";
 import { FormDialog, FormField } from "@/components/ui/form-dialog";
 import { Input } from "@/components/ui/input";
 import { apiClient } from "@/lib/api";
+import { parseApiError } from "@/lib/errors";
 import { formatCOP } from "@/lib/format";
 import { useApiResource } from "@/hooks/useApiResource";
 import { cn } from "@/lib/utils";
@@ -37,7 +38,7 @@ export function PendingTransfers({ onChanged }: { onChanged?: () => void }) {
       await pending.refetch();
       onChanged?.();
     } catch (err: any) {
-      toast.error(err.response?.data?.detail ?? "Error confirmando");
+      toast.error(parseApiError(err, "Error confirmando"));
     } finally {
       setConfirming(null);
     }
@@ -54,7 +55,7 @@ export function PendingTransfers({ onChanged }: { onChanged?: () => void }) {
       await pending.refetch();
       onChanged?.();
     } catch (err: any) {
-      toast.error(err.response?.data?.detail ?? "Error anulando");
+      toast.error(parseApiError(err, "Error anulando"));
     } finally {
       setVoiding(false);
     }

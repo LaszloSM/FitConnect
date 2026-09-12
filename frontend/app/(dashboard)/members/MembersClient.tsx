@@ -13,6 +13,7 @@ import { EmptyState } from "@/components/common/EmptyState";
 import { QRCodeDisplay } from "@/components/common/QRCodeDisplay";
 import { PARQForm, PARQ_KEYS } from "@/components/common/PARQForm";
 import { apiClient } from "@/lib/api";
+import { parseApiError } from "@/lib/errors";
 import { formatCOP, formatDate, parseDateOnly, todayISO, toISODate } from "@/lib/format";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
@@ -243,7 +244,7 @@ export default function MembersClient() {
       setError("");
     } catch (err: unknown) {
       const e = err as { response?: { data?: { detail?: string } } };
-      setError(e.response?.data?.detail || "Error cargando miembros");
+      setError(parseApiError(e, "Error cargando miembros"));
     } finally {
       setLoading(false);
     }
@@ -273,7 +274,7 @@ export default function MembersClient() {
       }
     }).catch((err: unknown) => {
       const e = err as { response?: { data?: { detail?: string } } };
-      if (!cancelled) setError(e.response?.data?.detail || "Error cargando miembros");
+      if (!cancelled) setError(parseApiError(e, "Error cargando miembros"));
     }).finally(() => {
       if (!cancelled) setLoading(false);
     });
@@ -327,7 +328,7 @@ export default function MembersClient() {
       setCurrentMembership(Array.isArray(data) && data.length > 0 ? data[0] : null);
     } catch (err: unknown) {
       const e = err as { response?: { data?: { detail?: string } } };
-      toast.error(e.response?.data?.detail || "Error asignando membresía");
+      toast.error(parseApiError(e, "Error asignando membresía"));
     } finally {
       setAssigningMembership(false);
     }
@@ -498,9 +499,7 @@ export default function MembersClient() {
       toast.success(editing ? "Miembro actualizado" : converting ? "Visitante convertido en socio" : "Miembro creado");
       setDialogOpen(false); resetForm(); setConverting(null); fetchMembers();
     } catch (err: unknown) {
-      const e = err as { response?: { data?: { detail?: string | Array<{ msg: string }> } } };
-      const detail = e.response?.data?.detail;
-      toast.error(typeof detail === "string" ? detail : Array.isArray(detail) ? detail[0]?.msg : "Error guardando miembro");
+      toast.error(parseApiError(err, "Error guardando miembro"));
     } finally { setSubmitting(false); }
   };
 
@@ -512,9 +511,7 @@ export default function MembersClient() {
       toast.success("Miembro eliminado correctamente");
       setDeleteId(null); fetchMembers();
     } catch (err: unknown) {
-      const e = err as { response?: { data?: { detail?: string | Array<{ msg: string }> } } };
-      const detail = e.response?.data?.detail;
-      toast.error(typeof detail === "string" ? detail : Array.isArray(detail) ? detail[0]?.msg : "Error eliminando");
+      toast.error(parseApiError(err, "Error eliminando"));
     }
   };
 

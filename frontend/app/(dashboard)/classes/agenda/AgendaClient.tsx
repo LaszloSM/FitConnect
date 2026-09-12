@@ -12,6 +12,7 @@ import { Button } from "@/components/ui/button";
 import { StatusBadge } from "@/components/ui/status-badge";
 import MemberSelect from "@/components/common/MemberSelect";
 import { apiClient } from "@/lib/api";
+import { parseApiError } from "@/lib/errors";
 import { cn } from "@/lib/utils";
 import {
   ArrowLeft,
@@ -94,7 +95,7 @@ export default function AgendaClient() {
       });
       setSessions(res.data);
     } catch (err: any) {
-      toast.error(err.response?.data?.detail ?? "Error cargando la agenda");
+      toast.error(parseApiError(err, "Error cargando la agenda"));
     } finally {
       setLoading(false);
     }
@@ -154,7 +155,7 @@ export default function AgendaClient() {
       setBookingMember("");
       await refreshSelected();
     } catch (err: any) {
-      toast.error(err.response?.data?.detail ?? "Error al reservar");
+      toast.error(parseApiError(err, "Error al reservar"));
     } finally {
       setBusy(false);
     }

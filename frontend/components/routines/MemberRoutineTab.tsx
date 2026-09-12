@@ -8,6 +8,7 @@ import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { ExerciseFigure } from "@/components/routines/ExerciseFigure";
 import { apiClient } from "@/lib/api";
+import { parseApiError } from "@/lib/errors";
 import { formatTimeAgo } from "@/lib/format";
 import { Dumbbell, Loader2, Timer, X } from "lucide-react";
 
@@ -38,7 +39,7 @@ export function MemberRoutineTab({ memberId }: { memberId: string }) {
       setChoice("");
       load();
     } catch (err: any) {
-      toast.error(err.response?.data?.detail ?? "Error asignando");
+      toast.error(parseApiError(err, "Error asignando"));
     } finally {
       setBusy(false);
     }
@@ -49,7 +50,7 @@ export function MemberRoutineTab({ memberId }: { memberId: string }) {
       await client().delete(`/api/v1/members/${memberId}/routines/current`);
       load();
     } catch (err: any) {
-      toast.error(err.response?.data?.detail ?? "Error");
+      toast.error(parseApiError(err, "Error"));
     }
   };
 

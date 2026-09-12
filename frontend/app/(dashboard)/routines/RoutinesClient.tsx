@@ -14,6 +14,7 @@ import { Switch } from "@/components/ui/switch";
 import { StatusBadge } from "@/components/ui/status-badge";
 import { ExerciseFigure, youtubeSearchUrl } from "@/components/routines/ExerciseFigure";
 import { apiClient } from "@/lib/api";
+import { parseApiError } from "@/lib/errors";
 import { useApiResource } from "@/hooks/useApiResource";
 import { cn } from "@/lib/utils";
 import {
@@ -60,7 +61,7 @@ export default function RoutinesClient() {
         },
       });
     } catch (err: any) {
-      toast.error(err.response?.data?.detail ?? "No se pudo abrir la rutina");
+      toast.error(parseApiError(err, "No se pudo abrir la rutina"));
     }
   };
 
@@ -84,8 +85,7 @@ export default function RoutinesClient() {
       setEditing(null);
       await routines.refetch();
     } catch (err: any) {
-      const d = err.response?.data?.detail;
-      toast.error(typeof d === "string" ? d : "Error guardando la rutina");
+      toast.error(parseApiError(err, "Error guardando la rutina"));
     } finally {
       setSaving(false);
     }
@@ -98,7 +98,7 @@ export default function RoutinesClient() {
       toast.success("Rutina archivada");
       await routines.refetch();
     } catch (err: any) {
-      toast.error(err.response?.data?.detail ?? "Error archivando");
+      toast.error(parseApiError(err, "Error archivando"));
     }
   };
 
@@ -378,7 +378,7 @@ function ExerciseVideoBox({ exercise, onChanged }: { exercise: Exercise; onChang
       toast.success("Video del gym guardado");
       onChanged(data.video_url, "gym");
     } catch (err: any) {
-      toast.error(err.response?.data?.detail ?? "No se pudo subir el video");
+      toast.error(parseApiError(err, "No se pudo subir el video"));
     } finally {
       setBusy(false);
     }
@@ -391,7 +391,7 @@ function ExerciseVideoBox({ exercise, onChanged }: { exercise: Exercise; onChang
       toast.success("Video del gym eliminado");
       onChanged(null, null);
     } catch (err: any) {
-      toast.error(err.response?.data?.detail ?? "No se pudo eliminar");
+      toast.error(parseApiError(err, "No se pudo eliminar"));
     } finally {
       setBusy(false);
     }

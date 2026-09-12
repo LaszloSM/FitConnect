@@ -80,7 +80,7 @@ export default function TeamSection() {
       setInviteOpen(false);
       await staff.refetch();
     } catch (err: any) {
-      toast.error(err.response?.data?.detail ?? "Error enviando la invitación");
+      toast.error(parseApiError(err, "Error enviando la invitación"));
     } finally {
       setInviting(false);
     }
@@ -94,7 +94,7 @@ export default function TeamSection() {
       toast.success(`Rol de ${member.full_name} actualizado`);
       await staff.refetch();
     } catch (err: any) {
-      toast.error(err.response?.data?.detail ?? "Error cambiando el rol");
+      toast.error(parseApiError(err, "Error cambiando el rol"));
     }
   };
 
@@ -108,7 +108,7 @@ export default function TeamSection() {
       setToRemove(null);
       await staff.refetch();
     } catch (err: any) {
-      toast.error(err.response?.data?.detail ?? "Error desactivando");
+      toast.error(parseApiError(err, "Error desactivando"));
     } finally {
       setRemoving(false);
     }
@@ -122,7 +122,7 @@ export default function TeamSection() {
       toast.success(`${member.full_name} recuperó el acceso`);
       await staff.refetch();
     } catch (err: any) {
-      toast.error(err.response?.data?.detail ?? "Error reactivando");
+      toast.error(parseApiError(err, "Error reactivando"));
     }
   };
 

@@ -12,8 +12,11 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { CurrencyInput } from "@/components/ui/currency-input";
 import { apiClient } from "@/lib/api";
+import { parseApiError } from "@/lib/errors";
 import { formatCOP, formatDateTime } from "@/lib/format";
-import { ArrowLeft, Lock, Unlock, Loader2, TrendingDown, Plus } from "lucide-react";
+import { ArrowLeft, Lock, Unlock, Loader2, TrendingDown, Plus, RotateCcw } from "lucide-react";
+import { FormDialog } from "@/components/ui/form-dialog";
+import { P, useCan } from "@/lib/permissions";
 import { toast } from "sonner";
 
 const EXPENSE_CATEGORIES = [
@@ -39,6 +42,11 @@ export default function CashClient() {
   // Una lista vacía y una lista que no se pudo leer no son lo mismo: decir
   // "no hay cierres" cuando en realidad no se pudo mirar es afirmar algo falso.
   const [historyDenied, setHistoryDenied] = useState(false);
+  // Reabrir existe en el backend desde hace tiempo y ninguna pantalla lo usaba:
+  // un cierre mal contado quedaba fijo, y la única salida era borrar pagos.
+  const { can } = useCan();
+  const [toReopen, setToReopen] = useState<any | null>(null);
+  const [reopenReason, setReopenReason] = useState("");
   const [openingAmount, setOpeningAmount] = useState(0);
   const [countedCash, setCountedCash] = useState(0);
   const [busy, setBusy] = useState(false);
@@ -83,7 +91,7 @@ export default function CashClient() {
       setOpeningAmount(0);
       await load();
     } catch (err: any) {
-      toast.error(err.response?.data?.detail ?? "Error abriendo turno");
+      toast.error(parseApiError(err, "Error abriendo turno"));
     } finally {
       setBusy(false);
     }
@@ -101,7 +109,28 @@ export default function CashClient() {
       setCountedCash(0);
       await load();
     } catch (err: any) {
-      toast.error(err.response?.data?.detail ?? "Error cerrando turno");
+      toast.error(parseApiError(err, "Error cerrando turno"));
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  const reopenShift = async () => {
+    if (!session?.accessToken || !toReopen) return;
+    if (reopenReason.trim().length < 10) {
+      toast.error("Explica el motivo en al menos 10 caracteres: queda en la auditoría.");
+      return;
+    }
+    setBusy(true);
+    try {
+      const client = apiClient(session.accessToken as string);
+      await client.post(`/api/v1/cash/shifts/${toReopen.id}/reopen`, { reason: reopenReason.trim() });
+      toast.success("Turno reabierto. Cuenta de nuevo y ciérralo.");
+      setToReopen(null);
+      setReopenReason("");
+      await load();
+    } catch (err: any) {
+      toast.error(parseApiError(err, "No se pudo reabrir el turno"));
     } finally {
       setBusy(false);
     }
@@ -118,7 +147,7 @@ export default function CashClient() {
       setExpense({ amount: 0, category: "insumos", concept: "", method: "cash" });
       await load();
     } catch (err: any) {
-      toast.error(err.response?.data?.detail ?? "Error registrando egreso");
+      toast.error(parseApiError(err, "Error registrando egreso"));
     } finally {
       setBusy(false);
     }
@@ -298,9 +327,21 @@ export default function CashClient() {
                 </span>
                 <div className="flex items-center gap-4">
                   <span className="text-[var(--text-base)]">Esperado {formatCOP(Number(s.expected_cash ?? 0))}</span>
-                  <span className={Number(s.difference) === 0 ? "text-emerald-600 dark:text-emerald-400" : "text-red-500"}>
+                  <span style={{ color: Number(s.difference) === 0 ? "var(--signal-ok)" : "var(--signal-danger)" }}>
                     {Number(s.difference) === 0 ? "cuadrado" : `${formatCOP(Number(s.difference))}`}
                   </span>
+                  {/* Solo sin turno abierto: el efectivo nuevo iría al turno equivocado. */}
+                  {can(P.CASH_REOPEN) && !current?.open && (
+                    <button
+                      type="button"
+                      onClick={() => { setToReopen(s); setReopenReason(""); }}
+                      title="Reabrir este turno"
+                      aria-label="Reabrir este turno"
+                      className="h-7 w-7 rounded-md flex items-center justify-center text-[var(--text-muted)] hover:text-[var(--text-base)] hover:bg-[var(--bg-card)] transition-colors"
+                    >
+                      <RotateCcw className="h-3.5 w-3.5" />
+                    </button>
+                  )}
                 </div>
               </div>
             ))}
@@ -308,6 +349,31 @@ export default function CashClient() {
         )}
       </GlassCard>
       )}
+
+      <FormDialog
+        open={!!toReopen}
+        onOpenChange={(o) => !o && setToReopen(null)}
+        title="Reabrir turno"
+        description={
+          toReopen
+            ? `Cerrado el ${toReopen.closed_at ? formatDateTime(toReopen.closed_at) : "—"} con una diferencia de ${formatCOP(Number(toReopen.difference ?? 0))}. Se borra el conteo y el turno vuelve a quedar abierto.`
+            : ""
+        }
+        onSubmit={reopenShift}
+        submitLabel="Reabrir turno"
+        submitting={busy}
+      >
+        <div className="space-y-2">
+          <Label htmlFor="reopen-reason">Motivo</Label>
+          <Input
+            id="reopen-reason"
+            value={reopenReason}
+            onChange={(e) => setReopenReason(e.target.value)}
+            placeholder="Conté mal los billetes de 50.000"
+          />
+          <p className="text-xs text-[var(--text-muted)]">Queda registrado en la auditoría con tu nombre.</p>
+        </div>
+      </FormDialog>
     </motion.div>
   );
 }

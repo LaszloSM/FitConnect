@@ -10,6 +10,7 @@ import { PageHeader } from "@/components/common/PageHeader";
 import { EmptyState } from "@/components/common/EmptyState";
 import { StatusBadge } from "@/components/ui/status-badge";
 import { apiClient } from "@/lib/api";
+import { parseApiError } from "@/lib/errors";
 import { formatDate, parseDateOnly, todayISO } from "@/lib/format";
 import { cn } from "@/lib/utils";
 import { CalendarDays, ClipboardList, Phone, Sun, Users } from "lucide-react";
@@ -115,10 +116,7 @@ export default function TrainerClient({ view }: { view: TrainerView }) {
       setRoutines(r.data);
       setError("");
     } catch (err: any) {
-      setError(
-        err.response?.data?.detail ??
-          "No se pudo cargar tu información. Pídele al gimnasio que revise tu cuenta.",
-      );
+      setError(parseApiError(err, "No se pudo cargar tu información. Pídele al gimnasio que revise tu cuenta."));
     } finally {
       setLoading(false);
     }
