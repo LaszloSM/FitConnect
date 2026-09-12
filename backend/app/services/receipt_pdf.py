@@ -14,7 +14,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.models.tenant.payment import Payment, PaymentStatus
 from app.models.tenant.receipt import Receipt
-from app.services.exports import _INK, _VOLT, _cop
+from app.services.exports import _BRAND, _BRAND_TINT, _INK, _cop
 from app.services.gym_settings import get_gym_settings
 
 _METHOD_LABELS = {"cash": "Efectivo", "transfer": "Transferencia", "card": "Tarjeta", "wompi": "Wompi"}
@@ -49,7 +49,7 @@ async def build_receipt_pdf(
     def _decor(canvas, doc):
         canvas.saveState()
         w, h = A5
-        canvas.setFillColor(colors.HexColor("#" + _VOLT))
+        canvas.setFillColor(colors.HexColor("#" + _BRAND))
         canvas.rect(0, h - 6 * mm, w, 6 * mm, stroke=0, fill=1)
         canvas.setFillColor(muted)
         canvas.setFont("Helvetica", 7)
@@ -134,7 +134,7 @@ async def build_receipt_pdf(
     rows.append(["TOTAL", "", "", _cop(float(snap["amount"]))])
     t = Table(rows, colWidths=[None, 14 * mm, 26 * mm, 28 * mm], repeatRows=1)
     t.setStyle(TableStyle([
-        ("BACKGROUND", (0, 0), (-1, 0), colors.HexColor("#" + _VOLT)),
+        ("BACKGROUND", (0, 0), (-1, 0), colors.HexColor("#" + _BRAND_TINT)),
         ("TEXTCOLOR", (0, 0), (-1, 0), ink),
         ("FONTNAME", (0, 0), (-1, 0), "Helvetica-Bold"),
         ("FONTSIZE", (0, 0), (-1, -1), 9),

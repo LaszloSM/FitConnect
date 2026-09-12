@@ -19,7 +19,7 @@ from app.models.tenant.member import Member, IdType, Gender, TrainingGoal
 from app.schemas.member import MemberBase
 from app.core.timeutil import utcnow_naive
 
-_VOLT = "D4FF00"
+from app.services.exports import _BRAND_TINT  # noqa: E402
 
 # (clave del schema, encabezado visible, ¿obligatorio?)
 COLUMNS: list[tuple[str, str, bool]] = [
@@ -73,7 +73,7 @@ def build_template() -> bytes:
     ws.title = "Miembros"
 
     header_font = Font(bold=True, color="000000")
-    header_fill = PatternFill("solid", fgColor=_VOLT)
+    header_fill = PatternFill("solid", fgColor=_BRAND_TINT)
     for col_idx, (_, label, required) in enumerate(COLUMNS, start=1):
         cell = ws.cell(row=1, column=col_idx, value=label + (" *" if required else ""))
         cell.font = header_font

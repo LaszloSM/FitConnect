@@ -33,8 +33,13 @@ from app.services.payment_ledger import net_amount
 
 logger = logging.getLogger(__name__)
 
-_VOLT = "D4FF00"  # color de marca para encabezados
-_INK = "111111"
+# Hierro: el naranja de la marca va en la banda y en la serie principal de los
+# gráficos; los encabezados usan su tinte claro para que el documento impreso
+# se lea en tinta y no en color.
+_BRAND = "FF6A00"
+_BRAND_TINT = "FDEBDD"
+_BRAND_TEXT = "B4460A"
+_INK = "1C1917"
 
 
 async def _is_public_host(url: str) -> bool:
@@ -209,7 +214,7 @@ def _write_sheet(ws, title: str, columns: list[tuple[str, str]], rows: list[dict
     """columns: lista de (clave, encabezado). Aplica estilo de marca al header."""
     ws.title = title
     header_font = Font(bold=True, color="111111")
-    header_fill = PatternFill("solid", fgColor=_VOLT)
+    header_fill = PatternFill("solid", fgColor=_BRAND_TINT)
     for col_idx, (_, header) in enumerate(columns, start=1):
         cell = ws.cell(row=1, column=col_idx, value=header)
         cell.font = header_font
@@ -294,7 +299,7 @@ def _cop(v: float) -> str:
 
 
 _TABLE_STYLE = TableStyle([
-    ("BACKGROUND", (0, 0), (-1, 0), colors.HexColor("#" + _VOLT)),
+    ("BACKGROUND", (0, 0), (-1, 0), colors.HexColor("#" + _BRAND_TINT)),
     ("TEXTCOLOR", (0, 0), (-1, 0), colors.HexColor("#" + _INK)),
     ("FONTNAME", (0, 0), (-1, 0), "Helvetica-Bold"),
     ("ROWBACKGROUNDS", (0, 1), (-1, -1), [colors.white, colors.HexColor("#F5F5F5")]),
@@ -344,7 +349,7 @@ async def build_report_pdf(db: AsyncSession, gym_name: str = "Gimnasio", logo_pn
     def _page_decor(canvas, _doc):
         canvas.saveState()
         # Banda de marca superior
-        canvas.setFillColor(colors.HexColor("#" + _VOLT))
+        canvas.setFillColor(colors.HexColor("#" + _BRAND))
         canvas.rect(0, A4[1] - 6 * mm, A4[0], 6 * mm, stroke=0, fill=1)
         # Pie: gym + página
         canvas.setFont("Helvetica", 8)
