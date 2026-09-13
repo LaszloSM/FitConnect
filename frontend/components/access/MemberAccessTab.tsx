@@ -80,7 +80,7 @@ export function MemberAccessTab({ memberId, idNumber }: { memberId: string; idNu
   return (
     <div className="space-y-4">
       <div className="rounded-xl border border-[var(--border-base)] bg-[var(--bg-base)] p-4 space-y-3">
-        <p className="text-xs font-semibold uppercase tracking-wider text-[var(--text-muted)]">Credenciales de acceso</p>
+        <p className="text-sm font-semibold text-[var(--text-base)]">Credenciales de acceso</p>
         <p className="text-sm text-[var(--text-muted)]">Por defecto el socio entra con su cédula ({idNumber}) o su carné QR en cualquier dispositivo. Aquí se registran huella, rostro, tarjeta o PIN cuando el gym tiene torniquete o lector. La huella nunca se guarda en FitConnect: solo el ID con que la registró el lector.</p>
         {activeCreds.length === 0 ? (
           <p className="text-sm text-[var(--text-muted)]">Sin credenciales adicionales.</p>
@@ -91,16 +91,16 @@ export function MemberAccessTab({ memberId, idNumber }: { memberId: string; idNu
               <p className="text-[var(--text-base)] font-medium">{KIND_META[c.kind]?.label ?? c.kind} · ID en el lector <code className="text-xs">{c.device_user_id}</code>{c.label ? ` · ${c.label}` : ""}</p>
               <p className="text-xs text-[var(--text-muted)]">{c.device_name ? `Solo en ${c.device_name}` : "Todos los dispositivos"} · enrolada {formatTimeAgo(c.enrolled_at)}</p>
             </div>
-            <button type="button" onClick={() => revokeCred(c)} className="text-xs text-[var(--text-muted)] hover:text-red-500 flex items-center gap-1"><X className="h-3 w-3" /> Revocar</button>
+            <button type="button" onClick={() => revokeCred(c)} className="text-xs text-[var(--text-muted)] hover:text-[var(--signal-danger)] flex items-center gap-1"><X className="h-3 w-3" /> Revocar</button>
           </div>
         ))}
       </div>
 
       <div className="rounded-xl border border-[var(--border-base)] bg-[var(--bg-base)] p-4 space-y-3">
-        <p className="text-xs font-semibold uppercase tracking-wider text-[var(--text-muted)]">Enrolar credencial</p>
+        <p className="text-sm font-semibold text-[var(--text-base)]">Enrolar credencial</p>
         <div className="flex gap-1.5 flex-wrap">
           {(Object.keys(KIND_META) as CredKind[]).map((k) => (
-            <button key={k} type="button" onClick={() => setKind(k)} className={`rounded-lg px-3 py-1.5 text-xs font-medium border flex items-center gap-1.5 ${k === kind ? "bg-[var(--color-primary)] text-[var(--color-primary-contrast)] border-transparent" : "border-[var(--border-base)] text-[var(--text-muted)]"}`}>{KIND_META[k].icon} {KIND_META[k].label}</button>
+            <button key={k} type="button" onClick={() => setKind(k)} className={`rounded-lg px-3 py-1.5 text-xs font-medium border flex items-center gap-1.5 ${k === kind ? "bg-primary text-primary-contrast border-transparent" : "border-[var(--border-base)] text-[var(--text-muted)]"}`}>{KIND_META[k].icon} {KIND_META[k].label}</button>
           ))}
         </div>
         <div className="grid grid-cols-1 md:grid-cols-[minmax(0,1fr)_minmax(0,1fr)_minmax(0,1fr)] gap-2">
@@ -115,26 +115,26 @@ export function MemberAccessTab({ memberId, idNumber }: { memberId: string; idNu
         </div>
         {KIND_META[kind].biometric && (
           activeConsent(kind) ? (
-            <p className="text-xs text-emerald-600 flex items-center gap-1.5"><ShieldCheck className="h-3.5 w-3.5" /> Consentimiento biométrico ({kind === "face" ? "rostro" : "huella"}) firmado {formatTimeAgo(activeConsent(kind)!.signed_at)} · versión {activeConsent(kind)!.text_version}</p>
+            <p className="text-xs text-[var(--signal-ok)] flex items-center gap-1.5"><ShieldCheck className="h-3.5 w-3.5" /> Consentimiento biométrico ({kind === "face" ? "rostro" : "huella"}) firmado {formatTimeAgo(activeConsent(kind)!.signed_at)} · versión {activeConsent(kind)!.text_version}</p>
           ) : (
-            <label className="flex items-start gap-2 text-xs text-[var(--text-base)] rounded-lg border border-amber-200 bg-amber-50 dark:bg-amber-950/20 p-3">
+            <label className="flex items-start gap-2 text-xs text-[var(--text-base)] rounded-lg border border-[var(--signal-warn-line)] bg-[var(--signal-warn-bg)] p-3">
               <input type="checkbox" checked={consentChecked} onChange={(e) => setConsentChecked(e.target.checked)} className="mt-0.5 accent-[var(--color-primary)]" />
               <span>El socio autoriza de forma libre, expresa e informada el tratamiento de su dato biométrico ({kind === "face" ? "rostro" : "huella"}) únicamente para controlar su ingreso, sabe que es opcional (puede seguir entrando con cédula o carné) y que puede revocarlo cuando quiera. Leyó la <Link href="/tratamiento-datos#biometricos" target="_blank" className="underline">política de tratamiento de datos</Link>. Versión {data.consent_text_version}.</span>
             </label>
           )
         )}
-        <Button onClick={enroll} disabled={busy || !readerId.trim()} className="bg-[var(--color-primary)] text-[var(--color-primary-contrast)] font-semibold">{busy ? <Loader2 className="h-4 w-4 animate-spin" /> : `Enrolar ${KIND_META[kind].label.toLowerCase()}`}</Button>
+        <Button onClick={enroll} disabled={busy || !readerId.trim()}>{busy ? <Loader2 className="h-4 w-4 animate-spin" /> : `Enrolar ${KIND_META[kind].label.toLowerCase()}`}</Button>
         <p className="text-[11px] text-[var(--text-muted)]">Después de enrolar aquí, registra la huella o tarjeta en el equipo físico con el mismo ID. Si usas la cédula como ID no hay que mapear nada.</p>
       </div>
 
       {data.consents.length > 0 && (
         <div className="rounded-xl border border-[var(--border-base)] bg-[var(--bg-base)] p-4 space-y-2">
-          <p className="text-xs font-semibold uppercase tracking-wider text-[var(--text-muted)]">Consentimientos biométricos</p>
+          <p className="text-sm font-semibold text-[var(--text-base)]">Consentimientos biométricos</p>
           {data.consents.map((c) => (
             <div key={c.id} className="flex items-center gap-3 text-sm">
-              {c.revoked_at ? <ShieldOff className="h-4 w-4 text-[var(--text-muted)]" /> : <ShieldCheck className="h-4 w-4 text-emerald-600" />}
+              {c.revoked_at ? <ShieldOff className="h-4 w-4 text-[var(--text-muted)]" /> : <ShieldCheck className="h-4 w-4 text-[var(--signal-ok)]" />}
               <span className="flex-1 text-[var(--text-base)]">{c.kind === "face" ? "Rostro" : "Huella"} · firmado {formatTimeAgo(c.signed_at)} · v{c.text_version}{c.revoked_at ? ` · revocado ${formatTimeAgo(c.revoked_at)}` : ""}</span>
-              {!c.revoked_at && isOwnerOrAdmin && <button type="button" onClick={() => revokeConsent(c)} className="text-xs text-[var(--text-muted)] hover:text-red-500">Revocar</button>}
+              {!c.revoked_at && isOwnerOrAdmin && <button type="button" onClick={() => revokeConsent(c)} className="text-xs text-[var(--text-muted)] hover:text-[var(--signal-danger)]">Revocar</button>}
             </div>
           ))}
         </div>
@@ -142,9 +142,9 @@ export function MemberAccessTab({ memberId, idNumber }: { memberId: string; idNu
 
       {data.events.length > 0 && (
         <div className="rounded-xl border border-[var(--border-base)] bg-[var(--bg-base)] p-4 space-y-1.5">
-          <p className="text-xs font-semibold uppercase tracking-wider text-[var(--text-muted)]">Últimos intentos por dispositivo</p>
+          <p className="text-sm font-semibold text-[var(--text-base)]">Últimos intentos por dispositivo</p>
           {data.events.map((ev) => (
-            <p key={ev.id} className="text-sm text-[var(--text-muted)]"><span className={ev.decision === "denied" ? "text-red-500" : ev.decision === "not_found" ? "text-amber-600" : "text-emerald-600"}>{DECISION[ev.decision] ?? ev.decision}</span> · {ev.device_name ?? "dispositivo"} · {ev.direction === "exit" ? "salida" : "entrada"}{ev.offline ? " · offline" : ""} · {formatTimeAgo(ev.occurred_at)}</p>
+            <p key={ev.id} className="text-sm text-[var(--text-muted)]"><span className={ev.decision === "denied" ? "text-[var(--signal-danger)]" : ev.decision === "not_found" ? "text-[var(--signal-warn)]" : "text-[var(--signal-ok)]"}>{DECISION[ev.decision] ?? ev.decision}</span> · {ev.device_name ?? "dispositivo"} · {ev.direction === "exit" ? "salida" : "entrada"}{ev.offline ? " · offline" : ""} · {formatTimeAgo(ev.occurred_at)}</p>
           ))}
         </div>
       )}

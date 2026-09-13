@@ -5,7 +5,6 @@ import { useEffect, useMemo, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import axios from "axios";
-import { BrandMark } from "@/components/common/BrandMark";
 import { ExerciseFigure, youtubeSearchUrl } from "@/components/routines/ExerciseFigure";
 import { cn } from "@/lib/utils";
 import { ArrowLeft, ChevronRight, Dumbbell, Timer, AlertTriangle, PlayCircle } from "lucide-react";
@@ -18,6 +17,16 @@ interface Exercise { name_es: string; name_en: string; primary_muscles_es: strin
 interface DayEx { id: string; exercise_name: string; sets: number; reps: string; rest_seconds: number; notes: string | null; exercise: Exercise | null }
 interface Day { id: string; title: string; notes: string | null; exercises: DayEx[] }
 interface RoutineDetail extends RoutineCard { days: Day[] }
+
+/** La pantalla es una superficie oscura fija: el monograma va en claro. */
+function ScreenMark() {
+  return (
+    <span className="flex items-center gap-3">
+      <span aria-hidden="true" className="flex size-9 items-center justify-center rounded-md bg-white text-lg font-semibold text-[var(--kiosk-bg)]">F</span>
+      <span className="text-lg font-semibold text-white">FitConnect</span>
+    </span>
+  );
+}
 
 export default function ScreenClient() {
   const searchParams = useSearchParams();
@@ -70,9 +79,9 @@ export default function ScreenClient() {
 
   if (!token || invalid) {
     return (
-      <div className="min-h-screen bg-[#0f0d0b] text-white flex flex-col items-center justify-center gap-4 p-8 text-center">
-        <BrandMark />
-        <AlertTriangle className="h-10 w-10 text-amber-400" />
+      <div className="min-h-screen bg-[var(--kiosk-bg)] text-white flex flex-col items-center justify-center gap-4 p-8 text-center">
+        <ScreenMark />
+        <AlertTriangle className="h-10 w-10 text-white/70" />
         <p className="text-lg font-semibold">Esta pantalla no está vinculada al gym</p>
         <p className="text-sm text-white/60 max-w-md">Abre en este equipo el enlace que se genera en Ajustes › Dispositivos, creando uno de tipo Pantalla.</p>
       </div>
@@ -82,16 +91,16 @@ export default function ScreenClient() {
   const day = selected?.days[Math.min(dayIdx, (selected?.days.length ?? 1) - 1)];
 
   return (
-    <div className="min-h-screen bg-[#0f0d0b] text-white select-none">
+    <div className="min-h-screen bg-[var(--kiosk-bg)] text-white select-none">
       <header className="flex items-center justify-between px-6 py-4 border-b border-white/10">
         <div className="flex items-center gap-3">
           {selected ? (
             <button type="button" onClick={() => (focus ? setFocus(null) : setSelected(null))} className="flex items-center gap-2 text-white/80 hover:text-white text-lg"><ArrowLeft className="h-6 w-6" /> {focus ? selected.name : "Rutinas"}</button>
           ) : (
-            <BrandMark />
+            <ScreenMark />
           )}
         </div>
-        <p className="text-sm text-white/50 flex items-center gap-2"><Dumbbell className="h-4 w-4 text-[var(--color-primary)]" /> Toca una rutina para ver los ejercicios</p>
+        <p className="text-sm text-white/50 flex items-center gap-2"><Dumbbell className="h-4 w-4 text-[var(--brand-on-dark)]" /> Toca una rutina para ver los ejercicios</p>
       </header>
 
       <main className="p-6">
@@ -101,9 +110,9 @@ export default function ScreenClient() {
               {loading ? Array.from({ length: 3 }).map((_, i) => <div key={i} className="h-40 rounded-2xl bg-white/5 animate-pulse" />) : routines.length === 0 ? (
                 <p className="col-span-full text-center text-white/50 py-20 text-lg">Aún no hay rutinas publicadas en pantalla.</p>
               ) : routines.map((r) => (
-                <button key={r.id} type="button" onClick={() => open(r)} className="text-left rounded-2xl border border-white/10 bg-white/5 p-6 hover:border-[var(--color-primary)]/60 hover:bg-white/10 transition-colors active:scale-[0.99]">
-                  <p className="text-xs uppercase tracking-wider text-[var(--color-primary)] font-bold">{r.goal_label ?? "Rutina"} · {r.level_es}</p>
-                  <h2 className="text-2xl font-extrabold mt-1">{r.name}</h2>
+                <button key={r.id} type="button" onClick={() => open(r)} className="text-left rounded-2xl border border-white/10 bg-white/5 p-6 hover:border-white/30 hover:bg-white/10 transition-colors active:scale-[0.99]">
+                  <p className="text-sm font-medium text-[var(--brand-on-dark)]">{r.goal_label ?? "Rutina"} · {r.level_es}</p>
+                  <h2 className="text-2xl font-semibold mt-1">{r.name}</h2>
                   {r.description && <p className="text-sm text-white/60 mt-2 line-clamp-2">{r.description}</p>}
                   <p className="text-sm text-white/50 mt-4 flex items-center gap-1.5">{r.days_per_week} día{r.days_per_week === 1 ? "" : "s"} por semana <ChevronRight className="h-4 w-4" /></p>
                 </button>
@@ -116,15 +125,15 @@ export default function ScreenClient() {
               </div>
               <div className="space-y-5">
                 <div>
-                  <p className="text-sm uppercase tracking-wider text-[var(--color-primary)] font-bold">{focus.exercise?.primary_muscles_es.join(" · ")} · {focus.exercise?.equipment_es}</p>
-                  <h2 className="text-4xl font-extrabold mt-1">{focus.exercise_name}</h2>
+                  <p className="text-base font-medium text-[var(--brand-on-dark)]">{focus.exercise?.primary_muscles_es.join(" · ")} · {focus.exercise?.equipment_es}</p>
+                  <h2 className="text-4xl font-semibold mt-1">{focus.exercise_name}</h2>
                 </div>
                 <div className="grid grid-cols-3 gap-3">
                   {[["Series", String(focus.sets)], ["Reps", focus.reps], ["Descanso", `${focus.rest_seconds}s`]].map(([l, v]) => (
-                    <div key={l} className="rounded-2xl bg-white/5 border border-white/10 p-4 text-center"><p className="text-xs text-white/50 uppercase">{l}</p><p className="text-3xl font-extrabold font-mono">{v}</p></div>
+                    <div key={l} className="rounded-2xl bg-white/5 border border-white/10 p-4 text-center"><p className="text-sm text-white/60">{l}</p><p className="text-3xl font-semibold font-mono">{v}</p></div>
                   ))}
                 </div>
-                {focus.notes && <p className="text-lg text-[var(--color-primary)]">{focus.notes}</p>}
+                {focus.notes && <p className="text-lg text-[var(--brand-on-dark)]">{focus.notes}</p>}
                 {focus.exercise && (
                   <ol className="list-decimal pl-6 space-y-2 text-lg text-white/85 max-h-64 overflow-y-auto">
                     {focus.exercise.instructions.map((s, i) => <li key={i}>{s}</li>)}
@@ -135,7 +144,7 @@ export default function ScreenClient() {
                     href={youtubeSearchUrl(focus.exercise_name)}
                     target="_blank"
                     rel="noreferrer"
-                    className="inline-flex items-center gap-2 rounded-xl border border-white/20 px-4 py-2 text-white/80 hover:text-white hover:border-[var(--color-primary)]/60"
+                    className="inline-flex items-center gap-2 rounded-xl border border-white/20 px-4 py-2 text-white/80 hover:text-white hover:border-white/30"
                   >
                     <PlayCircle className="h-4 w-4" /> Ver en video
                   </a>
@@ -151,24 +160,24 @@ export default function ScreenClient() {
           ) : (
             <motion.div key="routine" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="space-y-5">
               <div>
-                <h2 className="text-3xl font-extrabold">{selected.name}</h2>
+                <h2 className="text-3xl font-semibold">{selected.name}</h2>
                 {selected.description && <p className="text-white/60 mt-1">{selected.description}</p>}
               </div>
               <div className="flex gap-2 flex-wrap">
                 {selected.days.map((d, i) => (
-                  <button key={d.id} type="button" onClick={() => setDayIdx(i)} className={cn("rounded-xl px-5 py-2.5 text-lg font-semibold border transition-colors", i === dayIdx ? "bg-[var(--color-primary)] text-[var(--color-primary-contrast)] border-transparent" : "border-white/15 text-white/70 hover:text-white")}>{d.title}</button>
+                  <button key={d.id} type="button" onClick={() => setDayIdx(i)} className={cn("rounded-xl px-5 py-2.5 text-lg font-semibold border transition-colors", i === dayIdx ? "bg-[var(--brand-on-dark)] text-[var(--kiosk-bg)] border-transparent" : "border-white/15 text-white/70 hover:text-white")}>{d.title}</button>
                 ))}
               </div>
               {day?.notes && <p className="text-white/60">{day.notes}</p>}
               <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
                 {day?.exercises.map((ex, i) => (
-                  <button key={ex.id} type="button" onClick={() => setFocus(ex)} className="text-left flex items-center gap-4 rounded-2xl border border-white/10 bg-white/5 p-4 hover:border-[var(--color-primary)]/60 transition-colors active:scale-[0.99]">
+                  <button key={ex.id} type="button" onClick={() => setFocus(ex)} className="text-left flex items-center gap-4 rounded-2xl border border-white/10 bg-white/5 p-4 hover:border-white/30 transition-colors active:scale-[0.99]">
                     <span className="text-white/40 font-bold text-xl w-6">{i + 1}</span>
                     <ExerciseFigure images={ex.exercise?.images ?? []} videoUrl={ex.exercise?.video_url} alt={ex.exercise_name} size="md" />
                     <div className="min-w-0 flex-1">
                       <p className="text-lg font-bold leading-tight line-clamp-2">{ex.exercise_name}</p>
                       <p className="text-sm text-white/60">{ex.sets} × {ex.reps} <span className="inline-flex items-center gap-1 ml-2"><Timer className="h-3.5 w-3.5" />{ex.rest_seconds}s</span></p>
-                      {ex.notes && <p className="text-xs text-[var(--color-primary)] line-clamp-1">{ex.notes}</p>}
+                      {ex.notes && <p className="text-xs text-[var(--brand-on-dark)] line-clamp-1">{ex.notes}</p>}
                     </div>
                     <ChevronRight className="h-5 w-5 text-white/40 shrink-0" />
                   </button>

@@ -96,6 +96,14 @@
   /* Marca sobre superficies oscuras fijas (kiosko, pantalla del gym). */
   --brand-on-dark: oklch(0.760 0.100 172);
 
+  /* Superficies FIJAS del kiosko y la pantalla del gym: no siguen el tema
+     porque se leen a metros de distancia en una tablet o un televisor. El
+     texto encima es siempre blanco; check-contrast mide cada par. */
+  --kiosk-bg: oklch(0.215 0.004 100);
+  --kiosk-ok: oklch(0.460 0.110 150);
+  --kiosk-warn: oklch(0.470 0.100 65);
+  --kiosk-danger: oklch(0.480 0.170 28);
+
   --color-primary: var(--brand);
   --color-primary-hover: var(--brand-hover);
   --color-primary-muted: var(--brand-muted);

@@ -18,7 +18,7 @@ export const viewport: Viewport = {
 
 export default function KioskPage() {
   return (
-    <Suspense fallback={<div className="min-h-screen bg-[#0f0d0b]" />}>
+    <Suspense fallback={<div className="min-h-screen bg-[var(--kiosk-bg)]" />}>
       <KioskClient />
     </Suspense>
   );

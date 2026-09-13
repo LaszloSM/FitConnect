@@ -174,6 +174,26 @@ for (const [token, min, label] of [
   if (!ok || showAll) rows.push({ theme: "fija", label, ratio, min, ok });
 }
 
+// El resultado del kiosko pinta texto blanco sobre un relleno de estado que
+// se lee a distancia: con amber-500 daba menos de 2:1.
+const WHITE = [1, 1, 1];
+for (const [token, label] of [
+  ["--kiosk-bg", "texto blanco sobre el fondo del kiosko"],
+  ["--kiosk-ok", "texto blanco sobre el verde del kiosko"],
+  ["--kiosk-warn", "texto blanco sobre el ámbar del kiosko"],
+  ["--kiosk-danger", "texto blanco sobre el rojo del kiosko"],
+]) {
+  if (!light[token]) {
+    rows.push({ theme: "fija", label, ratio: null, min: 4.5, ok: false, missing: token });
+    failures += 1;
+    continue;
+  }
+  const ratio = contrast(WHITE, light[token]);
+  const ok = ratio >= 4.5;
+  if (!ok) failures += 1;
+  if (!ok || showAll) rows.push({ theme: "fija", label, ratio, min: 4.5, ok });
+}
+
 for (const [theme, tokens] of [["claro", light], ["oscuro", dark]]) {
   const checks = [
     ...PAIRS,

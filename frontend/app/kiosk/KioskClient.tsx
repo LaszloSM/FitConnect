@@ -7,8 +7,6 @@ import { motion, AnimatePresence } from "framer-motion";
 import axios from "axios";
 import { NumericKeypad } from "@/components/kiosk/NumericKeypad";
 import { QrScanner } from "@/components/common/QrScanner";
-import { BrandMark } from "@/components/common/BrandMark";
-import { cn } from "@/lib/utils";
 import { CalendarClock, CheckCircle2, Loader2, QrCode, XCircle, AlertTriangle, Keyboard } from "lucide-react";
 
 const TOKEN_KEY = "fitconnect_kiosk_token";
@@ -25,11 +23,23 @@ interface KioskResult {
 
 type Mode = "keypad" | "qr";
 
-function resultTone(r: KioskResult): "green" | "amber" | "red" {
-  if (r.decision === "allowed")
-    return r.membership_status === "in_grace" ? "amber" : "green";
-  if (r.decision === "duplicate") return "amber";
-  return "red";
+function resultTone(r: KioskResult): "ok" | "warn" | "danger" {
+  if (r.decision === "allowed") return r.membership_status === "in_grace" ? "warn" : "ok";
+  if (r.decision === "duplicate") return "warn";
+  return "danger";
+}
+
+/** Marca del kiosko: el kiosko es una superficie oscura fija, así que el
+ *  monograma va en claro (el BrandMark del producto sigue el tema). */
+function KioskMark() {
+  return (
+    <span
+      aria-hidden="true"
+      className="flex size-9 items-center justify-center rounded-md bg-white text-lg font-semibold text-[var(--kiosk-bg)]"
+    >
+      F
+    </span>
+  );
 }
 
 export default function KioskClient() {
@@ -133,63 +143,61 @@ export default function KioskClient() {
 
   if (!token || invalidDevice) {
     return (
-      <div className="min-h-screen bg-[#0f0d0b] flex flex-col items-center justify-center gap-4 p-8 text-center">
-        <BrandMark className="h-12 w-12" />
-        <h1 className="text-white text-2xl font-bold">
-          {invalidDevice ? "Dispositivo revocado" : "Kiosko sin configurar"}
+      <div className="flex min-h-dvh flex-col items-center justify-center gap-4 bg-[var(--kiosk-bg)] p-8 text-center">
+        <KioskMark />
+        <h1 className="text-2xl font-semibold text-white">
+          {invalidDevice ? "Este kiosko fue desactivado" : "Kiosko sin configurar"}
         </h1>
-        <p className="text-white/60 max-w-sm">
+        <p className="max-w-sm text-white/70">
           {invalidDevice
-            ? "Este dispositivo fue desactivado. Genera un nuevo enlace en Configuración → Kiosko."
-            : "Abre en esta tablet el enlace que genera el panel en Configuración → Dispositivos kiosko."}
+            ? "Genera un enlace nuevo en Configuración → Dispositivos y ábrelo en esta tablet."
+            : "Abre en esta tablet el enlace que genera el panel en Configuración → Dispositivos."}
         </p>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-[#0f0d0b] flex flex-col p-6 select-none overflow-hidden relative">
-      {/* Glow Volt de fondo */}
-      <div
-        className="pointer-events-none absolute -top-40 left-1/2 -translate-x-1/2 h-96 w-[40rem] rounded-full opacity-20 blur-3xl"
-        style={{ background: "var(--color-primary)" }}
-      />
-
+    <div className="relative flex min-h-dvh select-none flex-col overflow-hidden bg-[var(--kiosk-bg)] p-6">
       <header className="flex items-center justify-between">
         <div className="flex items-center gap-3">
-          <BrandMark className="h-9 w-9" />
-          <span className="text-white font-bold text-lg">FitConnect</span>
+          <KioskMark />
+          <span className="text-lg font-semibold text-white">FitConnect</span>
         </div>
-        {deviceName && <span className="text-white/40 text-sm">{deviceName}</span>}
+        {deviceName && <span className="text-sm text-white/60">{deviceName}</span>}
       </header>
 
-      <main className="flex-1 flex flex-col items-center justify-center gap-6 relative">
+      <main className="relative flex flex-1 flex-col items-center justify-center gap-6">
         <AnimatePresence mode="wait">
           {result ? (
             <ResultScreen key="result" result={result} onDismiss={() => setResult(null)} />
           ) : (
             <motion.div
               key="input"
-              initial={{ opacity: 0, scale: 0.97 }}
-              animate={{ opacity: 1, scale: 1 }}
-              exit={{ opacity: 0, scale: 0.97 }}
-              transition={{ duration: 0.25 }}
-              className="w-full max-w-md flex flex-col items-center gap-6"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.2 }}
+              className="flex w-full max-w-md flex-col items-center gap-6"
             >
-              <div className="text-center space-y-1">
-                <h1 className="text-white text-3xl sm:text-4xl font-extrabold">
-                  {mode === "keypad" ? "Digita tu cédula" : "Escanea tu carnet"}
+              <div className="space-y-1 text-center">
+                <h1 className="text-3xl font-semibold tracking-tight text-white sm:text-4xl">
+                  {mode === "keypad" ? "Digita tu cédula" : "Escanea tu carné"}
                 </h1>
-                <p className="text-white/50">
+                <p className="text-lg text-white/70">
                   {mode === "keypad" ? "y presiona Entrar" : "Acerca el código QR a la cámara"}
                 </p>
               </div>
 
               {mode === "keypad" ? (
                 <>
-                  <div className="h-16 w-full max-w-sm rounded-2xl border border-white/15 bg-white/5 flex items-center justify-center">
-                    <span className="text-white text-3xl font-mono tracking-[0.3em]">
-                      {cedula || <span className="text-white/25 tracking-normal text-xl">———</span>}
+                  <div
+                    className="flex h-16 w-full max-w-sm items-center justify-center rounded-[var(--radius-xl)] border border-white/20 bg-white/5"
+                    aria-live="polite"
+                    aria-label={cedula ? `Cédula digitada: ${cedula.split("").join(" ")}` : "Sin cédula digitada"}
+                  >
+                    <span className="font-mono text-3xl tracking-[0.25em] text-white tabular-nums">
+                      {cedula || <span className="text-xl tracking-normal text-white/40">Sin digitar</span>}
                     </span>
                   </div>
                   <NumericKeypad
@@ -202,13 +210,13 @@ export default function KioskClient() {
                     type="button"
                     disabled={cedula.length < 3 || submitting}
                     onClick={() => void submit({ id_number: cedula })}
-                    className="w-full max-w-sm h-16 rounded-2xl bg-[var(--color-primary)] text-[var(--color-primary-contrast)] text-2xl font-extrabold transition-transform active:scale-95 disabled:opacity-40 flex items-center justify-center gap-2"
+                    className="flex h-16 w-full max-w-sm items-center justify-center gap-2 rounded-[var(--radius-xl)] bg-[var(--brand-on-dark)] text-2xl font-semibold text-[var(--kiosk-bg)] transition-transform duration-150 active:scale-[0.97] disabled:opacity-40"
                   >
-                    {submitting ? <Loader2 className="h-7 w-7 animate-spin" /> : "Entrar"}
+                    {submitting ? <Loader2 className="size-7 animate-spin" /> : "Entrar"}
                   </button>
                 </>
               ) : (
-                <div className="w-full max-w-sm rounded-2xl overflow-hidden border border-white/15">
+                <div className="w-full max-w-sm overflow-hidden rounded-[var(--radius-xl)] border border-white/20">
                   <QrScanner onDecode={(code) => void submit({ qr_code: code })} paused={submitting} />
                 </div>
               )}
@@ -216,10 +224,10 @@ export default function KioskClient() {
               <button
                 type="button"
                 onClick={() => setMode(mode === "keypad" ? "qr" : "keypad")}
-                className="flex items-center gap-2 text-white/50 hover:text-white text-sm transition-colors"
+                className="flex h-11 items-center gap-2 rounded-[var(--radius-md)] px-4 text-base text-white/70 transition-colors hover:bg-white/10 hover:text-white"
               >
-                {mode === "keypad" ? <QrCode className="h-4 w-4" /> : <Keyboard className="h-4 w-4" />}
-                {mode === "keypad" ? "Usar carnet QR" : "Usar cédula"}
+                {mode === "keypad" ? <QrCode className="size-5" /> : <Keyboard className="size-5" />}
+                {mode === "keypad" ? "Usar carné QR" : "Usar cédula"}
               </button>
             </motion.div>
           )}
@@ -232,9 +240,9 @@ export default function KioskClient() {
 function ResultScreen({ result, onDismiss }: { result: KioskResult; onDismiss: () => void }) {
   const tone = resultTone(result);
   const palette = {
-    green: { bg: "bg-emerald-500", icon: CheckCircle2, label: "SIGA" },
-    amber: { bg: "bg-amber-500", icon: AlertTriangle, label: "SIGA — RECUERDE PAGAR" },
-    red: { bg: "bg-red-600", icon: XCircle, label: "DIRÍJASE A RECEPCIÓN" },
+    ok: { icon: CheckCircle2, label: "Siga" },
+    warn: { icon: AlertTriangle, label: "Siga, y recuerde pagar" },
+    danger: { icon: XCircle, label: "Diríjase a recepción" },
   }[tone];
   const Icon = palette.icon;
 
@@ -242,30 +250,26 @@ function ResultScreen({ result, onDismiss }: { result: KioskResult; onDismiss: (
     <motion.button
       type="button"
       onClick={onDismiss}
-      initial={{ opacity: 0, scale: 0.9 }}
+      initial={{ opacity: 0, scale: 0.96 }}
       animate={{ opacity: 1, scale: 1 }}
-      exit={{ opacity: 0, scale: 0.95 }}
-      transition={{ type: "spring", stiffness: 300, damping: 25 }}
-      className={cn(
-        "w-full max-w-lg rounded-3xl p-10 flex flex-col items-center gap-4 text-white text-center",
-        palette.bg
-      )}
+      exit={{ opacity: 0, scale: 0.98 }}
+      transition={{ duration: 0.22, ease: [0.23, 1, 0.32, 1] }}
+      role="status"
+      aria-live="assertive"
+      className="flex w-full max-w-lg flex-col items-center gap-4 rounded-[28px] p-10 text-center text-white"
+      style={{ background: `var(--kiosk-${tone})` }}
     >
       {result.photo_url ? (
         // eslint-disable-next-line @next/next/no-img-element
-        <img
-          src={result.photo_url}
-          alt=""
-          className="h-24 w-24 rounded-full object-cover border-4 border-white/40"
-        />
+        <img src={result.photo_url} alt="" className="size-24 rounded-full border-4 border-white/40 object-cover" />
       ) : (
-        <Icon className="h-20 w-20" strokeWidth={1.8} />
+        <Icon className="size-20" strokeWidth={1.8} aria-hidden="true" />
       )}
-      <p className="text-3xl sm:text-4xl font-extrabold leading-tight">{palette.label}</p>
-      <p className="text-lg sm:text-xl font-medium opacity-95">{result.message}</p>
+      <p className="text-4xl font-semibold leading-tight tracking-tight sm:text-5xl">{palette.label}</p>
+      <p className="text-xl font-medium opacity-95">{result.message}</p>
       {result.upcoming_class && (
-        <p className="flex items-center gap-2 text-base bg-black/20 rounded-full px-4 py-1.5">
-          <CalendarClock className="h-4 w-4" />
+        <p className="flex items-center gap-2 rounded-full bg-black/20 px-4 py-1.5 text-base">
+          <CalendarClock className="size-4" aria-hidden="true" />
           {result.upcoming_class.class_name} · {result.upcoming_class.start_time}
         </p>
       )}

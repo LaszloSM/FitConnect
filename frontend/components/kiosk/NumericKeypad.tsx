@@ -31,11 +31,11 @@ export function NumericKeypad({
               else onDigit(key);
             }}
             className={cn(
-              "h-16 sm:h-20 rounded-2xl text-2xl sm:text-3xl font-bold transition-transform select-none",
-              "active:scale-95 disabled:opacity-40",
+              "h-16 sm:h-20 rounded-[var(--radius-xl)] font-mono text-2xl sm:text-3xl font-medium tabular-nums transition-transform duration-150 select-none",
+              "active:scale-[0.97] disabled:opacity-40",
               isDigit
                 ? "bg-white/10 text-white hover:bg-white/15 border border-white/10"
-                : "bg-white/5 text-white/70 hover:bg-white/10 border border-white/5 text-base sm:text-lg"
+                : "bg-white/5 text-white/70 hover:bg-white/10 border border-white/5 font-sans text-base sm:text-lg"
             )}
           >
             {key === "clear" ? "Borrar" : key === "back" ? <Delete className="h-7 w-7 mx-auto" /> : key}
