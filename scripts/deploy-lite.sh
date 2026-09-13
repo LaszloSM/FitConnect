@@ -84,6 +84,8 @@ step "8/9 Alinear tenant DBs e importar la biblioteca de ejercicios"
 # Las tenant DBs se bootstrapean con create_all + stamp head: las migraciones
 # nuevas (j5 rutinas, j6 acceso) solo llegan por el aligner.
 $SSH "cd $REMOTE_DIR && docker compose exec -T backend python migrate_tenants.py"
+# Idempotente: pasa las áreas de máquinas guardadas como etiqueta a slug estable.
+$SSH "cd $REMOTE_DIR && docker compose exec -T -e PYTHONIOENCODING=utf-8 backend python scripts/migrate_machine_areas.py"
 if [ "$SKIP_ASSETS" != "1" ]; then
   # Descarga el dataset de free-exercise-db desde el contenedor (876 ejercicios, idempotente)
   $SSH "cd $REMOTE_DIR && docker compose exec -T backend python scripts/import_exercises.py"
@@ -92,7 +94,7 @@ fi
 step "9/9 Verificación"
 printf '  %-28s %s\n' "health"   "$(curl -s -m 15 -o /dev/null -w '%{http_code}' "http://$PUBLIC_IP/health")"
 printf '  %-28s %s\n' "frontend" "$(curl -s -m 15 -o /dev/null -w '%{http_code}' "http://$PUBLIC_IP/")"
-for r in day-passes/types products/categories insights/peak-hours exercises/facets routines access/events/recent; do
+for r in day-passes/types products/categories insights/peak-hours insights/models insights/segments cash/differences machines/calendar exercises/facets routines access/events/recent; do
   printf '  %-28s %s\n' "$r" "$(curl -s -m 15 -o /dev/null -w '%{http_code}' "http://$PUBLIC_IP/api/v1/$r")"
 done
 echo "  (401/403 = desplegado y pidiendo login · 404 = no llegó)"
