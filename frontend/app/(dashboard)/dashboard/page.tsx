@@ -15,6 +15,7 @@ import { InsightsStrip } from "@/components/dashboard/InsightsStrip";
 import { LiveEntries, useLiveEntries } from "@/components/dashboard/LiveNowStrip";
 import { Panel, PanelNote, PanelRow } from "@/components/dashboard/Panel";
 import { useDashboardData } from "@/hooks/useDashboardData";
+import { P, useCan } from "@/lib/permissions";
 import { formatCOP, gymHour, todayInGym } from "@/lib/format";
 import { cn } from "@/lib/utils";
 import { AlertCircle, Clock, Ticket, UserPlus, Zap } from "lucide-react";
@@ -106,6 +107,9 @@ function DashboardSkeleton() {
 
 export default function DashboardPage() {
   const { data, loading, error } = useDashboardData();
+  const { can } = useCan();
+  // Recepción cobra pero no ve la plata del día: sin payments.read no se pinta.
+  const canMoney = can(P.PAYMENTS_READ);
   const { data: session, status } = useSession();
   const router = useRouter();
   const rol = session?.role;
@@ -166,21 +170,21 @@ export default function DashboardPage() {
       <section
         aria-label="Cifras de hoy"
         data-tour="live-now"
-        className="grid grid-cols-2 divide-line overflow-hidden rounded-[var(--radius-lg)] border border-line bg-panel max-md:[&>*:nth-child(-n+2)]:border-b max-md:[&>*:nth-child(odd)]:border-r md:grid-cols-4 md:divide-x"
+        className={cn("grid grid-cols-2 divide-line overflow-hidden rounded-[var(--radius-lg)] border border-line bg-panel md:divide-x", canMoney ? "max-md:[&>*:nth-child(-n+2)]:border-b max-md:[&>*:nth-child(odd)]:border-r md:grid-cols-4" : "divide-x")}
       >
         <Figure
           label="Entradas hoy"
           value={String(allowedToday)}
-          detail={`${kpis?.expiring_memberships_7d ?? 0} vencen esta semana`}
+          detail={kpis ? `${kpis.expiring_memberships_7d} vencen esta semana` : ""}
           href="/checkins"
         />
-        <Figure
+        {canMoney && <Figure
           label="Caja de hoy"
           value={formatCOP(cash?.total ?? 0)}
           detail={cash ? `${cash.count} cobro${cash.count === 1 ? "" : "s"}` : ""}
           href="/payments/cash"
           failed={failed.has("cash")}
-        />
+        />}
         <Figure
           label="Por confirmar"
           value={formatCOP(pendingTotal)}
@@ -189,13 +193,13 @@ export default function DashboardPage() {
           failed={failed.has("pendingTransfers")}
           tone={pendingTransfers.length ? "warn" : undefined}
         />
-        <Figure
+        {canMoney && <Figure
           label="Por cobrar"
           value={formatCOP(receivableTotal)}
           detail={`${receivables.length} socio${receivables.length === 1 ? "" : "s"} con saldo`}
           href="/payments?tab=receivables"
           failed={failed.has("receivables")}
-        />
+        />}
       </section>
 
       <div className="grid items-start gap-4 lg:grid-cols-[minmax(0,1.55fr)_minmax(0,1fr)]">
@@ -210,8 +214,9 @@ export default function DashboardPage() {
         <div className="space-y-4">
           <ExpiringPanel data={failed.has("operations") ? null : data.operations} />
 
-          <Panel title="Caja del día" action={{ href: "/payments/cash", label: "Ver caja" }}>
-            {failed.has("cash") ? (
+          {(canMoney || pendingTransfers.length > 0) && (
+          <Panel title={canMoney ? "Caja del día" : "Transferencias por confirmar"} action={canMoney ? { href: "/payments/cash", label: "Ver caja" } : undefined}>
+            {!canMoney ? null : failed.has("cash") ? (
               <PanelNote tone="warn">No se pudo cargar.</PanelNote>
             ) : methods.length === 0 ? (
               <PanelNote>Aún no hay cobros hoy.</PanelNote>
@@ -233,8 +238,8 @@ export default function DashboardPage() {
               </dl>
             )}
             {pendingTransfers.length > 0 && !failed.has("pendingTransfers") && (
-              <div className="border-t border-line">
-                <p className="px-4 pt-3 text-xs font-medium text-ink-muted">Transferencias por confirmar</p>
+              <div className={canMoney ? "border-t border-line" : ""}>
+                {canMoney && <p className="px-4 pt-3 text-xs font-medium text-ink-muted">Transferencias por confirmar</p>}
                 <ul>
                   {pendingTransfers.slice(0, 4).map((p) => (
                     <PanelRow key={p.id} className="min-h-10 py-1.5">
@@ -250,6 +255,7 @@ export default function DashboardPage() {
               </div>
             )}
           </Panel>
+          )}
 
           <OperationsStatus
             shift={data.shift}

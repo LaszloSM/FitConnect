@@ -62,9 +62,9 @@ export const staffGroups: NavGroup[] = [
   {
     label: "Negocio",
     items: [
-      { href: "/payments", label: "Caja y pagos", icon: CreditCard },
-      { href: "/plans", label: "Planes", icon: Tag },
-      { href: "/machines", label: "Máquinas", icon: Wrench },
+      { href: "/payments", label: "Caja y pagos", icon: CreditCard, needs: P.PAYMENTS_WRITE },
+      { href: "/plans", label: "Planes", icon: Tag, needs: P.PLANS_READ },
+      { href: "/machines", label: "Máquinas", icon: Wrench, needs: P.MACHINES_READ },
       { href: "/reports", label: "Reportes", icon: BarChart3, needs: P.REPORTS_READ },
     ],
   },

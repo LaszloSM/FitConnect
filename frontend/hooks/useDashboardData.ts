@@ -97,11 +97,20 @@ export function useDashboardData() {
     const client = apiClient(token);
     const failed = new Set<keyof DashboardData>();
 
+    // Lo que el rol no puede ver ni se pide: un 403 esperado no es un fallo, y
+    // marcarlo así pintaba "No se pudo cargar" en el panel de recepción.
+    const granted: string[] = session?.permissions ?? [];
+    const NEEDS: Partial<Record<keyof DashboardData, string>> = {
+      cash: "payments.read",
+      receivables: "payments.read",
+      birthdaysToday: "reports.read",
+    };
+
     // Cada fuente cae a su propio vacío y deja constancia de que falló.
     const pull = <K extends keyof DashboardData, T>(
       key: K, url: string, fallback: T, params?: object
     ): Promise<T> =>
-      client
+      NEEDS[key] && !granted.includes(NEEDS[key]!) ? Promise.resolve(fallback) : client
         .get(url, { signal: controller.signal, ...(params ? { params } : {}) })
         .then((r) => r.data as T)
         .catch((err) => {
