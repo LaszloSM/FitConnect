@@ -46,10 +46,10 @@ const KINDS: { key: DeviceKind; label: string; hint: string; icon: React.ReactNo
 ];
 const KIND_BY_KEY = Object.fromEntries(KINDS.map((k) => [k.key, k])) as Record<DeviceKind, (typeof KINDS)[number]>;
 const DECISION_LABEL: Record<string, { label: string; tone: string }> = {
-  allowed: { label: "Permitido", tone: "text-emerald-600" },
-  duplicate: { label: "Reingreso", tone: "text-emerald-600" },
-  denied: { label: "Denegado", tone: "text-red-500" },
-  not_found: { label: "No reconocido", tone: "text-amber-600" },
+  allowed: { label: "Permitido", tone: "text-[var(--signal-ok)]" },
+  duplicate: { label: "Reingreso", tone: "text-[var(--signal-ok)]" },
+  denied: { label: "Denegado", tone: "text-[var(--signal-danger)]" },
+  not_found: { label: "No reconocido", tone: "text-[var(--signal-warn)]" },
 };
 const CRED_LABEL: Record<string, string> = { id_number: "Cédula", qr: "Carné QR", fingerprint: "Huella", face: "Rostro", card: "Tarjeta", pin: "PIN" };
 
@@ -132,9 +132,10 @@ export default function KioskSection() {
     }
   };
 
+  const [armedDevice, setArmedDevice] = useState<string | null>(null);
   const revoke = async (device: KioskDevice) => {
+    setArmedDevice(null);
     if (!session?.accessToken) return;
-    if (!window.confirm(`¿Revocar "${device.name}"? El equipo dejará de poder verificar accesos.`)) return;
     try {
       await client().delete(`/api/v1/kiosk/devices/${device.id}`);
       toast.success(`${device.name} revocado`);
@@ -238,7 +239,7 @@ export default function KioskSection() {
                   {renamingId === d.id ? (
                     <div className="flex items-center gap-1.5">
                       <Input value={renameValue} onChange={(e) => setRenameValue(e.target.value)} onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); void saveRename(d); } if (e.key === "Escape") setRenamingId(null); }} autoFocus className="h-7 text-sm bg-[var(--bg-input)] border-[var(--border-base)]" />
-                      <button onClick={() => saveRename(d)} disabled={busyId === d.id} className="h-7 w-7 rounded-lg flex items-center justify-center text-emerald-600 hover:bg-emerald-50 dark:hover:bg-emerald-950/30 shrink-0" title="Guardar"><Check className="h-4 w-4" /></button>
+                      <button onClick={() => saveRename(d)} disabled={busyId === d.id} className="h-7 w-7 rounded-lg flex items-center justify-center text-[var(--signal-ok)] hover:bg-[var(--signal-ok-bg)] shrink-0" title="Guardar"><Check className="h-4 w-4" /></button>
                       <button onClick={() => setRenamingId(null)} className="h-7 w-7 rounded-lg flex items-center justify-center text-[var(--text-muted)] hover:bg-[var(--bg-muted)] shrink-0" title="Cancelar"><X className="h-4 w-4" /></button>
                     </div>
                   ) : (
@@ -262,7 +263,14 @@ export default function KioskSection() {
                       {busyId === d.id ? <Loader2 className="h-4 w-4 animate-spin" /> : <Link2 className="h-4 w-4" />}
                     </button>
                     <button onClick={() => { setRenamingId(d.id); setRenameValue(d.name); }} title="Renombrar" className="h-8 w-8 rounded-lg flex items-center justify-center text-[var(--text-muted)] hover:text-[var(--text-base)] hover:bg-[var(--bg-muted)] transition-colors"><Pencil className="h-4 w-4" /></button>
-                    <button onClick={() => revoke(d)} title="Revocar acceso" className="h-8 w-8 rounded-lg flex items-center justify-center text-[var(--text-muted)] hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-950/30 transition-colors"><ShieldOff className="h-4 w-4" /></button>
+                    {armedDevice === d.id ? (
+                      <span className="flex items-center gap-1" title="El equipo dejará de poder verificar accesos">
+                        <Button type="button" variant="destructive" onClick={() => revoke(d)} className="h-8 text-xs">Revocar</Button>
+                        <Button type="button" variant="ghost" onClick={() => setArmedDevice(null)} className="h-8 text-xs">No</Button>
+                      </span>
+                    ) : (
+                      <button onClick={() => setArmedDevice(d.id)} title="Revocar acceso" aria-label={`Revocar ${d.name}`} className="h-8 w-8 rounded-lg flex items-center justify-center text-[var(--text-muted)] hover:text-[var(--signal-danger)] hover:bg-[var(--signal-danger-bg)] transition-colors"><ShieldOff className="h-4 w-4" /></button>
+                    )}
                   </div>
                 )}
               </div>

@@ -173,9 +173,9 @@ export default function GymSection() {
   return (
     <GlassCard className="p-6 space-y-8">
       {!isOwner && (
-        <div className="flex items-center gap-2 mb-5 px-3 py-2.5 bg-amber-50 dark:bg-amber-950/20 border border-amber-200 dark:border-amber-900/40 rounded-lg">
-          <Lock className="h-4 w-4 text-amber-500 shrink-0" aria-hidden="true" />
-          <p className="text-sm text-amber-700 dark:text-amber-400">
+        <div className="flex items-center gap-2 mb-5 px-3 py-2.5 bg-[var(--signal-warn-bg)] border border-[var(--signal-warn-line)] rounded-lg">
+          <Lock className="h-4 w-4 text-[var(--signal-warn)] shrink-0" aria-hidden="true" />
+          <p className="text-sm text-[var(--text-base)]">
             Solo el propietario puede editar los datos del gimnasio.
           </p>
         </div>

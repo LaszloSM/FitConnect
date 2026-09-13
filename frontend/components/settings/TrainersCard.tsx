@@ -165,7 +165,7 @@ export function TrainersCard({ onChanged }: { onChanged?: () => void }) {
               className="group rounded-xl border border-[var(--border-base)] bg-[var(--bg-base)] p-3"
             >
               <div className="flex items-start gap-2.5">
-                <span className="h-10 w-10 rounded-full bg-violet-100 dark:bg-violet-950/40 text-violet-600 dark:text-violet-400 flex items-center justify-center text-sm font-bold shrink-0">
+                <span className="h-10 w-10 rounded-full bg-muted text-ink flex items-center justify-center text-sm font-bold shrink-0">
                   {i.full_name.split(" ").map((p) => p[0]).slice(0, 2).join("")}
                 </span>
                 <div className="min-w-0 flex-1">
@@ -203,7 +203,7 @@ export function TrainersCard({ onChanged }: { onChanged?: () => void }) {
                     <button
                       onClick={() => archive(i)}
                       title="Archivar"
-                      className="h-6 w-6 rounded-md flex items-center justify-center text-[var(--text-muted)] hover:text-red-500"
+                      className="h-6 w-6 rounded-md flex items-center justify-center text-[var(--text-muted)] hover:text-[var(--signal-danger)]"
                     >
                       <Archive className="h-3 w-3" />
                     </button>

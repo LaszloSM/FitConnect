@@ -122,7 +122,7 @@ export default function DayPassSection() {
               type="button"
               title="Archivar"
               onClick={() => archive(t)}
-              className="h-7 w-7 rounded-lg flex items-center justify-center text-[var(--text-muted)] hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-950/30 transition-colors"
+              className="h-7 w-7 rounded-lg flex items-center justify-center text-[var(--text-muted)] hover:text-[var(--signal-danger)] hover:bg-[var(--signal-danger-bg)] transition-colors"
             >
               <Archive className="h-3.5 w-3.5" />
             </button>
@@ -175,7 +175,7 @@ export default function DayPassSection() {
         <Button
           type="button"
           onClick={openCreate}
-          className="bg-[var(--color-primary)] text-[var(--color-primary-contrast)] font-semibold hover:bg-[var(--color-primary-hover)] h-8 text-xs"
+          className="h-8 text-xs"
         >
           <Plus className="h-3.5 w-3.5 mr-1" /> Nuevo tipo
         </Button>

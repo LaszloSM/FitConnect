@@ -169,7 +169,7 @@ export default function TeamSection() {
           <Button
             type="button"
             onClick={() => setInviteOpen(true)}
-            className="bg-[var(--color-primary)] text-[var(--color-primary-contrast)] hover:bg-[var(--color-primary-hover)]"
+           
           >
             <UserPlus className="h-4 w-4 mr-1.5" />
             Invitar
@@ -177,8 +177,8 @@ export default function TeamSection() {
         </div>
 
         {inviteUrl && (
-          <div className="rounded-xl bg-amber-50 dark:bg-amber-950/20 border border-amber-200 dark:border-amber-900/40 p-4 space-y-2">
-            <p className="text-sm font-semibold text-amber-800 dark:text-amber-300">
+          <div className="rounded-xl bg-[var(--signal-warn-bg)] border border-[var(--signal-warn-line)] p-4 space-y-2">
+            <p className="text-sm font-semibold text-[var(--text-base)]">
               Invitación para {inviteUrl.name} — válida 48 horas
             </p>
             <div className="flex items-center gap-2">
@@ -190,7 +190,7 @@ export default function TeamSection() {
                 Copiar
               </Button>
             </div>
-            <p className="text-xs text-amber-700 dark:text-amber-400">
+            <p className="text-xs text-[var(--text-base)]">
               Compártelo por WhatsApp o correo. La persona fija su contraseña al abrirlo; el
               usuario no existe hasta que acepta.
             </p>
@@ -259,7 +259,7 @@ export default function TeamSection() {
                     <button
                       onClick={() => setToRemove(m)}
                       title="Quitar acceso"
-                      className="h-8 w-8 rounded-lg flex items-center justify-center text-[var(--text-muted)] hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-950/30 transition-colors"
+                      className="h-8 w-8 rounded-lg flex items-center justify-center text-[var(--text-muted)] hover:text-[var(--signal-danger)] hover:bg-[var(--signal-danger-bg)] transition-colors"
                     >
                       <UserMinus className="h-4 w-4" />
                     </button>

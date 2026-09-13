@@ -26,7 +26,7 @@ const PLANS: PlanConfig[] = [
     key: "basic",
     label: "Basic",
     icon: Zap,
-    color: "text-blue-500",
+    color: "text-ink-muted",
     features: [
       "Hasta 100 miembros",
       "Pagos y check-ins",
@@ -50,7 +50,7 @@ const PLANS: PlanConfig[] = [
     key: "premium_ai",
     label: "Premium AI",
     icon: Crown,
-    color: "text-purple-500",
+    color: "text-ink-muted",
     features: [
       "Todo lo de Advanced",
       "Análisis con IA",
@@ -113,7 +113,7 @@ export default function PlanSection() {
                   <ul className="mt-2 space-y-1">
                     {plan.features.map((f) => (
                       <li key={f} className="flex items-center gap-1.5 text-xs text-[var(--text-muted)]">
-                        <Check className="h-3 w-3 text-green-500 shrink-0" aria-hidden="true" />
+                        <Check className="h-3 w-3 text-[var(--signal-ok)] shrink-0" aria-hidden="true" />
                         {f}
                       </li>
                     ))}

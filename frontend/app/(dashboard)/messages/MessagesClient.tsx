@@ -145,7 +145,6 @@ export default function MessagesClient() {
   return (
     <div className="space-y-6">
       <PageHeader
-        className="mb-0"
         module="members"
         eyebrow="Comunicación"
         title="Mensajes"
@@ -162,14 +161,14 @@ export default function MessagesClient() {
             className={cn(
               "flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-sm font-medium transition-colors",
               tab === key
-                ? "bg-[var(--color-primary)] text-[var(--color-primary-contrast)]"
+                ? "border border-[var(--text-base)] bg-panel text-ink"
                 : "border border-[var(--border-base)] text-[var(--text-muted)] hover:text-[var(--text-base)]"
             )}
           >
             <Icon className="h-4 w-4" />
             {label}
             {key === "outbox" && fallidos > 0 && (
-              <span className="ml-1 rounded-full bg-red-500 text-white text-[11px] px-1.5">{fallidos}</span>
+              <span className="ml-1 rounded-full bg-[var(--signal-danger)] text-white text-[11px] px-1.5">{fallidos}</span>
             )}
           </button>
         ))}
@@ -177,7 +176,7 @@ export default function MessagesClient() {
 
       {error && (
         <EmptyState
-          icon={<AlertTriangle className="h-10 w-10 text-red-500" />}
+          icon={<AlertTriangle className="h-10 w-10 text-[var(--signal-danger)]" />}
           title="Error cargando los mensajes"
           description={error}
         />
@@ -462,7 +461,7 @@ function AnnouncementsTab({
                 className={cn(
                   "w-full text-left rounded-lg border px-3 py-2 transition-colors disabled:opacity-40",
                   segment === s.key
-                    ? "border-[var(--color-primary)] bg-[var(--color-primary-muted)]"
+                    ? "border-[var(--text-base)] bg-muted"
                     : "border-[var(--border-base)] hover:bg-[var(--bg-muted)]"
                 )}
               >
@@ -539,7 +538,7 @@ function OutboxTab({
           const Icon = meta.icon;
           return (
             <GlassCard key={r.id} className="p-3 flex items-center gap-3 flex-wrap">
-              <Icon className={cn("h-4 w-4 shrink-0", r.status === "sent" ? "text-emerald-500" : r.status === "failed" ? "text-red-500" : "text-[var(--text-muted)]")} />
+              <Icon className={cn("h-4 w-4 shrink-0", r.status === "sent" ? "text-[var(--signal-ok)]" : r.status === "failed" ? "text-[var(--signal-danger)]" : "text-[var(--text-muted)]")} />
               <div className="min-w-0 flex-1">
                 <p className="text-sm text-[var(--text-base)] truncate">
                   {r.member_name ?? "Sin socio"}
@@ -549,7 +548,7 @@ function OutboxTab({
                 </p>
                 <p className="text-[11px] text-[var(--text-muted)]">
                   {r.template_name ?? r.event_type}
-                  {r.last_error && <span className="text-amber-600 dark:text-amber-400"> · {r.last_error}</span>}
+                  {r.last_error && <span className="text-[var(--signal-warn)]"> · {r.last_error}</span>}
                 </p>
               </div>
               <div className="text-[11px] text-[var(--text-muted)] shrink-0 text-right">

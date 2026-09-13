@@ -105,7 +105,7 @@ export default function SettingsClient() {
                 className={cn(
                   "flex items-center gap-2.5 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors whitespace-nowrap",
                   isActive
-                    ? "bg-[var(--color-primary)] text-[var(--color-primary-contrast)] shadow-sm"
+                    ? "bg-muted text-ink"
                     : "text-[var(--text-muted)] hover:text-[var(--text-base)] hover:bg-[var(--bg-base)]"
                 )}
               >

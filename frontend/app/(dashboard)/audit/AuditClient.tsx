@@ -84,27 +84,27 @@ const ACTION_LABELS: Record<string, string> = {
 };
 
 const ACTION_DOT: Record<string, string> = {
-  membership: "bg-fuchsia-500",
-  checkin: "bg-red-500",
-  payment: "bg-emerald-500",
-  expense: "bg-emerald-500",
-  cash: "bg-amber-500",
-  day_pass: "bg-amber-500",
-  day_pass_type: "bg-amber-500",
-  plan: "bg-fuchsia-500",
-  product: "bg-sky-500",
-  stock: "bg-sky-500",
-  machine: "bg-amber-500",
-  member: "bg-teal-500",
-  biometric_consent: "bg-teal-500",
-  credential: "bg-teal-500",
-  routine: "bg-indigo-500",
-  exercise: "bg-indigo-500",
-  kiosk: "bg-violet-500",
-  staff: "bg-violet-500",
-  settings: "bg-slate-500",
-  message: "bg-sky-500",
-  announcement: "bg-sky-500",
+  membership: "bg-[var(--brand)]",
+  checkin: "bg-[var(--signal-info)]",
+  payment: "bg-[var(--signal-ok)]",
+  expense: "bg-[var(--signal-ok)]",
+  cash: "bg-[var(--signal-warn)]",
+  day_pass: "bg-[var(--signal-warn)]",
+  day_pass_type: "bg-[var(--signal-warn)]",
+  plan: "bg-[var(--brand)]",
+  product: "bg-[var(--text-subtle)]",
+  stock: "bg-[var(--text-subtle)]",
+  machine: "bg-[var(--signal-warn)]",
+  member: "bg-[var(--signal-info)]",
+  biometric_consent: "bg-[var(--signal-info)]",
+  credential: "bg-[var(--signal-info)]",
+  routine: "bg-[var(--text-subtle)]",
+  exercise: "bg-[var(--text-subtle)]",
+  kiosk: "bg-[var(--text-muted)]",
+  staff: "bg-[var(--text-muted)]",
+  settings: "bg-[var(--border-base)]",
+  message: "bg-[var(--text-subtle)]",
+  announcement: "bg-[var(--text-subtle)]",
 };
 
 function dayLabel(date: Date): string {
@@ -197,7 +197,7 @@ export default function AuditClient() {
         <select
           value={actionFilter}
           onChange={(e) => { setActionFilter(e.target.value); setOffset(0); }}
-          className="h-9 rounded-md border border-[var(--border-base)] bg-[var(--bg-base)] px-3 text-sm text-[var(--text-base)] outline-none focus:ring-2 focus:ring-[var(--color-primary)]/30"
+          className="h-9 rounded-md border border-[var(--border-base)] bg-[var(--bg-base)] px-3 text-sm text-[var(--text-base)] outline-none focus:ring-2 focus:ring-[var(--brand)]/30"
         >
           {ACTION_FILTERS.map((f) => (
             <option key={f.value} value={f.value}>{f.label}</option>
@@ -226,13 +226,13 @@ export default function AuditClient() {
               }, {})
             ).map(([day, dayItems]) => (
               <div key={day}>
-                <p className="text-xs font-semibold uppercase tracking-wider text-[var(--text-muted)] mb-2 capitalize">
+                <p className="text-sm font-semibold text-[var(--text-base)] mb-2 capitalize">
                   {dayLabel(parseUTC(day + "T12:00:00Z"))}
                 </p>
                 <div className="relative pl-5 space-y-3">
                   <span className="absolute left-1.5 top-1 bottom-1 w-px bg-[var(--border-base)]" />
                   {dayItems.map((entry) => {
-                    const dot = ACTION_DOT[entry.action.split(".")[0]] ?? "bg-slate-400";
+                    const dot = ACTION_DOT[entry.action.split(".")[0]] ?? "bg-[var(--border-base)]";
                     return (
                       <div key={entry.id} className="relative">
                         <span className={`absolute -left-[0.95rem] top-1.5 h-2 w-2 rounded-full ring-2 ring-[var(--bg-card)] ${dot}`} />

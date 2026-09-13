@@ -39,9 +39,9 @@ export default function IntegrationsSection() {
   if (!isOwner) {
     return (
       <GlassCard className="p-6">
-        <div className="flex items-center gap-2 px-3 py-2.5 bg-amber-50 dark:bg-amber-950/20 border border-amber-200 dark:border-amber-900/40 rounded-lg">
-          <Lock className="h-4 w-4 text-amber-500 shrink-0" />
-          <p className="text-sm text-amber-700 dark:text-amber-400">
+        <div className="flex items-center gap-2 px-3 py-2.5 bg-[var(--signal-warn-bg)] border border-[var(--signal-warn-line)] rounded-lg">
+          <Lock className="h-4 w-4 text-[var(--signal-warn)] shrink-0" />
+          <p className="text-sm text-[var(--text-base)]">
             Solo el propietario puede configurar integraciones.
           </p>
         </div>
@@ -99,7 +99,7 @@ export default function IntegrationsSection() {
           <CreditCard className="h-4 w-4 text-[var(--color-primary-ink)]" />
           <h3 className="text-sm font-semibold text-[var(--text-base)]">Wompi (cobros en línea)</h3>
           {status?.wompi_configured && (
-            <span className="ml-auto inline-flex items-center gap-1 text-xs text-emerald-600 dark:text-emerald-400">
+            <span className="ml-auto inline-flex items-center gap-1 text-xs text-[var(--signal-ok)]">
               <CheckCircle2 className="h-3.5 w-3.5" /> Configurado
             </span>
           )}
@@ -140,10 +140,10 @@ export default function IntegrationsSection() {
       {/* WhatsApp */}
       <GlassCard className="p-6 space-y-4">
         <div className="flex items-center gap-2">
-          <MessageCircle className="h-4 w-4 text-emerald-500" />
+          <MessageCircle className="h-4 w-4 text-[var(--signal-ok)]" />
           <h3 className="text-sm font-semibold text-[var(--text-base)]">WhatsApp (recordatorios)</h3>
           {status?.whatsapp_configured && (
-            <span className="ml-auto inline-flex items-center gap-1 text-xs text-emerald-600 dark:text-emerald-400">
+            <span className="ml-auto inline-flex items-center gap-1 text-xs text-[var(--signal-ok)]">
               <CheckCircle2 className="h-3.5 w-3.5" /> Configurado
             </span>
           )}

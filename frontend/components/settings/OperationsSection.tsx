@@ -87,9 +87,10 @@ export default function OperationsSection() {
     }
   };
 
-  const handleDeactivateLocation = async (id: string, name: string) => {
+  const [armedLoc, setArmedLoc] = useState<string | null>(null);
+  const handleDeactivateLocation = async (id: string) => {
+    setArmedLoc(null);
     if (!session?.accessToken) return;
-    if (!window.confirm(`¿Desactivar la sede "${name}"?`)) return;
     try {
       const client = apiClient(session.accessToken as string);
       await client.delete(`/api/v1/locations/${id}`);
@@ -103,9 +104,9 @@ export default function OperationsSection() {
   return (
     <GlassCard className="p-6 space-y-8">
       {!isOwner && (
-        <div className="flex items-center gap-2 px-3 py-2.5 bg-amber-50 dark:bg-amber-950/20 border border-amber-200 dark:border-amber-900/40 rounded-lg">
-          <Lock className="h-4 w-4 text-amber-500 shrink-0" aria-hidden="true" />
-          <p className="text-sm text-amber-700 dark:text-amber-400">
+        <div className="flex items-center gap-2 px-3 py-2.5 bg-[var(--signal-warn-bg)] border border-[var(--signal-warn-line)] rounded-lg">
+          <Lock className="h-4 w-4 text-[var(--signal-warn)] shrink-0" aria-hidden="true" />
+          <p className="text-sm text-[var(--text-base)]">
             Solo el propietario puede editar la configuración operativa.
           </p>
         </div>
@@ -185,7 +186,7 @@ export default function OperationsSection() {
             <Button
               type="button"
               onClick={() => setShowNewLocation(!showNewLocation)}
-              className="bg-[var(--color-primary)] text-[var(--color-primary-contrast)] font-semibold hover:bg-[var(--color-primary-hover)] h-8 text-xs"
+              className="h-8 text-xs"
             >
               <Plus className="h-3.5 w-3.5 mr-1" /> Nueva sede
             </Button>
@@ -266,14 +267,22 @@ export default function OperationsSection() {
                   </p>
                 </div>
                 {isOwner && (
-                  <button
-                    type="button"
-                    onClick={() => handleDeactivateLocation(loc.id, loc.name)}
-                    title="Desactivar sede"
-                    className="p-1.5 rounded-lg text-[var(--text-muted)] hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-950/30 transition-colors"
-                  >
-                    <Trash2 className="h-3.5 w-3.5" />
-                  </button>
+                  armedLoc === loc.id ? (
+                    <span className="flex items-center gap-1">
+                      <Button type="button" variant="destructive" onClick={() => handleDeactivateLocation(loc.id)} className="h-7 text-xs">Desactivar</Button>
+                      <Button type="button" variant="ghost" onClick={() => setArmedLoc(null)} className="h-7 text-xs">No</Button>
+                    </span>
+                  ) : (
+                    <button
+                      type="button"
+                      onClick={() => setArmedLoc(loc.id)}
+                      title="Desactivar sede"
+                      aria-label={`Desactivar sede ${loc.name}`}
+                      className="p-1.5 rounded-lg text-[var(--text-muted)] hover:text-[var(--signal-danger)] hover:bg-[var(--signal-danger-bg)] transition-colors"
+                    >
+                      <Trash2 className="h-3.5 w-3.5" />
+                    </button>
+                  )
                 )}
               </div>
             ))}

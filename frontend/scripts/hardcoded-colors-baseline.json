@@ -1,22 +1,11 @@
 {
-  "app/(dashboard)/audit/AuditClient.tsx": 20,
   "app/(dashboard)/classes/ClassesClient.tsx": 8,
   "app/(dashboard)/machines/MachinesClient.tsx": 3,
-  "app/(dashboard)/messages/MessagesClient.tsx": 6,
   "app/(dashboard)/payments/cash/CashClient.tsx": 5,
   "app/(dashboard)/payments/shared.ts": 5,
   "components/common/PARQForm.tsx": 12,
   "components/common/QRCodeDisplay.tsx": 3,
   "components/common/QrScanner.tsx": 2,
   "components/landing/LandingClient.tsx": 74,
-  "components/members/MemberImportDialog.tsx": 2,
-  "components/settings/BillingSection.tsx": 10,
-  "components/settings/DayPassSection.tsx": 3,
-  "components/settings/GymSection.tsx": 7,
-  "components/settings/IntegrationsSection.tsx": 12,
-  "components/settings/KioskSection.tsx": 10,
-  "components/settings/OperationsSection.tsx": 10,
-  "components/settings/PlanSection.tsx": 3,
-  "components/settings/TeamSection.tsx": 11,
-  "components/settings/TrainersCard.tsx": 5
+  "components/members/MemberImportDialog.tsx": 2
 }

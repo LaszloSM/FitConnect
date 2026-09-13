@@ -37,6 +37,7 @@ export function MemberAccessTab({ memberId, idNumber }: { memberId: string; idNu
   const [deviceId, setDeviceId] = useState("");
   const [consentChecked, setConsentChecked] = useState(false);
   const [busy, setBusy] = useState(false);
+  const [armedConsent, setArmedConsent] = useState<string | null>(null);
   const client = () => apiClient(session?.accessToken as string);
 
   const load = () => {
@@ -72,7 +73,7 @@ export function MemberAccessTab({ memberId, idNumber }: { memberId: string; idNu
     try { await client().delete(`/api/v1/members/${memberId}/credentials/${c.id}`); load(); } catch (err: any) { toast.error(parseApiError(err, "Error")); }
   };
   const revokeConsent = async (c: Consent) => {
-    if (!window.confirm(`¿Revocar el consentimiento de ${c.kind === "face" ? "rostro" : "huella"}? Se revocan sus credenciales de ese tipo y hay que borrarlo del lector.`)) return;
+    setArmedConsent(null);
     try { await client().delete(`/api/v1/members/${memberId}/biometric-consents/${c.id}`); toast.success("Consentimiento revocado"); load(); } catch (err: any) { toast.error(parseApiError(err, "Error")); }
   };
 
@@ -134,7 +135,15 @@ export function MemberAccessTab({ memberId, idNumber }: { memberId: string; idNu
             <div key={c.id} className="flex items-center gap-3 text-sm">
               {c.revoked_at ? <ShieldOff className="h-4 w-4 text-[var(--text-muted)]" /> : <ShieldCheck className="h-4 w-4 text-[var(--signal-ok)]" />}
               <span className="flex-1 text-[var(--text-base)]">{c.kind === "face" ? "Rostro" : "Huella"} · firmado {formatTimeAgo(c.signed_at)} · v{c.text_version}{c.revoked_at ? ` · revocado ${formatTimeAgo(c.revoked_at)}` : ""}</span>
-              {!c.revoked_at && isOwnerOrAdmin && <button type="button" onClick={() => revokeConsent(c)} className="text-xs text-[var(--text-muted)] hover:text-[var(--signal-danger)]">Revocar</button>}
+              {!c.revoked_at && isOwnerOrAdmin && (armedConsent === c.id ? (
+                <span className="flex items-center gap-2 text-xs">
+                  <span className="text-[var(--text-muted)]">Se revocan sus credenciales de ese tipo y hay que borrarlo del lector.</span>
+                  <button type="button" onClick={() => revokeConsent(c)} className="font-medium text-[var(--signal-danger)] hover:underline">Revocar</button>
+                  <button type="button" onClick={() => setArmedConsent(null)} className="text-[var(--text-muted)] hover:text-[var(--text-base)]">No</button>
+                </span>
+              ) : (
+                <button type="button" onClick={() => setArmedConsent(c.id)} className="text-xs text-[var(--text-muted)] hover:text-[var(--signal-danger)]">Revocar</button>
+              ))}
             </div>
           ))}
         </div>
