@@ -1,16 +1,16 @@
-# Graph Report - SaaS Gym  (2026-09-06)
+# Graph Report - SaaS Gym  (2026-09-12)
 
 ## Corpus Check
-- 412 files · ~228,454 words
+- 479 files · ~288,648 words
 - Verdict: corpus is large enough that graph structure adds value.
 
 ## Summary
-- 3617 nodes · 6955 edges · 286 communities (248 shown, 38 thin omitted)
-- Extraction: 84% EXTRACTED · 16% INFERRED · 0% AMBIGUOUS · INFERRED: 1136 edges (avg confidence: 0.62)
+- 4706 nodes · 9128 edges · 347 communities (307 shown, 40 thin omitted)
+- Extraction: 84% EXTRACTED · 16% INFERRED · 0% AMBIGUOUS · INFERRED: 1478 edges (avg confidence: 0.63)
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `b2c35a1f`
+- Built from commit: `a133f1f2`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
@@ -75,6 +75,8 @@
 - [[_COMMUNITY_Community 60|Community 60]]
 - [[_COMMUNITY_Community 61|Community 61]]
 - [[_COMMUNITY_Community 76|Community 76]]
+- [[_COMMUNITY_Community 78|Community 78]]
+- [[_COMMUNITY_Community 79|Community 79]]
 - [[_COMMUNITY_Community 80|Community 80]]
 - [[_COMMUNITY_Community 81|Community 81]]
 - [[_COMMUNITY_Community 82|Community 82]]
@@ -180,6 +182,7 @@
 - [[_COMMUNITY_Community 192|Community 192]]
 - [[_COMMUNITY_Community 193|Community 193]]
 - [[_COMMUNITY_Community 194|Community 194]]
+- [[_COMMUNITY_Community 201|Community 201]]
 - [[_COMMUNITY_Community 202|Community 202]]
 - [[_COMMUNITY_Community 203|Community 203]]
 - [[_COMMUNITY_Community 206|Community 206]]
@@ -241,55 +244,108 @@
 - [[_COMMUNITY_Community 276|Community 276]]
 - [[_COMMUNITY_Community 277|Community 277]]
 - [[_COMMUNITY_Community 282|Community 282]]
+- [[_COMMUNITY_Community 283|Community 283]]
+- [[_COMMUNITY_Community 284|Community 284]]
+- [[_COMMUNITY_Community 285|Community 285]]
+- [[_COMMUNITY_Community 286|Community 286]]
+- [[_COMMUNITY_Community 287|Community 287]]
+- [[_COMMUNITY_Community 288|Community 288]]
+- [[_COMMUNITY_Community 289|Community 289]]
+- [[_COMMUNITY_Community 290|Community 290]]
+- [[_COMMUNITY_Community 291|Community 291]]
 - [[_COMMUNITY_Community 292|Community 292]]
+- [[_COMMUNITY_Community 293|Community 293]]
 - [[_COMMUNITY_Community 294|Community 294]]
 - [[_COMMUNITY_Community 295|Community 295]]
+- [[_COMMUNITY_Community 296|Community 296]]
+- [[_COMMUNITY_Community 297|Community 297]]
+- [[_COMMUNITY_Community 298|Community 298]]
+- [[_COMMUNITY_Community 299|Community 299]]
+- [[_COMMUNITY_Community 300|Community 300]]
+- [[_COMMUNITY_Community 301|Community 301]]
+- [[_COMMUNITY_Community 302|Community 302]]
+- [[_COMMUNITY_Community 303|Community 303]]
+- [[_COMMUNITY_Community 304|Community 304]]
+- [[_COMMUNITY_Community 305|Community 305]]
+- [[_COMMUNITY_Community 306|Community 306]]
+- [[_COMMUNITY_Community 307|Community 307]]
+- [[_COMMUNITY_Community 308|Community 308]]
+- [[_COMMUNITY_Community 315|Community 315]]
+- [[_COMMUNITY_Community 316|Community 316]]
+- [[_COMMUNITY_Community 318|Community 318]]
+- [[_COMMUNITY_Community 319|Community 319]]
+- [[_COMMUNITY_Community 320|Community 320]]
+- [[_COMMUNITY_Community 321|Community 321]]
+- [[_COMMUNITY_Community 322|Community 322]]
+- [[_COMMUNITY_Community 323|Community 323]]
+- [[_COMMUNITY_Community 324|Community 324]]
+- [[_COMMUNITY_Community 325|Community 325]]
+- [[_COMMUNITY_Community 326|Community 326]]
+- [[_COMMUNITY_Community 327|Community 327]]
+- [[_COMMUNITY_Community 328|Community 328]]
+- [[_COMMUNITY_Community 329|Community 329]]
+- [[_COMMUNITY_Community 330|Community 330]]
+- [[_COMMUNITY_Community 331|Community 331]]
+- [[_COMMUNITY_Community 332|Community 332]]
+- [[_COMMUNITY_Community 333|Community 333]]
+- [[_COMMUNITY_Community 334|Community 334]]
+- [[_COMMUNITY_Community 335|Community 335]]
+- [[_COMMUNITY_Community 336|Community 336]]
+- [[_COMMUNITY_Community 337|Community 337]]
+- [[_COMMUNITY_Community 338|Community 338]]
+- [[_COMMUNITY_Community 339|Community 339]]
+- [[_COMMUNITY_Community 340|Community 340]]
+- [[_COMMUNITY_Community 341|Community 341]]
+- [[_COMMUNITY_Community 342|Community 342]]
+- [[_COMMUNITY_Community 343|Community 343]]
+- [[_COMMUNITY_Community 345|Community 345]]
+- [[_COMMUNITY_Community 346|Community 346]]
 
 ## God Nodes (most connected - your core abstractions)
-1. `cn()` - 196 edges
-2. `today_bogota()` - 91 edges
-3. `TenantBase` - 64 edges
-4. `apiClient()` - 58 edges
-5. `TenantTimestampMixin` - 54 edges
-6. `GlassCard` - 52 edges
-7. `Button()` - 50 edges
-8. `PaymentMethod` - 42 edges
-9. `UserRole` - 41 edges
-10. `audit()` - 40 edges
+1. `cn()` - 206 edges
+2. `today_bogota()` - 118 edges
+3. `TenantBase` - 70 edges
+4. `audit()` - 66 edges
+5. `apiClient()` - 64 edges
+6. `TenantTimestampMixin` - 60 edges
+7. `GlassCard` - 56 edges
+8. `Button()` - 53 edges
+9. `UserStaff` - 52 edges
+10. `PaymentMethod` - 44 edges
 
 ## Surprising Connections (you probably didn't know these)
 - `main()` --calls--> `create_tenant()`  [INFERRED]
   scripts/create_tenant_db.py → backend/app/services/tenant_service.py
 - `register()` --calls--> `create_tenant()`  [INFERRED]
   backend/app/api/v1/auth.py → backend/app/services/tenant_service.py
+- `list_enrollments()` --calls--> `ClassEnrollmentDetailResponse`  [INFERRED]
+  backend/app/api/v1/classes.py → backend/app/schemas/operations.py
+- `create_enrollment()` --calls--> `ClassEnrollment`  [INFERRED]
+  backend/app/api/v1/classes.py → backend/app/models/tenant/class_enrollment.py
 - `day_passes_summary()` --calls--> `today_bogota()`  [INFERRED]
   backend/app/api/v1/day_passes.py → backend/app/core/timeutil.py
-- `revoke_device()` --calls--> `audit()`  [INFERRED]
-  backend/app/api/v1/kiosk.py → backend/app/services/audit.py
-- `create_maintenance()` --calls--> `today_bogota()`  [INFERRED]
-  backend/app/api/v1/machines.py → backend/app/core/timeutil.py
 
-## Communities (286 total, 38 thin omitted)
+## Communities (347 total, 40 thin omitted)
 
 ### Community 0 - "Community 0"
-Cohesion: 0.10
-Nodes (32): AccessEvent, BiometricConsent, CredentialKind, MemberCredential, Control de acceso por hardware (torniquete, lector biométrico, tarjeta).  La pla, Bitácora del dispositivo: cada intento (permitido, denegado, desconocido,     of, KioskDevice, Dispositivo kiosko de la entrada (tablet/celular). El token JWT del     disposi (+24 more)
+Cohesion: 0.11
+Nodes (39): Tenant, get_or_seed_templates(), Templates del tenant, creando los faltantes con su default., Devuelve los templates del tenant, creando los faltantes con su default., Announcement, Mensaje que el gym escribe y manda a un grupo de socios.      Es el hueco que fa, MessageTemplate, Mensaje editable por el dueño para cada ocasión (vencimiento, bienvenida,     c (+31 more)
 
 ### Community 1 - "Community 1"
-Cohesion: 0.27
-Nodes (37): CheckInBase, CheckInCreate, CheckInResponse, Config, ConsentUpdate, DashboardKPIs, DashboardOverview, MemberBase (+29 more)
+Cohesion: 0.24
+Nodes (40): CheckInBase, CheckInCreate, CheckInResponse, Config, ConsentUpdate, DashboardKPIs, DashboardOverview, MemberBase (+32 more)
 
 ### Community 2 - "Community 2"
 Cohesion: 0.07
 Nodes (28): dependencies, @auth/core, axios, @base-ui/react, class-variance-authority, clsx, date-fns, driver.js (+20 more)
 
 ### Community 3 - "Community 3"
-Cohesion: 0.09
-Nodes (39): ClassEnrollmentCreate, ClassEnrollmentDetailResponse, ClassEnrollmentResponse, Config, EnrollRequest, GymClassBase, GymClassCreate, GymClassResponse (+31 more)
+Cohesion: 0.17
+Nodes (31): _area(), _area_valida(), ClassEnrollmentCreate, ClassEnrollmentDetailResponse, ClassEnrollmentResponse, Config, EnrollRequest, GymClassBase (+23 more)
 
 ### Community 4 - "Community 4"
-Cohesion: 0.12
-Nodes (20): AppearanceSection(), ThemeChoice, ThemeOption, THEMES, AppearanceSection, BillingSection, DayPassSection, GymSection (+12 more)
+Cohesion: 0.06
+Nodes (36): RosterEntry, SessionItem, ACTION_DOT, ACTION_FILTERS, ACTION_LABELS, FAQS, Guide, GUIDES (+28 more)
 
 ### Community 5 - "Community 5"
 Cohesion: 0.09
@@ -304,56 +360,56 @@ Cohesion: 0.10
 Nodes (19): compilerOptions, allowJs, esModuleInterop, incremental, isolatedModules, jsx, lib, module (+11 more)
 
 ### Community 8 - "Community 8"
-Cohesion: 0.11
-Nodes (18): fetch_logo_png(), _is_public_host(), Anti-SSRF: el logo_url lo escribe el gym; nunca debe alcanzar IPs internas, Descarga el logo del gym y lo normaliza a PNG (fallback silencioso: sin logo)., export_pdf(), export_tab(), export_xlsx(), Reporte completo en Excel multi-hoja (Utilidad, Por vencer, Inactivos, Socios). (+10 more)
+Cohesion: 0.05
+Nodes (41): access_events, audit_logs, biometric_consents, cash_shifts, checkins, class_enrollments, class_sessions, day_pass_types (+33 more)
 
 ### Community 9 - "Community 9"
 Cohesion: 0.11
-Nodes (16): Category, emptyForm, Movement, MOVEMENT_LABELS, MovementType, Product, CurrencyInput(), CurrencyInputProps (+8 more)
+Nodes (22): apply_payment_policy(), next_transfer_reference(), open_cash_shift(), Reglas compartidas de cobro: turno de caja, transferencias con referencia y cue, Turno de caja abierto de la sede única (location_id NULL)., Turno de caja abierto de la sede única (location_id NULL)., Turno de caja abierto de la sede única (location_id NULL)., El efectivo cobrado exige turno abierto, salvo que el gym no use turnos.     De (+14 more)
 
 ### Community 10 - "Community 10"
-Cohesion: 0.24
-Nodes (14): main(), Register a new gym (creates tenant DB + tables + owner staff)., Login and get JWT with db_name., test_checkins(), test_classes(), test_dashboard_kpis(), test_frontend_build(), test_health() (+6 more)
+Cohesion: 0.20
+Nodes (18): _create_member(), _create_plan(), full_member_fields(), main(), Register a new gym (creates tenant DB + tables + owner staff)., Login and get JWT with db_name., Mismo contrato que backend/tests/helpers.py: el alta exige contacto, salud, test_checkins() (+10 more)
 
 ### Community 11 - "Community 11"
 Cohesion: 0.23
 Nodes (15): DropdownMenu(), DropdownMenuCheckboxItem(), DropdownMenuContent(), DropdownMenuGroup(), DropdownMenuItem(), DropdownMenuLabel(), DropdownMenuPortal(), DropdownMenuRadioGroup() (+7 more)
 
 ### Community 12 - "Community 12"
-Cohesion: 0.12
-Nodes (20): get_tenant_db(), Dependency para acceder a la DB de un tenant específico.     Usar desde deps.py, Dependency para acceder a la DB de un tenant específico.     Usar desde deps.py, main(), create_database(), create_tenant(), get_tenant_connection_string(), get_tenant_db_name() (+12 more)
+Cohesion: 0.09
+Nodes (29): hash_password(), get_tenant_db(), Dependency para acceder a la DB de un tenant específico.     Usar desde deps.py, Dependency para acceder a la DB de un tenant específico.     Usar desde deps.py, main(), create_database(), create_tenant(), drop_database() (+21 more)
 
 ### Community 13 - "Community 13"
-Cohesion: 0.09
-Nodes (23): AccessEvent, Consent, Credential, CredKind, DECISION, Device, KIND_META, MemberAccessTab() (+15 more)
+Cohesion: 0.04
+Nodes (58): AccessEvent, Consent, Credential, CredKind, DECISION, Device, KIND_META, MemberAccessTab() (+50 more)
 
 ### Community 14 - "Community 14"
-Cohesion: 0.08
-Nodes (22): ActiveTab, CheckIn, ConfirmationCard(), DENIAL_LABELS, MemberMembership, STATUS_UI, TYPE_FILTERS, TypeFilter (+14 more)
+Cohesion: 0.10
+Nodes (16): ActiveTab, CheckIn, ConfirmationCard(), DENIAL_LABELS, MemberMembership, STATUS_UI, TYPE_FILTERS, TypeFilter (+8 more)
 
 ### Community 15 - "Community 15"
 Cohesion: 0.06
 Nodes (32): ApiError, BloodType, CheckIn, CheckInMembershipStatus, CheckInType, ClassCategory, ClassDifficulty, DashboardKPIs (+24 more)
 
 ### Community 16 - "Community 16"
-Cohesion: 0.15
-Nodes (11): cardVariants, KpiCard(), KpiCardProps, Size, sizeMap, sizeStyles, Tone, toneMap (+3 more)
+Cohesion: 0.10
+Nodes (18): KpiTone, MODULE_ACCENTS, ModuleAccent, ModuleKey, PATH_TO_MODULE, cardVariants, colorDe(), KpiCard() (+10 more)
 
 ### Community 17 - "Community 17"
 Cohesion: 0.08
-Nodes (34): BaseModel, AcceptInviteRequest, LoginRequest, PasswordResetConfirm, PasswordResetRequest, RegisterRequest, Config, DayPassResponse (+26 more)
+Nodes (33): BaseModel, AcceptInviteRequest, LoginRequest, PasswordResetConfirm, PasswordResetRequest, RegisterRequest, Config, DayPassResponse (+25 more)
 
 ### Community 18 - "Community 18"
-Cohesion: 0.23
-Nodes (10): FormControl(), FormDescription(), FormFieldContext, FormFieldContextValue, FormItem(), FormItemContext, FormItemContextValue, FormLabel() (+2 more)
+Cohesion: 0.17
+Nodes (26): _auth(), _notifications(), _owner_token(), Mensajería: el texto que el dueño edita tiene que llegar de verdad.  Antes el ed, Enviar a ciegas a todo el gym es de las pocas cosas que no se deshacen., Mandar el mismo anuncio dos veces a todo el gym no se puede deshacer., El endpoint existía desde hacía meses y ninguna pantalla lo consumía., Un gym recién creado es lo primero que ve un cliente nuevo. (+18 more)
 
 ### Community 19 - "Community 19"
-Cohesion: 0.05
-Nodes (56): AccessDecision, allowlist(), _log(), Cerebro único de acceso: kiosko, recepción, torniquete y lectores llaman aquí., Lote que el agente reporta tras un corte de red. Idempotente por     client_eve, Socios que pueden pasar si el dispositivo queda sin red (policy     allow_recen, → (socio, tipo de credencial usada, referencia). El ID de usuario dentro     de, record_offline_events() (+48 more)
+Cohesion: 0.13
+Nodes (25): _build_response(), checkin_by_qr(), _checkin_status(), create_checkin(), _decision_for(), _get_membership_status(), list_checkins(), list_today_checkins() (+17 more)
 
 ### Community 20 - "Community 20"
 Cohesion: 0.09
-Nodes (23): JobRun, Registro en memoria de la última corrida de cada job del scheduler.  Single-pr, record_end(), record_start(), expire_memberships_job(), process_outbox_job(), Red de seguridad si se pierde un webhook: consulta Wompi por links     pendiente, Procesa la cola de WhatsApp con backoff (3 intentos). (+15 more)
+Nodes (25): JobRun, Registro en memoria de la última corrida de cada job del scheduler.  Single-pr, record_end(), record_start(), process_outbox_job(), Red de seguridad si se pierde un webhook: consulta Wompi por links     pendiente, Procesa la cola de WhatsApp con backoff (3 intentos)., Red de seguridad si se pierde un webhook: consulta Wompi por links     pendiente (+17 more)
 
 ### Community 21 - "Community 21"
 Cohesion: 0.08
@@ -380,20 +436,20 @@ Cohesion: 0.60
 Nodes (5): check_backend_imports(), check_frontend_pages(), check_required_files(), check_syntax(), main()
 
 ### Community 27 - "Community 27"
-Cohesion: 0.17
-Nodes (11): client_ip(), Rate limiting configuration., IP del cliente para rate limiting. Detrás del ALB, request.client.host es el, Test that auth endpoints enforce rate limiting. Note: These are unit-level stru, App must have a slowapi Limiter attached., Limiter debe usar la IP del cliente (XFF-aware detrás del ALB)., Detrás del proxy, la IP real es el primer valor de X-Forwarded-For., test_client_ip_prefers_forwarded_for() (+3 more)
+Cohesion: 0.13
+Nodes (14): client_ip(), Rate limiting configuration., IP del cliente para rate limiting. Detrás del ALB, request.client.host es el, Test that auth endpoints enforce rate limiting. Note: These are unit-level stru, App must have a slowapi Limiter attached., App must have a slowapi Limiter attached., Limiter debe usar la IP del cliente (XFF-aware detrás del ALB)., Limiter debe usar la IP del cliente (XFF-aware detrás del ALB). (+6 more)
 
 ### Community 28 - "Community 28"
 Cohesion: 0.38
 Nodes (3): metadata, Providers(), Toaster()
 
 ### Community 29 - "Community 29"
-Cohesion: 0.09
-Nodes (36): _accounts_by_id(), create_payment(), get_payment(), _infer_kind(), list_payments(), list_pending_transfers(), _member_names(), _member_phones() (+28 more)
+Cohesion: 0.10
+Nodes (31): elapsed_minutes(), _accounts_by_id(), get_payment(), list_payments(), list_pending_transfers(), _member_names(), _member_phones(), _payment_response() (+23 more)
 
 ### Community 30 - "Community 30"
-Cohesion: 0.12
-Nodes (16): ACCESS_OPTIONS, cardVariants, containerVariants, DURATION_PRESETS, durationLabel(), emptyForm, formatCOP(), perMonthPrice() (+8 more)
+Cohesion: 0.05
+Nodes (44): CashClient(), CashierRow, CurrentShift, EMPTY_EXPENSE, EXPENSE_CATEGORIES, formatCOP(), textoDiferencia(), tonoDiferencia() (+36 more)
 
 ### Community 32 - "Community 32"
 Cohesion: 0.31
@@ -408,12 +464,12 @@ Cohesion: 0.10
 Nodes (20): Aprendizaje de errores, Base UI (dialog, dropdown, etc.), code:block1 (feat: agregar módulo de notificaciones con preferencias por ), code:block2 (feat: add notification module         ← en inglés), code:tsx (// CORRECTO — patrón render prop), code:tsx (// CORRECTO — type Variants importado explícitamente), code:bash (uv tool install graphifyy), code:bash (graphify .                              # genera el grafo de) (+12 more)
 
 ### Community 35 - "Community 35"
-Cohesion: 0.13
-Nodes (16): apply_stock_movement(), Movimientos de inventario: única forma de cambiar el stock de un producto.  El U, `quantity` es la magnitud para compra/venta/merma/devolución (el signo lo     po, delete_payment(), archive_product(), _category_names(), create_category(), create_movement() (+8 more)
+Cohesion: 0.12
+Nodes (18): apply_stock_movement(), Movimientos de inventario: única forma de cambiar el stock de un producto.  El U, `quantity` es la magnitud para compra/venta/merma/devolución (el signo lo     po, delete_payment(), archive_product(), _category_names(), create_category(), create_movement() (+10 more)
 
 ### Community 38 - "Community 38"
-Cohesion: 0.08
-Nodes (62): CheckinsClient(), buildSchedulePreview(), CATEGORIES, ClassesClient(), COLOR_OPTIONS, DAY_LABELS, DIFFICULTIES, DURATION_OPTIONS (+54 more)
+Cohesion: 0.07
+Nodes (62): CheckinsClient(), buildSchedulePreview(), CATEGORIES, CATEGORY_LABEL, ClassesClient(), COLOR_OPTIONS, DAY_LABELS, DIFFICULTIES (+54 more)
 
 ### Community 39 - "Community 39"
 Cohesion: 0.33
@@ -428,40 +484,52 @@ Cohesion: 0.50
 Nodes (4): Project Rules, Deploy Guide, CI/CD Workflow, Main README
 
 ### Community 42 - "Community 42"
-Cohesion: 0.20
-Nodes (5): dispose_tenant_engines(), Cierra todos los engines cacheados. Usado por tests (los engines quedan     atad, _dispose_tenant_engines(), Los engines tenant quedan atados al event loop del test que los creó;     sin e, Los engines tenant quedan atados al event loop del test que los creó;     sin e
+Cohesion: 0.10
+Nodes (15): get_kiosk_db(), get_master_tenant(), get_tenant_db_from_token(), Sesión de tenant para el kiosko, verificando que el dispositivo siga activo, Sesión de tenant para el kiosko, verificando que el dispositivo siga activo, Sesión de tenant para el kiosko, verificando que el dispositivo siga activo, Sesión de tenant para el kiosko, verificando que el dispositivo siga activo, Dependency que abre una sesión en la DB del tenant según el JWT.     Yield la s (+7 more)
 
 ### Community 47 - "Community 47"
-Cohesion: 0.25
-Nodes (8): active_pass_today(), find_or_create_visitor(), open_pass_today(), Pase del día: registro exprés del visitante y venta del pase.  El visitante es, Devuelve (member, es_nuevo). Si la cédula ya existe (socio o visitante)     se, Pase de hoy activo O pendiente de pago (para no vender dos veces)., Crea el pago (kind=day_pass) y el pase del día de hoy. cash/card quedan     pag, sell_day_pass()
+Cohesion: 0.19
+Nodes (25): _auth(), _machine(), _owner_token(), Máquinas: el módulo que se veía completo y no dejaba hacer casi nada.  El API te, Se queda en la lista para consultar su historial, pero no alerta., Antes la pantalla se quedaba con los 50 primeros en silencio., Engrasar una banda rota no significa que el preventivo del mes ya se hizo., El socio que la encontró rota deja de ser el único que lo sabe. (+17 more)
 
 ### Community 48 - "Community 48"
 Cohesion: 0.10
 Nodes (24): 0. Get `infra/terraform.tfvars`, 1. Bootstrap Terraform State, 2. Initialize Terraform, 3. Apply Infrastructure, 3. First Apply, 4. Build and Push Images, 5. Run Migrations, 5. Verify (+16 more)
 
+### Community 50 - "Community 50"
+Cohesion: 0.50
+Nodes (3): get_tenant_db_from_token must be an async generator function so FastAPI can call, get_tenant_db_from_token must be an async generator function so FastAPI can call, test_get_tenant_db_from_token_is_async_generator()
+
 ### Community 52 - "Community 52"
-Cohesion: 0.12
-Nodes (12): metadata, fadeUp, FaqItem(), FAQS, FEATURES, FLOW, PlanFeature, PRICING (+4 more)
+Cohesion: 0.08
+Nodes (22): metadata, ClosePanel(), DIA, fadeUp, FaqItem(), FAQS, FEATURES, FLOW (+14 more)
 
 ### Community 53 - "Community 53"
 Cohesion: 0.04
 Nodes (45): 1. El dominio esta bien elegido, 2. La arquitectura multi-tenant tiene intencion seria, 3. Pagos y caja estan mas pensados que el promedio, 4. Hay aprendizaje acumulado, 5. El frontend tiene identidad, Autenticacion y sesiones, Autorizacion, Backend (+37 more)
 
 ### Community 56 - "Community 56"
-Cohesion: 0.46
-Nodes (13): create_member_without_membership(), Miembro sin membresía vigente: alta completa + cancelar la membresía inicial., _auth(), _create_class(), _member_active(), _next_session(), _owner_token(), test_attendance_marking() (+5 more)
+Cohesion: 0.05
+Nodes (84): create_member(), create_member_without_membership(), create_plan(), full_member_fields(), Helpers compartidos para crear miembros en tests.  Desde la Fase 2 el alta de mi, Alta completa: devuelve el miembro creado, con membresía activa desde hoy., Miembro sin membresía vigente: alta completa + cancelar la membresía inicial., _auth() (+76 more)
 
 ### Community 58 - "Community 58"
 Cohesion: 0.20
 Nodes (9): Antes del primer `apply`, code:bash (aws sns subscribe --topic-arn <arn-de-saas-gym-prod-alerts> ), Después del `apply`, Endurecimiento ya incluido, Follow-ups (no bloqueantes), Gotchas del primer deploy (cazados antes de aplicar), Infraestructura (Terraform) — FitConnect, Secretos (+1 more)
+
+### Community 78 - "Community 78"
+Cohesion: 0.46
+Nodes (4): cuentaDePrueba(), entrar(), errores, hidratacion
+
+### Community 79 - "Community 79"
+Cohesion: 0.23
+Nodes (22): _auth(), _invite(), _owner_token(), Entrenador como rol del gimnasio, al mismo nivel que dueño o recepción.  Antes, `MEMBERS_READ` abre el módulo; "sus socios" tiene que ser verdad también     ah, Las subrutas heredan `MEMBERS_READ` del router: sin alcance, un entrenador, Cobrar "plan con entrenador" sin entrenador asignado es vender humo., El gym ya tenía a esa persona en el catálogo: invitarla no la clona. (+14 more)
 
 ### Community 82 - "Community 82"
 Cohesion: 0.11
 Nodes (17): Aprendizaje de errores, Base UI (dialog, dropdown, etc.), code:block1 (feat: agregar módulo de notificaciones con preferencias por ), code:block2 (feat: add notification module         ← en inglés), code:tsx (// CORRECTO — patrón render prop), code:tsx (// CORRECTO — type Variants importado explícitamente), code:bash (uv tool install graphifyy), code:bash (graphify .                              # genera el grafo de) (+9 more)
 
 ### Community 83 - "Community 83"
-Cohesion: 0.13
-Nodes (14): Animations, Border Radius, Colors, Components, CSS Variables (already defined in globals.css), FitConnect — Design System, Forms, Layout (+6 more)
+Cohesion: 0.08
+Nodes (23): Acentos por módulo, Animations, Border Radius, code:tsx (<button className="bg-primary text-primary-contrast">Cobrar<), code:bash (cd frontend && npm run check:contrast), code:bash (cd frontend && node scripts/check-contrast.mjs --all), Colors, Components (+15 more)
 
 ### Community 84 - "Community 84"
 Cohesion: 0.25
@@ -472,16 +540,16 @@ Cohesion: 0.13
 Nodes (15): code:python (# backend/tests/test_chatbot.py), code:bash (cd backend), code:bash (cd backend), code:bash (mkdir -p backend/app/agents), code:python (# backend/app/agents/gym_agent.py  — stub temporal), code:bash (cd backend), code:python (# backend/app/schemas/chatbot.py), code:python (# backend/app/agents/tools.py) (+7 more)
 
 ### Community 86 - "Community 86"
-Cohesion: 0.16
-Nodes (21): _apply_money_format(), build_profit_pdf(), build_report_pdf(), build_reports_xlsx(), _cover_sheet(), _expiring_rows(), _inactive_rows(), _month_bounds() (+13 more)
+Cohesion: 0.18
+Nodes (20): _apply_money_format(), build_profit_pdf(), build_report_pdf(), build_reports_xlsx(), _cop(), _cover_sheet(), _expiring_rows(), _inactive_rows() (+12 more)
 
 ### Community 87 - "Community 87"
 Cohesion: 0.14
 Nodes (14): code:python (# backend/tests/test_settings.py), code:bash (pytest tests/test_settings.py -v), code:python (# backend/app/models/member_plan.py), code:python (# backend/app/models/__init__.py — agregar:), code:bash (cd backend), code:python (# backend/app/schemas/settings.py), code:python (# Agregar a la clase Tenant en backend/app/models/tenant.py:), code:bash (cd backend) (+6 more)
 
 ### Community 88 - "Community 88"
-Cohesion: 0.20
-Nodes (9): 10. PHASE 2 (Future - Out of Scope), 11. SUCCESS CRITERIA, 12. CONSTRAINTS & NOTES, 1. OBJECTIVE, 6. FOLDER STRUCTURE, 9. PHASE 1 DELIVERABLES, Checklist, code:block11 (src/) (+1 more)
+Cohesion: 0.15
+Nodes (12): 10. PHASE 2 (Future - Out of Scope), 11. SUCCESS CRITERIA, 12. CONSTRAINTS & NOTES, 1. OBJECTIVE, 6. FOLDER STRUCTURE, 7.1 Initial State (mockData.js), 7. DATA STRUCTURE, 9. PHASE 1 DELIVERABLES (+4 more)
 
 ### Community 89 - "Community 89"
 Cohesion: 0.15
@@ -528,20 +596,20 @@ Cohesion: 0.18
 Nodes (11): code:python (# backend/tests/test_classes.py), code:bash (pytest tests/test_classes.py -v), code:python (# backend/app/models/gym_class.py), code:python (from app.models.gym_class import GymClass), code:bash (# Prerequisito: docker compose up -d db), code:python (# backend/app/schemas/gym_class.py), code:python (# backend/app/api/v1/classes.py), code:python (# backend/app/api/v1/router.py) (+3 more)
 
 ### Community 100 - "Community 100"
-Cohesion: 0.20
-Nodes (9): name, private, scripts, build, dev, lint, start, test:e2e (+1 more)
+Cohesion: 0.29
+Nodes (7): scripts, build, check:contrast, dev, lint, start, test:e2e
 
 ### Community 101 - "Community 101"
-Cohesion: 0.13
-Nodes (18): apply_payment_policy(), elapsed_minutes(), next_transfer_reference(), open_cash_shift(), Reglas compartidas de cobro: turno de caja, transferencias con referencia y cue, Turno de caja abierto de la sede única (location_id NULL)., Turno de caja abierto de la sede única (location_id NULL)., El efectivo cobrado exige turno abierto, salvo que el gym no use turnos.     De (+10 more)
+Cohesion: 0.08
+Nodes (31): backfill_charge(), movements_for(), outstanding(), project(), Libro de movimientos de un pago.  El pago dejó de ser una fila que se muta. `P, Saldo vivo: lo que aún se puede devolver o corregir., Agrega un movimiento a la sesión (sin commit: viaja con la operación)., Recalcula `refunded_amount` y el estado a partir del libro.      Se llama tras (+23 more)
 
 ### Community 102 - "Community 102"
 Cohesion: 0.22
 Nodes (8): 10. CRITERIOS DE ÉXITO MVP, 1. VISIÓN DEL PRODUCTO, 3. SISTEMA DE ROLES (RBAC), 8. DISEÑO UI/UX ADMIN, Carpeta de diseño, code:block7 (src/), Modelo de negocio, SaaS Gym Platform — Diseño Completo MVP
 
 ### Community 103 - "Community 103"
-Cohesion: 0.27
-Nodes (9): dayLabel(), DatePicker(), DatePickerProps, DAYS_ES, getDaysInMonth(), getFirstDayOfMonth(), isSameDay(), isToday() (+1 more)
+Cohesion: 0.14
+Nodes (18): audit(), Agrega un registro de auditoría a la sesión (sin commit: viaja en la     misma t, AuditLog, Registro de acciones sensibles del staff (pagos, overrides, membresías, caja)., update_plan(), archive_routine(), _active_classes(), disable_teaching() (+10 more)
 
 ### Community 104 - "Community 104"
 Cohesion: 0.22
@@ -568,8 +636,8 @@ Cohesion: 0.29
 Nodes (7): code:python (# backend/app/api/deps.py), code:python (# backend/app/api/v1/auth.py), code:python (# backend/app/api/v1/router.py), code:python (# backend/app/main.py — agregar después del middleware CORS), code:bash (cd backend), code:bash (git add backend/app/api/ backend/app/main.py), Task 7: Endpoints de autenticación
 
 ### Community 110 - "Community 110"
-Cohesion: 0.04
-Nodes (44): 10. Modal Patterns, 11. Empty States, 12. Loading States, 13. Sidebar Behavior, 14. Dashboard Layout Rules, 15. Card Hierarchy, 16. Responsive Rules, 17. Accessibility Basics (+36 more)
+Cohesion: 0.06
+Nodes (46): 10. Modal Patterns, 11. Empty States, 12. Loading States, 13. Sidebar Behavior, 14. Dashboard Layout Rules, 15. Card Hierarchy, 16. Responsive Rules, 17. Accessibility Basics (+38 more)
 
 ### Community 111 - "Community 111"
 Cohesion: 0.25
@@ -648,8 +716,8 @@ Cohesion: 0.40
 Nodes (4): Chunk 4: RBAC e Invitación de Staff, Chunk 5: Autenticación Frontend, Resumen del Plan 1, SaaS Gym — Plan 1: Fundación (Setup + Auth + RBAC)
 
 ### Community 130 - "Community 130"
-Cohesion: 0.07
-Nodes (35): SessionGuard(), DashboardShell(), dropdownVariants, getInitials(), Header(), Notification, routeMeta, containerVariants (+27 more)
+Cohesion: 0.19
+Nodes (14): SessionGuard(), DashboardShell(), dropdownVariants, getInitials(), Header(), routeMeta, SidebarContext, SidebarContextValue (+6 more)
 
 ### Community 131 - "Community 131"
 Cohesion: 0.40
@@ -680,16 +748,16 @@ Cohesion: 0.50
 Nodes (4): 9. FASES DE CONSTRUCCIÓN, Fase 1 — MVP (plataforma web admin) ← COMENZAMOS AQUÍ, Fase 2 — App móvil (Plan Avanzado), Fase 3 — IA avanzada (Plan Premium IA)
 
 ### Community 140 - "Community 140"
-Cohesion: 0.14
-Nodes (14): _month_bounds(), profit_report(), Ingresos del mes actual vs mes anterior, con delta porcentual., Ingresos del mes actual vs mes anterior, con delta porcentual., Utilidad mensual: ingresos pagados − egresos, por mes., Utilidad mensual: ingresos pagados − egresos, por mes., Ingresos del mes actual vs mes anterior, con delta porcentual., Utilidad mensual: ingresos pagados − egresos, por mes. (+6 more)
+Cohesion: 0.09
+Nodes (23): export_xlsx(), _month_bounds(), profit_report(), Ingresos del mes actual vs mes anterior, con delta porcentual., Ingresos del mes actual vs mes anterior, con delta porcentual., Ingresos del mes actual vs mes anterior, con delta porcentual., Reporte completo en Excel multi-hoja (Utilidad, Por vencer, Inactivos, Socios)., Reporte completo en Excel multi-hoja (Utilidad, Por vencer, Inactivos, Socios). (+15 more)
 
 ### Community 148 - "Community 148"
-Cohesion: 0.33
-Nodes (13): _make_signed_body(), _membership_count(), _payment_status(), Construye el cuerpo del webhook con una firma válida., _receipt_count(), _register(), _seed_payment_link(), _slug_for() (+5 more)
+Cohesion: 0.30
+Nodes (14): _make_signed_body(), _membership_count(), _payment_status(), Construye el cuerpo del webhook con una firma válida., Construye el cuerpo del webhook con una firma válida., _receipt_count(), _register(), _seed_payment_link() (+6 more)
 
 ### Community 149 - "Community 149"
-Cohesion: 0.23
-Nodes (10): Instructor, Instructores del gym (sin login propio — entidad operativa)., archive_instructor(), create_instructor(), InstructorCreate, InstructorUpdate, list_instructors(), Soft-delete: las clases conservan el nombre como texto (snapshot). (+2 more)
+Cohesion: 0.13
+Nodes (20): backfill(), Crea la ficha de socio del personal en los gimnasios que ya existian.  Desde a, _ensure_courtesy_membership(), ensure_staff_member(), ensure_staff_plan(), _find_existing(), Ficha de socio del personal del gimnasio.  Un entrenador o un recepcionista en, Le da acceso hoy mismo, salvo que ya tenga una membresía vigente propia. (+12 more)
 
 ### Community 150 - "Community 150"
 Cohesion: 0.33
@@ -697,11 +765,11 @@ Nodes (6): Chunk 1: Estructura del Proyecto y Docker, code:bash (mkdir -p backen
 
 ### Community 151 - "Community 151"
 Cohesion: 0.06
-Nodes (37): Base declarativa para las bases de datos independientes de cada gym.     Contie, TenantBase, TenantTimestampMixin, CheckIn, Registro de entradas y salidas de miembros al gym., SessionStatus, DayPass, DayPassStatus (+29 more)
+Nodes (44): Base declarativa para las bases de datos independientes de cada gym.     Contie, TenantBase, TenantTimestampMixin, ClassEnrollment, Inscripción de miembros a clases grupales., SessionStatus, DayPass, DayPassStatus (+36 more)
 
 ### Community 154 - "Community 154"
-Cohesion: 0.10
-Nodes (33): Exercise, Biblioteca global de ejercicios (igual para todos los gyms y la app).     Fuent, exercise_out(), ExerciseMedia, Video propio del gym para un ejercicio del catálogo global.  El catálogo es igua, MemberRoutine, Rutina del gym: días → ejercicios (series × reps). Puede publicarse en la     pa, Rutina asignada a un socio (una vigente por socio; el historial queda). (+25 more)
+Cohesion: 0.16
+Nodes (17): exercise_out(), assign_routine(), create_routine(), _exercise_names(), get_exercise(), get_routine(), list_exercises(), member_routines() (+9 more)
 
 ### Community 155 - "Community 155"
 Cohesion: 0.12
@@ -716,52 +784,52 @@ Cohesion: 0.47
 Nodes (3): _owner_token(), test_realtime_token_issued_for_staff(), test_reception_rejects_non_realtime_token()
 
 ### Community 158 - "Community 158"
-Cohesion: 0.07
-Nodes (50): Breakdown, Daily, EXPENSE_LABEL, IngresosTab(), KIND_COLORS, Summary, fmt(), Period (+42 more)
+Cohesion: 0.06
+Nodes (49): Breakdown, Daily, EXPENSE_LABEL, IngresosTab(), KIND_COLORS, Summary, fmt(), Period (+41 more)
 
 ### Community 159 - "Community 159"
-Cohesion: 0.10
-Nodes (26): Exception, DuplicateCheckin, ClassAccess, Validación de acceso a clases según los derechos comprados (snapshot en la membr, validate_class_access(), ClassSession, Ocurrencia individual de una clase (permite overrides por sesión)., GymClass (+18 more)
+Cohesion: 0.06
+Nodes (33): materialize_sessions(), Genera sesiones futuras desde las plantillas GymClass según weekdays     (0=Lun., Siembra reservas para los inscritos recurrentes (ClassEnrollment) de la     clas, seed_bookings_from_enrollments(), find_class_conflict(), find_session_conflict(), _label(), _overlap() (+25 more)
 
 ### Community 160 - "Community 160"
-Cohesion: 0.11
-Nodes (16): health(), lifespan(), Correlation id por request: respeta un X-Request-ID entrante (del ALB) o     ge, Correlation id por request: respeta un X-Request-ID entrante (del ALB) o     ge, Correlation id por request: respeta un X-Request-ID entrante (del ALB) o     ge, Healthcheck con dependencias críticas (DB master + Redis), no solo 'ok'., Healthcheck con dependencias críticas (DB master + Redis), no solo 'ok'., Healthcheck con dependencias críticas (DB master + Redis), no solo 'ok'. (+8 more)
+Cohesion: 0.12
+Nodes (15): health(), Correlation id por request: respeta un X-Request-ID entrante (del ALB) o     ge, Correlation id por request: respeta un X-Request-ID entrante (del ALB) o     ge, Correlation id por request: respeta un X-Request-ID entrante (del ALB) o     ge, El almacenamiento caído es un 503 con mensaje claro, no un 500 mudo., Toda excepción no controlada deja traza antes de convertirse en 500.      Sin es, Healthcheck con dependencias críticas (DB master + Redis), no solo 'ok'., Correlation id por request: respeta un X-Request-ID entrante (del ALB) o     gen (+7 more)
 
 ### Community 161 - "Community 161"
-Cohesion: 0.19
-Nodes (8): generate_invite_token(), hash_invite_token(), hash_password(), Token aleatorio de alta entropía para invitaciones (un solo uso)., Hash del token de invitación. El token ya es alta entropía, así que basta     s, verify_password(), update_profile(), invite_staff()
+Cohesion: 0.10
+Nodes (19): ACCENTS, checks, contrast(), CSS, dark, darkRaw, FIXED_DARK, light (+11 more)
 
 ### Community 162 - "Community 162"
-Cohesion: 0.08
-Nodes (22): _day_passes_data(), day_passes_report(), payment_methods_report(), _product_sales_data(), product_sales_report(), _range_bounds(), Rango [from, to] en fechas de negocio → límites UTC naive para created_at., Rango [from, to] en fechas de negocio → límites UTC naive para created_at. (+14 more)
+Cohesion: 0.07
+Nodes (27): _day_passes_data(), day_passes_report(), payment_methods_report(), _product_sales_data(), product_sales_report(), _range_bounds(), Rango [from, to] en fechas de negocio → límites UTC naive para created_at., Ingresos confirmados del período por fuente (membresía, pase, producto, otro) (+19 more)
 
 ### Community 163 - "Community 163"
-Cohesion: 0.44
-Nodes (10): _auth(), _owner_token(), Invita y acepta para obtener un token de staff con el rol dado., El baseline get_current_staff cierra el hueco: un token de staff cuyo     UserS, _staff_token(), test_admin_allowed_on_financial(), test_deactivated_staff_token_rejected_on_operational(), test_receptionist_allowed_on_operational() (+2 more)
+Cohesion: 0.28
+Nodes (16): _auth(), _owner_token(), Invita y acepta para obtener un token de staff con el rol dado., Desactivar por error dejaba a la persona fuera de la lista y sin vuelta atras., El baseline get_current_staff cierra el hueco: un token de staff cuyo     UserS, El baseline get_current_staff cierra el hueco: un token de staff cuyo     UserS, _role_token(), _staff_token() (+8 more)
 
 ### Community 164 - "Community 164"
-Cohesion: 0.24
-Nodes (5): JsonFormatter, mask_pii(), Logging estructurado en JSON + correlación por request.  Sin dependencias nuev, setup_logging(), test_mask_pii_hides_bearer_and_numbers()
+Cohesion: 0.18
+Nodes (9): JsonFormatter, mask_pii(), Logging estructurado en JSON + correlación por request.  Sin dependencias nuev, setup_logging(), El arranque corre `alembic upgrade head` en proceso (app/db/migrate.py).      El, Un 500 no controlado tiene que dejar traza con su traceback., test_alembic_file_config_does_not_silence_the_app(), test_mask_pii_hides_bearer_and_numbers() (+1 more)
 
 ### Community 169 - "Community 169"
 Cohesion: 0.06
-Nodes (31): build_template(), import_members(), _integrity_field(), _normalize(), Importación masiva de miembros desde Excel.  Resuelve el problema de "datos si, Normaliza lo que llega del cliente para un campo de media: URL propia →     key, scoped_key(), convert_visitor_to_member() (+23 more)
+Nodes (35): Emite sin poder tumbar la operación que la disparó.      Dar de alta un socio, try_emit_occasion(), Normaliza lo que llega del cliente para un campo de media: URL propia →     key;, scoped_key(), _create_membership(), Calcula (precio_neto, discount_amount, discount_reason, promo_code_id).     Val, Calcula (precio_neto, discount_amount, discount_reason, promo_code_id).     Val, Calcula (precio_neto, discount_amount, discount_reason, promo_code_id).     Val (+27 more)
 
 ### Community 170 - "Community 170"
-Cohesion: 0.28
-Nodes (7): decrypt_secret(), encrypt_secret(), _fernet(), get_gym_settings(), Devuelve la fila única de configuración del gym, creándola con     defaults si e, Cifra y asigna un campo secreto (no hace commit)., set_secret()
+Cohesion: 0.14
+Nodes (11): _hash(), Idempotent, _is_key_conflict(), jsonable(), Idempotencia de las escrituras de dinero.  El patrón ya estaba en el repo cuat, Guarda de una escritura. `replayed` trae la respuesta ya emitida., Respuesta ya emitida para esta clave, o None si es la primera vez., Registra la respuesta en la MISMA transacción que el trabajo. (+3 more)
 
 ### Community 172 - "Community 172"
-Cohesion: 0.22
-Nodes (9): create_payment_link(), Genera un link de pago Wompi para un pago pendiente., Genera un link de pago Wompi para un pago pendiente., Genera un link de pago Wompi para un pago pendiente., Genera un link de pago Wompi para un pago pendiente., Genera un link de pago Wompi para un pago pendiente., Genera un link de pago Wompi para un pago pendiente., Genera un link de pago Wompi para un pago pendiente. (+1 more)
+Cohesion: 0.12
+Nodes (20): allowlist(), Socios que pueden pasar si el dispositivo queda sin red (policy     allow_recen, _auto_attend_class(), checkin_status(), decision_for(), publish_event(), Registro de check-ins: única puerta de entrada para recepción, QR y kiosko.  U, Registra el check-in (allowed/denied según membresía), marca asistencia a     cl (+12 more)
 
 ### Community 173 - "Community 173"
-Cohesion: 0.07
-Nodes (32): get_current_owner(), get_current_staff(), get_db_name(), get_kiosk_db(), get_kiosk_payload(), get_master_tenant(), get_tenant_db_from_token(), get_tenant_from_claims() (+24 more)
+Cohesion: 0.06
+Nodes (34): check_tenant_active(), get_current_owner(), get_current_staff(), get_db_name(), get_kiosk_payload(), get_tenant_from_claims(), get_tenant_slug(), Valida el token de dispositivo kiosko (scope=kiosk; exp validado por     decode (+26 more)
 
 ### Community 174 - "Community 174"
-Cohesion: 0.10
-Nodes (31): main(), Carga/actualiza la biblioteca global de ejercicios en la Master DB.  Uso (dent, _best_match(), import_exercises(), import_wger_videos(), load_dataset(), normalize(), _popularity() (+23 more)
+Cohesion: 0.13
+Nodes (21): main(), Carga/actualiza la biblioteca global de ejercicios en la Master DB.  Uso (dent, _best_match(), import_exercises(), import_wger_videos(), load_dataset(), normalize(), _popularity() (+13 more)
 
 ### Community 175 - "Community 175"
 Cohesion: 0.16
@@ -772,24 +840,24 @@ Cohesion: 0.15
 Nodes (12): Archivos críticos, code:block1 (F1 ─→ F2 (check-in)        — corta, alto valor), Contexto, Decisiones transversales (previas a Fase 1), Dependencias y cierre de cada fase, Fase 1 — Núcleo: ciclo de vida de membresías, scheduler, auditoría, sedes, Fase 2 — Check-in estricto con override + dashboard operativo, Fase 3 — Caja real: turnos, egresos, recibos (+4 more)
 
 ### Community 177 - "Community 177"
-Cohesion: 0.55
-Nodes (10): _auth(), _cedula(), _owner_token(), Bloque 6: control de acceso (torniquete/lector) sobre el cerebro de check-in., test_day_pass_visitor_passes_only_today(), test_fingerprint_requires_consent_and_revocation_blocks(), test_offline_batch_is_idempotent_and_allowlist(), test_staff_token_rejected_and_inactive_device() (+2 more)
+Cohesion: 0.27
+Nodes (17): _auth(), _find_member(), _invite_and_accept(), _owner_token(), El personal del gimnasio tambien entrena aqui.  Antes no habia ningun vinculo, `user_id: str` dejaba pasar cualquier cosa y SQLAlchemy devolvía 500., El profesor por horas no usa el software, pero tiene que cruzar la puerta., No paga: contarlo infla el total de socios y los nuevos del mes. (+9 more)
 
 ### Community 178 - "Community 178"
 Cohesion: 0.11
-Nodes (18): generate_expiry_notifications(), Revenue grouped by payment concept for the last N months., Create notifications for memberships expiring in N days (idempotent — dedup by t, Revenue grouped by payment concept for the last N months., Revenue grouped by payment concept for the last N months., Revenue grouped by payment concept for the last N months., Revenue grouped by payment concept for the last N months., Revenue grouped by payment concept for the last N months. (+10 more)
+Nodes (19): Tasa de renovación mensual: de las membresías que vencieron en el mes,     cuán, Tasa de renovación mensual: de las membresías que vencieron en el mes,     cuán, Tasa de renovación mensual: de las membresías que vencieron en el mes,     cuán, Tasa de renovación mensual: de las membresías que vencieron en el mes,     cuánt, Tasa de renovación mensual: de las membresías que vencieron en el mes,     cuán, Tasa de renovación mensual: de las membresías que vencieron en el mes,     cuán, Tasa de renovación mensual: de las membresías que vencieron en el mes,     cuán, Tasa de renovación mensual: de las membresías que vencieron en el mes,     cuán (+11 more)
 
 ### Community 179 - "Community 179"
 Cohesion: 0.17
 Nodes (11): CheckIn, CheckinDecision, CheckinResult, Member, Membership, MembershipEffectiveStatus, MembershipStatus, MemberStatus (+3 more)
 
 ### Community 180 - "Community 180"
-Cohesion: 0.10
-Nodes (26): effective_status(), next_chain_start(), Estado real de una membresía derivado de end_date/status (compute-on-read)., Estado real de una membresía derivado de end_date/status (compute-on-read)., Fecha de inicio real para una membresía nueva: si el miembro ya tiene una     vi, Estado real de una membresía derivado de end_date/status (compute-on-read)., assign_membership(), charge_membership() (+18 more)
+Cohesion: 0.12
+Nodes (17): public_account(), Vista de la cuenta destino para el socio: sin exponer más de lo necesario., Vista de la cuenta destino para el socio: sin exponer más de lo necesario., Vista de la cuenta destino para el socio: sin exponer más de lo necesario., create_payment(), _infer_kind(), _open_cash_shift(), Resuelve los renglones de venta: snapshot de nombre/precio del catálogo y     d (+9 more)
 
 ### Community 181 - "Community 181"
 Cohesion: 0.12
-Nodes (26): _signed_photo(), _signed_proof(), delete_object(), _delete_sync(), _ensure_bucket_sync(), is_public_key(), key_from_url(), _presign_sync() (+18 more)
+Nodes (17): _signed_photo(), _signed_proof(), _signed_photo(), delete_object(), key_from_url(), Extrae la key de una URL de nuestro propio bucket (legado: se guardaban     URLs, Convierte lo guardado (key nueva o URL legada) en algo que el navegador     pued, Borra el objeto (key o URL propia). Supresión real del dato, no solo del enlace. (+9 more)
 
 ### Community 182 - "Community 182"
 Cohesion: 0.55
@@ -800,48 +868,48 @@ Cohesion: 0.15
 Nodes (11): churn_score(), peak_hours(), Motor de BI sin LLM: funciones puras sobre agregados ya calculados.  Cada func, Días estimados hasta agotar el stock al ritmo de venta de los últimos 30 días., Cohortes por mes de primera membresía: cuántos siguen con membresía     vigente, Matriz día-de-semana × hora (hora Bogotá ya convertida) y los picos., Proyección del mes: ritmo diario del mes en curso (con lo que va) mezclado, Puntaje 0-100 de riesgo de abandono por reglas ponderadas + razones legibles. (+3 more)
 
 ### Community 184 - "Community 184"
-Cohesion: 0.25
-Nodes (8): cash_box(), Caja: ingresos pagados de hoy y del mes, con desglose por método., Caja: ingresos pagados de hoy y del mes, con desglose por método., Caja: ingresos pagados de hoy y del mes, con desglose por método., Caja: ingresos pagados de hoy y del mes, con desglose por método., Caja: ingresos pagados de hoy y del mes, con desglose por método., Caja: ingresos pagados de hoy y del mes (días de Bogotá), con desglose por métod, Caja: ingresos pagados de hoy y del mes, con desglose por método.
+Cohesion: 0.22
+Nodes (9): cash_box(), Caja: ingresos pagados de hoy y del mes, con desglose por método., Caja: ingresos pagados de hoy y del mes, con desglose por método., Caja: ingresos pagados de hoy y del mes, con desglose por método., Caja: ingresos pagados de hoy y del mes, con desglose por método., Caja: ingresos pagados de hoy y del mes, con desglose por método., Caja: ingresos pagados de hoy y del mes (días de Bogotá), con desglose por métod, Caja: ingresos pagados de hoy y del mes (días de Bogotá), con desglose por métod (+1 more)
 
 ### Community 185 - "Community 185"
 Cohesion: 0.22
 Nodes (9): Chunk 5: Frontend — Páginas de Miembros y Pagos, code:bash (cd frontend), code:typescript (// frontend/hooks/usePayments.ts), code:typescript (// frontend/components/payments/PaymentForm.tsx), code:typescript (// frontend/components/payments/PaymentTable.tsx), code:typescript (// frontend/app/(dashboard)/payments/page.tsx), code:block72 (1. Ir a /payments), code:bash (git add frontend/app/(dashboard)/payments/ frontend/componen) (+1 more)
 
 ### Community 186 - "Community 186"
-Cohesion: 0.12
-Nodes (26): create_member(), create_plan(), full_member_fields(), Helpers compartidos para crear miembros en tests.  Desde la Fase 2 el alta de mi, Alta completa: devuelve el miembro creado, con membresía activa desde hoy., _auth(), _member_payload(), _owner_token() (+18 more)
+Cohesion: 0.58
+Nodes (10): _auth(), _member_payload(), _owner_token(), test_create_with_incomplete_parq_is_422(), test_create_without_cedula_is_422(), test_create_without_plan_is_422(), test_duplicate_cedula_is_409(), test_payments_include_member_name() (+2 more)
 
 ### Community 187 - "Community 187"
-Cohesion: 0.11
-Nodes (19): checkin_trend_report(), inactive_members_report(), Active members who haven't checked in for the last N days., Active members who haven't checked in for the last N days., Active members who haven't checked in for the last N days., Active members who haven't checked in for the last N days., Active members who haven't checked in for the last N days., Active members who haven't checked in for the last N days. (+11 more)
+Cohesion: 0.06
+Nodes (34): generate_expiry_notices(), Avisos in-app de "membresía por vencer" (la campanita del panel).  Los generab, Un aviso por membresía que vence dentro de `days`. Idempotente: no     duplica, checkin_trend_report(), generate_expiry_notifications(), inactive_members_report(), Active members who haven't checked in for the last N days., Active members who haven't checked in for the last N days. (+26 more)
 
 ### Community 188 - "Community 188"
-Cohesion: 0.11
-Nodes (29): Tenant, GymSettingsResponse, NotificationPreferences, _accounts(), _billing_response(), BillingSettingsResponse, BillingSettingsUpdate, get_billing_settings() (+21 more)
+Cohesion: 0.13
+Nodes (23): GymSettingsResponse, NotificationPreferences, _accounts(), _billing_response(), BillingSettingsResponse, get_billing_settings(), get_gym_settings(), get_integrations() (+15 more)
 
 ### Community 189 - "Community 189"
-Cohesion: 0.12
-Nodes (17): OnboardingTour(), CashToday, DashboardData, DashboardPage(), formatCOP(), greeting(), KIND_LABEL, Kpis (+9 more)
+Cohesion: 0.07
+Nodes (28): AreaChartCard(), AreaChartCardProps, Insight, InsightsStrip(), Tone, OnboardingChecklist(), OnboardingStatus, Step (+20 more)
 
 ### Community 190 - "Community 190"
-Cohesion: 0.04
-Nodes (78): PARQ_KEYS, PARQForm(), PARQFormProps, QUESTIONS, cn(), Alert(), AlertProps, AlertVariant (+70 more)
+Cohesion: 0.03
+Nodes (112): CameraCapture(), PARQ_KEYS, PARQForm(), PARQFormProps, QUESTIONS, QRCodeDisplay(), QRCodeDisplayProps, cn() (+104 more)
 
 ### Community 191 - "Community 191"
-Cohesion: 0.18
-Nodes (8): KioskResult, Mode, ResultScreen(), resultTone(), KEYS, NumericKeypad(), metadata, viewport
+Cohesion: 0.15
+Nodes (10): QrScanner(), QrScannerProps, KioskResult, Mode, ResultScreen(), resultTone(), KEYS, NumericKeypad() (+2 more)
 
 ### Community 192 - "Community 192"
-Cohesion: 0.20
-Nodes (8): build_receipt_pdf(), Comprobante de pago en PDF: se arma desde el snapshot del recibo (inmutable), c, Enlaces públicos firmados (recibo por WhatsApp) sin dependencia extra: HMAC-SHA2, Devuelve el valor firmado si la firma es válida y no venció; si no, None., _sign(), verify(), public_receipt_pdf(), Endpoints públicos por enlace firmado (sin JWT): el socio abre su comprobante d
+Cohesion: 0.25
+Nodes (7): build_receipt_pdf(), Comprobante de pago en PDF: se arma desde el snapshot del recibo (inmutable), c, Enlaces públicos firmados (recibo por WhatsApp) sin dependencia extra: HMAC-SHA2, Devuelve el valor firmado si la firma es válida y no venció; si no, None., _sign(), verify(), public_receipt_pdf()
 
 ### Community 193 - "Community 193"
-Cohesion: 0.11
-Nodes (29): Inicio y fin (exclusivo) de un día de Bogotá expresados en UTC naive,     para f, today_bogota(), utc_day_bounds(), attendance(), churn_risk(), cohorts(), expenses_by_category(), forecast() (+21 more)
+Cohesion: 0.17
+Nodes (21): Inicio y fin (exclusivo) de un día de Bogotá expresados en UTC naive,     para f, utc_day_bounds(), Ingresos diarios desde el primer pago (máximo `days`) hasta ayer., revenue_series(), net_amount(), attendance(), churn_risk(), cohorts() (+13 more)
 
 ### Community 202 - "Community 202"
-Cohesion: 0.09
-Nodes (29): create_access_token(), create_staff_token(), Genera JWT con contexto de owner + tenant para multi-tenant DB dinámica., Genera JWT con contexto de owner + tenant para multi-tenant DB dinámica., Genera JWT para staff del gym (admin/receptionist) autenticado contra tenant DB., Genera JWT con contexto de owner + tenant para multi-tenant DB dinámica., Genera JWT para staff del gym (admin/receptionist) autenticado contra tenant DB., Genera JWT para staff del gym (admin/receptionist) autenticado contra tenant DB. (+21 more)
+Cohesion: 0.07
+Nodes (35): create_access_token(), create_staff_token(), Genera JWT con contexto de owner + tenant para multi-tenant DB dinámica., Genera JWT con contexto de owner + tenant para multi-tenant DB dinámica., Genera JWT para staff del gym (admin/receptionist) autenticado contra tenant DB., Genera JWT con contexto de owner + tenant para multi-tenant DB dinámica., Genera JWT para staff del gym (admin/receptionist) autenticado contra tenant DB., Genera JWT para staff del gym (admin/receptionist) autenticado contra tenant DB. (+27 more)
 
 ### Community 203 - "Community 203"
 Cohesion: 0.47
@@ -852,60 +920,60 @@ Cohesion: 0.58
 Nodes (10): _auth(), _ensure_no_open_shift(), _member(), _owner_token(), test_cash_paid_without_shift_when_shifts_disabled(), test_cash_payment_requires_open_shift(), test_open_shift_single_per_location(), test_paid_payment_generates_receipt() (+2 more)
 
 ### Community 209 - "Community 209"
-Cohesion: 0.09
-Nodes (27): UTC naive — para comparar contra created_at (server_default now() en UTC)., utcnow_naive(), audit(), Agrega un registro de auditoría a la sesión (sin commit: viaja en la     misma t, _auto_void_stale_transfers(), Transferencias pendientes sin confirmar más de N horas se anulan solas     (con, cancel_unpaid_membership(), mark_voided() (+19 more)
+Cohesion: 0.07
+Nodes (31): AccessEvent, BiometricConsent, CredentialKind, MemberCredential, Control de acceso por hardware (torniquete, lector biométrico, tarjeta).  La pla, Bitácora del dispositivo: cada intento (permitido, denegado, desconocido,     of, KioskDevice, Dispositivo kiosko de la entrada (tablet/celular). El token JWT del     disposi (+23 more)
 
 ### Community 210 - "Community 210"
-Cohesion: 0.15
-Nodes (16): get_or_seed_templates(), Catálogo de ocasiones de mensajes y defaults editables.  Cada gym arranca con, Devuelve los templates del tenant, creando los faltantes con su default., Reemplaza {variable} con su valor; deja intactas las que no se conozcan., render(), MessageTemplate, Mensaje editable por el dueño para cada ocasión (vencimiento, bienvenida,     c, list_messages() (+8 more)
+Cohesion: 0.08
+Nodes (32): emit(), emit_announcement(), emit_occasion(), _enqueue(), Encolado de notificaciones: una ocasión entra, in-app y WhatsApp salen.  El ca, Encola una notificación. Siempre crea la in-app; si el gym tiene WhatsApp     co, Notifica una ocasión del catálogo con el texto que el gym editó.      `values`, Anuncio escrito por el gym: el texto es suyo, no sale del catálogo. (+24 more)
 
 ### Community 211 - "Community 211"
 Cohesion: 0.40
 Nodes (18): _auth(), _cedula(), _disable_shifts(), _owner_token(), _pass_type(), Pase del día: registro exprés, venta por método, acceso por check-in y conversi, test_convert_visitor_to_member_keeps_cedula_and_creates_membership(), test_member_with_active_plan_keeps_membership_over_pass() (+10 more)
 
 ### Community 216 - "Community 216"
-Cohesion: 0.07
-Nodes (38): CashClient(), CurrentShift, EXPENSE_CATEGORIES, formatCOP(), emptyForm, Instructor, AuthCardHeader(), BrandMark() (+30 more)
+Cohesion: 0.05
+Nodes (61): emptyForm, Instructor, InstructorsCard(), ApiResource, ApiResourceOptions, useApiResource(), DayPassTab(), PendingTransfers() (+53 more)
 
 ### Community 217 - "Community 217"
-Cohesion: 0.20
-Nodes (9): _process_tenant_outbox(), normalize_phone(), Normaliza a E.164 colombiano (+57XXXXXXXXXX) cuando es posible., Normaliza a E.164 colombiano (+57XXXXXXXXXX) cuando es posible., Normaliza a E.164 colombiano (+57XXXXXXXXXX) cuando es posible., Envía un mensaje de plantilla por WhatsApp Cloud API. Lanza en error., Envía un mensaje de plantilla por WhatsApp Cloud API. Lanza en error., Envía un mensaje de plantilla por WhatsApp Cloud API. Lanza en error. (+1 more)
+Cohesion: 0.17
+Nodes (11): _process_tenant_outbox(), normalize_phone(), Normaliza a E.164 colombiano (+57XXXXXXXXXX) cuando es posible., Normaliza a E.164 colombiano (+57XXXXXXXXXX) cuando es posible., Normaliza a E.164 colombiano (+57XXXXXXXXXX) cuando es posible., Normaliza a E.164 colombiano (+57XXXXXXXXXX) cuando es posible., Envía un mensaje de plantilla por WhatsApp Cloud API. Lanza en error., Envía un mensaje de plantilla por WhatsApp Cloud API. Lanza en error. (+3 more)
 
 ### Community 218 - "Community 218"
-Cohesion: 0.08
-Nodes (25): CashShift, Turno de caja: apertura con base, movimientos, cierre con conteo y cuadre., Expense, Egresos/gastos del gym (servicios, nómina, insumos, otros)., MemberPlan, Planes de membresía que el gym ofrece a sus miembros (catálogo)., Payment, Pagos manuales registrados por el staff del gym. (+17 more)
+Cohesion: 0.09
+Nodes (37): History, load_history(), MemberInfo, Stint, AccessDecision, DuplicateCheckin, Segment, CheckIn (+29 more)
 
 ### Community 219 - "Community 219"
-Cohesion: 0.39
-Nodes (18): _cop(), build_pdf(), Column, _fmt(), _period_label(), Exports por pestaña (PDF y Excel) con la marca del gym.  Un `ReportSpec` descr, Exporta lo mismo que muestra la pestaña Inteligencia: proyección de     ingreso, ReportSpec (+10 more)
+Cohesion: 0.23
+Nodes (26): _busiest(), Chart, Column, _ddmm(), _delta(), _period_label(), previous_range(), Exports por pestaña (PDF y Excel) con la marca del gym.  Un `ReportSpec` descr (+18 more)
 
 ### Community 220 - "Community 220"
-Cohesion: 0.05
-Nodes (68): InstructorsCard(), ApiResource, ApiResourceOptions, useApiResource(), parseApiError(), PydanticError, copCompactFormatter, copFormatter (+60 more)
+Cohesion: 0.08
+Nodes (38): FIELD_LABELS, parseApiError(), PydanticError, formatCOP(), DayPassRow, Lookup, PASS_STATUS_LABEL, PASS_STATUS_TONE (+30 more)
 
 ### Community 221 - "Community 221"
-Cohesion: 0.10
-Nodes (23): create_kiosk_token(), JWT de dispositivo kiosko: sin expiración (la revocación es por fila     kiosk_, JWT de dispositivo kiosko con scope restringido a /kiosk. Expira a los 30     d, create_device(), _device_out(), kiosk_checkin(), kiosk_ping(), list_devices() (+15 more)
+Cohesion: 0.08
+Nodes (26): create_kiosk_token(), JWT de dispositivo kiosko: sin expiración (la revocación es por fila     kiosk_, JWT de dispositivo kiosko con scope restringido a /kiosk. Expira a los 30     d, create_device(), _device_out(), kiosk_checkin(), kiosk_ping(), list_devices() (+18 more)
 
 ### Community 222 - "Community 222"
-Cohesion: 0.46
-Nodes (14): _activate(), _auth(), _device_token(), _member(), _owner_token(), test_device_regenerate_link_rotates_token(), test_device_rename(), test_kiosk_auto_attends_class() (+6 more)
+Cohesion: 0.41
+Nodes (15): _activate(), _auth(), _device_token(), _member(), _owner_token(), La tablet del mostrador está al alcance de cualquiera que entre al gym.      S, test_device_regenerate_link_rotates_token(), test_device_rename() (+7 more)
 
 ### Community 223 - "Community 223"
-Cohesion: 0.22
-Nodes (9): Monthly revenue for the last N months., Monthly revenue for the last N months., Monthly revenue for the last N months., Monthly revenue for the last N months., Monthly revenue for the last N months., Monthly revenue for the last N months., Monthly revenue for the last N months., Monthly revenue for the last N months. (+1 more)
+Cohesion: 0.20
+Nodes (10): Monthly revenue for the last N months., Monthly revenue for the last N months., Monthly revenue for the last N months., Monthly revenue for the last N months., Monthly revenue for the last N months., Monthly revenue for the last N months., Monthly revenue for the last N months., Monthly revenue for the last N months. (+2 more)
 
 ### Community 224 - "Community 224"
-Cohesion: 0.07
-Nodes (25): RosterEntry, SessionItem, ACTION_DOT, ACTION_FILTERS, ACTION_LABELS, Member, MemberSelect(), Props (+17 more)
+Cohesion: 0.12
+Nodes (10): get(), load_churn(), Entrenar, guardar y cargar los modelos de un gimnasio.  El trabajo de CPU corre, Síncrono y sin base de datos: lo que corre en el hilo., Un modelo serializado con otra versión de scikit-learn no se usa: se     cae a l, status(), train_all(), train_from_history() (+2 more)
 
 ### Community 225 - "Community 225"
-Cohesion: 0.10
-Nodes (20): Sube bytes y devuelve lo que se persiste: URL pública si el prefijo es     públi, Sube bytes y devuelve lo que se persiste: URL pública si el prefijo es     públ, Sube bytes y devuelve lo que se persiste: URL pública si el prefijo es     públ, Sube bytes de imagen y devuelve su URL pública. boto3 es sync → a thread., upload_image(), count_missing_id_number(), Cuántos miembros antiguos no tienen cédula — alimenta el banner del frontend., Cuántos miembros antiguos no tienen cédula — alimenta el banner del frontend. (+12 more)
+Cohesion: 0.20
+Nodes (11): Sube bytes y devuelve lo que se persiste: URL pública si el prefijo es     públi, Sube bytes y devuelve lo que se persiste: URL pública si el prefijo es     públ, El almacenamiento no respondió. Se traduce a un 503 con mensaje claro en vez, Sube bytes y devuelve lo que se persiste: URL pública si el prefijo es     públi, Sube bytes de imagen y devuelve su URL pública. boto3 es sync → a thread., StorageUnavailable, upload_image(), Sube el logo del gym a S3 y persiste su URL (reemplaza el campo de URL manual). (+3 more)
 
 ### Community 226 - "Community 226"
-Cohesion: 0.45
-Nodes (13): _auth(), _member(), _owner_token(), _product(), test_archive_product_with_sales(), test_billing_summary_with_balance_and_renewal(), test_charge_cash_requires_open_shift(), test_charge_renewal_extends_from_current_end() (+5 more)
+Cohesion: 0.10
+Nodes (33): active_pass_today(), find_or_create_visitor(), open_pass_today(), Pase del día: registro exprés del visitante y venta del pase.  El visitante es, Devuelve (member, es_nuevo). Si la cédula ya existe (socio o visitante)     se, Pase de hoy activo O pendiente de pago (para no vender dos veces)., Crea el pago (kind=day_pass) y el pase del día de hoy. cash/card quedan     pag, sell_day_pass() (+25 more)
 
 ### Community 228 - "Community 228"
 Cohesion: 0.25
@@ -915,65 +983,69 @@ Nodes (7): Checklist de puesta en marcha, Control de acceso: torniquete, huella 
 Cohesion: 0.50
 Nodes (3): Matriz por endpoint, Matriz RBAC — FitConnect, Niveles
 
+### Community 230 - "Community 230"
+Cohesion: 0.13
+Nodes (3): Inteligencia del gimnasio: modelos entrenados con sus propios datos (sin LLM)., Reentrena ya, sin esperar al job de la noche (después de importar historial)., train_models()
+
 ### Community 232 - "Community 232"
-Cohesion: 0.20
-Nodes (10): birthdays_report(), Members with birthdays in the next N months (by day/month, ignoring year)., Members with birthdays in the next N months (by day/month, ignoring year)., Members with birthdays in the next N months (by day/month, ignoring year)., Members with birthdays in the next N months (by day/month, ignoring year)., Members with birthdays in the next N months (by day/month, ignoring year)., Members with birthdays in the next N months (by day/month, ignoring year)., Members with birthdays in the next N months (by day/month, ignoring year). (+2 more)
+Cohesion: 0.18
+Nodes (11): birthdays_report(), Members with birthdays in the next N months (by day/month, ignoring year)., Members with birthdays in the next N months (by day/month, ignoring year)., Members with birthdays in the next N months (by day/month, ignoring year)., Members with birthdays in the next N months (by day/month, ignoring year)., Members with birthdays in the next N months (by day/month, ignoring year)., Members with birthdays in the next N months (by day/month, ignoring year)., Members with birthdays in the next N months (by day/month, ignoring year). (+3 more)
 
 ### Community 233 - "Community 233"
-Cohesion: 0.14
-Nodes (14): Lee y descifra un campo secreto de gym_settings., secret(), Link Wompi de renovación para incluir en recordatorios. Reutiliza un link     pe, Link Wompi de renovación para incluir en recordatorios. Reutiliza un link     p, _renewal_checkout_url(), create_payment_link_for(), Crea un link de pago Wompi para un Payment pendiente. Idempotente:     si ya ex, Crea un link de pago Wompi para un Payment pendiente. Idempotente:     si ya exi (+6 more)
+Cohesion: 0.25
+Nodes (8): complete_tour(), _exists(), onboarding_status(), Progreso de configuración del gym para el checklist y el tour de bienvenida., Progreso de configuración del gym para el checklist de onboarding., Progreso de configuración del gym para el checklist y el tour de bienvenida., Marca el tour de bienvenida como visto (completado o saltado)., Marca el tour de bienvenida como visto (completado o saltado).
 
 ### Community 234 - "Community 234"
 Cohesion: 0.45
 Nodes (15): _auth(), _owner_token(), _product(), Inventario real: categorías, movimientos de stock, ventas con rastro, devolucio, _sale(), test_categories_crud_and_product_link(), test_initial_stock_purchase_waste_and_adjustment_leave_trail(), test_product_sales_report_margin() (+7 more)
 
 ### Community 235 - "Community 235"
-Cohesion: 0.48
-Nodes (6): _admin_url(), _create_all(), _exec_admin(), Gate de migraciones tenant.  Contrato (ver docs/TENANT_MIGRATIONS.md): un tena, _tenant_cfg(), test_new_tenant_migration_is_idempotent_over_create_all()
+Cohesion: 0.15
+Nodes (18): _admin_url(), _create_all(), _drop_db(), _exec_admin(), Gate de migraciones tenant.  Contrato (ver docs/TENANT_MIGRATIONS.md): un tena, Borra la DB de trabajo sin depender de WITH (FORCE).      `gymuser` no es supe, _tenant_cfg(), test_new_tenant_migration_is_idempotent_over_create_all() (+10 more)
 
 ### Community 236 - "Community 236"
-Cohesion: 0.11
-Nodes (24): emit(), Encola una notificación. Siempre crea la in-app; si el gym tiene WhatsApp     co, _daily_tenant_tasks(), _emit_birthday_greetings(), _emit_expiry_reminders(), _emit_maintenance_alerts(), _emit_winback(), _expire_tenant_memberships() (+16 more)
+Cohesion: 0.10
+Nodes (24): _auto_void_stale_transfers(), _daily_tenant_tasks(), _emit_maintenance_alerts(), expire_memberships_job(), _expire_tenant_memberships(), _generate_expiry_notices(), _purge_idempotency_keys(), Alerta de mantenimiento preventivo vencido (idempotente por día). (+16 more)
 
 ### Community 238 - "Community 238"
-Cohesion: 0.11
-Nodes (14): _reconcile_tenant_payments(), _apply_membership_intent(), confirm_payment(), Crea/renueva la membresía descrita en el intent del payment_link., Transición pending→paid idempotente (única fuente de verdad para webhook     y, Transición pending→paid idempotente (única fuente de verdad para webhook     y r, Cliente mínimo de Wompi (sandbox por defecto). Las llaves vienen por gym., Valida la firma del webhook: SHA256 de los valores de signature.properties     ( (+6 more)
+Cohesion: 0.08
+Nodes (22): Lee y descifra un campo secreto de gym_settings., secret(), Link Wompi de renovación para incluir en recordatorios. Reutiliza un link     pe, Link Wompi de renovación para incluir en recordatorios. Reutiliza un link     p, Link Wompi de renovación para incluir en recordatorios. Reutiliza un link     p, _reconcile_tenant_payments(), _renewal_checkout_url(), create_payment_link_for() (+14 more)
 
 ### Community 240 - "Community 240"
-Cohesion: 0.25
-Nodes (6): archive_pass_type(), day_passes_summary(), list_day_passes(), _pass_response(), Pases de un día (por defecto hoy), con socio y estado del pago., Archiva (los pases ya vendidos conservan su snapshot).
+Cohesion: 0.26
+Nodes (16): _auth(), _classes_client_source(), _const_values(), _owner_token(), _payload(), El formulario de clases debe ofrecer exactamente los valores que el backend acep, El bug exacto: el formulario mandaba "Spinning" y toda alta moría., orange" mide 6 y pasaba el max_length=7: la columna aceptó nombres CSS. (+8 more)
 
 ### Community 243 - "Community 243"
-Cohesion: 0.29
-Nodes (6): Alinear el fleet de tenants existentes, code:bash (python migrate_tenants.py), Master DB: cuidado con el drift en dev, Migraciones multi-tenant — contrato, Por qué los tenants usan create_all + stamp, Reglas para migraciones tenant nuevas
+Cohesion: 0.18
+Nodes (10): Al agregar una columna a un modelo tenant, Alinear el fleet de tenants existentes, code:bash (python migrate_tenants.py), code:bash (python scripts/freeze_tenant_baseline.py), El baseline congelado y el test anti-drift, Master DB: cuidado con el drift en dev, Migraciones multi-tenant — contrato, Por qué los tenants usan create_all + stamp (+2 more)
 
 ### Community 245 - "Community 245"
-Cohesion: 0.22
-Nodes (9): Tasa de renovación mensual: de las membresías que vencieron en el mes,     cuán, Tasa de renovación mensual: de las membresías que vencieron en el mes,     cuán, Tasa de renovación mensual: de las membresías que vencieron en el mes,     cuán, Tasa de renovación mensual: de las membresías que vencieron en el mes,     cuánt, Tasa de renovación mensual: de las membresías que vencieron en el mes,     cuán, Tasa de renovación mensual: de las membresías que vencieron en el mes,     cuán, Tasa de renovación mensual: de las membresías que vencieron en el mes,     cuán, _retention_data() (+1 more)
+Cohesion: 0.38
+Nodes (14): _auth(), _fresh_shift(), _owner_token(), Cierre ciego, arqueo por denominaciones, retiros a bóveda, corte X y diferencias, Un egreso manual de "devolución" no bajaba el esperado: el cuadre excluye     es, Un recepcionista NUEVO por llamada: sus agregados empiezan en cero., _receptionist(), test_cashier_does_not_see_expected_before_counting() (+6 more)
 
 ### Community 247 - "Community 247"
-Cohesion: 0.22
-Nodes (9): create_renewal_link(), Crea un pago pendiente Wompi + link, con intent de renovar la membresía     del, Crea un pago pendiente Wompi + link, con intent de renovar la membresía     del, Crea un pago pendiente Wompi + link, con intent de renovar la membresía     del, Crea un pago pendiente Wompi + link, con intent de renovar la membresía     del, Crea un pago pendiente Wompi + link, con intent de renovar la membresía     del, Crea un pago pendiente Wompi + link, con intent de renovar la membresía     del, Crea un pago pendiente Wompi + link, con intent de renovar la membresía     del (+1 more)
+Cohesion: 0.20
+Nodes (10): create_renewal_link(), Crea un pago pendiente Wompi + link, con intent de renovar la membresía     del, Crea un pago pendiente Wompi + link, con intent de renovar la membresía     del, Crea un pago pendiente Wompi + link, con intent de renovar la membresía     del, Crea un pago pendiente Wompi + link, con intent de renovar la membresía     del, Crea un pago pendiente Wompi + link, con intent de renovar la membresía     del, Crea un pago pendiente Wompi + link, con intent de renovar la membresía     del, Crea un pago pendiente Wompi + link, con intent de renovar la membresía     del (+2 more)
 
 ### Community 253 - "Community 253"
 Cohesion: 0.06
-Nodes (32): CityOption, COLOMBIA_CITIES, COLOMBIA_DEPARTMENTS, COUNTRIES, Country, Department, emptyForm(), Exercise (+24 more)
+Nodes (38): AuthCardHeader(), BrandMark(), BrandMarkProps, Member, MemberSelect(), Props, LINKS, addResponseInterceptor() (+30 more)
 
 ### Community 254 - "Community 254"
-Cohesion: 0.20
-Nodes (8): DENIAL_LABELS, DeniedItem, ExpiringItem, GraceItem, LowStockProduct, OperationsData, OperationsToday(), ShiftInfo
+Cohesion: 0.12
+Nodes (15): DENIAL_LABELS, DeniedItem, ExpiringItem, GraceItem, LowStockProduct, OperationsData, OperationsLists(), OperationsStatusCards() (+7 more)
 
 ### Community 255 - "Community 255"
-Cohesion: 0.29
-Nodes (8): now_bogota(), close_shift(), create_expense(), _current_open_shift(), current_shift(), open_shift(), (ingresos cash pagados del turno, egresos cash del turno)., _shift_cash_movements()
+Cohesion: 0.09
+Nodes (40): now_bogota(), denominations_total(), Catálogo de caja: categorías de egreso y denominaciones del peso.  Las categoría, CashDrop, CashShift, Turno de caja: apertura con base, movimientos, cierre con conteo y cuadre., Retiro a bóveda: efectivo que sale del cajón sin ser un gasto.      Registrarlo, Expense (+32 more)
 
 ### Community 256 - "Community 256"
 Cohesion: 0.25
 Nodes (6): AnimatedNumber(), cardVariants, colorMap, iconCircleStyles, KPICard(), KPICardProps
 
 ### Community 257 - "Community 257"
-Cohesion: 0.52
-Nodes (11): _auth(), _member_no_membership(), _member_with_membership(), _owner_token(), test_active_membership_allowed(), test_expired_membership_denied(), test_in_grace_allowed_with_status(), test_no_membership_denied() (+3 more)
+Cohesion: 0.21
+Nodes (20): today_bogota(), churn_risk(), forecast(), Lo que la pantalla y los reportes consultan: modelo si lo hay, reglas si no.  Ca, Stock por agotarse con velocidad suavizada y patrón semanal.      Parte de las f, Los grupos con nombre y teléfono de sus socios, para poder escribirles., segments_with_members(), stockout() (+12 more)
 
 ### Community 258 - "Community 258"
 Cohesion: 0.70
@@ -993,67 +1065,267 @@ Nodes (6): backend_routes(), frontend_calls(), main(), matches(), normalize(), U
 
 ### Community 267 - "Community 267"
 Cohesion: 0.13
-Nodes (12): ExerciseMediaSource, SIZES, youtubeSearchUrl(), ExerciseVideoBox(), metadata, viewport, Day, DayEx (+4 more)
+Nodes (13): ExerciseFigure(), ExerciseMediaSource, SIZES, youtubeSearchUrl(), ExerciseVideoBox(), metadata, viewport, Day (+5 more)
 
 ### Community 268 - "Community 268"
-Cohesion: 0.33
-Nodes (3): FAQS, Guide, GUIDES
+Cohesion: 0.14
+Nodes (14): _between(), churn_dataset(), current_matrix(), daily_arrays(), features_at(), pricing_rows(), De la base del gimnasio a arreglos para los modelos.  Se carga el historial una, Cuántas fechas caen en (lo, hi]. (+6 more)
 
 ### Community 269 - "Community 269"
-Cohesion: 0.09
-Nodes (22): activate_day_passes(), public_account(), Vista de la cuenta destino para el socio: sin exponer más de lo necesario., Vista de la cuenta destino para el socio: sin exponer más de lo necesario., Un pase vendido por transferencia/Wompi da acceso solo cuando el pago     se co, Un pase vendido por transferencia/Wompi da acceso solo cuando el pago     se co, issue_receipt(), Genera el recibo de un pago pagado (idempotente: si ya existe, lo devuelve). (+14 more)
+Cohesion: 0.12
+Nodes (15): issue_receipt(), Genera el recibo de un pago pagado (idempotente: si ya existe, lo devuelve)., Genera el recibo de un pago pagado (idempotente: si ya existe, lo devuelve)., mark_payment_paid(), Marcar un pago como pagado (estado: paid)., Marcar un pago como pagado (estado: paid)., Marcar un pago como pagado (estado: paid). Genera el recibo y, si es     efecti, Marcar un pago como pagado (estado: paid). Genera el recibo y, si es     efecti (+7 more)
 
 ### Community 270 - "Community 270"
-Cohesion: 0.50
-Nodes (3): Insight, InsightsStrip(), Tone
+Cohesion: 0.25
+Nodes (14): Exercise, Biblioteca global de ejercicios (igual para todos los gyms y la app).     Fuent, ExerciseMedia, Video propio del gym para un ejercicio del catálogo global.  El catálogo es igua, MemberRoutine, Rutina del gym: días → ejercicios (series × reps). Puede publicarse en la     pa, Rutina asignada a un socio (una vigente por socio; el historial queda)., Routine (+6 more)
+
+### Community 271 - "Community 271"
+Cohesion: 0.14
+Nodes (13): DATABASE_URL, ENVIRONMENT, MASTER_DATABASE_URL, REDIS_URL, S3_ACCESS_KEY, S3_BUCKET, S3_ENDPOINT_URL, S3_PUBLIC_URL (+5 more)
+
+### Community 273 - "Community 273"
+Cohesion: 0.10
+Nodes (26): maintenance_state(), MaintenanceState, Una sola fuente de verdad para "a esta máquina le toca mantenimiento".  La regla, Sin intervalo configurado no hay preventivo que vigilar.      Una máquina retira, _costs_by_machine(), create_machine(), create_maintenance(), delete_machine() (+18 more)
 
 ### Community 274 - "Community 274"
-Cohesion: 0.25
-Nodes (7): create_realtime_token(), JWT efímero para el SSE de recepción. EventSource no permite headers, así     q, SSE de eventos de check-in para la pantalla de recepción.     EventSource no per, Emite un token efímero (scope=realtime) para abrir el SSE. El front lo pide, SSE de eventos de check-in para la pantalla de recepción.     EventSource no pe, realtime_token(), reception_stream()
+Cohesion: 0.15
+Nodes (12): create_realtime_token(), generate_invite_token(), hash_invite_token(), Token aleatorio de alta entropía para invitaciones (un solo uso)., Hash del token de invitación. El token ya es alta entropía, así que basta     s, JWT efímero para el SSE de recepción. EventSource no permite headers, así     q, SSE de eventos de check-in para la pantalla de recepción.     EventSource no per, Emite un token efímero (scope=realtime) para abrir el SSE. El front lo pide (+4 more)
 
 ### Community 275 - "Community 275"
 Cohesion: 0.64
 Nodes (7): _auth(), _owner_token(), Reportes por período, exports por pestaña y señales de BI., _seed(), test_exports_per_tab_and_month_close(), test_insights_endpoints(), test_summary_breakdown_attendance_period()
 
 ### Community 276 - "Community 276"
-Cohesion: 0.40
-Nodes (4): OnboardingChecklist(), OnboardingStatus, Step, STEPS
+Cohesion: 0.24
+Nodes (13): _declared_permissions(), _device_authenticated(), _enforced_permissions(), _guarded_perms(), Ninguna mutación del panel puede nacer sin permiso, y la matriz no puede promete, Una capacidad declarada que ningún endpoint exige describe una política     que, Endpoints del kiosko: los autentica el token del dispositivo, no un staff., Capacidades exigidas por una ruta (dependencias del router + del endpoint). (+5 more)
 
 ### Community 282 - "Community 282"
-Cohesion: 0.67
-Nodes (3): 7.1 Initial State (mockData.js), 7. DATA STRUCTURE, code:javascript (export const initialGymState = {)
+Cohesion: 0.12
+Nodes (16): fetch_logo_png(), _is_public_host(), Anti-SSRF: el logo_url lo escribe el gym; nunca debe alcanzar IPs internas, Anti-SSRF: el logo_url lo escribe el gym; nunca debe alcanzar IPs internas, Descarga el logo del gym y lo normaliza a PNG (fallback silencioso: sin logo)., Descarga el logo del gym y lo normaliza a PNG (fallback silencioso: sin logo)., export_pdf(), export_tab() (+8 more)
+
+### Community 283 - "Community 283"
+Cohesion: 0.14
+Nodes (13): 1. Faltan dos columnas en `gym_settings` del tenant — BLOQUEANTE, 2. El aligner de tenants no cubre 13 migraciones — SISTÉMICO, 3. Producción no registra un solo log — ALTO, 4. Fechas corridas cinco horas en el panel — ALTO, 5. Un fallo del almacenamiento se convierte en 500 sin manejo — MEDIO, 6. Herramientas de verificación desactualizadas — MEDIO, 7. Tope de paginación desalineado en socios — BAJO, 8. `MaintenanceLogCreate` exige `machine_id` en el cuerpo — COSMÉTICO (+5 more)
+
+### Community 284 - "Community 284"
+Cohesion: 0.15
+Nodes (12): get_dashboard_insights(), get_operations_dashboard(), Frases accionables derivadas de los agregados que ya se calculan.     Sin model, Frases accionables derivadas de los agregados que ya se calculan.     Sin model, Frases accionables derivadas de los agregados que ya se calculan.     Sin model, Tablero del día a día de recepción: quién vence, morosos en gracia,     accesos, Frases accionables derivadas de los agregados que ya se calculan.     Sin model, Tablero del día a día de recepción: quién vence, morosos en gracia,     accesos (+4 more)
+
+### Community 285 - "Community 285"
+Cohesion: 0.18
+Nodes (11): containerVariants, getInitials(), itemVariants, NavGroup, navGroups, NavItem, navItems, Sidebar() (+3 more)
+
+### Community 286 - "Community 286"
+Cohesion: 0.21
+Nodes (9): migrate(), normalize_color(), Normaliza `gym_classes.color` de nombre CSS a hex en todas las tenant DBs.  El, Hex al que migrar `value`, o None si no hay equivalente y no debe tocarse., La migración de colores escribe en TODAS las tenant DBs.  La rama peligrosa es e, Idempotencia: correr el script dos veces no puede vaciar lo ya migrado., test_cada_nombre_css_mapea_a_su_hex(), test_un_color_desconocido_no_se_migra() (+1 more)
+
+### Community 287 - "Community 287"
+Cohesion: 0.33
+Nodes (11): _audit_client_source(), _backend_sources(), _emitted_actions(), El diccionario de la UI de auditoría debe coincidir con lo que emite el backend., Guardia contra el falso verde: si alguien llama a audit() con kwargs o con     l, `ACTION_DOT` tiene un fallback gris, así que un prefijo nuevo pasaría     desape, test_every_action_prefix_has_a_color(), test_regex_parses_every_audit_call() (+3 more)
+
+### Community 288 - "Community 288"
+Cohesion: 0.31
+Nodes (8): Notification, Notificaciones in-app para el staff del gym., create_notification(), list_notifications(), list_outbox(), mark_all_read(), mark_read(), Log de envíos externos (WhatsApp) con su estado — solo owner.
+
+### Community 289 - "Community 289"
+Cohesion: 0.18
+Nodes (9): current_instructor(), my_members(), my_routines(), my_sessions(), Portal del entrenador: lo suyo y nada más.  Un entrenador entra con su propia cu, Sus sesiones: las de sus clases, más aquellas donde lo pusieron de reemplazo,, Las rutinas que él asignó, con el socio al que se las puso., La ficha de entrenador de quien está pidiendo.      Un usuario con rol `trainer` (+1 more)
+
+### Community 290 - "Community 290"
+Cohesion: 0.51
+Nodes (10): _auth(), _machine(), _owner_token(), Mantenimiento como negocio: costos, garantía, calendario, QR y áreas estables., _receptionist(), test_area_is_stored_as_a_stable_slug(), test_calendar_lists_what_is_due_and_skips_retired(), test_maintenance_costs_are_visible_to_who_manages_machines() (+2 more)
+
+### Community 291 - "Community 291"
+Cohesion: 0.35
+Nodes (10): _auth(), _crear_socio(), _owner_token(), Borrado de socios.  Todo socio nace con una membresía (plan_id es obligatorio en, Antes: 500 por la FK de memberships. Ahora: 204., El historial de caja se conserva: 409 con instrucción, nunca un 500., Los pases del día llevan precio: también son historial de caja., test_borrar_socio_con_membresia_funciona() (+2 more)
 
 ### Community 292 - "Community 292"
+Cohesion: 0.11
+Nodes (23): ClassAccess, Validación de acceso a clases según los derechos comprados (snapshot en la membr, validate_class_access(), effective_status(), next_chain_start(), Estado real de una membresía derivado de end_date/status (compute-on-read)., Estado real de una membresía derivado de end_date/status (compute-on-read)., Fecha de inicio real para una membresía nueva: si el miembro ya tiene una     v (+15 more)
+
+### Community 293 - "Community 293"
 Cohesion: 0.29
-Nodes (7): list_receivables(), Cuentas por cobrar: membresías vencidas/en gracia (≤30 días) para renovar,, Cuentas por cobrar: membresías vencidas/en gracia (≤30 días) para renovar,, Anula un pago pendiente que nunca se concretó (la transferencia no llegó)., Cuentas por cobrar: membresías vencidas/en gracia (≤30 días) para renovar,, Cuentas por cobrar: membresías vencidas/en gracia (≤30 días) para renovar,, Cuentas por cobrar: membresías vencidas/en gracia (≤30 días) para renovar,
+Nodes (8): _pages(), Los reportes son documentos para entregar, no volcados de tablas.  Portada, resu, _spec(), test_empty_charts_do_not_create_a_charts_sheet(), test_ingresos_export_compares_against_the_previous_period(), test_pdf_has_cover_summary_and_charts(), test_pdf_survives_empty_charts(), test_xlsx_opens_with_summary_charts_and_conditional_formatting()
 
 ### Community 294 - "Community 294"
 Cohesion: 0.83
 Nodes (3): deploy-lite.sh script, fail(), step()
 
 ### Community 295 - "Community 295"
+Cohesion: 0.12
+Nodes (15): _apply_membership_intent(), confirm_payment(), Crea/renueva la membresía descrita en el intent del payment_link., Transición pending→paid idempotente (única fuente de verdad para webhook     y, Transición pending→paid idempotente (única fuente de verdad para webhook     y r, activate_day_passes(), Un pase vendido por transferencia/Wompi da acceso solo cuando el pago     se co, Un pase vendido por transferencia/Wompi da acceso solo cuando el pago     se co (+7 more)
+
+### Community 296 - "Community 296"
+Cohesion: 0.15
+Nodes (14): build_pdf(), build_xlsx(), _chart_drawing(), _fmt(), _header(), _highlights(), Excel interpreta '=', '+', '-', '@' iniciales como fórmula: se neutraliza     e, Excel interpreta '=', '+', '-', '@' iniciales como fórmula: se neutraliza     e (+6 more)
+
+### Community 297 - "Community 297"
+Cohesion: 0.19
+Nodes (10): Exception, ChurnModel, _describe(), explain(), InsufficientData, Abandono: gradient boosting sobre el historial propio del gimnasio.  Cada fila e, Las razones de ESTE socio: los rasgos que más pesan en el modelo y en     los qu, No hay historial suficiente para entrenar algo en lo que confiar. (+2 more)
+
+### Community 298 - "Community 298"
+Cohesion: 0.32
+Nodes (7): _base(), build_query(), A quién le llega un anuncio.  Un envío masivo sin saber a cuántos le llega es un, Consulta de socios del segmento. Lanza ValueError si no existe., resolve_members(), preview_audience(), A cuántos —y a quiénes— les va a llegar. Enviar a ciegas es un incidente.
+
+### Community 299 - "Community 299"
+Cohesion: 0.29
+Nodes (5): migrate(), Pasa `machines.area` de etiqueta en español a slug estable en todos los gyms.  L, normalize_area(), Áreas de máquinas como slugs estables.  La pantalla guardaba la ETIQUETA en espa, Acepta el slug o la etiqueta vieja; cualquier otra cosa es un error.
+
+### Community 300 - "Community 300"
+Cohesion: 0.53
+Nodes (5): _bloque(), La caja del frontend ofrece exactamente las categorías y denominaciones del back, test_denominations_match(), test_expense_labels_match(), test_manual_categories_match()
+
+### Community 301 - "Community 301"
+Cohesion: 0.47
+Nodes (5): _entries(), Los nombres de capacidad que usa la UI tienen que existir en el backend.  La m, `MACHINES_WRITE: "machines.read"` es un typo que nadie ve hasta producción., test_cada_constante_vale_lo_mismo_que_en_el_backend(), test_toda_capacidad_de_la_ui_existe_en_el_backend()
+
+### Community 302 - "Community 302"
+Cohesion: 0.50
+Nodes (4): link(), normalize(), Empareja por nombre las clases que guardan el entrenador como texto suelto.  Ant, Clave de comparacion: sin espacios extra ni mayusculas.
+
+### Community 303 - "Community 303"
+Cohesion: 0.40
+Nodes (3): metadata, Props, viewport
+
+### Community 304 - "Community 304"
+Cohesion: 0.32
+Nodes (11): _delete_sync(), _ensure_bucket_sync(), is_public_key(), _presign_sync(), _public_policy(), public_url(), Almacenamiento de objetos S3-compatible (MinIO en local, AWS S3 en prod).  El mi, Cliente que firma contra la URL pública: la firma SigV4 incluye el host,     así (+3 more)
+
+### Community 305 - "Community 305"
+Cohesion: 0.20
+Nodes (4): _churn_data(), Los modelos aprenden patrones reales y caen con elegancia sin datos.  Datos sint, test_churn_model_learns_the_signal_and_explains_it(), test_churn_refuses_to_train_without_enough_history()
+
+### Community 307 - "Community 307"
+Cohesion: 0.50
+Nodes (3): name, private, version
+
+### Community 316 - "Community 316"
+Cohesion: 0.23
+Nodes (10): FormControl(), FormDescription(), FormFieldContext, FormFieldContextValue, FormItem(), FormItemContext, FormItemContextValue, FormLabel() (+2 more)
+
+### Community 319 - "Community 319"
+Cohesion: 0.55
+Nodes (10): _auth(), _cedula(), _owner_token(), Bloque 6: control de acceso (torniquete/lector) sobre el cerebro de check-in., test_day_pass_visitor_passes_only_today(), test_fingerprint_requires_consent_and_revocation_blocks(), test_offline_batch_is_idempotent_and_allowlist(), test_staff_token_rejected_and_inactive_device() (+2 more)
+
+### Community 320 - "Community 320"
+Cohesion: 0.35
+Nodes (10): _auth(), _owner_token(), Bloque 5: biblioteca de ejercicios, rutinas, asignación y pantalla del gym., Los nombres curados ganan y solo entran videos que el navegador abre., Cadena de respaldo: video del gym → video del catálogo → fotos., _seed_catalog(), test_catalog_import_is_idempotent_and_searchable(), test_gym_video_overrides_catalog_and_can_be_removed() (+2 more)
+
+### Community 321 - "Community 321"
+Cohesion: 0.22
+Nodes (7): lifespan(), Migración del Master DB al arrancar (para RDS fresco en producción).  El pipelin, run_master_migrations(), start_scheduler(), stop_scheduler(), ensure_bucket(), Crea el bucket si falta y aplica la política pública restrictiva. Se     llama a
+
+### Community 322 - "Community 322"
+Cohesion: 0.27
+Nodes (9): dayLabel(), DatePicker(), DatePickerProps, DAYS_ES, getDaysInMonth(), getFirstDayOfMonth(), isSameDay(), isToday() (+1 more)
+
+### Community 323 - "Community 323"
+Cohesion: 0.31
+Nodes (8): backtest(), fit(), HoltWinters, project_month(), Ingresos del mes: Holt-Winters aditivo con estacionalidad semanal.  Un gimnasio, Error del total de las últimas `holdout` jornadas: el modelo contra el     ritmo, Cierre del mes con una banda del 80 %.      `skip`: pasos del pronóstico que ya, _run()
+
+### Community 324 - "Community 324"
+Cohesion: 0.20
+Nodes (10): UTC naive — para comparar contra created_at (server_default now() en UTC)., utcnow_naive(), purge_expired_keys(), Las claves solo sirven para la ventana de reintento., stockout(), revoke_biometric_consent(), revoke_credential(), maintenance_costs() (+2 more)
+
+### Community 325 - "Community 325"
+Cohesion: 0.28
+Nodes (7): decrypt_secret(), encrypt_secret(), _fernet(), get_gym_settings(), Devuelve la fila única de configuración del gym, creándola con     defaults si e, Cifra y asigna un campo secreto (no hace commit)., set_secret()
+
+### Community 326 - "Community 326"
+Cohesion: 0.25
+Nodes (9): _emit_expiry_reminders(), _has_renewal_after(), Encola recordatorios de vencimiento a D-3, D-0 y vencida D+3 (idempotente     po, Encola recordatorios de vencimiento a D-3, D-0 y vencida D+3 (idempotente     p, Encola recordatorios de vencimiento a D-3, D-0 y vencida D+3 (idempotente     p, Encola recordatorios de vencimiento a D-3, D-0 y vencida D+3 (idempotente     p, True si el miembro ya tiene otra membresía vigente/programada que arranca     de, True si el miembro ya tiene otra membresía vigente/programada que arranca     d (+1 more)
+
+### Community 327 - "Community 327"
+Cohesion: 0.22
+Nodes (9): count_missing_id_number(), Cuántos miembros antiguos no tienen cédula — alimenta el banner del frontend., Cuántos miembros antiguos no tienen cédula — alimenta el banner del frontend., Cuántos miembros antiguos no tienen cédula — alimenta el banner del frontend., Cuántos miembros antiguos no tienen cédula — alimenta el banner del frontend., Cuántos miembros antiguos no tienen cédula — alimenta el banner del frontend., Cuántos miembros antiguos no tienen cédula — alimenta el banner del frontend., Cuántos miembros antiguos no tienen cédula — alimenta el banner del frontend. (+1 more)
+
+### Community 328 - "Community 328"
+Cohesion: 0.22
+Nodes (9): get_billing_summary(), Resumen de cobro para el POS: membresía vigente/última, días vencidos,     sald, Resumen de cobro para el POS: membresía vigente/última, días vencidos,     sald, Resumen de cobro para el POS: membresía vigente/última, días vencidos,     sald, Resumen de cobro para el POS: membresía vigente/última, días vencidos,     sald, Resumen de cobro para el POS: membresía vigente/última, días vencidos,     sald, Resumen de cobro para el POS: membresía vigente/última, días vencidos,     sald, Resumen de cobro para el POS: membresía vigente/última, días vencidos,     sald (+1 more)
+
+### Community 329 - "Community 329"
+Cohesion: 0.46
+Nodes (7): _machine_by_token(), public_machine(), public_machine_fault(), Endpoints públicos por enlace firmado (sin JWT): el socio abre su comprobante d, Reporte de avería sin cuenta, desde el QR de la máquina.      Queda como corre, _tenant_activo(), _tenant_session()
+
+### Community 330 - "Community 330"
+Cohesion: 0.39
+Nodes (7): _log(), Cerebro único de acceso: kiosko, recepción, torniquete y lectores llaman aquí., Lote que el agente reporta tras un corte de red. Idempotente por     client_eve, → (socio, tipo de credencial usada, referencia). El ID de usuario dentro     de, record_offline_events(), resolve_member(), verify_access()
+
+### Community 331 - "Community 331"
+Cohesion: 0.32
+Nodes (7): build_template(), import_members(), _integrity_field(), _normalize(), Importación masiva de miembros desde Excel.  Resuelve el problema de "datos si, download_import_template(), import_members_file()
+
+### Community 332 - "Community 332"
+Cohesion: 0.25
+Nodes (7): Inventario: velocidad de venta suavizada y con patrón semanal.  El promedio plan, Suavizado exponencial simple sobre ventas diarias (la última al final)., Cuánto pesa cada día de la semana respecto al promedio (1 = normal)., Simula día a día con el patrón semanal hasta agotar el stock., run_out(), smoothed_velocity(), weekday_profile()
+
+### Community 333 - "Community 333"
+Cohesion: 0.32
+Nodes (5): La inteligencia entrena con el historial de un gimnasio y cae a reglas sin él., Un gimnasio con 10 meses de vida y tres tipos de socio con destinos distintos., _synthetic_history(), test_churn_features_are_seen_at_the_cutoff_not_today(), test_every_model_trains_on_a_gym_with_history()
+
+### Community 334 - "Community 334"
+Cohesion: 0.25
+Nodes (8): Sube la foto del socio a almacenamiento S3-compatible y persiste su URL., Sube la foto del socio a almacenamiento S3-compatible y persiste su URL., Sube la foto del socio a almacenamiento S3-compatible y persiste su URL., Sube la foto del socio a almacenamiento S3-compatible y persiste su URL., Sube la foto del socio a almacenamiento S3-compatible y persiste su URL., Sube la foto del socio a almacenamiento S3-compatible y persiste su URL., Sube la foto del socio a almacenamiento S3-compatible y persiste su URL., upload_member_photo()
+
+### Community 335 - "Community 335"
+Cohesion: 0.25
+Nodes (8): list_receivables(), Cuentas por cobrar: membresías vencidas/en gracia (≤30 días) para renovar,, Cuentas por cobrar: membresías vencidas/en gracia (≤30 días) para renovar,, Anula un pago pendiente que nunca se concretó (la transferencia no llegó)., Cuentas por cobrar: membresías vencidas/en gracia (≤30 días) para renovar,, Cuentas por cobrar: membresías vencidas/en gracia (≤30 días) para renovar,, Cuentas por cobrar: membresías vencidas/en gracia (≤30 días) para renovar,, Cuentas por cobrar: membresías vencidas/en gracia (≤30 días) para renovar,
+
+### Community 336 - "Community 336"
+Cohesion: 0.33
+Nodes (6): Tipo real por magic bytes: no confiar en el content-type del cliente., Tipo real por magic bytes: no confiar en el content-type del cliente., Sube el video del gym para un ejercicio: "así se hace en ESTA máquina".     Pis, Sube el video del gym para un ejercicio: "así se hace en ESTA máquina".     Pis, _sniff_video(), upload_exercise_video()
+
+### Community 337 - "Community 337"
+Cohesion: 0.40
+Nodes (4): has_perm(), Matriz declarativa de permisos por rol.  Antes, cada endpoint decidía por su c, list_expenses(), Los egresos de UN turno los ve quien puede registrarlos; el histórico     comple
+
+### Community 338 - "Community 338"
+Cohesion: 0.40
+Nodes (3): expected_grid(), Aforo esperado para los próximos 7 días, por hora.  Regresión sobre la matriz dí, Matriz 7×24 de entradas esperadas. `visits` en hora local del gimnasio.
+
+### Community 339 - "Community 339"
+Cohesion: 0.50
+Nodes (4): _nombrar(), Segmentos de socios con K-means sobre recencia, frecuencia, gasto, antigüedad y, X: filas en el orden de `COLUMNS`. Devuelve etiquetas y descripción de cada grup, segment()
+
+### Community 340 - "Community 340"
+Cohesion: 0.40
+Nodes (5): delete_plan(), Borra un plan. Si tiene membresías asociadas, lo archiva (soft-delete)     para, Borra un plan. Si tiene membresías asociadas, lo archiva (soft-delete)     para, Borra un plan. Si tiene membresías asociadas, lo archiva (soft-delete)     para, Borra un plan. Si tiene membresías asociadas, lo archiva (soft-delete)     para
+
+### Community 341 - "Community 341"
+Cohesion: 0.67
+Nodes (3): detect(), Días que se salen de lo normal: IsolationForest sobre ingresos y asistencia diar, _veces()
+
+### Community 342 - "Community 342"
+Cohesion: 0.50
+Nodes (3): plan_elasticity(), Elasticidad del precio por plan sobre las renovaciones históricas.  Solo se pued, rows: [{plan_name, price, renewed(bool)}] de membresías ya terminadas.
+
+### Community 343 - "Community 343"
+Cohesion: 0.67
+Nodes (3): Le da a un gimnasio de QA diez meses de historia para que los modelos tengan con, seed(), _utc()
+
+### Community 345 - "Community 345"
 Cohesion: 0.67
 Nodes (3): 7. NOTIFICACIONES, Fase 2: WhatsApp Business API, MVP: Email + In-app
 
 ## Knowledge Gaps
-- **919 isolated node(s):** `command`, `args`, `OBSIDIAN_VAULT_PATH`, `Config`, `{ handlers, signIn, signOut, auth }` (+914 more)
+- **1046 isolated node(s):** `command`, `args`, `OBSIDIAN_VAULT_PATH`, `runtests.sh script`, `MASTER_DATABASE_URL` (+1041 more)
   These have ≤1 connection - possible missing edges or undocumented components.
-- **38 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
+- **40 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
 
 ## Suggested Questions
 _Questions this graph is uniquely positioned to answer:_
 
-- **Why does `Notification` connect `Community 130` to `Community 224`, `Community 151`?**
-  _High betweenness centrality (0.187) - this node is a cross-community bridge._
-- **Why does `today_bogota()` connect `Community 193` to `Community 257`, `Community 3`, `Community 259`, `Community 8`, `Community 140`, `Community 273`, `Community 19`, `Community 275`, `Community 156`, `Community 159`, `Community 162`, `Community 292`, `Community 169`, `Community 47`, `Community 178`, `Community 180`, `Community 184`, `Community 56`, `Community 203`, `Community 211`, `Community 86`, `Community 219`, `Community 226`, `Community 236`, `Community 238`, `Community 240`, `Community 245`, `Community 255`?**
-  _High betweenness centrality (0.137) - this node is a cross-community bridge._
-- **Why does `NotificationsSection` connect `Community 224` to `Community 216`, `Community 130`, `Community 4`, `Community 190`?**
-  _High betweenness centrality (0.130) - this node is a cross-community bridge._
-- **Are the 89 inferred relationships involving `today_bogota()` (e.g. with `list_today_checkins()` and `list_sessions()`) actually correct?**
-  _`today_bogota()` has 89 INFERRED edges - model-reasoned connections that need verification._
-- **Are the 60 inferred relationships involving `TenantBase` (e.g. with `BiometricConsent` and `MemberCredential`) actually correct?**
-  _`TenantBase` has 60 INFERRED edges - model-reasoned connections that need verification._
+- **Why does `Notification` connect `Community 288` to `Community 130`, `Community 4`, `Community 151`?**
+  _High betweenness centrality (0.186) - this node is a cross-community bridge._
+- **Why does `today_bogota()` connect `Community 257` to `Community 259`, `Community 140`, `Community 273`, `Community 19`, `Community 275`, `Community 149`, `Community 282`, `Community 284`, `Community 156`, `Community 159`, `Community 289`, `Community 162`, `Community 290`, `Community 292`, `Community 295`, `Community 296`, `Community 169`, `Community 298`, `Community 172`, `Community 47`, `Community 178`, `Community 184`, `Community 56`, `Community 187`, `Community 193`, `Community 324`, `Community 326`, `Community 328`, `Community 203`, `Community 335`, `Community 210`, `Community 211`, `Community 86`, `Community 343`, `Community 219`, `Community 224`, `Community 226`, `Community 236`, `Community 255`?**
+  _High betweenness centrality (0.182) - this node is a cross-community bridge._
+- **Why does `NotificationsSection` connect `Community 4` to `Community 288`, `Community 190`, `Community 253`, `Community 30`?**
+  _High betweenness centrality (0.132) - this node is a cross-community bridge._
+- **Are the 116 inferred relationships involving `today_bogota()` (e.g. with `list_today_checkins()` and `delete_class()`) actually correct?**
+  _`today_bogota()` has 116 INFERRED edges - model-reasoned connections that need verification._
+- **Are the 66 inferred relationships involving `TenantBase` (e.g. with `BiometricConsent` and `MemberCredential`) actually correct?**
+  _`TenantBase` has 66 INFERRED edges - model-reasoned connections that need verification._
+- **Are the 64 inferred relationships involving `audit()` (e.g. with `create_biometric_consent()` and `revoke_biometric_consent()`) actually correct?**
+  _`audit()` has 64 INFERRED edges - model-reasoned connections that need verification._
 - **What connects `command`, `args`, `OBSIDIAN_VAULT_PATH` to the rest of the system?**
-  _1482 weakly-connected nodes found - possible documentation gaps or missing edges._
-- **Should `Community 0` be split into smaller, more focused modules?**
-  _Cohesion score 0.10256410256410256 - nodes in this community are weakly interconnected._
+  _1950 weakly-connected nodes found - possible documentation gaps or missing edges._
