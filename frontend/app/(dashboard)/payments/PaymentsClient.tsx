@@ -2,9 +2,9 @@
 
 import { useState } from "react";
 import { useSearchParams } from "next/navigation";
-import { motion } from "framer-motion";
 import Link from "next/link";
 import { PageHeader } from "@/components/common/PageHeader";
+import { buttonVariants } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { PosTab } from "./PosTab";
 import { HistoryTab } from "./HistoryTab";
@@ -28,7 +28,7 @@ export default function PaymentsClient() {
   const initialMember = searchParams.get("member") ?? undefined;
   const initialTab = searchParams.get("tab");
   const [tab, setTab] = useState<Tab>(
-    initialTab && ["pos", "daypass", "history", "receivables", "products"].includes(initialTab) ? (initialTab as Tab) : "pos"
+    initialTab && TABS.some((t) => t.key === initialTab) ? (initialTab as Tab) : "pos"
   );
   const [posMember, setPosMember] = useState<string | undefined>(initialMember);
   // Cambia cuando el POS registra un cobro, para que el historial se refresque
@@ -40,55 +40,54 @@ export default function PaymentsClient() {
   };
 
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 8 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ ease: [0.16, 1, 0.3, 1], duration: 0.35 }}
-      className="space-y-6"
-    >
+    <div className="space-y-6">
       <PageHeader
-        module="payments"
+        className="mb-0"
         title="Caja y pagos"
-        subtitle="Cobra renovaciones, pases del día y productos; concilia transferencias"
+        subtitle="Cobra renovaciones, pases del día y productos, y confirma las transferencias."
         action={
-          <Link
-            href="/payments/cash"
-            className="flex items-center gap-1.5 px-3 py-2 rounded-lg border border-[var(--border-base)] text-sm font-medium text-[var(--text-muted)] hover:text-[var(--text-base)] hover:bg-[var(--bg-base)] transition-colors"
-          >
-            <Wallet className="h-4 w-4" />
-            Turno de caja
+          <Link href="/payments/cash" className={buttonVariants({ variant: "outline", size: "lg" })}>
+            <Wallet /> Turno de caja
           </Link>
         }
       />
 
-      <div className="flex gap-1 rounded-xl border border-[var(--border-base)] bg-[var(--bg-card)] p-1 w-fit max-w-full overflow-x-auto">
-        {TABS.map(({ key, label, icon: Icon }) => (
-          <button
-            key={key}
-            onClick={() => setTab(key)}
-            className={cn(
-              "flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-sm font-medium whitespace-nowrap transition-ui",
-              tab === key
-                ? "bg-[var(--color-primary)] text-[var(--color-primary-contrast)]"
-                : "text-[var(--text-muted)] hover:text-[var(--text-base)]"
-            )}
-          >
-            <Icon className="h-3.5 w-3.5" />
-            {label}
-          </button>
-        ))}
+      {/* Pestañas con scroll propio en móvil: nunca empujan el ancho de la página. */}
+      <div
+        role="tablist"
+        aria-label="Secciones de caja y pagos"
+        className="-mx-4 flex gap-1 overflow-x-auto border-b border-line px-4 [scrollbar-width:none] md:mx-0 md:px-0"
+      >
+        {TABS.map(({ key, label, icon: Icon }) => {
+          const active = tab === key;
+          return (
+            <button
+              key={key}
+              type="button"
+              role="tab"
+              aria-selected={active}
+              onClick={() => setTab(key)}
+              className={cn(
+                "relative flex h-11 shrink-0 items-center gap-2 whitespace-nowrap px-3 text-sm font-medium outline-none transition-colors duration-150",
+                "after:absolute after:inset-x-2 after:-bottom-px after:h-0.5 after:rounded-full",
+                "focus-visible:rounded-[var(--radius-sm)] focus-visible:ring-2 focus-visible:ring-primary/40",
+                active ? "text-ink after:bg-primary" : "text-ink-muted hover:text-ink"
+              )}
+            >
+              <Icon className="size-4" aria-hidden="true" />
+              {label}
+            </button>
+          );
+        })}
       </div>
 
       {tab === "pos" && (
-        <PosTab
-          preselectedMember={posMember}
-          onCharged={() => setRefreshSignal((n) => n + 1)}
-        />
+        <PosTab preselectedMember={posMember} onCharged={() => setRefreshSignal((n) => n + 1)} />
       )}
       {tab === "daypass" && <DayPassTab onSold={() => setRefreshSignal((n) => n + 1)} />}
       {tab === "history" && <HistoryTab refreshSignal={refreshSignal} />}
       {tab === "receivables" && <ReceivablesTab onCollect={collectFrom} />}
       {tab === "products" && <ProductsTab />}
-    </motion.div>
+    </div>
   );
 }

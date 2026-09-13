@@ -263,7 +263,7 @@ export function DayPassTab({ onSold }: { onSold?: () => void }) {
         ) : (
           <form onSubmit={sell} className="space-y-3">
             <div className="space-y-1">
-              <Label className="text-[var(--text-muted)] text-xs">Cédula</Label>
+              <Label>Cédula</Label>
               <div className="relative">
                 <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-[var(--text-muted)]" />
                 <Input
@@ -282,7 +282,7 @@ export function DayPassTab({ onSold }: { onSold?: () => void }) {
                     initial={{ opacity: 0, y: -4 }}
                     animate={{ opacity: 1, y: 0 }}
                     exit={{ opacity: 0 }}
-                    className="text-xs flex items-center gap-1.5 text-emerald-600 dark:text-emerald-400"
+                    className="text-xs flex items-center gap-1.5 text-[var(--signal-ok)]"
                   >
                     <UserCheck className="h-3.5 w-3.5" />
                     {lookup.member_type === "visitor" ? "Visitante conocido" : "Ya es socio del gym"} · {lookup.full_name}
@@ -291,16 +291,16 @@ export function DayPassTab({ onSold }: { onSold?: () => void }) {
               </AnimatePresence>
             </div>
             <div className="space-y-1">
-              <Label className="text-[var(--text-muted)] text-xs">Nombre</Label>
+              <Label>Nombre</Label>
               <Input value={fullName} onChange={(e) => setFullName(e.target.value)} placeholder="Nombre completo" />
             </div>
             <div className="space-y-1">
-              <Label className="text-[var(--text-muted)] text-xs">Celular (opcional)</Label>
+              <Label>Celular (opcional)</Label>
               <Input value={phone} onChange={(e) => setPhone(e.target.value)} placeholder="300 123 4567" inputMode="tel" />
             </div>
 
             <div className="space-y-1">
-              <Label className="text-[var(--text-muted)] text-xs">Tipo de pase</Label>
+              <Label>Tipo de pase</Label>
               <div className="grid grid-cols-1 gap-1.5">
                 {types.data.map((t) => (
                   <button
@@ -308,10 +308,10 @@ export function DayPassTab({ onSold }: { onSold?: () => void }) {
                     type="button"
                     onClick={() => setTypeId(t.id)}
                     className={cn(
-                      "flex items-center justify-between rounded-xl border px-3 py-2 text-sm transition-ui",
+                      "flex min-h-11 items-center justify-between rounded-[var(--radius-md)] border px-3 py-2 text-sm transition-ui",
                       typeId === t.id
-                        ? "border-[var(--color-primary)] bg-[var(--color-primary)]/10 text-[var(--text-base)]"
-                        : "border-[var(--border-base)] text-[var(--text-muted)] hover:border-[var(--color-primary)]/50"
+                        ? "border-primary bg-primary-muted text-ink"
+                        : "border-line text-ink-muted hover:border-primary/50 hover:text-ink"
                     )}
                   >
                     <span className="flex items-center gap-2">
@@ -329,7 +329,7 @@ export function DayPassTab({ onSold }: { onSold?: () => void }) {
             <Button
               type="submit"
               disabled={selling || !selectedType}
-              className="w-full h-12 text-base bg-[var(--color-primary)] text-[var(--color-primary-contrast)] font-bold hover:bg-[var(--color-primary-hover)]"
+              size="lg" className="w-full h-12 text-base"
             >
               {selling ? (
                 <Loader2 className="h-4 w-4 animate-spin" />

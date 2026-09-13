@@ -36,7 +36,7 @@ export const DENOMINATIONS = [100_000, 50_000, 20_000, 10_000, 5_000, 2_000, 1_0
 
 export const KIND_TONES: Record<string, "success" | "info" | "violet" | "neutral"> = {
   membership: "success",
-  day_pass: "violet",
+  day_pass: "info",
   product: "info",
   other: "neutral",
 };

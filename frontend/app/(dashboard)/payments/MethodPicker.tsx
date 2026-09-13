@@ -58,10 +58,10 @@ export function MethodPicker({
             type="button"
             onClick={() => onChange(key)}
             className={cn(
-              "flex flex-col items-center gap-1 rounded-xl border px-2 py-2.5 text-xs font-medium transition-ui",
+              "flex min-h-14 flex-col items-center justify-center gap-1 rounded-[var(--radius-md)] border px-2 py-2 text-xs font-medium transition-ui",
               value === key
-                ? "border-[var(--color-primary)] bg-[var(--color-primary)]/10 text-[var(--text-base)]"
-                : "border-[var(--border-base)] text-[var(--text-muted)] hover:border-[var(--color-primary)]/50"
+                ? "border-primary bg-primary-muted text-ink"
+                : "border-line text-ink-muted hover:border-primary/50 hover:text-ink"
             )}
           >
             <Icon className="h-4 w-4" />
@@ -80,9 +80,9 @@ export function MethodPicker({
                 type="button"
                 onClick={() => set({ transfer_account_id: a.id })}
                 className={cn(
-                  "flex items-center gap-1.5 rounded-lg border px-2.5 py-1.5 text-xs transition-ui",
+                  "flex h-8 items-center gap-1.5 rounded-[var(--radius-md)] border px-2.5 text-xs transition-ui",
                   selected
-                    ? "border-[var(--color-primary)] bg-[var(--color-primary)]/10 text-[var(--text-base)] font-semibold"
+                    ? "border-primary bg-primary-muted text-ink font-medium"
                     : "border-[var(--border-base)] text-[var(--text-muted)] hover:text-[var(--text-base)]"
                 )}
               >
@@ -98,7 +98,7 @@ export function MethodPicker({
         </div>
       )}
       {value === "transfer" && active.length === 0 && (
-        <p className="text-xs text-amber-600 dark:text-amber-400">
+        <p className="text-xs text-[var(--signal-warn)]">
           Sin cuentas de recaudo: agrégalas en Ajustes › Recaudo para cobrar por transferencia.
         </p>
       )}
@@ -109,13 +109,13 @@ export function MethodPicker({
             value={d.card_approval_code}
             onChange={(e) => set({ card_approval_code: e.target.value })}
             placeholder="Nº aprobación voucher"
-            className="h-8 text-xs"
+            className="text-sm"
           />
           <Input
             value={d.card_terminal}
             onChange={(e) => set({ card_terminal: e.target.value })}
             placeholder="Datáfono (opcional)"
-            className="h-8 text-xs"
+            className="text-sm"
           />
         </div>
       )}

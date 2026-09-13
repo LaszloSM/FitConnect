@@ -127,7 +127,7 @@ export function ReceivablesTab({ onCollect }: { onCollect: (memberId: string) =>
                   e.stopPropagation();
                   void sendWompiLink(r);
                 }}
-                className="h-8 w-8 rounded-lg border border-[var(--border-base)] flex items-center justify-center text-[var(--text-muted)] hover:text-[var(--color-primary-ink)] hover:border-[var(--color-primary)]/50 transition-ui disabled:opacity-50"
+                className="size-9 rounded-md border border-[var(--border-base)] flex items-center justify-center text-[var(--text-muted)] hover:text-[var(--color-primary-ink)] hover:border-[var(--color-primary)]/50 transition-ui disabled:opacity-50"
               >
                 {linkBusy === `${r.member_id}-${r.kind}` ? (
                   <Loader2 className="h-4 w-4 animate-spin" />
@@ -142,7 +142,7 @@ export function ReceivablesTab({ onCollect }: { onCollect: (memberId: string) =>
                 target="_blank"
                 rel="noopener noreferrer"
                 title="Recordar por WhatsApp"
-                className="h-8 w-8 rounded-lg border border-[var(--border-base)] flex items-center justify-center text-[var(--text-muted)] hover:text-emerald-600 hover:border-emerald-300 transition-ui"
+                className="size-9 rounded-md border border-[var(--border-base)] flex items-center justify-center text-[var(--text-muted)] hover:text-[var(--signal-ok)] hover:border-[var(--signal-ok-line)] transition-ui"
                 onClick={(e) => e.stopPropagation()}
               >
                 <MessageCircle className="h-4 w-4" />
@@ -154,7 +154,6 @@ export function ReceivablesTab({ onCollect }: { onCollect: (memberId: string) =>
                 e.stopPropagation();
                 onCollect(r.member_id);
               }}
-              className="bg-[var(--color-primary)] text-[var(--color-primary-contrast)] hover:bg-[var(--color-primary-hover)]"
             >
               <HandCoins className="h-3.5 w-3.5 mr-1.5" />
               Cobrar

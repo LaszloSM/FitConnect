@@ -74,11 +74,11 @@ interface Movement {
 }
 
 const MOVEMENT_LABELS: Record<Movement["type"], { label: string; cls: string }> = {
-  purchase: { label: "Compra", cls: "text-emerald-600 dark:text-emerald-400" },
+  purchase: { label: "Compra", cls: "text-[var(--signal-ok)]" },
   sale: { label: "Venta", cls: "text-[var(--text-base)]" },
-  adjustment: { label: "Ajuste", cls: "text-sky-600 dark:text-sky-400" },
-  waste: { label: "Merma", cls: "text-red-500" },
-  return: { label: "Devolución", cls: "text-violet-600 dark:text-violet-400" },
+  adjustment: { label: "Ajuste", cls: "text-[var(--signal-info)]" },
+  waste: { label: "Merma", cls: "text-[var(--signal-danger)]" },
+  return: { label: "Devolución", cls: "text-ink-muted" },
 };
 
 type MovementType = "purchase" | "adjustment" | "waste";
@@ -226,9 +226,17 @@ export function ProductsTab() {
     }
   };
 
+  const [catToDelete, setCatToDelete] = useState<string | null>(null);
+
+  // Confirmación en línea en vez de window.confirm: el diálogo nativo no sigue
+  // el tema y en móvil tapa el formulario desde el que se llamó.
   const removeCategory = async (c: Category) => {
     if (!session?.accessToken) return;
-    if (!window.confirm(`¿Eliminar la categoría "${c.name}"? Los productos quedan sin categoría.`)) return;
+    if (catToDelete !== c.id) {
+      setCatToDelete(c.id);
+      return;
+    }
+    setCatToDelete(null);
     try {
       await client().delete(`/api/v1/products/categories/${c.id}`);
       await Promise.all([categories.refetch(), products.refetch()]);
@@ -264,7 +272,7 @@ export function ProductsTab() {
       key: "qty",
       header: "Cant.",
       cell: (m) => (
-        <span className={cn("font-mono font-semibold", m.quantity > 0 ? "text-emerald-600 dark:text-emerald-400" : "text-[var(--text-base)]")}>
+        <span className={cn("font-mono font-semibold", m.quantity > 0 ? "text-[var(--signal-ok)]" : "text-ink")}>
           {m.quantity > 0 ? `+${m.quantity}` : m.quantity}
         </span>
       ),
@@ -297,12 +305,12 @@ export function ProductsTab() {
               <h2 className="text-sm font-semibold text-[var(--text-base)]">Inventario</h2>
               <p className="text-xs text-[var(--text-muted)]">
                 {products.data.length} producto{products.data.length === 1 ? "" : "s"} · valor a costo {formatCOP(inventoryValue)}
-                {lowCount > 0 && <span className="text-amber-600 dark:text-amber-400 font-semibold"> · {lowCount} con stock bajo</span>}
+                {lowCount > 0 && <span className="text-[var(--signal-warn)] font-medium"> · {lowCount} con stock bajo</span>}
               </p>
             </div>
           </div>
           <div className="flex items-center gap-2">
-            <Button variant="outline" onClick={() => setCatDialog(true)} className="h-9 text-xs">
+            <Button variant="outline" size="lg" onClick={() => setCatDialog(true)}>
               <Tags className="h-3.5 w-3.5 mr-1.5" /> Categorías
             </Button>
             <FormDialog
@@ -310,7 +318,7 @@ export function ProductsTab() {
               onOpenChange={setDialogOpen}
               title={editing ? "Editar producto" : "Nuevo producto"}
               trigger={
-                <Button onClick={openCreate} className="bg-[var(--color-primary)] text-[var(--color-primary-contrast)] hover:bg-[var(--color-primary-hover)] h-9">
+                <Button onClick={openCreate} size="lg">
                   <Plus className="h-4 w-4 mr-2" />
                   Nuevo producto
                 </Button>
@@ -334,7 +342,7 @@ export function ProductsTab() {
                 <select
                   value={form.category_id}
                   onChange={(e) => setForm({ ...form, category_id: e.target.value })}
-                  className="w-full h-9 rounded-md border border-[var(--border-base)] bg-[var(--bg-base)] px-3 text-sm text-[var(--text-base)]"
+                  className="w-full h-10 md:h-9 rounded-[var(--radius-md)] border border-line bg-field px-3 text-sm text-ink"
                 >
                   <option value="">Sin categoría</option>
                   {categories.data.map((c) => <option key={c.id} value={c.id}>{c.name}</option>)}
@@ -361,15 +369,15 @@ export function ProductsTab() {
         </div>
 
         <div className="flex items-center gap-2 flex-wrap">
-          <div className="relative w-56">
+          <div className="relative w-full sm:w-64">
             <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-[var(--text-muted)]" />
-            <Input value={query} onChange={(e) => setQuery(e.target.value)} placeholder="Nombre, SKU o código de barras" className="pl-8 h-8 text-sm" />
+            <Input value={query} onChange={(e) => setQuery(e.target.value)} placeholder="Nombre, SKU o código de barras" className="pl-8" />
           </div>
           <div className="flex gap-1.5 flex-wrap">
             <button
               type="button"
               onClick={() => setCategoryFilter("")}
-              className={cn("rounded-full px-2.5 py-1 text-xs font-medium border transition-colors", !categoryFilter ? "bg-[var(--text-base)] text-[var(--bg-base)] border-transparent" : "border-[var(--border-base)] text-[var(--text-muted)] hover:text-[var(--text-base)]")}
+              className={cn("h-8 rounded-[var(--radius-md)] px-3 text-xs font-medium border transition-colors", !categoryFilter ? "bg-[var(--text-base)] text-[var(--bg-base)] border-transparent" : "border-[var(--border-base)] text-[var(--text-muted)] hover:text-[var(--text-base)]")}
             >
               Todas
             </button>
@@ -378,7 +386,7 @@ export function ProductsTab() {
                 key={c.id}
                 type="button"
                 onClick={() => setCategoryFilter(c.id === categoryFilter ? "" : c.id)}
-                className={cn("rounded-full px-2.5 py-1 text-xs font-medium border transition-colors", categoryFilter === c.id ? "bg-[var(--text-base)] text-[var(--bg-base)] border-transparent" : "border-[var(--border-base)] text-[var(--text-muted)] hover:text-[var(--text-base)]")}
+                className={cn("h-8 rounded-[var(--radius-md)] px-3 text-xs font-medium border transition-colors", categoryFilter === c.id ? "bg-[var(--text-base)] text-[var(--bg-base)] border-transparent" : "border-[var(--border-base)] text-[var(--text-muted)] hover:text-[var(--text-base)]")}
               >
                 {c.name}
               </button>
@@ -414,40 +422,40 @@ export function ProductsTab() {
                   initial={{ opacity: 0, y: 8 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.25, delay: Math.min(i * 0.04, 0.3) }}
-                  className="group rounded-xl border border-[var(--border-base)] bg-[var(--bg-base)] p-3 space-y-1.5"
+                  className="group rounded-[var(--radius-lg)] border border-line bg-surface p-3 space-y-1.5"
                 >
                   <div className="flex items-start justify-between gap-2">
                     <div className="min-w-0">
                       <p className="text-sm font-semibold text-[var(--text-base)] truncate">{p.name}</p>
-                      <p className="text-[10px] text-[var(--text-muted)] truncate">
+                      <p className="text-xs text-[var(--text-muted)] truncate">
                         {p.category_name ?? "Sin categoría"}{p.sku ? ` · ${p.sku}` : ""}
                       </p>
                     </div>
-                    <div className="flex gap-0.5 opacity-0 group-hover:opacity-100 transition-opacity shrink-0">
-                      <button onClick={() => openEdit(p)} title="Editar" className="h-6 w-6 rounded-md flex items-center justify-center text-[var(--text-muted)] hover:text-[var(--text-base)]"><Pencil className="h-3 w-3" /></button>
-                      <button onClick={() => archive(p)} title="Archivar" className="h-6 w-6 rounded-md flex items-center justify-center text-[var(--text-muted)] hover:text-red-500"><Archive className="h-3 w-3" /></button>
+                    <div className="flex gap-0.5 shrink-0 transition-opacity md:opacity-0 md:group-hover:opacity-100 md:group-focus-within:opacity-100">
+                      <button onClick={() => openEdit(p)} title="Editar" aria-label={"Editar " + p.name} className="size-8 rounded-md flex items-center justify-center text-[var(--text-muted)] hover:text-[var(--text-base)]"><Pencil className="h-3 w-3" /></button>
+                      <button onClick={() => archive(p)} title="Archivar" aria-label={"Archivar " + p.name} className="size-8 rounded-md flex items-center justify-center text-[var(--text-muted)] hover:text-[var(--signal-danger)]"><Archive className="h-3 w-3" /></button>
                     </div>
                   </div>
                   <div className="flex items-baseline justify-between gap-2">
                     <p className="text-base font-bold text-[var(--text-base)] font-mono">{formatCOP(p.price)}</p>
                     {margin != null && (
-                      <p className={cn("text-[10px] font-mono", margin >= 0 ? "text-emerald-600 dark:text-emerald-400" : "text-red-500")}>
+                      <p className={cn("text-xs font-mono tabular-nums", margin >= 0 ? "text-ink-muted" : "text-[var(--signal-danger)]")}>
                         margen {formatCOP(margin)}
                       </p>
                     )}
                   </div>
-                  <p className={cn("text-xs flex items-center gap-1", p.stock <= 0 ? "text-red-500 font-semibold" : low ? "text-amber-600 dark:text-amber-400 font-semibold" : "text-[var(--text-muted)]")}>
+                  <p className={cn("text-xs flex items-center gap-1", p.stock <= 0 ? "text-[var(--signal-danger)] font-medium" : low ? "text-[var(--signal-warn)] font-medium" : "text-[var(--text-muted)]")}>
                     {low && <TriangleAlert className="h-3 w-3" />}
                     {p.stock <= 0 ? "Agotado" : `${p.stock} en stock`}
                   </p>
                   <div className="flex items-center gap-1 pt-1 border-t border-[var(--border-base)]">
-                    <button type="button" onClick={() => openMovement(p, "purchase")} title="Entrada por compra" className="flex-1 h-7 rounded-md text-[11px] font-medium text-[var(--text-muted)] hover:text-emerald-600 hover:bg-emerald-50 dark:hover:bg-emerald-950/30 flex items-center justify-center gap-1 transition-colors">
+                    <button type="button" onClick={() => openMovement(p, "purchase")} title="Entrada por compra" className="flex-1 h-8 rounded-md text-xs font-medium text-ink-muted hover:text-[var(--signal-ok)] hover:bg-muted flex items-center justify-center gap-1 transition-colors">
                       <ArrowDownToLine className="h-3 w-3" /> Entrada
                     </button>
-                    <button type="button" onClick={() => openMovement(p, "waste")} title="Merma / dañado" className="flex-1 h-7 rounded-md text-[11px] font-medium text-[var(--text-muted)] hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-950/30 flex items-center justify-center gap-1 transition-colors">
+                    <button type="button" onClick={() => openMovement(p, "waste")} title="Merma / dañado" className="flex-1 h-8 rounded-md text-xs font-medium text-ink-muted hover:text-[var(--signal-danger)] hover:bg-muted flex items-center justify-center gap-1 transition-colors">
                       <ArrowUpFromLine className="h-3 w-3" /> Merma
                     </button>
-                    <button type="button" onClick={() => setHistoryFor(p)} title="Historial" className="h-7 w-7 rounded-md text-[var(--text-muted)] hover:text-[var(--text-base)] hover:bg-[var(--bg-muted)] flex items-center justify-center transition-colors">
+                    <button type="button" onClick={() => setHistoryFor(p)} title="Historial" aria-label={"Historial de " + p.name} className="size-8 rounded-md text-[var(--text-muted)] hover:text-[var(--text-base)] hover:bg-[var(--bg-muted)] flex items-center justify-center transition-colors">
                       <History className="h-3 w-3" />
                     </button>
                   </div>
@@ -474,7 +482,7 @@ export function ProductsTab() {
               key={key}
               type="button"
               onClick={() => setMovement({ ...movement, type: key })}
-              className={cn("flex flex-col items-center gap-1 rounded-xl border px-2 py-2 text-xs font-medium transition-ui", movement.type === key ? "border-[var(--color-primary)] bg-[var(--color-primary)]/10 text-[var(--text-base)]" : "border-[var(--border-base)] text-[var(--text-muted)]")}
+              className={cn("flex flex-col items-center gap-1 rounded-[var(--radius-md)] border px-2 py-2.5 text-xs font-medium transition-ui", movement.type === key ? "border-primary bg-primary-muted text-ink" : "border-line text-ink-muted hover:text-ink")}
             >
               <Icon className="h-4 w-4" /> {label}
             </button>
@@ -538,8 +546,17 @@ export function ProductsTab() {
             {categories.data.map((c) => (
               <div key={c.id} className="flex items-center justify-between rounded-lg border border-[var(--border-base)] px-3 py-1.5">
                 <span className="text-sm text-[var(--text-base)]">{c.name}</span>
-                <button type="button" onClick={() => removeCategory(c)} className="h-6 w-6 rounded-md flex items-center justify-center text-[var(--text-muted)] hover:text-red-500">
+                <button
+                  type="button"
+                  onClick={() => removeCategory(c)}
+                  aria-label={catToDelete === c.id ? `Confirmar: eliminar ${c.name}` : `Eliminar ${c.name}`}
+                  className={cn(
+                    "flex h-8 items-center justify-center gap-1.5 rounded-md px-2 text-xs font-medium transition-colors",
+                    catToDelete === c.id ? "bg-[var(--signal-danger-bg)] text-[var(--signal-danger)]" : "text-ink-muted hover:text-[var(--signal-danger)]"
+                  )}
+                >
                   <Trash2 className="h-3.5 w-3.5" />
+                  {catToDelete === c.id && "¿Eliminar?"}
                 </button>
               </div>
             ))}

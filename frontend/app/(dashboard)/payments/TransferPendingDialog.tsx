@@ -48,7 +48,8 @@ function CopyButton({ value, label }: { value: string; label: string }) {
         navigator.clipboard.writeText(value).catch(() => {});
         toast.success(`${label} copiado`);
       }}
-      className="h-7 w-7 rounded-lg flex items-center justify-center text-[var(--text-muted)] hover:text-[var(--text-base)] hover:bg-[var(--bg-muted)] transition-colors shrink-0"
+      aria-label={`Copiar ${label}`}
+      className="size-8 rounded-md flex items-center justify-center text-[var(--text-muted)] hover:text-[var(--text-base)] hover:bg-[var(--bg-muted)] transition-colors shrink-0"
     >
       <Copy className="h-3.5 w-3.5" />
     </button>
@@ -61,9 +62,9 @@ export function TransferInstructions({ ctx, compact = false }: { ctx: TransferCo
   return (
     <div className={cn("grid gap-3", acc?.qr_url && !compact ? "sm:grid-cols-[minmax(0,1fr)_160px]" : "")}>
       <div className="space-y-2 min-w-0">
-        <div className="rounded-xl border border-[var(--color-primary)]/40 bg-[var(--color-primary)]/10 p-3 flex items-center justify-between gap-2">
+        <div className="rounded-[var(--radius-lg)] border border-primary/30 bg-primary-muted p-3 flex items-center justify-between gap-2">
           <div className="min-w-0">
-            <p className="text-[11px] uppercase tracking-wider text-[var(--text-muted)]">Referencia del giro</p>
+            <p className="text-sm text-ink-muted">Referencia del giro</p>
             <p className="text-xl font-bold font-mono text-[var(--text-base)] tracking-wide">
               {ctx.reference ?? "—"}
             </p>
@@ -100,7 +101,7 @@ export function TransferInstructions({ ctx, compact = false }: { ctx: TransferCo
             )}
           </div>
         ) : (
-          <p className="text-sm text-amber-600 dark:text-amber-400">
+          <p className="text-sm text-[var(--signal-warn)]">
             No hay cuenta de recaudo — agrégala en Ajustes › Recaudo.
           </p>
         )}
@@ -238,13 +239,12 @@ export function TransferPendingDialog({
         </div>
 
         <div className="flex gap-2 justify-end pt-1">
-          <Button variant="outline" onClick={onClose} className="text-[var(--text-muted)]">
+          <Button variant="outline" onClick={onClose}>
             Dejar pendiente
           </Button>
           <Button
             onClick={confirmReceived}
             disabled={confirming}
-            className="bg-emerald-600 hover:bg-emerald-700 text-white font-semibold"
           >
             {confirming ? (
               <Loader2 className="h-4 w-4 animate-spin" />

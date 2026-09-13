@@ -355,7 +355,7 @@ export function PosTab({
       {/* Cobro rápido */}
       <GlassCard className="p-4 lg:col-span-2 space-y-4 self-start">
         <div className="flex items-center gap-2">
-          <Zap className="h-4 w-4 text-[var(--color-primary-ink)]" />
+          <Zap className="h-4 w-4 text-ink-muted" />
           <h2 className="text-sm font-semibold text-[var(--text-base)]">Cobro rápido</h2>
         </div>
 
@@ -373,9 +373,9 @@ export function PosTab({
               transition={{ duration: 0.25 }}
               className="space-y-3"
             >
-              <div className="rounded-xl border border-[var(--border-base)] bg-[var(--bg-base)] p-3 space-y-2">
+              <div className="rounded-[var(--radius-lg)] border border-line bg-surface p-3 space-y-2">
                 <div className="flex items-center gap-2">
-                  <span className="h-8 w-8 rounded-full bg-[var(--color-primary)] text-[var(--color-primary-contrast)] text-xs font-bold flex items-center justify-center shrink-0">
+                  <span className="h-8 w-8 rounded-full bg-muted text-ink text-xs font-semibold flex items-center justify-center shrink-0">
                     {summary.member_name[0]?.toUpperCase()}
                   </span>
                   <div className="min-w-0">
@@ -404,7 +404,7 @@ export function PosTab({
                         : `Vence el ${formatDate(ms.end_date)}`}
                     </p>
                     {Number(ms.balance_due) > 0 && (
-                      <p className="text-xs font-semibold text-amber-600 dark:text-amber-400">
+                      <p className="text-xs font-medium text-[var(--signal-warn)]">
                         Saldo pendiente: {formatCOP(ms.balance_due)}
                       </p>
                     )}
@@ -421,7 +421,7 @@ export function PosTab({
                   <Button
                     onClick={chargeRenewal}
                     disabled={charging || !summary.renewal.plan_id}
-                    className="w-full h-12 text-base bg-[var(--color-primary)] text-[var(--color-primary-contrast)] font-bold hover:bg-[var(--color-primary-hover)]"
+                    size="lg" className="w-full h-12 text-base"
                   >
                     {charging ? (
                       <Loader2 className="h-4 w-4 animate-spin" />
@@ -435,7 +435,7 @@ export function PosTab({
                     variant="outline"
                     onClick={sendWompiLink}
                     disabled={sendingWompi || !summary.renewal.plan_id}
-                    className="w-full h-9 text-sm text-[var(--text-muted)] hover:text-[var(--text-base)]"
+                    className="w-full"
                   >
                     {sendingWompi ? (
                       <Loader2 className="h-4 w-4 animate-spin" />
@@ -486,17 +486,17 @@ export function PosTab({
       <GlassCard className="p-4 lg:col-span-3 space-y-4 self-start">
         <div className="flex items-center justify-between gap-3 flex-wrap">
           <div className="flex items-center gap-2">
-            <Package className="h-4 w-4 text-[var(--color-primary-ink)]" />
+            <Package className="h-4 w-4 text-ink-muted" />
             <h2 className="text-sm font-semibold text-[var(--text-base)]">Venta de productos</h2>
           </div>
-          <div className="relative w-48">
+          <div className="relative w-full sm:w-56">
             <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-[var(--text-muted)]" />
             <Input
               value={productQuery}
               onChange={(e) => setProductQuery(e.target.value)}
               onKeyDown={onProductQueryKey}
-              placeholder="Nombre, SKU o código..."
-              className="pl-8 h-8 text-sm"
+              placeholder="Nombre, SKU o código…"
+              className="pl-8"
             />
           </div>
         </div>
@@ -524,10 +524,10 @@ export function PosTab({
                   onClick={() => !out && addToCart(p)}
                   disabled={out}
                   className={cn(
-                    "rounded-xl border border-[var(--border-base)] bg-[var(--bg-base)] p-3 text-left transition-ui",
+                    "rounded-[var(--radius-lg)] border border-line bg-surface p-3 text-left transition-ui",
                     out
                       ? "opacity-50 cursor-not-allowed"
-                      : "hover:border-[var(--color-primary)]/60 active:scale-[0.98]"
+                      : "hover:border-primary/60 active:scale-[0.98]"
                   )}
                 >
                   <p className="text-sm font-medium text-[var(--text-base)] truncate">{p.name}</p>
@@ -536,9 +536,9 @@ export function PosTab({
                     className={cn(
                       "text-[11px]",
                       out
-                        ? "text-red-500 font-semibold"
+                        ? "text-[var(--signal-danger)] font-medium"
                         : p.stock <= p.low_stock_threshold
-                        ? "text-amber-600 dark:text-amber-400 font-semibold"
+                        ? "text-[var(--signal-warn)] font-medium"
                         : "text-[var(--text-muted)]"
                     )}
                   >
@@ -551,10 +551,10 @@ export function PosTab({
         )}
 
         {/* Carrito */}
-        <div className="rounded-xl border border-[var(--border-base)] bg-[var(--bg-base)] p-3 space-y-2">
+        <div className="rounded-[var(--radius-lg)] border border-line bg-surface p-3 space-y-2">
           <div className="flex items-center gap-2">
             <ShoppingCart className="h-4 w-4 text-[var(--text-muted)]" />
-            <p className="text-xs font-semibold uppercase tracking-wider text-[var(--text-muted)]">
+            <p className="text-sm font-medium text-ink">
               Carrito {memberId && summary ? `· ${summary.member_name}` : "· venta de mostrador"}
             </p>
           </div>
@@ -577,7 +577,7 @@ export function PosTab({
                       <button
                         type="button"
                         onClick={() => setQty(product.id, qty - 1)}
-                        className="h-6 w-6 rounded-md border border-[var(--border-base)] flex items-center justify-center text-[var(--text-muted)] hover:text-[var(--text-base)]"
+                        className="size-8 rounded-md border border-line flex items-center justify-center text-ink-muted hover:text-ink hover:bg-muted"
                       >
                         <Minus className="h-3 w-3" />
                       </button>
@@ -585,7 +585,7 @@ export function PosTab({
                       <button
                         type="button"
                         onClick={() => qty < product.stock && setQty(product.id, qty + 1)}
-                        className="h-6 w-6 rounded-md border border-[var(--border-base)] flex items-center justify-center text-[var(--text-muted)] hover:text-[var(--text-base)]"
+                        className="size-8 rounded-md border border-line flex items-center justify-center text-ink-muted hover:text-ink hover:bg-muted"
                       >
                         <Plus className="h-3 w-3" />
                       </button>
@@ -596,7 +596,8 @@ export function PosTab({
                     <button
                       type="button"
                       onClick={() => setQty(product.id, 0)}
-                      className="h-6 w-6 rounded-md flex items-center justify-center text-[var(--text-muted)] hover:text-red-500"
+                      aria-label="Quitar del carrito"
+                      className="size-8 rounded-md flex items-center justify-center text-ink-muted hover:text-[var(--signal-danger)] hover:bg-muted"
                     >
                       <Trash2 className="h-3 w-3" />
                     </button>
@@ -620,7 +621,7 @@ export function PosTab({
               <Button
                 onClick={sellCart}
                 disabled={selling}
-                className="w-full h-11 bg-[var(--color-primary)] text-[var(--color-primary-contrast)] font-bold hover:bg-[var(--color-primary-hover)]"
+                size="lg" className="w-full h-12 text-base"
               >
                 {selling ? (
                   <Loader2 className="h-4 w-4 animate-spin" />

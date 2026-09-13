@@ -123,17 +123,26 @@ export function HistoryTab({ refreshSignal }: { refreshSignal: number }) {
     }
   };
 
-  const voidPayment = async (paymentId: string) => {
-    if (!session?.accessToken) return;
-    const reason = window.prompt("¿Anular este pago pendiente? Úsalo cuando la transferencia nunca llegó.\nMotivo (opcional):");
-    if (reason === null) return;
+  const [voidTarget, setVoidTarget] = useState<PaymentRow | null>(null);
+  const [voidReason, setVoidReason] = useState("");
+  const [voiding, setVoiding] = useState(false);
+
+  // Diálogo propio en lugar de window.prompt: el prompt nativo no sigue el
+  // tema, se lee mal en móvil y bloquea la pestaña.
+  const voidPayment = async () => {
+    if (!session?.accessToken || !voidTarget) return;
+    setVoiding(true);
     try {
       const client = apiClient(session.accessToken as string);
-      await client.post(`/api/v1/payments/${paymentId}/void`, { reason: reason || null });
+      await client.post(`/api/v1/payments/${voidTarget.id}/void`, { reason: voidReason.trim() || null });
       toast.success("Pago anulado");
-      setPayments((prev) => prev.map((p) => (p.id === paymentId ? { ...p, status: "failed" } : p)));
+      setPayments((prev) => prev.map((p) => (p.id === voidTarget.id ? { ...p, status: "failed" } : p)));
+      setVoidTarget(null);
+      setVoidReason("");
     } catch (err: any) {
       toast.error(parseApiError(err, "Error anulando el pago"));
+    } finally {
+      setVoiding(false);
     }
   };
 
@@ -246,7 +255,7 @@ export function HistoryTab({ refreshSignal }: { refreshSignal: number }) {
                 onClick={() => markAsPaid(p.id)}
                 disabled={markingPaid === p.id}
                 title="Confirmar pago recibido"
-                className="h-7 w-7 rounded-lg flex items-center justify-center text-[var(--text-muted)] hover:text-emerald-600 hover:bg-emerald-50 dark:hover:bg-emerald-950/30 transition-colors disabled:opacity-50"
+                className="size-8 rounded-md flex items-center justify-center text-[var(--text-muted)] hover:text-[var(--signal-ok)] hover:bg-muted transition-colors disabled:opacity-50"
               >
                 {markingPaid === p.id ? (
                   <Loader2 className="h-3.5 w-3.5 animate-spin" />
@@ -255,9 +264,9 @@ export function HistoryTab({ refreshSignal }: { refreshSignal: number }) {
                 )}
               </button>
               <button
-                onClick={() => voidPayment(p.id)}
+                onClick={() => { setVoidTarget(p); setVoidReason(""); }}
                 title="Anular pago (la plata nunca llegó)"
-                className="h-7 w-7 rounded-lg flex items-center justify-center text-[var(--text-muted)] hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-950/30 transition-colors"
+                className="size-8 rounded-md flex items-center justify-center text-[var(--text-muted)] hover:text-[var(--signal-danger)] hover:bg-muted transition-colors"
               >
                 <XCircle className="h-3.5 w-3.5" />
               </button>
@@ -268,21 +277,21 @@ export function HistoryTab({ refreshSignal }: { refreshSignal: number }) {
               <button
                 onClick={() => openReceiptPdf(apiClient(session.accessToken as string), p.id)}
                 title="Comprobante PDF"
-                className="h-7 w-7 rounded-lg flex items-center justify-center text-[var(--text-muted)] hover:text-[var(--color-primary-ink)] hover:bg-[var(--bg-base)] transition-colors"
+                className="size-8 rounded-md flex items-center justify-center text-[var(--text-muted)] hover:text-[var(--color-primary-ink)] hover:bg-[var(--bg-base)] transition-colors"
               >
                 <FileText className="h-3.5 w-3.5" />
               </button>
               <button
                 onClick={() => shareReceiptWhatsapp(apiClient(session.accessToken as string), p.id, p.member_phone, (p.member_name ?? "").split(" ")[0])}
                 title="Enviar comprobante por WhatsApp"
-                className="h-7 w-7 rounded-lg flex items-center justify-center text-[var(--text-muted)] hover:text-emerald-600 hover:bg-emerald-50 dark:hover:bg-emerald-950/30 transition-colors"
+                className="size-8 rounded-md flex items-center justify-center text-[var(--text-muted)] hover:text-[var(--signal-ok)] hover:bg-muted transition-colors"
               >
                 <MessageCircle className="h-3.5 w-3.5" />
               </button>
               <button
                 onClick={() => openReceipt(apiClient(session.accessToken as string), p.id)}
                 title="Imprimir tirilla 80mm"
-                className="h-7 w-7 rounded-lg flex items-center justify-center text-[var(--text-muted)] hover:text-[var(--text-base)] hover:bg-[var(--bg-base)] transition-colors"
+                className="size-8 rounded-md flex items-center justify-center text-[var(--text-muted)] hover:text-[var(--text-base)] hover:bg-[var(--bg-base)] transition-colors"
               >
                 <Receipt className="h-3.5 w-3.5" />
               </button>
@@ -292,7 +301,7 @@ export function HistoryTab({ refreshSignal }: { refreshSignal: number }) {
             <button
               onClick={() => { setRefundTarget(p); setRefundReason(""); }}
               title="Devolver este pago"
-              className="h-7 w-7 rounded-lg flex items-center justify-center text-[var(--text-muted)] hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-950/30 transition-colors"
+              className="size-8 rounded-md flex items-center justify-center text-[var(--text-muted)] hover:text-[var(--signal-danger)] hover:bg-muted transition-colors"
             >
               <RotateCcw className="h-3.5 w-3.5" />
             </button>
@@ -365,19 +374,33 @@ export function HistoryTab({ refreshSignal }: { refreshSignal: number }) {
           <Input value={refundReason} onChange={(e) => setRefundReason(e.target.value)} placeholder="Producto defectuoso, cobro equivocado..." autoFocus />
         </FormField>
       </FormDialog>
+      <FormDialog
+        open={voidTarget !== null}
+        onOpenChange={(o) => !o && setVoidTarget(null)}
+        title={voidTarget ? `Anular ${formatCOP(voidTarget.amount)}` : ""}
+        description="Úsalo cuando la transferencia nunca llegó. El pago queda anulado y lo asociado pierde efecto."
+        onSubmit={voidPayment}
+        submitLabel="Anular pago"
+        submitting={voiding}
+        destructive
+      >
+        <FormField label="Motivo" hint="Opcional, queda en la auditoría">
+          <Input value={voidReason} onChange={(e) => setVoidReason(e.target.value)} placeholder="Nunca llegó, se cobró en efectivo…" />
+        </FormField>
+      </FormDialog>
       {!loading && payments.length > 0 && (
         <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
           <div className="surface-1 rounded-xl p-4">
             <p className="text-xs text-[var(--text-muted)]">Total cobrado</p>
-            <p className="text-lg font-bold text-[var(--text-base)] font-mono">{formatCOP(totalPaid)}</p>
+            <p className="text-lg font-semibold text-ink font-mono tabular-nums">{formatCOP(totalPaid)}</p>
           </div>
           <div className="surface-1 rounded-xl p-4">
             <p className="text-xs text-[var(--text-muted)]">Por cobrar</p>
-            <p className="text-lg font-bold text-amber-600 dark:text-amber-400 font-mono">{formatCOP(totalPending)}</p>
+            <p className="text-lg font-semibold text-[var(--signal-warn)] font-mono tabular-nums">{formatCOP(totalPending)}</p>
           </div>
           <div className="surface-1 rounded-xl p-4 col-span-2 sm:col-span-1">
             <p className="text-xs text-[var(--text-muted)]">Registros</p>
-            <p className="text-lg font-bold text-[var(--text-base)] font-mono">{payments.length}</p>
+            <p className="text-lg font-semibold text-ink font-mono tabular-nums">{payments.length}</p>
           </div>
         </div>
       )}
@@ -417,7 +440,7 @@ export function HistoryTab({ refreshSignal }: { refreshSignal: number }) {
               onClick={() => setStatusFilter(key)}
               aria-pressed={statusFilter === key}
               className={cn(
-                "rounded-full px-3 py-1 text-sm font-medium transition-colors",
+                "h-8 rounded-[var(--radius-md)] px-3 text-sm font-medium transition-colors",
                 statusFilter === key
                   ? "bg-[var(--color-primary)] text-[var(--color-primary-contrast)]"
                   : "bg-[var(--bg-base)] border border-[var(--border-base)] text-[var(--text-muted)] hover:text-[var(--text-base)]"
@@ -434,7 +457,7 @@ export function HistoryTab({ refreshSignal }: { refreshSignal: number }) {
               onClick={() => setKindFilter(key)}
               aria-pressed={kindFilter === key}
               className={cn(
-                "rounded-full px-2.5 py-0.5 text-xs font-medium transition-colors",
+                "h-7 rounded-[var(--radius-sm)] px-2.5 text-xs font-medium transition-colors",
                 kindFilter === key
                   ? "bg-[var(--text-base)] text-[var(--bg-base)]"
                   : "bg-[var(--bg-base)] border border-[var(--border-base)] text-[var(--text-muted)] hover:text-[var(--text-base)]"

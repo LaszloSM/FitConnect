@@ -3,7 +3,6 @@
 
 import { useEffect, useState, useCallback } from "react";
 import { useSession } from "next-auth/react";
-import { motion } from "framer-motion";
 import Link from "next/link";
 import { GlassCard } from "@/components/common/GlassCard";
 import { PageHeader } from "@/components/common/PageHeader";
@@ -232,12 +231,7 @@ export default function CashClient() {
   const closedHistory = history.filter((s) => s.status === "closed");
 
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 8 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ ease: [0.16, 1, 0.3, 1], duration: 0.35 }}
-      className="space-y-5"
-    >
+    <div className="space-y-5">
       <div className="flex items-center gap-3">
         <Link href="/payments" className="flex items-center gap-1.5 text-[var(--text-muted)] hover:text-[var(--text-base)] text-sm transition-colors">
           <ArrowLeft className="h-4 w-4" /> Pagos
@@ -269,16 +263,16 @@ export default function CashClient() {
           </div>
           <dl className="grid grid-cols-3 gap-4 mt-4">
             <div>
-              <dt className="text-[11px] uppercase tracking-wider text-[var(--text-muted)]">Contado</dt>
-              <dd className="text-lg font-bold tabular-nums text-[var(--text-base)]">{formatCOP(Number(closeResult.counted_cash))}</dd>
+              <dt className="text-sm text-ink-muted">Contado</dt>
+              <dd className="font-mono text-xl font-semibold tabular-nums text-ink">{formatCOP(Number(closeResult.counted_cash))}</dd>
             </div>
             <div>
-              <dt className="text-[11px] uppercase tracking-wider text-[var(--text-muted)]">Esperado</dt>
-              <dd className="text-lg font-bold tabular-nums text-[var(--text-base)]">{formatCOP(Number(closeResult.expected_cash))}</dd>
+              <dt className="text-sm text-ink-muted">Esperado</dt>
+              <dd className="font-mono text-xl font-semibold tabular-nums text-ink">{formatCOP(Number(closeResult.expected_cash))}</dd>
             </div>
             <div>
-              <dt className="text-[11px] uppercase tracking-wider text-[var(--text-muted)]">Resultado</dt>
-              <dd className="text-lg font-bold tabular-nums" style={{ color: tonoDiferencia(Number(closeResult.difference)) }}>
+              <dt className="text-sm text-ink-muted">Resultado</dt>
+              <dd className="font-mono text-xl font-semibold tabular-nums" style={{ color: tonoDiferencia(Number(closeResult.difference)) }}>
                 {textoDiferencia(Number(closeResult.difference))}
               </dd>
             </div>
@@ -308,7 +302,7 @@ export default function CashClient() {
           <p className="text-xs text-[var(--text-muted)]">
             No hay turno abierto. Para cobrar en efectivo, abre uno con el monto base de la caja.
           </p>
-          <div className="flex items-end gap-3">
+          <div className="flex flex-wrap items-end gap-3">
             <div className="space-y-1">
               <Label className="text-[var(--text-muted)] text-xs">Base inicial</Label>
               <CurrencyInput value={openingAmount} onChange={setOpeningAmount} />
@@ -366,7 +360,7 @@ export default function CashClient() {
                       id="exp-cat"
                       value={expense.category}
                       onChange={(e) => setExpense({ ...expense, category: e.target.value })}
-                      className="w-full h-9 rounded-md border border-[var(--border-base)] bg-[var(--bg-input)] px-3 text-sm text-[var(--text-base)]"
+                      className="w-full h-10 md:h-9 rounded-[var(--radius-md)] border border-line bg-field px-3 text-sm text-ink"
                     >
                       {MANUAL_EXPENSE_CATEGORIES.map((c) => <option key={c} value={c}>{EXPENSE_LABELS[c]}</option>)}
                     </select>
@@ -387,7 +381,7 @@ export default function CashClient() {
                     aria-label="Medio del egreso"
                     value={expense.method}
                     onChange={(e) => setExpense({ ...expense, method: e.target.value })}
-                    className="h-9 rounded-md border border-[var(--border-base)] bg-[var(--bg-input)] px-3 text-sm text-[var(--text-base)]"
+                    className="h-10 md:h-9 rounded-[var(--radius-md)] border border-line bg-field px-3 text-sm text-ink"
                   >
                     <option value="cash">Efectivo</option>
                     <option value="transfer">Transferencia</option>
@@ -510,8 +504,8 @@ export default function CashClient() {
               )}
 
               <div className="flex items-baseline justify-between border-t border-[var(--border-base)] pt-3">
-                <span className="text-xs uppercase tracking-wider text-[var(--text-muted)]">Total contado</span>
-                <span className="text-xl font-bold tabular-nums text-[var(--text-base)]">{formatCOP(counted)}</span>
+                <span className="text-sm text-ink-muted">Total contado</span>
+                <span className="font-mono text-xl font-semibold tabular-nums text-ink">{formatCOP(counted)}</span>
               </div>
               <Button onClick={closeShift} disabled={busy} className="w-full">
                 {busy ? <Loader2 className="h-4 w-4 animate-spin" /> : "Cerrar turno"}
@@ -531,7 +525,7 @@ export default function CashClient() {
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
               <thead>
-                <tr className="text-left text-[11px] uppercase tracking-wider text-[var(--text-muted)]">
+                <tr className="text-left text-xs text-ink-muted">
                   <th className="py-1.5 pr-3 font-medium">Cajero</th>
                   <th className="py-1.5 px-3 font-medium text-right">Cierres</th>
                   <th className="py-1.5 px-3 font-medium text-right">Con diferencia</th>
@@ -624,15 +618,15 @@ export default function CashClient() {
           <p className="text-xs text-[var(--text-muted)]">Queda registrado en la auditoría con tu nombre.</p>
         </div>
       </FormDialog>
-    </motion.div>
+    </div>
   );
 }
 
 function Stat({ label, value, caption, color }: { label: string; value: string; caption?: string; color?: string }) {
   return (
     <GlassCard className="p-4">
-      <p className="text-[11px] uppercase tracking-wider text-[var(--text-muted)]">{label}</p>
-      <p className="text-lg font-bold tabular-nums text-[var(--text-base)] mt-0.5" style={color ? { color } : undefined}>{value}</p>
+      <p className="text-sm text-ink-muted">{label}</p>
+      <p className="font-mono text-xl font-semibold tabular-nums text-ink mt-1" style={color ? { color } : undefined}>{value}</p>
       {caption && <p className="text-xs text-[var(--text-muted)] mt-0.5 truncate">{caption}</p>}
     </GlassCard>
   );

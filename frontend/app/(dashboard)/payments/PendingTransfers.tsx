@@ -120,9 +120,9 @@ export function PendingTransfers({ onChanged }: { onChanged?: () => void }) {
           className={cn(
             "text-sm flex items-center gap-1",
             p.elapsed_minutes >= 24 * 60
-              ? "text-red-500 font-semibold"
+              ? "text-[var(--signal-danger)] font-medium"
               : p.elapsed_minutes >= 120
-              ? "text-amber-600 dark:text-amber-400"
+              ? "text-[var(--signal-warn)]"
               : "text-[var(--text-muted)]"
           )}
         >
@@ -158,7 +158,7 @@ export function PendingTransfers({ onChanged }: { onChanged?: () => void }) {
             size="sm"
             onClick={() => confirm(p)}
             disabled={confirming === p.id}
-            className="bg-emerald-600 hover:bg-emerald-700 text-white h-8"
+            className="h-9"
           >
             {confirming === p.id ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <><CheckCircle2 className="h-3.5 w-3.5 mr-1" /> Confirmar</>}
           </Button>
@@ -166,7 +166,8 @@ export function PendingTransfers({ onChanged }: { onChanged?: () => void }) {
             type="button"
             title="Anular (la plata nunca llegó)"
             onClick={() => setVoidTarget(p)}
-            className="h-8 w-8 rounded-lg border border-[var(--border-base)] flex items-center justify-center text-[var(--text-muted)] hover:text-red-500 hover:border-red-300 transition-ui"
+            aria-label="Anular transferencia"
+            className="size-9 rounded-md border border-line flex items-center justify-center text-ink-muted hover:text-[var(--signal-danger)] hover:border-[var(--signal-danger-line)] transition-ui"
           >
             <XCircle className="h-4 w-4" />
           </button>
