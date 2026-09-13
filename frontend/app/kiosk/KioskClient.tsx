@@ -133,7 +133,7 @@ export default function KioskClient() {
 
   if (!token || invalidDevice) {
     return (
-      <div className="min-h-screen bg-[#0a0f0a] flex flex-col items-center justify-center gap-4 p-8 text-center">
+      <div className="min-h-screen bg-[#0f0d0b] flex flex-col items-center justify-center gap-4 p-8 text-center">
         <BrandMark className="h-12 w-12" />
         <h1 className="text-white text-2xl font-bold">
           {invalidDevice ? "Dispositivo revocado" : "Kiosko sin configurar"}
@@ -148,7 +148,7 @@ export default function KioskClient() {
   }
 
   return (
-    <div className="min-h-screen bg-[#0a0f0a] flex flex-col p-6 select-none overflow-hidden relative">
+    <div className="min-h-screen bg-[#0f0d0b] flex flex-col p-6 select-none overflow-hidden relative">
       {/* Glow Volt de fondo */}
       <div
         className="pointer-events-none absolute -top-40 left-1/2 -translate-x-1/2 h-96 w-[40rem] rounded-full opacity-20 blur-3xl"

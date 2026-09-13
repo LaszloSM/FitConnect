@@ -147,7 +147,8 @@ const PAIRS = [
 // La landing, el kiosko y la pantalla del gym son superficies oscuras FIJAS:
 // no siguen el tema, así que ahí va el relleno de marca y NO el ink, que en
 // claro es oscuro y desaparecería sobre el negro.
-const FIXED_DARK = [0.039, 0.059, 0.039];
+// #0f0d0b: el negro cálido de Hierro que usan la landing y el panel de marca.
+const FIXED_DARK = [15 / 255, 13 / 255, 11 / 255];
 
 // Señales semánticas: cada una sobre su propio banner y sobre las superficies
 // del producto. Un aviso que no se lee no avisa de nada.

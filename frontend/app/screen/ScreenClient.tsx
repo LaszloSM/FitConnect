@@ -70,7 +70,7 @@ export default function ScreenClient() {
 
   if (!token || invalid) {
     return (
-      <div className="min-h-screen bg-[#0a0f0a] text-white flex flex-col items-center justify-center gap-4 p-8 text-center">
+      <div className="min-h-screen bg-[#0f0d0b] text-white flex flex-col items-center justify-center gap-4 p-8 text-center">
         <BrandMark />
         <AlertTriangle className="h-10 w-10 text-amber-400" />
         <p className="text-lg font-semibold">Esta pantalla no está vinculada al gym</p>
@@ -82,7 +82,7 @@ export default function ScreenClient() {
   const day = selected?.days[Math.min(dayIdx, (selected?.days.length ?? 1) - 1)];
 
   return (
-    <div className="min-h-screen bg-[#0a0f0a] text-white select-none">
+    <div className="min-h-screen bg-[#0f0d0b] text-white select-none">
       <header className="flex items-center justify-between px-6 py-4 border-b border-white/10">
         <div className="flex items-center gap-3">
           {selected ? (
