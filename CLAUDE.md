@@ -260,6 +260,10 @@ Cuando cometas un error durante una sesión, agrégalo aquí antes de terminar:
 
 | Lancé 6 generaciones de Stitch en paralelo y 5 devolvieron "The operation timed out" | El timeout es del cliente MCP, no del job: las pantallas sí se generaron y aparecieron minutos después en `list_screens` | No relanzar tras un timeout de Stitch (duplica pantallas y cuota): esperar y consultar `list_screens`. Mejor lanzar las generaciones de a una |
 | `ui-ux-pro-max` instalado como plugin nunca se registró como skill y su `search.py` fallaba con "file not found" | En Windows, git clonó los symlinks `scripts/` y `data/` como archivos de texto con la ruta adentro, y el plugin apunta a una carpeta oculta `.claude/skills/` | Skills de terceros van en `~/.claude/skills/<nombre>` con carpetas reales. Tras clonar en Windows, buscar archivos diminutos que deberían ser directorios (`find -type f -size -200c`) |
+| El modo TV de check-ins (`fixed inset-0`) no tapaba la pantalla: se veía la barra lateral abajo | Un ancestro del layout del panel tiene `transform` (wrapper de Framer): eso convierte `position: fixed` en relativo a ese ancestro | Toda capa a pantalla completa dentro del panel va por `createPortal(..., document.body)` |
+| El monograma del producto salió invisible en `/screen` | `BrandMark` sigue el tema (oscuro en claro) y la pantalla del salón es una superficie oscura fija | En superficies de color fijo (kiosko, pantalla) usar tokens `--kiosk-*` y una marca propia en claro, nunca componentes que siguen el tema |
+| El barrido de paletas dejó un `fuchsia` rosa en planes | El grep de colores no incluía `fuchsia/stone/neutral` | Al buscar paletas de Tailwind, listar TODAS las familias; confirmar con `check:colors` y con el color computado en el navegador |
+| Capturas del producto para la landing salían con la burbuja "N" de Next | El indicador de desarrollo (`nextjs-portal`) se pinta encima en dev | Antes de capturar, inyectar `nextjs-portal{display:none!important}` por JS |
 
 **Protocolo:** Al detectar un error que no estaba documentado, añade una fila a la tabla antes del commit.
 
