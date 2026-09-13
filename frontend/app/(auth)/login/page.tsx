@@ -6,20 +6,27 @@ import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { AuthCardHeader } from "@/components/common/AuthCardHeader";
+import { AuthCardHeader, AuthNotice } from "@/components/common/AuthCardHeader";
+
+// Mensajes que llegan por la URL desde otros flujos.
+const AVISOS: Record<string, { tone: "warn" | "ok"; text: string }> = {
+  expired: { tone: "warn", text: "Tu sesión se cerró por seguridad. Ingresa de nuevo." },
+  registered: { tone: "ok", text: "Tu gimnasio quedó creado. Ingresa con el email y la contraseña que elegiste." },
+  invited: { tone: "ok", text: "Tu cuenta quedó activa. Ingresa con tu email y la contraseña nueva." },
+};
 
 export default function LoginPage() {
   const router = useRouter();
   const [error, setError] = useState("");
-  const [notice, setNotice] = useState("");
+  const [notice, setNotice] = useState<(typeof AVISOS)[string] | null>(null);
   const [loading, setLoading] = useState(false);
 
   // Se lee de window y no con useSearchParams para no exigir un boundary de
   // Suspense en esta página (rompía el build de producción).
   useEffect(() => {
-    if (new URLSearchParams(window.location.search).has("expired")) {
-      setNotice("Tu sesión se cerró por seguridad. Ingresa de nuevo.");
-    }
+    const params = new URLSearchParams(window.location.search);
+    const key = Object.keys(AVISOS).find((k) => params.has(k));
+    if (key) setNotice(AVISOS[key]);
   }, []);
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
@@ -35,45 +42,37 @@ export default function LoginPage() {
     setLoading(false);
     if (result?.error) {
       const msg = result.code;
-      setError(
-        msg && msg !== "credentials"
-          ? msg
-          : "Email o contraseña incorrectos"
-      );
+      setError(msg && msg !== "credentials" ? msg : "El email o la contraseña no coinciden. Revisa e intenta de nuevo.");
       return;
     }
     // El entrenador no tiene panel de gimnasio: su casa es su día.
     const sesion = await getSession();
-    const rol = sesion?.role;
-    router.push(rol === "trainer" ? "/entrenador" : "/dashboard");
+    router.push(sesion?.role === "trainer" ? "/entrenador" : "/dashboard");
   }
 
   return (
-    <div className="rounded-2xl bg-[var(--bg-card)] border border-[var(--border-base)] p-8 shadow-[var(--shadow-dialog)]">
-      <AuthCardHeader title="Inicia sesión" subtitle="Accede a tu plataforma de gestión" />
-      <form onSubmit={handleSubmit} className="space-y-5">
+    <div>
+      <AuthCardHeader title="Ingresa a tu gimnasio" subtitle="Dueños, administradores, recepción y entrenadores entran por aquí." />
+      <form onSubmit={handleSubmit} className="space-y-5" noValidate={false}>
+        {notice && !error && <AuthNotice tone={notice.tone}>{notice.text}</AuthNotice>}
         <div className="space-y-1.5">
-          <Label htmlFor="email" className="text-[var(--text-muted)] text-sm font-medium">Email</Label>
-          <Input id="email" name="email" type="email" required
-            className="focus:border-[var(--color-primary)] focus:ring-[var(--color-primary)]" />
+          <Label htmlFor="email">Email</Label>
+          <Input id="email" name="email" type="email" autoComplete="email" required />
         </div>
         <div className="space-y-1.5">
-          <Label htmlFor="password" className="text-[var(--text-muted)] text-sm font-medium">Contraseña</Label>
-          <Input id="password" name="password" type="password" required
-            className="focus:border-[var(--color-primary)] focus:ring-[var(--color-primary)]" />
+          <Label htmlFor="password">Contraseña</Label>
+          <Input id="password" name="password" type="password" autoComplete="current-password" required />
         </div>
-        {notice && !error && (
-          <p className="text-sm rounded-lg border border-amber-200 bg-amber-50 dark:bg-amber-950/20 px-3 py-2 text-amber-700 dark:text-amber-300">{notice}</p>
-        )}
-        {error && <p className="text-red-500 text-sm">{error}</p>}
-        <Button type="submit" disabled={loading}
-          className="w-full bg-[var(--color-primary)] text-[var(--color-primary-contrast)] font-semibold hover:bg-[var(--color-primary-hover)] transition-colors duration-150">
-          {loading ? "Ingresando..." : "Ingresar"}
+        {error && <AuthNotice tone="danger">{error}</AuthNotice>}
+        <Button type="submit" size="lg" isLoading={loading} className="w-full">
+          Ingresar
         </Button>
       </form>
-      <p className="mt-5 text-center text-[var(--text-muted)] text-sm">
-        ¿No tienes cuenta?{" "}
-        <Link href="/register" className="text-lime-700 font-semibold hover:underline">Registra tu gym</Link>
+      <p className="mt-8 text-sm text-ink-muted">
+        ¿Tu gimnasio aún no usa FitConnect?{" "}
+        <Link href="/register" className="font-medium text-primary-ink hover:underline">
+          Crea una cuenta gratis
+        </Link>
       </p>
     </div>
   );

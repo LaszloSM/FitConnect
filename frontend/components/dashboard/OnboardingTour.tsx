@@ -29,16 +29,16 @@ export function OnboardingTour() {
         progressText: "{{current}} de {{total}}",
         nextBtnText: "Siguiente",
         prevBtnText: "Atrás",
-        doneBtnText: "¡A entrenar!",
-        overlayOpacity: 0.6,
+        doneBtnText: "Empezar",
+        overlayOpacity: 0.5,
         stagePadding: 6,
         onDestroyed: markCompleted,
         steps: [
           {
             popover: {
-              title: "¡Bienvenido a FitConnect! 👋",
+              title: "Tu gimnasio ya está en FitConnect",
               description:
-                "Este es el centro de comando de tu gym. Te mostramos lo esencial en un minuto — puedes saltar el tour cuando quieras (Esc).",
+                "En un minuto te mostramos dónde está cada cosa. Puedes salir del recorrido cuando quieras con Esc y retomarlo desde la lista de primeros pasos.",
             },
           },
           {

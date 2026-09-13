@@ -1,25 +1,23 @@
 "use client";
-import { useRouter } from "next/navigation";
-import { useSearchParams } from "next/navigation";
+import Link from "next/link";
+import { useRouter, useSearchParams } from "next/navigation";
 import { Suspense, useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { BrandMark } from "@/components/common/BrandMark";
+import { PasswordInput } from "@/components/ui/password-input";
+import { AuthCardHeader, AuthNotice } from "@/components/common/AuthCardHeader";
 
 function AcceptInviteForm() {
   const router = useRouter();
-  const searchParams = useSearchParams();
-  const token = searchParams.get("token");
+  const token = useSearchParams().get("token");
+  const [password, setPassword] = useState("");
+  const [confirm, setConfirm] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
     setError("");
-    const form = new FormData(e.currentTarget);
-    const password = String(form.get("password"));
-    const confirm = String(form.get("confirm"));
     if (password.length < 8) {
       setError("La contraseña debe tener al menos 8 caracteres");
       return;
@@ -29,61 +27,69 @@ function AcceptInviteForm() {
       return;
     }
     setLoading(true);
-    const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
-    const res = await fetch(`${apiUrl}/api/v1/auth/staff/accept-invite`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ token, password }),
-    });
-    setLoading(false);
-    if (!res.ok) {
-      const err = await res.json().catch(() => ({}));
-      setError(err.detail || "No se pudo aceptar la invitación");
-      return;
+    try {
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
+      const res = await fetch(`${apiUrl}/api/v1/auth/staff/accept-invite`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ token, password }),
+      });
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({}));
+        setError(typeof err.detail === "string" ? err.detail : "No pudimos activar la cuenta. Pídele a tu gimnasio un enlace nuevo.");
+        return;
+      }
+      router.push("/login?invited=1");
+    } catch {
+      setError("No hay conexión con el servidor. Revisa tu internet e intenta de nuevo.");
+    } finally {
+      setLoading(false);
     }
-    router.push("/login?invited=1");
   }
 
   if (!token) {
     return (
-      <div className="rounded-2xl bg-[var(--bg-card)] border border-[var(--border-base)] p-8 shadow-[var(--shadow-dialog)]">
-        <div className="flex items-center gap-2.5 mb-4">
-          <BrandMark size={32} />
-          <span className="text-[var(--text-base)] font-extrabold text-xl tracking-tight">FitConnect</span>
-        </div>
-        <h2 className="text-[var(--text-base)] font-bold text-lg">Enlace inválido</h2>
-        <p className="text-[var(--text-muted)] text-sm mt-1">
-          El enlace de invitación no es válido. Pídele a tu gimnasio uno nuevo.
+      <div>
+        <AuthCardHeader title="Este enlace no sirve" subtitle="Le falta el código de invitación o está incompleto." />
+        <p className="text-sm text-ink-muted">
+          Pídele al dueño o administrador de tu gimnasio que te envíe una invitación nueva desde Configuración → Equipo.
+          Las invitaciones vencen a las 48 horas.
+        </p>
+        <p className="mt-8 text-sm text-ink-muted">
+          ¿Ya tienes cuenta?{" "}
+          <Link href="/login" className="font-medium text-primary-ink hover:underline">Ingresa</Link>
         </p>
       </div>
     );
   }
 
   return (
-    <div className="rounded-2xl bg-[var(--bg-card)] border border-[var(--border-base)] p-8 shadow-[var(--shadow-dialog)]">
-      <div className="mb-8">
-        <div className="flex items-center gap-2.5 mb-4">
-          <BrandMark size={32} />
-          <span className="text-[var(--text-base)] font-extrabold text-xl tracking-tight">FitConnect</span>
-        </div>
-        <h2 className="text-[var(--text-base)] font-bold text-lg">Activa tu cuenta</h2>
-        <p className="text-[var(--text-muted)] text-sm mt-0.5">Crea tu contraseña para acceder a la plataforma</p>
-      </div>
+    <div>
+      <AuthCardHeader title="Activa tu cuenta" subtitle="Tu gimnasio te invitó. Elige la contraseña con la que vas a entrar." />
       <form onSubmit={handleSubmit} className="space-y-5">
         <div className="space-y-1.5">
-          <Label htmlFor="password" className="text-[var(--text-muted)] text-sm font-medium">Nueva contraseña</Label>
-          <Input id="password" name="password" type="password" required minLength={8}
-            className="focus:border-[var(--color-primary)] focus:ring-[var(--color-primary)]" />
+          <Label>Contraseña nueva</Label>
+          <PasswordInput
+            showStrength
+            value={password}
+            onChange={(e) => setPassword((e.target as HTMLInputElement).value)}
+            autoComplete="new-password"
+            required
+            placeholder="Mínimo 8 caracteres"
+          />
         </div>
         <div className="space-y-1.5">
-          <Label htmlFor="confirm" className="text-[var(--text-muted)] text-sm font-medium">Confirmar contraseña</Label>
-          <Input id="confirm" name="confirm" type="password" required minLength={8}
-            className="focus:border-[var(--color-primary)] focus:ring-[var(--color-primary)]" />
+          <Label>Confirma la contraseña</Label>
+          <PasswordInput
+            value={confirm}
+            onChange={(e) => setConfirm((e.target as HTMLInputElement).value)}
+            autoComplete="new-password"
+            required
+          />
         </div>
-        {error && <p className="text-red-500 text-sm">{error}</p>}
-        <Button type="submit" disabled={loading}
-          className="w-full bg-[var(--color-primary)] text-[var(--color-primary-contrast)] font-semibold hover:bg-[var(--color-primary-hover)] transition-colors duration-150">
-          {loading ? "Activando..." : "Activar cuenta"}
+        {error && <AuthNotice tone="danger">{error}</AuthNotice>}
+        <Button type="submit" size="lg" isLoading={loading} className="w-full">
+          Activar cuenta
         </Button>
       </form>
     </div>

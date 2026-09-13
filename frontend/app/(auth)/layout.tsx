@@ -1,67 +1,72 @@
-import { Activity, Users, CreditCard } from "lucide-react";
 import { BrandMark } from "@/components/common/BrandMark";
+
+// Vista real del producto en lugar de un eslogan: quien entra ve lo que va a
+// operar. Datos de ejemplo, marcados como tal para lectores de pantalla.
+const ENTRADAS = [
+  { hora: "06:41", nombre: "Felipe Cárdenas", plan: "Plan anual", ok: true },
+  { hora: "06:35", nombre: "Valentina Gómez", plan: "Mensual", ok: true },
+  { hora: "06:29", nombre: "Andrés Restrepo", plan: "Venció hace 2 días", ok: false },
+  { hora: "06:22", nombre: "Daniela Morales", plan: "Trimestral", ok: true },
+];
 
 export default function AuthLayout({ children }: { children: React.ReactNode }) {
   return (
-    <div className="min-h-screen flex bg-[var(--bg-base)]">
-      {/* Panel de marca: superficie oscura FIJA a propósito, como la landing y
-          la pantalla del gym. Por eso lleva el relleno de marca y nunca el ink,
-          que en tema claro es oscuro y desaparecería sobre el negro. */}
-      <div
-        className="hidden lg:flex flex-col justify-between w-[44%] max-w-[560px] p-12 relative overflow-hidden"
-        style={{
-          background:
-            "radial-gradient(120% 90% at 0% 0%, oklch(0.22 0.05 45), oklch(0.14 0.014 45) 60%)",
-        }}
-      >
-        <div
-          className="absolute -top-24 -left-24 h-80 w-80 rounded-full blur-3xl opacity-25 pointer-events-none"
-          style={{ background: "var(--color-primary)" }}
-          aria-hidden
-        />
-
-        <div className="relative flex items-center gap-2.5">
-          <BrandMark size={36} />
-          <span className="text-white font-extrabold text-xl tracking-tight">FitConnect</span>
+    <div className="flex min-h-dvh bg-surface">
+      <aside className="hidden w-[46%] max-w-[600px] flex-col justify-between border-r border-line bg-sidebar p-12 lg:flex">
+        <div className="flex items-center gap-2.5">
+          <BrandMark size={28} />
+          <span className="text-base font-semibold tracking-tight text-ink">FitConnect</span>
         </div>
 
-        <div className="relative">
-          <h1 className="text-white font-extrabold text-4xl leading-[1.1] tracking-tight">
-            Opera tu gimnasio
-            <br />
-            con precisión de atleta.
-          </h1>
-          <p className="text-white/60 text-base mt-4 max-w-sm">
-            Miembros, pagos, asistencia y clases en una sola plataforma rápida y clara.
-          </p>
-
-          <div className="flex gap-3 mt-8">
-            {[
-              { icon: Users, label: "Socios" },
-              { icon: Activity, label: "Check-ins" },
-              { icon: CreditCard, label: "Pagos" },
-            ].map(({ icon: Icon, label }) => (
-              <div
-                key={label}
-                className="flex items-center gap-2 rounded-lg px-3 py-2 border border-white/10 bg-white/5"
-              >
-                <Icon className="h-4 w-4 text-[var(--color-primary)]" />
-                <span className="text-white/80 text-xs font-medium">{label}</span>
-              </div>
-            ))}
+        <div className="space-y-8">
+          <div className="space-y-3">
+            <h1 className="text-3xl font-semibold leading-tight tracking-tight text-ink">
+              Controla quién entra, cobra con recibo y cuadra la caja cada noche.
+            </h1>
+            <p className="max-w-md text-base text-ink-muted">
+              El software de gestión para gimnasios colombianos: cédula, COP y Wompi.
+            </p>
           </div>
+
+          <figure
+            aria-label="Ejemplo de las entradas del día en FitConnect"
+            className="overflow-hidden rounded-[var(--radius-lg)] border border-line bg-panel"
+          >
+            <figcaption className="flex items-center justify-between border-b border-line px-4 py-3">
+              <span className="text-sm font-medium text-ink">Entradas en vivo</span>
+              <span className="font-mono text-xs text-ink-muted tabular-nums">23 dentro ahora</span>
+            </figcaption>
+            <ul className="divide-y divide-line">
+              {ENTRADAS.map((e) => (
+                <li key={e.hora} className="flex items-center gap-4 px-4 py-3 text-sm">
+                  <span className="font-mono text-ink-muted tabular-nums">{e.hora}</span>
+                  <span className="min-w-0 flex-1">
+                    <span className="block truncate font-medium text-ink">{e.nombre}</span>
+                    <span className="block truncate text-xs text-ink-muted">{e.plan}</span>
+                  </span>
+                  <span
+                    className="inline-flex h-6 items-center gap-1.5 rounded-[var(--radius-sm)] border px-2 text-xs font-medium"
+                    style={
+                      e.ok
+                        ? { color: "var(--signal-ok)", background: "var(--signal-ok-bg)", borderColor: "var(--signal-ok-line)" }
+                        : { color: "var(--signal-danger)", background: "var(--signal-danger-bg)", borderColor: "var(--signal-danger-line)" }
+                    }
+                  >
+                    <span aria-hidden="true" className="size-1.5 rounded-full bg-current" />
+                    {e.ok ? "Permitido" : "Vencido"}
+                  </span>
+                </li>
+              ))}
+            </ul>
+          </figure>
         </div>
 
-        <p className="relative text-white/40 text-xs">© {new Date().getFullYear()} FitConnect</p>
-      </div>
+        <p className="text-xs text-ink-subtle">© {new Date().getFullYear()} FitConnect</p>
+      </aside>
 
-      {/* Área del formulario: SÍ sigue el tema. Antes era un degradado oscuro
-          fijo con una tarjeta blanca forzada encima, y esa contradicción obligó
-          a inventar una escala `slate-*` paralela (`surface="on-light"`) para
-          que los campos no salieran oscuros sobre blanco. */}
-      <div className="flex-1 flex items-center justify-center p-6 bg-[var(--bg-base)]">
-        <div className="w-full max-w-md">{children}</div>
-      </div>
+      <main className="flex flex-1 items-start justify-center px-5 py-10 sm:items-center sm:px-8">
+        <div className="w-full max-w-[400px]">{children}</div>
+      </main>
     </div>
   );
 }

@@ -10,24 +10,37 @@ import { PasswordInput } from "@/components/ui/password-input";
 import { PhoneInput } from "@/components/ui/phone-input";
 import { CityCombobox } from "@/components/ui/city-combobox";
 import { CountrySelect } from "@/components/ui/country-select";
-import { AuthCardHeader } from "@/components/common/AuthCardHeader";
+import { AuthCardHeader, AuthNotice } from "@/components/common/AuthCardHeader";
 
 const registerSchema = z
   .object({
-    gym_name: z.string().min(2, "El nombre del gym debe tener al menos 2 caracteres"),
-    full_name: z.string().min(2, "Nombre demasiado corto"),
-    email: z.string().email("Email inválido"),
+    gym_name: z.string().min(2, "El nombre del gimnasio debe tener al menos 2 caracteres"),
+    full_name: z.string().min(2, "Escribe tu nombre completo"),
+    email: z.string().email("Revisa el email: parece incompleto"),
     password: z.string().min(8, "La contraseña debe tener al menos 8 caracteres"),
     confirm_password: z.string(),
-    city: z.string().min(2, "Ciudad demasiado corta"),
+    city: z.string().min(2, "Elige o escribe la ciudad del gimnasio"),
     country: z.string().min(2).max(2),
     phone: z.string().max(50, "Teléfono demasiado largo").optional(),
-    terms_accepted: z.boolean().refine((v) => v, "Debes aceptar los términos de servicio"),
+    terms_accepted: z.boolean().refine((v) => v, "Para crear la cuenta debes aceptar los términos y las políticas"),
   })
   .refine((data) => data.password === data.confirm_password, {
     message: "Las contraseñas no coinciden",
     path: ["confirm_password"],
   });
+
+function Section({ title, children }: { title: string; children: React.ReactNode }) {
+  return (
+    // La línea va en el contenedor: un borde en el <fieldset> hace que la
+    // leyenda se monte sobre él.
+    <div className="border-t border-line pt-6">
+      <fieldset className="m-0 min-w-0 border-0 p-0">
+        <legend className="mb-4 p-0 text-base font-semibold tracking-tight text-ink">{title}</legend>
+        <div className="space-y-4">{children}</div>
+      </fieldset>
+    </div>
+  );
+}
 
 export default function RegisterPage() {
   const router = useRouter();
@@ -64,146 +77,117 @@ export default function RegisterPage() {
       return;
     }
 
-    const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/v1/auth/register`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        email: formData.email,
-        password: formData.password,
-        full_name: formData.full_name,
-        gym_name: formData.gym_name,
-        city: formData.city,
-        country: formData.country,
-        phone: formData.phone,
-      }),
-    });
-    setLoading(false);
-    if (!res.ok) {
-      try {
-        const data = await res.json();
+    try {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/v1/auth/register`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          email: formData.email,
+          password: formData.password,
+          full_name: formData.full_name,
+          gym_name: formData.gym_name,
+          city: formData.city,
+          country: formData.country,
+          phone: formData.phone,
+        }),
+      });
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}));
         const detail = data.detail;
-        setError(typeof detail === "string" ? detail : JSON.stringify(detail));
-      } catch {
-        setError("Error al registrar. Intenta nuevamente.");
+        setError(typeof detail === "string" ? detail : "No pudimos crear la cuenta. Revisa los datos e intenta de nuevo.");
+        return;
       }
-      return;
+      router.push("/login?registered=1");
+    } catch {
+      setError("No hay conexión con el servidor. Revisa tu internet e intenta de nuevo.");
+    } finally {
+      setLoading(false);
     }
-    router.push("/login?registered=1");
   }
 
   return (
-    <div className="rounded-2xl bg-[var(--bg-card)] border border-[var(--border-base)] p-8 shadow-[var(--shadow-dialog)]">
-      <AuthCardHeader title="Crea tu cuenta" subtitle="Comienza gratis — Plan Básico" />
-      <form onSubmit={handleSubmit} className="space-y-5">
-        {/* Gym name */}
-        <div className="space-y-1.5">
-          <Label htmlFor="gym_name" className="text-[var(--text-muted)] text-sm font-medium">Nombre del Gym</Label>
-          <Input
-            id="gym_name"
-            name="gym_name"
-            type="text"
-            required
-            className="focus:border-[var(--color-primary)] focus:ring-[var(--color-primary)]"
-          />
-        </div>
-
-        {/* City + Country */}
-        <div className="grid grid-cols-2 gap-3">
+    <div>
+      <AuthCardHeader title="Crea la cuenta de tu gimnasio" subtitle="30 días gratis, sin tarjeta. Luego importas tus socios desde Excel." />
+      <form onSubmit={handleSubmit} className="space-y-8">
+        <Section title="Tu gimnasio">
           <div className="space-y-1.5">
-            <Label htmlFor="city" className="text-[var(--text-muted)] text-sm font-medium">Ciudad</Label>
-            <CityCombobox id="city" value={city} onChange={setCity} />
+            <Label htmlFor="gym_name">Nombre del gimnasio</Label>
+            <Input id="gym_name" name="gym_name" type="text" autoComplete="organization" required />
+          </div>
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-[1fr_9rem]">
+            <div className="space-y-1.5">
+              <Label htmlFor="city">Ciudad</Label>
+              <CityCombobox id="city" value={city} onChange={setCity} />
+            </div>
+            <div className="space-y-1.5">
+              <Label>País</Label>
+              <CountrySelect value={country} onChange={(v) => setCountry(v || "CO")} />
+            </div>
+          </div>
+        </Section>
+
+        <Section title="Tu cuenta">
+          <div className="space-y-1.5">
+            <Label htmlFor="full_name">Tu nombre completo</Label>
+            <Input id="full_name" name="full_name" type="text" autoComplete="name" required />
           </div>
           <div className="space-y-1.5">
-            <Label className="text-[var(--text-muted)] text-sm font-medium">País</Label>
-            <CountrySelect value={country} onChange={(v) => setCountry(v || "CO")} />
+            <Label htmlFor="email">Email</Label>
+            <Input id="email" name="email" type="email" autoComplete="email" required />
           </div>
-        </div>
+          <div className="space-y-1.5">
+            <Label>
+              Teléfono <span className="font-normal text-ink-muted">(opcional)</span>
+            </Label>
+            <PhoneInput value={phone} onChange={setPhone} />
+          </div>
+          <div className="space-y-1.5">
+            <Label>Contraseña</Label>
+            <PasswordInput
+              showStrength
+              value={password}
+              onChange={(e) => setPassword((e.target as HTMLInputElement).value)}
+              autoComplete="new-password"
+              required
+              placeholder="Mínimo 8 caracteres"
+            />
+          </div>
+          <div className="space-y-1.5">
+            <Label>Confirma la contraseña</Label>
+            <PasswordInput
+              value={confirmPassword}
+              onChange={(e) => setConfirmPassword((e.target as HTMLInputElement).value)}
+              autoComplete="new-password"
+              required
+            />
+          </div>
+        </Section>
 
-        {/* Full name */}
-        <div className="space-y-1.5">
-          <Label htmlFor="full_name" className="text-[var(--text-muted)] text-sm font-medium">Tu nombre completo</Label>
-          <Input
-            id="full_name"
-            name="full_name"
-            type="text"
-            required
-            className="focus:border-[var(--color-primary)] focus:ring-[var(--color-primary)]"
-          />
-        </div>
-
-        {/* Email */}
-        <div className="space-y-1.5">
-          <Label htmlFor="email" className="text-[var(--text-muted)] text-sm font-medium">Email</Label>
-          <Input
-            id="email"
-            name="email"
-            type="email"
-            required
-            className="focus:border-[var(--color-primary)] focus:ring-[var(--color-primary)]"
-          />
-        </div>
-
-        {/* Phone (optional) */}
-        <div className="space-y-1.5">
-          <Label className="text-[var(--text-muted)] text-sm font-medium">Teléfono (opcional)</Label>
-          <PhoneInput value={phone} onChange={setPhone} />
-        </div>
-
-        {/* Password with strength */}
-        <div className="space-y-1.5">
-          <Label className="text-[var(--text-muted)] text-sm font-medium">Contraseña</Label>
-          <PasswordInput
-            showStrength
-           
-            value={password}
-            onChange={(e) => setPassword((e.target as HTMLInputElement).value)}
-            required
-            placeholder="Mínimo 8 caracteres"
-          />
-        </div>
-
-        {/* Confirm password */}
-        <div className="space-y-1.5">
-          <Label className="text-[var(--text-muted)] text-sm font-medium">Confirmar contraseña</Label>
-          <PasswordInput
-           
-            value={confirmPassword}
-            onChange={(e) => setConfirmPassword((e.target as HTMLInputElement).value)}
-            required
-            placeholder="Repite tu contraseña"
-          />
-        </div>
-
-        {/* Terms */}
-        <label className="flex items-start gap-2 cursor-pointer select-none">
+        <label className="flex cursor-pointer select-none items-start gap-3">
           <input
             type="checkbox"
             checked={termsAccepted}
             onChange={(e) => setTermsAccepted(e.target.checked)}
-            className="mt-0.5 h-4 w-4 rounded border-[var(--border-base)] accent-[var(--color-primary)]"
+            className="mt-0.5 size-4 shrink-0 rounded border-line accent-[var(--color-primary)]"
           />
-          <span className="text-sm text-[var(--text-muted)]">
+          <span className="text-sm text-ink-muted">
             Acepto los{" "}
-            <Link href="/terminos" target="_blank" className="text-lime-700 hover:underline font-medium">términos de servicio</Link>
+            <Link href="/terminos" target="_blank" className="font-medium text-primary-ink hover:underline">términos de servicio</Link>
             , la{" "}
-            <Link href="/privacidad" target="_blank" className="text-lime-700 hover:underline font-medium">política de privacidad</Link>
+            <Link href="/privacidad" target="_blank" className="font-medium text-primary-ink hover:underline">política de privacidad</Link>
             {" "}y la{" "}
-            <Link href="/tratamiento-datos" target="_blank" className="text-lime-700 hover:underline font-medium">política de tratamiento de datos</Link>
+            <Link href="/tratamiento-datos" target="_blank" className="font-medium text-primary-ink hover:underline">política de tratamiento de datos</Link>.
           </span>
         </label>
 
-        {error && <p className="text-red-500 text-sm">{error}</p>}
-        <Button
-          type="submit"
-          disabled={loading}
-          className="w-full bg-[var(--color-primary)] text-[var(--color-primary-contrast)] font-semibold hover:bg-[var(--color-primary-hover)] transition-colors duration-150"
-        >
-          {loading ? "Registrando..." : "Crear cuenta"}
+        {error && <AuthNotice tone="danger">{error}</AuthNotice>}
+        <Button type="submit" size="lg" isLoading={loading} className="w-full">
+          Crear cuenta
         </Button>
       </form>
-      <p className="mt-5 text-center text-[var(--text-muted)] text-sm">
+      <p className="mt-8 text-sm text-ink-muted">
         ¿Ya tienes cuenta?{" "}
-        <Link href="/login" className="text-lime-700 font-semibold hover:underline">Inicia sesión</Link>
+        <Link href="/login" className="font-medium text-primary-ink hover:underline">Ingresa</Link>
       </p>
     </div>
   );

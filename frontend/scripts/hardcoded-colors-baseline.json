@@ -1,7 +1,4 @@
 {
-  "app/(auth)/aceptar-invitacion/page.tsx": 1,
-  "app/(auth)/login/page.tsx": 7,
-  "app/(auth)/register/page.tsx": 5,
   "app/(dashboard)/audit/AuditClient.tsx": 20,
   "app/(dashboard)/checkins/CheckinsClient.tsx": 60,
   "app/(dashboard)/classes/agenda/AgendaClient.tsx": 12,
@@ -28,7 +25,6 @@
   "app/screen/page.tsx": 2,
   "app/screen/ScreenClient.tsx": 5,
   "components/access/MemberAccessTab.tsx": 10,
-  "components/common/AuthCardHeader.tsx": 1,
   "components/common/CheckinToaster.tsx": 28,
   "components/common/MembershipStatusBadge.tsx": 28,
   "components/common/NeonBadge.tsx": 21,
