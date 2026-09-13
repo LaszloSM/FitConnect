@@ -9,6 +9,7 @@ import { apiClient, newIdempotencyKey, postOnce } from "@/lib/api";
 import { formatCOP, formatTimeAgo, formatDate, formatDateTime, parseDateOnly, todayISO, daysUntil } from "@/lib/format";
 import { GlassCard } from "@/components/common/GlassCard";
 import { Button } from "@/components/ui/button";
+import { StatusBadge } from "@/components/ui/status-badge";
 import {
   ArrowLeft,
   User,
@@ -19,15 +20,12 @@ import {
   CreditCard,
   Activity,
   Tag,
-  CheckCircle2,
-  Clock,
   BadgeX,
   Loader2,
   QrCode,
   Pencil,
   Snowflake,
   Play,
-  CalendarClock,
   HeartPulse,
   UserPlus,
   Ticket,
@@ -70,52 +68,17 @@ const TAB_CONFIG: { key: Tab; label: string; icon: React.ReactNode }[] = [
 // bloquea y la pantalla no debe ofrecerle puertas cerradas.
 const TRAINER_TABS: Tab[] = ["info", "timeline", "checkins", "routine"];
 
+const METHOD_LABEL: Record<string, string> = { cash: "Efectivo", transfer: "Transferencia", card: "Tarjeta", wompi: "Wompi" };
+
 interface TimelineEvent {
   type: "checkin" | "payment" | "membership" | "booking";
   at: string;
   [key: string]: any;
 }
 
-const STATUS_PILL: Record<string, { label: string; cls: string; icon: React.ReactNode }> = {
-  active: {
-    label: "Activa",
-    cls: "bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-400 ring-emerald-200 dark:ring-emerald-800/60",
-    icon: <CheckCircle2 className="h-3 w-3" />,
-  },
-  scheduled: {
-    label: "Programada",
-    cls: "bg-violet-50 dark:bg-violet-950/40 text-violet-700 dark:text-violet-400 ring-violet-200 dark:ring-violet-800/60",
-    icon: <CalendarClock className="h-3 w-3" />,
-  },
-  frozen: {
-    label: "Congelada",
-    cls: "bg-sky-50 dark:bg-sky-950/40 text-sky-700 dark:text-sky-400 ring-sky-200 dark:ring-sky-800/60",
-    icon: <Snowflake className="h-3 w-3" />,
-  },
-  in_grace: {
-    label: "En gracia",
-    cls: "bg-amber-50 dark:bg-amber-950/40 text-amber-700 dark:text-amber-400 ring-amber-200 dark:ring-amber-800/60",
-    icon: <Clock className="h-3 w-3" />,
-  },
-  expired: {
-    label: "Vencida",
-    cls: "bg-red-50 dark:bg-red-950/40 text-red-600 dark:text-red-400 ring-red-200 dark:ring-red-800/60",
-    icon: <Clock className="h-3 w-3" />,
-  },
-  cancelled: {
-    label: "Cancelada",
-    cls: "bg-[var(--bg-muted)] text-[var(--text-muted)] ring-[var(--border-base)]",
-    icon: <BadgeX className="h-3 w-3" />,
-  },
-};
-
+/** Estado de la membresía con el mismo badge del resto de la app. */
 function MembershipStatusPill({ status }: { status: string }) {
-  const pill = STATUS_PILL[status] ?? STATUS_PILL.expired;
-  return (
-    <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-semibold ring-1 ${pill.cls}`}>
-      {pill.icon} {pill.label}
-    </span>
-  );
+  return <StatusBadge status={status} />;
 }
 
 const cardVariants: Variants = {
@@ -153,6 +116,8 @@ export default function MemberDetailClient({ memberId }: { memberId: string }) {
   const [discountReason, setDiscountReason] = useState("");
   const [freezeFor, setFreezeFor] = useState<string | null>(null);
   const [freezeReason, setFreezeReason] = useState("");
+  // Cancelar pide un segundo clic en línea: window.confirm no sigue el tema y en móvil tapa la ficha.
+  const [cancelFor, setCancelFor] = useState<string | null>(null);
   const [actionBusy, setActionBusy] = useState(false);
   const [renewalBusy, setRenewalBusy] = useState(false);
   const [timeline, setTimeline] = useState<TimelineEvent[] | null>(null);
@@ -373,14 +338,9 @@ export default function MemberDetailClient({ memberId }: { memberId: string }) {
   );
 
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 8 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ ease: [0.16, 1, 0.3, 1], duration: 0.35 }}
-      className="space-y-5"
-    >
+    <div className="space-y-6">
       {/* Header */}
-      <div className="flex items-start gap-4">
+      <div className="flex flex-col gap-4 md:flex-row md:items-start">
         <button
           onClick={() => router.back()}
           className="mt-0.5 flex items-center gap-1.5 text-[var(--text-muted)] hover:text-[var(--text-base)] text-sm transition-colors"
@@ -396,18 +356,18 @@ export default function MemberDetailClient({ memberId }: { memberId: string }) {
             className="h-14 w-14 rounded-full object-cover shrink-0 ring-2 ring-[var(--border-base)]"
           />
         ) : (
-          <span className="h-14 w-14 rounded-full bg-[var(--color-primary)] text-[var(--color-primary-contrast)] text-lg font-bold flex items-center justify-center shrink-0">
+          <span className="h-14 w-14 rounded-full bg-muted text-ink text-lg font-semibold flex items-center justify-center shrink-0">
             {(member.full_name?.[0] ?? "?").toUpperCase()}
           </span>
         )}
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-3 flex-wrap">
-            <h2 className="text-xl font-bold text-[var(--text-base)] font-display truncate">
+            <h2 className="text-2xl font-semibold tracking-tight text-ink truncate">
               {member.full_name}
             </h2>
             {member.parq_answers && Object.values(member.parq_answers).some(Boolean) && (
               <span
-                className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-semibold ring-1 bg-amber-50 dark:bg-amber-950/40 text-amber-700 dark:text-amber-400 ring-amber-200 dark:ring-amber-800/60"
+                className="inline-flex h-6 items-center gap-1 rounded-[var(--radius-sm)] border border-[var(--signal-warn-line)] bg-[var(--signal-warn-bg)] px-2 text-xs font-medium text-[var(--signal-warn)]"
                 title="Respondió sí a una o más preguntas del PAR-Q: se recomienda aval médico antes de entrenar"
               >
                 <HeartPulse className="h-3 w-3" /> Requiere aval médico
@@ -418,7 +378,7 @@ export default function MemberDetailClient({ memberId }: { memberId: string }) {
               <DialogTrigger
                 render={
                   <button
-                    className="flex items-center gap-1 px-2 py-1 rounded-lg border border-[var(--border-base)] text-xs text-[var(--text-muted)] hover:text-[var(--text-base)] hover:bg-[var(--bg-base)] transition-colors"
+                    className="flex h-8 items-center gap-1.5 px-2.5 rounded-[var(--radius-md)] border border-line bg-panel text-sm text-ink hover:bg-muted transition-colors"
                     title="Editar miembro"
                   >
                     <Pencil className="h-3 w-3" />
@@ -426,9 +386,9 @@ export default function MemberDetailClient({ memberId }: { memberId: string }) {
                   </button>
                 }
               />
-              <DialogContent className="bg-[var(--bg-card)] border border-[var(--border-base)] text-[var(--text-base)] max-w-lg">
+              <DialogContent className="sm:max-w-lg">
                 <DialogHeader>
-                  <DialogTitle className="text-[var(--text-base)] font-display">
+                  <DialogTitle>
                     Editar miembro
                   </DialogTitle>
                 </DialogHeader>
@@ -436,23 +396,23 @@ export default function MemberDetailClient({ memberId }: { memberId: string }) {
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                     <div className="space-y-1 sm:col-span-2">
                       <Label className="text-[var(--text-muted)] text-xs">Nombre completo</Label>
-                      <Input name="full_name" defaultValue={member.full_name} required className="bg-[var(--bg-base)] border-[var(--border-base)] text-[var(--text-base)]" />
+                      <Input name="full_name" defaultValue={member.full_name} required />
                     </div>
                     <div className="space-y-1">
                       <Label className="text-[var(--text-muted)] text-xs">Correo</Label>
-                      <Input name="email" type="email" defaultValue={member.email ?? ""} className="bg-[var(--bg-base)] border-[var(--border-base)] text-[var(--text-base)]" />
+                      <Input name="email" type="email" defaultValue={member.email ?? ""} />
                     </div>
                     <div className="space-y-1">
                       <Label className="text-[var(--text-muted)] text-xs">Teléfono</Label>
-                      <Input name="phone" defaultValue={member.phone ?? ""} className="bg-[var(--bg-base)] border-[var(--border-base)] text-[var(--text-base)]" />
+                      <Input name="phone" defaultValue={member.phone ?? ""} />
                     </div>
                     <div className="space-y-1">
                       <Label className="text-[var(--text-muted)] text-xs">Ciudad</Label>
-                      <Input name="city" defaultValue={member.city ?? ""} className="bg-[var(--bg-base)] border-[var(--border-base)] text-[var(--text-base)]" />
+                      <Input name="city" defaultValue={member.city ?? ""} />
                     </div>
                     <div className="space-y-1">
                       <Label className="text-[var(--text-muted)] text-xs">Estado</Label>
-                      <select name="status" defaultValue={member.status} className="w-full h-9 rounded-md border border-[var(--border-base)] bg-[var(--bg-base)] px-3 text-sm text-[var(--text-base)]">
+                      <select name="status" defaultValue={member.status} className="w-full h-10 md:h-9 rounded-[var(--radius-md)] border border-line bg-field px-3 text-sm text-ink">
                         <option value="active">Activo</option>
                         <option value="inactive">Inactivo</option>
                       </select>
@@ -463,7 +423,7 @@ export default function MemberDetailClient({ memberId }: { memberId: string }) {
                         name="trainer_id"
                         value={trainerId}
                         onChange={(e) => setTrainerId(e.target.value)}
-                        className="w-full h-9 rounded-md border border-[var(--border-base)] bg-[var(--bg-base)] px-3 text-sm text-[var(--text-base)]"
+                        className="w-full h-10 md:h-9 rounded-[var(--radius-md)] border border-line bg-field px-3 text-sm text-ink"
                       >
                         <option value="">Sin entrenador asignado</option>
                         {trainers.map((t) => (
@@ -473,11 +433,11 @@ export default function MemberDetailClient({ memberId }: { memberId: string }) {
                     </div>
                     <div className="space-y-1">
                       <Label className="text-[var(--text-muted)] text-xs">Contacto emergencia</Label>
-                      <Input name="emergency_contact_name" defaultValue={member.emergency_contact_name ?? ""} className="bg-[var(--bg-base)] border-[var(--border-base)] text-[var(--text-base)]" />
+                      <Input name="emergency_contact_name" defaultValue={member.emergency_contact_name ?? ""} />
                     </div>
                     <div className="space-y-1">
                       <Label className="text-[var(--text-muted)] text-xs">Tel. emergencia</Label>
-                      <Input name="emergency_contact_phone" defaultValue={member.emergency_contact_phone ?? ""} className="bg-[var(--bg-base)] border-[var(--border-base)] text-[var(--text-base)]" />
+                      <Input name="emergency_contact_phone" defaultValue={member.emergency_contact_phone ?? ""} />
                     </div>
                     <div className="space-y-1 sm:col-span-2">
                       <Label className="text-[var(--text-muted)] text-xs">Notas</Label>
@@ -485,7 +445,7 @@ export default function MemberDetailClient({ memberId }: { memberId: string }) {
                         name="notes"
                         defaultValue={member.notes ?? ""}
                         rows={2}
-                        className="w-full rounded-md border border-[var(--border-base)] bg-[var(--bg-base)] px-3 py-2 text-sm text-[var(--text-base)] resize-none outline-none focus:ring-2 focus:ring-[var(--color-primary)]/30 focus:border-[var(--color-primary)]"
+                        className="w-full rounded-[var(--radius-md)] border border-line bg-field px-3 py-2 text-sm text-ink resize-none outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary"
                       />
                     </div>
                   </div>
@@ -506,7 +466,7 @@ export default function MemberDetailClient({ memberId }: { memberId: string }) {
               <DialogTrigger
                 render={
                   <button
-                    className="flex items-center gap-1 px-2 py-1 rounded-lg border border-[var(--border-base)] text-xs text-[var(--text-muted)] hover:text-[var(--text-base)] hover:bg-[var(--bg-base)] transition-colors"
+                    className="flex h-8 items-center gap-1.5 px-2.5 rounded-[var(--radius-md)] border border-line bg-panel text-sm text-ink hover:bg-muted transition-colors"
                     title="Enviar un mensaje a este socio"
                   >
                     <MessageSquare className="h-3 w-3" />
@@ -514,9 +474,9 @@ export default function MemberDetailClient({ memberId }: { memberId: string }) {
                   </button>
                 }
               />
-              <DialogContent className="bg-[var(--bg-card)] border border-[var(--border-base)] text-[var(--text-base)] max-w-lg">
+              <DialogContent className="sm:max-w-lg">
                 <DialogHeader>
-                  <DialogTitle className="text-[var(--text-base)] font-display">
+                  <DialogTitle>
                     Mensaje para {member.full_name}
                   </DialogTitle>
                 </DialogHeader>
@@ -533,7 +493,7 @@ export default function MemberDetailClient({ memberId }: { memberId: string }) {
                       maxLength={120}
                       required
                       placeholder="Recordatorio"
-                      className="bg-[var(--bg-base)] border-[var(--border-base)] text-[var(--text-base)]"
+                     
                     />
                   </div>
                   <div className="space-y-1">
@@ -544,7 +504,7 @@ export default function MemberDetailClient({ memberId }: { memberId: string }) {
                       maxLength={2000}
                       required
                       placeholder="Hola {nombre}, te dejamos la rutina nueva en recepción."
-                      className="w-full rounded-md border border-[var(--border-base)] bg-[var(--bg-base)] px-3 py-2 text-sm text-[var(--text-base)] resize-none outline-none focus:ring-2 focus:ring-[var(--color-primary)]/30 focus:border-[var(--color-primary)]"
+                      className="w-full rounded-[var(--radius-md)] border border-line bg-field px-3 py-2 text-sm text-ink resize-none outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary"
                     />
                   </div>
                   <div className="flex justify-end gap-2 pt-1">
@@ -562,24 +522,24 @@ export default function MemberDetailClient({ memberId }: { memberId: string }) {
             <span
               className={
                 member.status === "active"
-                  ? "inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-semibold bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-400 ring-1 ring-emerald-200 dark:ring-emerald-800/60"
-                  : "inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-semibold bg-red-50 dark:bg-red-950/40 text-red-700 dark:text-red-400 ring-1 ring-red-200 dark:ring-red-800/60"
+                  ? "inline-flex h-6 items-center rounded-[var(--radius-sm)] border border-[var(--signal-ok-line)] bg-[var(--signal-ok-bg)] px-2 text-xs font-medium text-[var(--signal-ok)]"
+                  : "inline-flex h-6 items-center gap-1 rounded-[var(--radius-sm)] border border-line bg-muted px-2 text-xs font-medium text-ink-muted"
               }
             >
               {member.status === "active" ? "Activo" : "Inactivo"}
             </span>
             {member.member_type === "visitor" && (
-              <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-semibold bg-violet-50 dark:bg-violet-950/40 text-violet-700 dark:text-violet-400 ring-1 ring-violet-200 dark:ring-violet-800/60">
+              <span className="inline-flex h-6 items-center gap-1 rounded-[var(--radius-sm)] border border-line bg-muted px-2 text-xs font-medium text-ink-muted">
                 <Ticket className="h-3 w-3" /> Visitante · pase del día
               </span>
             )}
             {member.member_type === "staff" && (
-              <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-semibold bg-sky-50 dark:bg-sky-950/40 text-sky-700 dark:text-sky-400 ring-1 ring-sky-200 dark:ring-sky-800/60">
+              <span className="inline-flex h-6 items-center gap-1 rounded-[var(--radius-sm)] border border-line bg-muted px-2 text-xs font-medium text-ink-muted">
                 <Users className="h-3 w-3" /> Equipo · acceso de cortesía
               </span>
             )}
             {activeMembership && (
-              <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-medium bg-[var(--bg-muted)] text-[var(--text-muted)] border border-[var(--border-base)]">
+              <span className="inline-flex h-6 items-center gap-1 rounded-[var(--radius-sm)] border border-line bg-muted px-2 text-xs font-medium text-ink-muted">
                 <Tag className="h-3 w-3" />
                 {activeMembership.plan_name}
               </span>
@@ -601,7 +561,8 @@ export default function MemberDetailClient({ memberId }: { memberId: string }) {
               target="_blank"
               rel="noopener noreferrer"
               title="WhatsApp"
-              className="h-9 w-9 rounded-lg border border-[var(--border-base)] flex items-center justify-center text-[var(--text-muted)] hover:text-emerald-600 hover:border-emerald-300 transition-colors"
+              aria-label={"Escribir a " + member.full_name + " por WhatsApp"}
+              className="h-9 w-9 rounded-lg border border-[var(--border-base)] flex items-center justify-center text-[var(--text-muted)] hover:text-[var(--signal-ok)] hover:border-[var(--signal-ok-line)] transition-colors"
             >
               <Phone className="h-4 w-4" />
             </a>
@@ -609,7 +570,7 @@ export default function MemberDetailClient({ memberId }: { memberId: string }) {
           {esEntrenador ? null : member.member_type === "visitor" ? (
             <button
               onClick={() => router.push(`/members?convert=${memberId}`)}
-              className="flex items-center gap-1.5 h-9 px-3 rounded-lg bg-[var(--color-primary)] text-[var(--color-primary-contrast)] text-sm font-semibold hover:bg-[var(--color-primary-hover)] transition-colors"
+              className="flex items-center gap-1.5 h-10 px-4 rounded-[var(--radius-md)] bg-primary text-primary-contrast text-sm font-medium hover:bg-primary-hover transition-colors"
             >
               <UserPlus className="h-4 w-4" />
               Convertir en socio
@@ -617,7 +578,7 @@ export default function MemberDetailClient({ memberId }: { memberId: string }) {
           ) : (
             <button
               onClick={() => router.push(`/payments?member=${memberId}`)}
-              className="flex items-center gap-1.5 h-9 px-3 rounded-lg bg-[var(--color-primary)] text-[var(--color-primary-contrast)] text-sm font-semibold hover:bg-[var(--color-primary-hover)] transition-colors"
+              className="flex items-center gap-1.5 h-10 px-4 rounded-[var(--radius-md)] bg-primary text-primary-contrast text-sm font-medium hover:bg-primary-hover transition-colors"
             >
               <CreditCard className="h-4 w-4" />
               Cobrar
@@ -627,14 +588,16 @@ export default function MemberDetailClient({ memberId }: { memberId: string }) {
       </div>
 
       {/* Tabs */}
-      <div className="flex gap-0.5 border-b border-[var(--border-base)]">
+      <div role="tablist" aria-label="Secciones de la ficha" className="-mx-4 flex gap-1 overflow-x-auto border-b border-line px-4 [scrollbar-width:none] md:mx-0 md:px-0">
         {TAB_CONFIG.filter((t) => !esEntrenador || TRAINER_TABS.includes(t.key)).map(({ key, label, icon }) => (
           <button
             key={key}
             onClick={() => setTab(key)}
-            className={`flex items-center gap-1.5 px-4 py-2 text-xs font-medium border-b-2 -mb-px transition-colors ${
+            role="tab"
+            aria-selected={tab === key}
+            className={`flex h-11 shrink-0 items-center gap-1.5 whitespace-nowrap px-3 text-sm font-medium border-b-2 -mb-px transition-colors ${
               tab === key
-                ? "border-[var(--color-primary)] text-[var(--color-primary-ink)]"
+                ? "border-primary text-ink"
                 : "border-transparent text-[var(--text-muted)] hover:text-[var(--text-base)]"
             }`}
           >
@@ -652,7 +615,7 @@ export default function MemberDetailClient({ memberId }: { memberId: string }) {
         animate="visible"
         transition={{ duration: 0.2 }}
       >
-        <GlassCard className="p-5">
+        <GlassCard className="p-4 sm:p-5">
           {/* PERFIL */}
           {tab === "info" && (
             <div className="space-y-5">
@@ -674,7 +637,7 @@ export default function MemberDetailClient({ memberId }: { memberId: string }) {
                     <div key={label} className="flex items-start gap-2">
                       {icon && <span className="mt-0.5 text-[var(--text-muted)]">{icon}</span>}
                       <div className={icon ? "" : "ml-5"}>
-                        <dt className="text-[var(--text-muted)] text-[10px] uppercase tracking-wider mb-0.5">{label}</dt>
+                        <dt className="text-ink-muted text-xs mb-0.5">{label}</dt>
                         <dd className="text-[var(--text-base)] text-sm">{value}</dd>
                       </div>
                     </div>
@@ -682,7 +645,7 @@ export default function MemberDetailClient({ memberId }: { memberId: string }) {
               </dl>
               {member.notes && (
                 <div className="pt-3 border-t border-[var(--border-base)]">
-                  <p className="text-[var(--text-muted)] text-[10px] uppercase tracking-wider mb-1">Notas</p>
+                  <p className="text-ink-muted text-xs mb-1">Notas</p>
                   <p className="text-[var(--text-base)] text-sm">{member.notes}</p>
                 </div>
               )}
@@ -705,15 +668,15 @@ export default function MemberDetailClient({ memberId }: { memberId: string }) {
                     return (
                       <div
                         key={m.id}
-                        className="p-3 rounded-lg border border-[var(--border-base)] bg-[var(--bg-muted)] space-y-2"
+                        className="p-3 rounded-[var(--radius-md)] border border-line bg-surface space-y-2"
                       >
-                        <div className="flex items-center justify-between gap-3">
+                        <div className="flex flex-wrap items-center justify-between gap-3">
                           <div className="min-w-0">
                             <p className="text-[var(--text-base)] text-sm font-medium">{m.plan_name}</p>
-                            <p className="text-[var(--text-muted)] text-[11px] mt-0.5">
+                            <p className="text-[var(--text-muted)] text-xs font-mono tabular-nums mt-0.5">
                               {m.start_date} → {m.end_date}
                               {m.discount_amount && Number(m.discount_amount) > 0 && (
-                                <span className="ml-2 text-emerald-600 dark:text-emerald-400">
+                                <span className="ml-2 text-[var(--signal-ok)]">
                                   −{formatCOP(Number(m.discount_amount))}{m.discount_reason ? ` (${m.discount_reason})` : ""}
                                 </span>
                               )}
@@ -727,7 +690,7 @@ export default function MemberDetailClient({ memberId }: { memberId: string }) {
                                 title="Congelar membresía"
                                 disabled={actionBusy}
                                 onClick={() => { setFreezeFor(freezeFor === m.id ? null : m.id); setFreezeReason(""); }}
-                                className="flex items-center gap-1 px-2 py-1 rounded-lg border border-[var(--border-base)] text-[11px] text-sky-600 dark:text-sky-400 hover:bg-sky-50 dark:hover:bg-sky-950/30 transition-colors"
+                                className="flex h-8 items-center gap-1 px-2.5 rounded-[var(--radius-md)] border border-line text-xs text-ink hover:bg-muted transition-colors"
                               >
                                 <Snowflake className="h-3 w-3" /> Congelar
                               </button>
@@ -738,7 +701,7 @@ export default function MemberDetailClient({ memberId }: { memberId: string }) {
                                 title="Reactivar membresía (corre la fecha de fin)"
                                 disabled={actionBusy}
                                 onClick={() => membershipAction(m.id, "unfreeze", {}, "Membresía reactivada — fecha de fin extendida")}
-                                className="flex items-center gap-1 px-2 py-1 rounded-lg border border-[var(--border-base)] text-[11px] text-emerald-600 dark:text-emerald-400 hover:bg-emerald-50 dark:hover:bg-emerald-950/30 transition-colors"
+                                className="flex h-8 items-center gap-1 px-2.5 rounded-[var(--radius-md)] border border-line text-xs text-ink hover:bg-muted transition-colors"
                               >
                                 <Play className="h-3 w-3" /> Reactivar
                               </button>
@@ -749,13 +712,13 @@ export default function MemberDetailClient({ memberId }: { memberId: string }) {
                                 title="Cancelar membresía"
                                 disabled={actionBusy}
                                 onClick={() => {
-                                  if (window.confirm(`¿Cancelar la membresía ${m.plan_name}? Esta acción no se puede deshacer.`)) {
-                                    membershipAction(m.id, "cancel", undefined, "Membresía cancelada");
-                                  }
+                                  if (cancelFor !== m.id) { setCancelFor(m.id); return; }
+                                  setCancelFor(null);
+                                  membershipAction(m.id, "cancel", undefined, "Membresía cancelada");
                                 }}
-                                className="flex items-center gap-1 px-2 py-1 rounded-lg border border-[var(--border-base)] text-[11px] text-red-500 hover:bg-red-50 dark:hover:bg-red-950/30 transition-colors"
+                                className="flex h-8 items-center gap-1 px-2.5 rounded-[var(--radius-md)] border border-line text-xs text-[var(--signal-danger)] hover:bg-[var(--signal-danger-bg)] transition-colors"
                               >
-                                <BadgeX className="h-3 w-3" /> Cancelar
+                                <BadgeX className="h-3 w-3" /> {cancelFor === m.id ? "¿Cancelar? No se deshace" : "Cancelar"}
                               </button>
                             )}
                           </div>
@@ -766,13 +729,13 @@ export default function MemberDetailClient({ memberId }: { memberId: string }) {
                               value={freezeReason}
                               onChange={(e) => setFreezeReason(e.target.value)}
                               placeholder="Motivo (vacaciones, lesión...)"
-                              className="h-8 text-xs bg-[var(--bg-base)] border-[var(--border-base)] text-[var(--text-base)]"
+                              className="text-sm"
                             />
                             <Button
                               type="button"
                               disabled={actionBusy}
                               onClick={() => membershipAction(m.id, "freeze", { reason: freezeReason.trim() || null }, "Membresía congelada")}
-                              className="h-8 text-xs bg-sky-600 hover:bg-sky-700 text-white shrink-0"
+                              className="shrink-0"
                             >
                               {actionBusy ? <Loader2 className="h-3 w-3 animate-spin" /> : "Confirmar"}
                             </Button>
@@ -792,12 +755,12 @@ export default function MemberDetailClient({ memberId }: { memberId: string }) {
                 const activePlanObj = plans.find((p: any) => p.name === activeMembership.plan_name);
                 const renewDate = activeMembership.end_date; // start day after current end
                 return (
-                  <div className="rounded-lg border border-amber-200 dark:border-amber-800/40 bg-amber-50 dark:bg-amber-950/20 p-3 flex items-center justify-between gap-3">
+                  <div className="rounded-[var(--radius-md)] border border-[var(--signal-warn-line)] bg-[var(--signal-warn-bg)] p-3 flex flex-wrap items-center justify-between gap-3">
                     <div>
-                      <p className="text-xs font-semibold text-amber-800 dark:text-amber-300">
+                      <p className="text-sm font-medium text-[var(--signal-warn)]">
                         {daysLeft <= 0 ? "Membresía vencida" : `Vence en ${daysLeft} día${daysLeft !== 1 ? "s" : ""}`}
                       </p>
-                      <p className="text-[11px] text-amber-700/80 dark:text-amber-400/80">
+                      <p className="text-xs text-ink-muted">
                         Plan actual: {activeMembership.plan_name}
                       </p>
                     </div>
@@ -807,7 +770,7 @@ export default function MemberDetailClient({ memberId }: { memberId: string }) {
                           type="button"
                           onClick={() => sendRenewalLink(activePlanObj.id)}
                           disabled={renewalBusy}
-                          className="text-xs font-semibold text-emerald-700 dark:text-emerald-300 border border-emerald-300 dark:border-emerald-700/60 rounded-lg px-3 py-1.5 hover:bg-emerald-100 dark:hover:bg-emerald-900/30 transition-colors disabled:opacity-50"
+                          className="h-8 text-sm font-medium text-ink border border-line bg-panel rounded-[var(--radius-md)] px-3 hover:bg-muted transition-colors disabled:opacity-50"
                         >
                           {renewalBusy ? "…" : "Cobrar en línea"}
                         </button>
@@ -817,7 +780,7 @@ export default function MemberDetailClient({ memberId }: { memberId: string }) {
                             setSelectedPlan(activePlanObj.id);
                             setStartDate(renewDate);
                           }}
-                          className="text-xs font-semibold text-amber-700 dark:text-amber-300 border border-amber-300 dark:border-amber-700/60 rounded-lg px-3 py-1.5 hover:bg-amber-100 dark:hover:bg-amber-900/30 transition-colors"
+                          className="h-8 text-sm font-medium text-primary-contrast bg-primary rounded-[var(--radius-md)] px-3 hover:bg-primary-hover transition-colors"
                         >
                           Renovar →
                         </button>
@@ -829,7 +792,7 @@ export default function MemberDetailClient({ memberId }: { memberId: string }) {
 
               {/* Asignar nueva */}
               <div className="pt-4 border-t border-[var(--border-base)]">
-                <p className="text-[var(--text-muted)] text-[10px] uppercase tracking-wider mb-3 font-medium">
+                <p className="text-ink text-sm font-medium mb-3">
                   Asignar membresía
                 </p>
                 <form onSubmit={handleAssign} className="space-y-3">
@@ -839,10 +802,10 @@ export default function MemberDetailClient({ memberId }: { memberId: string }) {
                       <select
                         value={selectedPlan}
                         onChange={(e) => setSelectedPlan(e.target.value)}
-                        className="w-full h-9 rounded-md border border-[var(--border-base)] bg-[var(--bg-base)] px-3 text-sm text-[var(--text-base)] outline-none focus:ring-2 focus:ring-[var(--color-primary)]/30 focus:border-[var(--color-primary)]"
+                        className="w-full h-10 md:h-9 rounded-[var(--radius-md)] border border-line bg-field px-3 text-sm text-ink outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary"
                         required
                       >
-                        <option value="">Seleccionar plan...</option>
+                        <option value="">Seleccionar plan…</option>
                         {plans.map((p: any) => (
                           <option key={p.id} value={p.id}>
                             {p.name} — {formatCOP(p.price)} / {p.duration_days}d
@@ -856,7 +819,7 @@ export default function MemberDetailClient({ memberId }: { memberId: string }) {
                         type="date"
                         value={startDate}
                         onChange={(e) => setStartDate(e.target.value)}
-                        className="w-full h-9 rounded-md border border-[var(--border-base)] bg-[var(--bg-base)] px-3 text-sm text-[var(--text-base)] outline-none focus:ring-2 focus:ring-[var(--color-primary)]/30 focus:border-[var(--color-primary)]"
+                        className="w-full h-10 md:h-9 rounded-[var(--radius-md)] border border-line bg-field px-3 text-sm text-ink outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary"
                         required
                       />
                     </div>
@@ -867,7 +830,7 @@ export default function MemberDetailClient({ memberId }: { memberId: string }) {
                       <select
                         value={paymentMethod}
                         onChange={(e) => setPaymentMethod(e.target.value)}
-                        className="w-full h-9 rounded-md border border-[var(--border-base)] bg-[var(--bg-base)] px-3 text-sm text-[var(--text-base)] outline-none focus:ring-2 focus:ring-[var(--color-primary)]/30 focus:border-[var(--color-primary)]"
+                        className="w-full h-10 md:h-9 rounded-[var(--radius-md)] border border-line bg-field px-3 text-sm text-ink outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary"
                       >
                         <option value="">No generar pago ahora</option>
                         <option value="cash">Efectivo</option>
@@ -892,7 +855,7 @@ export default function MemberDetailClient({ memberId }: { memberId: string }) {
                               value={promoCode}
                               onChange={(e) => { setPromoCode(e.target.value.toUpperCase()); if (e.target.value) { setDiscountAmount(""); setDiscountReason(""); } }}
                               placeholder="VERANO25"
-                              className="w-full h-9 rounded-md border border-[var(--border-base)] bg-[var(--bg-base)] px-3 text-sm text-[var(--text-base)] outline-none focus:ring-2 focus:ring-[var(--color-primary)]/30 focus:border-[var(--color-primary)]"
+                              className="w-full h-10 md:h-9 rounded-[var(--radius-md)] border border-line bg-field px-3 text-sm text-ink outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary"
                             />
                           </div>
                           <div>
@@ -904,7 +867,7 @@ export default function MemberDetailClient({ memberId }: { memberId: string }) {
                               onChange={(e) => { setDiscountAmount(e.target.value); if (e.target.value) setPromoCode(""); }}
                               disabled={!!promoCode}
                               placeholder="10000"
-                              className="w-full h-9 rounded-md border border-[var(--border-base)] bg-[var(--bg-base)] px-3 text-sm text-[var(--text-base)] outline-none focus:ring-2 focus:ring-[var(--color-primary)]/30 focus:border-[var(--color-primary)] disabled:opacity-40"
+                              className="w-full h-10 md:h-9 rounded-[var(--radius-md)] border border-line bg-field px-3 text-sm text-ink outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary disabled:opacity-40"
                             />
                           </div>
                           <div>
@@ -915,7 +878,7 @@ export default function MemberDetailClient({ memberId }: { memberId: string }) {
                               disabled={!!promoCode}
                               placeholder="Convenio empresa"
                               required={!!discountAmount}
-                              className="w-full h-9 rounded-md border border-[var(--border-base)] bg-[var(--bg-base)] px-3 text-sm text-[var(--text-base)] outline-none focus:ring-2 focus:ring-[var(--color-primary)]/30 focus:border-[var(--color-primary)] disabled:opacity-40"
+                              className="w-full h-10 md:h-9 rounded-[var(--radius-md)] border border-line bg-field px-3 text-sm text-ink outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary disabled:opacity-40"
                             />
                           </div>
                         </div>
@@ -925,7 +888,7 @@ export default function MemberDetailClient({ memberId }: { memberId: string }) {
                   <Button
                     type="submit"
                     disabled={assigning || !selectedPlan}
-                    className="bg-[var(--color-primary)] hover:bg-[var(--color-primary-hover)] text-[var(--color-primary-contrast)] font-semibold text-sm h-9 px-5 disabled:opacity-50"
+                    className="px-5"
                   >
                     {assigning ? <><Loader2 className="h-3.5 w-3.5 animate-spin mr-2" />Asignando...</> : "Asignar membresía"}
                   </Button>
@@ -945,26 +908,24 @@ export default function MemberDetailClient({ memberId }: { memberId: string }) {
                     <p className="text-[var(--text-muted)] text-xs">
                       {payments.length} pago{payments.length !== 1 ? "s" : ""} registrado{payments.length !== 1 ? "s" : ""}
                     </p>
-                    <p className="text-emerald-600 dark:text-emerald-400 text-sm font-semibold">
+                    <p className="text-ink text-sm font-semibold font-mono tabular-nums">
                       Total: {formatCOP(payments.filter((p: any) => p.status === "paid").reduce((acc: number, p: any) => acc + Number(p.amount), 0))}
                     </p>
                   </div>
                   {payments.map((p: any) => (
                     <div
                       key={p.id}
-                      className="flex items-center gap-3 p-3 rounded-lg border border-[var(--border-base)] bg-[var(--bg-muted)] text-sm"
+                      className="flex items-center gap-3 p-3 rounded-[var(--radius-md)] border border-line bg-surface text-sm"
                     >
                       <div className="flex-1 min-w-0">
                         <p className="text-[var(--text-base)] font-medium truncate">{p.concept || "Pago"}</p>
                         <p className="text-[var(--text-muted)] text-[11px]">
-                          {p.method ? p.method.charAt(0).toUpperCase() + p.method.slice(1) : ""} · {formatDate(p.created_at)}
+                          {METHOD_LABEL[p.method] ?? p.method ?? "Sin método"} · {formatDate(p.created_at)}
                         </p>
                       </div>
                       <div className="text-right shrink-0">
-                        <p className="text-[var(--text-base)] font-semibold tabular-nums">{formatCOP(Number(p.amount))}</p>
-                        <span className={`text-[10px] font-medium ${p.status === "paid" ? "text-emerald-600 dark:text-emerald-400" : p.status === "pending" ? "text-amber-600 dark:text-amber-400" : "text-red-500"}`}>
-                          {p.status === "paid" ? "Pagado" : p.status === "pending" ? "Pendiente" : "Fallido"}
-                        </span>
+                        <p className="text-ink font-mono font-semibold tabular-nums">{formatCOP(Number(p.amount))}</p>
+                        <StatusBadge status={p.status} className="mt-1" />
                       </div>
                     </div>
                   ))}
@@ -1012,14 +973,14 @@ export default function MemberDetailClient({ memberId }: { memberId: string }) {
                   {timeline.map((ev, i) => {
                     const dot =
                       ev.type === "payment"
-                        ? "bg-emerald-500"
+                        ? "bg-[var(--signal-ok)]"
                         : ev.type === "membership"
-                        ? "bg-fuchsia-500"
+                        ? "bg-primary"
                         : ev.type === "booking"
-                        ? "bg-violet-500"
+                        ? "bg-[var(--signal-info)]"
                         : ev.decision === "denied"
-                        ? "bg-red-500"
-                        : "bg-sky-500";
+                        ? "bg-[var(--signal-danger)]"
+                        : "bg-ink-muted";
                     let title = "";
                     let detail = "";
                     if (ev.type === "checkin") {
@@ -1070,16 +1031,16 @@ export default function MemberDetailClient({ memberId }: { memberId: string }) {
                   {checkins.map((c: any) => (
                     <div
                       key={c.id}
-                      className="flex items-center gap-3 p-3 rounded-lg border border-[var(--border-base)] bg-[var(--bg-muted)]"
+                      className="flex items-center gap-3 p-3 rounded-[var(--radius-md)] border border-line bg-surface"
                     >
                       <div className={`w-7 h-7 rounded-full flex items-center justify-center shrink-0 ${
                         c.type === "entry"
-                          ? "bg-emerald-50 dark:bg-emerald-950/40"
-                          : "bg-red-50 dark:bg-red-950/40"
+                          ? "bg-[var(--signal-ok-bg)]"
+                          : "bg-muted"
                       }`}>
                         {c.type === "entry"
-                          ? <Activity className="h-3.5 w-3.5 text-emerald-600 dark:text-emerald-400" />
-                          : <Activity className="h-3.5 w-3.5 text-red-500" />
+                          ? <Activity className="h-3.5 w-3.5 text-[var(--signal-ok)]" />
+                          : <Activity className="h-3.5 w-3.5 text-ink-muted" />
                         }
                       </div>
                       <div className="flex-1">
@@ -1092,7 +1053,7 @@ export default function MemberDetailClient({ memberId }: { memberId: string }) {
                         <p className="text-[var(--text-muted)] text-xs">
                           {formatTimeAgo(c.created_at)}
                         </p>
-                        <p className="text-[var(--text-muted)] text-[10px]">
+                        <p className="text-[var(--text-muted)] text-xs font-mono tabular-nums">
                           {formatDateTime(c.created_at, "d MMM, HH:mm")}
                         </p>
                       </div>
@@ -1104,6 +1065,6 @@ export default function MemberDetailClient({ memberId }: { memberId: string }) {
           )}
         </GlassCard>
       </motion.div>
-    </motion.div>
+    </div>
   );
 }

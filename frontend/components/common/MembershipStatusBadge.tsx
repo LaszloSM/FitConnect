@@ -1,5 +1,5 @@
 import { daysUntil } from "@/lib/format"
-import { cn } from "@/lib/utils"
+import { StatusBadge } from "@/components/ui/status-badge"
 
 type MembershipStatus = "ok" | "expired" | "no_membership"
 
@@ -9,51 +9,32 @@ interface MembershipStatusBadgeProps {
   className?: string
 }
 
-function MembershipStatusBadge({ status, endDate, className }: MembershipStatusBadgeProps) {
-  let label: string
-  let badgeClass: string
-  let dotClass: string
+const plural = (n: number) => `${n} día${n !== 1 ? "s" : ""}`
 
+/** Estado de membresía con los días que faltan o que pasaron, sobre el badge del sistema. */
+function MembershipStatusBadge({ status, endDate, className }: MembershipStatusBadgeProps) {
   if (status === "no_membership") {
-    label = "Sin membresía"
-    badgeClass = "bg-[var(--bg-muted)] border-[var(--border-base)] text-[var(--text-muted)]"
-    dotClass = "bg-[var(--text-muted)]"
-  } else if (status === "expired") {
-    const days = endDate ? Math.abs(daysUntil(endDate)) : null
-    label = days !== null ? `Vencida · hace ${days} día${days !== 1 ? "s" : ""}` : "Vencida"
-    badgeClass = "bg-red-50 border-red-200 text-red-700 dark:bg-red-950/30 dark:border-red-800/50 dark:text-red-400"
-    dotClass = "bg-red-500"
-  } else {
-    // status === "ok"
-    if (endDate) {
-      const days = daysUntil(endDate)
-      if (days <= 7) {
-        label = `Por vencer · ${days} día${days !== 1 ? "s" : ""}`
-        badgeClass = "bg-amber-50 border-amber-200 text-amber-700 dark:bg-amber-950/30 dark:border-amber-800/50 dark:text-amber-400"
-        dotClass = "bg-amber-500"
-      } else {
-        label = `Activa · ${days} día${days !== 1 ? "s" : ""}`
-        badgeClass = "bg-green-50 border-green-200 text-green-700 dark:bg-green-950/30 dark:border-green-800/50 dark:text-green-400"
-        dotClass = "bg-green-500"
-      }
-    } else {
-      label = "Activa"
-      badgeClass = "bg-green-50 border-green-200 text-green-700 dark:bg-green-950/30 dark:border-green-800/50 dark:text-green-400"
-      dotClass = "bg-green-500"
-    }
+    return <StatusBadge status="none" className={className} />
   }
 
-  return (
-    <span
-      className={cn(
-        "inline-flex items-center gap-1.5 rounded-full border px-2.5 py-0.5 text-xs font-medium",
-        badgeClass,
-        className
-      )}
-    >
-      <span className={cn("size-1.5 rounded-full shrink-0", dotClass)} />
-      {label}
-    </span>
+  if (status === "expired") {
+    const days = endDate ? Math.abs(daysUntil(endDate)) : null
+    return (
+      <StatusBadge
+        status="expired"
+        label={days !== null ? `Vencida · hace ${plural(days)}` : "Vencida"}
+        className={className}
+      />
+    )
+  }
+
+  if (!endDate) return <StatusBadge status="active" className={className} />
+
+  const days = daysUntil(endDate)
+  return days <= 7 ? (
+    <StatusBadge status="in_grace" tone="warning" label={`Por vencer · ${plural(days)}`} className={className} />
+  ) : (
+    <StatusBadge status="active" label={`Activa · ${plural(days)}`} className={className} />
   )
 }
 

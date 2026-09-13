@@ -5,7 +5,6 @@ import { useSession } from "next-auth/react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { toast } from "sonner";
 import { z } from "zod";
-import { motion } from "framer-motion";
 import { GlassCard } from "@/components/common/GlassCard";
 import { PageHeader } from "@/components/common/PageHeader";
 import { MemberImportDialog } from "@/components/members/MemberImportDialog";
@@ -14,7 +13,7 @@ import { QRCodeDisplay } from "@/components/common/QRCodeDisplay";
 import { PARQForm, PARQ_KEYS } from "@/components/common/PARQForm";
 import { apiClient } from "@/lib/api";
 import { parseApiError } from "@/lib/errors";
-import { formatCOP, formatDate, parseDateOnly, todayISO, toISODate } from "@/lib/format";
+import { daysUntil, formatCOP, formatDate, parseDateOnly, todayISO, toISODate } from "@/lib/format";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -103,10 +102,9 @@ interface Member {
   membership_plan_name: string | null;
 }
 
-const inputCls =
-  "bg-[var(--bg-base)] border-[var(--border-base)] text-[var(--text-base)] placeholder:text-[var(--text-muted)]";
+const inputCls = "";
 const selectCls =
-  "w-full h-9 rounded-md border border-[var(--border-base)] bg-[var(--bg-base)] px-3 py-1 text-sm text-[var(--text-base)]";
+  "w-full h-10 md:h-9 rounded-[var(--radius-md)] border border-line bg-field px-3 text-sm text-ink";
 
 function calcAge(birthDate: string): number | null {
   if (!birthDate) return null;
@@ -529,7 +527,7 @@ export default function MembersClient() {
   const req = !editing; // en creación todos estos campos son obligatorios
 
   const personalFields = (
-    <div className="grid grid-cols-2 gap-4">
+    <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
       <div className="space-y-2">
         <Label className="text-[var(--text-muted)] text-sm">Tipo de documento {req && "*"}</Label>
         <IdTypeSelect
@@ -547,7 +545,7 @@ export default function MembersClient() {
           className={inputCls}
         />
       </div>
-      <div className="space-y-2 col-span-2">
+      <div className="space-y-2 sm:col-span-2">
         <Label htmlFor="full_name" className="text-[var(--text-muted)] text-sm">Nombre completo *</Label>
         <Input id="full_name" value={form.full_name} onChange={(e) => setForm({ ...form, full_name: e.target.value })} className={inputCls} />
       </div>
@@ -588,11 +586,11 @@ export default function MembersClient() {
         <Label className="text-[var(--text-muted)] text-sm">País {req && "*"}</Label>
         <CountrySelect value={form.country} onChange={(v) => setForm({ ...form, country: v || "CO" })} />
       </div>
-      <div className="space-y-2 col-span-2">
+      <div className="space-y-2 sm:col-span-2">
         <Label className="text-[var(--text-muted)] text-sm">Dirección {req && "*"}</Label>
         <Input value={form.address} onChange={(e) => setForm({ ...form, address: e.target.value })} className={inputCls} />
       </div>
-      <div className="col-span-2 space-y-2">
+      <div className="sm:col-span-2 space-y-2">
         <div className="flex items-center justify-between">
           <Label className="text-[var(--text-muted)] text-sm">Foto del miembro (opcional)</Label>
           <CameraCapture
@@ -626,7 +624,7 @@ export default function MembersClient() {
         value={form.parq_answers}
         onChange={(answers) => setForm({ ...form, parq_answers: answers })}
       />
-      <div className="grid grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
         <div className="space-y-2">
           <Label className="text-[var(--text-muted)] text-sm">Grupo sanguíneo</Label>
           <BloodTypeSelect
@@ -642,7 +640,7 @@ export default function MembersClient() {
             id="training_goal"
             value={form.training_goal}
             onChange={(e) => setForm({ ...form, training_goal: e.target.value })}
-            className="w-full h-9 rounded-md border border-[var(--border-base)] bg-[var(--bg-input)] px-3 text-sm text-[var(--text-base)]"
+            className="w-full h-10 md:h-9 rounded-[var(--radius-md)] border border-line bg-field px-3 text-sm text-ink"
           >
             <option value="">Sin definir</option>
             {TRAINING_GOALS.map((g) => <option key={g.value} value={g.value}>{g.label}</option>)}
@@ -661,17 +659,12 @@ export default function MembersClient() {
   );
 
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 8 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ ease: [0.16, 1, 0.3, 1], duration: 0.35 }}
-      className="space-y-6"
-    >
+    <div className="space-y-6">
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
         <PageHeader
           module="members"
-          title="Miembros"
-          subtitle="Gestiona los socios de tu gym"
+          title="Socios"
+          subtitle="Busca, registra y cobra a los socios del gimnasio."
           action={
             <div className="flex items-center gap-2">
               <MemberImportDialog onImported={() => fetchMembers(0)} />
@@ -679,17 +672,17 @@ export default function MembersClient() {
                 render={
                   <Button onClick={openCreate}>
                     <Plus className="h-4 w-4 mr-2" />
-                    Nuevo miembro
+                    Nuevo socio
                   </Button>
                 }
               />
             </div>
           }
         />
-        <DialogContent className="bg-[var(--bg-card)] border border-[var(--border-base)] text-[var(--text-base)] sm:max-w-2xl max-h-[90vh] overflow-y-auto">
+        <DialogContent className="sm:max-w-2xl">
           <DialogHeader>
-            <DialogTitle className="text-[var(--text-base)] font-display">
-              {editing ? "Editar miembro" : converting ? `Convertir a ${converting.full_name.split(" ")[0]} en socio` : "Nuevo miembro"}
+            <DialogTitle>
+              {editing ? "Editar miembro" : converting ? `Convertir a ${converting.full_name.split(" ")[0]} en socio` : "Nuevo socio"}
             </DialogTitle>
           </DialogHeader>
           <form onSubmit={handleSubmit} className="mt-2">
@@ -711,15 +704,15 @@ export default function MembersClient() {
 
                 {/* TAB MEMBRESÍA (edición) */}
                 <TabsContent value="membresia" className="space-y-4">
-                  <div className="rounded-xl border border-[var(--border-base)] bg-[var(--bg-base)] p-4 space-y-3">
-                    <p className="text-xs font-semibold uppercase tracking-wider text-[var(--text-muted)]">Membresía activa</p>
+                  <div className="rounded-[var(--radius-lg)] border border-line bg-surface p-4 space-y-3">
+                    <p className="text-sm font-medium text-ink">Membresía activa</p>
                     {currentMembership ? (
                       <div className="space-y-2">
                         <div className="flex items-center gap-2">
                           <Tag className="h-4 w-4 text-[var(--color-primary-ink)]" />
                           <span className="font-semibold text-[var(--text-base)]">{currentMembership.plan_name}</span>
                           <MembershipStatusBadge
-                            status={new Date(currentMembership.end_date) >= new Date() ? "ok" : "expired"}
+                            status={daysUntil(currentMembership.end_date) >= 0 ? "ok" : "expired"}
                             endDate={currentMembership.end_date}
                           />
                         </div>
@@ -738,8 +731,8 @@ export default function MembersClient() {
                     )}
                   </div>
 
-                  <div className="rounded-xl border border-[var(--border-base)] bg-[var(--bg-base)] p-4 space-y-3">
-                    <p className="text-xs font-semibold uppercase tracking-wider text-[var(--text-muted)]">Asignar membresía</p>
+                  <div className="rounded-[var(--radius-lg)] border border-line bg-surface p-4 space-y-3">
+                    <p className="text-sm font-medium text-ink">Asignar membresía</p>
                     <div className="space-y-2">
                       <Label className="text-[var(--text-muted)] text-sm">Plan</Label>
                       <select
@@ -747,7 +740,7 @@ export default function MembersClient() {
                         onChange={(e) => setAssignPlanId(e.target.value)}
                         className={selectCls}
                       >
-                        <option value="">Selecciona un plan...</option>
+                        <option value="">Selecciona un plan…</option>
                         {availablePlans.map((p) => (
                           <option key={p.id} value={p.id}>
                             {p.name} — {formatCOP(p.price)} / {p.duration_days} días
@@ -768,7 +761,7 @@ export default function MembersClient() {
                       type="button"
                       disabled={assigningMembership || !assignPlanId || !assignStartDate}
                       onClick={handleAssignMembership}
-                      className="w-full bg-[var(--color-primary)] text-[var(--color-primary-contrast)] font-semibold hover:opacity-90 transition-opacity"
+                      className="w-full"
                     >
                       {assigningMembership ? "Asignando..." : "Asignar membresía"}
                     </Button>
@@ -831,8 +824,8 @@ export default function MembersClient() {
                 {step === 1 && healthFields}
                 {step === 2 && (
                   <div className="space-y-4">
-                    <div className="rounded-xl border border-[var(--border-base)] bg-[var(--bg-base)] p-4 space-y-3">
-                      <p className="text-xs font-semibold uppercase tracking-wider text-[var(--text-muted)]">Tratamiento de datos *</p>
+                    <div className="rounded-[var(--radius-lg)] border border-line bg-surface p-4 space-y-3">
+                      <p className="text-sm font-medium text-ink">Tratamiento de datos *</p>
                       <label className="flex items-start gap-2.5 text-sm text-[var(--text-base)] cursor-pointer">
                         <input type="checkbox" checked={consentData} onChange={(e) => setConsentData(e.target.checked)} className="mt-0.5 h-4 w-4 accent-[var(--color-primary)]" />
                         <span>
@@ -846,10 +839,10 @@ export default function MembersClient() {
                         <span>Autoriza el uso de su foto para identificarlo en el check-in{photoFile ? " (obligatorio porque adjuntaste una foto)" : ""}.</span>
                       </label>
                     </div>
-                    <div className="rounded-xl border border-[var(--border-base)] bg-[var(--bg-base)] p-4 space-y-3">
-                      <p className="text-xs font-semibold uppercase tracking-wider text-[var(--text-muted)]">Membresía inicial *</p>
+                    <div className="rounded-[var(--radius-lg)] border border-line bg-surface p-4 space-y-3">
+                      <p className="text-sm font-medium text-ink">Membresía inicial *</p>
                       {availablePlans.length === 0 ? (
-                        <div className="rounded-lg bg-amber-50 dark:bg-amber-950/20 border border-amber-200 dark:border-amber-900/40 p-3 text-sm text-amber-800 dark:text-amber-300">
+                        <div className="rounded-[var(--radius-md)] border border-[var(--signal-warn-line)] bg-[var(--signal-warn-bg)] p-3 text-sm text-[var(--signal-warn)]">
                           Aún no tienes planes creados. Ve a{" "}
                           <a href="/plans" className="font-semibold underline">Planes</a>{" "}
                           y crea tu primer plan para poder registrar socios.
@@ -863,7 +856,7 @@ export default function MembersClient() {
                               onChange={(e) => setAssignPlanId(e.target.value)}
                               className={selectCls}
                             >
-                              <option value="">Selecciona un plan...</option>
+                              <option value="">Selecciona un plan…</option>
                               {availablePlans.map((p) => (
                                 <option key={p.id} value={p.id}>
                                   {p.name} — {formatCOP(p.price)} / {p.duration_days} días
@@ -940,18 +933,18 @@ export default function MembersClient() {
       </Dialog>
 
       {missingIdCount > 0 && (
-        <div className="flex flex-wrap items-center gap-3 rounded-xl bg-amber-50 dark:bg-amber-950/20 border border-amber-200 dark:border-amber-900/40 px-4 py-3">
-          <AlertCircle className="h-4 w-4 text-amber-600 dark:text-amber-400 shrink-0" />
-          <p className="text-sm text-amber-800 dark:text-amber-300 flex-1 min-w-[200px]">
+        <div className="flex flex-wrap items-center gap-3 rounded-[var(--radius-lg)] border border-[var(--signal-warn-line)] bg-[var(--signal-warn-bg)] px-4 py-3">
+          <AlertCircle className="h-4 w-4 text-[var(--signal-warn)] shrink-0" />
+          <p className="text-sm text-ink flex-1 min-w-[200px]">
             <strong>{missingIdCount}</strong> miembro{missingIdCount !== 1 ? "s" : ""} sin cédula registrada — no podrá{missingIdCount !== 1 ? "n" : ""} usar el check-in por documento.
           </p>
           <button
             onClick={() => setMissingIdOnly((v) => !v)}
             className={cn(
-              "rounded-full px-3 py-1 text-sm font-medium border transition-colors",
+              "h-9 rounded-[var(--radius-md)] px-3 text-sm font-medium border transition-colors",
               missingIdOnly
-                ? "bg-amber-600 border-amber-600 text-white"
-                : "border-amber-300 dark:border-amber-800 text-amber-700 dark:text-amber-400 hover:bg-amber-100 dark:hover:bg-amber-950/40"
+                ? "border-ink bg-ink text-surface"
+                : "border-[var(--signal-warn-line)] bg-panel text-ink hover:bg-muted"
             )}
           >
             {missingIdOnly ? "Ver todos" : "Ver pendientes"}
@@ -964,7 +957,7 @@ export default function MembersClient() {
           <div className="relative flex-1 min-w-[200px]">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-[var(--text-muted)]" />
             <Input
-              placeholder="Buscar por nombre, email o cédula..."
+              placeholder="Buscar por nombre, correo o cédula…"
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               className={cn("pl-9", inputCls)}
@@ -976,7 +969,7 @@ export default function MembersClient() {
                 key={s}
                 onClick={() => setStatusFilter(s)}
                 className={cn(
-                  "rounded-full px-3 py-1 text-sm font-medium transition-colors",
+                  "h-9 rounded-[var(--radius-md)] px-3 text-sm font-medium transition-colors",
                   statusFilter === s
                     ? "bg-[var(--color-primary)] text-[var(--color-primary-contrast)]"
                     : "bg-[var(--bg-base)] border border-[var(--border-base)] text-[var(--text-muted)] hover:text-[var(--text-base)]"
@@ -989,7 +982,7 @@ export default function MembersClient() {
               value={typeFilter}
               onChange={(e) => setTypeFilter(e.target.value as typeof typeFilter)}
               aria-label="Filtrar por tipo de persona"
-              className="rounded-full px-3 py-1 text-sm font-medium bg-[var(--bg-base)] border border-[var(--border-base)] text-[var(--text-muted)] hover:text-[var(--text-base)]"
+              className="h-9 rounded-[var(--radius-md)] px-3 text-sm font-medium bg-panel border border-line text-ink"
             >
               <option value="">Todo el mundo</option>
               <option value="member">Solo socios</option>
@@ -1000,7 +993,7 @@ export default function MembersClient() {
               onClick={exportCSV}
               disabled={members.length === 0}
               title="Exportar a CSV"
-              className="flex items-center gap-1.5 rounded-full px-3 py-1 text-sm font-medium bg-[var(--bg-base)] border border-[var(--border-base)] text-[var(--text-muted)] hover:text-[var(--text-base)] disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+              className="flex h-9 items-center gap-1.5 rounded-[var(--radius-md)] px-3 text-sm font-medium bg-panel border border-line text-ink hover:bg-muted disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
             >
               <Download className="h-3.5 w-3.5" />
               CSV
@@ -1009,7 +1002,7 @@ export default function MembersClient() {
         </div>
 
         {error && (
-          <div className="flex items-center gap-2 text-red-600 mb-4">
+          <div role="alert" className="flex items-center gap-2 text-[var(--signal-danger)] mb-4">
             <AlertCircle className="h-4 w-4" />
             <p className="text-sm">{error}</p>
           </div>
@@ -1072,7 +1065,7 @@ export default function MembersClient() {
                         action={
                           <Button onClick={openCreate}>
                             <Plus className="h-4 w-4 mr-2" />
-                            Nuevo miembro
+                            Nuevo socio
                           </Button>
                         }
                       />
@@ -1090,20 +1083,20 @@ export default function MembersClient() {
                       <div className="flex items-center gap-2">
                         {m.photo_url ? (
                           // eslint-disable-next-line @next/next/no-img-element
-                          <img src={m.photo_url} alt={m.full_name} className="h-7 w-7 rounded-full object-cover shrink-0" />
+                          <img src={m.photo_url} alt={m.full_name} className="h-8 w-8 rounded-full object-cover shrink-0" />
                         ) : (
-                          <span className="h-7 w-7 rounded-full bg-[var(--color-primary)] text-[var(--color-primary-contrast)] text-xs font-bold flex items-center justify-center shrink-0">
+                          <span className="h-8 w-8 rounded-full bg-muted text-ink text-xs font-semibold flex items-center justify-center shrink-0">
                             {(m.full_name?.[0] ?? "?").toUpperCase()}
                           </span>
                         )}
                         {m.full_name}
                         {m.member_type === "visitor" && (
-                          <span className="inline-flex items-center px-1.5 py-0.5 rounded-full text-[10px] font-semibold bg-violet-50 dark:bg-violet-950/40 text-violet-700 dark:text-violet-400 ring-1 ring-violet-200 dark:ring-violet-800/60">
+                          <span className="inline-flex h-5 items-center rounded-[var(--radius-sm)] border border-line bg-muted px-1.5 text-[11px] font-medium text-ink-muted">
                             Visitante
                           </span>
                         )}
                         {m.member_type === "staff" && (
-                          <span className="inline-flex items-center px-1.5 py-0.5 rounded-full text-[10px] font-semibold bg-sky-50 dark:bg-sky-950/40 text-sky-700 dark:text-sky-400 ring-1 ring-sky-200 dark:ring-sky-800/60">
+                          <span className="inline-flex h-5 items-center rounded-[var(--radius-sm)] border border-line bg-muted px-1.5 text-[11px] font-medium text-ink-muted">
                             Equipo
                           </span>
                         )}
@@ -1118,24 +1111,24 @@ export default function MembersClient() {
                     <TableCell onClick={(e) => e.stopPropagation()}>
                       {m.membership_status === "active" ? (
                         <div className="flex flex-col gap-0.5">
-                          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium bg-green-100 dark:bg-green-950/30 text-green-700 dark:text-green-400 w-fit">
-                            <span className="h-1.5 w-1.5 rounded-full bg-green-500 inline-block" />
+                          <span className="inline-flex h-6 w-fit items-center gap-1.5 rounded-[var(--radius-sm)] border border-[var(--signal-ok-line)] bg-[var(--signal-ok-bg)] px-2 text-xs font-medium text-[var(--signal-ok)]">
+                            <span className="size-1.5 rounded-full bg-current" />
                             {m.membership_plan_name || "Activa"}
                           </span>
                           {m.membership_end_date && (
-                            <span className="text-[10px] text-[var(--text-muted)] pl-1">
+                            <span className="text-xs text-[var(--text-muted)] font-mono tabular-nums">
                               Vence {formatDate(m.membership_end_date, "dd/MM/yyyy")}
                             </span>
                           )}
                         </div>
                       ) : m.membership_status === "expired" ? (
                         <div className="flex flex-col gap-0.5">
-                          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium bg-red-100 dark:bg-red-950/30 text-red-700 dark:text-red-400 w-fit">
-                            <span className="h-1.5 w-1.5 rounded-full bg-red-500 inline-block" />
+                          <span className="inline-flex h-6 w-fit items-center gap-1.5 rounded-[var(--radius-sm)] border border-[var(--signal-danger-line)] bg-[var(--signal-danger-bg)] px-2 text-xs font-medium text-[var(--signal-danger)]">
+                            <span className="size-1.5 rounded-full bg-current" />
                             Vencida
                           </span>
                           {m.membership_end_date && (
-                            <span className="text-[10px] text-[var(--text-muted)] pl-1">
+                            <span className="text-xs text-[var(--text-muted)] font-mono tabular-nums">
                               {formatDate(m.membership_end_date, "dd/MM/yyyy")}
                             </span>
                           )}
@@ -1163,11 +1156,12 @@ export default function MembersClient() {
                       )}
                     </TableCell>
                     <TableCell className="text-right">
-                      <div className="flex items-center justify-end gap-1 opacity-0 group-hover:opacity-100 transition-opacity duration-150">
+                      <div className="flex items-center justify-end gap-1 transition-opacity duration-150 md:opacity-0 md:group-hover:opacity-100 md:group-focus-within:opacity-100">
                         <Button
                           variant="ghost"
                           size="icon"
-                          className="h-7 w-7 text-[var(--text-muted)] hover:text-[var(--text-base)] hover:bg-[var(--bg-muted)]"
+                          className="text-ink-muted hover:text-ink"
+                          aria-label={"Editar " + m.full_name}
                           onClick={(e) => { e.stopPropagation(); openEdit(m); }}
                           title="Editar"
                         >
@@ -1176,7 +1170,8 @@ export default function MembersClient() {
                         <Button
                           variant="ghost"
                           size="icon"
-                          className="h-7 w-7 text-[var(--text-muted)] hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-950/30"
+                          className="text-ink-muted hover:text-[var(--signal-danger)]"
+                          aria-label={"Eliminar " + m.full_name}
                           onClick={(e) => { e.stopPropagation(); setDeleteId(m.id); }}
                           title="Eliminar"
                         >
@@ -1201,14 +1196,14 @@ export default function MembersClient() {
               <button
                 disabled={page === 0 || loading}
                 onClick={() => { const p = page - 1; setPage(p); fetchMembers(p); }}
-                className="px-3 py-1.5 text-xs font-medium rounded-md border border-[var(--border-base)] bg-[var(--bg-base)] text-[var(--text-muted)] hover:text-[var(--text-base)] disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+                className="h-9 px-3 text-sm font-medium rounded-[var(--radius-md)] border border-line bg-panel text-ink hover:bg-muted disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
               >
                 ← Anterior
               </button>
               <button
                 disabled={!hasMore || loading}
                 onClick={() => { const p = page + 1; setPage(p); fetchMembers(p); }}
-                className="px-3 py-1.5 text-xs font-medium rounded-md border border-[var(--border-base)] bg-[var(--bg-base)] text-[var(--text-muted)] hover:text-[var(--text-base)] disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+                className="h-9 px-3 text-sm font-medium rounded-[var(--radius-md)] border border-line bg-panel text-ink hover:bg-muted disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
               >
                 Siguiente →
               </button>
@@ -1219,7 +1214,7 @@ export default function MembersClient() {
 
       {/* QR Popover */}
       {qrMember && qrMember.qr_code && (
-        <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50" onClick={() => setQrMember(null)}>
+        <div className="fixed inset-0 bg-ink/40 flex items-center justify-center z-50 p-4" onClick={() => setQrMember(null)}>
           <div className="relative" onClick={(e) => e.stopPropagation()}>
             <Button
               variant="ghost"
@@ -1235,23 +1230,23 @@ export default function MembersClient() {
       )}
 
       {deleteId && (
-        <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50" onClick={() => setDeleteId(null)}>
+        <div className="fixed inset-0 bg-ink/40 flex items-center justify-center z-50 p-4" onClick={() => setDeleteId(null)}>
           <div
-            className="bg-[var(--bg-card)] border border-[var(--border-base)] rounded-xl p-6 max-w-sm w-full mx-4 shadow-xl"
+            className="bg-panel border border-line rounded-[var(--radius-xl)] p-6 max-w-sm w-full shadow-[var(--shadow-dialog)]"
             onClick={(e) => e.stopPropagation()}
           >
             <h3 className="text-[var(--text-base)] font-semibold mb-2">¿Eliminar miembro?</h3>
-            <p className="text-[var(--text-muted)] text-sm mb-5">Esta acción no se puede deshacer.</p>
+            <p className="text-[var(--text-muted)] text-sm mb-5">Se borran su historial de entradas, reservas y rutinas. No se puede deshacer, y si tiene pagos registrados no se podrá eliminar.</p>
             <div className="flex justify-end gap-3">
               <button
                 onClick={() => setDeleteId(null)}
-                className="px-4 py-2 text-sm text-[var(--text-muted)] hover:text-[var(--text-base)] transition-colors"
+                className="h-10 px-4 text-sm font-medium rounded-[var(--radius-md)] border border-line text-ink hover:bg-muted transition-colors"
               >
                 Cancelar
               </button>
               <button
                 onClick={() => { handleDelete(deleteId); }}
-                className="px-4 py-2 text-sm bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors"
+                className="h-10 px-4 text-sm font-medium rounded-[var(--radius-md)] bg-[var(--signal-danger)] text-surface hover:opacity-90 transition-opacity"
               >
                 Eliminar
               </button>
@@ -1259,6 +1254,6 @@ export default function MembersClient() {
           </div>
         </div>
       )}
-    </motion.div>
+    </div>
   );
 }
