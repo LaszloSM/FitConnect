@@ -18,10 +18,10 @@ function getStrength(password: string): 0 | 1 | 2 | 3 {
 }
 
 const strengthConfig = {
-  1: { label: "Débil", color: "bg-red-500", segments: 1 },
-  2: { label: "Aceptable", color: "bg-amber-400", segments: 2 },
-  3: { label: "Fuerte", color: "bg-yellow-400", segments: 3 },
-  4: { label: "Muy fuerte", color: "bg-green-500", segments: 4 },
+  1: { label: "Débil", color: "bg-[var(--signal-danger)]", segments: 1 },
+  2: { label: "Aceptable", color: "bg-[var(--signal-warn)]", segments: 2 },
+  3: { label: "Fuerte", color: "bg-[var(--signal-ok)]/60", segments: 3 },
+  4: { label: "Muy fuerte", color: "bg-[var(--signal-ok)]", segments: 4 },
 } as const
 
 interface PasswordInputProps extends React.ComponentProps<"input"> {
@@ -50,7 +50,7 @@ function PasswordInput({ className, showStrength = false, value, onChange, ...pr
           value={currentValue}
           onChange={handleChange}
           className={cn(
-            "h-9 w-full min-w-0 rounded-lg border px-3 py-1.5 pr-10 text-sm transition-colors outline-none",
+            "h-10 md:h-9 w-full min-w-0 rounded-lg border px-3 py-1.5 pr-10 text-sm transition-colors outline-none",
             "border-[var(--border-base)] bg-[var(--bg-input)] text-[var(--text-base)] placeholder:text-[var(--text-placeholder)]",
             "focus-visible:border-[var(--color-primary)] focus-visible:ring-2 focus-visible:ring-[var(--color-primary)]/20",
             "disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50",
@@ -75,7 +75,7 @@ function PasswordInput({ className, showStrength = false, value, onChange, ...pr
               <div
                 key={seg}
                 className={cn(
-                  "h-1 flex-1 rounded-full transition-all duration-300",
+                  "h-1 flex-1 rounded-full transition-colors duration-300",
                   seg <= strengthConfig[strength as 1 | 2 | 3 | 4].segments
                     ? strengthConfig[strength as 1 | 2 | 3 | 4].color
                     : "bg-[var(--border-base)]"

@@ -258,6 +258,9 @@ Cuando cometas un error durante una sesión, agrégalo aquí antes de terminar:
 | El build de la imagen del backend falló con `ResolutionImpossible` (numpy) y en el host todo pasaba | `langchain==0.3.0` (sin un solo import en el código) exige `numpy<2`; el host ya tenía los paquetes instalados por separado y nunca resolvió el `requirements.txt` completo | Una dependencia nueva se valida con `docker build ./backend` o `pip install -r requirements.txt` en un venv limpio, no con que los tests del host pasen. Y lo que nadie importa se borra del requirements: solo agrega conflictos |
 | `bash scripts/deploy-lite.sh \| tail -60` reportó exit 0 con el build roto | Sin `pipefail`, el código de salida de un pipe es el del último comando (`tail`) | Correr el despliegue con `set -o pipefail` o sin pipe, y leer el log antes de dar algo por desplegado |
 
+| Lancé 6 generaciones de Stitch en paralelo y 5 devolvieron "The operation timed out" | El timeout es del cliente MCP, no del job: las pantallas sí se generaron y aparecieron minutos después en `list_screens` | No relanzar tras un timeout de Stitch (duplica pantallas y cuota): esperar y consultar `list_screens`. Mejor lanzar las generaciones de a una |
+| `ui-ux-pro-max` instalado como plugin nunca se registró como skill y su `search.py` fallaba con "file not found" | En Windows, git clonó los symlinks `scripts/` y `data/` como archivos de texto con la ruta adentro, y el plugin apunta a una carpeta oculta `.claude/skills/` | Skills de terceros van en `~/.claude/skills/<nombre>` con carpetas reales. Tras clonar en Windows, buscar archivos diminutos que deberían ser directorios (`find -type f -size -200c`) |
+
 **Protocolo:** Al detectar un error que no estaba documentado, añade una fila a la tabla antes del commit.
 
 ---

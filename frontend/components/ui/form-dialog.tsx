@@ -107,11 +107,11 @@ export function FormField({
     <div className="grid gap-1.5">
       <label className="text-sm font-medium text-[var(--text-base)]">
         {label}
-        {required && <span className="text-red-500 ml-0.5">*</span>}
+        {required && <span className="ml-0.5 text-[var(--signal-danger)]">*</span>}
       </label>
       {children}
       {hint && !error && <p className="text-xs text-[var(--text-muted)]">{hint}</p>}
-      {error && <p className="text-xs text-red-500">{error}</p>}
+      {error && <p className="text-xs text-[var(--signal-danger)]">{error}</p>}
     </div>
   );
 }

@@ -63,7 +63,7 @@ function CityCombobox({ value, onChange, className, placeholder = "Ciudad", id }
           id={id}
           placeholder={placeholder}
           className={cn(
-            "flex h-9 w-full items-center rounded-lg border pl-9 pr-9 text-sm transition-colors outline-none",
+            "flex h-10 md:h-9 w-full items-center rounded-lg border pl-9 pr-9 text-sm transition-colors outline-none",
             "placeholder:text-[var(--text-placeholder)]",
             "focus-visible:border-[var(--color-primary)] focus-visible:ring-2 focus-visible:ring-[var(--color-primary)]/20",
             "disabled:cursor-not-allowed disabled:opacity-50",

@@ -6,29 +6,25 @@ export type StatusTone =
   | "danger"
   | "info"
   | "neutral"
+  // Se conservan por compatibilidad: en Tiza los estados sin carga semántica
+  // ("programada") son neutros o informativos, no colores sueltos.
   | "violet"
   | "fuchsia";
 
-/**
- * Cada tono apunta a una señal del sistema en vez de a una paleta cruda de
- * Tailwind: así el badge sigue el tema y el validador de contraste lo cubre.
- * `violet` y `fuchsia` no son señales —son estados sin carga semántica, como
- * "programada"— y toman el acento del módulo que les corresponde.
- */
 const TONE_VAR: Record<StatusTone, { tinta: string; fondo: string; linea: string }> = {
   success: { tinta: "--signal-ok", fondo: "--signal-ok-bg", linea: "--signal-ok-line" },
   warning: { tinta: "--signal-warn", fondo: "--signal-warn-bg", linea: "--signal-warn-line" },
   danger: { tinta: "--signal-danger", fondo: "--signal-danger-bg", linea: "--signal-danger-line" },
   info: { tinta: "--signal-info", fondo: "--signal-info-bg", linea: "--signal-info-line" },
   neutral: { tinta: "--text-muted", fondo: "--bg-muted", linea: "--border-base" },
-  violet: { tinta: "--accent-classes", fondo: "--bg-muted", linea: "--border-base" },
-  fuchsia: { tinta: "--accent-plans", fondo: "--bg-muted", linea: "--border-base" },
+  violet: { tinta: "--signal-info", fondo: "--signal-info-bg", linea: "--signal-info-line" },
+  fuchsia: { tinta: "--text-muted", fondo: "--bg-muted", linea: "--border-base" },
 };
 
 const STATUS_PRESETS: Record<string, { label: string; tone: StatusTone }> = {
   // Membresías / miembros
   active: { label: "Activa", tone: "success" },
-  scheduled: { label: "Programada", tone: "violet" },
+  scheduled: { label: "Programada", tone: "info" },
   in_grace: { label: "En gracia", tone: "warning" },
   frozen: { label: "Congelada", tone: "info" },
   expired: { label: "Vencida", tone: "danger" },
@@ -71,11 +67,13 @@ export function StatusBadge({ status, label, tone, className }: StatusBadgeProps
   return (
     <span
       className={cn(
-        "inline-flex h-5 w-fit shrink-0 items-center gap-1 whitespace-nowrap rounded-full border px-2 py-0.5 text-xs font-medium",
+        "inline-flex h-6 w-fit shrink-0 items-center gap-1.5 whitespace-nowrap rounded-[var(--radius-sm)] border px-2 text-xs font-medium",
         className
       )}
       style={{ color: `var(${v.tinta})`, background: `var(${v.fondo})`, borderColor: `var(${v.linea})` }}
     >
+      {/* El punto repite el estado en forma, no solo en color. */}
+      <span aria-hidden="true" className="size-1.5 rounded-full bg-current" />
       {resolvedLabel}
     </span>
   );

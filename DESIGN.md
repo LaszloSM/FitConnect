@@ -1,80 +1,151 @@
-# FitConnect — Sistema de color
+# FitConnect — Sistema de diseño "Tiza"
 
-**La fuente de verdad de los valores es `frontend/app/globals.css`.** Este documento
-tiene las reglas, no los números: durante meses hubo tres documentos con la paleta
-copiada y los tres describían un azul (hue 264) mientras el código era verde
-(hue 150), con un `tailwind.config.ts` que Tailwind v4 ni siquiera leía.
+Dirección elegida el 2026-09-12, tras la auditoría de la Fase 0 (`docs/design/AUDIT-2026-09.md`) y la
+comparación de tres direcciones en Stitch (proyecto "FitConnect Premium Prototyping System",
+design system `A · Tiza`).
 
-## Cómo funcionan los tokens
+**Atmósfera:** la pizarra de un box limpia a las 5:30 am. Calmada, precisa, legible bajo luz dura
+en la recepción. Densidad media-alta, poco movimiento, cero decoración que no signifique algo.
 
-`globals.css` declara las CSS vars en `:root` (claro) y `.dark` (oscuro), y un
-bloque `@theme inline` las publica como utilidades de Tailwind. Por eso
-`bg-primary`, `text-ink-muted` o `border-line` existen de verdad **y** cambian
-solas al alternar el tema: apuntan a la misma var que `.dark` redefine.
-
-| Utilidad | Var | Para qué |
-|---|---|---|
-| `bg-primary` / `bg-primary-hover` | `--color-primary` | Rellenos de marca: botón primario, item activo del menú |
-| `text-primary-contrast` | `--color-primary-contrast` | **La única** tinta sobre el relleno de marca (casi-negro, nunca blanco) |
-| `text-primary-ink` | `--color-primary-ink` | La marca como **texto**: enlaces, acciones en línea, iconos |
-| `bg-base` / `bg-card` / `bg-sidebar` / `bg-input` / `bg-muted` | `--bg-*` | Superficies |
-| `text-ink` / `text-ink-muted` / `text-ink-subtle` | `--text-*` | Jerarquía de texto |
-| `border-line` | `--border-base` | Todos los bordes |
-| `font-display` / `font-mono` | — | Cifras grandes / datos tabulares |
-
-### El relleno y la tinta son dos roles, y tienen que serlo
-
-Se buscó un valor único que sirviera para las dos cosas y **no existe para
-ningún tono**: la frontera del claro y la del oscuro no se solapan, así que
-`--color-primary-ink` se redefine en `.dark` por obligación, no por descuido.
-
-El relleno de marca tiene 2.0:1 contra una tarjeta clara: como relleno es la
-identidad del producto, como texto es ilegible. Son dos tokens distintos a
-propósito:
-
-```tsx
-<button className="bg-primary text-primary-contrast">Cobrar</button>   {/* relleno */}
-<Link className="text-primary-ink">Ver caja</Link>                      {/* texto   */}
-```
-
-### Acentos por módulo
-
-`--accent-*` colorea el eyebrow y los iconos de cada módulo (`lib/module-accents.ts`).
-Están calibrados para leerse **como texto** en ambos temas, así que en claro son
-más oscuros de lo que sugiere el nombre del color.
-
-## Reglas
-
-- **Nunca** tokens de shadcn: `text-muted-foreground`, `bg-popover`, `bg-background`,
-  `text-primary-foreground`, `border-input`, `bg-secondary`, `text-foreground`,
-  `bg-destructive`. Este proyecto no los define y generan cero CSS.
-- Sobre el relleno de marca va `text-primary-contrast`, nunca `text-white`.
-- Nada de `border-l-4` en banners. Alertas: `bg-{c}-50 dark:bg-{c}-950/20 border border-{c}-200 dark:border-{c}-800/40`.
-- `--text-muted` no baja de 12px: a 10-11px queda al límite de legibilidad.
-- Superficies claras forzadas (tarjetas de login, QR): si fijas `bg-white`, fija
-  también los colores de texto; el ink de marca es claro en modo oscuro y
-  desaparecería.
-- Todo overlay decorativo lleva `pointer-events-none`.
-
-## Cómo se hace cumplir
-
-```bash
-cd frontend && npm run check:contrast
-```
-
-Lee los tokens de `globals.css`, calcula el ratio WCAG de cada par que el
-producto usa de verdad —en claro y en oscuro— y falla si alguno baja del mínimo
-(4.5:1 texto, 3:1 pistas como el placeholder, 1.3:1 bordes). Corre en CI en cada
-push. Si cambias un token y el script pasa, el contraste está bien; si lo cambias
-y no corres el script, no lo sabes.
-
-Para ver la tabla completa, incluidos los pares que pasan:
-
-```bash
-cd frontend && node scripts/check-contrast.mjs --all
-```
+**Fuente de verdad de los valores:** `frontend/app/globals.css`. Este documento tiene las reglas;
+los números viven en el CSS y `npm run check:contrast` los verifica.
 
 ---
 
-Las reglas de tipografía, espaciado, layout y movimiento están en
-`FITCONNECT_DESIGN_SYSTEM.md`.
+## 1. Color
+
+Un solo acento. Todo lo demás es neutro o es una señal semántica.
+
+| Rol | Token / utilidad | Uso |
+|---|---|---|
+| Fondo (tiza) | `--bg-base` / `bg-surface` | Fondo de página |
+| Superficie | `--bg-card` / `bg-panel` | Solo lo que se toca o se lee como bloque: tablas, formularios, diálogos |
+| Menú | `--bg-sidebar` / `bg-sidebar` | Sidebar |
+| Campo | `--bg-input` / `bg-field` | Inputs |
+| Apagado | `--bg-muted` / `bg-muted` | Hover de filas, chips, esqueletos |
+| Tinta (grafito) | `--text-base` / `text-ink` | Texto principal |
+| Secundario | `--text-muted` / `text-ink-muted` | Metadatos, descripciones |
+| Línea | `--border-base` / `border-line` | Todos los divisores y bordes, 1 px |
+| **Pino (relleno)** | `--brand` / `bg-primary` | Botón primario, item activo, foco |
+| Tinta sobre pino | `--brand-contrast` / `text-primary-contrast` | Único texto sobre el relleno (casi blanco) |
+| Pino como texto | `--brand-ink` / `text-primary-ink` | Enlaces, acciones en línea |
+| Pino sobre oscuro fijo | `--brand-on-dark` | Kiosko y pantalla del gym |
+
+Señales (`--signal-ok|warn|danger|info` + `-bg` + `-line`): solo para estado. Nunca decoran.
+
+**Reglas**
+- Los acentos por módulo desaparecieron: `--accent-*` apunta a `--text-muted` hasta que cada
+  flujo se rediseñe y deje de usarlos. No introducir colores por módulo.
+- Nada de tokens de shadcn (`text-muted-foreground`, `bg-popover`…): no existen aquí.
+- Nada de hex ni `bg-[#…]` en componentes. Si falta un color, falta un token.
+- Relleno y tinta son roles distintos: `bg-primary` con `text-primary-contrast`; el pino como
+  texto es `text-primary-ink`.
+- Nada de gradientes, glow, glassmorphism ni `border-l-4`. Alertas: fondo `-bg` + borde `-line`
+  completo.
+
+## 2. Tipografía
+
+- **Geist** para toda la UI. **Geist Mono** con `tabular-nums` para dinero (COP), cédulas, horas,
+  códigos y cualquier columna numérica.
+- Un solo estilo de cifra grande: Geist Mono 600, tracking -0.02em. No mezclar sans y mono para
+  montos en la misma pantalla.
+- Títulos en peso 600, tracking -0.015em, `text-wrap: balance`. Nunca 800.
+- Etiquetas y encabezados de sección en **sentence case**. Las MAYÚSCULAS con tracking quedan solo
+  para cabeceras de tabla, y con moderación.
+
+| Uso | Tamaño | Peso |
+|---|---|---|
+| Título de página | 24 px | 600 |
+| Título de sección | 16 px | 600 |
+| Cuerpo / celdas | 14 px | 400 |
+| Metadato | 13 px | 400 |
+| Mínimo absoluto | 12 px | — |
+| Cifra KPI | 28–32 px mono | 600 |
+
+## 3. Espaciado y layout
+
+- Escala de 4 px (4, 8, 12, 16, 24, 32, 48).
+- **32 px de aire entre el header y el contenido de la página.** Siempre.
+- Las secciones se separan con divisores y aire, no con tarjetas. Una tarjeta existe solo si el
+  bloque es la interacción (una fila de "Vencen esta semana", un producto del POS).
+- Nunca tarjeta dentro de tarjeta.
+- Panel: franja de cifras continua con divisores verticales, luego dos columnas (trabajo vivo a la
+  izquierda, pendientes y caja a la derecha).
+- Contenido con ancho máximo de 1440 px.
+
+## 4. Radios y elevación
+
+| Token | Valor | Uso |
+|---|---|---|
+| `--radius-sm` | 6 px | Chips, badges, esqueletos |
+| `--radius-md` | 8 px | Botones e inputs (**nunca pill**) |
+| `--radius-lg` | 10 px | Paneles, tablas |
+| `--radius-xl` | 12 px | Diálogos, popovers |
+
+`rounded-full` solo para avatares y puntos de estado. Sombras mínimas y teñidas; la jerarquía la
+dan fondo y línea, no la sombra. Diálogos y popovers sí llevan sombra.
+
+## 5. Componentes
+
+- **Botón primario:** relleno pino, texto casi blanco, radio 8 px, `active:translate-y-px`.
+  Uno por vista.
+- **Secundario:** borde línea sobre superficie. **Terciario:** texto `text-primary-ink`.
+- **Destructivo:** texto o borde de `--signal-danger`; relleno rojo solo en la confirmación.
+- **Inputs:** etiqueta arriba, ayuda y error debajo, foco con anillo pino. Nunca solo placeholder.
+- **Estados de acceso** (Permitido / Vencido / Bloqueado): chip pequeño con icono + texto.
+- **Tablas:** filas de 44–52 px, hora absoluta (`06:41`) en mono, acciones visibles en la fila
+  cuando son la tarea (Cobrar), en menú cuando son secundarias.
+- **Confirmaciones:** diálogo propio, nunca `window.confirm()`.
+- **Vacíos:** qué falta, por qué importa y la acción para poblarlo.
+- **Sin permiso:** explicar quién puede verlo; nunca "Sin permisos suficientes" pelado.
+- **Carga:** esqueleto con la misma rejilla que el contenido final.
+
+## 6. Movimiento
+
+Tokens: `--ease-out`, `--ease-in-out`, `--duration-fast|base|slow` (150/220/320 ms).
+
+- Solo `transform` y `opacity`. Nada de `transition-all`.
+- Entradas: fade + 8 px de desplazamiento, stagger corto en listas.
+- Nada que arranque invisible esperando un observer: el primer frame siempre se lee.
+- `prefers-reduced-motion` se respeta globalmente (`globals.css`); en Framer Motion además
+  `useReducedMotion`.
+
+## 7. Responsive
+
+- **Móvil (< 768 px):** el sidebar no existe; barra inferior de 5 destinos (Panel, Socios,
+  Cobrar, Check-ins, Más). Todo a una columna. Nada de scroll horizontal del body; las tablas
+  anchas scrollean en su propio contenedor.
+- **Tablet (768–1279 px):** sidebar colapsado a iconos, abre como drawer.
+- **Escritorio (≥ 1280 px):** sidebar expandido, colapsable.
+- Targets táctiles ≥ 44 px.
+
+## 8. Marca y logo
+
+El logo está en rediseño por parte del dueño. Mientras tanto: wordmark de texto "FitConnect" en
+Geist 600 y un slot neutro de 28 px. Nada de verde lima ni del logo "FC" anterior en superficies
+nuevas.
+
+## 9. Landing
+
+Muestra el producto real, como los SaaS de referencia (Linear, Stripe, Attio):
+
+1. Nav: wordmark, Producto, Precios, Clientes, Preguntas, Ingresar, "Prueba 30 días gratis".
+2. Hero alineado a la izquierda: qué es y para quién en una frase, subtítulo con los tres trabajos
+   (acceso, cobro, caja) y el contexto colombiano, un solo CTA.
+3. Captura grande y nítida de la app real dentro de un marco de navegador.
+4. Clientes reales (cuando existan; nunca cifras ni logos inventados).
+5. Tres secciones en zig-zag, cada una con una captura real: check-in por cédula, cobro con
+   recibo, cierre de caja.
+6. Precios en COP y preguntas frecuentes.
+
+Sin fotos de personas ni músculos, sin narrativa abstracta.
+
+## 10. Cómo se hace cumplir
+
+```bash
+cd frontend && npm run check:contrast     # pares WCAG en claro y oscuro
+cd frontend && npx tsc --noEmit
+```
+
+Contraste confirmado también en el navegador con color computado (ver CLAUDE.md). Todo cambio de UI
+se verifica en vivo con `/browse` antes de darlo por terminado.

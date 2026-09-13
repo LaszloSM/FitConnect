@@ -1,36 +1,28 @@
-"use client";
-
-import { useState } from "react";
 import { cn } from "@/lib/utils";
 
 interface BrandMarkProps {
-  /** Pixel size of the square mark. */
+  /** Lado del cuadro en píxeles. */
   size?: number;
   className?: string;
 }
 
 /**
- * Isotipo FitConnect.
+ * Slot del isotipo FitConnect.
  *
- * Usa TU logo raster `/public/logo-mark.png` si existe; si no, cae al
- * isotipo vectorial `/public/fitconnect-mark.svg`.
- *
- * Para que se vea TAL CUAL tu logo: recorta solo el cuadrito verde con el "FC"
- * (sin el texto "FitConnect" debajo) y guárdalo como
- * `frontend/public/logo-mark.png` (fondo transparente, ~256x256).
+ * El logo está en rediseño: mientras llega, un monograma neutro que hereda los
+ * tokens del tema. Cuando exista el definitivo, se reemplaza SOLO este archivo.
  */
-export function BrandMark({ size = 32, className }: BrandMarkProps) {
-  const [src, setSrc] = useState("/logo-mark.png");
+export function BrandMark({ size = 28, className }: BrandMarkProps) {
   return (
-    // eslint-disable-next-line @next/next/no-img-element
-    <img
-      src={src}
-      onError={() => { if (src !== "/fitconnect-mark.svg") setSrc("/fitconnect-mark.svg"); }}
-      alt="FitConnect"
-      width={size}
-      height={size}
-      className={cn("rounded-lg object-contain shrink-0", className)}
-      style={{ width: size, height: size }}
-    />
+    <span
+      aria-hidden="true"
+      className={cn(
+        "inline-flex shrink-0 items-center justify-center rounded-md bg-ink font-semibold text-surface select-none",
+        className
+      )}
+      style={{ width: size, height: size, fontSize: Math.round(size * 0.46), letterSpacing: "-0.04em" }}
+    >
+      F
+    </span>
   );
 }

@@ -53,7 +53,7 @@ function Textarea({ className, maxLength, showCount = false, value, onChange, ..
       {showCount && maxLength && (
         <span className={cn(
           "absolute bottom-2 right-3 text-xs pointer-events-none select-none",
-          count >= maxLength ? "text-red-500" : "text-[var(--text-placeholder)]"
+          count >= maxLength ? "text-[var(--signal-danger)]" : "text-[var(--text-placeholder)]"
         )}>
           {count}/{maxLength}
         </span>

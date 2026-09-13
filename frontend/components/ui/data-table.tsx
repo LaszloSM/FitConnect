@@ -72,7 +72,7 @@ export function DataTable<T>({
   if (error) {
     return (
       <EmptyState
-        icon={<AlertCircle className="h-10 w-10 text-red-500" />}
+        icon={<AlertCircle className="h-10 w-10 text-[var(--signal-danger)]" />}
         title="Error cargando datos"
         description={error}
         action={

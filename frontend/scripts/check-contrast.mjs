@@ -144,11 +144,10 @@ const PAIRS = [
   ["--border-base", "--bg-muted", 1.3, "borde sobre superficie apagada"],
 ];
 
-// La landing, el kiosko y la pantalla del gym son superficies oscuras FIJAS:
-// no siguen el tema, así que ahí va el relleno de marca y NO el ink, que en
-// claro es oscuro y desaparecería sobre el negro.
-// #0f0d0b: el negro cálido de Hierro que usan la landing y el panel de marca.
-const FIXED_DARK = [15 / 255, 13 / 255, 11 / 255];
+// El kiosko y la pantalla del gym son superficies oscuras FIJAS: no siguen el
+// tema, así que ahí va `--brand-on-dark` y NO el relleno ni el ink del tema.
+// #1a1b19: el grafito de Tiza para esas superficies.
+const FIXED_DARK = [26 / 255, 27 / 255, 25 / 255];
 
 // Señales semánticas: cada una sobre su propio banner y sobre las superficies
 // del producto. Un aviso que no se lee no avisa de nada.
@@ -167,8 +166,7 @@ const rows = [];
 // Pares de las superficies oscuras fijas. Se comprueban aparte porque no
 // siguen el tema: sus colores son los mismos en claro y en oscuro.
 for (const [token, min, label] of [
-  ["--color-primary", 4.5, "marca sobre el fondo oscuro fijo"],
-  ["--color-primary-hover", 4.5, "marca en hover sobre el fondo oscuro fijo"],
+  ["--brand-on-dark", 4.5, "marca sobre el fondo oscuro fijo"],
 ]) {
   const ratio = contrast(light[token], FIXED_DARK);
   const ok = ratio >= min;

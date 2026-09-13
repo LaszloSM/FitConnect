@@ -27,7 +27,7 @@ function PhoneInput({ className, value, onChange, ...props }: PhoneInputProps) {
   return (
     <div
       className={cn(
-        "flex h-9 w-full rounded-lg border overflow-hidden transition-colors focus-within:border-[var(--color-primary)] focus-within:ring-2 focus-within:ring-[var(--color-primary)]/20",
+        "flex h-10 md:h-9 w-full rounded-lg border overflow-hidden transition-colors focus-within:border-[var(--color-primary)] focus-within:ring-2 focus-within:ring-[var(--color-primary)]/20",
         "border-[var(--border-base)] bg-[var(--bg-input)]",
         className,
       )}

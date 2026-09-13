@@ -81,7 +81,7 @@ function FileUpload({ value, onChange, shape = "rect", accept = "image/jpeg,imag
             <button
               type="button"
               onClick={handleRemove}
-              className="absolute -top-2 -right-2 flex size-5 items-center justify-center rounded-full bg-red-500 text-white shadow-md hover:bg-red-600 transition-colors z-10"
+              className="absolute -top-2 -right-2 flex size-5 items-center justify-center rounded-full bg-[var(--signal-danger)] text-[var(--bg-card)] shadow-[var(--shadow-sm)] hover:opacity-90 transition-opacity z-10"
               aria-label="Eliminar imagen"
             >
               <X className="size-3" />
@@ -108,7 +108,7 @@ function FileUpload({ value, onChange, shape = "rect", accept = "image/jpeg,imag
           onChange={handleFile}
         />
       </div>
-      {error && <p className="text-xs text-red-500">{error}</p>}
+      {error && <p className="text-xs text-[var(--signal-danger)]">{error}</p>}
     </div>
   )
 }

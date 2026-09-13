@@ -13,10 +13,11 @@ product
 
 ## Brand
 - **Name:** FitConnect
-- **Color:** Hierro, `oklch(0.700 0.200 45)` — the rust of the iron plates. Brand primary,
-  kept as identity, not overused. Every token is computed, not eyeballed: see DESIGN.md.
+- **Visual direction:** Tiza (chosen 2026-09-12) — a clean chalkboard at 5:30 am. Calm, precise, light-first.
+- **Color:** one accent, pine green `oklch(0.480 0.080 172)` (#1F6F5C), over chalk neutrals (#F4F4F1) and graphite ink (#17191C). Semantic colors live apart. See DESIGN.md.
 - **Tone:** Professional, trustworthy, energetic. Not casual. Not startup-cute. Like a tool a serious gym owner pays for.
-- **Typography:** Plus Jakarta Sans (already set up) — clean, modern, readable.
+- **Typography:** Geist for all UI, Geist Mono (tabular) for money, IDs and times.
+- **Logo:** pending — the owner is designing a new one. Use the text wordmark "FitConnect" and a neutral logo slot until then.
 
 ## Anti-references
 - Mindbody (cluttered, outdated, overwhelming)

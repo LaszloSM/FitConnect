@@ -19,7 +19,7 @@ function CountrySelect({ value, onChange, className, placeholder = "País" }: Co
     <SelectPrimitive.Root value={value} onValueChange={onChange}>
       <SelectPrimitive.Trigger
         className={cn(
-          "flex h-9 w-full items-center justify-between gap-1.5 rounded-lg border px-3 text-sm whitespace-nowrap transition-colors outline-none select-none",
+          "flex h-10 md:h-9 w-full items-center justify-between gap-1.5 rounded-lg border px-3 text-sm whitespace-nowrap transition-colors outline-none select-none",
           "border-[var(--border-base)]",
           triggerBg,
           "data-placeholder:text-[var(--text-placeholder)]",
@@ -45,7 +45,7 @@ function CountrySelect({ value, onChange, className, placeholder = "País" }: Co
 
       <SelectPrimitive.Portal>
         <SelectPrimitive.Positioner side="bottom" sideOffset={4} className="isolate z-50">
-          <SelectPrimitive.Popup className="w-(--anchor-width) min-w-52 max-h-72 origin-(--transform-origin) overflow-y-auto rounded-lg border border-[var(--border-base)] bg-[var(--bg-card)] shadow-[var(--shadow-md)] data-open:animate-in data-open:fade-in-0 data-open:zoom-in-95 data-closed:animate-out data-closed:fade-out-0 data-closed:zoom-out-95 duration-100">
+          <SelectPrimitive.Popup className="w-(--anchor-width) min-w-52 max-h-72 origin-(--transform-origin) overflow-y-auto rounded-[var(--radius-xl)] border border-[var(--border-base)] bg-[var(--bg-card)] shadow-[var(--shadow-lg)] data-open:animate-in data-open:fade-in-0 data-open:zoom-in-95 data-closed:animate-out data-closed:fade-out-0 data-closed:zoom-out-95 duration-100">
             <SelectPrimitive.ScrollUpArrow className="flex w-full items-center justify-center bg-[var(--bg-card)] py-1">
               <ChevronUpIcon className="size-4" />
             </SelectPrimitive.ScrollUpArrow>

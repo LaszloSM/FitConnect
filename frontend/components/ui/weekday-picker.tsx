@@ -31,11 +31,11 @@ function WeekdayPicker({ value, onChange }: WeekdayPickerProps) {
             whileTap={{ scale: 0.9 }}
             animate={{
               backgroundColor: selected ? "var(--color-primary)" : "var(--bg-muted)",
-              color: selected ? "#ffffff" : "var(--text-muted)",
+              color: selected ? "var(--color-primary-contrast)" : "var(--text-muted)",
             }}
             transition={{ duration: 0.15 }}
             className={cn(
-              "h-8 min-w-[2.75rem] px-2.5 rounded-full text-xs font-semibold border transition-colors outline-none",
+              "h-8 min-w-[2.75rem] px-2.5 rounded-[var(--radius-md)] text-xs font-medium border transition-colors outline-none",
               "focus-visible:ring-2 focus-visible:ring-[var(--color-primary)]/40",
               selected
                 ? "border-[var(--color-primary)]"

@@ -119,7 +119,7 @@ function DatePicker({
         type="button"
         onClick={() => setOpen((v) => !v)}
         className={cn(
-          "flex h-9 w-full items-center gap-2 rounded-lg border border-[var(--border-base)] bg-[var(--bg-input)] px-3 text-sm transition-colors outline-none",
+          "flex h-10 md:h-9 w-full items-center gap-2 rounded-lg border border-[var(--border-base)] bg-[var(--bg-input)] px-3 text-sm transition-colors outline-none",
           "focus-visible:border-[var(--color-primary)] focus-visible:ring-2 focus-visible:ring-[var(--color-primary)]/20",
           !displayValue && "text-[var(--text-placeholder)]",
           displayValue && "text-[var(--text-base)]"
@@ -130,13 +130,13 @@ function DatePicker({
       </button>
 
       {open && (
-        <div className="absolute left-0 top-10 z-50 w-72 rounded-lg border border-[var(--border-base)] bg-[var(--bg-card)] shadow-[var(--shadow-md)] p-4">
+        <div className="absolute left-0 top-11 z-50 w-[min(18rem,calc(100vw-2rem))] rounded-[var(--radius-xl)] border border-[var(--border-base)] bg-[var(--bg-card)] shadow-[var(--shadow-lg)] p-4">
           <div className="flex items-center gap-1.5 mb-4">
             <button
               type="button"
               onClick={prevMonth}
               aria-label="Mes anterior"
-              className="flex size-7 shrink-0 items-center justify-center rounded-md text-[var(--text-muted)] hover:bg-[var(--bg-muted)] hover:text-[var(--text-base)] transition-colors"
+              className="flex size-9 shrink-0 items-center justify-center rounded-md text-[var(--text-muted)] hover:bg-[var(--bg-muted)] hover:text-[var(--text-base)] transition-colors"
             >
               <ChevronLeft className="size-4" />
             </button>
@@ -145,7 +145,7 @@ function DatePicker({
               aria-label="Mes"
               value={viewDate.month}
               onChange={(e) => setViewDate((v) => ({ ...v, month: Number(e.target.value) }))}
-              className="flex-1 min-w-0 h-7 rounded-md border border-[var(--border-base)] bg-[var(--bg-input)] px-2 text-sm font-medium text-[var(--text-base)] outline-none focus-visible:border-[var(--color-primary)] cursor-pointer"
+              className="flex-1 min-w-0 h-9 rounded-md border border-[var(--border-base)] bg-[var(--bg-input)] px-2 text-sm font-medium text-[var(--text-base)] outline-none focus-visible:border-[var(--color-primary)] cursor-pointer"
             >
               {MONTHS_ES.map((m, i) => (
                 <option key={m} value={i}>{m}</option>
@@ -156,7 +156,7 @@ function DatePicker({
               aria-label="Año"
               value={viewDate.year}
               onChange={(e) => setViewDate((v) => ({ ...v, year: Number(e.target.value) }))}
-              className="w-[4.5rem] shrink-0 h-7 rounded-md border border-[var(--border-base)] bg-[var(--bg-input)] px-2 text-sm font-medium text-[var(--text-base)] outline-none focus-visible:border-[var(--color-primary)] cursor-pointer"
+              className="w-[4.5rem] shrink-0 h-9 rounded-md border border-[var(--border-base)] bg-[var(--bg-input)] px-2 text-sm font-medium text-[var(--text-base)] outline-none focus-visible:border-[var(--color-primary)] cursor-pointer"
             >
               {years.map((y) => (
                 <option key={y} value={y}>{y}</option>
@@ -167,7 +167,7 @@ function DatePicker({
               type="button"
               onClick={nextMonth}
               aria-label="Mes siguiente"
-              className="flex size-7 shrink-0 items-center justify-center rounded-md text-[var(--text-muted)] hover:bg-[var(--bg-muted)] hover:text-[var(--text-base)] transition-colors"
+              className="flex size-9 shrink-0 items-center justify-center rounded-md text-[var(--text-muted)] hover:bg-[var(--bg-muted)] hover:text-[var(--text-base)] transition-colors"
             >
               <ChevronRight className="size-4" />
             </button>
@@ -195,9 +195,9 @@ function DatePicker({
                   disabled={disabled}
                   onClick={() => selectDay(day)}
                   className={cn(
-                    "flex size-8 mx-auto items-center justify-center rounded-full text-sm transition-colors",
+                    "flex size-9 mx-auto items-center justify-center rounded-full font-mono text-sm tabular-nums transition-colors",
                     selected && "bg-[var(--color-primary)] text-[var(--color-primary-contrast)] font-semibold",
-                    !selected && todayDay && "border-2 border-[var(--color-primary)] text-[var(--color-primary-ink)] font-semibold",
+                    !selected && todayDay && "border border-[var(--color-primary)] text-[var(--color-primary-ink)] font-medium",
                     !selected && !todayDay && !disabled && "text-[var(--text-base)] hover:bg-[var(--bg-muted)]",
                     disabled && "opacity-30 cursor-not-allowed"
                   )}

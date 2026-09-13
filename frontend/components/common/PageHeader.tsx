@@ -1,69 +1,40 @@
-'use client';
-
-import { motion } from 'framer-motion';
 import { cn } from '@/lib/utils';
-import { MODULE_ACCENTS, type ModuleKey } from '@/lib/module-accents';
+import type { ModuleKey } from '@/lib/module-accents';
 
 interface PageHeaderProps {
   title: string;
   subtitle?: string;
-  /** Small uppercase context label above the title (date, count, section). */
+  /** Contexto corto sobre el título (sección, fecha, conteo). */
   eyebrow?: string;
-  /** Module accent — tints the eyebrow and the accent rule. */
+  /** Se conserva por compatibilidad: Tiza ya no colorea por módulo. */
   module?: ModuleKey;
   icon?: React.ReactNode;
   action?: React.ReactNode;
   className?: string;
 }
 
-export function PageHeader({
-  title,
-  subtitle,
-  eyebrow,
-  module,
-  icon,
-  action,
-  className,
-}: PageHeaderProps) {
-  const accentVar = module ? `var(${MODULE_ACCENTS[module].cssVar})` : 'var(--color-primary)';
-
+export function PageHeader({ title, subtitle, eyebrow, icon, action, className }: PageHeaderProps) {
   return (
-    <motion.div
-      className={cn('mb-6', className)}
-      initial={{ opacity: 0, y: -8 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ type: 'spring', stiffness: 300, damping: 30 }}
-      style={{ ['--accent' as string]: accentVar }}
-    >
-      <div className="flex justify-between items-end gap-4">
-        <div className="flex items-start gap-3 min-w-0">
-          {icon && (
-            <div
-              className="mt-0.5 h-9 w-9 rounded-lg flex items-center justify-center shrink-0"
-              style={{ background: 'color-mix(in oklch, var(--accent) 16%, transparent)', color: 'var(--accent)' }}
-            >
-              {icon}
-            </div>
-          )}
-          <div className="min-w-0">
-            {eyebrow && (
-              <p
-                className="text-[11px] font-semibold uppercase tracking-[0.14em] mb-0.5"
-                style={{ color: 'var(--accent)' }}
-              >
-                {eyebrow}
-              </p>
-            )}
-            <h1 className="text-2xl font-extrabold tracking-tight text-[var(--text-base)] leading-tight">
-              {title}
-            </h1>
-            {subtitle && (
-              <p className="text-sm text-[var(--text-muted)] mt-1">{subtitle}</p>
-            )}
+    // En móvil título y acciones se apilan: con `shrink-0` las acciones
+    // aplastaban el título a una palabra por línea y desbordaban la pantalla.
+    <div className={cn('mb-6 flex flex-col gap-4 md:flex-row md:items-end md:justify-between', className)}>
+      <div className="flex min-w-0 items-start gap-3">
+        {icon && (
+          <div className="mt-1 flex size-9 shrink-0 items-center justify-center rounded-[var(--radius-md)] border border-line bg-panel text-ink-muted [&_svg]:size-[18px]">
+            {icon}
           </div>
+        )}
+        <div className="min-w-0">
+          {eyebrow && <p className="mb-1 text-sm font-medium text-ink-muted">{eyebrow}</p>}
+          <h1 className="text-2xl font-semibold leading-tight tracking-tight text-ink">{title}</h1>
+          {subtitle && <p className="mt-1 max-w-[65ch] text-sm text-ink-muted">{subtitle}</p>}
         </div>
-        {action && <div className="shrink-0">{action}</div>}
       </div>
-    </motion.div>
+      {action && (
+        <div className="flex flex-wrap items-center gap-2 md:shrink-0 md:justify-end [&>*]:flex-wrap">
+          {action}
+        </div>
+      )}
+    </div>
   );
 }

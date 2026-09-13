@@ -3,364 +3,192 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useSession, signOut } from "next-auth/react";
-import { useState, useEffect } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { useEffect, useState } from "react";
+import { ChevronsLeft, LogOut, X } from "lucide-react";
 import { useSidebar } from "./SidebarContext";
-import { SIDEBAR_COLLAPSED_W, SIDEBAR_EXPANDED_W } from "@/lib/layout-constants";
-import {
-  LayoutDashboard,
-  Users,
-  CreditCard,
-  Calendar,
-  Dumbbell,
-  BarChart3,
-  Settings,
-  Activity,
-  ChevronLeft,
-  LogOut,
-  Tag,
-  ScrollText,
-  HelpCircle,
-  MessageSquare,
-  ClipboardList,
-  Sun,
-} from "lucide-react";
+import { staffGroups, trainerGroups, isActivePath } from "./nav";
 import { BrandMark } from "@/components/common/BrandMark";
-import { P, rolLegible, useCan, type Permission } from "@/lib/permissions";
+import { rolLegible, useCan } from "@/lib/permissions";
+import { cn } from "@/lib/utils";
 
-// ── Nav structure — grouped by purpose so modules feel organized, not cloned ──
-type NavItem = {
-  href: string;
-  label: string;
-  icon: typeof Users;
-  /** Capacidad que exige el módulo. Sin ella, el ítem no se muestra: ofrecer una
-   *  puerta que responde 403 es peor que no ofrecerla. */
-  needs?: Permission;
-};
-type NavGroup = { label: string; items: NavItem[] };
-
-// El entrenador no ve un gimnasio recortado: ve SU día. La matriz de permisos
-// del backend ya le cierra el dinero y los ajustes; esto es para que la pantalla
-// no le ofrezca puertas cerradas.
-const trainerGroups: NavGroup[] = [
-  {
-    label: "Mi trabajo",
-    items: [
-      { href: "/entrenador", label: "Mi día", icon: Sun },
-      { href: "/entrenador/socios", label: "Mis socios", icon: Users },
-      { href: "/entrenador/rutinas", label: "Mis rutinas", icon: ClipboardList },
-    ],
-  },
-  {
-    label: "Gimnasio",
-    items: [
-      { href: "/classes", label: "Clases", icon: Calendar },
-      { href: "/routines", label: "Rutinas", icon: Dumbbell },
-      { href: "/ayuda", label: "Ayuda", icon: HelpCircle },
-    ],
-  },
-];
-
-const navGroups: NavGroup[] = [
-  {
-    label: "Operación",
-    items: [
-      { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
-      { href: "/members", label: "Miembros", icon: Users },
-      { href: "/checkins", label: "Check-ins", icon: Activity },
-      { href: "/classes", label: "Clases", icon: Calendar },
-      { href: "/routines", label: "Rutinas", icon: Dumbbell },
-      { href: "/messages", label: "Mensajes", icon: MessageSquare, needs: P.MESSAGES_READ },
-    ],
-  },
-  {
-    label: "Negocio",
-    items: [
-      { href: "/payments", label: "Pagos", icon: CreditCard },
-      { href: "/plans", label: "Planes", icon: Tag },
-      { href: "/machines", label: "Máquinas", icon: Dumbbell },
-      { href: "/reports", label: "Reportes", icon: BarChart3, needs: P.REPORTS_READ },
-    ],
-  },
-  {
-    label: "Sistema",
-    items: [
-      { href: "/audit", label: "Auditoría", icon: ScrollText, needs: P.AUDIT_READ },
-      { href: "/settings", label: "Configuración", icon: Settings },
-      { href: "/ayuda", label: "Ayuda", icon: HelpCircle },
-    ],
-  },
-];
-
-// ── Helpers ────────────────────────────────────────────────────────────────
 function getInitials(name: string | null | undefined): string {
   if (!name) return "?";
   const parts = name.trim().split(/\s+/);
-  if (parts.length >= 2) {
-    return (parts[0][0] + parts[1][0]).toUpperCase();
-  }
+  if (parts.length >= 2) return (parts[0][0] + parts[1][0]).toUpperCase();
   return name.slice(0, 2).toUpperCase();
 }
 
-// ── Tooltip wrapper for collapsed mode ────────────────────────────────────
-function Tooltip({
-  label,
-  children,
-  show,
-}: {
-  label: string;
-  children: React.ReactNode;
-  show: boolean;
-}) {
-  const [visible, setVisible] = useState(false);
+/**
+ * Contenido del menú. Se usa en dos contenedores: el sidebar fijo de escritorio
+ * (colapsable a iconos) y el drawer de móvil/tablet (siempre expandido).
+ */
+function SidebarBody({ collapsed, onClose }: { collapsed: boolean; onClose?: () => void }) {
+  const pathname = usePathname();
+  const { data: session } = useSession();
+  const { toggle } = useSidebar();
+  const { can } = useCan();
 
-  if (!show) return <>{children}</>;
+  // El rol vive en `session.role`, no en `session.user`.
+  const userRole = session?.role ?? null;
+  const groups = userRole === "trainer" ? trainerGroups : staffGroups;
+  const userName = session?.user?.name ?? null;
+  const subline = rolLegible(userRole) || session?.user?.email || "";
 
   return (
-    <div
-      className="relative flex"
-      onMouseEnter={() => setVisible(true)}
-      onMouseLeave={() => setVisible(false)}
-    >
-      {children}
-      <AnimatePresence>
-        {visible && (
-          <motion.div
-            initial={{ opacity: 0, x: -4 }}
-            animate={{ opacity: 1, x: 0 }}
-            exit={{ opacity: 0, x: -4 }}
-            transition={{ duration: 0.15 }}
-            className="absolute left-full ml-3 top-1/2 -translate-y-1/2 z-50
-                       bg-[var(--text-base)] text-[var(--bg-sidebar)]
-                       text-xs font-medium px-2 py-1 rounded-md whitespace-nowrap
-                       pointer-events-none shadow-card"
-          >
-            {label}
-          </motion.div>
+    <div className="flex h-full flex-col">
+      <div className={cn("flex h-14 shrink-0 items-center gap-2.5 px-4", collapsed && "justify-center px-0")}>
+        <BrandMark size={26} />
+        {!collapsed && (
+          <span className="text-[15px] font-semibold tracking-tight text-ink">FitConnect</span>
         )}
-      </AnimatePresence>
+        {onClose && (
+          <button
+            onClick={onClose}
+            aria-label="Cerrar menú"
+            className="ml-auto flex size-10 items-center justify-center rounded-md text-ink-muted hover:bg-muted hover:text-ink focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+          >
+            <X className="size-5" />
+          </button>
+        )}
+      </div>
+
+      <nav className="flex-1 overflow-y-auto overflow-x-hidden px-2 pb-3 pt-2" aria-label="Navegación principal">
+        <div className="flex flex-col gap-5">
+          {groups.map((group) => {
+            const items = group.items.filter((item) => !item.needs || can(item.needs));
+            if (items.length === 0) return null;
+            return (
+              <div key={group.label} className="flex flex-col gap-0.5">
+                {collapsed ? (
+                  <div className="mx-3 mb-1 h-px bg-line" aria-hidden="true" />
+                ) : (
+                  <span className="px-3 pb-1 text-xs font-medium text-ink-subtle">{group.label}</span>
+                )}
+                <ul className="m-0 flex list-none flex-col gap-0.5 p-0">
+                  {items.map(({ href, label, icon: Icon }) => {
+                    const active = isActivePath(pathname, href);
+                    return (
+                      <li key={href}>
+                        <Link
+                          href={href}
+                          title={collapsed ? label : undefined}
+                          aria-current={active ? "page" : undefined}
+                          className={cn(
+                            "flex h-10 items-center gap-3 rounded-md px-3 text-sm transition-colors duration-150",
+                            "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary",
+                            collapsed && "justify-center px-0",
+                            active
+                              ? "bg-primary-muted font-medium text-primary-ink"
+                              : "text-ink-muted hover:bg-muted hover:text-ink"
+                          )}
+                        >
+                          <Icon className="size-[18px] shrink-0" strokeWidth={active ? 2.2 : 1.8} />
+                          {!collapsed && <span className="truncate">{label}</span>}
+                          {collapsed && <span className="sr-only">{label}</span>}
+                        </Link>
+                      </li>
+                    );
+                  })}
+                </ul>
+              </div>
+            );
+          })}
+        </div>
+      </nav>
+
+      <div className="shrink-0 border-t border-line p-2">
+        <div className={cn("flex items-center gap-2.5 rounded-md px-2 py-2", collapsed && "justify-center px-0")}>
+          <div
+            className="flex size-8 shrink-0 items-center justify-center rounded-full bg-muted text-xs font-semibold text-ink"
+            title={collapsed ? (userName ?? "Usuario") : undefined}
+          >
+            {getInitials(userName)}
+          </div>
+          {!collapsed && (
+            <div className="min-w-0 flex-1">
+              <p className="truncate text-sm font-medium text-ink">{userName ?? "Usuario"}</p>
+              {subline && <p className="truncate text-xs text-ink-muted">{subline}</p>}
+            </div>
+          )}
+          {!collapsed && (
+            <button
+              onClick={() => signOut({ callbackUrl: "/login" })}
+              aria-label="Cerrar sesión"
+              title="Cerrar sesión"
+              className="flex size-9 items-center justify-center rounded-md text-ink-muted hover:bg-muted hover:text-[var(--signal-danger)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+            >
+              <LogOut className="size-4" />
+            </button>
+          )}
+        </div>
+        {!onClose && (
+          <button
+            onClick={toggle}
+            aria-label={collapsed ? "Expandir menú" : "Colapsar menú"}
+            className={cn(
+              "mt-1 flex h-9 w-full items-center gap-3 rounded-md px-3 text-xs text-ink-subtle hover:bg-muted hover:text-ink",
+              "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary",
+              collapsed && "justify-center px-0"
+            )}
+          >
+            <ChevronsLeft className={cn("size-4 shrink-0 transition-transform duration-200", collapsed && "rotate-180")} />
+            {!collapsed && <span>Colapsar</span>}
+          </button>
+        )}
+      </div>
     </div>
   );
 }
 
-// ── Main Sidebar component ─────────────────────────────────────────────────
 export function Sidebar() {
-  const pathname = usePathname();
-  const { data: session } = useSession();
-  const { collapsed, toggle: toggleCollapsed } = useSidebar();
-
+  const { collapsed, mobileOpen, setMobileOpen } = useSidebar();
   const [mounted, setMounted] = useState(false);
-  useEffect(() => { setMounted(true); }, []);
-
-  const userName = session?.user?.name ?? null;
-  const userEmail = session?.user?.email ?? null;
-  // El rol vive en `session.role`, no en `session.user`: leerlo del user daba
-  // siempre null y el filtro `ownerOnly` no filtraba nada.
-  const userRole = session?.role ?? null;
-  const { can } = useCan();
-  const groups = userRole === "trainer" ? trainerGroups : navGroups;
-  const initials = getInitials(userName);
-  // El rol se le enseña a una persona: "owner" es un valor del backend.
-  const subline = rolLegible(userRole) || userEmail || "";
-
-  function isActive(href: string) {
-    return (
-      pathname === href ||
-      (href !== "/dashboard" && pathname.startsWith(href + "/"))
-    );
-  }
-
+  useEffect(() => setMounted(true), []);
   const effectiveCollapsed = mounted ? collapsed : false;
 
+  useEffect(() => {
+    if (!mobileOpen) return;
+    const onKey = (e: KeyboardEvent) => e.key === "Escape" && setMobileOpen(false);
+    document.addEventListener("keydown", onKey);
+    return () => document.removeEventListener("keydown", onKey);
+  }, [mobileOpen, setMobileOpen]);
+
   return (
-    <motion.aside
-      animate={{ width: effectiveCollapsed ? SIDEBAR_COLLAPSED_W : SIDEBAR_EXPANDED_W }}
-      transition={{ type: "spring", stiffness: 260, damping: 28 }}
-      className="fixed left-0 top-0 h-screen z-40 flex flex-col overflow-hidden
-                 bg-[var(--bg-sidebar)] border-r border-[var(--border-base)]"
-      style={{ willChange: "width" }}
-    >
-      {/* ── Brand ───────────────────────────────────────────────────────── */}
-      <div className="relative flex items-center h-16 shrink-0 px-3 border-b border-[var(--border-base)]">
-        <div className="flex items-center gap-2.5 overflow-hidden min-w-0">
-          <BrandMark size={32} />
-          <AnimatePresence initial={false}>
-            {!effectiveCollapsed && (
-              <motion.span
-                key="logo-text"
-                initial={{ opacity: 0, width: 0 }}
-                animate={{ opacity: 1, width: "auto" }}
-                exit={{ opacity: 0, width: 0 }}
-                transition={{ type: "spring", stiffness: 300, damping: 30 }}
-                className="text-[var(--text-base)] font-extrabold text-lg tracking-tight whitespace-nowrap overflow-hidden"
-              >
-                FitConnect
-              </motion.span>
-            )}
-          </AnimatePresence>
-        </div>
+    <>
+      <aside
+        className="fixed inset-y-0 left-0 z-40 hidden w-[var(--sidebar-w)] flex-col border-r border-line bg-sidebar transition-[width] duration-200 ease-[var(--ease-out)] lg:flex"
+      >
+        <SidebarBody collapsed={effectiveCollapsed} />
+      </aside>
 
-        <button
-          onClick={toggleCollapsed}
-          aria-label={effectiveCollapsed ? "Expandir menú" : "Colapsar menú"}
-          className="absolute right-2 top-1/2 -translate-y-1/2
-                     p-1 rounded-md text-[var(--text-subtle)] hover:text-[var(--text-base)]
-                     hover:bg-[var(--bg-muted)] transition-colors duration-150
-                     focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-primary)]"
-        >
-          <motion.div
-            animate={{ rotate: effectiveCollapsed ? 180 : 0 }}
-            transition={{ type: "spring", stiffness: 300, damping: 30 }}
-          >
-            <ChevronLeft className="h-4 w-4" />
-          </motion.div>
-        </button>
-      </div>
-
-      {/* ── Navigation ──────────────────────────────────────────────────── */}
-      <nav className="flex-1 overflow-y-auto overflow-x-hidden py-3 px-2" aria-label="Navegación principal">
-        <div className="flex flex-col gap-4">
-          {groups.map((group) => (
-            <div key={group.label} className="flex flex-col gap-0.5">
-              <AnimatePresence initial={false}>
-                {!effectiveCollapsed && (
-                  <motion.span
-                    key={`label-${group.label}`}
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    exit={{ opacity: 0 }}
-                    transition={{ duration: 0.15 }}
-                    className="px-3 pb-1 text-[10px] font-semibold uppercase tracking-[0.16em] text-[var(--text-subtle)]"
-                  >
-                    {group.label}
-                  </motion.span>
-                )}
-              </AnimatePresence>
-
-              <ul className="flex flex-col gap-0.5 list-none m-0 p-0">
-                {group.items
-                  .filter((item) => !item.needs || can(item.needs))
-                  .map(({ href, label, icon: Icon }) => {
-                  const active = isActive(href);
-                  return (
-                    <li key={href}>
-                      <Tooltip label={label} show={effectiveCollapsed}>
-                        <Link
-                          href={href}
-                          aria-current={active ? "page" : undefined}
-                          className="relative flex items-center gap-3 px-3 py-2.5 rounded-lg
-                                     text-sm font-medium transition-colors duration-150
-                                     focus-visible:outline-none focus-visible:ring-2
-                                     focus-visible:ring-[var(--color-primary)] w-full"
-                          style={{
-                            color: active ? "var(--color-primary-ink)" : "var(--text-muted)",
-                          }}
-                        >
-                          {active && (
-                            <motion.span
-                              layoutId="activeNavPill"
-                              className="absolute inset-0 rounded-lg bg-[var(--color-primary-muted)]"
-                              transition={{ type: "spring", stiffness: 350, damping: 30 }}
-                              style={{ zIndex: 0 }}
-                            />
-                          )}
-                          <span className="relative z-10 flex items-center gap-3 min-w-0 w-full">
-                            <Icon className="h-5 w-5 shrink-0" />
-                            <AnimatePresence initial={false}>
-                              {!effectiveCollapsed && (
-                                <motion.span
-                                  key="nav-label"
-                                  initial={{ opacity: 0, width: 0 }}
-                                  animate={{ opacity: 1, width: "auto" }}
-                                  exit={{ opacity: 0, width: 0 }}
-                                  transition={{ type: "spring", stiffness: 300, damping: 30 }}
-                                  className="truncate overflow-hidden whitespace-nowrap"
-                                  style={{ fontWeight: active ? 600 : 500 }}
-                                >
-                                  {label}
-                                </motion.span>
-                              )}
-                            </AnimatePresence>
-                          </span>
-                        </Link>
-                      </Tooltip>
-                    </li>
-                  );
-                })}
-              </ul>
-            </div>
-          ))}
-        </div>
-      </nav>
-
-      {/* ── User footer ─────────────────────────────────────────────────── */}
-      <div className="shrink-0 border-t border-[var(--border-base)]">
-        <AnimatePresence initial={false}>
-          {!effectiveCollapsed ? (
-            <motion.div
-              key="footer-expanded"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              transition={{ duration: 0.15 }}
-              className="p-3 space-y-2"
-            >
-              <div className="flex items-center gap-2 min-w-0">
-                <div className="h-9 w-9 rounded-full bg-[var(--color-primary)] shrink-0 flex items-center justify-center">
-                  <span className="text-[var(--color-primary-contrast)] text-xs font-bold">{initials}</span>
-                </div>
-                <div className="flex-1 min-w-0">
-                  <p className="text-sm font-semibold truncate" style={{ color: "var(--text-base)" }}>
-                    {userName ?? "Usuario"}
-                  </p>
-                  {subline && (
-                    <p className="text-xs truncate" style={{ color: "var(--text-muted)" }}>
-                      {subline}
-                    </p>
-                  )}
-                </div>
-              </div>
-
-              <button
-                onClick={() => signOut({ callbackUrl: "/login" })}
-                className="flex items-center gap-2 w-full px-2 py-1.5 rounded-lg
-                           text-xs font-medium text-[var(--signal-danger)]
-                           hover:bg-[var(--signal-danger-bg)] transition-colors duration-150
-                           focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-400/50"
-              >
-                <LogOut className="h-3.5 w-3.5 shrink-0" />
-                <span>Cerrar sesión</span>
-              </button>
-            </motion.div>
-          ) : (
-            <motion.div
-              key="footer-collapsed"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              transition={{ duration: 0.15 }}
-              className="p-2 flex flex-col items-center gap-2"
-            >
-              <Tooltip label={userName ?? "Usuario"} show>
-                <div className="h-9 w-9 rounded-full bg-[var(--color-primary)] flex items-center justify-center cursor-default">
-                  <span className="text-[var(--color-primary-contrast)] text-xs font-bold">{initials}</span>
-                </div>
-              </Tooltip>
-              <Tooltip label="Cerrar sesión" show>
-                <button
-                  onClick={() => signOut({ callbackUrl: "/login" })}
-                  className="p-1.5 rounded-lg text-red-500 hover:bg-red-500/10
-                             transition-colors duration-150
-                             focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-400/50"
-                  aria-label="Cerrar sesión"
-                >
-                  <LogOut className="h-4 w-4" />
-                </button>
-              </Tooltip>
-            </motion.div>
+      {/* Drawer móvil / tablet */}
+      <div
+        className={cn(
+          "fixed inset-0 z-50 lg:hidden",
+          mobileOpen ? "pointer-events-auto" : "pointer-events-none"
+        )}
+        aria-hidden={!mobileOpen}
+      >
+        <div
+          onClick={() => setMobileOpen(false)}
+          className={cn(
+            "absolute inset-0 bg-ink/40 transition-opacity duration-200",
+            mobileOpen ? "opacity-100" : "opacity-0"
           )}
-        </AnimatePresence>
+        />
+        <aside
+          role="dialog"
+          aria-modal="true"
+          aria-label="Menú"
+          className={cn(
+            "absolute inset-y-0 left-0 w-[min(20rem,85vw)] border-r border-line bg-sidebar shadow-[var(--shadow-lg)]",
+            "transition-transform duration-300 ease-[var(--ease-out)]",
+            mobileOpen ? "translate-x-0" : "-translate-x-full"
+          )}
+        >
+          {mobileOpen && <SidebarBody collapsed={false} onClose={() => setMobileOpen(false)} />}
+        </aside>
       </div>
-    </motion.aside>
+    </>
   );
 }

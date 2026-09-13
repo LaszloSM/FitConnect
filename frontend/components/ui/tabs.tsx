@@ -1,7 +1,6 @@
 "use client"
 
 import * as React from "react"
-import { motion } from "framer-motion"
 import { cn } from "@/lib/utils"
 
 interface TabsContextValue {
@@ -28,7 +27,7 @@ function Tabs({ defaultValue = "", value, onValueChange, children, className }: 
   }
   return (
     <TabsContext.Provider value={{ active, setActive }}>
-      <div className={cn("flex flex-col gap-4", className)}>{children}</div>
+      <div className={cn("flex flex-col gap-5", className)}>{children}</div>
     </TabsContext.Provider>
   )
 }
@@ -38,7 +37,8 @@ function TabsList({ children, className }: { children: React.ReactNode; classNam
     <div
       role="tablist"
       className={cn(
-        "relative flex items-center gap-1 border-b border-[var(--border-base)] overflow-x-auto",
+        // Scroll propio en móvil: las pestañas nunca empujan el ancho de la página.
+        "-mx-4 flex items-center gap-1 overflow-x-auto border-b border-line px-4 [scrollbar-width:none] md:mx-0 md:px-0",
         className
       )}
     >
@@ -58,6 +58,8 @@ function TabsTrigger({ value, children, className, disabled }: TabsTriggerProps)
   const { active, setActive } = React.useContext(TabsContext)
   const isActive = active === value
 
+  // Sin animación del indicador: cambiar de pestaña es una acción de todos los
+  // días y el indicador solo tiene que decir dónde estás.
   return (
     <button
       type="button"
@@ -66,21 +68,16 @@ function TabsTrigger({ value, children, className, disabled }: TabsTriggerProps)
       disabled={disabled}
       onClick={() => !disabled && setActive(value)}
       className={cn(
-        "relative pb-2.5 pt-1 px-1 text-sm font-medium whitespace-nowrap transition-colors outline-none",
-        "focus-visible:ring-2 focus-visible:ring-[var(--color-primary)]/40 rounded-sm",
-        isActive ? "text-[var(--text-base)]" : "text-[var(--text-muted)] hover:text-[var(--text-base)]",
-        disabled && "opacity-50 cursor-not-allowed",
+        "relative flex h-10 items-center gap-2 whitespace-nowrap px-3 text-sm font-medium outline-none transition-colors duration-150",
+        "after:absolute after:inset-x-2 after:-bottom-px after:h-0.5 after:rounded-full",
+        "focus-visible:rounded-[var(--radius-sm)] focus-visible:ring-2 focus-visible:ring-primary/40",
+        "[&_svg]:size-4",
+        isActive ? "text-ink after:bg-primary" : "text-ink-muted hover:text-ink",
+        disabled && "cursor-not-allowed opacity-50",
         className
       )}
     >
       {children}
-      {isActive && (
-        <motion.div
-          layoutId="tab-indicator"
-          className="absolute bottom-0 left-0 right-0 h-0.5 rounded-full bg-[var(--color-primary)]"
-          transition={{ type: "spring", stiffness: 500, damping: 35 }}
-        />
-      )}
     </button>
   )
 }

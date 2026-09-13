@@ -4,15 +4,14 @@ import { useEffect, useRef, useState } from "react";
 import { signOut, useSession } from "next-auth/react";
 import { useTheme } from "next-themes";
 import Link from "next/link";
-import { AnimatePresence, motion } from "framer-motion";
-import { Bell, LogOut, Moon, Settings, Sun } from "lucide-react";
+import { Bell, LogOut, Menu, Moon, Settings, Sun } from "lucide-react";
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
 import { formatTimeAgo, todayInGym } from "@/lib/format";
-import { Button } from "@/components/ui/button";
 import { apiClient } from "@/lib/api";
 import { useSidebar } from "@/components/layout/SidebarContext";
-import { SIDEBAR_COLLAPSED_W, SIDEBAR_EXPANDED_W } from "@/lib/layout-constants";
+import { BrandMark } from "@/components/common/BrandMark";
+import { cn } from "@/lib/utils";
 
 interface Notification {
   id: string;
@@ -23,13 +22,6 @@ interface Notification {
   created_at: string;
 }
 
-// Module-level constant — defined once, not re-created on every render
-const dropdownVariants = {
-  hidden: { opacity: 0, y: -8, scale: 0.97 },
-  visible: { opacity: 1, y: 0, scale: 1, transition: { duration: 0.15 } },
-  exit: { opacity: 0, y: -8, scale: 0.97, transition: { duration: 0.1 } },
-};
-
 function getInitials(name?: string | null): string {
   if (!name) return "?";
   return name
@@ -39,23 +31,40 @@ function getInitials(name?: string | null): string {
     .join("");
 }
 
+const iconButton =
+  "relative flex size-10 items-center justify-center rounded-md text-ink-muted transition-colors duration-150 hover:bg-muted hover:text-ink focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary";
+
+const popover =
+  "absolute right-0 top-12 z-50 origin-top-right overflow-hidden rounded-[var(--radius-xl)] border border-line bg-panel shadow-[var(--shadow-lg)] animate-[scaleIn_150ms_var(--ease-out)]";
+
+/** Cierra un menú al hacer clic afuera o con Escape. */
+function useDismiss(open: boolean, ref: React.RefObject<HTMLDivElement | null>, close: () => void) {
+  useEffect(() => {
+    if (!open) return;
+    const onDown = (e: MouseEvent) => {
+      if (ref.current && !ref.current.contains(e.target as Node)) close();
+    };
+    const onKey = (e: KeyboardEvent) => e.key === "Escape" && close();
+    document.addEventListener("mousedown", onDown);
+    document.addEventListener("keydown", onKey);
+    return () => {
+      document.removeEventListener("mousedown", onDown);
+      document.removeEventListener("keydown", onKey);
+    };
+  }, [open, ref, close]);
+}
+
 export function Header() {
   const { data: session } = useSession();
   const { resolvedTheme, setTheme } = useTheme();
-  const { collapsed } = useSidebar();
+  const { setMobileOpen } = useSidebar();
 
   const [mounted, setMounted] = useState(false);
-  useEffect(() => { setMounted(true); }, []);
-  const effectiveCollapsed = mounted ? collapsed : false;
-  // El tema vive en localStorage: el servidor no lo conoce. Si el icono se
-  // pinta según el tema antes de montar, el HTML del servidor y el del cliente
-  // no coinciden y React aborta la hidratación (#418) en TODAS las pantallas
-  // para quien use modo oscuro.
+  useEffect(() => setMounted(true), []);
+  // El tema vive en localStorage: pintarlo antes de montar rompe la hidratación.
   const esOscuro = mounted && resolvedTheme === "dark";
 
-  // Fecha del gym (Bogotá), no la del navegador. `capitalize` de CSS pondría
-  // mayúscula a CADA palabra ("Viernes 11 De Septiembre"), así que solo se
-  // levanta la inicial.
+  // Fecha del gym (Bogotá), no la del navegador; solo se levanta la inicial.
   const fecha = format(todayInGym(), "EEEE d 'de' MMMM", { locale: es });
   const hoy = fecha.charAt(0).toUpperCase() + fecha.slice(1);
 
@@ -63,36 +72,31 @@ export function Header() {
   const [gymName, setGymName] = useState<string | null>(null);
   const [showBell, setShowBell] = useState(false);
   const [showUser, setShowUser] = useState(false);
-
   const bellRef = useRef<HTMLDivElement>(null);
   const userRef = useRef<HTMLDivElement>(null);
+  useDismiss(showBell, bellRef, () => setShowBell(false));
+  useDismiss(showUser, userRef, () => setShowUser(false));
 
-  // Gym name for the breadcrumb (fetched once per session)
   useEffect(() => {
     if (!session?.accessToken) return;
-    const client = apiClient(session.accessToken as string);
-    client
+    apiClient(session.accessToken as string)
       .get("/api/v1/settings/gym")
       .then((res) => setGymName(res.data?.name ?? null))
       .catch(() => {});
   }, [session?.accessToken]);
 
-  // Notification fetching
   useEffect(() => {
     if (!session?.accessToken) return;
-
     const fetchNotifications = async () => {
       try {
-        const client = apiClient(session.accessToken as string);
-        const res = await client.get(
+        const res = await apiClient(session.accessToken as string).get(
           "/api/v1/notifications?unread_only=true&limit=5"
         );
         setNotifications(res.data);
       } catch {
-        // notification failures should not crash the page
+        // las notificaciones no pueden tumbar la pantalla
       }
     };
-
     fetchNotifications();
     const interval = setInterval(fetchNotifications, 30000);
     return () => clearInterval(interval);
@@ -103,303 +107,122 @@ export function Header() {
   const markAllRead = async () => {
     if (!session?.accessToken) return;
     try {
-      const client = apiClient(session.accessToken as string);
-      await client.post("/api/v1/notifications/mark-all-read");
+      await apiClient(session.accessToken as string).post("/api/v1/notifications/mark-all-read");
       setNotifications((prev) => prev.map((n) => ({ ...n, is_read: true })));
     } catch {
       // ignore
     }
   };
 
-  // Click-outside for bell dropdown
-  useEffect(() => {
-    if (!showBell) return;
-    const handler = (e: MouseEvent) => {
-      if (bellRef.current && !bellRef.current.contains(e.target as Node)) {
-        setShowBell(false);
-      }
-    };
-    document.addEventListener("mousedown", handler);
-    return () => document.removeEventListener("mousedown", handler);
-  }, [showBell]);
-
-  // Escape key for bell dropdown
-  useEffect(() => {
-    if (!showBell) return;
-    const onKey = (e: KeyboardEvent) => { if (e.key === "Escape") setShowBell(false); };
-    document.addEventListener("keydown", onKey);
-    return () => document.removeEventListener("keydown", onKey);
-  }, [showBell]);
-
-  // Click-outside for user dropdown
-  useEffect(() => {
-    if (!showUser) return;
-    const handler = (e: MouseEvent) => {
-      if (userRef.current && !userRef.current.contains(e.target as Node)) {
-        setShowUser(false);
-      }
-    };
-    document.addEventListener("mousedown", handler);
-    return () => document.removeEventListener("mousedown", handler);
-  }, [showUser]);
-
-  // Escape key for user dropdown
-  useEffect(() => {
-    if (!showUser) return;
-    const onKey = (e: KeyboardEvent) => { if (e.key === "Escape") setShowUser(false); };
-    document.addEventListener("keydown", onKey);
-    return () => document.removeEventListener("keydown", onKey);
-  }, [showUser]);
-
   return (
-    <motion.header
-      animate={{ left: effectiveCollapsed ? SIDEBAR_COLLAPSED_W : SIDEBAR_EXPANDED_W }}
-      transition={{ type: "spring", stiffness: 300, damping: 30 }}
-      className="fixed top-0 right-0 h-16 z-20 flex items-center justify-between px-6"
-      style={{
-        background: "var(--bg-card)",
-        borderBottom: "1px solid var(--border-base)",
-      }}
-    >
-      {/* La identidad de la cuenta es el GIMNASIO, no la persona: el nombre
-          propio vive en el avatar. La fecha va al lado, no suelta en la página. */}
-      <nav aria-label="Ubicación" className="flex items-baseline gap-3 min-w-0">
-        <span className="text-base font-semibold text-[var(--text-base)] truncate max-w-[18rem]">
-          {gymName ?? "FitConnect"}
-        </span>
-        {/* Tras montar: el HTML del servidor puede traer la fecha de ayer si el
-            render cae justo en el cambio de día, y eso rompe la hidratación. */}
-        <span className="hidden sm:inline text-xs text-[var(--text-muted)] whitespace-nowrap">
-          {mounted ? hoy : ""}
-        </span>
-      </nav>
+    <header className="fixed right-0 top-0 z-20 flex h-14 items-center gap-2 border-b border-line bg-panel/95 px-3 backdrop-blur-sm left-0 lg:left-[var(--sidebar-w)] md:px-6 transition-[left] duration-200 ease-[var(--ease-out)]">
+      <button
+        onClick={() => setMobileOpen(true)}
+        aria-label="Abrir menú"
+        className={cn(iconButton, "hidden md:flex lg:hidden")}
+      >
+        <Menu className="size-5" />
+      </button>
+      <span className="md:hidden">
+        <BrandMark size={26} />
+      </span>
 
-      {/* Right: global actions */}
-      <div className="flex items-center gap-2">
-        {/* Dark mode toggle */}
-        <Button
-          variant="ghost"
-          size="icon"
-          aria-label={esOscuro ? "Cambiar a modo claro" : "Cambiar a modo oscuro"}
-          onClick={() => setTheme(esOscuro ? "light" : "dark")}
-          className="text-[var(--text-muted)] hover:text-[var(--text-base)]"
-        >
-          <AnimatePresence mode="wait">
-            {esOscuro ? (
-              <motion.span
-                key="dark"
-                initial={{ rotate: -90, opacity: 0 }}
-                animate={{ rotate: 0, opacity: 1 }}
-                exit={{ rotate: 90, opacity: 0 }}
-                transition={{ duration: 0.18 }}
-              >
-                <Sun className="h-5 w-5" />
-              </motion.span>
-            ) : (
-              <motion.span
-                key="light"
-                initial={{ rotate: -90, opacity: 0 }}
-                animate={{ rotate: 0, opacity: 1 }}
-                exit={{ rotate: 90, opacity: 0 }}
-                transition={{ duration: 0.18 }}
-              >
-                <Moon className="h-5 w-5" />
-              </motion.span>
-            )}
-          </AnimatePresence>
-        </Button>
-
-        {/* Notification bell */}
-        <div className="relative" ref={bellRef}>
-          <Button
-            variant="ghost"
-            size="icon"
-            aria-label="Notificaciones"
-            aria-expanded={showBell}
-            aria-haspopup="true"
-            className="text-[var(--text-muted)] hover:text-[var(--text-base)] relative"
-            onClick={() => setShowBell((v) => !v)}
-          >
-            <Bell className="h-5 w-5" />
-            <AnimatePresence>
-              {unreadCount > 0 && (
-                <motion.span
-                  key="badge"
-                  initial={{ scale: 0 }}
-                  animate={{ scale: 1 }}
-                  exit={{ scale: 0 }}
-                  className="absolute -top-1 -right-1 bg-[var(--color-primary)] text-[var(--color-primary-contrast)] text-[10px] font-bold px-1.5 py-0.5 rounded-full leading-none"
-                >
-                  {unreadCount}
-                </motion.span>
-              )}
-            </AnimatePresence>
-          </Button>
-
-          <AnimatePresence>
-            {showBell && (
-              <motion.div
-                key="bell-panel"
-                variants={dropdownVariants}
-                initial="hidden"
-                animate="visible"
-                exit="exit"
-                className="absolute right-0 top-12 w-80 rounded-xl overflow-hidden shadow-lg"
-                style={{
-                  background: "var(--bg-card)",
-                  border: "1px solid var(--border-base)",
-                }}
-              >
-                {/* Header */}
-                <div
-                  className="px-4 py-3 flex items-center justify-between"
-                  style={{ borderBottom: "1px solid var(--border-base)" }}
-                >
-                  <span
-                    className="text-sm font-semibold"
-                    style={{ color: "var(--text-base)" }}
-                  >
-                    Notificaciones
-                  </span>
-                  {unreadCount > 0 && (
-                    <button
-                      onClick={markAllRead}
-                      className="text-xs text-[var(--color-primary-ink)] hover:underline"
-                    >
-                      Marcar leído
-                    </button>
-                  )}
-                </div>
-
-                {/* Items */}
-                <div className="max-h-72 overflow-y-auto" aria-live="polite" aria-label="Lista de notificaciones">
-                  {notifications.length === 0 ? (
-                    <div className="flex flex-col items-center gap-2 py-8">
-                      <Bell
-                        className="h-8 w-8"
-                        style={{ color: "var(--text-muted)" }}
-                      />
-                      <p
-                        className="text-xs"
-                        style={{ color: "var(--text-muted)" }}
-                      >
-                        Sin notificaciones
-                      </p>
-                    </div>
-                  ) : (
-                    notifications.map((n) => (
-                      <div
-                        key={n.id}
-                        className="px-4 py-3 flex gap-3"
-                        style={{
-                          borderBottom: "1px solid var(--border-base)",
-                          background: n.is_read
-                            ? "transparent"
-                            : "var(--bg-base)",
-                        }}
-                      >
-                        <span
-                          className="mt-1.5 h-2 w-2 shrink-0 rounded-full bg-[var(--color-primary)]"
-                          style={{ opacity: n.is_read ? 0.3 : 1 }}
-                        />
-                        <div className="min-w-0">
-                          <p
-                            className="text-xs font-medium truncate"
-                            style={{ color: "var(--text-base)" }}
-                          >
-                            {n.title}
-                          </p>
-                          <p
-                            className="text-xs mt-0.5 line-clamp-2"
-                            style={{ color: "var(--text-muted)" }}
-                          >
-                            {n.message}
-                          </p>
-                          <p className="text-[10px] mt-1 text-[var(--text-subtle)]">
-                            {formatTimeAgo(n.created_at)}
-                          </p>
-                        </div>
-                      </div>
-                    ))
-                  )}
-                </div>
-              </motion.div>
-            )}
-          </AnimatePresence>
-        </div>
-
-        {/* User avatar */}
-        <div className="relative" ref={userRef}>
-          <button
-            onClick={() => setShowUser((v) => !v)}
-            aria-label="Cuenta"
-            aria-expanded={showUser}
-            aria-haspopup="true"
-            className="h-8 w-8 rounded-full bg-[var(--color-primary)] text-[var(--color-primary-contrast)] text-xs font-bold flex items-center justify-center hover:bg-[var(--color-primary-hover)] transition-colors"
-          >
-            {getInitials(session?.user?.name)}
-          </button>
-
-          <AnimatePresence>
-            {showUser && (
-              <motion.div
-                key="user-panel"
-                variants={dropdownVariants}
-                initial="hidden"
-                animate="visible"
-                exit="exit"
-                className="absolute right-0 top-12 w-56 rounded-xl overflow-hidden shadow-lg"
-                style={{
-                  background: "var(--bg-card)",
-                  border: "1px solid var(--border-base)",
-                }}
-              >
-                {/* User info header */}
-                <div
-                  className="px-4 py-3"
-                  style={{ borderBottom: "1px solid var(--border-base)" }}
-                >
-                  <p
-                    className="text-sm font-semibold truncate"
-                    style={{ color: "var(--text-base)" }}
-                  >
-                    {session?.user?.name ?? "Usuario"}
-                  </p>
-                  <p
-                    className="text-xs truncate"
-                    style={{ color: "var(--text-muted)" }}
-                  >
-                    {session?.user?.email ?? ""}
-                  </p>
-                </div>
-
-                {/* Settings link */}
-                <Link
-                  href="/settings"
-                  onClick={() => setShowUser(false)}
-                  className="flex items-center gap-3 px-4 py-2.5 text-sm hover:bg-[var(--bg-base)] transition-colors"
-                  style={{ color: "var(--text-base)" }}
-                >
-                  <Settings className="h-4 w-4 shrink-0" style={{ color: "var(--text-muted)" }} />
-                  Configuración
-                </Link>
-
-                {/* Separator */}
-                <div style={{ borderTop: "1px solid var(--border-base)" }} />
-
-                {/* Sign out */}
-                <button
-                  onClick={() => signOut({ callbackUrl: "/login" })}
-                  className="w-full flex items-center gap-3 px-4 py-2.5 text-sm hover:bg-[var(--bg-base)] transition-colors text-red-500"
-                >
-                  <LogOut className="h-4 w-4 shrink-0" />
-                  Cerrar sesión
-                </button>
-              </motion.div>
-            )}
-          </AnimatePresence>
-        </div>
+      <div className="flex min-w-0 flex-1 items-baseline gap-3">
+        <span className="truncate text-[15px] font-semibold text-ink">{gymName ?? "FitConnect"}</span>
+        <span className="hidden whitespace-nowrap text-sm text-ink-muted sm:inline">{mounted ? hoy : ""}</span>
       </div>
-    </motion.header>
+
+      <button
+        aria-label={esOscuro ? "Cambiar a modo claro" : "Cambiar a modo oscuro"}
+        onClick={() => setTheme(esOscuro ? "light" : "dark")}
+        className={iconButton}
+      >
+        {esOscuro ? <Sun className="size-[18px]" /> : <Moon className="size-[18px]" />}
+      </button>
+
+      <div className="relative" ref={bellRef}>
+        <button
+          aria-label={unreadCount > 0 ? `Notificaciones, ${unreadCount} sin leer` : "Notificaciones"}
+          aria-expanded={showBell}
+          aria-haspopup="true"
+          className={iconButton}
+          onClick={() => setShowBell((v) => !v)}
+        >
+          <Bell className="size-[18px]" />
+          {unreadCount > 0 && (
+            <span className="absolute right-1.5 top-1.5 flex h-4 min-w-4 items-center justify-center rounded-full bg-primary px-1 font-mono text-[10px] font-semibold leading-none text-primary-contrast tabular-nums">
+              {unreadCount}
+            </span>
+          )}
+        </button>
+
+        {showBell && (
+          <div className={cn(popover, "w-[min(20rem,calc(100vw-1.5rem))]")}>
+            <div className="flex items-center justify-between border-b border-line px-4 py-3">
+              <span className="text-sm font-semibold text-ink">Notificaciones</span>
+              {unreadCount > 0 && (
+                <button onClick={markAllRead} className="text-sm text-primary-ink hover:underline">
+                  Marcar todo como leído
+                </button>
+              )}
+            </div>
+            <div className="max-h-80 overflow-y-auto" aria-live="polite">
+              {notifications.length === 0 ? (
+                <p className="px-4 py-8 text-center text-sm text-ink-muted">No tienes avisos pendientes.</p>
+              ) : (
+                notifications.map((n) => (
+                  <div key={n.id} className={cn("flex gap-3 border-b border-line px-4 py-3 last:border-b-0", !n.is_read && "bg-surface")}>
+                    <span className={cn("mt-1.5 size-2 shrink-0 rounded-full bg-primary", n.is_read && "opacity-30")} />
+                    <div className="min-w-0">
+                      <p className="truncate text-sm font-medium text-ink">{n.title}</p>
+                      <p className="mt-0.5 line-clamp-2 text-sm text-ink-muted">{n.message}</p>
+                      <p className="mt-1 text-xs text-ink-subtle">{formatTimeAgo(n.created_at)}</p>
+                    </div>
+                  </div>
+                ))
+              )}
+            </div>
+          </div>
+        )}
+      </div>
+
+      <div className="relative" ref={userRef}>
+        <button
+          onClick={() => setShowUser((v) => !v)}
+          aria-label="Cuenta"
+          aria-expanded={showUser}
+          aria-haspopup="true"
+          className="flex size-10 items-center justify-center rounded-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+        >
+          <span className="flex size-8 items-center justify-center rounded-full bg-muted text-xs font-semibold text-ink hover:bg-line">
+            {getInitials(session?.user?.name)}
+          </span>
+        </button>
+
+        {showUser && (
+          <div className={cn(popover, "w-60")}>
+            <div className="border-b border-line px-4 py-3">
+              <p className="truncate text-sm font-medium text-ink">{session?.user?.name ?? "Usuario"}</p>
+              <p className="truncate text-sm text-ink-muted">{session?.user?.email ?? ""}</p>
+            </div>
+            <Link
+              href="/settings"
+              onClick={() => setShowUser(false)}
+              className="flex h-11 items-center gap-3 px-4 text-sm text-ink hover:bg-muted"
+            >
+              <Settings className="size-4 shrink-0 text-ink-muted" />
+              Configuración
+            </Link>
+            <button
+              onClick={() => signOut({ callbackUrl: "/login" })}
+              className="flex h-11 w-full items-center gap-3 border-t border-line px-4 text-sm text-[var(--signal-danger)] hover:bg-muted"
+            >
+              <LogOut className="size-4 shrink-0" />
+              Cerrar sesión
+            </button>
+          </div>
+        )}
+      </div>
+    </header>
   );
 }

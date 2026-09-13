@@ -6,20 +6,17 @@ import { ArrowDownRight, ArrowUpRight, type LucideIcon } from "lucide-react";
 import { AnimatedNumber } from "@/components/common/AnimatedNumber";
 import { GlassCard } from "@/components/common/GlassCard";
 import type { ModuleKey } from "@/lib/module-accents";
-import { MODULE_ACCENTS } from "@/lib/module-accents";
 import { cn } from "@/lib/utils";
 
 type Tono = ModuleKey | "primary" | "success" | "warning" | "danger" | "neutral";
 
-/** El color del acento: los módulos toman el suyo; el resto, el semántico. */
+/** En Tiza la etiqueta es neutra; el color solo aparece cuando es una señal. */
 function colorDe(tono: Tono): string {
-  if (tono in MODULE_ACCENTS) return `var(${MODULE_ACCENTS[tono as ModuleKey].cssVar})`;
   const semanticos: Record<string, string> = {
     primary: "var(--color-primary-ink)",
-    success: "var(--accent-payments)",
-    warning: "var(--accent-machines)",
-    danger: "var(--accent-dashboard)",
-    neutral: "var(--text-muted)",
+    success: "var(--signal-ok)",
+    warning: "var(--signal-warn)",
+    danger: "var(--signal-danger)",
   };
   return semanticos[tono] ?? "var(--text-muted)";
 }
@@ -70,10 +67,10 @@ export function KpiCard({
 
   if (loading) {
     return (
-      <GlassCard className={cn("p-4 flex flex-col gap-2.5", cellClassName)}>
-        <div className="skeleton h-3 w-24 rounded" />
-        <div className="skeleton h-8 w-32 rounded" />
-        <div className="skeleton h-3 w-20 rounded" />
+      <GlassCard className={cn("flex flex-col gap-3 p-4", cellClassName)}>
+        <div className="skeleton h-3.5 w-24" />
+        <div className="skeleton h-8 w-32" />
+        <div className="skeleton h-3.5 w-20" />
       </GlassCard>
     );
   }
@@ -85,19 +82,14 @@ export function KpiCard({
   const cuerpo = (
     <>
       <div className="flex items-start justify-between gap-2">
-        <span
-          className="text-[11px] font-semibold uppercase tracking-[0.07em]"
-          style={{ color: acento }}
-        >
-          {label}
-        </span>
-        {Icon && <Icon className="h-4 w-4 shrink-0" style={{ color: acento }} aria-hidden />}
+        <span className="text-sm font-medium text-ink-muted">{label}</span>
+        {Icon && <Icon className="size-4 shrink-0" style={{ color: acento }} aria-hidden />}
       </div>
 
       <p
         className={cn(
-          "font-display text-2xl font-bold tabular-nums leading-none",
-          failed ? "text-[var(--text-muted)]" : "text-[var(--text-base)]"
+          "font-mono text-[28px] font-semibold leading-none tracking-[-0.02em] tabular-nums",
+          failed ? "text-ink-muted" : "text-ink"
         )}
       >
         {failed ? (
@@ -109,26 +101,22 @@ export function KpiCard({
         )}
       </p>
 
-      <div className="flex items-center gap-2 min-h-[18px]">
+      <div className="flex min-h-5 items-center gap-2">
         {failed ? (
-          <span className="text-xs text-[var(--text-muted)]">No se pudo cargar</span>
+          <span className="text-sm text-ink-muted">No se pudo cargar</span>
         ) : (
           <>
             {delta !== null && delta !== 0 && (
               <span
-                className={cn(
-                  "inline-flex items-center gap-0.5 text-xs font-semibold",
-                  bueno
-                    ? "text-emerald-600 dark:text-emerald-400"
-                    : "text-red-600 dark:text-red-400"
-                )}
+                className="inline-flex items-center gap-0.5 font-mono text-xs font-medium tabular-nums"
+                style={{ color: bueno ? "var(--signal-ok)" : "var(--signal-danger)" }}
               >
-                <Flecha className="h-3 w-3" aria-hidden />
+                <Flecha className="size-3.5" aria-hidden />
                 {Math.abs(delta).toFixed(0)}%
-                {deltaLabel && <span className="font-normal text-[var(--text-muted)] ml-0.5">{deltaLabel}</span>}
+                {deltaLabel && <span className="ml-0.5 font-sans font-normal text-ink-muted">{deltaLabel}</span>}
               </span>
             )}
-            {caption && <span className="text-xs text-[var(--text-muted)] truncate">{caption}</span>}
+            {caption && <span className="truncate text-sm text-ink-muted">{caption}</span>}
           </>
         )}
       </div>
@@ -140,7 +128,7 @@ export function KpiCard({
       <GlassCard className={cn("p-0", cellClassName)}>
         <Link
           href={href}
-          className="flex flex-col gap-2 p-4 rounded-xl transition-colors hover:bg-[var(--bg-muted)] focus-visible:outline-2 focus-visible:outline-[var(--color-primary)] focus-visible:outline-offset-2"
+          className="flex flex-col gap-2.5 rounded-[var(--radius-lg)] p-4 transition-colors duration-150 hover:bg-muted focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
         >
           {cuerpo}
         </Link>
@@ -148,5 +136,5 @@ export function KpiCard({
     );
   }
 
-  return <GlassCard className={cn("p-4 flex flex-col gap-2", cellClassName)}>{cuerpo}</GlassCard>;
+  return <GlassCard className={cn("flex flex-col gap-2.5 p-4", cellClassName)}>{cuerpo}</GlassCard>;
 }

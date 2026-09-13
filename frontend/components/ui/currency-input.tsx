@@ -39,7 +39,7 @@ function CurrencyInput({ className, value, onChange, placeholder = "0", ...props
   }
 
   return (
-    <div className={cn("flex h-9 w-full rounded-lg border border-[var(--border-base)] bg-[var(--bg-input)] overflow-hidden transition-colors focus-within:border-[var(--color-primary)] focus-within:ring-2 focus-within:ring-[var(--color-primary)]/20", className)}>
+    <div className={cn("flex h-10 md:h-9 w-full rounded-lg border border-[var(--border-base)] bg-[var(--bg-input)] overflow-hidden transition-colors focus-within:border-[var(--color-primary)] focus-within:ring-2 focus-within:ring-[var(--color-primary)]/20", className)}>
       <span className="flex items-center px-3 text-sm font-medium text-[var(--text-muted)] border-r border-[var(--border-base)] bg-[var(--bg-muted)] select-none">
         $
       </span>

@@ -1,33 +1,25 @@
-@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&family=DM+Mono:wght@400;500&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&family=Geist+Mono:wght@400;500;600&display=swap');
 @import "tailwindcss";
 
 /* ── Qué significa `dark:` ───────────────────────────────────────────────────
    Sin esta línea, Tailwind v4 compila `dark:` como
    `@media (prefers-color-scheme: dark)`: el tema del SISTEMA OPERATIVO. Pero
    el producto cambia de tema con una clase (`next-themes` con
-   `attribute="class"`), así que las ~290 variantes `dark:` del código nunca
-   respondieron al botón de tema.
-
-   El efecto era el que se veía: con el sistema en oscuro y la app en claro,
-   `dark:text-emerald-400` seguía activo y pintaba verde claro sobre una
-   tarjeta blanca — 1.9:1. Los tokens (`--bg-*`, `--text-*`) sí cambiaban,
-   porque los redefine `.dark`, así que media pantalla obedecía al toggle y la
-   otra media al sistema.                                                     */
+   `attribute="class"`), así que las variantes `dark:` del código nunca
+   respondían al botón de tema.                                               */
 @custom-variant dark (&:where(.dark, .dark *));
 
 /* ── Puente con Tailwind ─────────────────────────────────────────────────────
-   Tailwind v4 NO lee `tailwind.config.ts` salvo con un `@config` explícito, así
-   que durante meses `bg-primary`, `text-muted-foreground`, `shadow-glow` y
-   `font-display` generaron CERO CSS: los componentes que los usaban salían sin
-   fondo y cada pantalla los reemplazaba a mano con `bg-[var(--color-primary)]`.
+   Tailwind v4 NO lee `tailwind.config.ts` salvo con un `@config` explícito.
    Declarar los tokens aquí los convierte en utilidades reales, y como apuntan a
-   las mismas CSS vars que `.dark` redefine, el tema cambia solo.             */
+   las mismas CSS vars que `.dark` redefine, el tema cambia solo.
+   Ningún nombre puede chocar con una utilidad nativa (`base`, `card`…).      */
 @theme inline {
-  --color-primary: var(--brand-iron);
-  --color-primary-hover: var(--brand-iron-hover);
-  --color-primary-muted: var(--brand-iron-muted);
-  --color-primary-contrast: var(--brand-iron-contrast);
-  --color-primary-ink: var(--brand-iron-ink);
+  --color-primary: var(--brand);
+  --color-primary-hover: var(--brand-hover);
+  --color-primary-muted: var(--brand-muted);
+  --color-primary-contrast: var(--brand-contrast);
+  --color-primary-ink: var(--brand-ink);
 
   --color-surface: var(--bg-base);
   --color-panel: var(--bg-card);
@@ -42,31 +34,25 @@
 
   --color-line: var(--border-base);
 
-  --font-sans: 'Plus Jakarta Sans', ui-sans-serif, system-ui, sans-serif;
-  --font-mono: 'DM Mono', ui-monospace, SFMono-Regular, monospace;
-  /* `font-display` se usa en 14 sitios (las cifras grandes) y no existía. */
-  --font-display: 'Plus Jakarta Sans', ui-sans-serif, system-ui, sans-serif;
+  --font-sans: 'Geist', ui-sans-serif, system-ui, sans-serif;
+  --font-mono: 'Geist Mono', ui-monospace, SFMono-Regular, monospace;
+  --font-display: 'Geist', ui-sans-serif, system-ui, sans-serif;
 
-  /* Sombras que el marcado ya nombraba y no existían. */
   --shadow-card: var(--elev-card);
   --shadow-card-hover: var(--elev-card-high);
-
-  /* `shadow-glow` es la prop `glow` de GlassCard, que no hacía nada. */
-  --shadow-glow: 0 0 0 1px color-mix(in oklch, var(--color-primary) 35%, transparent),
-                 0 8px 32px -8px color-mix(in oklch, var(--color-primary) 30%, transparent);
+  --shadow-glow: 0 0 0 1px color-mix(in oklch, var(--color-primary) 30%, transparent);
 }
 
-/* ── Keyframes — defined here so raw CSS animation: references work ── */
 @keyframes fadeInUp {
-  0% { opacity: 0; transform: translateY(10px); }
+  0% { opacity: 0; transform: translateY(8px); }
   100% { opacity: 1; transform: translateY(0); }
 }
 @keyframes slideInLeft {
-  0% { opacity: 0; transform: translateX(-12px); }
+  0% { opacity: 0; transform: translateX(-10px); }
   100% { opacity: 1; transform: translateX(0); }
 }
 @keyframes scaleIn {
-  0% { opacity: 0; transform: scale(0.96); }
+  0% { opacity: 0; transform: scale(0.97); }
   100% { opacity: 1; transform: scale(1); }
 }
 @keyframes shimmer {
@@ -74,206 +60,204 @@
   100% { background-position: 200% 0; }
 }
 
-/* ── Light mode CSS custom properties (functional — neutral, high contrast) ── */
+/* ── Tiza: tema claro (el principal) ─────────────────────────────────────────
+   Neutros de un solo tono (100, casi sin croma) para no mezclar grises cálidos
+   y fríos. El único color de marca es el verde pino; las señales semánticas
+   viven aparte.                                                              */
 :root {
-  --bg-base: oklch(0.985 0.010 45);
-  --bg-card: oklch(0.998 0.004 45);
-  --bg-sidebar: oklch(0.975 0.010 45);
-  --bg-input: oklch(1.000 0.000 45);
-  --bg-muted: oklch(0.958 0.014 45);
-  --border-base: oklch(0.860 0.012 45);
-  --text-base: oklch(0.215 0.020 45);
-  --text-muted: oklch(0.500 0.014 45);
-  --text-subtle: oklch(0.530 0.012 45);
-  --text-placeholder: oklch(0.660 0.010 45);
-  --elev-card: 0 1px 3px 0 rgb(0 0 0 / 0.08), 0 1px 2px -1px rgb(0 0 0 / 0.06);
-  --elev-card-high: 0 4px 6px -1px rgb(0 0 0 / 0.08), 0 2px 4px -2px rgb(0 0 0 / 0.06);
-  --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
-  --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
-  --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
-  --shadow-dialog: 0 20px 60px -10px rgb(0 0 0 / 0.15), 0 8px 20px -4px rgb(0 0 0 / 0.08);
+  --bg-base: oklch(0.965 0.004 100);
+  --bg-card: oklch(0.995 0.002 100);
+  --bg-sidebar: oklch(0.955 0.005 100);
+  --bg-input: oklch(1.000 0.000 100);
+  --bg-muted: oklch(0.935 0.005 100);
+  --border-base: oklch(0.830 0.006 100);
+  --text-base: oklch(0.215 0.008 100);
+  --text-muted: oklch(0.480 0.008 100);
+  --text-subtle: oklch(0.500 0.008 100);
+  --text-placeholder: oklch(0.640 0.006 100);
+  --elev-card: 0 1px 2px 0 oklch(0.2 0.01 100 / 0.06);
+  --elev-card-high: 0 4px 12px -2px oklch(0.2 0.01 100 / 0.10);
+  --shadow-sm: 0 1px 2px 0 oklch(0.2 0.01 100 / 0.05);
+  --shadow-md: 0 4px 12px -2px oklch(0.2 0.01 100 / 0.10);
+  --shadow-lg: 0 12px 24px -6px oklch(0.2 0.01 100 / 0.12);
+  --shadow-dialog: 0 24px 48px -12px oklch(0.2 0.01 100 / 0.18);
   --shadow-card: var(--elev-card);
   --shadow-card-elevated: var(--elev-card-high);
-  --skeleton-highlight: oklch(0.93 0.004 150);
+  --skeleton-highlight: oklch(0.975 0.004 100);
 
-  /* Marca — Hierro (naranja de óxido, tono 45).
-     Cada valor salió de un barrido sobre OKLCH buscando el más vivo que aún
-     cumple 4.5:1 contra la superficie de detrás; `npm run check:contrast` los
-     verifica. Los valores viven en vars privadas `--brand-*` y las públicas son
-     alias: así el puente @theme apunta a ellos sin declarar un ciclo.
+  /* Marca — verde pino. El relleno es oscuro, así que la tinta encima es casi
+     blanca. El relleno y la tinta como texto son roles distintos: `-ink` se
+     redefine en oscuro porque ningún valor único cumple en los dos temas. */
+  --brand: oklch(0.480 0.080 172);
+  --brand-hover: oklch(0.420 0.075 172);
+  --brand-muted: oklch(0.950 0.022 172);
+  --brand-contrast: oklch(0.990 0.004 172);
+  --brand-ink: oklch(0.460 0.080 172);
+  /* Marca sobre superficies oscuras fijas (kiosko, pantalla del gym). */
+  --brand-on-dark: oklch(0.760 0.100 172);
 
-     El RELLENO y la TINTA son dos roles distintos y tienen que serlo: se buscó
-     un valor único que cumpliera en los dos temas y no existe para ningún tono
-     —la frontera del claro y la del oscuro no se solapan—, así que `-ink` se
-     redefine en `.dark` por obligación, no por descuido. */
-  --brand-iron: oklch(0.700 0.200 45);
-  --brand-iron-hover: oklch(0.640 0.200 45);
-  --brand-iron-muted: oklch(0.960 0.020 45);
-  --brand-iron-contrast: oklch(0.200 0.040 45);
-  --brand-iron-ink: oklch(0.545 0.158 45);
+  --color-primary: var(--brand);
+  --color-primary-hover: var(--brand-hover);
+  --color-primary-muted: var(--brand-muted);
+  --color-primary-contrast: var(--brand-contrast);
+  --color-primary-ink: var(--brand-ink);
 
-  --color-primary: var(--brand-iron);
-  --color-primary-hover: var(--brand-iron-hover);
-  --color-primary-muted: var(--brand-iron-muted);
-  --color-primary-contrast: var(--brand-iron-contrast);
-  --color-primary-ink: var(--brand-iron-ink);
+  /* Un solo acento: los módulos ya no llevan color propio. Se conservan los
+     nombres para no romper los consumidores mientras se rediseña cada flujo. */
+  --accent-dashboard: var(--text-muted);
+  --accent-members: var(--text-muted);
+  --accent-checkins: var(--text-muted);
+  --accent-classes: var(--text-muted);
+  --accent-machines: var(--text-muted);
+  --accent-payments: var(--text-muted);
+  --accent-plans: var(--text-muted);
+  --accent-reports: var(--text-muted);
+  --accent-settings: var(--text-muted);
 
-  /* Acento por módulo. Los tonos salen del código de color de los discos
-     olímpicos —un sistema real del gimnasio físico, no nueve colores sueltos—
-     y cada uno es el valor más vivo que aún se lee como TEXTO a 4.5:1. */
-  --accent-dashboard: oklch(0.545 0.170 25);
-  --accent-members: oklch(0.520 0.090 205);
-  --accent-checkins: oklch(0.525 0.122 240);
-  --accent-classes: oklch(0.540 0.160 300);
-  --accent-machines: oklch(0.530 0.110 95);
-  --accent-payments: oklch(0.515 0.144 150);
-  --accent-plans: oklch(0.545 0.165 330);
-  --accent-reports: oklch(0.530 0.165 265);
-  --accent-settings: oklch(0.470 0.016 45);
-
-  /* Señales semánticas. Separadas del naranja de marca a propósito: un ámbar a
-     15° del primario es EL MISMO color en pantalla, y el aviso dejaba de leerse
-     como aviso al lado de un botón de cobro. El de aviso vive ahora a 50°. */
-  --signal-ok: oklch(0.515 0.144 150);
-  --signal-ok-bg: oklch(0.962 0.045 150);
-  --signal-ok-line: oklch(0.860 0.075 150);
-  --signal-warn: oklch(0.530 0.110 95);
-  --signal-warn-bg: oklch(0.962 0.045 95);
-  --signal-warn-line: oklch(0.860 0.075 95);
-  --signal-danger: oklch(0.555 0.200 25);
-  --signal-danger-bg: oklch(0.955 0.020 25);
-  --signal-danger-line: oklch(0.860 0.074 25);
-  --signal-info: oklch(0.525 0.122 240);
-  --signal-info-bg: oklch(0.962 0.020 240);
-  --signal-info-line: oklch(0.860 0.075 240);
+  /* Señales semánticas, lejos del tono de marca (172) para que un "ok" no se
+     confunda con un botón. */
+  --signal-ok: oklch(0.500 0.120 145);
+  --signal-ok-bg: oklch(0.960 0.035 145);
+  --signal-ok-line: oklch(0.860 0.070 145);
+  --signal-warn: oklch(0.520 0.110 75);
+  --signal-warn-bg: oklch(0.965 0.040 85);
+  --signal-warn-line: oklch(0.860 0.075 85);
+  --signal-danger: oklch(0.520 0.180 28);
+  --signal-danger-bg: oklch(0.960 0.020 28);
+  --signal-danger-line: oklch(0.860 0.070 28);
+  --signal-info: oklch(0.500 0.110 245);
+  --signal-info-bg: oklch(0.960 0.020 245);
+  --signal-info-line: oklch(0.860 0.060 245);
 
   --radius-sm: 0.375rem;
-  --radius-md: 0.625rem;
-  --radius-lg: 0.875rem;
-  --radius-xl: 1rem;
-  --transition-fast: 150ms cubic-bezier(0.16, 1, 0.3, 1);
-  --transition-base: 250ms cubic-bezier(0.16, 1, 0.3, 1);
-  --transition-slow: 350ms cubic-bezier(0.16, 1, 0.3, 1);
+  --radius-md: 0.5rem;
+  --radius-lg: 0.625rem;
+  --radius-xl: 0.75rem;
+  --ease-out: cubic-bezier(0.23, 1, 0.32, 1);
+  --ease-in-out: cubic-bezier(0.77, 0, 0.175, 1);
+  --duration-fast: 150ms;
+  --duration-base: 220ms;
+  --duration-slow: 320ms;
+  --transition-fast: var(--duration-fast) var(--ease-out);
+  --transition-base: var(--duration-base) var(--ease-out);
+  --transition-slow: var(--duration-slow) var(--ease-out);
 }
 
-/* ── Dark mode CSS custom properties (the designed face — green-tinted near-black) ── */
+/* ── Tiza: tema oscuro ───────────────────────────────────────────────────── */
 .dark {
-  --bg-base: oklch(0.145 0.014 45);
-  --bg-card: oklch(0.185 0.015 45);
-  --bg-sidebar: oklch(0.120 0.014 45);
-  --bg-input: oklch(0.205 0.016 45);
-  --bg-muted: oklch(0.225 0.014 45);
-  --border-base: oklch(0.325 0.014 45);
-  --text-base: oklch(0.965 0.006 45);
-  --text-muted: oklch(0.700 0.012 45);
-  --text-subtle: oklch(0.615 0.010 45);
-  --text-placeholder: oklch(0.520 0.010 45);
-  --elev-card: 0 1px 3px 0 rgb(0 0 0 / 0.35), 0 1px 2px -1px rgb(0 0 0 / 0.25);
-  --elev-card-high: 0 4px 6px -1px rgb(0 0 0 / 0.32), 0 2px 4px -2px rgb(0 0 0 / 0.22);
-  --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.25);
-  --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.4), 0 2px 4px -2px rgb(0 0 0 / 0.3);
-  --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.45), 0 4px 6px -4px rgb(0 0 0 / 0.35);
-  --shadow-dialog: 0 20px 60px -10px rgb(0 0 0 / 0.65), 0 8px 20px -4px rgb(0 0 0 / 0.45);
+  --bg-base: oklch(0.160 0.004 100);
+  --bg-card: oklch(0.200 0.005 100);
+  --bg-sidebar: oklch(0.140 0.004 100);
+  --bg-input: oklch(0.220 0.005 100);
+  --bg-muted: oklch(0.240 0.005 100);
+  --border-base: oklch(0.350 0.006 100);
+  --text-base: oklch(0.950 0.004 100);
+  --text-muted: oklch(0.720 0.006 100);
+  --text-subtle: oklch(0.660 0.006 100);
+  --text-placeholder: oklch(0.540 0.006 100);
+  --elev-card: 0 1px 2px 0 oklch(0 0 0 / 0.30);
+  --elev-card-high: 0 6px 16px -4px oklch(0 0 0 / 0.45);
+  --shadow-sm: 0 1px 2px 0 oklch(0 0 0 / 0.30);
+  --shadow-md: 0 6px 16px -4px oklch(0 0 0 / 0.45);
+  --shadow-lg: 0 14px 28px -8px oklch(0 0 0 / 0.50);
+  --shadow-dialog: 0 24px 56px -12px oklch(0 0 0 / 0.65);
   --shadow-card: var(--elev-card);
   --shadow-card-elevated: var(--elev-card-high);
-  --skeleton-highlight: oklch(0.27 0.010 150);
+  --skeleton-highlight: oklch(0.280 0.005 100);
 
-  /* El relleno no cambia: sobre la tarjeta oscura ya da 6.6:1. La tinta sí,
-     porque ningún valor único cumple en los dos temas. */
-  --brand-iron-muted: oklch(0.275 0.075 45);
-  --brand-iron-ink: oklch(0.665 0.192 45);
+  --brand-muted: oklch(0.270 0.040 172);
+  --brand-ink: oklch(0.760 0.100 172);
 
-  --accent-dashboard: oklch(0.650 0.170 25);
-  --accent-members: oklch(0.605 0.104 205);
-  --accent-checkins: oklch(0.610 0.140 240);
-  --accent-classes: oklch(0.660 0.160 300);
-  --accent-machines: oklch(0.615 0.126 95);
-  --accent-payments: oklch(0.600 0.166 150);
-  --accent-plans: oklch(0.655 0.165 330);
-  --accent-reports: oklch(0.650 0.165 265);
-  --accent-settings: oklch(0.700 0.014 45);
-
-  --signal-ok: oklch(0.600 0.166 150);
-  --signal-ok-bg: oklch(0.220 0.070 150);
-  --signal-ok-line: oklch(0.340 0.090 150);
-  --signal-warn: oklch(0.615 0.126 95);
-  --signal-warn-bg: oklch(0.225 0.058 95);
-  --signal-warn-line: oklch(0.340 0.074 95);
-  --signal-danger: oklch(0.640 0.200 25);
-  --signal-danger-bg: oklch(0.235 0.070 25);
-  --signal-danger-line: oklch(0.340 0.090 25);
-  --signal-info: oklch(0.610 0.140 240);
-  --signal-info-bg: oklch(0.220 0.060 240);
-  --signal-info-line: oklch(0.340 0.082 240);
+  --signal-ok: oklch(0.740 0.120 145);
+  --signal-ok-bg: oklch(0.240 0.040 145);
+  --signal-ok-line: oklch(0.360 0.060 145);
+  --signal-warn: oklch(0.790 0.120 80);
+  --signal-warn-bg: oklch(0.250 0.040 80);
+  --signal-warn-line: oklch(0.370 0.060 80);
+  --signal-danger: oklch(0.720 0.150 28);
+  --signal-danger-bg: oklch(0.250 0.050 28);
+  --signal-danger-line: oklch(0.370 0.070 28);
+  --signal-info: oklch(0.740 0.100 245);
+  --signal-info-bg: oklch(0.240 0.040 245);
+  --signal-info-line: oklch(0.360 0.060 245);
 }
 
 @layer base {
   html {
-    font-family: 'Plus Jakarta Sans', ui-sans-serif, system-ui, sans-serif;
+    font-family: 'Geist', ui-sans-serif, system-ui, sans-serif;
+    font-feature-settings: "ss01";
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
   }
   body {
     background-color: var(--bg-base);
     color: var(--text-base);
-    transition: background-color var(--transition-base), color var(--transition-base);
   }
   * {
     border-color: var(--border-base);
   }
+  h1, h2, h3 {
+    text-wrap: balance;
+    letter-spacing: -0.015em;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+      scroll-behavior: auto !important;
+    }
+  }
 }
 
 @layer utilities {
-  /* Card surfaces */
   .surface-0 {
     background-color: var(--bg-base);
   }
   .surface-1 {
     background-color: var(--bg-card);
     border: 1px solid var(--border-base);
-    border-radius: 0.75rem;
-    box-shadow: var(--shadow-card);
+    border-radius: var(--radius-lg);
   }
   .surface-2 {
     background-color: var(--bg-card);
     border: 1px solid var(--border-base);
-    border-radius: 0.75rem;
+    border-radius: var(--radius-lg);
     box-shadow: var(--shadow-card-elevated);
   }
 
-  /* Legacy .card utility — keep for backward compat */
   .card {
     background-color: var(--bg-card);
     border: 1px solid var(--border-base);
-    border-radius: 0.75rem;
-    box-shadow: var(--shadow-card);
+    border-radius: var(--radius-lg);
   }
 
-  /* Shimmer skeleton loader */
   .skeleton {
     background: linear-gradient(
       90deg,
-      var(--border-base) 25%,
+      var(--bg-muted) 25%,
       var(--skeleton-highlight) 50%,
-      var(--border-base) 75%
+      var(--bg-muted) 75%
     );
     background-size: 200% 100%;
-    animation: shimmer 2s linear infinite;
-    border-radius: 0.5rem;
+    animation: shimmer 1.6s linear infinite;
+    border-radius: var(--radius-sm);
   }
 
-  /* Focus ring consistent */
   .focus-ring {
     outline: 2px solid var(--color-primary);
     outline-offset: 2px;
   }
 
-  /* Transition utilities */
   .transition-ui {
-    transition: all var(--transition-base);
+    transition-property: color, background-color, border-color, box-shadow, opacity, transform;
+    transition-duration: var(--duration-base);
+    transition-timing-function: var(--ease-out);
   }
   .transition-ui-fast {
-    transition: all var(--transition-fast);
+    transition-property: color, background-color, border-color, box-shadow, opacity, transform;
+    transition-duration: var(--duration-fast);
+    transition-timing-function: var(--ease-out);
   }
 }
 
@@ -282,13 +266,13 @@
   background-color: var(--bg-card);
   color: var(--text-base);
   border: 1px solid var(--border-base);
-  border-radius: 16px;
+  border-radius: var(--radius-xl);
   box-shadow: var(--shadow-md);
   max-width: 340px;
 }
 .driver-popover-title {
   color: var(--text-base);
-  font-weight: 800;
+  font-weight: 600;
 }
 .driver-popover-description {
   color: var(--text-muted);
@@ -302,10 +286,10 @@
   background-color: var(--bg-muted);
   color: var(--text-base);
   border: 1px solid var(--border-base);
-  border-radius: 10px;
+  border-radius: var(--radius-md);
   padding: 6px 12px;
   text-shadow: none;
-  font-weight: 600;
+  font-weight: 500;
 }
 .driver-popover-navigation-btns button.driver-popover-next-btn {
   background-color: var(--color-primary);

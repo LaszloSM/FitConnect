@@ -64,7 +64,7 @@ function TimePicker({ value, onChange, placeholder = "Seleccionar hora" }: TimeP
         type="button"
         onClick={() => setOpen((v) => !v)}
         className={cn(
-          "flex h-9 w-full items-center gap-2 rounded-lg border border-[var(--border-base)] bg-[var(--bg-input)] px-3 text-sm transition-colors outline-none",
+          "flex h-10 md:h-9 w-full items-center gap-2 rounded-lg border border-[var(--border-base)] bg-[var(--bg-input)] px-3 text-sm transition-colors outline-none",
           "focus-visible:border-[var(--color-primary)] focus-visible:ring-2 focus-visible:ring-[var(--color-primary)]/20",
           !value && "text-[var(--text-placeholder)]",
           value && "text-[var(--text-base)]"
@@ -75,14 +75,14 @@ function TimePicker({ value, onChange, placeholder = "Seleccionar hora" }: TimeP
       </button>
 
       {open && (
-        <div className="absolute left-0 top-10 z-50 w-56 rounded-lg border border-[var(--border-base)] bg-[var(--bg-card)] shadow-[var(--shadow-md)] flex flex-col" style={{ maxHeight: 280 }}>
+        <div className="absolute left-0 top-11 z-50 w-56 rounded-[var(--radius-xl)] border border-[var(--border-base)] bg-[var(--bg-card)] shadow-[var(--shadow-lg)] flex flex-col" style={{ maxHeight: 280 }}>
           <div className="p-2 border-b border-[var(--border-base)]">
             <input
               type="text"
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              placeholder="Buscar hora..."
-              className="w-full rounded-md border border-[var(--border-base)] bg-[var(--bg-input)] px-2 py-1 text-xs text-[var(--text-base)] outline-none placeholder:text-[var(--text-placeholder)] focus:border-[var(--color-primary)]"
+              placeholder="Buscar hora…"
+              className="w-full rounded-md border border-[var(--border-base)] bg-[var(--bg-input)] h-9 px-2 text-sm text-[var(--text-base)] outline-none placeholder:text-[var(--text-placeholder)] focus:border-[var(--color-primary)]"
             />
           </div>
           <div ref={listRef} className="overflow-y-auto flex-1">
@@ -98,7 +98,7 @@ function TimePicker({ value, onChange, placeholder = "Seleccionar hora" }: TimeP
                     data-time={t}
                     onClick={() => { onChange(t); setOpen(false) }}
                     className={cn(
-                      "w-full px-3 py-1.5 text-left text-sm transition-colors",
+                      "w-full px-3 py-2 text-left font-mono text-sm tabular-nums transition-colors",
                       t === value
                         ? "bg-[var(--color-primary)] text-[var(--color-primary-contrast)] font-medium"
                         : "text-[var(--text-base)] hover:bg-[var(--bg-muted)]"
