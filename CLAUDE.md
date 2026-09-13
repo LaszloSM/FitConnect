@@ -255,6 +255,9 @@ Cuando cometas un error durante una sesión, agrégalo aquí antes de terminar:
 | Script de datos con `db.add()` de socios, visitas y pagos reventó con `ForeignKeyViolation` en `checkins` | Los modelos tenant no declaran `relationship()`, así que la unidad de trabajo de SQLAlchemy no sabe que el socio debe insertarse antes que sus visitas y los mandó en otro orden | En scripts que insertan padres e hijos sin relaciones ORM, `await db.flush()` después de agregar cada padre. La transacción entera se deshace, así que no queda nada a medias |
 | Entrenar modelos dentro del job que corre en el mismo proceso que la API | Un `fit()` de scikit-learn es CPU síncrono: dentro de una corrutina congela todas las peticiones mientras dura | Todo entrenamiento va por `asyncio.to_thread` (`ml/registry.py`), y el job de modelos va separado del de vencimientos para no atrasarlo |
 
+| El build de la imagen del backend falló con `ResolutionImpossible` (numpy) y en el host todo pasaba | `langchain==0.3.0` (sin un solo import en el código) exige `numpy<2`; el host ya tenía los paquetes instalados por separado y nunca resolvió el `requirements.txt` completo | Una dependencia nueva se valida con `docker build ./backend` o `pip install -r requirements.txt` en un venv limpio, no con que los tests del host pasen. Y lo que nadie importa se borra del requirements: solo agrega conflictos |
+| `bash scripts/deploy-lite.sh \| tail -60` reportó exit 0 con el build roto | Sin `pipefail`, el código de salida de un pipe es el del último comando (`tail`) | Correr el despliegue con `set -o pipefail` o sin pipe, y leer el log antes de dar algo por desplegado |
+
 **Protocolo:** Al detectar un error que no estaba documentado, añade una fila a la tabla antes del commit.
 
 ---
