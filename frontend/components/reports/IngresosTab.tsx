@@ -42,7 +42,7 @@ export function IngresosTab({ period }: { period: Period }) {
     <motion.div className="space-y-4" variants={containerVariants} initial="hidden" animate="visible">
       <motion.div variants={cardVariants} className="grid grid-cols-2 lg:grid-cols-4 gap-3">
         <Tile label="Ingresos confirmados" value={formatCOP(s.revenue)} tone="positive" hint={`${s.payments_count} pagos · ${formatCOP(s.days ? s.revenue / s.days : 0)}/día`} />
-        <Tile label="Egresos" value={formatCOP(s.expenses)} tone="negative" />
+        <Tile label="Egresos" value={formatCOP(s.expenses)} tone={s.expenses > 0 ? "negative" : "muted"} />
         <Tile label="Utilidad" value={formatCOP(s.profit)} tone={s.profit >= 0 ? "base" : "negative"} />
         <Tile label="Pendiente por confirmar" value={formatCOP(s.pending)} tone={s.pending > 0 ? "warning" : "muted"} hint={s.refunded > 0 ? `Devuelto: ${formatCOP(s.refunded)}` : undefined} />
       </motion.div>
@@ -116,7 +116,7 @@ export function IngresosTab({ period }: { period: Period }) {
             </div>
           )}
         </Card>
-        <Card title="Egresos por categoría" icon={<Wallet className="h-4 w-4 text-[var(--signal-danger)]" />}>
+        <Card title="Egresos por categoría" icon={<Wallet className="h-4 w-4 text-ink-muted" />}>
           {b.expenses.length === 0 ? <Empty text="Sin egresos registrados en el período" /> : (
             <div className="space-y-1.5">
               {b.expenses.map((e) => (
