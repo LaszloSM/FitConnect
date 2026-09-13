@@ -87,7 +87,7 @@ export default function ReportFaultClient({ slug, token }: { slug: string; token
         {info && !sent && (
           <>
             <div className="space-y-1">
-              <p className="text-xs font-semibold uppercase tracking-[0.12em] text-[var(--text-muted)]">{info.gym_name}</p>
+              <p className="text-sm font-medium text-[var(--text-muted)]">{info.gym_name}</p>
               <h1 className="text-xl font-bold text-[var(--text-base)] flex items-center gap-2">
                 <Wrench className="h-5 w-5 text-[var(--text-muted)]" aria-hidden />
                 {info.machine_name}

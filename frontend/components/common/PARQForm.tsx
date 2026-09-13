@@ -59,8 +59,8 @@ function PARQForm({ value = {}, onChange }: PARQFormProps) {
                         "flex items-center gap-2 cursor-pointer rounded-md px-3 py-1.5 text-sm font-medium border transition-colors select-none",
                         selected
                           ? opt
-                            ? "bg-amber-500/10 border-amber-500/40 text-amber-600 dark:text-amber-400"
-                            : "bg-green-500/10 border-green-500/40 text-green-600 dark:text-green-400"
+                            ? "bg-[var(--signal-warn-bg)] border-[var(--signal-warn-line)] text-[var(--signal-warn)]"
+                            : "bg-[var(--signal-ok-bg)] border-[var(--signal-ok-line)] text-[var(--signal-ok)]"
                           : "border-[var(--border-base)] text-[var(--text-muted)] hover:border-[var(--color-primary)] hover:text-[var(--text-base)]"
                       )}
                     >
@@ -76,7 +76,7 @@ function PARQForm({ value = {}, onChange }: PARQFormProps) {
                         className={cn(
                           "size-3 rounded-full border-2 flex items-center justify-center shrink-0",
                           selected
-                            ? opt ? "border-amber-500 bg-amber-500" : "border-green-500 bg-green-500"
+                            ? opt ? "border-[var(--signal-warn)] bg-[var(--signal-warn)]" : "border-[var(--signal-ok)] bg-[var(--signal-ok)]"
                             : "border-[var(--border-base)]"
                         )}
                       >

@@ -3,7 +3,6 @@
   "app/(dashboard)/machines/MachinesClient.tsx": 3,
   "app/(dashboard)/payments/cash/CashClient.tsx": 5,
   "app/(dashboard)/payments/shared.ts": 5,
-  "components/common/PARQForm.tsx": 12,
   "components/common/QRCodeDisplay.tsx": 3,
   "components/common/QrScanner.tsx": 2,
   "components/landing/LandingClient.tsx": 74,
