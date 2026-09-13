@@ -16,12 +16,12 @@ interface Overview {
 }
 
 const STATUS_LABEL: Record<string, { label: string; color: string }> = {
-  active: { label: "Activa", color: "#22C55E" },
-  scheduled: { label: "Programada", color: "#8B5CF6" },
-  frozen: { label: "Congelada", color: "#0EA5E9" },
-  in_grace: { label: "En gracia", color: "#F59E0B" },
-  expired: { label: "Vencida", color: "#EF4444" },
-  no_membership: { label: "Sin membresía", color: "#9CA3AF" },
+  active: { label: "Activa", color: "var(--signal-ok)" },
+  scheduled: { label: "Programada", color: "var(--signal-info)" },
+  frozen: { label: "Congelada", color: "var(--text-subtle)" },
+  in_grace: { label: "En gracia", color: "var(--signal-warn)" },
+  expired: { label: "Vencida", color: "var(--signal-danger)" },
+  no_membership: { label: "Sin membresía", color: "var(--border-base)" },
 };
 
 function PersonList({ items, empty, right, tone }: { items: any[]; empty: string; right: (i: any) => React.ReactNode; tone: string }) {
@@ -53,7 +53,7 @@ export function SociosTab({ period }: { period: Period }) {
   if (loading && !data.overview) return <TabSkeleton />;
   if (error) return <Empty text={error} />;
   const o = data.overview!;
-  const statusData = Object.entries(o.by_membership_status).filter(([, v]) => v > 0).map(([k, v]) => ({ name: STATUS_LABEL[k]?.label ?? k, value: v, color: STATUS_LABEL[k]?.color ?? "#999" }));
+  const statusData = Object.entries(o.by_membership_status).filter(([, v]) => v > 0).map(([k, v]) => ({ name: STATUS_LABEL[k]?.label ?? k, value: v, color: STATUS_LABEL[k]?.color ?? "var(--text-subtle)" }));
 
   return (
     <motion.div className="space-y-4" variants={containerVariants} initial="hidden" animate="visible">
@@ -64,7 +64,7 @@ export function SociosTab({ period }: { period: Period }) {
         <Tile label="Visitantes (pase del día)" value={String(o.visitors)} tone="muted" />
       </motion.div>
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-        <Card title="Socios activos por estado de membresía" icon={<Users className="h-4 w-4 text-[var(--color-primary-ink)]" />}>
+        <Card title="Socios activos por estado de membresía" icon={<Users className="h-4 w-4 text-ink-muted" />}>
           {statusData.length === 0 ? <Empty text="Sin socios activos" /> : (
             <ResponsiveContainer width="100%" height={200}>
               <BarChart data={statusData} margin={{ top: 4, right: 0, left: -20, bottom: 0 }}>
@@ -72,26 +72,26 @@ export function SociosTab({ period }: { period: Period }) {
                 <XAxis dataKey="name" tick={{ fill: "var(--text-muted)", fontSize: 11 }} axisLine={false} tickLine={false} />
                 <YAxis tick={{ fill: "var(--text-muted)", fontSize: 11 }} axisLine={false} tickLine={false} allowDecimals={false} />
                 <Tooltip {...chartTooltipStyle} />
-                <Bar dataKey="value" fill="var(--color-primary)" radius={[4, 4, 0, 0]} name="Socios" />
+                <Bar dataKey="value" fill="var(--brand)" radius={[4, 4, 0, 0]} name="Socios" />
               </BarChart>
             </ResponsiveContainer>
           )}
         </Card>
-        <Card title="Nuevos en el período" icon={<Users className="h-4 w-4 text-emerald-500" />}>
-          <PersonList items={o.new_list} empty="Nadie se registró en el período" tone="group-hover:text-emerald-500" right={(i) => <span className="text-xs text-[var(--text-muted)] ml-3 shrink-0">{i.created_at}</span>} />
+        <Card title="Nuevos en el período" icon={<Users className="h-4 w-4 text-ink-muted" />}>
+          <PersonList items={o.new_list} empty="Nadie se registró en el período" tone="group-hover:text-primary-ink" right={(i) => <span className="text-xs text-[var(--text-muted)] ml-3 shrink-0">{i.created_at}</span>} />
         </Card>
-        <Card title="Por vencer (14 días)" icon={<Calendar className="h-4 w-4 text-amber-500" />}>
-          <PersonList items={data.expiring ?? []} empty="Ninguna membresía por vencer en dos semanas" tone="group-hover:text-amber-500" right={(i) => (
+        <Card title="Por vencer (14 días)" icon={<Calendar className="h-4 w-4 text-ink-muted" />}>
+          <PersonList items={data.expiring ?? []} empty="Ninguna membresía por vencer en dos semanas" tone="group-hover:text-primary-ink" right={(i) => (
             <span className={i.days_remaining <= 2 ? "text-[var(--signal-danger)] text-xs font-semibold ml-3 shrink-0" : "text-[var(--signal-warn)] text-xs font-medium ml-3 shrink-0"}>
               {i.days_remaining === 0 ? "Hoy" : i.days_remaining === 1 ? "Mañana" : `${i.days_remaining}d`}
             </span>
           )} />
         </Card>
-        <Card title="Sin venir hace 14+ días" icon={<UserX className="h-4 w-4 text-purple-500" />}>
-          <PersonList items={data.inactive ?? []} empty="Todos los socios activos han venido" tone="group-hover:text-purple-500" right={(i) => <span className="text-purple-600 dark:text-purple-400 text-xs font-medium ml-3 shrink-0 tabular-nums">{i.days_inactive !== null ? `${i.days_inactive}d` : "Nunca"}</span>} />
+        <Card title="Sin venir hace 14+ días" icon={<UserX className="h-4 w-4 text-ink-muted" />}>
+          <PersonList items={data.inactive ?? []} empty="Todos los socios activos han venido" tone="group-hover:text-primary-ink" right={(i) => <span className="text-[var(--text-muted)] text-xs font-medium ml-3 shrink-0 tabular-nums">{i.days_inactive !== null ? `${i.days_inactive}d` : "Nunca"}</span>} />
         </Card>
-        <Card title="Cumpleaños próximos" icon={<Cake className="h-4 w-4 text-pink-500" />} className="lg:col-span-2">
-          <PersonList items={data.birthdays ?? []} empty="Sin cumpleaños en los próximos 30 días" tone="group-hover:text-pink-500" right={(i) => <span className={i.days_until === 0 ? "text-pink-600 dark:text-pink-400 text-xs font-bold ml-3 shrink-0" : "text-[var(--text-muted)] text-xs ml-3 shrink-0 tabular-nums"}>{i.days_until === 0 ? "¡Hoy!" : `en ${i.days_until}d`}</span>} />
+        <Card title="Cumpleaños próximos" icon={<Cake className="h-4 w-4 text-ink-muted" />} className="lg:col-span-2">
+          <PersonList items={data.birthdays ?? []} empty="Sin cumpleaños en los próximos 30 días" tone="group-hover:text-primary-ink" right={(i) => <span className={i.days_until === 0 ? "text-primary-ink text-xs font-semibold ml-3 shrink-0" : "text-[var(--text-muted)] text-xs ml-3 shrink-0 tabular-nums"}>{i.days_until === 0 ? "Hoy" : `en ${i.days_until}d`}</span>} />
         </Card>
       </div>
     </motion.div>
@@ -123,7 +123,7 @@ export function Heatmap({ cells, compactHours = true }: { cells: Attendance["pea
               const c = cells.find((x) => x.weekday === di && x.hour === h);
               const v = c?.count ?? 0;
               const alpha = v ? 0.15 + 0.85 * (v / max) : 0;
-              return <div key={h} title={`${d} ${h}:00 · ${v}`} className="h-4 rounded-sm" style={{ background: v ? `rgba(212, 255, 0, ${alpha})` : "var(--bg-muted)", outline: v === max ? "1px solid var(--color-primary)" : undefined }} />;
+              return <div key={h} title={`${d} ${h}:00 · ${v}`} className="h-4 rounded-sm" style={{ background: v ? `color-mix(in oklch, var(--brand) ${Math.round(alpha * 100)}%, transparent)` : "var(--bg-muted)", outline: v === max ? "1px solid var(--brand)" : undefined }} />;
             })}
           </div>
         ))}
@@ -147,7 +147,7 @@ export function AsistenciaTab({ period }: { period: Period }) {
         <Tile label="Accesos denegados" value={String(a.denied)} tone={a.denied > 0 ? "warning" : "muted"} />
         <Tile label="Hora pico" value={a.peak.busiest_hour === null ? "—" : `${days[a.peak.busiest_weekday!]} ${a.peak.busiest_hour}:00`} />
       </motion.div>
-      <Card title="Ingresos por día" icon={<Activity className="h-4 w-4 text-blue-500" />}>
+      <Card title="Ingresos por día" icon={<Activity className="h-4 w-4 text-ink-muted" />}>
         {a.total === 0 ? <Empty text="Sin ingresos en el período" /> : (
           <ResponsiveContainer width="100%" height={200}>
             <AreaChart data={daily} margin={{ top: 4, right: 0, left: -20, bottom: 0 }}>
@@ -155,13 +155,13 @@ export function AsistenciaTab({ period }: { period: Period }) {
               <XAxis dataKey="label" tick={{ fill: "var(--text-muted)", fontSize: 10 }} axisLine={false} tickLine={false} />
               <YAxis tick={{ fill: "var(--text-muted)", fontSize: 10 }} axisLine={false} tickLine={false} allowDecimals={false} />
               <Tooltip {...chartTooltipStyle} formatter={(v: any) => [v, "Ingresos"]} />
-              <Area type="monotone" dataKey="count" stroke="#3B82F6" strokeWidth={2} fill="#3B82F6" fillOpacity={0.1} name="Ingresos" />
+              <Area type="monotone" dataKey="count" stroke="var(--brand)" strokeWidth={2} fill="var(--brand)" fillOpacity={0.1} name="Ingresos" />
             </AreaChart>
           </ResponsiveContainer>
         )}
       </Card>
       <div className="grid grid-cols-1 lg:grid-cols-[minmax(0,2fr)_minmax(0,1fr)] gap-4">
-        <Card title="Mapa de calor: día × hora" icon={<Activity className="h-4 w-4 text-[var(--color-primary-ink)]" />}>
+        <Card title="Mapa de calor: día × hora" icon={<Activity className="h-4 w-4 text-ink-muted" />}>
           {a.total === 0 ? <Empty text="Sin datos" /> : <Heatmap cells={a.peak.cells} />}
           <p className="text-[10px] text-[var(--text-muted)] mt-2">Más verde = más gente. Úsalo para poner instructores y clases en las horas de más flujo.</p>
         </Card>

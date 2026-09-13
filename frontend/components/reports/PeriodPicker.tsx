@@ -40,7 +40,7 @@ const PRESETS: { key: Exclude<PeriodKey, "custom">; label: string }[] = [
 ];
 
 const inputCls =
-  "h-8 rounded-md border border-[var(--border-base)] bg-[var(--bg-base)] px-2 text-xs text-[var(--text-base)] outline-none focus:ring-2 focus:ring-[var(--color-primary)]/30";
+  "h-8 rounded-md border border-[var(--border-base)] bg-[var(--bg-base)] px-2 text-xs text-[var(--text-base)] outline-none focus:ring-2 focus:ring-[var(--brand)]/30";
 
 export function PeriodPicker({ value, onChange }: { value: Period; onChange: (p: Period) => void }) {
   return (
@@ -55,7 +55,7 @@ export function PeriodPicker({ value, onChange }: { value: Period; onChange: (p:
             className={cn(
               "rounded-lg px-2.5 py-1 text-xs font-medium transition-colors",
               value.key === p.key
-                ? "bg-[var(--color-primary)] text-[var(--color-primary-contrast)]"
+                ? "bg-primary text-primary-contrast"
                 : "text-[var(--text-muted)] hover:text-[var(--text-base)]"
             )}
           >

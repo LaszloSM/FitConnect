@@ -79,7 +79,7 @@ function MethodTag({ method }: { method?: string }) {
   if (!method) return null;
   return (
     <span
-      className="text-[10px] font-semibold uppercase tracking-wider px-1.5 py-0.5 rounded"
+      className="text-xs font-medium px-1.5 py-0.5 rounded-[var(--radius-sm)]"
       style={method === "modelo"
         ? { color: "var(--signal-info)", background: "var(--signal-info-bg)" }
         : { color: "var(--text-muted)", background: "var(--bg-muted)" }}
@@ -111,12 +111,12 @@ export function RetencionTab() {
         <Tile label="Cohorte más reciente" value={cohorts.length ? `${cohorts[cohorts.length - 1].size} socios` : "—"} hint={cohorts.length ? `${cohorts[cohorts.length - 1].active_pct ?? 0}% siguen activos` : undefined} />
         <Tile label="Meses analizados" value={String(retention.length)} tone="muted" />
       </motion.div>
-      <Card title="Renovación mensual" icon={<Activity className="h-4 w-4 text-[var(--color-primary-ink)]" />}>
+      <Card title="Renovación mensual" icon={<Activity className="h-4 w-4 text-ink-muted" />}>
         {retention.every((r) => r.ended === 0) ? <Empty text="Aún no hay vencimientos para medir renovación" /> : (
           <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
             {retention.map((r) => (
               <div key={r.month} className="rounded-lg border border-[var(--border-base)] bg-[var(--bg-muted)] p-3">
-                <p className="text-[10px] text-[var(--text-muted)] uppercase">{r.month}</p>
+                <p className="text-xs text-[var(--text-muted)]">{r.month}</p>
                 <p className={cn("text-lg font-bold font-mono", r.renewal_rate === null ? "text-[var(--text-muted)]" : r.renewal_rate >= 70 ? "text-[var(--signal-ok)]" : "text-[var(--signal-warn)]")}>{r.renewal_rate === null ? "—" : `${r.renewal_rate}%`}</p>
                 <p className="text-[10px] text-[var(--text-muted)]">{r.renewed}/{r.ended} renovaron</p>
               </div>
@@ -130,7 +130,7 @@ export function RetencionTab() {
           <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
             {cohorts.map((c) => (
               <div key={c.month} className="rounded-lg border border-[var(--border-base)] bg-[var(--bg-muted)] p-3">
-                <p className="text-[10px] text-[var(--text-muted)] uppercase">{c.month}</p>
+                <p className="text-xs text-[var(--text-muted)]">{c.month}</p>
                 <p className="text-sm font-bold text-[var(--text-base)]">{c.size} {c.size === 1 ? "socio" : "socios"}</p>
                 <div className="h-1.5 rounded-full bg-[var(--bg-base)] mt-1.5"><div className="h-1.5 rounded-full bg-[var(--signal-ok)]" style={{ width: `${c.active_pct ?? 0}%` }} /></div>
                 <p className="text-[10px] text-[var(--text-muted)] mt-1">{c.active_pct ?? 0}% activos · {c.renewed_pct ?? 0}% renovaron</p>
@@ -207,7 +207,7 @@ export function InteligenciaTab({ period }: { period: Period }) {
 
   const columns: DataTableColumn<Risk>[] = [
     { key: "member", header: "Socio", cell: (r) => (
-      <Link href={`/members/${r.member_id}`} className="hover:text-[var(--color-primary-ink)]">
+      <Link href={`/members/${r.member_id}`} className="hover:text-primary-ink">
         <p className="font-medium text-[var(--text-base)]">{r.full_name}</p>
         <p className="text-xs text-[var(--text-muted)]">{r.plan_name ?? "Sin plan"}{r.end_date ? ` · vence ${formatDate(parseDateOnly(r.end_date))}` : ""}</p>
       </Link>
@@ -237,7 +237,7 @@ export function InteligenciaTab({ period }: { period: Period }) {
     <motion.div className="space-y-4" variants={containerVariants} initial="hidden" animate="visible">
       <Card
         title="Modelos del gimnasio"
-        icon={<Cpu className="h-4 w-4 text-[var(--color-primary-ink)]" />}
+        icon={<Cpu className="h-4 w-4 text-ink-muted" />}
         right={
           <button
             type="button"
@@ -289,8 +289,8 @@ export function InteligenciaTab({ period }: { period: Period }) {
                 <YAxis tick={{ fill: "var(--text-muted)", fontSize: 10 }} axisLine={false} tickLine={false} tickFormatter={compact} />
                 <Tooltip {...chartTooltipStyle} formatter={(val: any, n: any) => [formatCOP(Number(val) || 0), n === "real" ? "Acumulado" : "Proyección"]} labelFormatter={(d) => `Día ${d}`} />
                 {f.avg_previous_months ? <ReferenceLine y={f.avg_previous_months} stroke="var(--text-muted)" strokeDasharray="4 4" label={{ value: "prom. 3 meses", fill: "var(--text-muted)", fontSize: 10, position: "insideTopLeft" }} /> : null}
-                <Area type="monotone" dataKey="real" stroke="var(--color-primary)" strokeWidth={2} fill="var(--color-primary)" fillOpacity={0.15} name="real" connectNulls={false} />
-                <Area type="monotone" dataKey="proyectado" stroke="var(--color-primary)" strokeWidth={2} strokeDasharray="5 4" fill="var(--color-primary)" fillOpacity={0.05} name="proyectado" connectNulls={false} />
+                <Area type="monotone" dataKey="real" stroke="var(--brand)" strokeWidth={2} fill="var(--brand)" fillOpacity={0.15} name="real" connectNulls={false} />
+                <Area type="monotone" dataKey="proyectado" stroke="var(--brand)" strokeWidth={2} strokeDasharray="5 4" fill="var(--brand)" fillOpacity={0.05} name="proyectado" connectNulls={false} />
               </AreaChart>
             </ResponsiveContainer>
           )}
@@ -329,13 +329,13 @@ export function InteligenciaTab({ period }: { period: Period }) {
                 </p>
                 {g.members.length > 0 && (
                   <details className="text-xs">
-                    <summary className="cursor-pointer text-[var(--color-primary-ink)] font-medium">Ver socios</summary>
+                    <summary className="cursor-pointer text-primary-ink font-medium">Ver socios</summary>
                     <ul className="mt-2 space-y-1 max-h-48 overflow-y-auto">
                       {g.members.map((m) => {
                         const wa = waLink(m.phone, `Hola ${m.full_name.split(" ")[0]} 👋`);
                         return (
                           <li key={m.member_id} className="flex items-center justify-between gap-2">
-                            <Link href={`/members/${m.member_id}`} className="truncate text-[var(--text-base)] hover:text-[var(--color-primary-ink)]">{m.full_name}</Link>
+                            <Link href={`/members/${m.member_id}`} className="truncate text-[var(--text-base)] hover:text-primary-ink">{m.full_name}</Link>
                             {wa && <a href={wa} target="_blank" rel="noopener noreferrer" aria-label={`Escribir a ${m.full_name}`} className="text-[var(--text-muted)] hover:text-[var(--signal-ok)]"><MessageCircle className="h-3.5 w-3.5" /></a>}
                           </li>
                         );
@@ -423,7 +423,7 @@ export function InteligenciaTab({ period }: { period: Period }) {
       </div>
 
       {peak && peak.total > 0 && (
-        <Card title="Cuándo se llena el gym (período)" icon={<Sparkles className="h-4 w-4 text-[var(--color-primary-ink)]" />}>
+        <Card title="Cuándo se llena el gym (período)" icon={<Sparkles className="h-4 w-4 text-ink-muted" />}>
           <Heatmap cells={peak.cells} />
           {peak.top?.length > 0 && (
             <p className="text-xs text-[var(--text-muted)] mt-2">

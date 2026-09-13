@@ -22,7 +22,7 @@ interface Breakdown {
 }
 interface Daily { date: string; amount: number; membership: number; day_pass: number; product: number; other: number }
 
-const KIND_COLORS: Record<string, string> = { membership: "#22C55E", day_pass: "#8B5CF6", product: "#0EA5E9", other: "#9CA3AF" };
+const KIND_COLORS: Record<string, string> = { membership: "var(--brand)", day_pass: "var(--signal-info)", product: "var(--signal-warn)", other: "var(--text-subtle)" };
 
 export function IngresosTab({ period }: { period: Period }) {
   const { data, loading, error } = usePeriodData<{ summary: Summary; breakdown: Breakdown; daily: Daily[] }>({
@@ -47,7 +47,7 @@ export function IngresosTab({ period }: { period: Period }) {
         <Tile label="Pendiente por confirmar" value={formatCOP(s.pending)} tone={s.pending > 0 ? "warning" : "muted"} hint={s.refunded > 0 ? `Devuelto: ${formatCOP(s.refunded)}` : undefined} />
       </motion.div>
 
-      <Card title={multiDay ? "Ingresos por día y fuente" : "Ingresos del día por fuente"} icon={<TrendingUp className="h-4 w-4 text-emerald-500" />}>
+      <Card title={multiDay ? "Ingresos por día y fuente" : "Ingresos del día por fuente"} icon={<TrendingUp className="h-4 w-4 text-ink-muted" />}>
         {daily.every((d) => d.amount === 0) ? (
           <Empty text="Sin ingresos confirmados en el período" />
         ) : (
@@ -76,22 +76,22 @@ export function IngresosTab({ period }: { period: Period }) {
       </Card>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-        <Card title="Por fuente de ingreso" icon={<Layers className="h-4 w-4 text-violet-500" />}>
+        <Card title="Por fuente de ingreso" icon={<Layers className="h-4 w-4 text-ink-muted" />}>
           {b.by_kind.length === 0 ? <Empty text="Sin ingresos en el período" /> : (
             <div className="space-y-2">
               {[...b.by_kind].sort((x, y) => y.amount - x.amount).map((k) => (
                 <div key={k.kind}>
                   <div className="flex items-center justify-between text-sm">
-                    <span className="text-[var(--text-base)] flex items-center gap-2"><span className="h-2 w-2 rounded-full" style={{ background: KIND_COLORS[k.kind] ?? "#999" }} />{k.label}</span>
+                    <span className="text-[var(--text-base)] flex items-center gap-2"><span className="h-2 w-2 rounded-full" style={{ background: KIND_COLORS[k.kind] ?? "var(--text-subtle)" }} />{k.label}</span>
                     <span className="font-mono text-[var(--text-base)]">{formatCOP(k.amount)} <span className="text-[var(--text-muted)] text-xs">· {b.total ? Math.round(k.amount / b.total * 100) : 0}%</span></span>
                   </div>
-                  <div className="h-1.5 rounded-full bg-[var(--bg-muted)] mt-1"><div className="h-1.5 rounded-full" style={{ width: `${b.total ? k.amount / b.total * 100 : 0}%`, background: KIND_COLORS[k.kind] ?? "#999" }} /></div>
+                  <div className="h-1.5 rounded-full bg-[var(--bg-muted)] mt-1"><div className="h-1.5 rounded-full" style={{ width: `${b.total ? k.amount / b.total * 100 : 0}%`, background: KIND_COLORS[k.kind] ?? "var(--text-subtle)" }} /></div>
                 </div>
               ))}
             </div>
           )}
         </Card>
-        <Card title="Por método de pago" icon={<CreditCard className="h-4 w-4 text-green-500" />}>
+        <Card title="Por método de pago" icon={<CreditCard className="h-4 w-4 text-ink-muted" />}>
           {b.by_method.length === 0 ? <Empty text="Sin ingresos en el período" /> : (
             <ResponsiveContainer width="100%" height={200}>
               <BarChart data={b.by_method} margin={{ top: 4, right: 0, left: -20, bottom: 0 }}>
@@ -99,12 +99,12 @@ export function IngresosTab({ period }: { period: Period }) {
                 <XAxis dataKey="label" tick={{ fill: "var(--text-muted)", fontSize: 11 }} axisLine={false} tickLine={false} />
                 <YAxis tick={{ fill: "var(--text-muted)", fontSize: 10 }} axisLine={false} tickLine={false} tickFormatter={compact} />
                 <Tooltip {...chartTooltipStyle} formatter={(v: any) => [formatCOP(Number(v) || 0), "Ingresos"]} />
-                <Bar dataKey="amount" fill="#22C55E" radius={[4, 4, 0, 0]} name="Ingresos" />
+                <Bar dataKey="amount" fill="var(--brand)" radius={[4, 4, 0, 0]} name="Ingresos" />
               </BarChart>
             </ResponsiveContainer>
           )}
         </Card>
-        <Card title="Por plan" icon={<Layers className="h-4 w-4 text-[var(--color-primary-ink)]" />}>
+        <Card title="Por plan" icon={<Layers className="h-4 w-4 text-ink-muted" />}>
           {b.by_plan.length === 0 ? <Empty text="Sin cobros de membresía en el período" /> : (
             <div className="space-y-1.5">
               {b.by_plan.map((p) => (

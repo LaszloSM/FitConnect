@@ -65,7 +65,7 @@ export default function ReportsClient() {
             type="button"
             onClick={() => void monthClose()}
             disabled={closing}
-            className="flex items-center gap-1.5 h-9 px-3 rounded-lg bg-[var(--color-primary)] text-[var(--color-primary-contrast)] text-sm font-semibold hover:bg-[var(--color-primary-hover)] transition-colors disabled:opacity-50"
+            className="flex items-center gap-1.5 h-9 px-3 rounded-[var(--radius-md)] bg-primary text-primary-contrast text-sm font-medium hover:opacity-90 transition-opacity disabled:opacity-50"
             title="PDF de una pieza con todo el mes del período elegido"
           >
             {closing ? <Loader2 className="h-4 w-4 animate-spin" /> : <CalendarCheck className="h-4 w-4" />}
@@ -81,12 +81,12 @@ export default function ReportsClient() {
             onClick={() => setActiveTab(key)}
             className={cn(
               "flex items-center gap-2 px-3.5 py-2.5 text-sm font-medium transition-colors relative",
-              activeTab === key ? "text-[var(--color-primary-ink)]" : "text-[var(--text-muted)] hover:text-[var(--text-base)]"
+              activeTab === key ? "text-ink" : "text-[var(--text-muted)] hover:text-[var(--text-base)]"
             )}
           >
             <Icon className="h-4 w-4" />
             {label}
-            {activeTab === key && <motion.span layoutId="reports-tab-indicator" className="absolute bottom-0 left-0 right-0 h-0.5 bg-[var(--color-primary)]" />}
+            {activeTab === key && <motion.span layoutId="reports-tab-indicator" className="absolute bottom-0 left-0 right-0 h-0.5 bg-[var(--text-base)]" />}
           </button>
         ))}
       </div>

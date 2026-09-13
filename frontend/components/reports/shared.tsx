@@ -103,7 +103,7 @@ export function ExportButtons({ tab, period, label }: { tab: string; period: Per
   return (
     <div className="flex items-center gap-1.5">
       <button type="button" onClick={() => void download("xlsx")} disabled={busy !== null} className={btn}>
-        {busy === "xlsx" ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <FileSpreadsheet className="h-3.5 w-3.5 text-emerald-500" />} Excel
+        {busy === "xlsx" ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <FileSpreadsheet className="h-3.5 w-3.5 text-ink-muted" />} Excel
       </button>
       <button type="button" onClick={() => void download("pdf")} disabled={busy !== null} className={btn}>
         {busy === "pdf" ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <FileText className="h-3.5 w-3.5 text-[var(--signal-danger)]" />} PDF
@@ -122,7 +122,7 @@ export function Tile({ label, value, tone = "base", hint }: { label: string; val
   }[tone];
   return (
     <GlassCard className="p-4">
-      <p className="text-[10px] uppercase tracking-wider text-[var(--text-muted)]">{label}</p>
+      <p className="text-xs text-[var(--text-muted)]">{label}</p>
       <p className={cn("text-lg font-bold font-mono", cls)}>{value}</p>
       {hint && <p className="text-[10px] text-[var(--text-muted)] mt-0.5">{hint}</p>}
     </GlassCard>
