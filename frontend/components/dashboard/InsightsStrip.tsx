@@ -1,8 +1,8 @@
 "use client";
 
 import Link from "next/link";
-import { motion } from "framer-motion";
-import { TrendingUp, TrendingDown, AlertTriangle, Sparkles, ArrowRight } from "lucide-react";
+import { TrendingUp, TrendingDown, AlertTriangle, ArrowRight } from "lucide-react";
+import { Panel } from "./Panel";
 
 type Tone = "positive" | "negative" | "warning";
 
@@ -12,51 +12,41 @@ interface Insight {
   href?: string;
 }
 
-const TONE: Record<Tone, { icon: typeof TrendingUp; cls: string }> = {
-  positive: { icon: TrendingUp, cls: "text-[var(--signal-ok)]" },
-  negative: { icon: TrendingDown, cls: "text-[var(--signal-danger)]" },
-  warning: { icon: AlertTriangle, cls: "text-[var(--signal-warn)]" },
+const TONE: Record<Tone, { icon: typeof TrendingUp; color: string }> = {
+  positive: { icon: TrendingUp, color: "var(--signal-ok)" },
+  negative: { icon: TrendingDown, color: "var(--signal-danger)" },
+  warning: { icon: AlertTriangle, color: "var(--signal-warn)" },
 };
 
-export function InsightsStrip({
-  insights,
-  className = "col-span-12",
-}: {
-  insights: Insight[];
-  className?: string;
-}) {
+/** Lo que el modelo del gimnasio detectó hoy. Sin lecturas, no ocupa espacio. */
+export function InsightsStrip({ insights, className }: { insights: Insight[]; className?: string }) {
   if (insights.length === 0) return null;
 
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 8 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.3 }}
-      className={className}
-    >
-      <div className="flex items-center gap-1.5 mb-2 text-xs font-medium text-[var(--text-muted)]">
-        <Sparkles className="h-3.5 w-3.5 text-[var(--color-primary-ink)]" />
-        Lo que deberías saber hoy
-      </div>
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+    <Panel className={className} title="Para tener en cuenta" action={{ href: "/reports?tab=inteligencia", label: "Inteligencia" }}>
+      <ul className="divide-y divide-line">
         {insights.map((ins, i) => {
-          const { icon: Icon, cls } = TONE[ins.tone];
+          const { icon: Icon, color } = TONE[ins.tone];
           const body = (
-            <div className="flex items-center gap-2.5 rounded-xl border border-[var(--border-base)] bg-[var(--bg-card)] px-3.5 py-3 hover:border-[var(--color-primary)]/40 transition-colors group h-full">
-              <Icon className={`h-4 w-4 shrink-0 ${cls}`} />
-              <p className="text-sm text-[var(--text-base)] flex-1 min-w-0">{ins.text}</p>
-              {ins.href && (
-                <ArrowRight className="h-3.5 w-3.5 text-[var(--text-muted)] group-hover:text-[var(--color-primary-ink)] group-hover:translate-x-0.5 transition-all shrink-0" />
-              )}
-            </div>
+            <>
+              <Icon className="size-4 shrink-0" style={{ color }} aria-hidden="true" />
+              <span className="min-w-0 flex-1 text-sm text-ink">{ins.text}</span>
+              {ins.href && <ArrowRight className="size-4 shrink-0 text-ink-muted" aria-hidden="true" />}
+            </>
           );
-          return ins.href ? (
-            <Link key={i} href={ins.href}>{body}</Link>
-          ) : (
-            <div key={i}>{body}</div>
+          return (
+            <li key={i}>
+              {ins.href ? (
+                <Link href={ins.href} className="flex min-h-12 items-center gap-3 px-4 py-2.5 transition-colors hover:bg-muted">
+                  {body}
+                </Link>
+              ) : (
+                <div className="flex min-h-12 items-center gap-3 px-4 py-2.5">{body}</div>
+              )}
+            </li>
           );
         })}
-      </div>
-    </motion.div>
+      </ul>
+    </Panel>
   );
 }

@@ -4,33 +4,22 @@ export const dynamic = "force-dynamic";
 import { useEffect } from "react";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
-import { motion } from "framer-motion";
 import Link from "next/link";
-import { GlassCard } from "@/components/common/GlassCard";
 import { EmptyState } from "@/components/common/EmptyState";
 import { PageHeader } from "@/components/common/PageHeader";
-import { OperationsStatusCards, OperationsLists } from "@/components/dashboard/OperationsToday";
+import { buttonVariants } from "@/components/ui/button";
+import { ExpiringPanel, AttentionPanels, OperationsStatus } from "@/components/dashboard/OperationsToday";
 import { OnboardingChecklist } from "@/components/dashboard/OnboardingChecklist";
 import { OnboardingTour } from "@/components/dashboard/OnboardingTour";
 import { InsightsStrip } from "@/components/dashboard/InsightsStrip";
-import { LiveNowStrip } from "@/components/dashboard/LiveNowStrip";
+import { LiveEntries, useLiveEntries } from "@/components/dashboard/LiveNowStrip";
+import { Panel, PanelNote, PanelRow } from "@/components/dashboard/Panel";
 import { useDashboardData } from "@/hooks/useDashboardData";
 import { formatCOP, gymHour, todayInGym } from "@/lib/format";
 import { cn } from "@/lib/utils";
-import {
-  AlertCircle,
-  ArrowRight,
-  Banknote,
-  BarChart3,
-  Clock,
-  Dumbbell,
-  HandCoins,
-  Landmark,
-  Ticket,
-  UserPlus,
-  Wrench,
-  Zap,
-} from "lucide-react";
+import { AlertCircle, Clock, Ticket, UserPlus, Zap } from "lucide-react";
+import { format } from "date-fns";
+import { es } from "date-fns/locale";
 
 function greeting(): string {
   const h = gymHour();
@@ -39,9 +28,6 @@ function greeting(): string {
   return "Buenas noches";
 }
 
-const WEEKDAY_MAP: Record<number, string> = { 0: "Dom", 1: "Lun", 2: "Mar", 3: "Mié", 4: "Jue", 5: "Vie", 6: "Sáb" };
-/** Una fuente NO cargada no puede afirmar "no hay nada": no se comprobó. */
-const SIN_DATO = "No se pudo cargar.";
 const KIND_LABEL: Record<string, string> = { membership: "Membresías", day_pass: "Pases", product: "Productos", other: "Otros" };
 const METHOD_LABEL: Record<string, string> = { cash: "Efectivo", transfer: "Transferencia", card: "Tarjeta", wompi: "Wompi" };
 
@@ -51,40 +37,68 @@ function elapsed(min: number): string {
   return `${Math.floor(min / 1440)} d`;
 }
 
-const QUICK_ACTIONS = [
-  { href: "/payments?tab=pos", label: "Cobrar", icon: Zap, tone: "bg-[var(--color-primary)] text-[var(--color-primary-contrast)] hover:bg-[var(--color-primary-hover)]" },
-  { href: "/payments?tab=daypass", label: "Vender pase", icon: Ticket, tone: "border border-[var(--border-base)] bg-[var(--bg-card)] text-[var(--text-base)] hover:bg-[var(--bg-muted)]" },
-  { href: "/members", label: "Nuevo socio", icon: UserPlus, tone: "border border-[var(--border-base)] bg-[var(--bg-card)] text-[var(--text-base)] hover:bg-[var(--bg-muted)]" },
-];
+/** Una cifra de la franja superior. Si la fuente falló, dice "—" y no un 0. */
+function Figure({
+  label,
+  value,
+  detail,
+  href,
+  failed,
+  tone,
+}: {
+  label: string;
+  value: string;
+  detail: string;
+  href?: string;
+  failed?: boolean;
+  tone?: "warn";
+}) {
+  const body = (
+    <>
+      <span className="text-sm text-ink-muted">{label}</span>
+      <span
+        className="truncate font-mono text-xl font-semibold tracking-[-0.02em] tabular-nums sm:text-2xl lg:text-[28px]"
+        style={{ color: failed ? "var(--text-muted)" : tone === "warn" ? "var(--signal-warn)" : "var(--text-base)" }}
+      >
+        {failed ? "—" : value}
+      </span>
+      <span className="truncate text-xs" style={{ color: failed ? "var(--signal-warn)" : "var(--text-muted)" }}>
+        {failed ? "No se pudo cargar" : detail}
+      </span>
+    </>
+  );
+  const cls = "flex min-w-0 flex-col gap-1.5 p-4 md:px-5";
+  return href && !failed ? (
+    <Link href={href} className={cn(cls, "transition-colors hover:bg-muted")}>
+      {body}
+    </Link>
+  ) : (
+    <div className={cls}>{body}</div>
+  );
+}
 
 /** El esqueleto reproduce la rejilla real: al llegar los datos nada se mueve. */
 function DashboardSkeleton() {
   return (
-    <div className="space-y-6">
-      <div className="flex justify-between items-end gap-4">
+    <div className="space-y-6" aria-busy="true" aria-label="Cargando el panel">
+      <div className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
         <div className="space-y-2">
-          <div className="skeleton h-3 w-40 rounded" />
-          <div className="skeleton h-8 w-64 rounded-lg" />
-          <div className="skeleton h-4 w-96 rounded" />
+          <div className="skeleton h-4 w-40" />
+          <div className="skeleton h-8 w-64" />
         </div>
-        <div className="flex gap-2 shrink-0">
+        <div className="flex gap-2">
           {Array.from({ length: 3 }).map((_, i) => (
-            <div key={`action-${i}`} className="skeleton h-9 w-28 rounded-lg" />
+            <div key={i} className="skeleton h-10 w-28" />
           ))}
         </div>
       </div>
-      <div className="grid grid-cols-12 gap-4">
-        <div className="skeleton col-span-12 h-36 rounded-xl" />
-        {Array.from({ length: 3 }).map((_, i) => (
-          <div key={`money-${i}`} className="skeleton col-span-12 md:col-span-4 h-40 rounded-xl" />
-        ))}
-        {Array.from({ length: 2 }).map((_, i) => (
-          <div key={`status-${i}`} className="skeleton col-span-12 md:col-span-6 h-20 rounded-xl" />
-        ))}
-        {Array.from({ length: 3 }).map((_, i) => (
-          <div key={`list-${i}`} className="skeleton col-span-12 md:col-span-6 xl:col-span-4 h-44 rounded-xl" />
-        ))}
-        <div className="skeleton col-span-12 h-12 rounded-xl" />
+      <div className="skeleton h-[104px] rounded-[var(--radius-lg)]" />
+      <div className="grid gap-4 lg:grid-cols-[minmax(0,1.55fr)_minmax(0,1fr)]">
+        <div className="skeleton h-[460px] rounded-[var(--radius-lg)]" />
+        <div className="space-y-4">
+          <div className="skeleton h-72 rounded-[var(--radius-lg)]" />
+          <div className="skeleton h-44 rounded-[var(--radius-lg)]" />
+        </div>
       </div>
     </div>
   );
@@ -95,9 +109,9 @@ export default function DashboardPage() {
   const { data: session, status } = useSession();
   const router = useRouter();
   const rol = session?.role;
+  const entries = useLiveEntries(data.checkinsToday);
 
-  // Un entrenador que llegue aquí por marcador vería un panel de gimnasio lleno
-  // de "—": su casa es su día.
+  // Un entrenador que llegue por marcador vería un panel lleno de "—".
   useEffect(() => {
     if (status === "authenticated" && rol === "trainer") router.replace("/entrenador");
   }, [status, rol, router]);
@@ -105,183 +119,172 @@ export default function DashboardPage() {
   if (loading || rol === "trainer") return <DashboardSkeleton />;
 
   if (error) {
-    return <EmptyState icon={<AlertCircle className="h-10 w-10 text-[var(--signal-danger)]" />} title="Error cargando datos" description={error} />;
+    return (
+      <EmptyState
+        icon={<AlertCircle className="size-10" style={{ color: "var(--signal-danger)" }} />}
+        title="No pudimos cargar el panel"
+        description={`${error}. Revisa tu conexión y recarga la página.`}
+      />
+    );
   }
 
-  const { kpis, cash, pendingTransfers, receivables, todayClasses } = data;
+  const { kpis, cash, pendingTransfers, receivables, todayClasses, failed } = data;
   const receivableTotal = receivables.reduce((a, r) => a + Number(r.amount_due), 0);
   const pendingTotal = pendingTransfers.reduce((a, p) => a + Number(p.amount), 0);
   const methods = Object.entries(cash?.by_method ?? {}).filter(([, v]) => v > 0);
   const kinds = Object.entries(cash?.by_kind ?? {}).filter(([, v]) => v > 0);
-  const maintenance = kpis && kpis.machines_total > 0 && kpis.machines_maintenance > 0;
+  const allowedToday = entries.filter((e) => e.decision !== "denied").length;
+  const fecha = format(todayInGym(), "EEEE d 'de' MMMM", { locale: es });
 
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 8 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ ease: [0.16, 1, 0.3, 1], duration: 0.35 }}
-      className="space-y-6"
-    >
+    <div className="space-y-6">
       <PageHeader
         className="mb-0"
-        module="dashboard"
-        eyebrow="Panel de hoy"
+        eyebrow={fecha.charAt(0).toUpperCase() + fecha.slice(1)}
         title={greeting()}
-        subtitle="Lo que pasa hoy en tu gym. Para analizar períodos, ve a Reportes."
         action={
-          <div className="flex gap-2 flex-wrap justify-end">
-            {QUICK_ACTIONS.map(({ href, label, icon: Icon, tone }) => (
-              <Link key={href} href={href} className={cn("flex items-center gap-1.5 h-9 px-3 rounded-lg text-sm font-semibold transition-colors", tone)}>
-                <Icon className="h-4 w-4" /> {label}
-              </Link>
-            ))}
-          </div>
+          <>
+            <Link href="/payments?tab=pos" className={buttonVariants({ size: "lg" })}>
+              <Zap /> Cobrar
+            </Link>
+            <Link href="/payments?tab=daypass" className={buttonVariants({ variant: "outline", size: "lg" })}>
+              <Ticket /> Vender pase
+            </Link>
+            <Link href="/members" className={buttonVariants({ variant: "outline", size: "lg" })}>
+              <UserPlus /> Nuevo socio
+            </Link>
+          </>
         }
       />
 
       <OnboardingTour />
-      <div data-tour="checklist"><OnboardingChecklist /></div>
-
-      {/* Una sola rejilla de 12 para TODO el panel: antes se apilaban cinco
-          distintas y las tarjetas cambiaban de ancho sin motivo aparente. */}
-      <div className="grid grid-cols-12 gap-4 items-start">
-        <LiveNowStrip
-          expiring7d={kpis?.expiring_memberships_7d ?? 0}
-          initialEntries={data.checkinsToday}
-          birthdays={data.birthdaysToday}
-        />
-
-        {/* La plata de hoy */}
-        <GlassCard className="col-span-12 md:col-span-4 p-4 flex flex-col gap-3">
-          <div className="flex items-center justify-between">
-            <p className="flex items-center gap-2 text-xs uppercase tracking-wider font-bold text-[var(--text-muted)]">
-              <Banknote className="h-3.5 w-3.5 text-[var(--signal-ok)]" /> Caja de hoy
-            </p>
-            <Link href="/payments/cash" className="text-[11px] font-semibold text-[var(--color-primary-ink)] hover:underline">Ver caja</Link>
-          </div>
-          <p className="text-3xl font-extrabold text-[var(--text-base)] font-display">
-            {data.failed.has("cash") ? "—" : formatCOP(cash?.total ?? 0)}
-          </p>
-          {data.failed.has("cash") ? (
-            <p className="text-xs text-[var(--signal-warn)]">{SIN_DATO}</p>
-          ) : methods.length === 0 ? (
-            <p className="text-xs text-[var(--text-muted)]">Aún no hay cobros hoy.</p>
-          ) : (
-            <div className="space-y-1">
-              {methods.map(([m, v]) => (
-                <div key={m} className="flex items-center justify-between text-xs">
-                  <span className="text-[var(--text-muted)]">{METHOD_LABEL[m] ?? m}</span>
-                  <span className="font-mono text-[var(--text-base)]">{formatCOP(v)}</span>
-                </div>
-              ))}
-              {kinds.length > 1 && (
-                <p className="text-[11px] text-[var(--text-muted)] pt-1 border-t border-[var(--border-base)]">
-                  {kinds.map(([k, v]) => `${KIND_LABEL[k] ?? k} ${formatCOP(v)}`).join(" · ")}
-                </p>
-              )}
-            </div>
-          )}
-        </GlassCard>
-
-        <GlassCard className="col-span-12 md:col-span-4 p-4 flex flex-col gap-3">
-          <div className="flex items-center justify-between">
-            <p className="flex items-center gap-2 text-xs uppercase tracking-wider font-bold text-[var(--text-muted)]">
-              <Landmark className="h-3.5 w-3.5 text-[var(--signal-warn)]" /> Por confirmar
-            </p>
-            <Link href="/payments?tab=receivables" className="text-[11px] font-semibold text-[var(--color-primary-ink)] hover:underline">Conciliar</Link>
-          </div>
-          <p className={cn("text-3xl font-extrabold font-display", pendingTransfers.length ? "text-[var(--signal-warn)]" : "text-[var(--text-base)]")}>
-            {data.failed.has("pendingTransfers") ? "—" : formatCOP(pendingTotal)}
-          </p>
-          {data.failed.has("pendingTransfers") ? (
-            <p className="text-xs text-[var(--signal-warn)]">{SIN_DATO}</p>
-          ) : pendingTransfers.length === 0 ? (
-            <p className="text-xs text-[var(--text-muted)]">Ninguna transferencia pendiente.</p>
-          ) : (
-            <div className="space-y-1">
-              {pendingTransfers.slice(0, 4).map((p) => (
-                <Link key={p.id} href="/payments?tab=receivables" className="flex items-center justify-between text-xs group">
-                  <span className="truncate text-[var(--text-base)] group-hover:text-[var(--color-primary-ink)]">
-                    <span className="font-mono text-[var(--text-muted)] mr-1.5">{p.transfer_reference}</span>{p.member_name ?? "Mostrador"}
-                  </span>
-                  <span className="flex items-center gap-1 text-[var(--text-muted)] shrink-0"><Clock className="h-3 w-3" />{elapsed(p.elapsed_minutes)}</span>
-                </Link>
-              ))}
-              {pendingTransfers.length > 4 && <p className="text-[11px] text-[var(--text-muted)]">y {pendingTransfers.length - 4} más</p>}
-            </div>
-          )}
-        </GlassCard>
-
-        <GlassCard className="col-span-12 md:col-span-4 p-4 flex flex-col gap-3">
-          <div className="flex items-center justify-between">
-            <p className="flex items-center gap-2 text-xs uppercase tracking-wider font-bold text-[var(--text-muted)]">
-              <HandCoins className="h-3.5 w-3.5 text-violet-500" /> Por cobrar
-            </p>
-            <Link href="/payments?tab=receivables" className="text-[11px] font-semibold text-[var(--color-primary-ink)] hover:underline">Ver cartera</Link>
-          </div>
-          <p className="text-3xl font-extrabold text-[var(--text-base)] font-display">
-            {data.failed.has("receivables") ? "—" : formatCOP(receivableTotal)}
-          </p>
-          {data.failed.has("receivables") ? (
-            <p className="text-xs text-[var(--signal-warn)]">{SIN_DATO}</p>
-          ) : (
-            <p className="text-xs text-[var(--text-muted)]">
-              {receivables.length === 0 ? "Nadie debe nada." : `${receivables.length} socio${receivables.length === 1 ? "" : "s"} con renovación vencida o saldo pendiente.`}
-            </p>
-          )}
-        </GlassCard>
-
-        {/* Estado operativo y lo que hay que atender */}
-        <OperationsStatusCards shift={data.shift} lowStock={data.lowStock} />
-        <OperationsLists data={data.operations} />
-
-        {/* Contexto del día */}
-        {todayClasses.length > 0 && (
-          <GlassCard className="col-span-12 md:col-span-6 xl:col-span-4 p-4">
-            <div className="flex items-center gap-2 mb-3">
-              <Dumbbell className="h-4 w-4 text-[var(--accent-classes)]" />
-              <h3 className="text-sm font-semibold text-[var(--text-base)]">Clases de hoy — {WEEKDAY_MAP[todayInGym().getDay()]}</h3>
-            </div>
-            <div className="space-y-1.5 max-h-56 overflow-y-auto">
-              {todayClasses.map((c) => (
-                <Link key={String(c.id)} href="/classes" className="flex items-center gap-2 px-3 py-2 rounded-lg border border-[var(--border-base)] bg-[var(--bg-base)] hover:border-[var(--accent-classes)] transition-colors">
-                  {typeof c.color === "string" && <span className="h-6 w-1 rounded-full shrink-0" style={{ background: c.color }} aria-hidden />}
-                  <div className="min-w-0 flex-1">
-                    <p className="text-xs font-medium text-[var(--text-base)] truncate">{String(c.name)}</p>
-                    <p className="text-[11px] text-[var(--text-muted)]">
-                      {typeof c.start_time === "string" ? c.start_time.slice(0, 5) : "—"} · {String(c.instructor ?? "")}
-                    </p>
-                  </div>
-                  <span className="text-[11px] text-[var(--text-muted)] border border-[var(--border-base)] rounded px-1.5 py-0.5 shrink-0">{String(c.duration_minutes)}min</span>
-                </Link>
-              ))}
-            </div>
-          </GlassCard>
-        )}
-
-        {maintenance && kpis && (
-          <Link href="/machines" className="col-span-12 md:col-span-6 xl:col-span-4 block">
-            <div className="h-full rounded-xl border border-red-200 dark:border-red-800/40 bg-red-50 dark:bg-red-950/20 p-4 flex items-center gap-3 hover:border-red-300 transition-colors group">
-              <div className="w-9 h-9 rounded-full bg-red-100 dark:bg-red-900/40 flex items-center justify-center shrink-0">
-                <Wrench className="h-4 w-4 text-[var(--signal-danger)]" />
-              </div>
-              <div className="flex-1">
-                <p className="text-sm font-semibold text-red-800 dark:text-red-300">Equipos fuera de servicio</p>
-                <p className="text-xs text-red-700/80 dark:text-red-400/80 mt-0.5">{kpis.machines_maintenance} de {kpis.machines_total} en mantenimiento o dañados</p>
-              </div>
-              <ArrowRight className="h-4 w-4 text-[var(--signal-danger)] group-hover:translate-x-0.5 transition-transform" />
-            </div>
-          </Link>
-        )}
-
-        <InsightsStrip insights={data.insights} />
-
-        <Link href="/reports" className="col-span-12 flex items-center gap-3 rounded-xl border border-dashed border-[var(--border-base)] px-4 py-3 text-sm text-[var(--text-muted)] hover:text-[var(--text-base)] hover:border-[var(--color-primary)]/50 transition-colors group">
-          <BarChart3 className="h-4 w-4 text-[var(--color-primary-ink)]" />
-          <span className="flex-1">Ingresos por período, ventas, asistencia y retención están en <strong className="text-[var(--text-base)]">Reportes</strong>.</span>
-          <ArrowRight className="h-4 w-4 group-hover:translate-x-0.5 transition-transform" />
-        </Link>
+      <div data-tour="checklist">
+        <OnboardingChecklist />
       </div>
-    </motion.div>
+
+      {/* Franja de cifras: una sola superficie con divisores, no cuatro tarjetas. */}
+      <section
+        aria-label="Cifras de hoy"
+        data-tour="live-now"
+        className="grid grid-cols-2 divide-line overflow-hidden rounded-[var(--radius-lg)] border border-line bg-panel max-md:[&>*:nth-child(-n+2)]:border-b max-md:[&>*:nth-child(odd)]:border-r md:grid-cols-4 md:divide-x"
+      >
+        <Figure
+          label="Entradas hoy"
+          value={String(allowedToday)}
+          detail={`${kpis?.expiring_memberships_7d ?? 0} vencen esta semana`}
+          href="/checkins"
+        />
+        <Figure
+          label="Caja de hoy"
+          value={formatCOP(cash?.total ?? 0)}
+          detail={cash ? `${cash.count} cobro${cash.count === 1 ? "" : "s"}` : ""}
+          href="/payments/cash"
+          failed={failed.has("cash")}
+        />
+        <Figure
+          label="Por confirmar"
+          value={formatCOP(pendingTotal)}
+          detail={`${pendingTransfers.length} transferencia${pendingTransfers.length === 1 ? "" : "s"}`}
+          href="/payments?tab=receivables"
+          failed={failed.has("pendingTransfers")}
+          tone={pendingTransfers.length ? "warn" : undefined}
+        />
+        <Figure
+          label="Por cobrar"
+          value={formatCOP(receivableTotal)}
+          detail={`${receivables.length} socio${receivables.length === 1 ? "" : "s"} con saldo`}
+          href="/payments?tab=receivables"
+          failed={failed.has("receivables")}
+        />
+      </section>
+
+      <div className="grid items-start gap-4 lg:grid-cols-[minmax(0,1.55fr)_minmax(0,1fr)]">
+        {/* Lo que pasa en la puerta y lo que hay que atender */}
+        <div className="space-y-4">
+          <LiveEntries entries={entries} />
+          <AttentionPanels data={data.operations} />
+          <InsightsStrip insights={data.insights} />
+        </div>
+
+        {/* Pendientes, plata y estado */}
+        <div className="space-y-4">
+          <ExpiringPanel data={failed.has("operations") ? null : data.operations} />
+
+          <Panel title="Caja del día" action={{ href: "/payments/cash", label: "Ver caja" }}>
+            {failed.has("cash") ? (
+              <PanelNote tone="warn">No se pudo cargar.</PanelNote>
+            ) : methods.length === 0 ? (
+              <PanelNote>Aún no hay cobros hoy.</PanelNote>
+            ) : (
+              <dl className="space-y-2 px-4 py-3">
+                {methods.map(([m, v]) => (
+                  <div key={m} className="flex items-center justify-between gap-3 text-sm">
+                    <dt className="text-ink-muted">{METHOD_LABEL[m] ?? m}</dt>
+                    <dd className="font-mono text-ink tabular-nums">{formatCOP(v)}</dd>
+                  </div>
+                ))}
+                <div className="flex items-center justify-between gap-3 border-t border-line pt-2 text-sm">
+                  <dt className="font-medium text-ink">Total</dt>
+                  <dd className="font-mono font-semibold text-ink tabular-nums">{formatCOP(cash?.total ?? 0)}</dd>
+                </div>
+                {kinds.length > 1 && (
+                  <p className="text-xs text-ink-muted">{kinds.map(([k, v]) => `${KIND_LABEL[k] ?? k} ${formatCOP(v)}`).join(" · ")}</p>
+                )}
+              </dl>
+            )}
+            {pendingTransfers.length > 0 && !failed.has("pendingTransfers") && (
+              <div className="border-t border-line">
+                <p className="px-4 pt-3 text-xs font-medium text-ink-muted">Transferencias por confirmar</p>
+                <ul>
+                  {pendingTransfers.slice(0, 4).map((p) => (
+                    <PanelRow key={p.id} className="min-h-10 py-1.5">
+                      <span className="w-20 shrink-0 truncate font-mono text-xs text-ink-muted">{p.transfer_reference ?? "—"}</span>
+                      <span className="min-w-0 flex-1 truncate text-sm text-ink">{p.member_name ?? "Mostrador"}</span>
+                      <span className="flex shrink-0 items-center gap-1 font-mono text-xs text-ink-muted tabular-nums">
+                        <Clock className="size-3" aria-hidden="true" />
+                        {elapsed(p.elapsed_minutes)}
+                      </span>
+                    </PanelRow>
+                  ))}
+                </ul>
+              </div>
+            )}
+          </Panel>
+
+          <OperationsStatus
+            shift={data.shift}
+            lowStock={data.lowStock}
+            machines={kpis ? { total: kpis.machines_total, down: kpis.machines_maintenance } : null}
+          />
+
+          {todayClasses.length > 0 && (
+            <Panel title="Clases de hoy" count={todayClasses.length} action={{ href: "/classes/agenda", label: "Agenda" }}>
+              <ul className="divide-y divide-line">
+                {todayClasses.map((c) => (
+                  <PanelRow key={String(c.id)}>
+                    <span className="w-11 shrink-0 font-mono text-sm text-ink-muted tabular-nums">
+                      {typeof c.start_time === "string" ? c.start_time.slice(0, 5) : "—"}
+                    </span>
+                    <span className="min-w-0 flex-1">
+                      <span className="block truncate text-sm font-medium text-ink">{String(c.name)}</span>
+                      <span className="block truncate text-xs text-ink-muted">
+                        {[c.instructor, `${String(c.duration_minutes)} min`].filter(Boolean).join(" · ")}
+                      </span>
+                    </span>
+                  </PanelRow>
+                ))}
+              </ul>
+            </Panel>
+          )}
+
+          {data.birthdaysToday.length > 0 && (
+            <p className="px-1 text-sm text-ink-muted">
+              Cumple{data.birthdaysToday.length > 1 ? "n" : ""} hoy:{" "}
+              <span className="text-ink">{data.birthdaysToday.map((b) => b.full_name).join(", ")}</span>
+            </p>
+          )}
+        </div>
+      </div>
+    </div>
   );
 }

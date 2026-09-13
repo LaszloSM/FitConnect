@@ -3,10 +3,9 @@
 import { useEffect, useState } from "react";
 import { useSession } from "next-auth/react";
 import Link from "next/link";
-import { motion } from "framer-motion";
-import { GlassCard } from "@/components/common/GlassCard";
 import { apiClient } from "@/lib/api";
-import { Check, Circle, ArrowRight, Rocket } from "lucide-react";
+import { Check, ArrowRight } from "lucide-react";
+import { cn } from "@/lib/utils";
 
 interface OnboardingStatus {
   has_plan: boolean;
@@ -22,10 +21,11 @@ interface Step {
 }
 
 const STEPS: Step[] = [
-  { key: "has_plan", label: "Crea tu primer plan", hint: "Define precios y duración", href: "/plans" },
-  { key: "has_member", label: "Registra tu primer socio", hint: "Alta con cédula, salud y membresía", href: "/members" },
+  { key: "has_plan", label: "Crea tu primer plan", hint: "Nombre, precio y duración de la membresía", href: "/plans" },
+  { key: "has_member", label: "Registra tu primer socio", hint: "Cédula, cuestionario de salud y membresía", href: "/members" },
 ];
 
+/** Primeros pasos de un gimnasio nuevo. Se va solo cuando están hechos. */
 export function OnboardingChecklist() {
   const { data: session } = useSession();
   const [status, setStatus] = useState<OnboardingStatus | null>(null);
@@ -33,94 +33,62 @@ export function OnboardingChecklist() {
 
   useEffect(() => {
     if (!session?.accessToken) return;
-    const client = apiClient(session.accessToken as string);
-    client
+    apiClient(session.accessToken as string)
       .get<OnboardingStatus>("/api/v1/onboarding/status")
       .then((res) => setStatus(res.data))
       .catch(() => {});
   }, [session?.accessToken]);
 
-  // Se oculta cuando los pasos esenciales están completos (o si el dueño lo cierra)
   if (!status || status.done || dismissed) return null;
 
-  const essentialDone = STEPS.filter((s) => status[s.key]).length;
-  const pct = Math.round((essentialDone / STEPS.length) * 100);
+  const hechos = STEPS.filter((s) => status[s.key]).length;
 
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 8 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.3 }}
-      className=""
-    >
-      <GlassCard className="p-5">
-        <div className="flex items-start justify-between gap-3 mb-4">
-          <div className="flex items-center gap-2.5">
-            <span className="h-9 w-9 rounded-xl bg-[var(--color-primary)] text-[var(--color-primary-contrast)] flex items-center justify-center shrink-0">
-              <Rocket className="h-4 w-4" />
-            </span>
-            <div>
-              <h3 className="text-sm font-semibold text-[var(--text-base)]">Pon tu gym en marcha</h3>
-              <p className="text-xs text-[var(--text-muted)]">{essentialDone} de {STEPS.length} pasos esenciales</p>
-            </div>
-          </div>
-          <div className="flex items-center gap-3">
-            <button
-              type="button"
-              onClick={() => window.dispatchEvent(new Event("fitconnect:start-tour"))}
-              className="text-xs font-medium text-[var(--color-primary-ink)] hover:underline"
-            >
-              Ver tutorial
-            </button>
-            <button
-              type="button"
-              onClick={() => setDismissed(true)}
-              className="text-xs text-[var(--text-muted)] hover:text-[var(--text-base)] transition-colors"
-            >
-              Ocultar
-            </button>
-          </div>
+    <section className="rounded-[var(--radius-lg)] border border-line bg-panel">
+      <header className="flex flex-wrap items-center gap-x-4 gap-y-2 border-b border-line px-4 py-3">
+        <div className="min-w-0 flex-1">
+          <h2 className="text-sm font-semibold text-ink">Pon tu gimnasio en marcha</h2>
+          <p className="text-xs text-ink-muted">
+            <span className="font-mono tabular-nums">{hechos} de {STEPS.length}</span> pasos listos
+          </p>
         </div>
-
-        <div className="h-1.5 w-full rounded-full bg-[var(--bg-muted)] overflow-hidden mb-4">
-          <motion.div
-            className="h-full rounded-full bg-[var(--color-primary)]"
-            initial={{ width: 0 }}
-            animate={{ width: `${pct}%` }}
-            transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
-          />
-        </div>
-
-        <div className="space-y-1.5">
-          {STEPS.map((step) => {
-            const done = status[step.key];
-            return (
-              <Link
-                key={step.key}
-                href={step.href}
-                className="flex items-center gap-3 rounded-lg px-3 py-2.5 hover:bg-[var(--bg-muted)] transition-colors group"
-              >
-                {done ? (
-                  <span className="h-5 w-5 rounded-full bg-[var(--color-primary)] text-[var(--color-primary-contrast)] flex items-center justify-center shrink-0">
-                    <Check className="h-3 w-3" strokeWidth={3} />
-                  </span>
-                ) : (
-                  <Circle className="h-5 w-5 text-[var(--text-muted)] shrink-0" strokeWidth={1.5} />
-                )}
-                <div className="flex-1 min-w-0">
-                  <p className={`text-sm ${done ? "text-[var(--text-muted)] line-through" : "text-[var(--text-base)] font-medium"}`}>
+        <button
+          type="button"
+          onClick={() => window.dispatchEvent(new Event("fitconnect:start-tour"))}
+          className="text-sm font-medium text-primary-ink hover:underline"
+        >
+          Ver recorrido
+        </button>
+        <button type="button" onClick={() => setDismissed(true)} className="text-sm text-ink-muted hover:text-ink">
+          Ocultar
+        </button>
+      </header>
+      <ol className="divide-y divide-line">
+        {STEPS.map((step, i) => {
+          const done = status[step.key];
+          return (
+            <li key={step.key}>
+              <Link href={step.href} className="flex min-h-14 items-center gap-3 px-4 py-2.5 transition-colors hover:bg-muted">
+                <span
+                  className={cn(
+                    "flex size-6 shrink-0 items-center justify-center rounded-full border font-mono text-xs tabular-nums",
+                    done ? "border-primary bg-primary text-primary-contrast" : "border-line text-ink-muted"
+                  )}
+                >
+                  {done ? <Check className="size-3.5" strokeWidth={3} /> : i + 1}
+                </span>
+                <span className="min-w-0 flex-1">
+                  <span className={cn("block text-sm", done ? "text-ink-muted line-through" : "font-medium text-ink")}>
                     {step.label}
-                  </p>
-                  {!done && <p className="text-xs text-[var(--text-muted)]">{step.hint}</p>}
-                </div>
-                {!done && (
-                  <ArrowRight className="h-4 w-4 text-[var(--text-muted)] group-hover:text-[var(--color-primary-ink)] group-hover:translate-x-0.5 transition-all shrink-0" />
-                )}
+                  </span>
+                  {!done && <span className="block text-xs text-ink-muted">{step.hint}</span>}
+                </span>
+                {!done && <ArrowRight className="size-4 shrink-0 text-ink-muted" aria-hidden="true" />}
               </Link>
-            );
-          })}
-        </div>
-      </GlassCard>
-    </motion.div>
+            </li>
+          );
+        })}
+      </ol>
+    </section>
   );
 }
