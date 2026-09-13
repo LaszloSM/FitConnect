@@ -19,6 +19,7 @@ from app.models.tenant.notification import Notification
 from app.models.tenant.audit_log import AuditLog
 from app.models.tenant.gym_settings import GymSettings
 from app.models.tenant.cash_shift import CashShift, CashDrop
+from app.models.tenant.ml_model import MlModel
 from app.models.tenant.expense import Expense
 from app.models.tenant.receipt import Receipt
 from app.models.tenant.payment_link import PaymentLink, WebhookEvent
@@ -60,6 +61,7 @@ __all__ = [
     "GymSettings",
     "CashShift",
     "CashDrop",
+    "MlModel",
     "Expense",
     "Receipt",
     "PaymentLink",

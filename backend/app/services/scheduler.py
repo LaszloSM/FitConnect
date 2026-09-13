@@ -6,7 +6,7 @@ from apscheduler.triggers.cron import CronTrigger
 from apscheduler.triggers.interval import IntervalTrigger
 
 from app.core.timeutil import BOGOTA
-from app.services.jobs import expire_memberships_job, reconcile_payments_job, process_outbox_job
+from app.services.jobs import expire_memberships_job, reconcile_payments_job, process_outbox_job, train_models_job
 
 logger = logging.getLogger(__name__)
 
@@ -34,6 +34,13 @@ def start_scheduler() -> None:
         id="process_outbox",
         replace_existing=True,
         misfire_grace_time=120,
+    )
+    scheduler.add_job(
+        train_models_job,
+        CronTrigger(hour=3, minute=30, timezone=BOGOTA),
+        id="train_models",
+        replace_existing=True,
+        misfire_grace_time=7200,
     )
     scheduler.start()
     logger.info("Scheduler iniciado (%d jobs)", len(scheduler.get_jobs()))

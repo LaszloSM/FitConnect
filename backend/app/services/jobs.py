@@ -25,6 +25,7 @@ logger = logging.getLogger(__name__)
 _EXPIRE_LOCK_KEY = 815001
 _RECONCILE_LOCK_KEY = 815002
 _OUTBOX_LOCK_KEY = 815003
+_ML_LOCK_KEY = 815004
 
 
 async def _run_with_advisory_lock(key: int, name: str, work) -> None:
@@ -432,6 +433,23 @@ async def _reconcile_tenant_payments(session: AsyncSession, tenant: Tenant) -> N
                 ).values(status=PaymentStatus.failed)
             )
     await session.commit()
+
+
+async def _train_tenant_models(session: AsyncSession, tenant: Tenant) -> None:
+    from app.services.ml import registry
+    await registry.train_all(session)
+
+
+async def train_models_job() -> None:
+    """Job nocturno: reentrena los modelos de cada gimnasio con sus datos del día.
+
+    Va separado del job de vencimientos: si un entrenamiento tarda, no puede
+    atrasar que las membresías venzan a tiempo.
+    """
+    await _run_with_advisory_lock(
+        _ML_LOCK_KEY, "train_models_job",
+        lambda: for_each_tenant(_train_tenant_models),
+    )
 
 
 async def reconcile_payments_job() -> None:

@@ -252,6 +252,9 @@ Cuando cometas un error durante una sesión, agrégalo aquí antes de terminar:
 | 6 fallos de RBAC con `UndefinedColumnError machines.purchase_date` en medio de una corrida | Edité el modelo de máquinas mientras la suite corría en segundo plano: los tests viejos ya importaban el modelo nuevo contra una DB sin migrar | No tocar modelos tenant mientras corre `runtests.sh`; si pasa, volver a correr con `--migrate` antes de leer los fallos como bugs |
 | El cajero veía "esperado en caja" antes de contar | `GET /cash/shifts/current` devolvía el esperado a cualquiera con `cash.open`: el cierre dejaba de ser un control | Cierre ciego: el esperado solo viaja a quien tiene `cash.read`; el cajero lo conoce en la respuesta del cierre, junto con la diferencia |
 
+| Script de datos con `db.add()` de socios, visitas y pagos reventó con `ForeignKeyViolation` en `checkins` | Los modelos tenant no declaran `relationship()`, así que la unidad de trabajo de SQLAlchemy no sabe que el socio debe insertarse antes que sus visitas y los mandó en otro orden | En scripts que insertan padres e hijos sin relaciones ORM, `await db.flush()` después de agregar cada padre. La transacción entera se deshace, así que no queda nada a medias |
+| Entrenar modelos dentro del job que corre en el mismo proceso que la API | Un `fit()` de scikit-learn es CPU síncrono: dentro de una corrutina congela todas las peticiones mientras dura | Todo entrenamiento va por `asyncio.to_thread` (`ml/registry.py`), y el job de modelos va separado del de vencimientos para no atrasarlo |
+
 **Protocolo:** Al detectar un error que no estaba documentado, añade una fila a la tabla antes del commit.
 
 ---

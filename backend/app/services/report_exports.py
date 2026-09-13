@@ -40,6 +40,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.core.timeutil import today_bogota
 from app.services import report_data as rd
 from app.services.exports import _BRAND, _BRAND_TEXT, _BRAND_TINT, _INK, _MONEY_FMT, _cop
+from app.services.ml import insights as mli
 
 
 @dataclass
@@ -623,7 +624,7 @@ async def spec_ventas(db: AsyncSession, from_date, to_date) -> ReportSpec:
     data = await _product_sales_data(db, from_date, to_date)
     prev_from, prev_to = previous_range(from_date, to_date)
     prev = await _product_sales_data(db, prev_from, prev_to)
-    stock = await rd.stockout(db)
+    stock = await mli.stockout(db)
     top = sorted(data["products"], key=lambda x: x["revenue"], reverse=True)[:10]
     return ReportSpec(
         title="Ventas de productos", subtitle=_period_label(data["from"], data["to"]),
@@ -754,7 +755,7 @@ async def spec_retencion(db: AsyncSession, from_date, to_date) -> ReportSpec:
     from app.api.v1.reports import _retention_data
     ret = await _retention_data(db, 6)
     coh = await rd.cohorts(db, 6)
-    risk = await rd.churn_risk(db, 50)
+    risk = await mli.churn_risk(db, 50)
     con_datos = [r for r in ret if r["renewal_rate"] is not None]
     last = con_datos[-1] if con_datos else None
     before = con_datos[-2] if len(con_datos) > 1 else None
@@ -787,11 +788,11 @@ async def spec_retencion(db: AsyncSession, from_date, to_date) -> ReportSpec:
 async def spec_inteligencia(db: AsyncSession, from_date, to_date) -> ReportSpec:
     """Exporta lo mismo que muestra la pestaña Inteligencia: proyección de
     ingresos, horas pico, riesgo de abandono y stock por agotarse."""
-    fc = await rd.forecast(db)
+    fc = await mli.forecast(db)
     a = await rd.attendance(db, from_date, to_date)
     peak = a["peak"]
-    risk = await rd.churn_risk(db, 50)
-    stock = await rd.stockout(db)
+    risk = await mli.churn_risk(db, 50)
+    stock = await mli.stockout(db)
     horas = [h for h in peak["by_hour"] if h["count"] > 0]
     return ReportSpec(
         title="Inteligencia", subtitle=_period_label(a["from"], a["to"]),

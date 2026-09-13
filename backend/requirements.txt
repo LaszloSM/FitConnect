@@ -18,6 +18,10 @@ langchain-anthropic==0.2.0
 boto3==1.35.0
 openpyxl==3.1.5
 reportlab==4.2.2
+# Modelos por gimnasio (app/services/ml). Sin pandas ni statsmodels: pesan
+# más que el backend entero en una EC2 de 2 GB.
+numpy==2.2.2
+scikit-learn==1.6.1
 slowapi==0.1.9
 apscheduler==3.10.4
 sentry-sdk==2.18.0

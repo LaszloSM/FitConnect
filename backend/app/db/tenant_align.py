@@ -316,4 +316,29 @@ K7_MANTENIMIENTO: list[str] = [
     "ALTER TABLE maintenance_logs ADD COLUMN IF NOT EXISTS photo_url VARCHAR(500) NULL",
 ]
 
-ALIGN_STATEMENTS: list[str] = [*J1_INGRESOS_PASE_TRANSFERENCIAS, *J2_INVENTARIO, *J4_CONSENTIMIENTOS, *J6_ACCESO, *J7_VIDEO_EJERCICIOS, *J8_GYM_SETTINGS_FLAGS, *K1_LIBRO_MOVIMIENTOS, *K2_MENSAJERIA, *K3_ENTRENADORES, *K4_MAQUINAS, *K5_STAFF_SOCIO, *K6_CAJA, *K7_MANTENIMIENTO]
+K8_MODELOS: list[str] = [
+    # k8b9c0d1e2f3_modelos_por_gym.py
+    # Modelos entrenados con los datos de cada gimnasio.
+    """CREATE TABLE IF NOT EXISTS ml_models (
+        id UUID PRIMARY KEY,
+        name VARCHAR(40) NOT NULL,
+        status VARCHAR(20) NOT NULL,
+        detail VARCHAR(500) NULL,
+        trained_at TIMESTAMP WITH TIME ZONE NOT NULL,
+        n_samples INTEGER NOT NULL,
+        metrics JSONB NULL,
+        result JSONB NULL,
+        payload BYTEA NULL,
+        sklearn_version VARCHAR(20) NULL,
+        created_at TIMESTAMP NOT NULL DEFAULT now(),
+        updated_at TIMESTAMP NOT NULL DEFAULT now()
+    )""",
+    # El modelo declara `unique=True`: create_all lo crea como constraint.
+    """DO $$ BEGIN
+        IF NOT EXISTS (SELECT 1 FROM pg_constraint WHERE conname = 'ml_models_name_key') THEN
+            ALTER TABLE ml_models ADD CONSTRAINT ml_models_name_key UNIQUE (name);
+        END IF;
+    END $$""",
+]
+
+ALIGN_STATEMENTS: list[str] = [*J1_INGRESOS_PASE_TRANSFERENCIAS, *J2_INVENTARIO, *J4_CONSENTIMIENTOS, *J6_ACCESO, *J7_VIDEO_EJERCICIOS, *J8_GYM_SETTINGS_FLAGS, *K1_LIBRO_MOVIMIENTOS, *K2_MENSAJERIA, *K3_ENTRENADORES, *K4_MAQUINAS, *K5_STAFF_SOCIO, *K6_CAJA, *K7_MANTENIMIENTO, *K8_MODELOS]

@@ -10,7 +10,7 @@ from app.core.config import settings
 from app.core.security import decode_token
 from app.db.master_session import MasterSessionLocal
 from app.models.master.tenant import Tenant
-from app.services.jobs import _daily_tenant_tasks, _reconcile_tenant_payments, _process_tenant_outbox
+from app.services.jobs import _daily_tenant_tasks, _reconcile_tenant_payments, _process_tenant_outbox, _train_tenant_models
 
 router = APIRouter(prefix="/admin", tags=["admin"])
 
@@ -18,6 +18,7 @@ _PER_TENANT_JOBS = {
     "expire_memberships": _daily_tenant_tasks,
     "reconcile_payments": _reconcile_tenant_payments,
     "process_outbox": _process_tenant_outbox,
+    "train_models": _train_tenant_models,
 }
 
 
