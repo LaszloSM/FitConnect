@@ -21,6 +21,7 @@ export function MemberRoutineTab({ memberId }: { memberId: string }) {
   const [choice, setChoice] = useState("");
   const [busy, setBusy] = useState(false);
   const [dayIdx, setDayIdx] = useState(0);
+  const [confirmEnd, setConfirmEnd] = useState(false);
   const client = () => apiClient(session?.accessToken as string);
 
   const load = () => {
@@ -45,7 +46,7 @@ export function MemberRoutineTab({ memberId }: { memberId: string }) {
     }
   };
   const end = async () => {
-    if (!window.confirm("¿Terminar la rutina actual? Queda en el historial.")) return;
+    setConfirmEnd(false);
     try {
       await client().delete(`/api/v1/members/${memberId}/routines/current`);
       load();
@@ -62,19 +63,27 @@ export function MemberRoutineTab({ memberId }: { memberId: string }) {
     <div className="space-y-4">
       <div className="rounded-xl border border-[var(--border-base)] bg-[var(--bg-base)] p-4 space-y-3">
         <div className="flex items-center justify-between gap-2 flex-wrap">
-          <p className="text-xs font-semibold uppercase tracking-wider text-[var(--text-muted)]">Rutina actual</p>
-          {current && <button type="button" onClick={end} className="text-xs text-[var(--text-muted)] hover:text-red-500 flex items-center gap-1"><X className="h-3 w-3" /> Terminar</button>}
+          <p className="text-sm font-semibold text-[var(--text-base)]">Rutina actual</p>
+          {current && (confirmEnd ? (
+            <span className="flex items-center gap-2 text-xs">
+              <span className="text-[var(--text-muted)]">Queda en el historial.</span>
+              <button type="button" onClick={end} className="font-medium text-[var(--signal-danger)] hover:underline">Terminar rutina</button>
+              <button type="button" onClick={() => setConfirmEnd(false)} className="text-[var(--text-muted)] hover:text-[var(--text-base)]">No</button>
+            </span>
+          ) : (
+            <button type="button" onClick={() => setConfirmEnd(true)} className="text-xs text-[var(--text-muted)] hover:text-[var(--signal-danger)] flex items-center gap-1"><X className="h-3 w-3" /> Terminar</button>
+          ))}
         </div>
         {current ? (
           <>
             <div className="flex items-center gap-2">
-              <Dumbbell className="h-4 w-4 text-[var(--color-primary-ink)]" />
+              <Dumbbell className="h-4 w-4 text-primary-ink" />
               <span className="font-semibold text-[var(--text-base)]">{current.routine_name}</span>
               <span className="text-xs text-[var(--text-muted)]">· {current.goal_label ?? ""} · asignada {formatTimeAgo(current.assigned_at)}</span>
             </div>
             <div className="flex gap-1.5 flex-wrap">
               {current.routine.days.map((d: any, i: number) => (
-                <button key={d.id} type="button" onClick={() => setDayIdx(i)} className={`rounded-lg px-2.5 py-1 text-xs font-medium border ${i === dayIdx ? "bg-[var(--color-primary)] text-[var(--color-primary-contrast)] border-transparent" : "border-[var(--border-base)] text-[var(--text-muted)]"}`}>{d.title}</button>
+                <button key={d.id} type="button" onClick={() => setDayIdx(i)} className={`rounded-lg px-2.5 py-1 text-xs font-medium border ${i === dayIdx ? "bg-primary text-primary-contrast border-transparent" : "border-[var(--border-base)] text-[var(--text-muted)]"}`}>{d.title}</button>
               ))}
             </div>
             <div className="space-y-1.5">
@@ -97,20 +106,20 @@ export function MemberRoutineTab({ memberId }: { memberId: string }) {
 
       {routines.length > 0 && (
         <div className="rounded-xl border border-[var(--border-base)] bg-[var(--bg-base)] p-4 space-y-2">
-          <p className="text-xs font-semibold uppercase tracking-wider text-[var(--text-muted)]">{current ? "Cambiar rutina" : "Asignar rutina"}</p>
+          <p className="text-sm font-semibold text-[var(--text-base)]">{current ? "Cambiar rutina" : "Asignar rutina"}</p>
           <div className="flex gap-2">
             <select value={choice} onChange={(e) => setChoice(e.target.value)} className="flex-1 h-9 rounded-md border border-[var(--border-base)] bg-[var(--bg-card)] px-3 text-sm text-[var(--text-base)]">
               <option value="">Selecciona una rutina...</option>
               {routines.filter((r) => r.is_active).map((r) => <option key={r.id} value={r.id}>{r.name} · {r.level_es} · {r.days_per_week} días</option>)}
             </select>
-            <Button onClick={assign} disabled={!choice || busy} className="bg-[var(--color-primary)] text-[var(--color-primary-contrast)] font-semibold">{busy ? <Loader2 className="h-4 w-4 animate-spin" /> : "Asignar"}</Button>
+            <Button onClick={assign} disabled={!choice || busy}>{busy ? <Loader2 className="h-4 w-4 animate-spin" /> : "Asignar"}</Button>
           </div>
         </div>
       )}
 
       {data.history.length > 0 && (
         <div className="rounded-xl border border-[var(--border-base)] bg-[var(--bg-base)] p-4 space-y-1.5">
-          <p className="text-xs font-semibold uppercase tracking-wider text-[var(--text-muted)]">Historial</p>
+          <p className="text-sm font-semibold text-[var(--text-base)]">Historial</p>
           {data.history.map((h: any) => (
             <p key={h.id} className="text-sm text-[var(--text-muted)]"><span className="text-[var(--text-base)]">{h.routine_name}</span> · {formatTimeAgo(h.assigned_at)}{h.ended_at ? ` → ${formatTimeAgo(h.ended_at)}` : ""}</p>
           ))}

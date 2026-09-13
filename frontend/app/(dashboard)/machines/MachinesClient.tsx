@@ -500,7 +500,7 @@ export default function MachinesClient() {
         <GlassCard className="p-4">
           <div className="flex flex-wrap items-start gap-x-8 gap-y-4">
             <div>
-              <p className="text-[11px] uppercase tracking-wider text-[var(--text-muted)]">Mantenimiento · 12 meses</p>
+              <p className="text-xs text-[var(--text-muted)]">Mantenimiento · 12 meses</p>
               <p className="text-2xl font-bold tabular-nums text-[var(--text-base)]">{formatCOP(Number(costs.total))}</p>
               <p className="text-xs text-[var(--text-muted)] tabular-nums">
                 {formatCOP(Number(costs.preventive))} preventivo · {formatCOP(Number(costs.corrective))} en arreglos
@@ -508,7 +508,7 @@ export default function MachinesClient() {
             </div>
             {costs.by_machine.length > 0 && (
               <div className="min-w-[220px] flex-1">
-                <p className="text-[11px] uppercase tracking-wider text-[var(--text-muted)] mb-1">Las que más cuestan</p>
+                <p className="text-xs text-[var(--text-muted)] mb-1">Las que más cuestan</p>
                 <ul className="space-y-1">
                   {costs.by_machine.slice(0, 3).map((c) => (
                     <li key={c.id} className="flex justify-between gap-3 text-sm">
@@ -521,7 +521,7 @@ export default function MachinesClient() {
             )}
             {costs.by_area.length > 1 && (
               <div className="min-w-[180px]">
-                <p className="text-[11px] uppercase tracking-wider text-[var(--text-muted)] mb-1">Por área</p>
+                <p className="text-xs text-[var(--text-muted)] mb-1">Por área</p>
                 <ul className="space-y-1">
                   {costs.by_area.slice(0, 4).map((a) => (
                     <li key={a.label} className="flex justify-between gap-3 text-sm">
@@ -636,7 +636,7 @@ export default function MachinesClient() {
             <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
               {calendarGroups.map((g) => (
                 <section key={g.key} aria-labelledby={`cal-${g.key}`} className="space-y-2">
-                  <h3 id={`cal-${g.key}`} className="text-xs font-semibold uppercase tracking-wider text-[var(--text-muted)] flex items-center gap-2">
+                  <h3 id={`cal-${g.key}`} className="text-sm font-semibold text-[var(--text-base)] flex items-center gap-2">
                     {g.title}
                     <span className="tabular-nums font-normal">{g.items.length}</span>
                   </h3>
@@ -783,7 +783,7 @@ export default function MachinesClient() {
                             <div className="min-w-0 flex-1">
                               <div className="flex items-start justify-between gap-2">
                                 <p className="text-[var(--text-base)]">{log.description}</p>
-                                <Badge tone={log.kind === "correctivo" ? "danger" : "info"} className="shrink-0 uppercase tracking-wide text-[10px]">
+                                <Badge tone={log.kind === "correctivo" ? "danger" : "info"} className="shrink-0">
                                   {log.kind}
                                 </Badge>
                               </div>
@@ -803,7 +803,7 @@ export default function MachinesClient() {
                       </div>
 
                       <div className="pt-3 border-t border-[var(--border-base)] space-y-2">
-                        <p className="text-[var(--text-muted)] text-xs font-medium uppercase tracking-wide">
+                        <p className="text-[var(--text-muted)] text-xs font-medium">
                           Registrar mantenimiento
                         </p>
                         <Input

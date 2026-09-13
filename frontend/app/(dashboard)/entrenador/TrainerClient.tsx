@@ -310,13 +310,13 @@ function Sesiones({ items, conFecha }: { items: TrainerSession[]; conFecha: bool
           <span
             aria-hidden
             className="h-8 w-1 rounded-full shrink-0"
-            style={{ background: s.color ?? "var(--color-primary)" }}
+            style={{ background: s.color ?? "var(--brand)" }}
           />
           <div className="min-w-0 flex-1">
             <p className="text-sm font-medium text-[var(--text-base)] truncate">
               {s.class_name}
               {s.is_substitute && (
-                <span className="ml-2 text-[10px] uppercase tracking-wide text-[var(--text-muted)]">
+                <span className="ml-2 text-xs text-[var(--text-muted)]">
                   reemplazo
                 </span>
               )}
@@ -330,7 +330,7 @@ function Sesiones({ items, conFecha }: { items: TrainerSession[]; conFecha: bool
             <p className="text-sm font-semibold text-[var(--text-base)] tabular-nums">
               {s.booked}/{s.capacity}
             </p>
-            <p className="text-[10px] uppercase tracking-wide text-[var(--text-muted)]">inscritos</p>
+            <p className="text-xs text-[var(--text-muted)]">inscritos</p>
           </div>
         </motion.li>
       ))}

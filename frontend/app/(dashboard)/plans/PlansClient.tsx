@@ -72,15 +72,15 @@ const ACCESS_OPTIONS = [
 
 function accessBadge(plan: Plan): { label: string; cls: string } {
   if (plan.access_type === "gym_only") {
-    return { label: "Solo máquinas", cls: "bg-slate-100 dark:bg-slate-800/50 text-slate-600 dark:text-slate-300" };
+    return { label: "Solo máquinas", cls: "bg-muted text-ink-muted" };
   }
   if (plan.class_credits_per_month != null) {
     return {
       label: `${plan.class_credits_per_month} clases/período`,
-      cls: "bg-violet-100 dark:bg-violet-950/40 text-violet-700 dark:text-violet-400",
+      cls: "bg-[var(--signal-info-bg)] text-[var(--signal-info)]",
     };
   }
-  return { label: "Clases ilimitadas", cls: "bg-fuchsia-100 dark:bg-fuchsia-950/40 text-fuchsia-700 dark:text-fuchsia-400" };
+  return { label: "Clases ilimitadas", cls: "bg-muted text-ink-muted" };
 }
 
 const DURATION_PRESETS = [
@@ -143,7 +143,7 @@ function PlanCardItem({ plan, onEdit, onDelete, editable }: PlanCardItemProps) {
           {/* Plan name + status badge */}
           <PricingCard.Plan>
             <PricingCard.PlanName>
-              <Tag className="h-4 w-4 text-[var(--color-primary-ink)]" />
+              <Tag className="h-4 w-4 text-primary-ink" />
               <span className="text-[var(--text-base)] font-semibold">{plan.name}</span>
             </PricingCard.PlanName>
             {plan.is_active ? (
@@ -181,7 +181,7 @@ function PlanCardItem({ plan, onEdit, onDelete, editable }: PlanCardItemProps) {
               );
             })()}
             {plan.includes_trainer && (
-              <span className="inline-flex w-fit items-center rounded-full px-2 py-0.5 text-[11px] font-semibold bg-emerald-100 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-400">
+              <span className="inline-flex w-fit items-center rounded-full px-2 py-0.5 text-[11px] font-semibold bg-[var(--signal-ok-bg)] text-[var(--signal-ok)]">
                 {plan.trainer_sessions_per_month == null
                   ? "Con entrenador"
                   : `Entrenador · ${plan.trainer_sessions_per_month} ses./mes`}
@@ -201,7 +201,7 @@ function PlanCardItem({ plan, onEdit, onDelete, editable }: PlanCardItemProps) {
             </button>
             <button
               onClick={() => onDelete(plan)}
-              className="flex-1 flex items-center justify-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium text-red-500 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-950/20 border border-transparent hover:border-red-200 dark:hover:border-red-900/40 transition-colors"
+              className="flex-1 flex items-center justify-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium text-[var(--signal-danger)] hover:bg-[var(--signal-danger-bg)] border border-transparent hover:border-[var(--signal-danger-line)] transition-colors"
             >
               <Trash2 className="h-3.5 w-3.5" />
               Eliminar
@@ -215,7 +215,7 @@ function PlanCardItem({ plan, onEdit, onDelete, editable }: PlanCardItemProps) {
           <PricingCard.List>
             {features.map((feature) => (
               <PricingCard.ListItem key={feature}>
-                <CheckCircle2 className="h-3.5 w-3.5 text-[var(--color-primary-ink)] shrink-0 mt-0.5" />
+                <CheckCircle2 className="h-3.5 w-3.5 text-primary-ink shrink-0 mt-0.5" />
                 <span>{feature}</span>
               </PricingCard.ListItem>
             ))}
@@ -363,7 +363,7 @@ export default function PlansClient() {
             <DialogTrigger render={
               <Button
                 onClick={openCreate}
-                className="bg-[var(--color-primary)] text-[var(--color-primary-contrast)] font-semibold hover:opacity-90 transition-opacity shrink-0"
+                className="shrink-0"
               >
                 <Plus className="h-4 w-4 mr-2" />
                 Nuevo plan
@@ -383,7 +383,7 @@ export default function PlansClient() {
                   placeholder="Ej: Mensual, Trimestral..."
                   className="bg-[var(--bg-base)] border-[var(--border-base)] text-[var(--text-base)]"
                 />
-                {errors.name && <p className="text-xs text-red-500">{errors.name}</p>}
+                {errors.name && <p className="text-xs text-[var(--signal-danger)]">{errors.name}</p>}
               </div>
 
               <div className="grid grid-cols-2 gap-3">
@@ -397,7 +397,7 @@ export default function PlansClient() {
                     placeholder="90000"
                     className="bg-[var(--bg-base)] border-[var(--border-base)] text-[var(--text-base)]"
                   />
-                  {errors.price && <p className="text-xs text-red-500">{errors.price}</p>}
+                  {errors.price && <p className="text-xs text-[var(--signal-danger)]">{errors.price}</p>}
                 </div>
                 <div className="space-y-1.5">
                   <Label>Duración</Label>
@@ -443,8 +443,8 @@ export default function PlansClient() {
                         className={cn(
                           "flex items-center gap-3 rounded-xl border px-3 py-2.5 cursor-pointer transition-colors",
                           selected
-                            ? "border-[var(--color-primary)] bg-[var(--color-primary)]/10"
-                            : "border-[var(--border-base)] hover:border-[var(--color-primary)]/50"
+                            ? "border-[var(--brand)] bg-muted"
+                            : "border-[var(--border-base)] hover:border-[var(--text-muted)]"
                         )}
                       >
                         <input
@@ -464,7 +464,7 @@ export default function PlansClient() {
                           className={cn(
                             "h-4 w-4 rounded-full border-2 shrink-0",
                             selected
-                              ? "border-[var(--color-primary)] bg-[var(--color-primary)]"
+                              ? "border-transparent bg-primary"
                               : "border-[var(--border-base)]"
                           )}
                         />
@@ -495,8 +495,8 @@ export default function PlansClient() {
                 className={cn(
                   "flex items-center gap-3 rounded-xl border px-3 py-2.5 cursor-pointer transition-colors",
                   form.includes_trainer
-                    ? "border-[var(--color-primary)] bg-[var(--color-primary)]/10"
-                    : "border-[var(--border-base)] hover:border-[var(--color-primary)]/50"
+                    ? "border-[var(--brand)] bg-muted"
+                    : "border-[var(--border-base)] hover:border-[var(--text-muted)]"
                 )}
               >
                 <input
@@ -517,7 +517,7 @@ export default function PlansClient() {
                   className={cn(
                     "h-4 w-4 rounded border-2 shrink-0",
                     form.includes_trainer
-                      ? "border-[var(--color-primary)] bg-[var(--color-primary)]"
+                      ? "border-transparent bg-primary"
                       : "border-[var(--border-base)]"
                   )}
                 />
@@ -555,8 +555,8 @@ export default function PlansClient() {
                   aria-checked={form.is_active}
                   onClick={() => setForm({ ...form, is_active: !form.is_active })}
                   className={cn(
-                    "relative inline-flex h-5 w-9 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-primary)] focus-visible:ring-offset-2",
-                    form.is_active ? "bg-[var(--color-primary)]" : "bg-[var(--bg-muted)] border border-[var(--border-base)]"
+                    "relative inline-flex h-5 w-9 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--brand)] focus-visible:ring-offset-2",
+                    form.is_active ? "bg-primary" : "bg-[var(--bg-muted)] border border-[var(--border-base)]"
                   )}
                 >
                   <span
@@ -586,7 +586,7 @@ export default function PlansClient() {
                 <Button
                   type="submit"
                   disabled={saving}
-                  className="bg-[var(--color-primary)] text-[var(--color-primary-contrast)] font-semibold hover:opacity-90"
+                 
                 >
                   {saving ? "Guardando..." : editing ? "Actualizar" : "Crear plan"}
                 </Button>
@@ -644,9 +644,9 @@ export default function PlansClient() {
             <DialogTitle>Eliminar plan</DialogTitle>
           </DialogHeader>
           <div className="py-3 space-y-3">
-            <div className="flex items-start gap-3 p-3 rounded-xl bg-red-50 dark:bg-red-950/20 border border-red-200 dark:border-red-900/40">
-              <AlertCircle className="h-4 w-4 text-red-500 shrink-0 mt-0.5" />
-              <p className="text-sm text-red-700 dark:text-red-400">
+            <div className="flex items-start gap-3 p-3 rounded-xl bg-[var(--signal-danger-bg)] border border-[var(--signal-danger-line)]">
+              <AlertCircle className="h-4 w-4 text-[var(--signal-danger)] shrink-0 mt-0.5" />
+              <p className="text-sm text-[var(--text-base)]">
                 {`¿Eliminar el plan "${deleteTarget?.name}"? Si tiene membresías activas, será desactivado en lugar de borrado.`}
               </p>
             </div>
@@ -662,7 +662,7 @@ export default function PlansClient() {
             <Button
               disabled={deleting}
               onClick={handleDelete}
-              className="bg-red-500 text-white hover:bg-red-600"
+              variant="destructive"
             >
               {deleting ? "Eliminando..." : "Eliminar"}
             </Button>
