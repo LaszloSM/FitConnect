@@ -5,6 +5,5 @@
   "app/(dashboard)/payments/shared.ts": 5,
   "components/common/QRCodeDisplay.tsx": 3,
   "components/common/QrScanner.tsx": 2,
-  "components/landing/LandingClient.tsx": 74,
   "components/members/MemberImportDialog.tsx": 2
 }
