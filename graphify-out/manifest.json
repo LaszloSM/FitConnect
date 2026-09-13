@@ -10,8 +10,8 @@
     "semantic_hash": "5d026840292bce42fbd145e8d235f97f"
   },
   "C:\\Users\\User\\Desktop\\SaaS Gym\\backend\\app\\main.py": {
-    "mtime": 1789009004.6375883,
-    "ast_hash": "24c131f02cbc3a9e94df70a745ebebed",
+    "mtime": 1789262083.8470948,
+    "ast_hash": "70ff6ea652818cdb6086ad511265b7be",
     "semantic_hash": ""
   },
   "C:\\Users\\User\\Desktop\\SaaS Gym\\backend\\app\\__init__.py": {
@@ -20,7 +20,7 @@
     "semantic_hash": "d41d8cd98f00b204e9800998ecf8427e"
   },
   "C:\\Users\\User\\Desktop\\SaaS Gym\\backend\\app\\api\\deps.py": {
-    "mtime": 1789063467.1850984,
+    "mtime": 1789262083.763316,
     "ast_hash": "6ecab9ca8f0d052b886df3244d0b8b93",
     "semantic_hash": ""
   },
@@ -30,67 +30,67 @@
     "semantic_hash": "d41d8cd98f00b204e9800998ecf8427e"
   },
   "C:\\Users\\User\\Desktop\\SaaS Gym\\backend\\app\\api\\v1\\auth.py": {
-    "mtime": 1789222501.1882465,
+    "mtime": 1789262083.7670772,
     "ast_hash": "505bf4670ce0c0a6e663f9ce46c8be31",
     "semantic_hash": ""
   },
   "C:\\Users\\User\\Desktop\\SaaS Gym\\backend\\app\\api\\v1\\checkins.py": {
-    "mtime": 1789063709.772748,
+    "mtime": 1789262083.7690852,
     "ast_hash": "b366b7fcf7f50829099f5e43b72b1dac",
     "semantic_hash": ""
   },
   "C:\\Users\\User\\Desktop\\SaaS Gym\\backend\\app\\api\\v1\\classes.py": {
-    "mtime": 1789194544.5154839,
+    "mtime": 1789262083.7710857,
     "ast_hash": "97a16547eccdce75a9dfe9ffcc2c7ed9",
     "semantic_hash": ""
   },
   "C:\\Users\\User\\Desktop\\SaaS Gym\\backend\\app\\api\\v1\\dashboard.py": {
-    "mtime": 1789196800.077348,
+    "mtime": 1789262083.7720857,
     "ast_hash": "49d2ce339dcbe49b8542959427de55bb",
     "semantic_hash": ""
   },
   "C:\\Users\\User\\Desktop\\SaaS Gym\\backend\\app\\api\\v1\\machines.py": {
-    "mtime": 1789254901.1289015,
-    "ast_hash": "384f73e0922e3f6bcb696c030cb43f71",
+    "mtime": 1789262083.7866333,
+    "ast_hash": "246567bde4f314c83702f15512c238f2",
     "semantic_hash": ""
   },
   "C:\\Users\\User\\Desktop\\SaaS Gym\\backend\\app\\api\\v1\\members.py": {
-    "mtime": 1789154441.2692862,
+    "mtime": 1789262083.7908645,
     "ast_hash": "11f92222d5e0deaa3d755ad74dabb893",
     "semantic_hash": ""
   },
   "C:\\Users\\User\\Desktop\\SaaS Gym\\backend\\app\\api\\v1\\member_plans.py": {
-    "mtime": 1789158502.3097203,
+    "mtime": 1789262083.789433,
     "ast_hash": "91ac32e73b64acff6a82541d820b9e34",
     "semantic_hash": ""
   },
   "C:\\Users\\User\\Desktop\\SaaS Gym\\backend\\app\\api\\v1\\notifications.py": {
-    "mtime": 1789158502.3117206,
+    "mtime": 1789262083.7978735,
     "ast_hash": "c5694eba3cbc644bad0f0822fd103c47",
     "semantic_hash": ""
   },
   "C:\\Users\\User\\Desktop\\SaaS Gym\\backend\\app\\api\\v1\\payments.py": {
-    "mtime": 1789158502.3147225,
+    "mtime": 1789262083.8201177,
     "ast_hash": "93e6714a891f735fed15ece7e6749303",
     "semantic_hash": ""
   },
   "C:\\Users\\User\\Desktop\\SaaS Gym\\backend\\app\\api\\v1\\reports.py": {
-    "mtime": 1789196800.077348,
+    "mtime": 1789262083.8364086,
     "ast_hash": "338f6891b29817b05e09856b99fa231e",
     "semantic_hash": ""
   },
   "C:\\Users\\User\\Desktop\\SaaS Gym\\backend\\app\\api\\v1\\router.py": {
-    "mtime": 1789152110.5037558,
+    "mtime": 1789262083.83802,
     "ast_hash": "2020d45d0d7d268d058f5126c0fccdfe",
     "semantic_hash": ""
   },
   "C:\\Users\\User\\Desktop\\SaaS Gym\\backend\\app\\api\\v1\\settings.py": {
-    "mtime": 1789143327.9385977,
+    "mtime": 1789262083.8398874,
     "ast_hash": "ce3aa6dc29cad44f82df2d3d5c537836",
     "semantic_hash": ""
   },
   "C:\\Users\\User\\Desktop\\SaaS Gym\\backend\\app\\api\\v1\\users.py": {
-    "mtime": 1789197744.4126482,
+    "mtime": 1789262083.841707,
     "ast_hash": "ceed54e4cfbe63978ba8ad9fcca1ec0c",
     "semantic_hash": ""
   },
@@ -100,7 +100,7 @@
     "semantic_hash": "d41d8cd98f00b204e9800998ecf8427e"
   },
   "C:\\Users\\User\\Desktop\\SaaS Gym\\backend\\app\\core\\config.py": {
-    "mtime": 1789008099.9918883,
+    "mtime": 1789262083.8441825,
     "ast_hash": "c6b649f2de5707edb89a110806de24f6",
     "semantic_hash": ""
   },
@@ -185,7 +185,7 @@
     "semantic_hash": ""
   },
   "C:\\Users\\User\\Desktop\\SaaS Gym\\backend\\app\\models\\master\\__init__.py": {
-    "mtime": 1788741740.8480992,
+    "mtime": 1789262083.848745,
     "ast_hash": "de57bec7fcaea1974a9733225a2ad298",
     "semantic_hash": ""
   },
@@ -210,27 +210,27 @@
     "semantic_hash": ""
   },
   "C:\\Users\\User\\Desktop\\SaaS Gym\\backend\\app\\models\\tenant\\machine.py": {
-    "mtime": 1789254800.389894,
-    "ast_hash": "c850291831118f525accf13ad9e0bbd5",
+    "mtime": 1789262083.9547875,
+    "ast_hash": "f6da042351d0a7895f31b5439388f644",
     "semantic_hash": ""
   },
   "C:\\Users\\User\\Desktop\\SaaS Gym\\backend\\app\\models\\tenant\\maintenance.py": {
-    "mtime": 1789254802.916098,
+    "mtime": 1789262083.955789,
     "ast_hash": "61024be898ac76ec069409e6d77ec55e",
     "semantic_hash": ""
   },
   "C:\\Users\\User\\Desktop\\SaaS Gym\\backend\\app\\models\\tenant\\member.py": {
-    "mtime": 1789196778.8460026,
+    "mtime": 1789262084.0310051,
     "ast_hash": "69a14fc8d6addcf71858542fb56b662c",
     "semantic_hash": ""
   },
   "C:\\Users\\User\\Desktop\\SaaS Gym\\backend\\app\\models\\tenant\\membership.py": {
-    "mtime": 1789152009.0627458,
+    "mtime": 1789262084.0360081,
     "ast_hash": "a4f146b96ffd97e0daa2eb8ba2cb7190",
     "semantic_hash": ""
   },
   "C:\\Users\\User\\Desktop\\SaaS Gym\\backend\\app\\models\\tenant\\member_plan.py": {
-    "mtime": 1789152001.033144,
+    "mtime": 1789262084.034011,
     "ast_hash": "f423997890959d196e96c7c71688ae33",
     "semantic_hash": ""
   },
@@ -240,42 +240,42 @@
     "semantic_hash": "3a36e40cb9b9328cc884a54344144bca"
   },
   "C:\\Users\\User\\Desktop\\SaaS Gym\\backend\\app\\models\\tenant\\payment.py": {
-    "mtime": 1789097113.037714,
+    "mtime": 1789262084.0410063,
     "ast_hash": "ab7fac4d3f30317be9d22231ce49ddfd",
     "semantic_hash": ""
   },
   "C:\\Users\\User\\Desktop\\SaaS Gym\\backend\\app\\models\\tenant\\user_staff.py": {
-    "mtime": 1789151986.8006825,
+    "mtime": 1789262084.0450091,
     "ast_hash": "b0fc17bdd6e3e6abd6f94d5655a321d1",
     "semantic_hash": ""
   },
   "C:\\Users\\User\\Desktop\\SaaS Gym\\backend\\app\\models\\tenant\\__init__.py": {
-    "mtime": 1789256853.1695337,
+    "mtime": 1789262083.8507984,
     "ast_hash": "53537e7e1aa6c40f3038236e674d53e4",
     "semantic_hash": ""
   },
   "C:\\Users\\User\\Desktop\\SaaS Gym\\backend\\app\\schemas\\auth.py": {
-    "mtime": 1789222501.1882465,
+    "mtime": 1789262084.0460093,
     "ast_hash": "26d7bc8f8fb212f9d6e83a7f1e04c4d2",
     "semantic_hash": ""
   },
   "C:\\Users\\User\\Desktop\\SaaS Gym\\backend\\app\\schemas\\member.py": {
-    "mtime": 1789197222.8541188,
+    "mtime": 1789262084.1012049,
     "ast_hash": "166db67ad8d790bb74e5706127faaf14",
     "semantic_hash": ""
   },
   "C:\\Users\\User\\Desktop\\SaaS Gym\\backend\\app\\schemas\\operations.py": {
-    "mtime": 1789254931.3926117,
+    "mtime": 1789262084.1027095,
     "ast_hash": "82827458802f546c0b321732171827e5",
     "semantic_hash": ""
   },
   "C:\\Users\\User\\Desktop\\SaaS Gym\\backend\\app\\schemas\\settings.py": {
-    "mtime": 1789143327.9415984,
+    "mtime": 1789262084.1044497,
     "ast_hash": "66cf755d60a525e6ff682cf4f6fc7ab6",
     "semantic_hash": ""
   },
   "C:\\Users\\User\\Desktop\\SaaS Gym\\backend\\app\\schemas\\user.py": {
-    "mtime": 1789182329.885568,
+    "mtime": 1789262084.1054566,
     "ast_hash": "de588832ae38b3f4d5b7bc3a5288b5c9",
     "semantic_hash": ""
   },
@@ -285,7 +285,7 @@
     "semantic_hash": "d41d8cd98f00b204e9800998ecf8427e"
   },
   "C:\\Users\\User\\Desktop\\SaaS Gym\\backend\\app\\services\\tenant_service.py": {
-    "mtime": 1789196725.5922863,
+    "mtime": 1789262084.1424584,
     "ast_hash": "2c6738c4b39f3aaabfdf45c23d33ba68",
     "semantic_hash": ""
   },
@@ -300,7 +300,7 @@
     "semantic_hash": "68180cec8517d81cb9b2d4f135b20f8c"
   },
   "C:\\Users\\User\\Desktop\\SaaS Gym\\backend\\migrations\\env.py": {
-    "mtime": 1789007610.8033602,
+    "mtime": 1789262084.1454575,
     "ast_hash": "dd7929feabe12ca1db76d218e2d85e2d",
     "semantic_hash": ""
   },
@@ -310,12 +310,12 @@
     "semantic_hash": "d41d8cd98f00b204e9800998ecf8427e"
   },
   "C:\\Users\\User\\Desktop\\SaaS Gym\\backend\\migrations\\master\\env.py": {
-    "mtime": 1789007824.0811238,
+    "mtime": 1789262084.1474578,
     "ast_hash": "614715768ac4b99165bad950f022ca6b",
     "semantic_hash": ""
   },
   "C:\\Users\\User\\Desktop\\SaaS Gym\\backend\\migrations\\tenant\\env.py": {
-    "mtime": 1789007615.5030563,
+    "mtime": 1789262084.1494586,
     "ast_hash": "9bed6b203feaa767f5e48be9f84ef471",
     "semantic_hash": ""
   },
@@ -335,12 +335,12 @@
     "semantic_hash": ""
   },
   "C:\\Users\\User\\Desktop\\SaaS Gym\\backend\\tests\\test_auth.py": {
-    "mtime": 1788751489.4128027,
-    "ast_hash": "b0df132c1d37f6558190e103e9862d2a",
+    "mtime": 1789262084.1764588,
+    "ast_hash": "5be623ce4a289642057606110a4dfc7b",
     "semantic_hash": ""
   },
   "C:\\Users\\User\\Desktop\\SaaS Gym\\backend\\tests\\test_connection_cleanup.py": {
-    "mtime": 1789198630.5519788,
+    "mtime": 1789262084.1904576,
     "ast_hash": "9db41fd8264ee6429edae869d15702db",
     "semantic_hash": ""
   },
@@ -350,12 +350,12 @@
     "semantic_hash": ""
   },
   "C:\\Users\\User\\Desktop\\SaaS Gym\\backend\\tests\\test_rate_limit.py": {
-    "mtime": 1789198630.5529852,
+    "mtime": 1789262084.2279942,
     "ast_hash": "56d329ff68cb396f25dafceb66fcc98c",
     "semantic_hash": ""
   },
   "C:\\Users\\User\\Desktop\\SaaS Gym\\backend\\tests\\test_tenant_isolation.py": {
-    "mtime": 1783130881.2879522,
+    "mtime": 1789262084.2339933,
     "ast_hash": "7511279864d03f05beb3d8da2636a398",
     "semantic_hash": ""
   },
@@ -370,7 +370,7 @@
     "semantic_hash": "d41d8cd98f00b204e9800998ecf8427e"
   },
   "C:\\Users\\User\\Desktop\\SaaS Gym\\frontend\\auth.ts": {
-    "mtime": 1789222521.9844375,
+    "mtime": 1789262084.3095543,
     "ast_hash": "d822a266a3da62cd606f032b3c22a5cc",
     "semantic_hash": ""
   },
@@ -390,8 +390,8 @@
     "semantic_hash": "362cdaf05df1f057322319895800340a"
   },
   "C:\\Users\\User\\Desktop\\SaaS Gym\\frontend\\package.json": {
-    "mtime": 1789100878.4713845,
-    "ast_hash": "2bb9659eb647e89630db4dde97dbff4e",
+    "mtime": 1789268264.872802,
+    "ast_hash": "3fdd6586157026c52906c47cd968438d",
     "semantic_hash": ""
   },
   "C:\\Users\\User\\Desktop\\SaaS Gym\\frontend\\playwright.config.ts": {
@@ -420,27 +420,27 @@
     "semantic_hash": ""
   },
   "C:\\Users\\User\\Desktop\\SaaS Gym\\frontend\\app\\(auth)\\layout.tsx": {
-    "mtime": 1789235216.970023,
-    "ast_hash": "2b94016eff90cedb8c49b6ae72ff2242",
+    "mtime": 1789262084.2499955,
+    "ast_hash": "65b799029199dbec77f0c8e8db681400",
     "semantic_hash": ""
   },
   "C:\\Users\\User\\Desktop\\SaaS Gym\\frontend\\app\\(auth)\\login\\page.tsx": {
-    "mtime": 1789235240.5371008,
+    "mtime": 1789262084.2520034,
     "ast_hash": "fb5012925dcdb2cd285946025b9a7454",
     "semantic_hash": ""
   },
   "C:\\Users\\User\\Desktop\\SaaS Gym\\frontend\\app\\(auth)\\register\\page.tsx": {
-    "mtime": 1789235240.5380998,
+    "mtime": 1789262084.2530038,
     "ast_hash": "a350eaa662a41660583786abf74408c3",
     "semantic_hash": ""
   },
   "C:\\Users\\User\\Desktop\\SaaS Gym\\frontend\\app\\(dashboard)\\layout.tsx": {
-    "mtime": 1789139981.0062096,
-    "ast_hash": "7963efca436e45151cb43e7283e79f72",
+    "mtime": 1789268213.7829676,
+    "ast_hash": "f044e6a0eaca8f2568a1d21b01d7b81e",
     "semantic_hash": ""
   },
   "C:\\Users\\User\\Desktop\\SaaS Gym\\frontend\\app\\(dashboard)\\checkins\\CheckinsClient.tsx": {
-    "mtime": 1789253935.9851112,
+    "mtime": 1789262084.256004,
     "ast_hash": "41abc22fe0b90a34a108f37baaa2a371",
     "semantic_hash": ""
   },
@@ -450,7 +450,7 @@
     "semantic_hash": "043405e51603ed9f5187aa7e5285cbff"
   },
   "C:\\Users\\User\\Desktop\\SaaS Gym\\frontend\\app\\(dashboard)\\classes\\ClassesClient.tsx": {
-    "mtime": 1789253935.9861135,
+    "mtime": 1789262084.2570033,
     "ast_hash": "e427424eb9be65317c3badd08fafc28b",
     "semantic_hash": ""
   },
@@ -460,13 +460,13 @@
     "semantic_hash": "df92b326fff459b0c5f55407474aef14"
   },
   "C:\\Users\\User\\Desktop\\SaaS Gym\\frontend\\app\\(dashboard)\\dashboard\\page.tsx": {
-    "mtime": 1789242320.265751,
+    "mtime": 1789262084.260002,
     "ast_hash": "9bf65790773f286dc4a8ad33dcf540e9",
     "semantic_hash": ""
   },
   "C:\\Users\\User\\Desktop\\SaaS Gym\\frontend\\app\\(dashboard)\\machines\\MachinesClient.tsx": {
-    "mtime": 1789255192.254096,
-    "ast_hash": "9d3c48ed2fa28b81adb8e6a139f31efa",
+    "mtime": 1789262084.2685177,
+    "ast_hash": "aa5b312bf6c603c840e4e059886ed311",
     "semantic_hash": ""
   },
   "C:\\Users\\User\\Desktop\\SaaS Gym\\frontend\\app\\(dashboard)\\machines\\page.tsx": {
@@ -475,17 +475,17 @@
     "semantic_hash": "d1e2cbb18c49ddf8c2f58ba7312d0a90"
   },
   "C:\\Users\\User\\Desktop\\SaaS Gym\\frontend\\app\\(dashboard)\\members\\MembersClient.tsx": {
-    "mtime": 1789254742.1780868,
+    "mtime": 1789262084.270517,
     "ast_hash": "01c5e55d285c5cd96ad06a5dfe92d619",
     "semantic_hash": ""
   },
   "C:\\Users\\User\\Desktop\\SaaS Gym\\frontend\\app\\(dashboard)\\members\\page.tsx": {
-    "mtime": 1788746003.8037443,
+    "mtime": 1789262084.2725182,
     "ast_hash": "ce7980d78ea5950919b3e6b0f31fdda5",
     "semantic_hash": ""
   },
   "C:\\Users\\User\\Desktop\\SaaS Gym\\frontend\\app\\(dashboard)\\members\\[id]\\MemberDetailClient.tsx": {
-    "mtime": 1789253935.9931116,
+    "mtime": 1789262084.2715173,
     "ast_hash": "84c2004bfc9390c237d1d2d0a8697f51",
     "semantic_hash": ""
   },
@@ -500,27 +500,27 @@
     "semantic_hash": ""
   },
   "C:\\Users\\User\\Desktop\\SaaS Gym\\frontend\\app\\(dashboard)\\payments\\PaymentsClient.tsx": {
-    "mtime": 1788736618.667078,
+    "mtime": 1789262084.2795188,
     "ast_hash": "63d1997923ebdcbd0292d049256169f7",
     "semantic_hash": ""
   },
   "C:\\Users\\User\\Desktop\\SaaS Gym\\frontend\\app\\(dashboard)\\reports\\page.tsx": {
-    "mtime": 1788746003.8037443,
+    "mtime": 1789262084.2910686,
     "ast_hash": "1d82cb1e7587dbe971ddb10ef3dfeb56",
     "semantic_hash": ""
   },
   "C:\\Users\\User\\Desktop\\SaaS Gym\\frontend\\app\\(dashboard)\\reports\\ReportsClient.tsx": {
-    "mtime": 1789100878.4293842,
+    "mtime": 1789262084.2890697,
     "ast_hash": "316bf6414360810e620c76f6740854ea",
     "semantic_hash": ""
   },
   "C:\\Users\\User\\Desktop\\SaaS Gym\\frontend\\app\\(dashboard)\\settings\\page.tsx": {
-    "mtime": 1788746003.8037443,
+    "mtime": 1789262084.2960386,
     "ast_hash": "157a11d34f49ea6bc5d2ac9cb2544a18",
     "semantic_hash": ""
   },
   "C:\\Users\\User\\Desktop\\SaaS Gym\\frontend\\app\\(dashboard)\\settings\\SettingsClient.tsx": {
-    "mtime": 1789222782.7791748,
+    "mtime": 1789262084.2940376,
     "ast_hash": "c3de4e837773ecd40db1e7796f21ad52",
     "semantic_hash": ""
   },
@@ -565,58 +565,58 @@
     "semantic_hash": ""
   },
   "C:\\Users\\User\\Desktop\\SaaS Gym\\frontend\\components\\common\\PageHeader.tsx": {
-    "mtime": 1780249673.8385673,
-    "ast_hash": "0e102378f088db4c8a2d4be9331c4889",
+    "mtime": 1789268351.3434184,
+    "ast_hash": "acfc03cf69eee2fa6dc4bddc22ac5824",
     "semantic_hash": ""
   },
   "C:\\Users\\User\\Desktop\\SaaS Gym\\frontend\\components\\layout\\Header.tsx": {
-    "mtime": 1789140865.3979855,
-    "ast_hash": "bb50f50a2f9c223eca2dbaa8ad72849b",
+    "mtime": 1789268204.1661994,
+    "ast_hash": "36dee3e3d11934d965cbb777e8e7f1c6",
     "semantic_hash": ""
   },
   "C:\\Users\\User\\Desktop\\SaaS Gym\\frontend\\components\\layout\\Sidebar.tsx": {
-    "mtime": 1789253753.2921898,
-    "ast_hash": "2e5b2543bdd7e1ef8525df1f9bed21fe",
+    "mtime": 1789268527.2615235,
+    "ast_hash": "09073106fe2bb7dacb5061680dc1c13b",
     "semantic_hash": ""
   },
   "C:\\Users\\User\\Desktop\\SaaS Gym\\frontend\\components\\layout\\SidebarContext.tsx": {
-    "mtime": 1779496633.1271777,
-    "ast_hash": "472e6db66ab8dcef91f5f8d032d28523",
-    "semantic_hash": "472e6db66ab8dcef91f5f8d032d28523"
+    "mtime": 1789268131.327936,
+    "ast_hash": "939b09eeb941fac9c93caf64b66ee7e8",
+    "semantic_hash": ""
   },
   "C:\\Users\\User\\Desktop\\SaaS Gym\\frontend\\components\\settings\\AppearanceSection.tsx": {
-    "mtime": 1789100878.451387,
+    "mtime": 1789262084.3400774,
     "ast_hash": "620795d0d262b9a25f11c9c22e065ae3",
     "semantic_hash": ""
   },
   "C:\\Users\\User\\Desktop\\SaaS Gym\\frontend\\components\\settings\\GymSection.tsx": {
-    "mtime": 1789253936.0392625,
+    "mtime": 1789262084.343076,
     "ast_hash": "0b9681a7ea96c006549a68d26e3b7edf",
     "semantic_hash": ""
   },
   "C:\\Users\\User\\Desktop\\SaaS Gym\\frontend\\components\\settings\\PlanSection.tsx": {
-    "mtime": 1789101491.8675056,
+    "mtime": 1789262084.3485837,
     "ast_hash": "6e1aefd807e26e908afb8ab56a2d35e7",
     "semantic_hash": ""
   },
   "C:\\Users\\User\\Desktop\\SaaS Gym\\frontend\\components\\settings\\ProfileSection.tsx": {
-    "mtime": 1789253936.0412624,
+    "mtime": 1789262084.3495905,
     "ast_hash": "649190b3bf635c10b0483382990a2dd6",
     "semantic_hash": ""
   },
   "C:\\Users\\User\\Desktop\\SaaS Gym\\frontend\\components\\ui\\button.tsx": {
-    "mtime": 1789101480.8997264,
-    "ast_hash": "f25d2f992086b4d2bd8721a024bde4ad",
+    "mtime": 1789268226.8363757,
+    "ast_hash": "5f76bba11dc0bb9ad9378130714a14a1",
     "semantic_hash": ""
   },
   "C:\\Users\\User\\Desktop\\SaaS Gym\\frontend\\components\\ui\\dialog.tsx": {
-    "mtime": 1789101480.9007282,
-    "ast_hash": "a11e1b77fb6a96bdcc93ec06a9e8eed1",
+    "mtime": 1789268525.9082959,
+    "ast_hash": "83a752e6edd611d7408f8f6098e46f6d",
     "semantic_hash": ""
   },
   "C:\\Users\\User\\Desktop\\SaaS Gym\\frontend\\components\\ui\\input.tsx": {
-    "mtime": 1779594902.5973744,
-    "ast_hash": "0138c03b0dcbc4ac51215a60d9c6d5a1",
+    "mtime": 1789268368.0956206,
+    "ast_hash": "795a25307e6c8a111569fe27dcd19dce",
     "semantic_hash": ""
   },
   "C:\\Users\\User\\Desktop\\SaaS Gym\\frontend\\components\\ui\\label.tsx": {
@@ -625,37 +625,37 @@
     "semantic_hash": "ed79a93777c1e0f0337c6b3943290998"
   },
   "C:\\Users\\User\\Desktop\\SaaS Gym\\frontend\\components\\ui\\select.tsx": {
-    "mtime": 1789100878.4673855,
-    "ast_hash": "797c70226b8715bbcdbc90771af7438e",
+    "mtime": 1789268581.8783388,
+    "ast_hash": "5b439918da174534470b96b6574b53f5",
     "semantic_hash": ""
   },
   "C:\\Users\\User\\Desktop\\SaaS Gym\\frontend\\components\\ui\\sheet.tsx": {
-    "mtime": 1789100878.4693842,
-    "ast_hash": "766820d604c374af7e048ab3c5312dcb",
+    "mtime": 1789268564.442624,
+    "ast_hash": "224d59203b21180fab98191ed27352e9",
     "semantic_hash": ""
   },
   "C:\\Users\\User\\Desktop\\SaaS Gym\\frontend\\components\\ui\\sonner.tsx": {
-    "mtime": 1789100878.4703846,
-    "ast_hash": "cdf8fe0d489708bf04e5cba4bdde4ea9",
+    "mtime": 1789270612.9965868,
+    "ast_hash": "3ef5deec0bc09158c864d9f5a924dc7f",
     "semantic_hash": ""
   },
   "C:\\Users\\User\\Desktop\\SaaS Gym\\frontend\\components\\ui\\table.tsx": {
-    "mtime": 1779597417.470347,
-    "ast_hash": "4787b8b2ae7622139f2ef94fd2c308cd",
+    "mtime": 1789268420.2247708,
+    "ast_hash": "dd29f0d1e7a8630f29c6fb6d08a4875c",
     "semantic_hash": ""
   },
   "C:\\Users\\User\\Desktop\\SaaS Gym\\frontend\\e2e\\auth.spec.ts": {
-    "mtime": 1789014135.114282,
+    "mtime": 1789262084.3655915,
     "ast_hash": "5cd31dd53043180aeb53ae36efb6c14a",
     "semantic_hash": ""
   },
   "C:\\Users\\User\\Desktop\\SaaS Gym\\frontend\\e2e\\members.spec.ts": {
-    "mtime": 1789014253.4480567,
-    "ast_hash": "7560f74ebc5892c11aa4b82c987b2e9e",
+    "mtime": 1789262084.3685923,
+    "ast_hash": "8e7bb0654cab4b27bb37c5cbf0282480",
     "semantic_hash": ""
   },
   "C:\\Users\\User\\Desktop\\SaaS Gym\\frontend\\lib\\api.ts": {
-    "mtime": 1789140754.7429264,
+    "mtime": 1789262084.3755965,
     "ast_hash": "1a3680cc04cbad7fd6d2b6a6c63001bd",
     "semantic_hash": ""
   },
@@ -670,7 +670,7 @@
     "semantic_hash": "1d8011eb18769078bf77502b220daa5e"
   },
   "C:\\Users\\User\\Desktop\\SaaS Gym\\frontend\\types\\next-auth.d.ts": {
-    "mtime": 1789222547.547441,
+    "mtime": 1789262084.3895962,
     "ast_hash": "a4f64cc48e93ce7efade7bd5a92aa9ab",
     "semantic_hash": ""
   },
@@ -680,7 +680,7 @@
     "semantic_hash": "a4c754b99da7527939236e45c7d5acf0"
   },
   "C:\\Users\\User\\Desktop\\SaaS Gym\\scripts\\e2e_test.py": {
-    "mtime": 1789010524.9579465,
+    "mtime": 1789262084.4585805,
     "ast_hash": "3cbe02b86bd4ad150696d21cdce6d425",
     "semantic_hash": ""
   },
@@ -700,7 +700,7 @@
     "semantic_hash": ""
   },
   "C:\\Users\\User\\Desktop\\SaaS Gym\\backend\\app\\models\\tenant\\class_session.py": {
-    "mtime": 1789152019.8907218,
+    "mtime": 1789262083.927788,
     "ast_hash": "f04fff05fa987c5257c3fd2c3282e1d1",
     "semantic_hash": ""
   },
@@ -710,113 +710,113 @@
     "semantic_hash": ""
   },
   "C:\\Users\\User\\Desktop\\SaaS Gym\\frontend\\components\\common\\MembershipStatusBadge.tsx": {
-    "mtime": 1789008576.1542535,
-    "ast_hash": "06edc206dffd8c3d96d8d81cb15c3536",
+    "mtime": 1789262084.3145607,
+    "ast_hash": "f47ecd1d176760dbbcb4a52efd3e1b80",
     "semantic_hash": ""
   },
   "C:\\Users\\User\\Desktop\\SaaS Gym\\frontend\\components\\common\\PARQForm.tsx": {
-    "mtime": 1783130757.2252173,
-    "ast_hash": "33152a3dd594c51a158ad1919b7fc824",
+    "mtime": 1789262084.3155615,
+    "ast_hash": "160727da0fad9a11b80aa66ce414424e",
     "semantic_hash": ""
   },
   "C:\\Users\\User\\Desktop\\SaaS Gym\\frontend\\components\\common\\QRCodeDisplay.tsx": {
-    "mtime": 1789100878.4363856,
+    "mtime": 1789262084.31656,
     "ast_hash": "0227f53312fc0f6b512ff4faa0076b59",
     "semantic_hash": ""
   },
   "C:\\Users\\User\\Desktop\\SaaS Gym\\frontend\\components\\ui\\alert.tsx": {
-    "mtime": 1789236690.6030483,
+    "mtime": 1789262084.3525915,
     "ast_hash": "88e925a0166d1fece46f1ab61c861a4e",
     "semantic_hash": ""
   },
   "C:\\Users\\User\\Desktop\\SaaS Gym\\frontend\\components\\ui\\blood-type-select.tsx": {
-    "mtime": 1779595388.2054188,
-    "ast_hash": "bcf583e0e74e9d6b630dae12f924b70a",
+    "mtime": 1789270387.960081,
+    "ast_hash": "288d75a56db52a4f4e20b35da9db28f2",
     "semantic_hash": ""
   },
   "C:\\Users\\User\\Desktop\\SaaS Gym\\frontend\\components\\ui\\currency-input.tsx": {
-    "mtime": 1779595141.2917962,
-    "ast_hash": "bbac65e564b576b5e16df6f4a99ac657",
+    "mtime": 1789270386.9716346,
+    "ast_hash": "30cb049131d04f0e3e0507e3dc6cdc3f",
     "semantic_hash": ""
   },
   "C:\\Users\\User\\Desktop\\SaaS Gym\\frontend\\components\\ui\\date-picker.tsx": {
-    "mtime": 1789100878.4643857,
-    "ast_hash": "457b1df5a97a855d4e1d8e619f541972",
+    "mtime": 1789270388.1709993,
+    "ast_hash": "e6576671ef9693aef562b9ad532f0070",
     "semantic_hash": ""
   },
   "C:\\Users\\User\\Desktop\\SaaS Gym\\frontend\\components\\ui\\file-upload.tsx": {
-    "mtime": 1789100878.465386,
-    "ast_hash": "8eb0c2fde40661d099c5513180128e4f",
+    "mtime": 1789268582.2167222,
+    "ast_hash": "10c74d16d455649d8cdcb09559d94eea",
     "semantic_hash": ""
   },
   "C:\\Users\\User\\Desktop\\SaaS Gym\\frontend\\components\\ui\\id-type-select.tsx": {
-    "mtime": 1779595390.4545207,
-    "ast_hash": "90ae80748ff5c1f51a5f1afdd867ab4e",
+    "mtime": 1789270387.7934804,
+    "ast_hash": "bb9c5308070fdafe64401f3000633e1f",
     "semantic_hash": ""
   },
   "C:\\Users\\User\\Desktop\\SaaS Gym\\frontend\\components\\ui\\phone-input.tsx": {
-    "mtime": 1789235273.0286033,
-    "ast_hash": "1278ffa2cffd955106756e25c47d2259",
+    "mtime": 1789270387.1346624,
+    "ast_hash": "14d56a696cd8ed03e014734d2587c7a1",
     "semantic_hash": ""
   },
   "C:\\Users\\User\\Desktop\\SaaS Gym\\frontend\\components\\ui\\switch.tsx": {
-    "mtime": 1779595261.8882065,
-    "ast_hash": "9948e2c697420cf79f51ab5ad66268cb",
+    "mtime": 1789270552.978855,
+    "ast_hash": "4ee31f72f17d652c4c0586a57dccc968",
     "semantic_hash": ""
   },
   "C:\\Users\\User\\Desktop\\SaaS Gym\\frontend\\components\\ui\\tabs.tsx": {
-    "mtime": 1779595288.832674,
-    "ast_hash": "7508eecede87585138e962e35c659afa",
+    "mtime": 1789268410.8702242,
+    "ast_hash": "a1fa07f1da920391d9ae958cd78cd51e",
     "semantic_hash": ""
   },
   "C:\\Users\\User\\Desktop\\SaaS Gym\\frontend\\components\\ui\\textarea.tsx": {
-    "mtime": 1779595302.1492827,
-    "ast_hash": "168866279a410712b2c9c67437e15836",
+    "mtime": 1789270388.109448,
+    "ast_hash": "42d1ae5bf65598d0cd7476ce5a8a5350",
     "semantic_hash": ""
   },
   "C:\\Users\\User\\Desktop\\SaaS Gym\\frontend\\components\\ui\\time-picker.tsx": {
-    "mtime": 1780250050.5606265,
-    "ast_hash": "d4a7485fe80c11e2b02abd331095ef84",
+    "mtime": 1789270388.2480438,
+    "ast_hash": "b5d4e156d76a9eb15de608150c8d4eba",
     "semantic_hash": ""
   },
   "C:\\Users\\User\\Desktop\\SaaS Gym\\frontend\\components\\ui\\weekday-picker.tsx": {
-    "mtime": 1779595196.0351622,
-    "ast_hash": "ed068cdc7a71a992e96f62473626507b",
+    "mtime": 1789268582.427689,
+    "ast_hash": "96d5d45b18aef4f9fe3b57b314fcb4db",
     "semantic_hash": ""
   },
   "C:\\Users\\User\\Desktop\\SaaS Gym\\frontend\\lib\\errors.ts": {
-    "mtime": 1789181445.299514,
+    "mtime": 1789262084.376596,
     "ast_hash": "9c3bab5f0d0b7853fce0ca69a5f5bef7",
     "semantic_hash": ""
   },
   "C:\\Users\\User\\Desktop\\SaaS Gym\\frontend\\lib\\types.ts": {
-    "mtime": 1789180548.7100787,
+    "mtime": 1789262084.3805974,
     "ast_hash": "1212432684270f5b2b7dfdbc285f0803",
     "semantic_hash": ""
   },
   "C:\\Users\\User\\Desktop\\SaaS Gym\\CLAUDE.md": {
-    "mtime": 1789257376.1890726,
-    "ast_hash": "cbb29d8c0d1371ab88735a9a434cb9b5",
+    "mtime": 1789267922.0179927,
+    "ast_hash": "f16004a201491da4db6bb55ba4e58efe",
     "semantic_hash": ""
   },
   "C:\\Users\\User\\Desktop\\SaaS Gym\\DEPLOY.md": {
-    "mtime": 1783109740.8964753,
+    "mtime": 1789262083.756309,
     "ast_hash": "38302db989dfb26319404cac01554ab9",
     "semantic_hash": ""
   },
   "C:\\Users\\User\\Desktop\\SaaS Gym\\DESIGN.md": {
-    "mtime": 1789235422.1019144,
-    "ast_hash": "b7e3822f90022fc52dfab7099dca9d46",
+    "mtime": 1789267848.514177,
+    "ast_hash": "50a70a2b9d7beb795311b2a1f6f5aaa5",
     "semantic_hash": ""
   },
   "C:\\Users\\User\\Desktop\\SaaS Gym\\docker-compose.yml": {
-    "mtime": 1789176520.7766902,
+    "mtime": 1789262084.243995,
     "ast_hash": "672ef2e97ea8134d931eeffe460538f7",
     "semantic_hash": ""
   },
   "C:\\Users\\User\\Desktop\\SaaS Gym\\PRODUCT.md": {
-    "mtime": 1789235422.1019144,
-    "ast_hash": "53cf11b81b094a2b44e18dd3c1eabd18",
+    "mtime": 1789267797.855023,
+    "ast_hash": "1084ea7593d2b3492121281f0f0068d2",
     "semantic_hash": ""
   },
   "C:\\Users\\User\\Desktop\\SaaS Gym\\README.md": {
@@ -825,13 +825,13 @@
     "semantic_hash": ""
   },
   "C:\\Users\\User\\Desktop\\SaaS Gym\\.github\\workflows\\deploy.yml": {
-    "mtime": 1789159373.6413786,
-    "ast_hash": "b8bbe0afaae7120526672e5f199dc63b",
+    "mtime": 1789268267.997735,
+    "ast_hash": "ec1f55a56493623e69f7a8a6e011d33e",
     "semantic_hash": ""
   },
   "C:\\Users\\User\\Desktop\\SaaS Gym\\backend\\requirements.txt": {
-    "mtime": 1789256651.5590816,
-    "ast_hash": "4b385ef42c00591a5cba25cda7ec4fd8",
+    "mtime": 1789262084.163457,
+    "ast_hash": "cb69a19e4524c13598aae03703ef10b1",
     "semantic_hash": ""
   },
   "C:\\Users\\User\\Desktop\\SaaS Gym\\docs\\superpowers\\plans\\2026-04-30-plan-1-foundation.md": {
@@ -910,18 +910,18 @@
     "semantic_hash": ""
   },
   "C:\\Users\\User\\Desktop\\SaaS Gym\\frontend\\app\\(dashboard)\\plans\\PlansClient.tsx": {
-    "mtime": 1789253936.0191183,
+    "mtime": 1789262084.2880607,
     "ast_hash": "fe46439a6d28c659b1299b60e5f71ac6",
     "semantic_hash": ""
   },
   "C:\\Users\\User\\Desktop\\SaaS Gym\\frontend\\components\\ui\\kpi-card.tsx": {
-    "mtime": 1789235369.0731506,
-    "ast_hash": "2b7816ec4e880accf340545c43181120",
+    "mtime": 1789268547.7533,
+    "ast_hash": "a1590058385a88353dd805697714167f",
     "semantic_hash": ""
   },
   "C:\\Users\\User\\Desktop\\SaaS Gym\\frontend\\components\\ui\\pricing-card.tsx": {
-    "mtime": 1789100878.4673855,
-    "ast_hash": "5eabb2805e7c6c050116883a82e0e06d",
+    "mtime": 1789270371.8312497,
+    "ast_hash": "83378f951724ac22ba742149b06cf6d4",
     "semantic_hash": ""
   },
   "C:\\Users\\User\\Desktop\\SaaS Gym\\AGENTS.md": {
@@ -940,7 +940,7 @@
     "semantic_hash": ""
   },
   "C:\\Users\\User\\Desktop\\SaaS Gym\\backend\\app\\api\\v1\\memberships.py": {
-    "mtime": 1789062340.1322346,
+    "mtime": 1789262083.7918737,
     "ast_hash": "8b57a018a072608b9483387926587270",
     "semantic_hash": ""
   },
@@ -950,7 +950,7 @@
     "semantic_hash": ""
   },
   "C:\\Users\\User\\Desktop\\SaaS Gym\\backend\\app\\services\\membership_status.py": {
-    "mtime": 1789099253.6460638,
+    "mtime": 1789262084.1164577,
     "ast_hash": "db222920880e24f4766fbe5bcb070f89",
     "semantic_hash": ""
   },
@@ -975,23 +975,18 @@
     "semantic_hash": ""
   },
   "C:\\Users\\User\\Desktop\\SaaS Gym\\frontend\\hooks\\useApiResource.ts": {
-    "mtime": 1788751441.9458416,
+    "mtime": 1789262084.372593,
     "ast_hash": "31817ae80cb24d5be9e41b5e0d28d566",
     "semantic_hash": ""
   },
   "C:\\Users\\User\\Desktop\\SaaS Gym\\frontend\\lib\\module-accents.ts": {
-    "mtime": 1783129733.5887043,
-    "ast_hash": "20d1acac67bc94b0df2cd84ef3b3d294",
+    "mtime": 1789262084.378595,
+    "ast_hash": "b273c44d1decbde709117fbc08d8b912",
     "semantic_hash": ""
   },
   "C:\\Users\\User\\Desktop\\SaaS Gym\\frontend\\types\\models.ts": {
     "mtime": 1781297113.3758147,
     "ast_hash": "e25e9cd940ce5bca61375a43965eb7af",
-    "semantic_hash": ""
-  },
-  "C:\\Users\\User\\Desktop\\SaaS Gym\\FITCONNECT_DESIGN_SYSTEM.md": {
-    "mtime": 1789235422.102914,
-    "ast_hash": "c92851011dcf5a5bb6d823462edf3781",
     "semantic_hash": ""
   },
   "C:\\Users\\User\\Desktop\\SaaS Gym\\.superpowers\\brainstorm\\745-1780248194\\content\\dashboard-v2.html": {
@@ -1035,37 +1030,37 @@
     "semantic_hash": ""
   },
   "C:\\Users\\User\\Desktop\\SaaS Gym\\backend\\migrate_tenants.py": {
-    "mtime": 1788737655.8390262,
+    "mtime": 1789262084.1434574,
     "ast_hash": "e507d331f5f95d875e487cbecb2e625e",
     "semantic_hash": ""
   },
   "C:\\Users\\User\\Desktop\\SaaS Gym\\backend\\app\\api\\v1\\admin.py": {
-    "mtime": 1789257041.5301104,
+    "mtime": 1789262083.7653162,
     "ast_hash": "7536c814ab68614971b85d6188c2e783",
     "semantic_hash": ""
   },
   "C:\\Users\\User\\Desktop\\SaaS Gym\\backend\\app\\api\\v1\\audit.py": {
-    "mtime": 1789097377.9124937,
+    "mtime": 1789262083.766072,
     "ast_hash": "6999a5e7113bb8acceda24d984fb086e",
     "semantic_hash": ""
   },
   "C:\\Users\\User\\Desktop\\SaaS Gym\\backend\\app\\api\\v1\\cash.py": {
-    "mtime": 1789254419.6938026,
-    "ast_hash": "f489f949d1fa4276b2841c4fe2e9ed2b",
+    "mtime": 1789262083.7680843,
+    "ast_hash": "3d1a0bab67a0fd6ee7e08906ac8c250b",
     "semantic_hash": ""
   },
   "C:\\Users\\User\\Desktop\\SaaS Gym\\backend\\app\\api\\v1\\class_sessions.py": {
-    "mtime": 1789152237.222643,
+    "mtime": 1789262083.770086,
     "ast_hash": "781f22af28a013f035e74a79ec5b0849",
     "semantic_hash": ""
   },
   "C:\\Users\\User\\Desktop\\SaaS Gym\\backend\\app\\api\\v1\\locations.py": {
-    "mtime": 1789062444.6685128,
+    "mtime": 1789262083.7766018,
     "ast_hash": "2feb50272e8b3115b4e2c6806327d828",
     "semantic_hash": ""
   },
   "C:\\Users\\User\\Desktop\\SaaS Gym\\backend\\app\\api\\v1\\promo_codes.py": {
-    "mtime": 1789062444.686036,
+    "mtime": 1789262083.8337913,
     "ast_hash": "64bcf1709b6861c747522c3fd55be6cb",
     "semantic_hash": ""
   },
@@ -1085,13 +1080,13 @@
     "semantic_hash": ""
   },
   "C:\\Users\\User\\Desktop\\SaaS Gym\\backend\\app\\models\\tenant\\audit_log.py": {
-    "mtime": 1789097377.9114926,
+    "mtime": 1789262083.9247875,
     "ast_hash": "93b014966a78f8239b78c95de039f613",
     "semantic_hash": ""
   },
   "C:\\Users\\User\\Desktop\\SaaS Gym\\backend\\app\\models\\tenant\\cash_shift.py": {
-    "mtime": 1789254325.2163465,
-    "ast_hash": "9ecee2ae31fc82bb021c009ba76769b2",
+    "mtime": 1789262083.9257867,
+    "ast_hash": "7f57f09739db8ff3bbf01f7d77806763",
     "semantic_hash": ""
   },
   "C:\\Users\\User\\Desktop\\SaaS Gym\\backend\\app\\models\\tenant\\expense.py": {
@@ -1100,7 +1095,7 @@
     "semantic_hash": ""
   },
   "C:\\Users\\User\\Desktop\\SaaS Gym\\backend\\app\\models\\tenant\\gym_settings.py": {
-    "mtime": 1789008039.250562,
+    "mtime": 1789262083.9317877,
     "ast_hash": "f115aa16559f565da929303ff19b42e4",
     "semantic_hash": ""
   },
@@ -1110,7 +1105,7 @@
     "semantic_hash": ""
   },
   "C:\\Users\\User\\Desktop\\SaaS Gym\\backend\\app\\models\\tenant\\notification_outbox.py": {
-    "mtime": 1789143383.0895123,
+    "mtime": 1789262084.040009,
     "ast_hash": "1a2f1196f3c4fab9db44e31fb282600b",
     "semantic_hash": ""
   },
@@ -1145,7 +1140,7 @@
     "semantic_hash": ""
   },
   "C:\\Users\\User\\Desktop\\SaaS Gym\\backend\\app\\services\\events.py": {
-    "mtime": 1789151063.9146655,
+    "mtime": 1789262084.1094575,
     "ast_hash": "5888fd75e6099f2067777a7786ff077e",
     "semantic_hash": ""
   },
@@ -1155,12 +1150,12 @@
     "semantic_hash": ""
   },
   "C:\\Users\\User\\Desktop\\SaaS Gym\\backend\\app\\services\\jobs.py": {
-    "mtime": 1789256982.0093513,
+    "mtime": 1789262084.1144574,
     "ast_hash": "2ce2055e722f25ab4ff33f8bd0c50186",
     "semantic_hash": ""
   },
   "C:\\Users\\User\\Desktop\\SaaS Gym\\backend\\app\\services\\payment_confirmation.py": {
-    "mtime": 1789151070.7016852,
+    "mtime": 1789262084.1274571,
     "ast_hash": "740364a08f426cb6e42da53eb1aa4525",
     "semantic_hash": ""
   },
@@ -1170,12 +1165,12 @@
     "semantic_hash": ""
   },
   "C:\\Users\\User\\Desktop\\SaaS Gym\\backend\\app\\services\\receipts.py": {
-    "mtime": 1788738631.2522054,
+    "mtime": 1789262084.1314578,
     "ast_hash": "6fb6d30e4f0cdcbbee447a3ea83631de",
     "semantic_hash": ""
   },
   "C:\\Users\\User\\Desktop\\SaaS Gym\\backend\\app\\services\\scheduler.py": {
-    "mtime": 1789256982.0103538,
+    "mtime": 1789262084.1374576,
     "ast_hash": "669357daa04b93c4691691da375618d0",
     "semantic_hash": ""
   },
@@ -1185,7 +1180,7 @@
     "semantic_hash": ""
   },
   "C:\\Users\\User\\Desktop\\SaaS Gym\\backend\\app\\services\\whatsapp.py": {
-    "mtime": 1789143090.0462065,
+    "mtime": 1789262084.1434574,
     "ast_hash": "818ad598e783c3bbacda652e24859b07",
     "semantic_hash": ""
   },
@@ -1225,37 +1220,37 @@
     "semantic_hash": ""
   },
   "C:\\Users\\User\\Desktop\\SaaS Gym\\backend\\tests\\test_cash.py": {
-    "mtime": 1789198630.5529852,
-    "ast_hash": "95f26b6222b55cf08b1411bbf6c7416d",
+    "mtime": 1789262084.1774583,
+    "ast_hash": "c58fa5cb672f917baff67d6a62f4c4d4",
     "semantic_hash": ""
   },
   "C:\\Users\\User\\Desktop\\SaaS Gym\\backend\\tests\\test_checkin_decisions.py": {
-    "mtime": 1783130539.968145,
+    "mtime": 1789262084.1814578,
     "ast_hash": "d8fdfd042a4a544f3632a7d1f7c2d8a2",
     "semantic_hash": ""
   },
   "C:\\Users\\User\\Desktop\\SaaS Gym\\backend\\tests\\test_class_sessions.py": {
-    "mtime": 1789198630.5529852,
+    "mtime": 1789262084.1884577,
     "ast_hash": "0ef11add001e9f0264e08b5c6f4b4042",
     "semantic_hash": ""
   },
   "C:\\Users\\User\\Desktop\\SaaS Gym\\backend\\tests\\test_membership_lifecycle.py": {
-    "mtime": 1783164875.8654337,
+    "mtime": 1789262084.2054677,
     "ast_hash": "8943905a284b7f471de27623f137e369",
     "semantic_hash": ""
   },
   "C:\\Users\\User\\Desktop\\SaaS Gym\\backend\\tests\\test_notifications_engine.py": {
-    "mtime": 1783130707.261052,
+    "mtime": 1789262084.2154703,
     "ast_hash": "f179ee29dfdba537eebabad78d9b33e4",
     "semantic_hash": ""
   },
   "C:\\Users\\User\\Desktop\\SaaS Gym\\backend\\tests\\test_wompi_webhook.py": {
-    "mtime": 1789198630.5529852,
-    "ast_hash": "abf06e449997ef8b9c77ef88dab515fc",
+    "mtime": 1789262084.2399957,
+    "ast_hash": "b25e6cf9944987c0d5389edd68221b8d",
     "semantic_hash": ""
   },
   "C:\\Users\\User\\Desktop\\SaaS Gym\\frontend\\app\\(dashboard)\\audit\\AuditClient.tsx": {
-    "mtime": 1789255219.9124918,
+    "mtime": 1789262084.2540026,
     "ast_hash": "e95ba35e42c5841f11c99f82805271a6",
     "semantic_hash": ""
   },
@@ -1265,7 +1260,7 @@
     "semantic_hash": ""
   },
   "C:\\Users\\User\\Desktop\\SaaS Gym\\frontend\\app\\(dashboard)\\classes\\agenda\\AgendaClient.tsx": {
-    "mtime": 1789253788.039321,
+    "mtime": 1789262084.2580018,
     "ast_hash": "c088f64c0aec3c107fd233a02151657d",
     "semantic_hash": ""
   },
@@ -1275,8 +1270,8 @@
     "semantic_hash": ""
   },
   "C:\\Users\\User\\Desktop\\SaaS Gym\\frontend\\app\\(dashboard)\\payments\\cash\\CashClient.tsx": {
-    "mtime": 1789254634.5352643,
-    "ast_hash": "b67ee949ec843b4bbc5969e933755179",
+    "mtime": 1789262084.2865517,
+    "ast_hash": "1831451e6b7c4dd48ec5d49260431342",
     "semantic_hash": ""
   },
   "C:\\Users\\User\\Desktop\\SaaS Gym\\frontend\\app\\(dashboard)\\payments\\cash\\page.tsx": {
@@ -1285,22 +1280,22 @@
     "semantic_hash": ""
   },
   "C:\\Users\\User\\Desktop\\SaaS Gym\\frontend\\components\\common\\BrandMark.tsx": {
-    "mtime": 1780289688.6307926,
-    "ast_hash": "cb095d5eca5a730082d9edd90fcb09ca",
+    "mtime": 1789268136.1197903,
+    "ast_hash": "dfb6d816e9b0fd5095471c22513a1c4e",
     "semantic_hash": ""
   },
   "C:\\Users\\User\\Desktop\\SaaS Gym\\frontend\\components\\dashboard\\OperationsToday.tsx": {
-    "mtime": 1789242320.3485422,
+    "mtime": 1789262084.3235612,
     "ast_hash": "45c89e053a4ad3782d207863c693fed2",
     "semantic_hash": ""
   },
   "C:\\Users\\User\\Desktop\\SaaS Gym\\frontend\\components\\settings\\IntegrationsSection.tsx": {
-    "mtime": 1789253788.0793238,
+    "mtime": 1789262084.3450842,
     "ast_hash": "c9e36a898f930e4a21e5e310335d62c9",
     "semantic_hash": ""
   },
   "C:\\Users\\User\\Desktop\\SaaS Gym\\frontend\\components\\settings\\OperationsSection.tsx": {
-    "mtime": 1789253936.0402637,
+    "mtime": 1789262084.347077,
     "ast_hash": "81453449bdb22fd2479fafc77f6423b3",
     "semantic_hash": ""
   },
@@ -1325,17 +1320,17 @@
     "semantic_hash": ""
   },
   "C:\\Users\\User\\Desktop\\SaaS Gym\\backend\\app\\api\\v1\\instructors.py": {
-    "mtime": 1789196739.366625,
+    "mtime": 1789262083.7746027,
     "ast_hash": "4921d714624567379a4f3d1a46f9741f",
     "semantic_hash": ""
   },
   "C:\\Users\\User\\Desktop\\SaaS Gym\\backend\\app\\api\\v1\\kiosk.py": {
-    "mtime": 1789062444.6670043,
+    "mtime": 1789262083.775602,
     "ast_hash": "a35aec5723c0bd29752a43c09af781e0",
     "semantic_hash": ""
   },
   "C:\\Users\\User\\Desktop\\SaaS Gym\\backend\\app\\api\\v1\\products.py": {
-    "mtime": 1789064158.9698052,
+    "mtime": 1789262083.8211262,
     "ast_hash": "5e9dabbb8d158be43e6f2bebb681acbc",
     "semantic_hash": ""
   },
@@ -1345,12 +1340,12 @@
     "semantic_hash": ""
   },
   "C:\\Users\\User\\Desktop\\SaaS Gym\\backend\\app\\models\\tenant\\instructor.py": {
-    "mtime": 1789151986.8026798,
+    "mtime": 1789262083.9507878,
     "ast_hash": "74abd2624faca2f8312dba4edfe28f16",
     "semantic_hash": ""
   },
   "C:\\Users\\User\\Desktop\\SaaS Gym\\backend\\app\\models\\tenant\\kiosk_device.py": {
-    "mtime": 1788743662.5157816,
+    "mtime": 1789262083.9527895,
     "ast_hash": "e940b786e028de9c6944c8f81ff6d69c",
     "semantic_hash": ""
   },
@@ -1360,17 +1355,17 @@
     "semantic_hash": ""
   },
   "C:\\Users\\User\\Desktop\\SaaS Gym\\backend\\app\\models\\tenant\\product.py": {
-    "mtime": 1788738116.9536493,
+    "mtime": 1789262084.0430071,
     "ast_hash": "3b3a1c2284116a956992da3327092a2c",
     "semantic_hash": ""
   },
   "C:\\Users\\User\\Desktop\\SaaS Gym\\backend\\app\\schemas\\pos.py": {
-    "mtime": 1788738116.9567468,
+    "mtime": 1789262084.1034434,
     "ast_hash": "b262883b63b74f90a1bd919467051798",
     "semantic_hash": ""
   },
   "C:\\Users\\User\\Desktop\\SaaS Gym\\backend\\app\\services\\checkin.py": {
-    "mtime": 1788740564.280097,
+    "mtime": 1789262084.1084573,
     "ast_hash": "da470b3a36dc83057f6ec36622fa38f6",
     "semantic_hash": ""
   },
@@ -1405,57 +1400,57 @@
     "semantic_hash": ""
   },
   "C:\\Users\\User\\Desktop\\SaaS Gym\\backend\\tests\\test_cedula_unica.py": {
-    "mtime": 1783197479.1864882,
+    "mtime": 1789262084.180457,
     "ast_hash": "2eb4014ade0710f3f603e48c5e6cb6ad",
     "semantic_hash": ""
   },
   "C:\\Users\\User\\Desktop\\SaaS Gym\\backend\\tests\\test_class_access.py": {
-    "mtime": 1789198630.5529852,
+    "mtime": 1789262084.182459,
     "ast_hash": "72ba10ff6dd00c0915bde855cb98c92a",
     "semantic_hash": ""
   },
   "C:\\Users\\User\\Desktop\\SaaS Gym\\backend\\tests\\test_kiosk.py": {
-    "mtime": 1789198682.0824757,
+    "mtime": 1789262084.1984582,
     "ast_hash": "45fa28b681ef7424508c82238a52038c",
     "semantic_hash": ""
   },
   "C:\\Users\\User\\Desktop\\SaaS Gym\\backend\\tests\\test_pos.py": {
-    "mtime": 1789098482.2654898,
+    "mtime": 1789262084.2259953,
     "ast_hash": "f9ce10872c86dbda329f87aee327f2f9",
     "semantic_hash": ""
   },
   "C:\\Users\\User\\Desktop\\SaaS Gym\\frontend\\app\\(dashboard)\\payments\\HistoryTab.tsx": {
-    "mtime": 1789253935.996111,
+    "mtime": 1789262084.277517,
     "ast_hash": "8da1dd2330c86cdc1d0d4664cb2a32fe",
     "semantic_hash": ""
   },
   "C:\\Users\\User\\Desktop\\SaaS Gym\\frontend\\app\\(dashboard)\\payments\\PosTab.tsx": {
-    "mtime": 1789253788.0493193,
+    "mtime": 1789262084.2820332,
     "ast_hash": "f62933b3551437fee8264c375453a1b2",
     "semantic_hash": ""
   },
   "C:\\Users\\User\\Desktop\\SaaS Gym\\frontend\\app\\(dashboard)\\payments\\ProductsTab.tsx": {
-    "mtime": 1789253935.9991112,
+    "mtime": 1789262084.2830312,
     "ast_hash": "28f865f3ea3e226250074b81287f785f",
     "semantic_hash": ""
   },
   "C:\\Users\\User\\Desktop\\SaaS Gym\\frontend\\app\\(dashboard)\\payments\\ReceivablesTab.tsx": {
-    "mtime": 1789253788.0523207,
+    "mtime": 1789262084.284033,
     "ast_hash": "81e0757eb83a98c1974922f419a00e83",
     "semantic_hash": ""
   },
   "C:\\Users\\User\\Desktop\\SaaS Gym\\frontend\\app\\(dashboard)\\payments\\shared.ts": {
-    "mtime": 1789254473.4874935,
+    "mtime": 1789262084.2865517,
     "ast_hash": "d450d52b794cdf1f97897ad7fce9041f",
     "semantic_hash": ""
   },
   "C:\\Users\\User\\Desktop\\SaaS Gym\\frontend\\app\\kiosk\\KioskClient.tsx": {
-    "mtime": 1789257803.9071188,
+    "mtime": 1789262084.3000395,
     "ast_hash": "8a23452e8d05710a5fd0c82faeb5a8f2",
     "semantic_hash": ""
   },
   "C:\\Users\\User\\Desktop\\SaaS Gym\\frontend\\app\\kiosk\\page.tsx": {
-    "mtime": 1789257803.9081173,
+    "mtime": 1789262084.3010395,
     "ast_hash": "45f1a1452ab8ed75a5e3a98bcf2b1b18",
     "semantic_hash": ""
   },
@@ -1465,37 +1460,37 @@
     "semantic_hash": ""
   },
   "C:\\Users\\User\\Desktop\\SaaS Gym\\frontend\\components\\landing\\LandingClient.tsx": {
-    "mtime": 1789259009.1668706,
-    "ast_hash": "53300ad19b91f505ef5c8f9010160987",
+    "mtime": 1789262084.3245604,
+    "ast_hash": "0e9ebf481598a2b9fd44fd25a1dbaf0d",
     "semantic_hash": ""
   },
   "C:\\Users\\User\\Desktop\\SaaS Gym\\frontend\\components\\settings\\KioskSection.tsx": {
-    "mtime": 1789253788.080486,
+    "mtime": 1789262084.3460772,
     "ast_hash": "6cdff60f000c012e5aa1dcfc055e6c3a",
     "semantic_hash": ""
   },
   "C:\\Users\\User\\Desktop\\SaaS Gym\\frontend\\components\\ui\\data-table.tsx": {
-    "mtime": 1781230083.6161928,
-    "ast_hash": "bf585c0bd03c606cda29e6f5046dfc42",
+    "mtime": 1789268582.1486146,
+    "ast_hash": "39526bee3aafd78b5594699bb810c861",
     "semantic_hash": ""
   },
   "C:\\Users\\User\\Desktop\\SaaS Gym\\frontend\\components\\ui\\form-dialog.tsx": {
-    "mtime": 1781230099.6635158,
-    "ast_hash": "f2a97e326341db8786049a47c6a72a51",
+    "mtime": 1789268582.0373917,
+    "ast_hash": "7f50d5925aad9464ef6c2d2af9e1946a",
     "semantic_hash": ""
   },
   "C:\\Users\\User\\Desktop\\SaaS Gym\\frontend\\components\\ui\\status-badge.tsx": {
-    "mtime": 1789236731.999024,
-    "ast_hash": "54fd751c00a812e67e4f99f3b2415238",
+    "mtime": 1789268402.5290942,
+    "ast_hash": "6c74d00f449eefc0d312bf66412f4a01",
     "semantic_hash": ""
   },
   "C:\\Users\\User\\Desktop\\SaaS Gym\\frontend\\hooks\\useReceptionEvents.ts": {
-    "mtime": 1789100895.101098,
+    "mtime": 1789262084.3745897,
     "ast_hash": "5d69cc6d2bde93920d7f5ae7668a7ae7",
     "semantic_hash": ""
   },
   "C:\\Users\\User\\Desktop\\SaaS Gym\\frontend\\lib\\format.ts": {
-    "mtime": 1789140754.7419207,
+    "mtime": 1789262084.3775957,
     "ast_hash": "1a61417bfc5f3b5bc8803b697a7700d8",
     "semantic_hash": ""
   },
@@ -1515,28 +1510,28 @@
     "semantic_hash": ""
   },
   "C:\\Users\\User\\Desktop\\SaaS Gym\\backend\\tests\\test_transfer_flow.py": {
-    "mtime": 1789198630.5529852,
+    "mtime": 1789262084.2389932,
     "ast_hash": "7ffd2e21295f89a867894f8c3423755f",
     "semantic_hash": ""
   },
   "C:\\Users\\User\\Desktop\\SaaS Gym\\frontend\\components\\settings\\BillingSection.tsx": {
-    "mtime": 1789253936.0372617,
+    "mtime": 1789262084.3410778,
     "ast_hash": "e6aedffea7cb58650e9df306766daa23",
     "semantic_hash": ""
   },
   "C:\\Users\\User\\Desktop\\SaaS Gym\\frontend\\components\\ui\\city-combobox.tsx": {
-    "mtime": 1789235316.5020738,
-    "ast_hash": "daadb74c01b59f45cdc4bb812c017296",
+    "mtime": 1789270386.8117135,
+    "ast_hash": "42f5914f4f7e667573d3abb4698eccd8",
     "semantic_hash": ""
   },
   "C:\\Users\\User\\Desktop\\SaaS Gym\\frontend\\components\\ui\\country-select.tsx": {
-    "mtime": 1789235273.0266092,
-    "ast_hash": "2dfd38b0f2f99123b4f9e725fdf19d9d",
+    "mtime": 1789270387.4811893,
+    "ast_hash": "4e626674ca299dac892d3495cdc92c3e",
     "semantic_hash": ""
   },
   "C:\\Users\\User\\Desktop\\SaaS Gym\\frontend\\components\\ui\\gender-select.tsx": {
-    "mtime": 1781363452.3382158,
-    "ast_hash": "02cf509e56a8d0f326a56611cb07475e",
+    "mtime": 1789270387.6386614,
+    "ast_hash": "4c1f92c46cc5e5537d06a6aa3e4ff43e",
     "semantic_hash": ""
   },
   "C:\\Users\\User\\Desktop\\SaaS Gym\\frontend\\lib\\geo.ts": {
@@ -1545,22 +1540,22 @@
     "semantic_hash": ""
   },
   "C:\\Users\\User\\Desktop\\SaaS Gym\\backend\\app\\api\\v1\\messages.py": {
-    "mtime": 1789151080.2210007,
+    "mtime": 1789262083.7968726,
     "ast_hash": "717286726ea5c19ba9708a8595599423",
     "semantic_hash": ""
   },
   "C:\\Users\\User\\Desktop\\SaaS Gym\\backend\\app\\api\\v1\\onboarding.py": {
-    "mtime": 1789197588.5293581,
+    "mtime": 1789262083.817405,
     "ast_hash": "73714714976956897a4b1a8e7187db4e",
     "semantic_hash": ""
   },
   "C:\\Users\\User\\Desktop\\SaaS Gym\\backend\\app\\models\\tenant\\message_template.py": {
-    "mtime": 1789143293.451625,
+    "mtime": 1789262084.0380075,
     "ast_hash": "899acd303fe11700d4bba44e0e4488c5",
     "semantic_hash": ""
   },
   "C:\\Users\\User\\Desktop\\SaaS Gym\\backend\\app\\services\\exports.py": {
-    "mtime": 1789255780.8991375,
+    "mtime": 1789262084.1114569,
     "ast_hash": "8f96091cff601d05e3f8b11f59f322e9",
     "semantic_hash": ""
   },
@@ -1570,13 +1565,13 @@
     "semantic_hash": ""
   },
   "C:\\Users\\User\\Desktop\\SaaS Gym\\backend\\app\\services\\message_templates.py": {
-    "mtime": 1789142999.6971447,
-    "ast_hash": "26c8e5169721ffa7fd58deb4d57b97e5",
+    "mtime": 1789262084.1184566,
+    "ast_hash": "77d422e552bd2929454e86058add6a45",
     "semantic_hash": ""
   },
   "C:\\Users\\User\\Desktop\\SaaS Gym\\backend\\app\\services\\storage.py": {
-    "mtime": 1789008988.1873467,
-    "ast_hash": "6ec355cd7d6c6880e63b9710d54d0af5",
+    "mtime": 1789262084.141458,
+    "ast_hash": "198a3914edf980164b02618ff2125bd8",
     "semantic_hash": ""
   },
   "C:\\Users\\User\\Desktop\\SaaS Gym\\backend\\migrations\\tenant\\versions\\d8e9f0a1b2c3_i1_message_templates.py": {
@@ -1585,12 +1580,12 @@
     "semantic_hash": ""
   },
   "C:\\Users\\User\\Desktop\\SaaS Gym\\frontend\\components\\dashboard\\InsightsStrip.tsx": {
-    "mtime": 1789242320.267758,
+    "mtime": 1789262084.3185594,
     "ast_hash": "5d06526da253e91e204273bfe03993b4",
     "semantic_hash": ""
   },
   "C:\\Users\\User\\Desktop\\SaaS Gym\\frontend\\components\\dashboard\\OnboardingChecklist.tsx": {
-    "mtime": 1789140915.80621,
+    "mtime": 1789262084.3215618,
     "ast_hash": "ce60611faeeeac10ef6e8f1b28efce8d",
     "semantic_hash": ""
   },
@@ -1600,7 +1595,7 @@
     "semantic_hash": ""
   },
   "C:\\Users\\User\\Desktop\\SaaS Gym\\frontend\\proxy.ts": {
-    "mtime": 1789255048.0206673,
+    "mtime": 1789262084.3865974,
     "ast_hash": "897a226fdc4fdafd390146fe888f045a",
     "semantic_hash": ""
   },
@@ -1620,12 +1615,12 @@
     "semantic_hash": ""
   },
   "C:\\Users\\User\\Desktop\\SaaS Gym\\backend\\tests\\test_rbac.py": {
-    "mtime": 1789152574.3561046,
+    "mtime": 1789262084.228996,
     "ast_hash": "99f624bf97527164f76ff7225a6c623c",
     "semantic_hash": ""
   },
   "C:\\Users\\User\\Desktop\\SaaS Gym\\frontend\\app\\(auth)\\aceptar-invitacion\\page.tsx": {
-    "mtime": 1789235240.5380998,
+    "mtime": 1789262084.2489953,
     "ast_hash": "0103408cb283083b0a151216bab89b25",
     "semantic_hash": ""
   },
@@ -1635,13 +1630,13 @@
     "semantic_hash": ""
   },
   "C:\\Users\\User\\Desktop\\SaaS Gym\\backend\\tests\\test_tenant_migrations.py": {
-    "mtime": 1789151455.1875336,
+    "mtime": 1789262084.2359939,
     "ast_hash": "2c4f16d33f3259fe66e321a2af768c71",
     "semantic_hash": ""
   },
   "C:\\Users\\User\\Desktop\\SaaS Gym\\docs\\TENANT_MIGRATIONS.md": {
-    "mtime": 1789008076.3253782,
-    "ast_hash": "231897511489ad727566ff621f1330fb",
+    "mtime": 1789262084.246995,
+    "ast_hash": "f295e7f6a844344c59d0d9f82f255775",
     "semantic_hash": ""
   },
   "C:\\Users\\User\\Desktop\\SaaS Gym\\backend\\tests\\test_realtime.py": {
@@ -1655,8 +1650,8 @@
     "semantic_hash": ""
   },
   "C:\\Users\\User\\Desktop\\SaaS Gym\\backend\\tests\\test_observability.py": {
-    "mtime": 1789198630.5529852,
-    "ast_hash": "3900102c4444f505f1858e440bb1bb7b",
+    "mtime": 1789262084.2164721,
+    "ast_hash": "78aeebd5c6857e56b253d40311f3275e",
     "semantic_hash": ""
   },
   "C:\\Users\\User\\Desktop\\SaaS Gym\\infra\\README.md": {
@@ -1665,12 +1660,12 @@
     "semantic_hash": ""
   },
   "C:\\Users\\User\\Desktop\\SaaS Gym\\backend\\app\\services\\member_import.py": {
-    "mtime": 1789256004.2117333,
+    "mtime": 1789262084.1164577,
     "ast_hash": "4b93aa4c7392dd13ddb9fc818b99e801",
     "semantic_hash": ""
   },
   "C:\\Users\\User\\Desktop\\SaaS Gym\\frontend\\app\\(dashboard)\\ayuda\\page.tsx": {
-    "mtime": 1789100878.4103842,
+    "mtime": 1789262084.2550037,
     "ast_hash": "115f9cf1de1bec0a3feca802ecd1087b",
     "semantic_hash": ""
   },
@@ -1685,22 +1680,22 @@
     "semantic_hash": ""
   },
   "C:\\Users\\User\\Desktop\\SaaS Gym\\frontend\\app\\(legal)\\terminos\\page.tsx": {
-    "mtime": 1789100878.431385,
+    "mtime": 1789262084.2970388,
     "ast_hash": "630548b0c568c38ae791fe1111441fa2",
     "semantic_hash": ""
   },
   "C:\\Users\\User\\Desktop\\SaaS Gym\\frontend\\app\\(legal)\\tratamiento-datos\\page.tsx": {
-    "mtime": 1788743901.7298226,
+    "mtime": 1789262084.2980394,
     "ast_hash": "8d81d68ad84492199030e340a537e304",
     "semantic_hash": ""
   },
   "C:\\Users\\User\\Desktop\\SaaS Gym\\frontend\\components\\members\\MemberImportDialog.tsx": {
-    "mtime": 1789253788.0753233,
+    "mtime": 1789262084.329068,
     "ast_hash": "7cb9972e60d53f02d334a00400d9944b",
     "semantic_hash": ""
   },
   "C:\\Users\\User\\Desktop\\SaaS Gym\\frontend\\components\\settings\\TeamSection.tsx": {
-    "mtime": 1789253788.0814855,
+    "mtime": 1789262084.3505917,
     "ast_hash": "3b8089349ddf82419968d4f43677639e",
     "semantic_hash": ""
   },
@@ -1710,693 +1705,693 @@
     "semantic_hash": ""
   },
   "C:\\Users\\User\\Desktop\\SaaS Gym\\DEPLOY-LITE.md": {
-    "mtime": 1789158899.12571,
+    "mtime": 1789262083.7533097,
     "ast_hash": "b07e286b31b4ed79977a6e4c79cc6b56",
     "semantic_hash": ""
   },
   "C:\\Users\\User\\Desktop\\SaaS Gym\\deploy\\docker-compose.prod.yml": {
-    "mtime": 1789159373.6403794,
+    "mtime": 1789262084.242996,
     "ast_hash": "06d05371982225c560d0ad42222d4b4a",
     "semantic_hash": ""
   },
   "C:\\Users\\User\\Desktop\\SaaS Gym\\backend\\tests\\helpers.py": {
-    "mtime": 1783130478.8375492,
-    "ast_hash": "2d0f912b3a76ca2cbc03ac6e73578df0",
+    "mtime": 1789262084.1734579,
+    "ast_hash": "df7a0d23ec0945886f1a1f9fe4e104fa",
     "semantic_hash": ""
   },
   "C:\\Users\\User\\Desktop\\SaaS Gym\\backend\\tests\\test_onboarding.py": {
-    "mtime": 1783438288.4535553,
-    "ast_hash": "e70ca483d103b5e839aaddd85878f25e",
+    "mtime": 1789262084.2164721,
+    "ast_hash": "129dd9d34d94729342826faea375298d",
     "semantic_hash": ""
   },
   "C:\\Users\\User\\Desktop\\SaaS Gym\\frontend\\components\\common\\AuthCardHeader.tsx": {
-    "mtime": 1783129783.92817,
-    "ast_hash": "711dc515ba57dee72c86fc3d3e1dc627",
+    "mtime": 1789262084.3115525,
+    "ast_hash": "72d7b0fc4177774cfd5d4f8c4c79a68c",
     "semantic_hash": ""
   },
   "C:\\Users\\User\\Desktop\\SaaS Gym\\frontend\\components\\common\\CheckinToaster.tsx": {
-    "mtime": 1789253788.05932,
-    "ast_hash": "6e2bd0eee0f0b30f11674661aec1addd",
+    "mtime": 1789270611.477506,
+    "ast_hash": "0f80c8e90d4b1ea430e9909cad10b0ce",
     "semantic_hash": ""
   },
   "C:\\Users\\User\\Desktop\\SaaS Gym\\frontend\\components\\dashboard\\LiveNowStrip.tsx": {
-    "mtime": 1789242320.2697568,
+    "mtime": 1789262084.3195605,
     "ast_hash": "3ea423387154ddb44530817c97290ed0",
     "semantic_hash": ""
   },
   "C:\\Users\\User\\Desktop\\SaaS Gym\\backend\\migrations\\tenant\\versions\\b7c8d9e0f1a2_cash_shifts_enabled.py": {
-    "mtime": 1783226280.1234698,
-    "ast_hash": "59c5506c2b052529b4a773faa308c5e6",
+    "mtime": 1789262084.1514578,
+    "ast_hash": "e2a411647d94b8d54816e3a9b19d4005",
     "semantic_hash": ""
   },
   "C:\\Users\\User\\Desktop\\SaaS Gym\\backend\\migrations\\tenant\\versions\\c9d0e1f2a3b4_tour_completed_at.py": {
-    "mtime": 1783437938.0313995,
-    "ast_hash": "86f6c07a3133f9baa3befa7e50230731",
+    "mtime": 1789262084.1534572,
+    "ast_hash": "cef0bcd973ec8a4e3e50e686a68f626c",
     "semantic_hash": ""
   },
   "C:\\Users\\User\\Desktop\\SaaS Gym\\frontend\\components\\dashboard\\OnboardingTour.tsx": {
-    "mtime": 1783438056.4093254,
-    "ast_hash": "767033a096e422a9fd634748a539959f",
+    "mtime": 1789262084.3225608,
+    "ast_hash": "20893d2651b89ed76d2abb793d04c83d",
     "semantic_hash": ""
   },
   "C:\\Users\\User\\Desktop\\SaaS Gym\\backend\\app\\api\\v1\\day_passes.py": {
-    "mtime": 1789099647.2501757,
+    "mtime": 1789262083.7730858,
     "ast_hash": "659f07ba55bd84c6dec8c32c51d956e5",
     "semantic_hash": ""
   },
   "C:\\Users\\User\\Desktop\\SaaS Gym\\backend\\app\\db\\tenant_align.py": {
-    "mtime": 1789256862.7638853,
+    "mtime": 1789262083.846588,
     "ast_hash": "59ab5ec2b308eb5c6bcfdd86c53d4027",
     "semantic_hash": ""
   },
   "C:\\Users\\User\\Desktop\\SaaS Gym\\backend\\app\\models\\tenant\\day_pass.py": {
-    "mtime": 1788735612.9689684,
+    "mtime": 1789262083.929788,
     "ast_hash": "f09cada712b68d1a97075adee792f9e4",
     "semantic_hash": ""
   },
   "C:\\Users\\User\\Desktop\\SaaS Gym\\backend\\app\\schemas\\day_pass.py": {
-    "mtime": 1788735805.86083,
-    "ast_hash": "f132dd7fa3a6158e6d01d258f59b2b99",
+    "mtime": 1789262084.047006,
+    "ast_hash": "419112094a4cf8e565aeb8ce7532075d",
     "semantic_hash": ""
   },
   "C:\\Users\\User\\Desktop\\SaaS Gym\\backend\\app\\services\\day_passes.py": {
-    "mtime": 1788737655.8542676,
+    "mtime": 1789262084.1084573,
     "ast_hash": "5163ed36e44e73100fc1b488061138df",
     "semantic_hash": ""
   },
   "C:\\Users\\User\\Desktop\\SaaS Gym\\backend\\app\\services\\payments.py": {
-    "mtime": 1789097170.6051393,
+    "mtime": 1789262084.1294584,
     "ast_hash": "258041b7ed59f929269cb629fa6381bd",
     "semantic_hash": ""
   },
   "C:\\Users\\User\\Desktop\\SaaS Gym\\backend\\migrations\\tenant\\versions\\d1e2f3a4b5c6_j1_ingresos_pase_transferencias.py": {
-    "mtime": 1788737655.8390262,
+    "mtime": 1789262084.1544597,
     "ast_hash": "308be0396d9ba1909c12c3a50a6a9320",
     "semantic_hash": ""
   },
   "C:\\Users\\User\\Desktop\\SaaS Gym\\backend\\tests\\test_day_pass.py": {
-    "mtime": 1789098286.4268007,
+    "mtime": 1789262084.1924574,
     "ast_hash": "185098787eb138cd99ab78bdb05ddaac",
     "semantic_hash": ""
   },
   "C:\\Users\\User\\Desktop\\SaaS Gym\\frontend\\app\\(dashboard)\\payments\\DayPassTab.tsx": {
-    "mtime": 1789253788.0463204,
+    "mtime": 1789262084.2765162,
     "ast_hash": "2ff87255bfcdba897b7b5c99e9852a0d",
     "semantic_hash": ""
   },
   "C:\\Users\\User\\Desktop\\SaaS Gym\\frontend\\app\\(dashboard)\\payments\\MethodPicker.tsx": {
-    "mtime": 1788737655.8585038,
+    "mtime": 1789262084.2785175,
     "ast_hash": "ebe19f916f8917a0c632e078f8ed80e3",
     "semantic_hash": ""
   },
   "C:\\Users\\User\\Desktop\\SaaS Gym\\frontend\\app\\(dashboard)\\payments\\PendingTransfers.tsx": {
-    "mtime": 1789253788.0483215,
+    "mtime": 1789262084.2805166,
     "ast_hash": "cd02c173c5b664804316cc2d9efa2967",
     "semantic_hash": ""
   },
   "C:\\Users\\User\\Desktop\\SaaS Gym\\frontend\\app\\(dashboard)\\payments\\TransferPendingDialog.tsx": {
-    "mtime": 1789253788.0523207,
+    "mtime": 1789262084.284033,
     "ast_hash": "8154c5b5f235a7a542908f57ede2958f",
     "semantic_hash": ""
   },
   "C:\\Users\\User\\Desktop\\SaaS Gym\\frontend\\components\\settings\\DayPassSection.tsx": {
-    "mtime": 1789253788.0793238,
+    "mtime": 1789262084.342078,
     "ast_hash": "e17052a06d4c5509898fbdce0628bcf1",
     "semantic_hash": ""
   },
   "C:\\Users\\User\\Desktop\\SaaS Gym\\backend\\app\\api\\v1\\public.py": {
-    "mtime": 1789254925.2571757,
+    "mtime": 1789262083.8347998,
     "ast_hash": "2574a7601ce91263ec1769723d05e288",
     "semantic_hash": ""
   },
   "C:\\Users\\User\\Desktop\\SaaS Gym\\backend\\app\\models\\tenant\\inventory.py": {
-    "mtime": 1788737923.5216758,
-    "ast_hash": "42568ee4fc291063e42a5e33601547f4",
+    "mtime": 1789262083.9517877,
+    "ast_hash": "ffef4a80909e123901fe9fc257ebec39",
     "semantic_hash": ""
   },
   "C:\\Users\\User\\Desktop\\SaaS Gym\\backend\\app\\services\\inventory.py": {
-    "mtime": 1788737932.527277,
-    "ast_hash": "6e18cf17200d80f9491d3b40bfa532a2",
+    "mtime": 1789262084.1134567,
+    "ast_hash": "8a8ed7c388fe3e8142ffb82978aa2176",
     "semantic_hash": ""
   },
   "C:\\Users\\User\\Desktop\\SaaS Gym\\backend\\app\\services\\receipt_pdf.py": {
-    "mtime": 1789256004.2117333,
+    "mtime": 1789262084.1304572,
     "ast_hash": "56c71d2768314b1e187cb75f52f60f6a",
     "semantic_hash": ""
   },
   "C:\\Users\\User\\Desktop\\SaaS Gym\\backend\\app\\services\\refunds.py": {
-    "mtime": 1789158502.3097203,
+    "mtime": 1789262084.1334581,
     "ast_hash": "7728ddcc95f9fe19f883eb113c3dc739",
     "semantic_hash": ""
   },
   "C:\\Users\\User\\Desktop\\SaaS Gym\\backend\\app\\services\\signed_links.py": {
-    "mtime": 1788737948.268247,
-    "ast_hash": "3dfb247c5fe4a394975f122a8b514204",
+    "mtime": 1789262084.1394584,
+    "ast_hash": "c6b703dc2249613d0811e3169b08f48c",
     "semantic_hash": ""
   },
   "C:\\Users\\User\\Desktop\\SaaS Gym\\backend\\migrations\\tenant\\versions\\e2f3a4b5c6d7_j2_inventario.py": {
-    "mtime": 1788738116.9557467,
+    "mtime": 1789262084.155457,
     "ast_hash": "ffa0c288699e84ab2cf67d6159467b0c",
     "semantic_hash": ""
   },
   "C:\\Users\\User\\Desktop\\SaaS Gym\\backend\\tests\\test_inventory.py": {
-    "mtime": 1789198630.5529852,
+    "mtime": 1789262084.1974578,
     "ast_hash": "85da097da05b7f5a54436c1bc1934c5e",
     "semantic_hash": ""
   },
   "C:\\Users\\User\\Desktop\\SaaS Gym\\backend\\app\\api\\v1\\insights.py": {
-    "mtime": 1789257053.3003414,
-    "ast_hash": "5a035873e0820d81b925932281c8ff01",
+    "mtime": 1789262083.7735932,
+    "ast_hash": "45f2253bacc440b36a48148ab98d6300",
     "semantic_hash": ""
   },
   "C:\\Users\\User\\Desktop\\SaaS Gym\\backend\\app\\services\\insights_engine.py": {
-    "mtime": 1788740263.2979069,
+    "mtime": 1789262084.1124568,
     "ast_hash": "7ac2680bd16d6f375242ced09f3c376e",
     "semantic_hash": ""
   },
   "C:\\Users\\User\\Desktop\\SaaS Gym\\backend\\app\\services\\report_data.py": {
-    "mtime": 1789254344.643542,
+    "mtime": 1789262084.134457,
     "ast_hash": "f0d62906119e342a080cbff060c8b6da",
     "semantic_hash": ""
   },
   "C:\\Users\\User\\Desktop\\SaaS Gym\\backend\\app\\services\\report_exports.py": {
-    "mtime": 1789257054.6022015,
+    "mtime": 1789262084.1354587,
     "ast_hash": "0aa3ca831b37b1c208e1241c6f170091",
     "semantic_hash": ""
   },
   "C:\\Users\\User\\Desktop\\SaaS Gym\\backend\\tests\\test_reports_period.py": {
-    "mtime": 1788739431.953543,
-    "ast_hash": "7b3b0018b3d5ef01eb419e7fbf4d47ca",
+    "mtime": 1789262084.2309942,
+    "ast_hash": "bb709effdcd9d0614e97a0322ce9e33a",
     "semantic_hash": ""
   },
   "C:\\Users\\User\\Desktop\\SaaS Gym\\frontend\\components\\reports\\IngresosTab.tsx": {
-    "mtime": 1789254479.9260564,
+    "mtime": 1789262084.330079,
     "ast_hash": "595528c9375635acb815cd8f0416767d",
     "semantic_hash": ""
   },
   "C:\\Users\\User\\Desktop\\SaaS Gym\\frontend\\components\\reports\\PeriodPicker.tsx": {
-    "mtime": 1788739533.2749448,
-    "ast_hash": "61bce22d2a8cecf5cc138a341ad433d0",
+    "mtime": 1789262084.331077,
+    "ast_hash": "f2fa224b1b01614f41202faf2ae2845f",
     "semantic_hash": ""
   },
   "C:\\Users\\User\\Desktop\\SaaS Gym\\frontend\\components\\reports\\RetencionInteligenciaTabs.tsx": {
-    "mtime": 1789257275.1896625,
-    "ast_hash": "741cbdca5cbe74503b9434073db34e1d",
+    "mtime": 1789262084.3340783,
+    "ast_hash": "0cdd242a81cf2c30e3dd192bbef44a1f",
     "semantic_hash": ""
   },
   "C:\\Users\\User\\Desktop\\SaaS Gym\\frontend\\components\\reports\\shared.tsx": {
-    "mtime": 1789237193.3173041,
+    "mtime": 1789262084.337078,
     "ast_hash": "5518ef50fb4a77823338869e7f3d0972",
     "semantic_hash": ""
   },
   "C:\\Users\\User\\Desktop\\SaaS Gym\\frontend\\components\\reports\\SociosAsistenciaTabs.tsx": {
-    "mtime": 1789237193.3185031,
+    "mtime": 1789262084.3350792,
     "ast_hash": "2bd4a04a8861072961b41a3a0f6b914d",
     "semantic_hash": ""
   },
   "C:\\Users\\User\\Desktop\\SaaS Gym\\frontend\\components\\reports\\VentasPasesTabs.tsx": {
-    "mtime": 1789237193.3195,
+    "mtime": 1789262084.3360782,
     "ast_hash": "99d6e8aa5e7782fa985e9c361a490840",
     "semantic_hash": ""
   },
   "C:\\Users\\User\\Desktop\\SaaS Gym\\backend\\migrations\\tenant\\versions\\f3a4b5c6d7e8_j4_consentimientos.py": {
-    "mtime": 1788740564.2650738,
+    "mtime": 1789262084.155457,
     "ast_hash": "235ebbb578b31b4ab027a70ec4e08578",
     "semantic_hash": ""
   },
   "C:\\Users\\User\\Desktop\\SaaS Gym\\backend\\tests\\test_privacy_consent.py": {
-    "mtime": 1789198630.5529852,
-    "ast_hash": "9ac8f18cbb8f16dae459158dc7768c11",
+    "mtime": 1789262084.226994,
+    "ast_hash": "c8ddf1165571e1c7ca676b074067c630",
     "semantic_hash": ""
   },
   "C:\\Users\\User\\Desktop\\SaaS Gym\\frontend\\components\\common\\CameraCapture.tsx": {
-    "mtime": 1789100878.4353874,
+    "mtime": 1789262084.3125525,
     "ast_hash": "016b54dcc0b0f9dbbdf1b774682c4667",
     "semantic_hash": ""
   },
   "C:\\Users\\User\\Desktop\\SaaS Gym\\backend\\app\\api\\v1\\routines.py": {
-    "mtime": 1789154441.2702894,
+    "mtime": 1789262083.8388555,
     "ast_hash": "7e91975e4116f32220d0d8d661e1ef5f",
     "semantic_hash": ""
   },
   "C:\\Users\\User\\Desktop\\SaaS Gym\\backend\\app\\models\\master\\exercise.py": {
-    "mtime": 1788752388.3962326,
+    "mtime": 1789262083.849746,
     "ast_hash": "d9b3a345b925b4ff8b399d4067b43034",
     "semantic_hash": ""
   },
   "C:\\Users\\User\\Desktop\\SaaS Gym\\backend\\app\\models\\tenant\\routine.py": {
-    "mtime": 1788741547.8527496,
-    "ast_hash": "fe20be4add0d4c9797e1af19f539cfaa",
+    "mtime": 1789262084.0440063,
+    "ast_hash": "9bfea85037537f2167cceba83f420474",
     "semantic_hash": ""
   },
   "C:\\Users\\User\\Desktop\\SaaS Gym\\backend\\app\\services\\exercise_catalog.py": {
-    "mtime": 1789158502.3097203,
+    "mtime": 1789262084.1104572,
     "ast_hash": "9964c513e2bd1ba9e85a1a29115bf32f",
     "semantic_hash": ""
   },
   "C:\\Users\\User\\Desktop\\SaaS Gym\\backend\\migrations\\master\\versions\\b7c8d9e0f1a2_exercises.py": {
-    "mtime": 1788741740.8501098,
+    "mtime": 1789262084.148459,
     "ast_hash": "c9db6e7643062d3987c7347fc547ec58",
     "semantic_hash": ""
   },
   "C:\\Users\\User\\Desktop\\SaaS Gym\\backend\\migrations\\tenant\\versions\\a4b5c6d7e8f9_j5_rutinas.py": {
-    "mtime": 1788741740.8512888,
+    "mtime": 1789262084.1504586,
     "ast_hash": "ddc66c30e13d111d664e119f3c3cfcab",
     "semantic_hash": ""
   },
   "C:\\Users\\User\\Desktop\\SaaS Gym\\backend\\scripts\\import_exercises.py": {
-    "mtime": 1788753278.0414894,
+    "mtime": 1789262084.1674576,
     "ast_hash": "901bebd065f52d315821c8dc30281dba",
     "semantic_hash": ""
   },
   "C:\\Users\\User\\Desktop\\SaaS Gym\\backend\\tests\\test_routines.py": {
-    "mtime": 1788753552.9600356,
-    "ast_hash": "c280dd8b1dbd19001dea0cfe0c1a77d0",
+    "mtime": 1789262084.2319944,
+    "ast_hash": "a4883e62ec8fcc342d04e3e3b95b0a63",
     "semantic_hash": ""
   },
   "C:\\Users\\User\\Desktop\\SaaS Gym\\frontend\\app\\(dashboard)\\routines\\page.tsx": {
-    "mtime": 1788741773.6086829,
-    "ast_hash": "832e07087cb380b1720f185814b82c1b",
+    "mtime": 1789262084.2930312,
+    "ast_hash": "f93e71347d882577b9db77910956e625",
     "semantic_hash": ""
   },
   "C:\\Users\\User\\Desktop\\SaaS Gym\\frontend\\app\\(dashboard)\\routines\\RoutinesClient.tsx": {
-    "mtime": 1789253936.0211196,
+    "mtime": 1789262084.292069,
     "ast_hash": "c1df49677061b45cf11dd8d547cbfbd6",
     "semantic_hash": ""
   },
   "C:\\Users\\User\\Desktop\\SaaS Gym\\frontend\\app\\screen\\page.tsx": {
-    "mtime": 1789257803.9081173,
+    "mtime": 1789262084.3075535,
     "ast_hash": "e0ec842084a37de964588e38546601a1",
     "semantic_hash": ""
   },
   "C:\\Users\\User\\Desktop\\SaaS Gym\\frontend\\app\\screen\\ScreenClient.tsx": {
-    "mtime": 1789257803.9091191,
+    "mtime": 1789262084.306553,
     "ast_hash": "f580f33af8199d1869414d818d189efe",
     "semantic_hash": ""
   },
   "C:\\Users\\User\\Desktop\\SaaS Gym\\frontend\\components\\routines\\ExerciseFigure.tsx": {
-    "mtime": 1789226503.0195038,
+    "mtime": 1789262084.3380778,
     "ast_hash": "f111750395b4c7904d5b91c6d76b3ec1",
     "semantic_hash": ""
   },
   "C:\\Users\\User\\Desktop\\SaaS Gym\\frontend\\components\\routines\\MemberRoutineTab.tsx": {
-    "mtime": 1789253788.0773227,
+    "mtime": 1789262084.3390782,
     "ast_hash": "bf30e864e6c86d49921f8086e0ed8010",
     "semantic_hash": ""
   },
   "C:\\Users\\User\\Desktop\\SaaS Gym\\backend\\app\\api\\v1\\access.py": {
-    "mtime": 1789158502.3117206,
+    "mtime": 1789262083.764316,
     "ast_hash": "642b88663747845a19714b7a545f9edf",
     "semantic_hash": ""
   },
   "C:\\Users\\User\\Desktop\\SaaS Gym\\backend\\app\\models\\tenant\\access.py": {
-    "mtime": 1788743425.8980925,
-    "ast_hash": "342a15c62224bd4af51e6a657b74d916",
+    "mtime": 1789262083.8513734,
+    "ast_hash": "068aa17dcfcab1f678ba9bc99f1452c2",
     "semantic_hash": ""
   },
   "C:\\Users\\User\\Desktop\\SaaS Gym\\backend\\app\\services\\access.py": {
-    "mtime": 1788744214.2660868,
+    "mtime": 1789262084.1064577,
     "ast_hash": "0eb0f25ec349af2a1c5a715b6ce7b813",
     "semantic_hash": ""
   },
   "C:\\Users\\User\\Desktop\\SaaS Gym\\backend\\migrations\\tenant\\versions\\b5c6d7e8f9a0_j6_acceso.py": {
-    "mtime": 1788743430.5027814,
-    "ast_hash": "a75377b42e9855892d0e40fa60a22322",
+    "mtime": 1789262084.1514578,
+    "ast_hash": "c0688de5d261adc0941bd6d7f6a0ac20",
     "semantic_hash": ""
   },
   "C:\\Users\\User\\Desktop\\SaaS Gym\\backend\\scripts\\access_simulator.py": {
-    "mtime": 1788743531.1525779,
-    "ast_hash": "b400bceb8185c2d77d746cc837f0713a",
+    "mtime": 1789262084.1654575,
+    "ast_hash": "e571903c4a79e629d7e9363e74983879",
     "semantic_hash": ""
   },
   "C:\\Users\\User\\Desktop\\SaaS Gym\\backend\\tests\\test_access.py": {
-    "mtime": 1788743754.0514581,
+    "mtime": 1789262084.1744578,
     "ast_hash": "44431f8cc6026083b2c20d5ca0941336",
     "semantic_hash": ""
   },
   "C:\\Users\\User\\Desktop\\SaaS Gym\\frontend\\components\\access\\MemberAccessTab.tsx": {
-    "mtime": 1789253788.0573194,
+    "mtime": 1789262084.3105533,
     "ast_hash": "465e046cd88c0f7fbc84b688eaf0f957",
     "semantic_hash": ""
   },
   "C:\\Users\\User\\Desktop\\SaaS Gym\\docs\\ACCESO_TORNIQUETE.md": {
-    "mtime": 1788743606.1960852,
-    "ast_hash": "944c479312be1bfab3e6b19ae20aaeca",
+    "mtime": 1789262084.244995,
+    "ast_hash": "98cc3c3bd2f32ad0fca90155beca5f26",
     "semantic_hash": ""
   },
   "C:\\Users\\User\\Desktop\\SaaS Gym\\scripts\\deploy-lite.sh": {
-    "mtime": 1789158899.0050242,
-    "ast_hash": "0b23481916c415b39b78cef095239d4b",
+    "mtime": 1789262084.4575791,
+    "ast_hash": "ba252edd2797bf1cd62f75761f35137e",
     "semantic_hash": ""
   },
   "C:\\Users\\User\\Desktop\\SaaS Gym\\backend\\app\\models\\tenant\\exercise_media.py": {
-    "mtime": 1788752408.7879987,
-    "ast_hash": "0f82cbcae8e3e6fbda8e0defeb2b6dff",
+    "mtime": 1789262083.9307873,
+    "ast_hash": "9fe2cfef8a9ab50eaf843f19ff28fa24",
     "semantic_hash": ""
   },
   "C:\\Users\\User\\Desktop\\SaaS Gym\\backend\\migrations\\master\\versions\\c8d9e0f1a2b3_exercise_video.py": {
-    "mtime": 1788752388.4357646,
-    "ast_hash": "93b02188fe35d8d7cd632dbdcaa70a9b",
+    "mtime": 1789262084.148459,
+    "ast_hash": "d7a0fef16b19a5e4637b0fa84e519a2f",
     "semantic_hash": ""
   },
   "C:\\Users\\User\\Desktop\\SaaS Gym\\backend\\migrations\\tenant\\versions\\c6d7e8f9a0b1_j7_video_ejercicios.py": {
-    "mtime": 1788752408.8250637,
-    "ast_hash": "8835d1c18633d422ba4a28a8f98d8f4d",
+    "mtime": 1789262084.1524584,
+    "ast_hash": "d02ea1ae89df0ea977e0187288e92672",
     "semantic_hash": ""
   },
   "C:\\Users\\User\\Desktop\\SaaS Gym\\backend\\tests\\test_smoke_empty_gym.py": {
-    "mtime": 1788752133.7736135,
-    "ast_hash": "cff91ad231bb5de51175326737ceb764",
+    "mtime": 1789262084.2329936,
+    "ast_hash": "4734d599db5452584c22c55d8c063737",
     "semantic_hash": ""
   },
   "C:\\Users\\User\\Desktop\\SaaS Gym\\frontend\\components\\common\\SessionGuard.tsx": {
-    "mtime": 1788751377.6377504,
-    "ast_hash": "a82b9de4a747a7d25d609763e68b047b",
+    "mtime": 1789262084.3175585,
+    "ast_hash": "05b57e597daa8c8fb2806808f7511ab2",
     "semantic_hash": ""
   },
   "C:\\Users\\User\\Desktop\\SaaS Gym\\scripts\\check_api_contracts.py": {
-    "mtime": 1788752194.1744816,
+    "mtime": 1789262084.4565797,
     "ast_hash": "71f6eb8efed379d03bd74edb8185ef7c",
     "semantic_hash": ""
   },
   "C:\\Users\\User\\Desktop\\SaaS Gym\\scripts\\seed_demo_gym.py": {
-    "mtime": 1788751676.543429,
-    "ast_hash": "b683354e1366c5e91e83186148b63173",
+    "mtime": 1789262084.4595802,
+    "ast_hash": "6ffba97c91a7f8aff33fc007f37b86ff",
     "semantic_hash": ""
   },
   "C:\\Users\\User\\Desktop\\SaaS Gym\\backend\\runtests.sh": {
-    "mtime": 1789063802.5399141,
+    "mtime": 1789262084.1644585,
     "ast_hash": "f668e5b40ff28638b474804c85e6d971",
     "semantic_hash": ""
   },
   "C:\\Users\\User\\Desktop\\SaaS Gym\\backend\\app\\api\\v1\\trainer.py": {
-    "mtime": 1789152102.2528462,
-    "ast_hash": "2d3f810ea78bb0af2c790e2d44c1e885",
+    "mtime": 1789262083.8412006,
+    "ast_hash": "8df1e5b95c06b612285f4a49674dfbad",
     "semantic_hash": ""
   },
   "C:\\Users\\User\\Desktop\\SaaS Gym\\backend\\app\\core\\permissions.py": {
-    "mtime": 1789154441.2682855,
+    "mtime": 1789262083.8450933,
     "ast_hash": "eef1c12038f21199d04987f2bfe10c16",
     "semantic_hash": ""
   },
   "C:\\Users\\User\\Desktop\\SaaS Gym\\backend\\app\\models\\tenant\\announcement.py": {
-    "mtime": 1789143205.4579341,
-    "ast_hash": "8ece25887b8e4ee650b58cb0519474e8",
+    "mtime": 1789262083.852173,
+    "ast_hash": "e6725081f889db212b9b0a59e64ab025",
     "semantic_hash": ""
   },
   "C:\\Users\\User\\Desktop\\SaaS Gym\\backend\\app\\models\\tenant\\idempotency.py": {
-    "mtime": 1789099315.7403402,
+    "mtime": 1789262083.9327872,
     "ast_hash": "88ca0f4400ea488d8f0cb34b011dba03",
     "semantic_hash": ""
   },
   "C:\\Users\\User\\Desktop\\SaaS Gym\\backend\\app\\models\\tenant\\payment_movement.py": {
-    "mtime": 1789097049.2388074,
-    "ast_hash": "d14bba575a0689cf51d776f1b853c665",
+    "mtime": 1789262084.0420072,
+    "ast_hash": "f18cafbd328197c548ca5060405291cc",
     "semantic_hash": ""
   },
   "C:\\Users\\User\\Desktop\\SaaS Gym\\backend\\app\\services\\cash_catalog.py": {
-    "mtime": 1789254304.5776844,
-    "ast_hash": "c81253b4e5db26d98d675f8236748d1a",
+    "mtime": 1789262084.107458,
+    "ast_hash": "6ce20f478f2d8a55b7dae421af7ac14c",
     "semantic_hash": ""
   },
   "C:\\Users\\User\\Desktop\\SaaS Gym\\backend\\app\\services\\expiry_notices.py": {
-    "mtime": 1789142163.3270738,
+    "mtime": 1789262084.1104572,
     "ast_hash": "c484a1484fca7e54ddb4f6182e1b2f5c",
     "semantic_hash": ""
   },
   "C:\\Users\\User\\Desktop\\SaaS Gym\\backend\\app\\services\\idempotency.py": {
-    "mtime": 1789099253.6480627,
+    "mtime": 1789262084.1124568,
     "ast_hash": "7b78c68163acefcb6f20d23d89d44ca2",
     "semantic_hash": ""
   },
   "C:\\Users\\User\\Desktop\\SaaS Gym\\backend\\app\\services\\machine_areas.py": {
-    "mtime": 1789254790.0098755,
-    "ast_hash": "af29ae376836f3a1a5d8f2d255e1e245",
+    "mtime": 1789262084.1144574,
+    "ast_hash": "9b9e46b72cd75c5f607fb31a0e45c316",
     "semantic_hash": ""
   },
   "C:\\Users\\User\\Desktop\\SaaS Gym\\backend\\app\\services\\machine_status.py": {
-    "mtime": 1789155109.4890895,
-    "ast_hash": "ac25588965e6f817904b93fde0c900d4",
+    "mtime": 1789262084.1154578,
+    "ast_hash": "5776c5201099667d3ef731b18087ebc3",
     "semantic_hash": ""
   },
   "C:\\Users\\User\\Desktop\\SaaS Gym\\backend\\app\\services\\message_occasions.py": {
-    "mtime": 1789155240.8320384,
+    "mtime": 1789262084.117457,
     "ast_hash": "ae85e03b4e7c98fa946c9d308f2156c6",
     "semantic_hash": ""
   },
   "C:\\Users\\User\\Desktop\\SaaS Gym\\backend\\app\\services\\payment_ledger.py": {
-    "mtime": 1789099277.3451986,
+    "mtime": 1789262084.1284585,
     "ast_hash": "74167a3fb1e05715a7a0553817901bf5",
     "semantic_hash": ""
   },
   "C:\\Users\\User\\Desktop\\SaaS Gym\\backend\\app\\services\\schedule_conflicts.py": {
-    "mtime": 1789152064.82665,
-    "ast_hash": "483f1384a45c4e00c232f9c3345802ed",
+    "mtime": 1789262084.136459,
+    "ast_hash": "64b713a9c8e892f7c8c08960c247f701",
     "semantic_hash": ""
   },
   "C:\\Users\\User\\Desktop\\SaaS Gym\\backend\\app\\services\\segments.py": {
-    "mtime": 1789143226.5706434,
-    "ast_hash": "0162d736cfef7e75b9b9f2f8cb750fbd",
+    "mtime": 1789262084.138456,
+    "ast_hash": "a52109b3d060d2859dbdc0687ddfc4b0",
     "semantic_hash": ""
   },
   "C:\\Users\\User\\Desktop\\SaaS Gym\\backend\\app\\services\\staff_member.py": {
-    "mtime": 1789197744.4116485,
+    "mtime": 1789262084.1404579,
     "ast_hash": "5089756c69520426da88f8c1e77d2dc1",
     "semantic_hash": ""
   },
   "C:\\Users\\User\\Desktop\\SaaS Gym\\backend\\migrations\\tenant\\versions\\k1a2b3c4d5e6_libro_de_movimientos.py": {
-    "mtime": 1789099299.97507,
+    "mtime": 1789262084.156458,
     "ast_hash": "613104eccd015ecde0ee6040bf4b720f",
     "semantic_hash": ""
   },
   "C:\\Users\\User\\Desktop\\SaaS Gym\\backend\\migrations\\tenant\\versions\\k2b3c4d5e6f7_mensajeria_real.py": {
-    "mtime": 1789143372.1742165,
-    "ast_hash": "17b4d3b548917f6e3a7a6473447b0a56",
+    "mtime": 1789262084.1574566,
+    "ast_hash": "9e5bd44d312ea16f72d3be56814f68de",
     "semantic_hash": ""
   },
   "C:\\Users\\User\\Desktop\\SaaS Gym\\backend\\migrations\\tenant\\versions\\k3c4d5e6f7a8_entrenadores.py": {
-    "mtime": 1789152292.0380352,
-    "ast_hash": "ce664d4f5527d9b4c8d20cdee335b138",
+    "mtime": 1789262084.1584575,
+    "ast_hash": "4b09dce6be674a33251d718ed877a212",
     "semantic_hash": ""
   },
   "C:\\Users\\User\\Desktop\\SaaS Gym\\backend\\migrations\\tenant\\versions\\k4d5e6f7a8b9_maquinas.py": {
-    "mtime": 1789155255.5820906,
-    "ast_hash": "ace3be45e97257f8b7d6c454ec00cb82",
+    "mtime": 1789262084.1594589,
+    "ast_hash": "fcccdb6715be91a819031e38bf16f3e7",
     "semantic_hash": ""
   },
   "C:\\Users\\User\\Desktop\\SaaS Gym\\backend\\migrations\\tenant\\versions\\k5e6f7a8b9c0_staff_socio.py": {
-    "mtime": 1789196648.5970213,
-    "ast_hash": "e9a1a575dda46df5634c0b65cc044228",
+    "mtime": 1789262084.1594589,
+    "ast_hash": "b28ecf677b4fed68ad3be48afca60854",
     "semantic_hash": ""
   },
   "C:\\Users\\User\\Desktop\\SaaS Gym\\backend\\migrations\\tenant\\versions\\k6f7a8b9c0d1_arqueo_y_retiros.py": {
-    "mtime": 1789254340.4088018,
-    "ast_hash": "bba3c6364d04cbeb290ba6d62eac57d2",
+    "mtime": 1789262084.160459,
+    "ast_hash": "d58ed9a9fe7b613d4ffb5f3f0c1685ec",
     "semantic_hash": ""
   },
   "C:\\Users\\User\\Desktop\\SaaS Gym\\backend\\migrations\\tenant\\versions\\k7a8b9c0d1e2_garantia_y_qr.py": {
-    "mtime": 1789254815.3388603,
-    "ast_hash": "c2bd746d1e74a60d74d9bec28345b4df",
+    "mtime": 1789262084.1614568,
+    "ast_hash": "42f924b20f0b30940fc4985442b6d0e4",
     "semantic_hash": ""
   },
   "C:\\Users\\User\\Desktop\\SaaS Gym\\backend\\scripts\\backfill_staff_members.py": {
-    "mtime": 1789198052.1053398,
+    "mtime": 1789262084.1654575,
     "ast_hash": "f039d61de4936d8f13d4890733e60ba7",
     "semantic_hash": ""
   },
   "C:\\Users\\User\\Desktop\\SaaS Gym\\backend\\scripts\\freeze_tenant_baseline.py": {
-    "mtime": 1789008003.6281385,
-    "ast_hash": "a095afe5c6816353af51fbf5b33f0598",
+    "mtime": 1789262084.166458,
+    "ast_hash": "058cd737f233a9a99ab9c7a95520087f",
     "semantic_hash": ""
   },
   "C:\\Users\\User\\Desktop\\SaaS Gym\\backend\\scripts\\link_class_trainers.py": {
-    "mtime": 1789194176.6911073,
-    "ast_hash": "08c3dfea49bd6979e844d2f706fd1213",
+    "mtime": 1789262084.1684575,
+    "ast_hash": "5cceca88781a09e12a6b8800ada0d378",
     "semantic_hash": ""
   },
   "C:\\Users\\User\\Desktop\\SaaS Gym\\backend\\scripts\\migrate_class_colors.py": {
-    "mtime": 1789181601.4779198,
+    "mtime": 1789262084.1684575,
     "ast_hash": "a76d41e3ed456683bf7480eb434b4e9f",
     "semantic_hash": ""
   },
   "C:\\Users\\User\\Desktop\\SaaS Gym\\backend\\scripts\\migrate_machine_areas.py": {
-    "mtime": 1789255370.0836124,
-    "ast_hash": "c41ac7d1298a1e40cab15c36d848442a",
+    "mtime": 1789262084.169458,
+    "ast_hash": "3ed35cafdb1007903450282103a2b0b7",
     "semantic_hash": ""
   },
   "C:\\Users\\User\\Desktop\\SaaS Gym\\backend\\tests\\test_audit_actions.py": {
-    "mtime": 1789063938.5856357,
-    "ast_hash": "f407b18098d6634f0962e50ca8fb9ab3",
+    "mtime": 1789262084.1744578,
+    "ast_hash": "241620f803dd03a048588bc25eab7795",
     "semantic_hash": ""
   },
   "C:\\Users\\User\\Desktop\\SaaS Gym\\backend\\tests\\test_cash_arqueo.py": {
-    "mtime": 1789254468.7181382,
-    "ast_hash": "2a0942cadf5f2848e71444e94e51d19d",
+    "mtime": 1789262084.1784563,
+    "ast_hash": "aec44343abbbb6d467ba35c135f7b5ba",
     "semantic_hash": ""
   },
   "C:\\Users\\User\\Desktop\\SaaS Gym\\backend\\tests\\test_cash_catalog_contract.py": {
-    "mtime": 1789254988.2960937,
-    "ast_hash": "2be8465cad5f2a9bf36c9df4281818cf",
+    "mtime": 1789262084.1794581,
+    "ast_hash": "a350eaccaede41514e990d79944e2123",
     "semantic_hash": ""
   },
   "C:\\Users\\User\\Desktop\\SaaS Gym\\backend\\tests\\test_class_color_migration.py": {
-    "mtime": 1789181371.5392158,
-    "ast_hash": "0df15492c75a8d248382f14dee790abb",
+    "mtime": 1789262084.1844573,
+    "ast_hash": "ee89f82bd00e4bc876cf81ba52e64690",
     "semantic_hash": ""
   },
   "C:\\Users\\User\\Desktop\\SaaS Gym\\backend\\tests\\test_class_delete.py": {
-    "mtime": 1789194566.563516,
-    "ast_hash": "2f07b1eaa7b297e6742d8dc73cf28d33",
+    "mtime": 1789262084.1854646,
+    "ast_hash": "a0ab61814a528e64e01e90bc474d0b6a",
     "semantic_hash": ""
   },
   "C:\\Users\\User\\Desktop\\SaaS Gym\\backend\\tests\\test_class_form_contract.py": {
-    "mtime": 1789181302.68959,
-    "ast_hash": "a661f7d0d12efd12d16a6f53b11566a6",
+    "mtime": 1789262084.1864676,
+    "ast_hash": "036c40a274c280e61f27e52ab0b34a24",
     "semantic_hash": ""
   },
   "C:\\Users\\User\\Desktop\\SaaS Gym\\backend\\tests\\test_machines.py": {
-    "mtime": 1789155863.9940872,
-    "ast_hash": "64107ced1a95ee1f0e34f62faf94a90a",
+    "mtime": 1789262084.199458,
+    "ast_hash": "333b11dd68a5995d410cededa163f057",
     "semantic_hash": ""
   },
   "C:\\Users\\User\\Desktop\\SaaS Gym\\backend\\tests\\test_machines_negocio.py": {
-    "mtime": 1789254970.8314304,
-    "ast_hash": "dcdef1c09aff784c21e8fb5d4f43d64e",
+    "mtime": 1789262084.200459,
+    "ast_hash": "b0cb80e49d20c9be5c36e458589c8f78",
     "semantic_hash": ""
   },
   "C:\\Users\\User\\Desktop\\SaaS Gym\\backend\\tests\\test_member_delete.py": {
-    "mtime": 1789011069.3253036,
-    "ast_hash": "b1a1973261ee182b1d1c56f02c6d4ac4",
+    "mtime": 1789262084.2034683,
+    "ast_hash": "329c4da94fe892a3f27dc45730b85a25",
     "semantic_hash": ""
   },
   "C:\\Users\\User\\Desktop\\SaaS Gym\\backend\\tests\\test_messaging.py": {
-    "mtime": 1789144353.3366745,
-    "ast_hash": "d731b3f722d35c4c8d7eac139501a3bc",
+    "mtime": 1789262084.210469,
+    "ast_hash": "4b1abf88347ed77238b33a543cdc9380",
     "semantic_hash": ""
   },
   "C:\\Users\\User\\Desktop\\SaaS Gym\\backend\\tests\\test_payment_ledger.py": {
-    "mtime": 1789194985.9748561,
+    "mtime": 1789262084.2189953,
     "ast_hash": "8328d27138d38d692915f4e955733851",
     "semantic_hash": ""
   },
   "C:\\Users\\User\\Desktop\\SaaS Gym\\backend\\tests\\test_permission_coverage.py": {
-    "mtime": 1789198630.5529852,
+    "mtime": 1789262084.2199943,
     "ast_hash": "36d46124ea666ac05575740ea3d12356",
     "semantic_hash": ""
   },
   "C:\\Users\\User\\Desktop\\SaaS Gym\\backend\\tests\\test_permission_names.py": {
-    "mtime": 1789222633.878009,
+    "mtime": 1789262084.2219942,
     "ast_hash": "07adc223f48ab4bf571efdee8b14f9b9",
     "semantic_hash": ""
   },
   "C:\\Users\\User\\Desktop\\SaaS Gym\\backend\\tests\\test_report_exports_design.py": {
-    "mtime": 1789256063.840158,
-    "ast_hash": "580b4747bd09954cb694642c04d69616",
+    "mtime": 1789262084.2299938,
+    "ast_hash": "ff92ed8670800e894f8b7cc76afd29ce",
     "semantic_hash": ""
   },
   "C:\\Users\\User\\Desktop\\SaaS Gym\\backend\\tests\\test_staff_member.py": {
-    "mtime": 1789197755.76343,
+    "mtime": 1789262084.2329936,
     "ast_hash": "d5b52a4355cd39ed1805d834be1447b7",
     "semantic_hash": ""
   },
   "C:\\Users\\User\\Desktop\\SaaS Gym\\backend\\tests\\test_tenant_schema_drift.py": {
-    "mtime": 1789151455.175536,
+    "mtime": 1789262084.2369936,
     "ast_hash": "3fc3152215115e8172b58cfb1fb8016c",
     "semantic_hash": ""
   },
   "C:\\Users\\User\\Desktop\\SaaS Gym\\backend\\tests\\test_trainers.py": {
-    "mtime": 1789154513.5185652,
+    "mtime": 1789262084.2369936,
     "ast_hash": "fd76180830517af6323f55606297d2ad",
     "semantic_hash": ""
   },
   "C:\\Users\\User\\Desktop\\SaaS Gym\\backend\\tests\\fixtures\\tenant_baseline.json": {
-    "mtime": 1789008004.7954466,
+    "mtime": 1789262084.1714585,
     "ast_hash": "f32b954f78504cc6f2bad5cbf91a72ee",
     "semantic_hash": ""
   },
   "C:\\Users\\User\\Desktop\\SaaS Gym\\backend\\tests\\fixtures\\tenant_baseline.sql": {
-    "mtime": 1789008004.7954466,
+    "mtime": 1789262084.172458,
     "ast_hash": "9dcffd62eb2f74200258d3ade681c90b",
     "semantic_hash": ""
   },
   "C:\\Users\\User\\Desktop\\SaaS Gym\\frontend\\app\\(dashboard)\\entrenador\\page.tsx": {
-    "mtime": 1789153027.882712,
-    "ast_hash": "d550d6259b781c8734b6cc263301e744",
+    "mtime": 1789262084.264002,
+    "ast_hash": "b61b7a7a1b379c41d7bd8d8e14c4469f",
     "semantic_hash": ""
   },
   "C:\\Users\\User\\Desktop\\SaaS Gym\\frontend\\app\\(dashboard)\\entrenador\\TrainerClient.tsx": {
-    "mtime": 1789253935.9881108,
+    "mtime": 1789262084.262003,
     "ast_hash": "723e395b97927874aa648ae5920660ed",
     "semantic_hash": ""
   },
   "C:\\Users\\User\\Desktop\\SaaS Gym\\frontend\\app\\(dashboard)\\entrenador\\rutinas\\page.tsx": {
-    "mtime": 1789153027.9947245,
-    "ast_hash": "9f842fbae6a499765e26df563abf63b5",
+    "mtime": 1789262084.26551,
+    "ast_hash": "54419ec76c894c65cdce585a16bc807a",
     "semantic_hash": ""
   },
   "C:\\Users\\User\\Desktop\\SaaS Gym\\frontend\\app\\(dashboard)\\entrenador\\socios\\page.tsx": {
-    "mtime": 1789153027.9396966,
-    "ast_hash": "414a6533edb818dbff1855f2c17a0d0b",
+    "mtime": 1789262084.2665193,
+    "ast_hash": "a55086c37773a4da85a90e1294a442fb",
     "semantic_hash": ""
   },
   "C:\\Users\\User\\Desktop\\SaaS Gym\\frontend\\app\\(dashboard)\\messages\\MessagesClient.tsx": {
-    "mtime": 1789253935.9951112,
+    "mtime": 1789262084.2745178,
     "ast_hash": "a0303470139b851e316dbc626763a8ba",
     "semantic_hash": ""
   },
   "C:\\Users\\User\\Desktop\\SaaS Gym\\frontend\\app\\(dashboard)\\messages\\page.tsx": {
-    "mtime": 1789143934.784162,
-    "ast_hash": "238edcb60328529adeb5d4b9fa818902",
+    "mtime": 1789262084.2755175,
+    "ast_hash": "73e3caa113b82adc037a53938f308779",
     "semantic_hash": ""
   },
   "C:\\Users\\User\\Desktop\\SaaS Gym\\frontend\\app\\reportar\\[slug]\\[token]\\page.tsx": {
-    "mtime": 1789255022.5316765,
-    "ast_hash": "e91ffd8dc2a4a31659cbd508f155a273",
+    "mtime": 1789262084.3055532,
+    "ast_hash": "761326f6caf667c133f66f0d327fc6f1",
     "semantic_hash": ""
   },
   "C:\\Users\\User\\Desktop\\SaaS Gym\\frontend\\app\\reportar\\[slug]\\[token]\\ReportFaultClient.tsx": {
-    "mtime": 1789255043.6515386,
-    "ast_hash": "d7bd5917aead4fcfb8064139f4fa7de3",
+    "mtime": 1789262084.304552,
+    "ast_hash": "93df39f2457a4a80b7e2d5b808cd6a83",
     "semantic_hash": ""
   },
   "C:\\Users\\User\\Desktop\\SaaS Gym\\frontend\\components\\settings\\TrainersCard.tsx": {
-    "mtime": 1789182431.4116254,
+    "mtime": 1789262084.351592,
     "ast_hash": "25bc5c7bd7cc9f5efbf63a82e56ad9d7",
     "semantic_hash": ""
   },
   "C:\\Users\\User\\Desktop\\SaaS Gym\\frontend\\e2e\\format-dates.spec.ts": {
-    "mtime": 1789008513.5372796,
-    "ast_hash": "4627b05511594c7bebb94199021a1882",
+    "mtime": 1789262084.3665924,
+    "ast_hash": "f9ef52f500de9259fbed22ce54dc3882",
     "semantic_hash": ""
   },
   "C:\\Users\\User\\Desktop\\SaaS Gym\\frontend\\e2e\\helpers.ts": {
-    "mtime": 1789014289.6109958,
-    "ast_hash": "6832ae65467e479ab8bcc12bc65f5ddf",
+    "mtime": 1789262084.367592,
+    "ast_hash": "eca757feea59b9ae6a363118481f08ad",
     "semantic_hash": ""
   },
   "C:\\Users\\User\\Desktop\\SaaS Gym\\frontend\\e2e\\parse-api-error.spec.ts": {
-    "mtime": 1789181495.7026665,
+    "mtime": 1789262084.370593,
     "ast_hash": "42b93ac4fd6f898fa4c5cd31504ebc07",
     "semantic_hash": ""
   },
   "C:\\Users\\User\\Desktop\\SaaS Gym\\frontend\\e2e\\settings.spec.ts": {
-    "mtime": 1789014843.3456423,
+    "mtime": 1789262084.371593,
     "ast_hash": "ddc5f42ab2e1cc5c3f0bc938c8dcf6c6",
     "semantic_hash": ""
   },
   "C:\\Users\\User\\Desktop\\SaaS Gym\\frontend\\hooks\\useDashboardData.ts": {
-    "mtime": 1789253955.7085047,
+    "mtime": 1789262084.3735926,
     "ast_hash": "9e7b3094f9c354e65c2bc24c0ef3b3f4",
     "semantic_hash": ""
   },
   "C:\\Users\\User\\Desktop\\SaaS Gym\\frontend\\lib\\permissions.ts": {
-    "mtime": 1789241023.5280135,
+    "mtime": 1789262084.3795962,
     "ast_hash": "53750d18a4357e1964789f7f66d15714",
     "semantic_hash": ""
   },
   "C:\\Users\\User\\Desktop\\SaaS Gym\\frontend\\scripts\\check-contrast.mjs": {
-    "mtime": 1789257784.7371323,
-    "ast_hash": "2eefab40b355a07fb1028ba70c49f590",
+    "mtime": 1789267791.9347596,
+    "ast_hash": "c583de9456cd9e7644d5d1c4124af850",
     "semantic_hash": ""
   },
   "C:\\Users\\User\\Desktop\\SaaS Gym\\frontend\\test-results\\.last-run.json": {
@@ -2405,88 +2400,113 @@
     "semantic_hash": ""
   },
   "C:\\Users\\User\\Desktop\\SaaS Gym\\docs\\QA-2026-09-09.md": {
-    "mtime": 1789005494.0768223,
-    "ast_hash": "08465a7816ae4fe14b11dc554947b9b7",
+    "mtime": 1789262084.2459946,
+    "ast_hash": "430bbaa9582602153a004879cba28299",
     "semantic_hash": ""
   },
   "C:\\Users\\User\\Desktop\\SaaS Gym\\backend\\app\\models\\tenant\\ml_model.py": {
-    "mtime": 1789256849.8125265,
-    "ast_hash": "fae8a924bc33e42defd90522f15861ac",
+    "mtime": 1789262084.039008,
+    "ast_hash": "ee143e8b85c84ed999fb573fb1a4e0fa",
     "semantic_hash": ""
   },
   "C:\\Users\\User\\Desktop\\SaaS Gym\\backend\\app\\services\\ml\\anomalies.py": {
-    "mtime": 1789257587.4991252,
-    "ast_hash": "a4244b647552d976c47de6d7973cd1aa",
+    "mtime": 1789262084.1194594,
+    "ast_hash": "1dd68aaf486e47469f0363b143a2c5f0",
     "semantic_hash": ""
   },
   "C:\\Users\\User\\Desktop\\SaaS Gym\\backend\\app\\services\\ml\\churn.py": {
-    "mtime": 1789257474.369023,
-    "ast_hash": "7e117b4ab706c2fa20327a0813a6b644",
+    "mtime": 1789262084.1204562,
+    "ast_hash": "d029e35b4fa0d454d309ad4e97957210",
     "semantic_hash": ""
   },
   "C:\\Users\\User\\Desktop\\SaaS Gym\\backend\\app\\services\\ml\\data.py": {
-    "mtime": 1789256907.1755948,
-    "ast_hash": "dff239e5f7223df47376c40612f02624",
+    "mtime": 1789262084.1204562,
+    "ast_hash": "4d99d19e416175de4279cd5352dd61f0",
     "semantic_hash": ""
   },
   "C:\\Users\\User\\Desktop\\SaaS Gym\\backend\\app\\services\\ml\\forecast.py": {
-    "mtime": 1789256869.5470903,
-    "ast_hash": "f1198a8f8f7c0a70231dcfea55603cea",
+    "mtime": 1789262084.1214576,
+    "ast_hash": "6125eecf4ce471400478b4dc5b3da308",
     "semantic_hash": ""
   },
   "C:\\Users\\User\\Desktop\\SaaS Gym\\backend\\app\\services\\ml\\insights.py": {
-    "mtime": 1789257466.5561955,
-    "ast_hash": "a10af86e2486a71681e1f4f291688fb5",
+    "mtime": 1789262084.122458,
+    "ast_hash": "55ece1150e9b4f5b2c89f2bfb954a9c9",
     "semantic_hash": ""
   },
   "C:\\Users\\User\\Desktop\\SaaS Gym\\backend\\app\\services\\ml\\inventory.py": {
-    "mtime": 1789256617.6352088,
-    "ast_hash": "9c17eb29648d5f27cf1ad46f5e6413a9",
+    "mtime": 1789262084.1234572,
+    "ast_hash": "10b164571135e2335cfed39795be713e",
     "semantic_hash": ""
   },
   "C:\\Users\\User\\Desktop\\SaaS Gym\\backend\\app\\services\\ml\\occupancy.py": {
-    "mtime": 1789256598.2643788,
-    "ast_hash": "99f44ba510820b9adcd4ba799f207182",
+    "mtime": 1789262084.1244571,
+    "ast_hash": "e43165666fefbc7876e7a25aa8aeef7b",
     "semantic_hash": ""
   },
   "C:\\Users\\User\\Desktop\\SaaS Gym\\backend\\app\\services\\ml\\pricing.py": {
-    "mtime": 1789256609.1403458,
-    "ast_hash": "995decf600a8a5c37f2a71acf5cb768f",
+    "mtime": 1789262084.1244571,
+    "ast_hash": "3830074a8a9e953c2079535870f9715d",
     "semantic_hash": ""
   },
   "C:\\Users\\User\\Desktop\\SaaS Gym\\backend\\app\\services\\ml\\registry.py": {
-    "mtime": 1789257471.1168091,
-    "ast_hash": "3610a4ac65248626c85f29e949b67816",
+    "mtime": 1789262084.1254573,
+    "ast_hash": "f128642804312acef8d790c8cb08d565",
     "semantic_hash": ""
   },
   "C:\\Users\\User\\Desktop\\SaaS Gym\\backend\\app\\services\\ml\\segments.py": {
-    "mtime": 1789257369.2042587,
-    "ast_hash": "132100aa7409cc8f0beeade277a296a9",
+    "mtime": 1789262084.1264565,
+    "ast_hash": "59b6193d7836840aa3826a4a4ab96002",
     "semantic_hash": ""
   },
   "C:\\Users\\User\\Desktop\\SaaS Gym\\backend\\app\\services\\ml\\__init__.py": {
-    "mtime": 1789256510.1915748,
-    "ast_hash": "206de4f7acc660acb595ccd608bda29a",
+    "mtime": 1789262084.1194594,
+    "ast_hash": "8f43bc18eb58fae32ef76e7d3107673e",
     "semantic_hash": ""
   },
   "C:\\Users\\User\\Desktop\\SaaS Gym\\backend\\migrations\\tenant\\versions\\k8b9c0d1e2f3_modelos_por_gym.py": {
-    "mtime": 1789256865.4892268,
-    "ast_hash": "be33fc356af8a0fd6784e35cca08b893",
+    "mtime": 1789262084.1624577,
+    "ast_hash": "e9721f344c2134256b39f9520a9a05c9",
     "semantic_hash": ""
   },
   "C:\\Users\\User\\Desktop\\SaaS Gym\\backend\\scripts\\seed_ml_history.py": {
-    "mtime": 1789257253.711082,
-    "ast_hash": "202651abe7057b1ce11ecd0567444f5a",
+    "mtime": 1789262084.1704593,
+    "ast_hash": "1ca8416e1271978a1706a6805d88c708",
     "semantic_hash": ""
   },
   "C:\\Users\\User\\Desktop\\SaaS Gym\\backend\\tests\\test_insights_ml.py": {
-    "mtime": 1789257001.8669615,
-    "ast_hash": "32bc31712f370a23fd1563d5a7ab4702",
+    "mtime": 1789262084.1954591,
+    "ast_hash": "c7abe564eeb8fcea526f47635180888f",
     "semantic_hash": ""
   },
   "C:\\Users\\User\\Desktop\\SaaS Gym\\backend\\tests\\test_ml_models.py": {
-    "mtime": 1789256645.6999488,
-    "ast_hash": "bc8731627c056ae34ef0e63265d80ef2",
+    "mtime": 1789262084.2134697,
+    "ast_hash": "f5637700548b932ab6ad2cc68409d2f7",
+    "semantic_hash": ""
+  },
+  "C:\\Users\\User\\Desktop\\SaaS Gym\\frontend\\components\\layout\\MobileNav.tsx": {
+    "mtime": 1789268171.729385,
+    "ast_hash": "408554309976a2edffd871cad42cbd49",
+    "semantic_hash": ""
+  },
+  "C:\\Users\\User\\Desktop\\SaaS Gym\\frontend\\components\\layout\\nav.ts": {
+    "mtime": 1789268124.282966,
+    "ast_hash": "01e742875d6955ace8adf75a34126e09",
+    "semantic_hash": ""
+  },
+  "C:\\Users\\User\\Desktop\\SaaS Gym\\frontend\\scripts\\check-hardcoded-colors.mjs": {
+    "mtime": 1789268258.6733243,
+    "ast_hash": "ac0fd463698bf467c8fb4d18e1162ca0",
+    "semantic_hash": ""
+  },
+  "C:\\Users\\User\\Desktop\\SaaS Gym\\frontend\\scripts\\hardcoded-colors-baseline.json": {
+    "mtime": 1789270418.5212533,
+    "ast_hash": "0359b4964468672aecc059fe690ef02a",
+    "semantic_hash": ""
+  },
+  "C:\\Users\\User\\Desktop\\SaaS Gym\\docs\\design\\AUDIT-2026-09.md": {
+    "mtime": 1789266535.5559423,
+    "ast_hash": "7afcd8ea89b7c2593cea5fc3b1f36f80",
     "semantic_hash": ""
   }
 }
