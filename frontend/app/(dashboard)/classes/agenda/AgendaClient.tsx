@@ -61,9 +61,9 @@ function minutesOf(time: string): number {
 
 function occupancyColor(booked: number, capacity: number): string {
   const ratio = capacity > 0 ? booked / capacity : 0;
-  if (ratio >= 1) return "bg-red-500";
-  if (ratio >= 0.75) return "bg-amber-500";
-  return "bg-emerald-500";
+  if (ratio >= 1) return "bg-[var(--signal-danger)]";
+  if (ratio >= 0.75) return "bg-[var(--signal-warn)]";
+  return "bg-[var(--signal-ok)]";
 }
 
 export default function AgendaClient() {
@@ -262,12 +262,12 @@ export default function AgendaClient() {
                   const today = isSameDay(day, new Date());
                   return (
                     <div key={day.toISOString()} className="px-2 pb-2 text-center">
-                      <p className={cn("text-xs uppercase tracking-wide", today ? "text-[var(--color-primary-hover)] dark:text-[var(--color-primary-ink)] font-bold" : "text-[var(--text-muted)]")}>
+                      <p className={cn("text-xs", today ? "text-primary-ink font-semibold" : "text-[var(--text-muted)]")}>
                         {format(day, "EEE", { locale: es })}
                       </p>
                       <p className={cn(
                         "text-lg font-bold leading-tight mx-auto w-9 h-9 flex items-center justify-center rounded-full",
-                        today ? "bg-[var(--color-primary)] text-[var(--color-primary-contrast)]" : "text-[var(--text-base)]"
+                        today ? "bg-primary text-primary-contrast" : "text-[var(--text-base)]"
                       )}>
                         {format(day, "d")}
                       </p>
@@ -401,7 +401,7 @@ export default function AgendaClient() {
               <div className="p-5 space-y-4 flex-1 overflow-y-auto">
                 {selected.status !== "cancelled" && (
                   <div className="space-y-2">
-                    <p className="text-xs font-semibold uppercase tracking-wider text-[var(--text-muted)]">
+                    <p className="text-sm font-semibold text-[var(--text-base)]">
                       Reservar miembro
                     </p>
                     <div className="flex items-center gap-2">
@@ -411,7 +411,7 @@ export default function AgendaClient() {
                       <Button
                         onClick={book}
                         disabled={busy || !bookingMember}
-                        className="shrink-0 bg-[var(--color-primary)] text-[var(--color-primary-contrast)] hover:bg-[var(--color-primary-hover)]"
+                        className="shrink-0"
                       >
                         {busy ? <Loader2 className="h-4 w-4 animate-spin" /> : "Reservar"}
                       </Button>
@@ -420,7 +420,7 @@ export default function AgendaClient() {
                 )}
 
                 <div className="space-y-2">
-                  <p className="text-xs font-semibold uppercase tracking-wider text-[var(--text-muted)]">
+                  <p className="text-sm font-semibold text-[var(--text-base)]">
                     Roster
                   </p>
                   {rosterLoading ? (
@@ -469,8 +469,8 @@ export default function AgendaClient() {
                               className={cn(
                                 "h-7 w-7 rounded-lg flex items-center justify-center transition-colors",
                                 b.status === "attended"
-                                  ? "bg-emerald-100 dark:bg-emerald-950/40 text-emerald-600"
-                                  : "text-[var(--text-muted)] hover:text-emerald-600"
+                                  ? "bg-[var(--signal-ok-bg)] text-[var(--signal-ok)]"
+                                  : "text-[var(--text-muted)] hover:text-[var(--signal-ok)]"
                               )}
                             >
                               <Check className="h-3.5 w-3.5" />
@@ -481,8 +481,8 @@ export default function AgendaClient() {
                               className={cn(
                                 "h-7 w-7 rounded-lg flex items-center justify-center transition-colors",
                                 b.status === "no_show"
-                                  ? "bg-red-100 dark:bg-red-950/40 text-red-600"
-                                  : "text-[var(--text-muted)] hover:text-red-500"
+                                  ? "bg-[var(--signal-danger-bg)] text-[var(--signal-danger)]"
+                                  : "text-[var(--text-muted)] hover:text-[var(--signal-danger)]"
                               )}
                             >
                               <XCircle className="h-3.5 w-3.5" />
@@ -491,7 +491,7 @@ export default function AgendaClient() {
                               <button
                                 onClick={() => cancelBooking(b.booking_id)}
                                 title="Cancelar reserva"
-                                className="h-7 w-7 rounded-lg flex items-center justify-center text-[var(--text-muted)] hover:text-red-500"
+                                className="h-7 w-7 rounded-lg flex items-center justify-center text-[var(--text-muted)] hover:text-[var(--signal-danger)]"
                               >
                                 <X className="h-3.5 w-3.5" />
                               </button>

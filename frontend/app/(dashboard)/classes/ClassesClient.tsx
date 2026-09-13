@@ -383,7 +383,7 @@ export default function ClassesClient() {
                     ) : (
                       <>
                         Aún no hay entrenadores.{" "}
-                        <Link href="/settings?tab=team" className="text-[var(--color-primary-ink)] font-medium underline">
+                        <Link href="/settings?tab=team" className="text-primary-ink font-medium underline">
                           Agrégalos en Equipo
                         </Link>{" "}
                         para poder asignarlos.
@@ -416,8 +416,8 @@ export default function ClassesClient() {
                       className={cn(
                         "flex-1 py-1.5 rounded-md text-xs font-medium border transition-colors",
                         form.difficulty === d.value
-                          ? "bg-[var(--color-primary)] text-[var(--color-primary-contrast)] border-[var(--color-primary)]"
-                          : "border-[var(--border-base)] text-[var(--text-muted)] hover:border-[var(--color-primary)]"
+                          ? "bg-primary text-primary-contrast border-transparent"
+                          : "border-[var(--border-base)] text-[var(--text-muted)] hover:border-[var(--text-muted)]"
                       )}
                     >
                       {d.label}
@@ -468,7 +468,7 @@ export default function ClassesClient() {
 
             {/* Schedule preview */}
             {schedulePreview && (
-              <div className="flex items-center gap-2 px-3 py-2 rounded-lg bg-[var(--color-primary)]/10 border border-[var(--color-primary)]/20 text-[var(--color-primary-hover)] dark:text-[var(--color-primary-ink)]">
+              <div className="flex items-center gap-2 px-3 py-2 rounded-lg bg-muted border border-line text-ink">
                 <span className="text-xs font-medium">{schedulePreview}</span>
               </div>
             )}
@@ -486,7 +486,7 @@ export default function ClassesClient() {
                     style={{ background: c.value }}
                     className={cn(
                       "h-7 w-7 rounded-full transition-all",
-                      form.color === c.value ? "ring-2 ring-offset-2 ring-[var(--color-primary)] scale-110" : "opacity-70 hover:opacity-100 hover:scale-105"
+                      form.color === c.value ? "ring-2 ring-offset-2 ring-[var(--text-base)] ring-offset-[var(--bg-card)]" : "opacity-70 hover:opacity-100 hover:scale-105"
                     )}
                     aria-label={c.label}
                     aria-pressed={form.color === c.value}
@@ -542,7 +542,7 @@ export default function ClassesClient() {
 
       <GlassCard className="p-4">
         {error && (
-          <div className="flex items-center gap-2 text-red-600 mb-4">
+          <div className="flex items-center gap-2 text-[var(--signal-danger)] mb-4">
             <AlertCircle className="h-4 w-4" />
             <p className="text-sm">{error}</p>
           </div>
@@ -581,7 +581,7 @@ export default function ClassesClient() {
                       action={
                         <Button
                           onClick={openCreate}
-                          className="bg-[var(--color-primary)] text-[var(--color-primary-contrast)] hover:bg-[var(--color-primary-hover)]"
+                         
                         >
                           <Plus className="h-4 w-4 mr-2" />
                           Nueva clase
@@ -620,7 +620,7 @@ export default function ClassesClient() {
                         {cls.instructor_id ? (
                           cls.instructor
                         ) : (
-                          <span className="inline-flex items-center gap-1 text-amber-700 dark:text-amber-400">
+                          <span className="inline-flex items-center gap-1 text-[var(--signal-warn)]">
                             <AlertCircle className="h-3 w-3 shrink-0" aria-hidden />
                             {cls.instructor || "Sin asignar"}
                           </span>
@@ -643,8 +643,8 @@ export default function ClassesClient() {
                           className={cn(
                             "inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium",
                             cls.is_active
-                              ? "bg-green-100 dark:bg-green-950/30 text-green-700 dark:text-green-400"
-                              : "bg-red-100 dark:bg-red-950/30 text-red-700 dark:text-red-400"
+                              ? "bg-[var(--signal-ok-bg)] text-[var(--signal-ok)]"
+                              : "bg-[var(--signal-danger-bg)] text-[var(--signal-danger)]"
                           )}
                         >
                           {cls.is_active ? "Activa" : "Inactiva"}
@@ -681,7 +681,7 @@ export default function ClassesClient() {
                             onClick={() => setToDelete(cls)}
                             title="Eliminar clase"
                             aria-label={`Eliminar ${cls.name}`}
-                            className="h-8 w-8 rounded-lg flex items-center justify-center text-[var(--text-muted)] hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-950/30 transition-colors"
+                            className="h-8 w-8 rounded-lg flex items-center justify-center text-[var(--text-muted)] hover:text-[var(--signal-danger)] hover:bg-[var(--signal-danger-bg)] transition-colors"
                           >
                             <Trash2 className="h-3.5 w-3.5" />
                           </button>
@@ -698,7 +698,7 @@ export default function ClassesClient() {
                           <div className="space-y-3">
                             <p className="text-sm font-medium text-[var(--text-base)]">
                               Inscritos (
-                              <span className="text-[var(--color-primary-ink)] font-bold">
+                              <span className="text-primary-ink font-semibold">
                                 {(enrollments[cls.id] || []).length}
                               </span>
                               /{cls.max_capacity})
@@ -716,7 +716,7 @@ export default function ClassesClient() {
                                       type="button"
                                       onClick={() => handleUnenroll(cls.id, enr.id)}
                                       title="Dar de baja"
-                                      className="h-6 w-6 rounded-md flex items-center justify-center text-[var(--text-muted)] hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-950/30 transition-colors"
+                                      className="h-6 w-6 rounded-md flex items-center justify-center text-[var(--text-muted)] hover:text-[var(--signal-danger)] hover:bg-[var(--signal-danger-bg)] transition-colors"
                                     >
                                       <X className="h-3.5 w-3.5" />
                                     </button>
@@ -742,7 +742,7 @@ export default function ClassesClient() {
                                 type="button"
                                 onClick={() => handleEnroll(cls.id)}
                                 disabled={!enrollMemberId[cls.id]}
-                                className="bg-[var(--color-primary)] text-[var(--color-primary-contrast)] font-semibold text-sm hover:bg-[var(--color-primary-hover)]"
+                               
                               >
                                 Inscribir
                               </Button>

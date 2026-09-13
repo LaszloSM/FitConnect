@@ -1,7 +1,6 @@
 {
   "app/(dashboard)/audit/AuditClient.tsx": 20,
-  "app/(dashboard)/classes/agenda/AgendaClient.tsx": 12,
-  "app/(dashboard)/classes/ClassesClient.tsx": 25,
+  "app/(dashboard)/classes/ClassesClient.tsx": 8,
   "app/(dashboard)/machines/MachinesClient.tsx": 3,
   "app/(dashboard)/messages/MessagesClient.tsx": 6,
   "app/(dashboard)/payments/cash/CashClient.tsx": 5,
