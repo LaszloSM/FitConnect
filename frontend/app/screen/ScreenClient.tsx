@@ -7,7 +7,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import axios from "axios";
 import { ExerciseFigure, youtubeSearchUrl } from "@/components/routines/ExerciseFigure";
 import { cn } from "@/lib/utils";
-import { ArrowLeft, ChevronRight, Dumbbell, Timer, AlertTriangle, PlayCircle } from "lucide-react";
+import { ArrowLeftIcon as ArrowLeft, CaretRightIcon as ChevronRight, BarbellIcon as Dumbbell, TimerIcon as Timer, WarningIcon as AlertTriangle, PlayCircleIcon as PlayCircle } from "@phosphor-icons/react";
 
 const TOKEN_KEY = "fitconnect_kiosk_token";
 const IDLE_MS = 90_000;

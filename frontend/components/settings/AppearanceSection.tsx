@@ -6,7 +6,7 @@ import { useTheme } from "next-themes";
 import { motion, AnimatePresence } from "framer-motion";
 import { GlassCard } from "@/components/common/GlassCard";
 import { cn } from "@/lib/utils";
-import { Sun, Moon, Monitor } from "lucide-react";
+import { SunIcon as Sun, MoonIcon as Moon, MonitorIcon as Monitor } from "@phosphor-icons/react";
 
 type ThemeOption = "light" | "dark" | "system";
 

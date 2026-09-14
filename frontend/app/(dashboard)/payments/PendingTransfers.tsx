@@ -16,7 +16,7 @@ import { useApiResource } from "@/hooks/useApiResource";
 import { cn } from "@/lib/utils";
 import { TransferPendingDialog, type TransferContext } from "./TransferPendingDialog";
 import { KIND_LABELS, formatElapsed, type PendingTransferRow } from "./shared";
-import { CheckCircle2, Clock, ImageIcon, Landmark, Loader2, XCircle } from "lucide-react";
+import { CheckCircleIcon as CheckCircle2, ClockIcon as Clock, ImageIcon, BankIcon as Landmark, SpinnerGapIcon as Loader2, XCircleIcon as XCircle } from "@phosphor-icons/react";
 
 export function PendingTransfers({ onChanged }: { onChanged?: () => void }) {
   const { data: session } = useSession();

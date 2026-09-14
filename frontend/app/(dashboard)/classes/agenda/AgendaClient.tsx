@@ -14,17 +14,7 @@ import MemberSelect from "@/components/common/MemberSelect";
 import { apiClient } from "@/lib/api";
 import { parseApiError } from "@/lib/errors";
 import { cn } from "@/lib/utils";
-import {
-  ArrowLeft,
-  Calendar,
-  Check,
-  ChevronLeft,
-  ChevronRight,
-  Loader2,
-  Users,
-  X,
-  XCircle,
-} from "lucide-react";
+import { ArrowLeftIcon as ArrowLeft, CalendarBlankIcon as Calendar, CheckIcon as Check, CaretLeftIcon as ChevronLeft, CaretRightIcon as ChevronRight, SpinnerGapIcon as Loader2, UsersIcon as Users, XIcon as X, XCircleIcon as XCircle } from "@phosphor-icons/react";
 import { toast } from "sonner";
 import { addDays, format, isSameDay, startOfWeek } from "date-fns";
 import { es } from "date-fns/locale";

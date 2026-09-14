@@ -16,7 +16,7 @@ import { apiClient } from "@/lib/api";
 import { parseApiError } from "@/lib/errors";
 import { formatCOP } from "@/lib/format";
 import { useApiResource } from "@/hooks/useApiResource";
-import { Archive, Dumbbell, Pencil, Plus, Ticket } from "lucide-react";
+import { ArchiveIcon as Archive, BarbellIcon as Dumbbell, PencilSimpleIcon as Pencil, PlusIcon as Plus, TicketIcon as Ticket } from "@phosphor-icons/react";
 
 interface PassType {
   id: string;

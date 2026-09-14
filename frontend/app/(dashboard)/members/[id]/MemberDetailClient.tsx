@@ -10,31 +10,7 @@ import { formatCOP, formatTimeAgo, formatDate, formatDateTime, parseDateOnly, to
 import { GlassCard } from "@/components/common/GlassCard";
 import { Button } from "@/components/ui/button";
 import { StatusBadge } from "@/components/ui/status-badge";
-import {
-  ArrowLeft,
-  User,
-  Phone,
-  Mail,
-  IdCard,
-  Calendar,
-  CreditCard,
-  Activity,
-  Tag,
-  BadgeX,
-  Loader2,
-  QrCode,
-  Pencil,
-  Snowflake,
-  Play,
-  HeartPulse,
-  UserPlus,
-  Ticket,
-  Dumbbell,
-  Fingerprint,
-  MessageSquare,
-  Send,
-  Users,
-} from "lucide-react";
+import { ArrowLeftIcon as ArrowLeft, UserIcon as User, PhoneIcon as Phone, EnvelopeSimpleIcon as Mail, IdentificationCardIcon as IdCard, CalendarBlankIcon as Calendar, CreditCardIcon as CreditCard, ActivityIcon as Activity, TagIcon as Tag, XCircleIcon as BadgeX, SpinnerGapIcon as Loader2, QrCodeIcon as QrCode, PencilSimpleIcon as Pencil, SnowflakeIcon as Snowflake, PlayIcon as Play, HeartbeatIcon as HeartPulse, UserPlusIcon as UserPlus, TicketIcon as Ticket, BarbellIcon as Dumbbell, FingerprintIcon as Fingerprint, ChatTextIcon as MessageSquare, PaperPlaneTiltIcon as Send, UsersIcon as Users } from "@phosphor-icons/react";
 import { MemberRoutineTab } from "@/components/routines/MemberRoutineTab";
 import { MemberAccessTab } from "@/components/access/MemberAccessTab";
 import { QRCodeDisplay } from "@/components/common/QRCodeDisplay";

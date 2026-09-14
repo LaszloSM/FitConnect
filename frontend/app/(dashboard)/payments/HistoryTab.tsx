@@ -15,7 +15,7 @@ import { METHOD_LABELS, KIND_LABELS, KIND_TONES, openReceipt, openReceiptPdf, sh
 import { FormDialog, FormField } from "@/components/ui/form-dialog";
 import { Input } from "@/components/ui/input";
 import { format, startOfMonth, endOfMonth } from "date-fns";
-import { CheckCircle2, Download, FileText, Filter, Loader2, MessageCircle, Receipt, RotateCcw, XCircle } from "lucide-react";
+import { CheckCircleIcon as CheckCircle2, DownloadSimpleIcon as Download, FileTextIcon as FileText, FunnelIcon as Filter, SpinnerGapIcon as Loader2, ChatCircleIcon as MessageCircle, ReceiptIcon as Receipt, ArrowCounterClockwiseIcon as RotateCcw, XCircleIcon as XCircle } from "@phosphor-icons/react";
 
 type StatusFilter = "" | "paid" | "pending" | "voided" | "refunded";
 type ReverseKind = "refund" | "correction";

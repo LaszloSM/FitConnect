@@ -1,7 +1,7 @@
 "use client"
 
 import * as React from "react"
-import { Info, CheckCircle, AlertTriangle, XCircle, X } from "lucide-react"
+import { InfoIcon as Info, CheckCircleIcon as CheckCircle, WarningIcon as AlertTriangle, XCircleIcon as XCircle, XIcon as X } from "@phosphor-icons/react";
 import { cn } from "@/lib/utils"
 
 type AlertVariant = "info" | "success" | "warning" | "error"

@@ -11,7 +11,7 @@ import { formatCOP } from "@/lib/format";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useReceptionEvents, type ReceptionEvent } from "@/hooks/useReceptionEvents";
-import { CheckCircle2, XCircle, X } from "lucide-react";
+import { CheckCircleIcon as CheckCircle2, XCircleIcon as XCircle, XIcon as X } from "@phosphor-icons/react";
 
 const ALLOWED_DISMISS_MS = 6000;
 const DENIED_DISMISS_MS = 20000;

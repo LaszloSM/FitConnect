@@ -10,7 +10,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { apiClient } from "@/lib/api";
 import { parseApiError } from "@/lib/errors";
-import { Lock, CreditCard, MessageCircle, CheckCircle2 } from "lucide-react";
+import { LockIcon as Lock, CreditCardIcon as CreditCard, ChatCircleIcon as MessageCircle, CheckCircleIcon as CheckCircle2 } from "@phosphor-icons/react";
 
 const inputCls =
   "bg-[var(--bg-base)] border-[var(--border-base)] text-[var(--text-base)] placeholder:text-[var(--text-muted)]";

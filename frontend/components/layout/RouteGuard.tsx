@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Lock } from "lucide-react";
+import { LockIcon as Lock } from "@phosphor-icons/react";
 import { EmptyState } from "@/components/common/EmptyState";
 import { buttonVariants } from "@/components/ui/button";
 import { P, useCan, type Permission } from "@/lib/permissions";

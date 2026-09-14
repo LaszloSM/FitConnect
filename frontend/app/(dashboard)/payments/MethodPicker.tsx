@@ -3,7 +3,7 @@
 import { useEffect } from "react";
 import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
-import { Banknote, CreditCard, Landmark, Smartphone } from "lucide-react";
+import { MoneyIcon as Banknote, CreditCardIcon as CreditCard, BankIcon as Landmark, DeviceMobileIcon as Smartphone } from "@phosphor-icons/react";
 import type { DestinationAccount } from "./shared";
 
 export type Method = "cash" | "transfer" | "card";

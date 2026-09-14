@@ -1,8 +1,8 @@
 "use client"
 
-import { User, Building2, Globe, BookOpen, CreditCard } from "lucide-react"
+import { UserIcon as User, BuildingsIcon as Building2, GlobeIcon as Globe, BookOpenIcon as BookOpen, CreditCardIcon as CreditCard } from "@phosphor-icons/react";
 import { Select as SelectPrimitive } from "@base-ui/react/select"
-import { ChevronDownIcon, CheckIcon, ChevronUpIcon } from "lucide-react"
+import { CaretDownIcon as ChevronDownIcon, CheckIcon, CaretUpIcon as ChevronUpIcon } from "@phosphor-icons/react";
 import { cn } from "@/lib/utils"
 
 const ID_TYPES = [

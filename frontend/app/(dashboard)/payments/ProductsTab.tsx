@@ -24,20 +24,7 @@ import { parseApiError } from "@/lib/errors";
 import { formatCOP, formatTimeAgo } from "@/lib/format";
 import { useApiResource } from "@/hooks/useApiResource";
 import { cn } from "@/lib/utils";
-import {
-  Archive,
-  ArrowDownToLine,
-  ArrowUpFromLine,
-  History,
-  Package,
-  Pencil,
-  Plus,
-  Search,
-  Tags,
-  Trash2,
-  TriangleAlert,
-  Wrench,
-} from "lucide-react";
+import { ArchiveIcon as Archive, ArrowLineDownIcon as ArrowDownToLine, ArrowLineUpIcon as ArrowUpFromLine, ClockCounterClockwiseIcon as History, PackageIcon as Package, PencilSimpleIcon as Pencil, PlusIcon as Plus, MagnifyingGlassIcon as Search, TagIcon as Tags, TrashIcon as Trash2, WarningIcon as TriangleAlert, WrenchIcon as Wrench } from "@phosphor-icons/react";
 
 interface Product {
   id: string;

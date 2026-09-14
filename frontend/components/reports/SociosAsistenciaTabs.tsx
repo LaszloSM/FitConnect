@@ -5,7 +5,7 @@ import Link from "next/link";
 import { motion } from "framer-motion";
 import { AreaChart, Area, BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid } from "recharts";
 import { cn } from "@/lib/utils";
-import { Activity, Cake, Calendar, Phone, Users, UserX } from "lucide-react";
+import { ActivityIcon as Activity, CakeIcon as Cake, CalendarBlankIcon as Calendar, PhoneIcon as Phone, UsersIcon as Users, UserMinusIcon as UserX } from "@phosphor-icons/react";
 import type { Period } from "./PeriodPicker";
 import { Card, Empty, TabSkeleton, Tile, chartTooltipStyle, containerVariants, cardVariants, usePeriodData } from "./shared";
 

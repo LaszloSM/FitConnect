@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { Camera, RefreshCw, Check, X, SwitchCamera } from "lucide-react";
+import { CameraIcon as Camera, ArrowsClockwiseIcon as RefreshCw, CheckIcon as Check, XIcon as X, CameraRotateIcon as SwitchCamera } from "@phosphor-icons/react";
 
 const SIZE = 512;
 

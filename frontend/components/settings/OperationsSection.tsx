@@ -12,7 +12,7 @@ import { Switch } from "@/components/ui/switch";
 import { apiClient } from "@/lib/api";
 import { parseApiError } from "@/lib/errors";
 import type { Location } from "@/lib/types";
-import { Lock, MapPin, Plus, Trash2, Loader2 } from "lucide-react";
+import { LockIcon as Lock, MapPinIcon as MapPin, PlusIcon as Plus, TrashIcon as Trash2, SpinnerGapIcon as Loader2 } from "@phosphor-icons/react";
 
 const inputCls =
   "bg-[var(--bg-base)] border-[var(--border-base)] text-[var(--text-base)] placeholder:text-[var(--text-muted)]";

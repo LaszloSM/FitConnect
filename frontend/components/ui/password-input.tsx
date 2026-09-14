@@ -1,7 +1,7 @@
 "use client"
 
 import * as React from "react"
-import { Eye, EyeOff } from "lucide-react"
+import { EyeIcon as Eye, EyeSlashIcon as EyeOff } from "@phosphor-icons/react";
 import { cn } from "@/lib/utils"
 
 function getStrength(password: string): 0 | 1 | 2 | 3 {

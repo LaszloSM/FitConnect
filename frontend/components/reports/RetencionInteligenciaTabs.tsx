@@ -12,10 +12,7 @@ import { apiClient } from "@/lib/api";
 import { parseApiError } from "@/lib/errors";
 import { formatCOP, formatDate, formatDateTime, parseDateOnly } from "@/lib/format";
 import { cn } from "@/lib/utils";
-import {
-  Activity, AlertTriangle, Boxes, Brain, CalendarClock, Cpu, Loader2, MessageCircle, RefreshCw, Sparkles, Tags,
-  TrendingDown, TrendingUp, Users,
-} from "lucide-react";
+import { ActivityIcon as Activity, WarningIcon as AlertTriangle, CubeIcon as Boxes, BrainIcon as Brain, CalendarDotsIcon as CalendarClock, CpuIcon as Cpu, SpinnerGapIcon as Loader2, ChatCircleIcon as MessageCircle, ArrowsClockwiseIcon as RefreshCw, SparkleIcon as Sparkles, TagIcon as Tags, TrendDownIcon as TrendingDown, TrendUpIcon as TrendingUp, UsersIcon as Users } from "@phosphor-icons/react";
 import type { Period } from "./PeriodPicker";
 import { Card, Empty, TabSkeleton, Tile, chartTooltipStyle, compact, containerVariants, cardVariants, usePeriodData } from "./shared";
 import { Heatmap } from "./SociosAsistenciaTabs";

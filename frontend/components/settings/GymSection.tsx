@@ -14,7 +14,7 @@ import { CityCombobox } from "@/components/ui/city-combobox";
 import { CountrySelect } from "@/components/ui/country-select";
 import { apiClient } from "@/lib/api";
 import { parseApiError } from "@/lib/errors";
-import { ImageIcon, Loader2, Lock, Upload } from "lucide-react";
+import { ImageIcon, SpinnerGapIcon as Loader2, LockIcon as Lock, UploadSimpleIcon as Upload } from "@phosphor-icons/react";
 
 const inputCls =
   "bg-[var(--bg-base)] border-[var(--border-base)] text-[var(--text-base)] placeholder:text-[var(--text-muted)]";

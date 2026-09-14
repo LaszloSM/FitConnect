@@ -19,10 +19,7 @@ import { apiClient } from "@/lib/api";
 import { parseApiError } from "@/lib/errors";
 import { formatCOP, formatDate, parseDateOnly, toISODate } from "@/lib/format";
 import { cn } from "@/lib/utils";
-import {
-  AlertCircle, CalendarDays, ChevronDown, ImageIcon, List, Pencil, Plus, QrCode, Search, ShieldCheck,
-  Trash2, TriangleAlert, Wrench,
-} from "lucide-react";
+import { WarningCircleIcon as AlertCircle, CalendarDotsIcon as CalendarDays, CaretDownIcon as ChevronDown, ImageIcon, ListIcon as List, PencilSimpleIcon as Pencil, PlusIcon as Plus, QrCodeIcon as QrCode, MagnifyingGlassIcon as Search, ShieldCheckIcon as ShieldCheck, TrashIcon as Trash2, WarningIcon as TriangleAlert, WrenchIcon as Wrench } from "@phosphor-icons/react";
 
 interface Machine {
   id: string;

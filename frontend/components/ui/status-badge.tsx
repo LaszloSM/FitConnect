@@ -1,4 +1,5 @@
-import { Check, Clock, Info, Minus, X, type LucideIcon } from "lucide-react";
+import { CheckIcon as Check, ClockIcon as Clock, InfoIcon as Info, MinusIcon as Minus, XIcon as X } from "@phosphor-icons/react/ssr";
+import type { Icon as PhosphorIcon } from "@phosphor-icons/react";
 
 import { cn } from "@/lib/utils";
 
@@ -24,7 +25,7 @@ const TONE_VAR: Record<StatusTone, { tinta: string; fondo: string; linea: string
 };
 
 /** El estado se lee por icono y texto, no solo por color. */
-const TONE_ICON: Record<StatusTone, LucideIcon> = {
+const TONE_ICON: Record<StatusTone, PhosphorIcon> = {
   success: Check,
   warning: Clock,
   danger: X,
@@ -86,7 +87,7 @@ export function StatusBadge({ status, label, tone, className }: StatusBadgeProps
       )}
       style={{ color: `var(${v.tinta})`, background: `var(${v.fondo})` }}
     >
-      <Icon aria-hidden="true" className="size-3.5" strokeWidth={2.4} />
+      <Icon aria-hidden="true" className="size-3.5" weight="bold" />
       {resolvedLabel}
     </span>
   );

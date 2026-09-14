@@ -16,10 +16,7 @@ import { apiClient, newIdempotencyKey, postOnce } from "@/lib/api";
 import { formatDateTime } from "@/lib/format";
 import { cn } from "@/lib/utils";
 import { parseApiError } from "@/lib/errors";
-import {
-  AlertTriangle, Bot, CheckCircle2, Clock, Megaphone, MessageSquare,
-  RotateCcw, Send, SlidersHorizontal, XCircle,
-} from "lucide-react";
+import { WarningIcon as AlertTriangle, RobotIcon as Bot, CheckCircleIcon as CheckCircle2, ClockIcon as Clock, MegaphoneIcon as Megaphone, ChatTextIcon as MessageSquare, ArrowCounterClockwiseIcon as RotateCcw, PaperPlaneTiltIcon as Send, SlidersHorizontalIcon as SlidersHorizontal, XCircleIcon as XCircle } from "@phosphor-icons/react";
 
 type TabKey = "auto" | "announcements" | "outbox";
 

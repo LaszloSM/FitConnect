@@ -8,7 +8,7 @@ import { toast } from "sonner";
 import { apiClient } from "@/lib/api";
 import { GlassCard } from "@/components/common/GlassCard";
 import { cn } from "@/lib/utils";
-import { FileSpreadsheet, FileText, Loader2 } from "lucide-react";
+import { FileXlsIcon as FileSpreadsheet, FileTextIcon as FileText, SpinnerGapIcon as Loader2 } from "@phosphor-icons/react";
 import type { Period } from "./PeriodPicker";
 
 export const chartTooltipStyle = {

@@ -38,7 +38,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { Plus, Search, Pencil, Trash2, AlertCircle, QrCode, X, Tag, Clock, CheckCircle2, Download, Check, User, HeartPulse, CreditCard } from "lucide-react";
+import { PlusIcon as Plus, MagnifyingGlassIcon as Search, PencilSimpleIcon as Pencil, TrashIcon as Trash2, WarningCircleIcon as AlertCircle, QrCodeIcon as QrCode, XIcon as X, TagIcon as Tag, ClockIcon as Clock, CheckCircleIcon as CheckCircle2, DownloadSimpleIcon as Download, CheckIcon as Check, UserIcon as User, HeartbeatIcon as HeartPulse, CreditCardIcon as CreditCard } from "@phosphor-icons/react";
 import { MembershipStatusBadge } from "@/components/common/MembershipStatusBadge";
 import type { TrainingGoal } from "@/lib/types";
 
@@ -804,7 +804,7 @@ export default function MembersClient() {
                             !done && !current && "border-[var(--border-base)] text-[var(--text-muted)]"
                           )}
                         >
-                          {done ? <Check className="h-3.5 w-3.5" strokeWidth={3} /> : <Icon className="h-3.5 w-3.5" />}
+                          {done ? <Check className="h-3.5 w-3.5" weight="bold" /> : <Icon className="h-3.5 w-3.5" />}
                         </span>
                         <span className={cn(
                           "text-xs font-medium truncate",

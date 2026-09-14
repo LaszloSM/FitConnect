@@ -8,7 +8,7 @@ import { toast } from "sonner";
 import { PageHeader } from "@/components/common/PageHeader";
 import { apiClient } from "@/lib/api";
 import { cn } from "@/lib/utils";
-import { Activity, Brain, Calendar, CalendarCheck, Loader2, Package, Ticket, TrendingUp, Users } from "lucide-react";
+import { ActivityIcon as Activity, BrainIcon as Brain, CalendarBlankIcon as Calendar, CalendarCheckIcon as CalendarCheck, SpinnerGapIcon as Loader2, PackageIcon as Package, TicketIcon as Ticket, TrendUpIcon as TrendingUp, UsersIcon as Users } from "@phosphor-icons/react";
 import { PeriodPicker, periodFor, type Period } from "@/components/reports/PeriodPicker";
 import { ExportButtons, downloadBlob } from "@/components/reports/shared";
 import { IngresosTab } from "@/components/reports/IngresosTab";

@@ -1,7 +1,7 @@
 "use client"
 
 import * as React from "react"
-import { Clock } from "lucide-react"
+import { ClockIcon as Clock } from "@phosphor-icons/react";
 import { cn } from "@/lib/utils"
 
 const ALL_TIMES = Array.from({ length: 96 }, (_, i) => {

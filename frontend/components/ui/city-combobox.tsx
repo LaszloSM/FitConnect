@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react"
 import { Combobox } from "@base-ui/react/combobox"
-import { ChevronDownIcon, CheckIcon, MapPin } from "lucide-react"
+import { CaretDownIcon as ChevronDownIcon, CheckIcon, MapPinIcon as MapPin } from "@phosphor-icons/react";
 import { cn } from "@/lib/utils"
 import { COLOMBIA_CITIES } from "@/lib/geo"
 

@@ -2,7 +2,7 @@
 
 import * as React from "react"
 import { QRCodeSVG } from "qrcode.react"
-import { Download, Printer } from "lucide-react"
+import { DownloadSimpleIcon as Download, PrinterIcon as Printer } from "@phosphor-icons/react";
 import { cn } from "@/lib/utils"
 
 interface QRCodeDisplayProps {

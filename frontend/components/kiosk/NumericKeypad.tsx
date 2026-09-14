@@ -1,6 +1,6 @@
 "use client";
 
-import { Delete } from "lucide-react";
+import { BackspaceIcon as Delete } from "@phosphor-icons/react";
 import { cn } from "@/lib/utils";
 
 const KEYS = ["1", "2", "3", "4", "5", "6", "7", "8", "9", "clear", "0", "back"] as const;

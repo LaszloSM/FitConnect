@@ -16,9 +16,7 @@ import { parseApiError } from "@/lib/errors";
 import { formatCOP, formatDateTime } from "@/lib/format";
 import { P, useCan } from "@/lib/permissions";
 import { DENOMINATIONS, EXPENSE_LABELS, MANUAL_EXPENSE_CATEGORIES } from "../shared";
-import {
-  ArrowLeft, Lock, Unlock, Loader2, TrendingDown, Plus, RotateCcw, Vault, Printer, EyeOff, Users,
-} from "lucide-react";
+import { ArrowLeftIcon as ArrowLeft, LockIcon as Lock, LockOpenIcon as Unlock, SpinnerGapIcon as Loader2, TrendDownIcon as TrendingDown, PlusIcon as Plus, ArrowCounterClockwiseIcon as RotateCcw, VaultIcon as Vault, PrinterIcon as Printer, EyeSlashIcon as EyeOff, UsersIcon as Users } from "@phosphor-icons/react";
 import { toast } from "sonner";
 
 interface CurrentShift {

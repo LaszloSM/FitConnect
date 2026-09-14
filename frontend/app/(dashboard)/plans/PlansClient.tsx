@@ -26,16 +26,7 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import * as PricingCard from "@/components/ui/pricing-card";
-import {
-  Plus,
-  Pencil,
-  Trash2,
-  Tag,
-  Clock,
-  CheckCircle2,
-  XCircle,
-  AlertCircle,
-} from "lucide-react";
+import { PlusIcon as Plus, PencilSimpleIcon as Pencil, TrashIcon as Trash2, TagIcon as Tag, ClockIcon as Clock, CheckCircleIcon as CheckCircle2, XCircleIcon as XCircle, WarningCircleIcon as AlertCircle } from "@phosphor-icons/react";
 
 const planSchema = z.object({
   name: z.string().min(1, "El nombre es requerido"),

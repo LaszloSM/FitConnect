@@ -13,7 +13,7 @@ import { PhoneInput } from "@/components/ui/phone-input";
 import { apiClient } from "@/lib/api";
 import { parseApiError } from "@/lib/errors";
 import { useApiResource } from "@/hooks/useApiResource";
-import { Archive, Dot, Dumbbell, KeyRound, Pencil, Plus, UserRound } from "lucide-react";
+import { ArchiveIcon as Archive, DotIcon as Dot, BarbellIcon as Dumbbell, KeyIcon as KeyRound, PencilSimpleIcon as Pencil, PlusIcon as Plus, UserIcon as UserRound } from "@phosphor-icons/react";
 
 interface Trainer {
   id: string;

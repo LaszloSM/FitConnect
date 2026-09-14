@@ -8,7 +8,7 @@ import { GlassCard } from "@/components/common/GlassCard";
 import { PageHeader } from "@/components/common/PageHeader";
 import type { AuditLogEntry } from "@/lib/types";
 import { parseUTC } from "@/lib/format";
-import { ScrollText, ShieldAlert, Loader2 } from "lucide-react";
+import { ScrollIcon as ScrollText, ShieldWarningIcon as ShieldAlert, SpinnerGapIcon as Loader2 } from "@phosphor-icons/react";
 import { formatDistanceToNow, format, isToday, isYesterday } from "date-fns";
 import { es } from "date-fns/locale";
 

@@ -1,7 +1,7 @@
 "use client"
 
 import * as React from "react"
-import { Calendar, ChevronLeft, ChevronRight } from "lucide-react"
+import { CalendarBlankIcon as Calendar, CaretLeftIcon as ChevronLeft, CaretRightIcon as ChevronRight } from "@phosphor-icons/react";
 import { cn } from "@/lib/utils"
 
 const DAYS_ES = ["Dom", "Lun", "Mar", "Mié", "Jue", "Vie", "Sáb"]

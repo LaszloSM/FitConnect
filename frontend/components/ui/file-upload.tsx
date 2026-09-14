@@ -1,7 +1,7 @@
 "use client"
 
 import * as React from "react"
-import { Upload, X, ImageIcon } from "lucide-react"
+import { UploadSimpleIcon as Upload, XIcon as X, ImageIcon } from "@phosphor-icons/react";
 import { cn } from "@/lib/utils"
 
 interface FileUploadProps {

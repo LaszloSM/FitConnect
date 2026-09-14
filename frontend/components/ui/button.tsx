@@ -1,6 +1,6 @@
 import { Button as ButtonPrimitive } from "@base-ui/react/button"
 import { cva, type VariantProps } from "class-variance-authority"
-import { Loader2 } from "lucide-react"
+import { SpinnerGapIcon as Loader2 } from "@phosphor-icons/react/ssr";
 
 import { cn } from "@/lib/utils"
 

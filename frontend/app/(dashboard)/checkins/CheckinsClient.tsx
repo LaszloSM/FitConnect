@@ -17,7 +17,7 @@ import type { CheckIn } from "@/types/models";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { StatusBadge } from "@/components/ui/status-badge";
-import { AlertCircle, Tv, X } from "lucide-react";
+import { WarningCircleIcon as AlertCircle, TelevisionIcon as Tv, XIcon as X } from "@phosphor-icons/react";
 import { toast } from "sonner";
 
 const DENIAL_LABELS: Record<string, string> = {

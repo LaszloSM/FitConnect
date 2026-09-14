@@ -17,9 +17,7 @@ import { apiClient } from "@/lib/api";
 import { parseApiError } from "@/lib/errors";
 import { useApiResource } from "@/hooks/useApiResource";
 import { cn } from "@/lib/utils";
-import {
-  ArrowDown, ArrowLeft, ArrowUp, Archive, Dumbbell, Loader2, MonitorPlay, Plus, Search, Trash2, Users, X,
-} from "lucide-react";
+import { ArrowDownIcon as ArrowDown, ArrowLeftIcon as ArrowLeft, ArrowUpIcon as ArrowUp, ArchiveIcon as Archive, BarbellIcon as Dumbbell, SpinnerGapIcon as Loader2, MonitorPlayIcon as MonitorPlay, PlusIcon as Plus, MagnifyingGlassIcon as Search, TrashIcon as Trash2, UsersIcon as Users, XIcon as X } from "@phosphor-icons/react";
 
 interface Exercise {
   id: string; slug: string; name_es: string; name_en: string; category_es: string; level_es: string;

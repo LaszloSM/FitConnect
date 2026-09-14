@@ -6,7 +6,7 @@ import { useSession } from "next-auth/react";
 import { GlassCard } from "@/components/common/GlassCard";
 import { Button } from "@/components/ui/button";
 import { apiClient } from "@/lib/api";
-import { Check, Zap, Star, Crown } from "lucide-react";
+import { CheckIcon as Check, LightningIcon as Zap, StarIcon as Star, CrownIcon as Crown } from "@phosphor-icons/react";
 import { cn } from "@/lib/utils";
 
 interface GymData {

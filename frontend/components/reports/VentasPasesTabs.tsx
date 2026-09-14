@@ -6,7 +6,7 @@ import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGri
 import { DataTable, type DataTableColumn } from "@/components/ui/data-table";
 import { formatCOP } from "@/lib/format";
 import { cn } from "@/lib/utils";
-import { Dumbbell, Package, Ticket, TriangleAlert } from "lucide-react";
+import { BarbellIcon as Dumbbell, PackageIcon as Package, TicketIcon as Ticket, WarningIcon as TriangleAlert } from "@phosphor-icons/react";
 import type { Period } from "./PeriodPicker";
 import { Card, Empty, TabSkeleton, Tile, chartTooltipStyle, compact, containerVariants, cardVariants, usePeriodData } from "./shared";
 

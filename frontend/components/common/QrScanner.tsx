@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { Html5Qrcode } from "html5-qrcode";
-import { Camera, CameraOff } from "lucide-react";
+import { CameraIcon as Camera, CameraSlashIcon as CameraOff } from "@phosphor-icons/react";
 
 interface QrScannerProps {
   /** Called with the decoded QR text. The parent decides what to do with it. */

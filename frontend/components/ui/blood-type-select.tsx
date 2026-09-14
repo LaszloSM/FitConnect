@@ -1,7 +1,7 @@
 "use client"
 
 import { Select as SelectPrimitive } from "@base-ui/react/select"
-import { ChevronDownIcon, ChevronUpIcon, CheckIcon } from "lucide-react"
+import { CaretDownIcon as ChevronDownIcon, CaretUpIcon as ChevronUpIcon, CheckIcon } from "@phosphor-icons/react";
 import { cn } from "@/lib/utils"
 
 const BLOOD_TYPES = ["A+", "A-", "B+", "B-", "O+", "O-", "AB+", "AB-"]

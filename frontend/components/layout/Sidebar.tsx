@@ -4,7 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useSession, signOut } from "next-auth/react";
 import { useEffect, useState } from "react";
-import { ChevronsLeft, LogOut, X } from "lucide-react";
+import { CaretDoubleLeftIcon as ChevronsLeft, SignOutIcon as LogOut, XIcon as X } from "@phosphor-icons/react";
 import { useSidebar } from "./SidebarContext";
 import { staffGroups, trainerGroups, isActivePath } from "./nav";
 import { BrandMark } from "@/components/common/BrandMark";
@@ -82,7 +82,7 @@ function SidebarBody({ collapsed, onClose }: { collapsed: boolean; onClose?: () 
                               : "text-ink-muted hover:bg-muted hover:text-ink"
                           )}
                         >
-                          <Icon className="size-[18px] shrink-0" strokeWidth={active ? 2.2 : 1.8} />
+                          <Icon className="size-[18px] shrink-0" weight={active ? "bold" : "regular"} />
                           {!collapsed && <span className="truncate">{label}</span>}
                           {collapsed && <span className="sr-only">{label}</span>}
                         </Link>

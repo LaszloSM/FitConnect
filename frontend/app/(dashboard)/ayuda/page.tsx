@@ -4,16 +4,7 @@ import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { PageHeader } from "@/components/common/PageHeader";
 import { GlassCard } from "@/components/common/GlassCard";
-import {
-  ChevronDown,
-  DoorOpen,
-  Wallet,
-  Users,
-  CalendarDays,
-  MessageCircle,
-  CreditCard,
-  LifeBuoy,
-} from "lucide-react";
+import { CaretDownIcon as ChevronDown, DoorOpenIcon as DoorOpen, WalletIcon as Wallet, UsersIcon as Users, CalendarDotsIcon as CalendarDays, ChatCircleIcon as MessageCircle, CreditCardIcon as CreditCard, LifebuoyIcon as LifeBuoy } from "@phosphor-icons/react";
 
 interface Guide {
   icon: React.ElementType;

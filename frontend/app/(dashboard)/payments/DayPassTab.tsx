@@ -20,7 +20,7 @@ import { cn } from "@/lib/utils";
 import { MethodPicker, EMPTY_DETAILS, type Method, type MethodDetails } from "./MethodPicker";
 import { TransferPendingDialog, type TransferContext } from "./TransferPendingDialog";
 import { openReceipt, METHOD_LABELS, type DestinationAccount } from "./shared";
-import { Dumbbell, Loader2, Printer, Search, Ticket, UserCheck, UserPlus } from "lucide-react";
+import { BarbellIcon as Dumbbell, SpinnerGapIcon as Loader2, PrinterIcon as Printer, MagnifyingGlassIcon as Search, TicketIcon as Ticket, UserCheckIcon as UserCheck, UserPlusIcon as UserPlus } from "@phosphor-icons/react";
 
 interface PassType {
   id: string;

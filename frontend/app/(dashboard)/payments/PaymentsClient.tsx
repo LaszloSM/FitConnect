@@ -11,7 +11,7 @@ import { HistoryTab } from "./HistoryTab";
 import { ReceivablesTab } from "./ReceivablesTab";
 import { ProductsTab } from "./ProductsTab";
 import { DayPassTab } from "./DayPassTab";
-import { HandCoins, History, Package, Ticket, Wallet, Zap } from "lucide-react";
+import { HandCoinsIcon as HandCoins, ClockCounterClockwiseIcon as History, PackageIcon as Package, TicketIcon as Ticket, WalletIcon as Wallet, LightningIcon as Zap } from "@phosphor-icons/react";
 
 type Tab = "pos" | "daypass" | "history" | "receivables" | "products";
 

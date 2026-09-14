@@ -21,7 +21,7 @@ import { parseApiError } from "@/lib/errors";
 import { cn } from "@/lib/utils";
 import { TrainersCard } from "@/components/settings/TrainersCard";
 import { useApiResource } from "@/hooks/useApiResource";
-import { Copy, Dumbbell, Users, UserPlus, UserMinus, UserCheck } from "lucide-react";
+import { CopyIcon as Copy, BarbellIcon as Dumbbell, UsersIcon as Users, UserPlusIcon as UserPlus, UserMinusIcon as UserMinus, UserCheckIcon as UserCheck } from "@phosphor-icons/react";
 
 type Role = "owner" | "admin" | "receptionist" | "trainer";
 

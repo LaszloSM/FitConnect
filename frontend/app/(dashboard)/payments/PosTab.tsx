@@ -20,19 +20,7 @@ import { openReceipt, type DestinationAccount } from "./shared";
 import { MethodPicker, EMPTY_DETAILS, type Method, type MethodDetails } from "./MethodPicker";
 import { TransferPendingDialog, type TransferContext } from "./TransferPendingDialog";
 import { parseApiError } from "@/lib/errors";
-import {
-  Link2,
-  Loader2,
-  Minus,
-  Package,
-  Plus,
-  Printer,
-  Search,
-  ShoppingCart,
-  Trash2,
-  UserRound,
-  Zap,
-} from "lucide-react";
+import { LinkIcon as Link2, SpinnerGapIcon as Loader2, MinusIcon as Minus, PackageIcon as Package, PlusIcon as Plus, PrinterIcon as Printer, MagnifyingGlassIcon as Search, ShoppingCartIcon as ShoppingCart, TrashIcon as Trash2, UserIcon as UserRound, LightningIcon as Zap } from "@phosphor-icons/react";
 
 interface BillingSummary {
   member_id: string;

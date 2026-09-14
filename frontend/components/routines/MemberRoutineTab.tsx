@@ -10,7 +10,7 @@ import { ExerciseFigure } from "@/components/routines/ExerciseFigure";
 import { apiClient } from "@/lib/api";
 import { parseApiError } from "@/lib/errors";
 import { formatTimeAgo } from "@/lib/format";
-import { Dumbbell, Loader2, Timer, X } from "lucide-react";
+import { BarbellIcon as Dumbbell, SpinnerGapIcon as Loader2, TimerIcon as Timer, XIcon as X } from "@phosphor-icons/react";
 
 interface RoutineRow { id: string; name: string; goal_label: string | null; level_es: string; days_per_week: number; is_active: boolean }
 

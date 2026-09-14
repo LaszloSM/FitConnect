@@ -18,7 +18,7 @@ import { useDashboardData } from "@/hooks/useDashboardData";
 import { P, useCan } from "@/lib/permissions";
 import { formatCOP, gymHour, todayInGym } from "@/lib/format";
 import { cn } from "@/lib/utils";
-import { AlertCircle, Clock, Ticket, UserPlus, Zap } from "lucide-react";
+import { WarningCircleIcon as AlertCircle, ClockIcon as Clock, TicketIcon as Ticket, UserPlusIcon as UserPlus, LightningIcon as Zap } from "@phosphor-icons/react";
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
 

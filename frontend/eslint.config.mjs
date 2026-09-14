@@ -12,6 +12,8 @@ const eslintConfig = [
       "react-hooks/preserve-manual-memoization": "warn",
       "react-hooks/purity": "warn",
       "react-hooks/refs": "warn",
+      // Calor usa un solo set de iconos: Phosphor.
+      "no-restricted-imports": ["error", { paths: [{ name: "lucide-react", message: "Usa @phosphor-icons/react." }] }],
     },
   },
 ];

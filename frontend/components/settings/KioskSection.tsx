@@ -13,9 +13,7 @@ import { apiClient } from "@/lib/api";
 import { parseApiError } from "@/lib/errors";
 import { formatTimeAgo } from "@/lib/format";
 import { useApiResource } from "@/hooks/useApiResource";
-import {
-  Check, Copy, DoorOpen, Fingerprint, Link2, Loader2, MonitorPlay, MonitorSmartphone, Pencil, Plus, ShieldOff, X, WifiOff, ScrollText,
-} from "lucide-react";
+import { CheckIcon as Check, CopyIcon as Copy, DoorOpenIcon as DoorOpen, FingerprintIcon as Fingerprint, LinkIcon as Link2, SpinnerGapIcon as Loader2, MonitorPlayIcon as MonitorPlay, DevicesIcon as MonitorSmartphone, PencilSimpleIcon as Pencil, PlusIcon as Plus, ShieldSlashIcon as ShieldOff, XIcon as X, WifiSlashIcon as WifiOff, ScrollIcon as ScrollText } from "@phosphor-icons/react";
 
 type DeviceKind = "kiosk" | "turnstile" | "reader" | "screen";
 

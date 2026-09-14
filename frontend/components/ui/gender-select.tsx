@@ -1,7 +1,7 @@
 "use client"
 
 import { Select as SelectPrimitive } from "@base-ui/react/select"
-import { ChevronDownIcon, ChevronUpIcon, CheckIcon, Mars, Venus, CircleUser } from "lucide-react"
+import { CaretDownIcon as ChevronDownIcon, CaretUpIcon as ChevronUpIcon, CheckIcon, GenderMaleIcon as Mars, GenderFemaleIcon as Venus, UserCircleIcon as CircleUser } from "@phosphor-icons/react";
 import { cn } from "@/lib/utils"
 
 const GENDERS = [

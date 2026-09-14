@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { TrendingUp, TrendingDown, AlertTriangle, ArrowRight } from "lucide-react";
+import { TrendUpIcon as TrendingUp, TrendDownIcon as TrendingDown, WarningIcon as AlertTriangle, ArrowRightIcon as ArrowRight } from "@phosphor-icons/react";
 import { Panel } from "./Panel";
 
 type Tone = "positive" | "negative" | "warning";

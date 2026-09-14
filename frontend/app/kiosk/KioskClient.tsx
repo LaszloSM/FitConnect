@@ -7,7 +7,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import axios from "axios";
 import { NumericKeypad } from "@/components/kiosk/NumericKeypad";
 import { QrScanner } from "@/components/common/QrScanner";
-import { CalendarClock, CheckCircle2, Loader2, QrCode, XCircle, AlertTriangle, Keyboard } from "lucide-react";
+import { CalendarDotsIcon as CalendarClock, CheckCircleIcon as CheckCircle2, SpinnerGapIcon as Loader2, QrCodeIcon as QrCode, XCircleIcon as XCircle, WarningIcon as AlertTriangle, KeyboardIcon as Keyboard } from "@phosphor-icons/react";
 
 const TOKEN_KEY = "fitconnect_kiosk_token";
 const RESET_MS = 6000;
@@ -263,7 +263,7 @@ function ResultScreen({ result, onDismiss }: { result: KioskResult; onDismiss: (
         // eslint-disable-next-line @next/next/no-img-element
         <img src={result.photo_url} alt="" className="size-24 rounded-full border-4 border-white/40 object-cover" />
       ) : (
-        <Icon className="size-20" strokeWidth={1.8} aria-hidden="true" />
+        <Icon className="size-20" aria-hidden="true" />
       )}
       <p className="text-4xl font-semibold leading-tight tracking-tight sm:text-5xl">{palette.label}</p>
       <p className="text-xl font-medium opacity-95">{result.message}</p>

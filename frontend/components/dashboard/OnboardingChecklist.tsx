@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { useSession } from "next-auth/react";
 import Link from "next/link";
 import { apiClient } from "@/lib/api";
-import { Check, ArrowRight } from "lucide-react";
+import { CheckIcon as Check, ArrowRightIcon as ArrowRight } from "@phosphor-icons/react";
 import { cn } from "@/lib/utils";
 
 interface OnboardingStatus {
@@ -75,7 +75,7 @@ export function OnboardingChecklist() {
                     done ? "border-primary bg-primary text-primary-contrast" : "border-line text-ink-muted"
                   )}
                 >
-                  {done ? <Check className="size-3.5" strokeWidth={3} /> : i + 1}
+                  {done ? <Check className="size-3.5" weight="bold" /> : i + 1}
                 </span>
                 <span className="min-w-0 flex-1">
                   <span className={cn("block text-sm", done ? "text-ink-muted line-through" : "font-medium text-ink")}>

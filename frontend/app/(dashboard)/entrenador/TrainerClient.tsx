@@ -13,7 +13,7 @@ import { apiClient } from "@/lib/api";
 import { parseApiError } from "@/lib/errors";
 import { formatDate, parseDateOnly, todayISO } from "@/lib/format";
 import { cn } from "@/lib/utils";
-import { CalendarDays, ClipboardList, Phone, Sun, Users } from "lucide-react";
+import { CalendarDotsIcon as CalendarDays, ClipboardTextIcon as ClipboardList, PhoneIcon as Phone, SunIcon as Sun, UsersIcon as Users } from "@phosphor-icons/react";
 
 export type TrainerView = "today" | "members" | "routines";
 

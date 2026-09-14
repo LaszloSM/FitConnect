@@ -69,10 +69,10 @@ function TabsTrigger({ value, children, className, disabled }: TabsTriggerProps)
       onClick={() => !disabled && setActive(value)}
       className={cn(
         "relative flex h-10 items-center gap-2 whitespace-nowrap px-3 text-sm font-medium outline-none transition-colors duration-150",
-        "after:absolute after:inset-x-2 after:-bottom-px after:h-0.5 after:rounded-full",
+        "after:absolute after:inset-x-2 after:-bottom-px after:h-[3px] after:rounded-full",
         "focus-visible:rounded-[var(--radius-sm)] focus-visible:ring-2 focus-visible:ring-primary/40",
         "[&_svg]:size-4",
-        isActive ? "text-ink after:bg-primary" : "text-ink-muted hover:text-ink",
+        isActive ? "font-semibold text-ink after:bg-primary" : "text-ink-muted hover:text-ink",
         disabled && "cursor-not-allowed opacity-50",
         className
       )}

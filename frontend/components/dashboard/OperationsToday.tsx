@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { formatCOP } from "@/lib/format";
 import type { OperationsData, ShiftInfo } from "@/hooks/useDashboardData";
-import { MessageCircle } from "lucide-react";
+import { ChatCircleIcon as MessageCircle } from "@phosphor-icons/react";
 import { Panel, PanelNote, PanelRow } from "./Panel";
 
 const DENIAL_LABELS: Record<string, string> = {

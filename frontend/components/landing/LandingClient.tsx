@@ -1,7 +1,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { BrandMark } from "@/components/common/BrandMark";
-import { ArrowRight, Check, Database, KeyRound, Lock, ScrollText } from "lucide-react";
+import { ArrowRightIcon as ArrowRight, CheckIcon as Check, DatabaseIcon as Database, KeyIcon as KeyRound, LockIcon as Lock, ScrollIcon as ScrollText } from "@phosphor-icons/react/ssr";
 
 /*
  * Landing en Tiza claro. Muestra el producto real: cada imagen es una captura

@@ -5,7 +5,7 @@ import { useSearchParams } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import { PageHeader } from "@/components/common/PageHeader";
 import { cn } from "@/lib/utils";
-import { User, Building2, CreditCard, Palette, SlidersHorizontal, Plug, MonitorSmartphone, Landmark, Users, Ticket } from "lucide-react";
+import { UserIcon as User, BuildingsIcon as Building2, CreditCardIcon as CreditCard, PaletteIcon as Palette, SlidersHorizontalIcon as SlidersHorizontal, PlugIcon as Plug, DevicesIcon as MonitorSmartphone, BankIcon as Landmark, UsersIcon as Users, TicketIcon as Ticket } from "@phosphor-icons/react";
 import { P, useCan, type Permission } from "@/lib/permissions";
 
 // Imports estáticos a propósito. Con `next/dynamic` y sin fallback, un chunk que

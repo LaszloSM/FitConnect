@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { CheckCircle2, Loader2, TriangleAlert, Wrench } from "lucide-react";
+import { CheckCircleIcon as CheckCircle2, SpinnerGapIcon as Loader2, WarningIcon as TriangleAlert, WrenchIcon as Wrench } from "@phosphor-icons/react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";

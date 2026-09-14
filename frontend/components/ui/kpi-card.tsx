@@ -1,7 +1,8 @@
 "use client";
 
 import Link from "next/link";
-import { ArrowDownRight, ArrowUpRight, type LucideIcon } from "lucide-react";
+import { ArrowDownRightIcon as ArrowDownRight, ArrowUpRightIcon as ArrowUpRight } from "@phosphor-icons/react";
+import type { Icon as PhosphorIcon } from "@phosphor-icons/react";
 
 import { AnimatedNumber } from "@/components/common/AnimatedNumber";
 import { GlassCard } from "@/components/common/GlassCard";
@@ -51,7 +52,7 @@ export interface KpiCardProps {
   prefix?: string;
   suffix?: string;
   caption?: string;
-  icon?: LucideIcon;
+  icon?: PhosphorIcon;
   tone?: Tono;
   /** Serie corta (por ejemplo, los últimos 7 días) para la línea junto a la cifra. */
   sparkline?: number[];

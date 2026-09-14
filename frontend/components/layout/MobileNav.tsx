@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useSession } from "next-auth/react";
-import { Menu } from "lucide-react";
+import { ListIcon as Menu } from "@phosphor-icons/react";
 import { useSidebar } from "./SidebarContext";
 import { staffMobile, trainerMobile, isActivePath } from "./nav";
 import { cn } from "@/lib/utils";
@@ -34,7 +34,7 @@ export function MobileNav() {
                   active ? "text-primary-ink" : "text-ink-muted"
                 )}
               >
-                <Icon className="size-5" strokeWidth={active ? 2.2 : 1.8} />
+                <Icon className="size-5" weight={active ? "bold" : "regular"} />
                 {label}
               </Link>
             </li>
@@ -45,7 +45,7 @@ export function MobileNav() {
             onClick={() => setMobileOpen(true)}
             className="flex h-14 w-full flex-col items-center justify-center gap-0.5 text-[11px] font-medium text-ink-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-primary"
           >
-            <Menu className="size-5" strokeWidth={1.8} />
+            <Menu className="size-5" />
             Más
           </button>
         </li>

@@ -4,7 +4,7 @@
 import { motion } from "framer-motion";
 import { AreaChart, Area, BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid, Legend } from "recharts";
 import { formatCOP } from "@/lib/format";
-import { CreditCard, Layers, TrendingUp, Wallet } from "lucide-react";
+import { CreditCardIcon as CreditCard, StackIcon as Layers, TrendUpIcon as TrendingUp, WalletIcon as Wallet } from "@phosphor-icons/react";
 import type { Period } from "./PeriodPicker";
 import { Card, Empty, TabSkeleton, Tile, chartTooltipStyle, compact, containerVariants, cardVariants, usePeriodData } from "./shared";
 import { EXPENSE_LABELS } from "@/app/(dashboard)/payments/shared";

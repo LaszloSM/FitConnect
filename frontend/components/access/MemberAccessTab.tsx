@@ -10,7 +10,7 @@ import { Input } from "@/components/ui/input";
 import { apiClient } from "@/lib/api";
 import { parseApiError } from "@/lib/errors";
 import { formatTimeAgo } from "@/lib/format";
-import { Fingerprint, ScanFace, CreditCard, KeyRound, Loader2, ShieldCheck, ShieldOff, X } from "lucide-react";
+import { FingerprintIcon as Fingerprint, ScanIcon as ScanFace, CreditCardIcon as CreditCard, KeyIcon as KeyRound, SpinnerGapIcon as Loader2, ShieldCheckIcon as ShieldCheck, ShieldSlashIcon as ShieldOff, XIcon as X } from "@phosphor-icons/react";
 
 type CredKind = "fingerprint" | "face" | "card" | "pin";
 interface Consent { id: string; kind: string; text_version: string; signature_method: string; signed_at: string; revoked_at: string | null }

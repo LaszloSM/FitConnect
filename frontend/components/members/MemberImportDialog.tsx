@@ -16,7 +16,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { apiClient } from "@/lib/api";
 import { parseApiError } from "@/lib/errors";
-import { FileSpreadsheet, Download, Upload, Loader2, CheckCircle2 } from "lucide-react";
+import { FileXlsIcon as FileSpreadsheet, DownloadSimpleIcon as Download, UploadSimpleIcon as Upload, SpinnerGapIcon as Loader2, CheckCircleIcon as CheckCircle2 } from "@phosphor-icons/react";
 
 interface ImportError {
   row: number;

@@ -11,7 +11,7 @@ import { Label } from "@/components/ui/label";
 import { apiClient } from "@/lib/api";
 import { parseApiError } from "@/lib/errors";
 import { Switch } from "@/components/ui/switch";
-import { Landmark, Lock, Plus, Smartphone, Trash2, Loader2, FileText, KeyRound, QrCode, ImagePlus, Clock } from "lucide-react";
+import { BankIcon as Landmark, LockIcon as Lock, PlusIcon as Plus, DeviceMobileIcon as Smartphone, TrashIcon as Trash2, SpinnerGapIcon as Loader2, FileTextIcon as FileText, KeyIcon as KeyRound, QrCodeIcon as QrCode, ImageIcon as ImagePlus, ClockIcon as Clock } from "@phosphor-icons/react";
 
 const inputCls =
   "bg-[var(--bg-base)] border-[var(--border-base)] text-[var(--text-base)] placeholder:text-[var(--text-muted)]";

@@ -1,20 +1,4 @@
-import {
-  LayoutDashboard,
-  Users,
-  CreditCard,
-  Calendar,
-  Dumbbell,
-  BarChart3,
-  Settings,
-  Activity,
-  Tag,
-  ScrollText,
-  HelpCircle,
-  MessageSquare,
-  ClipboardList,
-  Sun,
-  Wrench,
-} from "lucide-react";
+import { SquaresFourIcon as LayoutDashboard, UsersIcon as Users, CreditCardIcon as CreditCard, CalendarBlankIcon as Calendar, BarbellIcon as Dumbbell, ChartBarIcon as BarChart3, GearSixIcon as Settings, ActivityIcon as Activity, TagIcon as Tag, ScrollIcon as ScrollText, QuestionIcon as HelpCircle, ChatTextIcon as MessageSquare, ClipboardTextIcon as ClipboardList, SunIcon as Sun, WrenchIcon as Wrench } from "@phosphor-icons/react/ssr";
 import { P, type Permission } from "@/lib/permissions";
 
 export type NavItem = {

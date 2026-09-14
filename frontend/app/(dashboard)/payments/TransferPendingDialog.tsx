@@ -17,17 +17,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { openReceipt, transferWhatsappText, type DestinationAccount } from "./shared";
-import {
-  CheckCircle2,
-  Copy,
-  ImagePlus,
-  KeyRound,
-  Landmark,
-  Loader2,
-  MessageCircle,
-  QrCode,
-  Smartphone,
-} from "lucide-react";
+import { CheckCircleIcon as CheckCircle2, CopyIcon as Copy, ImageIcon as ImagePlus, KeyIcon as KeyRound, BankIcon as Landmark, SpinnerGapIcon as Loader2, ChatCircleIcon as MessageCircle, QrCodeIcon as QrCode, DeviceMobileIcon as Smartphone } from "@phosphor-icons/react";
 
 export interface TransferContext {
   paymentId: string;

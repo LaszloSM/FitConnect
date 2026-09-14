@@ -33,7 +33,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { Plus, AlertCircle, Users, ChevronDown, ChevronUp, CalendarClock, Pencil, Trash2, X } from "lucide-react";
+import { PlusIcon as Plus, WarningCircleIcon as AlertCircle, UsersIcon as Users, CaretDownIcon as ChevronDown, CaretUpIcon as ChevronUp, CalendarDotsIcon as CalendarClock, PencilSimpleIcon as Pencil, TrashIcon as Trash2, XIcon as X } from "@phosphor-icons/react";
 import Link from "next/link";
 import MemberSelect from "@/components/common/MemberSelect";
 

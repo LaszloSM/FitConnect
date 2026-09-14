@@ -12,7 +12,7 @@ import { apiClient } from "@/lib/api";
 import { parseApiError } from "@/lib/errors";
 import { formatCOP, formatDate } from "@/lib/format";
 import { useApiResource } from "@/hooks/useApiResource";
-import { HandCoins, Link2, Loader2, MessageCircle, Wallet } from "lucide-react";
+import { HandCoinsIcon as HandCoins, LinkIcon as Link2, SpinnerGapIcon as Loader2, ChatCircleIcon as MessageCircle, WalletIcon as Wallet } from "@phosphor-icons/react";
 import { PendingTransfers } from "./PendingTransfers";
 
 interface Receivable {
