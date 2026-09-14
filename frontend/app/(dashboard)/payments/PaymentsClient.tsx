@@ -42,11 +42,10 @@ export default function PaymentsClient() {
   return (
     <div className="space-y-6">
       <PageHeader
-        className="mb-0"
-        title="Caja y pagos"
+        title="Caja"
         subtitle="Cobra renovaciones, pases del día y productos, y confirma las transferencias."
         action={
-          <Link href="/payments/cash" className={buttonVariants({ variant: "outline", size: "lg" })}>
+          <Link href="/payments/cash" className={buttonVariants({ variant: "outline" })}>
             <Wallet /> Turno de caja
           </Link>
         }
@@ -58,7 +57,7 @@ export default function PaymentsClient() {
         aria-label="Secciones de caja y pagos"
         className="-mx-4 flex gap-1 overflow-x-auto border-b border-line px-4 [scrollbar-width:none] md:mx-0 md:px-0"
       >
-        {TABS.map(({ key, label, icon: Icon }) => {
+        {TABS.map(({ key, label }) => {
           const active = tab === key;
           return (
             <button
@@ -68,13 +67,12 @@ export default function PaymentsClient() {
               aria-selected={active}
               onClick={() => setTab(key)}
               className={cn(
-                "relative flex h-11 shrink-0 items-center gap-2 whitespace-nowrap px-3 text-sm font-medium outline-none transition-colors duration-150",
-                "after:absolute after:inset-x-2 after:-bottom-px after:h-0.5 after:rounded-full",
+                "relative flex h-11 shrink-0 items-center gap-2 whitespace-nowrap px-3 text-sm outline-none transition-colors duration-150",
+                "after:absolute after:inset-x-2 after:-bottom-px after:h-[3px] after:rounded-full",
                 "focus-visible:rounded-[var(--radius-sm)] focus-visible:ring-2 focus-visible:ring-primary/40",
-                active ? "text-ink after:bg-primary" : "text-ink-muted hover:text-ink"
+                active ? "font-semibold text-ink after:bg-primary" : "font-medium text-ink-muted hover:text-ink"
               )}
             >
-              <Icon className="size-4" aria-hidden="true" />
               {label}
             </button>
           );

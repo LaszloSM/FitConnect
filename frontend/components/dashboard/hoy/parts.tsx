@@ -58,7 +58,7 @@ export function CardHead({
 }
 
 export function Sparkline({ values, width = 76, height = 30 }: { values: number[]; width?: number; height?: number }) {
-  if (values.length < 2) return null;
+  if (values.length < 2 || values.every((v) => v === 0)) return null;
   const lo = Math.min(...values);
   const span = Math.max(...values) - lo || 1;
   const pts = values.map((v, i) => [3 + (i / (values.length - 1)) * (width - 6), 3 + (1 - (v - lo) / span) * (height - 6)]);
@@ -116,7 +116,8 @@ export function BulletGauge({
   referenceLabel: string;
   formatShort: (n: number) => string;
 }) {
-  const max = Math.max(high, reference ?? 0, projection, value) * 1.06 || 1;
+  if (Math.max(high, reference ?? 0, projection, value) <= 0) return null;
+  const max = Math.max(high, reference ?? 0, projection, value) * 1.06;
   const pct = (n: number) => `${Math.min(100, (n / max) * 100)}%`;
   return (
     <div className="relative mt-3 h-[66px]" role="img" aria-label={`Cobrado ${formatShort(value)}, proyección ${formatShort(projection)}`}>

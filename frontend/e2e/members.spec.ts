@@ -13,10 +13,10 @@ test("la lista de socios carga y el alta abre con planes", async ({ page, reques
   await entrar(page, email);
 
   await page.goto("/members");
-  await expect(page.getByRole("heading", { name: "Miembros" })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Socios" })).toBeVisible();
   await expect(page.getByRole("table")).toBeVisible({ timeout: 20_000 });
 
-  await page.getByRole("button", { name: "Nuevo miembro" }).first().click();
+  await page.getByRole("button", { name: "Nuevo socio" }).first().click();
   await expect(page.getByRole("dialog")).toBeVisible({ timeout: 20_000 });
   await expect(page.getByLabel("Nombre completo")).toBeVisible();
 });

@@ -86,7 +86,7 @@ export default function SettingsClient() {
       transition={{ ease: [0.16, 1, 0.3, 1], duration: 0.35 }}
       className="space-y-6"
     >
-      <PageHeader module="settings" title="Configuración" subtitle="Ajustes del gym y tu cuenta" />
+      <PageHeader module="settings" title="Ajustes" subtitle="Tu gimnasio, tu equipo y tu cuenta." />
 
       <div className="flex flex-col lg:flex-row gap-6">
         {/* Sidebar tabs */}

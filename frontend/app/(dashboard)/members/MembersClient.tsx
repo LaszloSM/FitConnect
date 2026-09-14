@@ -6,7 +6,9 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { toast } from "sonner";
 import { z } from "zod";
 import { GlassCard } from "@/components/common/GlassCard";
+import { Avatar } from "@/components/dashboard/hoy/parts";
 import { PageHeader } from "@/components/common/PageHeader";
+import { StatusBadge } from "@/components/ui/status-badge";
 import { MemberImportDialog } from "@/components/members/MemberImportDialog";
 import { EmptyState } from "@/components/common/EmptyState";
 import { QRCodeDisplay } from "@/components/common/QRCodeDisplay";
@@ -936,7 +938,7 @@ export default function MembersClient() {
         <div className="flex flex-wrap items-center gap-3 rounded-[var(--radius-lg)] border border-[var(--signal-warn-line)] bg-[var(--signal-warn-bg)] px-4 py-3">
           <AlertCircle className="h-4 w-4 text-[var(--signal-warn)] shrink-0" />
           <p className="text-sm text-ink flex-1 min-w-[200px]">
-            <strong>{missingIdCount}</strong> miembro{missingIdCount !== 1 ? "s" : ""} sin cédula registrada — no podrá{missingIdCount !== 1 ? "n" : ""} usar el check-in por documento.
+            <strong>{missingIdCount}</strong> miembro{missingIdCount !== 1 ? "s" : ""} sin cédula registrada: no podrá{missingIdCount !== 1 ? "n" : ""} entrar por documento.
           </p>
           <button
             onClick={() => setMissingIdOnly((v) => !v)}
@@ -971,8 +973,8 @@ export default function MembersClient() {
                 className={cn(
                   "h-9 rounded-[var(--radius-md)] px-3 text-sm font-medium transition-colors",
                   statusFilter === s
-                    ? "bg-[var(--color-primary)] text-[var(--color-primary-contrast)]"
-                    : "bg-[var(--bg-base)] border border-[var(--border-base)] text-[var(--text-muted)] hover:text-[var(--text-base)]"
+                    ? "bg-primary-muted font-semibold text-primary-ink"
+                    : "bg-muted text-ink-muted hover:text-ink"
                 )}
               >
                 {s === "" ? "Todos" : s === "active" ? "Activos" : "Inactivos"}
@@ -1076,27 +1078,25 @@ export default function MembersClient() {
                 members.map((m) => (
                   <TableRow
                     key={m.id}
-                    className="group border-[var(--border-base)] cursor-pointer hover:bg-[var(--bg-muted)]"
+                    className="group cursor-pointer"
                     onClick={() => router.push(`/members/${m.id}`)}
                   >
                     <TableCell className="text-[var(--text-base)] font-medium">
                       <div className="flex items-center gap-2">
                         {m.photo_url ? (
                           // eslint-disable-next-line @next/next/no-img-element
-                          <img src={m.photo_url} alt={m.full_name} className="h-8 w-8 rounded-full object-cover shrink-0" />
+                          <img src={m.photo_url} alt={m.full_name} className="size-9 shrink-0 rounded-[12px] object-cover" />
                         ) : (
-                          <span className="h-8 w-8 rounded-full bg-muted text-ink text-xs font-semibold flex items-center justify-center shrink-0">
-                            {(m.full_name?.[0] ?? "?").toUpperCase()}
-                          </span>
+                          <Avatar name={m.full_name} size={36} />
                         )}
                         {m.full_name}
                         {m.member_type === "visitor" && (
-                          <span className="inline-flex h-5 items-center rounded-[var(--radius-sm)] border border-line bg-muted px-1.5 text-[11px] font-medium text-ink-muted">
+                          <span className="inline-flex h-5 items-center rounded-[var(--radius-sm)] bg-muted px-1.5 text-[11px] font-semibold text-ink-muted">
                             Visitante
                           </span>
                         )}
                         {m.member_type === "staff" && (
-                          <span className="inline-flex h-5 items-center rounded-[var(--radius-sm)] border border-line bg-muted px-1.5 text-[11px] font-medium text-ink-muted">
+                          <span className="inline-flex h-5 items-center rounded-[var(--radius-sm)] bg-muted px-1.5 text-[11px] font-semibold text-ink-muted">
                             Equipo
                           </span>
                         )}
@@ -1111,24 +1111,18 @@ export default function MembersClient() {
                     <TableCell onClick={(e) => e.stopPropagation()}>
                       {m.membership_status === "active" ? (
                         <div className="flex flex-col gap-0.5">
-                          <span className="inline-flex h-6 w-fit items-center gap-1.5 rounded-[var(--radius-sm)] border border-[var(--signal-ok-line)] bg-[var(--signal-ok-bg)] px-2 text-xs font-medium text-[var(--signal-ok)]">
-                            <span className="size-1.5 rounded-full bg-current" />
-                            {m.membership_plan_name || "Activa"}
-                          </span>
+                          <StatusBadge status="active" label={m.membership_plan_name || "Activa"} />
                           {m.membership_end_date && (
-                            <span className="text-xs text-[var(--text-muted)] font-mono tabular-nums">
+                            <span className="num text-xs text-ink-muted">
                               Vence {formatDate(m.membership_end_date, "dd/MM/yyyy")}
                             </span>
                           )}
                         </div>
                       ) : m.membership_status === "expired" ? (
                         <div className="flex flex-col gap-0.5">
-                          <span className="inline-flex h-6 w-fit items-center gap-1.5 rounded-[var(--radius-sm)] border border-[var(--signal-danger-line)] bg-[var(--signal-danger-bg)] px-2 text-xs font-medium text-[var(--signal-danger)]">
-                            <span className="size-1.5 rounded-full bg-current" />
-                            Vencida
-                          </span>
+                          <StatusBadge status="expired" />
                           {m.membership_end_date && (
-                            <span className="text-xs text-[var(--text-muted)] font-mono tabular-nums">
+                            <span className="num text-xs text-ink-muted">
                               {formatDate(m.membership_end_date, "dd/MM/yyyy")}
                             </span>
                           )}

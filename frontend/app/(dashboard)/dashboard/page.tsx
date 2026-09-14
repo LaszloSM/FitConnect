@@ -140,7 +140,6 @@ export default function DashboardPage() {
   return (
     <div className="space-y-6">
       <PageHeader
-        className="mb-0"
         title="Hoy"
         action={
           <>

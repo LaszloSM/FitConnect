@@ -171,6 +171,9 @@ export function MoneyStrip({
               formatShort={formatCOPCompact}
             />
             <p className="text-[12.5px] text-ink-muted">
+              {forecast.month_to_date <= 0 && forecast.projection <= 0
+                ? "Todavía no hay cobros este mes. "
+                : ""}
               {forecast.vs_previous_pct === null
                 ? "Aún no hay meses anteriores para comparar."
                 : `Al ritmo de hoy, ${Math.abs(Math.round(forecast.vs_previous_pct))} % ${forecast.vs_previous_pct < 0 ? "bajo" : "sobre"} tus últimos tres meses.`}

@@ -304,7 +304,7 @@
 }
 
 /* ─── Tour de bienvenida (driver.js) con los tokens propios ─── */
-.driver-popover {
+.driver-popover.driver-popover {
   background-color: var(--bg-card);
   color: var(--text-base);
   border: 1px solid var(--border-base);
@@ -312,11 +312,12 @@
   box-shadow: var(--shadow-md);
   max-width: 340px;
 }
-.driver-popover-title {
+.driver-popover .driver-popover-title {
   color: var(--text-base);
+  font-family: var(--font-bricolage), var(--font-figtree), sans-serif;
   font-weight: 600;
 }
-.driver-popover-description {
+.driver-popover .driver-popover-description {
   color: var(--text-muted);
   line-height: 1.55;
 }

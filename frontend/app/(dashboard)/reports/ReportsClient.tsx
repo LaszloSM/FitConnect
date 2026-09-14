@@ -58,7 +58,7 @@ export default function ReportsClient() {
     <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ ease: [0.16, 1, 0.3, 1], duration: 0.35 }} className="space-y-5">
       <PageHeader
         module="reports"
-        title="Reportes"
+        title="Informe"
         subtitle="Ingresos, ventas, socios, asistencia y retención por período. Con la marca de tu gym en PDF y Excel."
         action={
           <button

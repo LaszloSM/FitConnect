@@ -269,6 +269,10 @@ Cuando cometas un error durante una sesión, agrégalo aquí antes de terminar:
 | Importar `type Icon` desde `@phosphor-icons/react/ssr` rompía `tsc` | La entrada `ssr` (necesaria en componentes sin "use client") solo exporta iconos, no los tipos | Los tipos van siempre por `import type { Icon } from "@phosphor-icons/react"` (se borra al compilar); los iconos, por `/ssr` en archivos de servidor y por la raíz en los de cliente |
 | Un comparativo "151 % sobre lo normal" a las 6 de la mañana | Con 4 entradas típicas cualquier diferencia se vuelve un porcentaje enorme y alarmante | No mostrar variaciones porcentuales con base pequeña: el Hoy exige al menos 8 entradas típicas antes de pintar la píldora; debajo de eso, solo la frase con la cifra |
 
+| El título de Hoy, Mostrador y Caja quedaba pegado a la primera tarjeta | En Tailwind v4 `space-y-*` separa con `margin-bottom` en cada hijo; pasar `className="mb-0"` a `PageHeader` dentro de un `space-y-6` anulaba justo ese margen | Dentro de un contenedor con `space-y-*` no se toca el margen vertical de los hijos; si hace falta otro aire, se cambia el `space-y` del padre |
+| El recorrido de Playwright se colgó 4 minutos en `waitForLoadState("networkidle")` | La app mantiene abierta la conexión SSE de entradas en vivo: la red nunca queda inactiva | En e2e esperar `load` y que desaparezca `[aria-busy=true]`, nunca `networkidle` |
+| Las pruebas de login fallaban con `/api/auth/error` y "Jest worker encountered 2 child process exceptions" | El servidor de desarrollo se quedó sin memoria y sus workers murieron; además `TaskStop` del shell dejaba el `node` huérfano ocupando el puerto 3000 | Para e2e y QA con poca memoria: `npm run build` + `next start` en vez de `next dev`. Tras detener un servidor, liberar el puerto por PID (`Get-NetTCPConnection -LocalPort 3000`) antes de volver a arrancar |
+
 **Protocolo:** Al detectar un error que no estaba documentado, añade una fila a la tabla antes del commit.
 
 ---

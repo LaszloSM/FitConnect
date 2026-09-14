@@ -2,6 +2,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
 import { useEffect, useState } from "react";
+import { rolLegible } from "@/lib/permissions";
 import { useSession } from "next-auth/react";
 import { toast } from "sonner";
 import { GlassCard } from "@/components/common/GlassCard";
@@ -87,8 +88,8 @@ export default function ProfileSection() {
           <p className="text-[var(--text-base)] font-semibold">{profile?.full_name ?? "—"}</p>
           <p className="text-[var(--text-muted)] text-sm">{profile?.email ?? "—"}</p>
           {profile?.role && (
-            <span className="inline-block mt-1 px-2 py-0.5 bg-[var(--color-primary-muted)] dark:bg-[var(--color-primary)]/30 text-[var(--color-primary-ink)] dark:text-[var(--color-primary-ink)] text-xs rounded-full font-medium capitalize">
-              {profile.role}
+            <span className="mt-1 inline-block rounded-[var(--radius-sm)] bg-primary-muted px-2 py-0.5 text-xs font-semibold text-primary-ink">
+              {rolLegible(profile.role) || profile.role}
             </span>
           )}
         </div>
