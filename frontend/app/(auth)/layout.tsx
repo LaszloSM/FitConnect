@@ -30,7 +30,7 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
 
           <figure
             aria-label="Ejemplo de las entradas del día en FitConnect"
-            className="overflow-hidden rounded-[var(--radius-lg)] border border-line bg-panel"
+            className="card overflow-hidden"
           >
             <figcaption className="flex items-center justify-between border-b border-line px-4 py-3">
               <span className="text-sm font-medium text-ink">Entradas en vivo</span>

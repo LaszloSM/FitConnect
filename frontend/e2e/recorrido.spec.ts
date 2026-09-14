@@ -104,3 +104,22 @@ test("recorrido visual de recepción y entrenador", async ({ browser, request })
     await context.close();
   }
 });
+
+const PUBLICAS = [
+  ["landing", "/"],
+  ["login", "/login"],
+  ["registro", "/register"],
+  ["terminos", "/terminos"],
+  ["kiosko", "/kiosk"],
+  ["pantalla", "/screen"],
+] as const;
+
+test("recorrido visual de las superficies públicas", async ({ page }) => {
+  test.setTimeout(120_000);
+  for (const [nombre, r] of PUBLICAS) {
+    await page.setViewportSize({ width: 1440, height: 900 });
+    await capturar(page, `publica-${nombre}`, r);
+    await page.setViewportSize({ width: 390, height: 844 });
+    await capturar(page, `publica-movil-${nombre}`, r, true);
+  }
+});

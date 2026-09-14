@@ -11,7 +11,7 @@ import { ArrowRightIcon as ArrowRight, CheckIcon as Check, DatabaseIcon as Datab
 
 function Screenshot({ src, alt, path, priority = false }: { src: string; alt: string; path: string; priority?: boolean }) {
   return (
-    <figure className="overflow-hidden rounded-[var(--radius-xl)] border border-line bg-panel shadow-[var(--shadow-lg)]">
+    <figure className="overflow-hidden rounded-[var(--radius-xl)] bg-panel shadow-[var(--shadow-lg)] ring-1 ring-line/60">
       <div className="flex h-9 items-center gap-2 border-b border-line px-4" aria-hidden="true">
         <span className="size-2.5 rounded-full bg-[var(--border-base)]" />
         <span className="size-2.5 rounded-full bg-[var(--border-base)]" />

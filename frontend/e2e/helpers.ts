@@ -37,10 +37,10 @@ export async function cuentaDePrueba(request: APIRequestContext) {
   return EMAIL;
 }
 
-export async function entrar(page: Page, email: string = EMAIL) {
+export async function entrar(page: Page, email: string = EMAIL, password: string = PASSWORD) {
   await page.goto("/login");
   await page.fill('input[type="email"]', email);
-  await page.fill('input[type="password"]', PASSWORD);
+  await page.fill('input[type="password"]', password);
   await page.click('button[type="submit"]');
   await page.waitForURL(/\/(dashboard|entrenador)/, { timeout: 30_000 });
 }
