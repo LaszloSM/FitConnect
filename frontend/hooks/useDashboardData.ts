@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { useSession } from "next-auth/react";
 import { apiClient } from "@/lib/api";
 import { parseApiError } from "@/lib/errors";
-import { gymWeekday } from "@/lib/format";
+import { gymWeekday, parseDateOnly, toISODate, todayISO } from "@/lib/format";
 
 /** Las tres listas operativas del día (`GET /dashboard/operations`). */
 export interface OperationsData {
@@ -29,6 +29,28 @@ export interface ShiftInfo {
   shift?: { id: string; opening_amount: number; opened_at: string } | null;
 }
 
+export interface ForecastData {
+  month_to_date: number;
+  elapsed_days: number;
+  days_in_month: number;
+  projection: number;
+  projection_low: number;
+  projection_high: number;
+  avg_previous_months: number | null;
+  vs_previous_pct: number | null;
+  method: "modelo" | "reglas";
+}
+
+export interface ChurnRiskRow {
+  member_id: string;
+  full_name: string;
+  score: number;
+  level: "alto" | "medio" | "bajo";
+  reasons: string[];
+  plan_name: string | null;
+  method?: "modelo" | "reglas";
+}
+
 export interface DashboardData {
   kpis: {
     expiring_memberships_7d: number;
@@ -46,7 +68,7 @@ export interface DashboardData {
     id: string; transfer_reference: string | null;
     member_name: string | null; amount: number; elapsed_minutes: number;
   }[];
-  receivables: { member_id: string; amount_due: number }[];
+  receivables: { member_id: string; amount_due: number; days_overdue: number }[];
   todayClasses: Record<string, unknown>[];
   operations: OperationsData | null;
   shift: ShiftInfo | null;
@@ -56,6 +78,13 @@ export interface DashboardData {
   }[];
   birthdaysToday: { full_name: string; phone: string | null; days_until: number }[];
   insights: { tone: "positive" | "negative" | "warning"; text: string; href?: string }[];
+  /** Aforo esperado por día de la semana y hora, entrenado con el historial del gym. */
+  occupancy: { status: string; result: { cells: { weekday: number; hour: number; count: number }[] } | null } | null;
+  forecast: ForecastData | null;
+  /** Ingresos de los últimos 7 días más hoy, en orden. */
+  revenueDaily: { date: string; amount: number }[];
+  churnRisk: ChurnRiskRow[];
+  plans: { id: string; name: string; price: number; duration_days: number }[];
   /** Qué bloques no se pudieron cargar. Una tarjeta que falló NO puede decir
    *  "nadie debe nada": eso es afirmar algo que no se comprobó. */
   failed: Set<keyof DashboardData>;
@@ -64,20 +93,20 @@ export interface DashboardData {
 const EMPTY: DashboardData = {
   kpis: null, cash: null, pendingTransfers: [], receivables: [], todayClasses: [],
   operations: null, shift: null, lowStock: [], checkinsToday: [], birthdaysToday: [],
-  insights: [], failed: new Set(),
+  insights: [], occupancy: null, forecast: null, revenueDaily: [], churnRisk: [], plans: [],
+  failed: new Set(),
 };
 
 /**
  * Todo el panel en UNA espera.
  *
- * Antes cada tarjeta pedía lo suyo por su cuenta —once peticiones repartidas en
- * cuatro componentes, cada una con su propio `setState`— así que la página se
- * REORDENABA sola mientras cargaba: el usuario veía saltar los bloques durante
- * un segundo largo. Con una sola espera, o está el esqueleto o está el panel.
+ * Antes cada tarjeta pedía lo suyo por su cuenta, así que la página se
+ * REORDENABA sola mientras cargaba. Con una sola espera, o está el esqueleto o
+ * está el panel.
  *
  * Ninguna petición puede tumbar el panel entero: recepción no tiene permiso
  * para ver caja ni reportes, y con un `Promise.all` estricto su panel quedaba
- * en "Error cargando datos" — sin check-ins, sin listas, sin nada.
+ * en "Error cargando datos".
  */
 export function useDashboardData() {
   const { data: session, status } = useSession();
@@ -97,16 +126,19 @@ export function useDashboardData() {
     const client = apiClient(token);
     const failed = new Set<keyof DashboardData>();
 
-    // Lo que el rol no puede ver ni se pide: un 403 esperado no es un fallo, y
-    // marcarlo así pintaba "No se pudo cargar" en el panel de recepción.
+    // Lo que el rol no puede ver ni se pide: un 403 esperado no es un fallo.
     const granted: string[] = session?.permissions ?? [];
     const NEEDS: Partial<Record<keyof DashboardData, string>> = {
       cash: "payments.read",
       receivables: "payments.read",
       birthdaysToday: "reports.read",
+      occupancy: "reports.read",
+      forecast: "reports.read",
+      revenueDaily: "reports.read",
+      churnRisk: "reports.read",
+      plans: "plans.read",
     };
 
-    // Cada fuente cae a su propio vacío y deja constancia de que falló.
     const pull = <K extends keyof DashboardData, T>(
       key: K, url: string, fallback: T, params?: object
     ): Promise<T> =>
@@ -121,6 +153,9 @@ export function useDashboardData() {
           return fallback;
         });
 
+    const weekAgo = parseDateOnly(todayISO());
+    weekAgo.setDate(weekAgo.getDate() - 7);
+
     Promise.all([
       pull("kpis", "/api/v1/dashboard/kpis", null as { kpis: DashboardData["kpis"] } | null),
       pull("cash", "/api/v1/payments/cash", null as { today: DashboardData["cash"] } | null),
@@ -133,8 +168,13 @@ export function useDashboardData() {
       pull("checkinsToday", "/api/v1/checkins/today", [] as DashboardData["checkinsToday"]),
       pull("birthdaysToday", "/api/v1/reports/birthdays", [] as DashboardData["birthdaysToday"]),
       pull("insights", "/api/v1/dashboard/insights", { insights: [] } as { insights: DashboardData["insights"] }),
+      pull("occupancy", "/api/v1/insights/occupancy", null as DashboardData["occupancy"]),
+      pull("forecast", "/api/v1/insights/forecast", null as ForecastData | null),
+      pull("revenueDaily", "/api/v1/reports/revenue-daily", [] as DashboardData["revenueDaily"], { from: toISODate(weekAgo), to: todayISO() }),
+      pull("churnRisk", "/api/v1/insights/churn-risk", [] as ChurnRiskRow[], { limit: 200 }),
+      pull("plans", "/api/v1/member-plans/", [] as DashboardData["plans"]),
     ])
-      .then(([kpis, cash, pending, receivables, classes, operations, shift, lowStock, checkins, birthdays, insights]) => {
+      .then(([kpis, cash, pending, receivables, classes, operations, shift, lowStock, checkins, birthdays, insights, occupancy, forecast, revenueDaily, churnRisk, plans]) => {
         if (cancelled) return;
         const hoy = gymWeekday();
         setData({
@@ -151,6 +191,11 @@ export function useDashboardData() {
           checkinsToday: checkins,
           birthdaysToday: birthdays.filter((b) => b.days_until === 0),
           insights: insights.insights ?? [],
+          occupancy,
+          forecast,
+          revenueDaily: revenueDaily.map((d) => ({ date: d.date, amount: Number(d.amount) })),
+          churnRisk,
+          plans: plans.map((p) => ({ ...p, price: Number(p.price) })),
           failed,
         });
         setLoading(false);

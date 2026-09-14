@@ -26,7 +26,7 @@ export function PageHeader({ title, subtitle, eyebrow, icon, action, className }
         )}
         <div className="min-w-0">
           {eyebrow && <p className="mb-1 text-sm font-medium text-ink-muted">{eyebrow}</p>}
-          <h1 className="text-2xl font-semibold leading-tight tracking-tight text-ink">{title}</h1>
+          <h1 className="text-[32px] font-bold leading-none text-ink md:text-[40px]">{title}</h1>
           {subtitle && <p className="mt-1 max-w-[65ch] text-sm text-ink-muted">{subtitle}</p>}
         </div>
       </div>

@@ -7,7 +7,7 @@ import Link from "next/link";
 import { BellIcon as Bell, SignOutIcon as LogOut, ListIcon as Menu, MoonIcon as Moon, GearSixIcon as Settings, SunIcon as Sun } from "@phosphor-icons/react";
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
-import { formatTimeAgo, todayInGym } from "@/lib/format";
+import { formatDateTime, formatTimeAgo, todayInGym } from "@/lib/format";
 import { apiClient } from "@/lib/api";
 import { useSidebar } from "@/components/layout/SidebarContext";
 import { BrandMark } from "@/components/common/BrandMark";
@@ -35,7 +35,7 @@ const iconButton =
   "relative flex size-10 items-center justify-center rounded-md text-ink-muted transition-colors duration-150 hover:bg-muted hover:text-ink focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary";
 
 const popover =
-  "absolute right-0 top-12 z-50 origin-top-right overflow-hidden rounded-[var(--radius-xl)] border border-line bg-panel shadow-[var(--shadow-lg)] animate-[scaleIn_150ms_var(--ease-out)]";
+  "absolute right-0 top-12 z-50 origin-top-right overflow-hidden rounded-[var(--radius-xl)] bg-panel shadow-[var(--shadow-dialog)] animate-[scaleIn_150ms_var(--ease-out)]";
 
 /** Cierra un menú al hacer clic afuera o con Escape. */
 function useDismiss(open: boolean, ref: React.RefObject<HTMLDivElement | null>, close: () => void) {
@@ -67,6 +67,15 @@ export function Header() {
   // Fecha del gym (Bogotá), no la del navegador; solo se levanta la inicial.
   const fecha = format(todayInGym(), "EEEE d 'de' MMMM", { locale: es });
   const hoy = fecha.charAt(0).toUpperCase() + fecha.slice(1);
+
+  // La hora del gimnasio en vivo: el panel habla de "a esta hora".
+  const [hora, setHora] = useState("");
+  useEffect(() => {
+    const tick = () => setHora(formatDateTime(new Date(), "HH:mm"));
+    tick();
+    const id = setInterval(tick, 20_000);
+    return () => clearInterval(id);
+  }, []);
 
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [gymName, setGymName] = useState<string | null>(null);
@@ -115,7 +124,7 @@ export function Header() {
   };
 
   return (
-    <header className="fixed right-0 top-0 z-20 flex h-14 items-center gap-2 border-b border-line bg-panel/95 px-3 backdrop-blur-sm left-0 lg:left-[var(--sidebar-w)] md:px-6 transition-[left] duration-200 ease-[var(--ease-out)]">
+    <header className="fixed right-0 top-0 z-20 flex h-14 items-center gap-2 bg-surface px-3 left-0 lg:left-[var(--sidebar-w)] md:px-6 lg:px-8 transition-[left] duration-200 ease-[var(--ease-out)]">
       <button
         onClick={() => setMobileOpen(true)}
         aria-label="Abrir menú"
@@ -129,8 +138,16 @@ export function Header() {
 
       <div className="flex min-w-0 flex-1 items-baseline gap-3">
         <span className="truncate text-[15px] font-semibold text-ink">{gymName ?? "FitConnect"}</span>
-        <span className="hidden whitespace-nowrap text-sm text-ink-muted sm:inline">{mounted ? hoy : ""}</span>
       </div>
+
+      <span className="hidden whitespace-nowrap pr-2 text-sm text-ink-muted sm:inline">
+        {mounted ? hoy : ""}
+        {mounted && hora && (
+          <>
+            , <span className="num text-ink">{hora}</span>
+          </>
+        )}
+      </span>
 
       <button
         aria-label={esOscuro ? "Cambiar a modo claro" : "Cambiar a modo oscuro"}
@@ -194,7 +211,7 @@ export function Header() {
           aria-haspopup="true"
           className="flex size-10 items-center justify-center rounded-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
         >
-          <span className="flex size-8 items-center justify-center rounded-full bg-muted text-xs font-semibold text-ink hover:bg-line">
+          <span className="flex size-9 items-center justify-center rounded-[var(--radius-md)] bg-primary-muted text-xs font-bold text-primary-ink">
             {getInitials(session?.user?.name)}
           </span>
         </button>

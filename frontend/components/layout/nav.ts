@@ -1,80 +1,94 @@
-import { SquaresFourIcon as LayoutDashboard, UsersIcon as Users, CreditCardIcon as CreditCard, CalendarBlankIcon as Calendar, BarbellIcon as Dumbbell, ChartBarIcon as BarChart3, GearSixIcon as Settings, ActivityIcon as Activity, TagIcon as Tag, ScrollIcon as ScrollText, QuestionIcon as HelpCircle, ChatTextIcon as MessageSquare, ClipboardTextIcon as ClipboardList, SunIcon as Sun, WrenchIcon as Wrench } from "@phosphor-icons/react/ssr";
+import {
+  BarbellIcon,
+  CalendarBlankIcon,
+  CashRegisterIcon,
+  ChartBarIcon,
+  ChatTextIcon,
+  ClipboardTextIcon,
+  DoorOpenIcon,
+  GearSixIcon,
+  HouseSimpleIcon,
+  QuestionIcon,
+  ScrollIcon,
+  SunIcon,
+  TagIcon,
+  UsersIcon,
+  WrenchIcon,
+} from "@phosphor-icons/react/ssr";
 import { P, type Permission } from "@/lib/permissions";
 
 export type NavItem = {
   href: string;
   label: string;
-  icon: typeof Users;
+  icon: typeof UsersIcon;
   /** Sin esta capacidad el ítem no se muestra: una puerta que responde 403 es
    *  peor que no ofrecerla. */
   needs?: Permission;
 };
+/** Un grupo sin etiqueta es el bloque principal del menú. */
 export type NavGroup = { label: string; items: NavItem[] };
 
 // El entrenador no ve un gimnasio recortado: ve SU día.
 export const trainerGroups: NavGroup[] = [
   {
-    label: "Mi trabajo",
+    label: "",
     items: [
-      { href: "/entrenador", label: "Mi día", icon: Sun },
-      { href: "/entrenador/socios", label: "Mis socios", icon: Users },
-      { href: "/entrenador/rutinas", label: "Mis rutinas", icon: ClipboardList },
+      { href: "/entrenador", label: "Mi día", icon: SunIcon },
+      { href: "/entrenador/socios", label: "Mis socios", icon: UsersIcon },
+      { href: "/entrenador/rutinas", label: "Mis rutinas", icon: ClipboardTextIcon },
+      { href: "/classes", label: "Clases", icon: CalendarBlankIcon },
     ],
   },
   {
-    label: "Gimnasio",
+    label: "Más",
     items: [
-      { href: "/classes", label: "Clases", icon: Calendar },
-      { href: "/routines", label: "Rutinas", icon: Dumbbell },
-      { href: "/ayuda", label: "Ayuda", icon: HelpCircle },
+      { href: "/routines", label: "Rutinas", icon: BarbellIcon },
+      { href: "/ayuda", label: "Ayuda", icon: QuestionIcon },
     ],
   },
 ];
 
+// Seis destinos para el trabajo diario; lo que se configura una vez vive en "Más".
 export const staffGroups: NavGroup[] = [
   {
-    label: "Operación",
+    label: "",
     items: [
-      { href: "/dashboard", label: "Panel", icon: LayoutDashboard },
-      { href: "/members", label: "Socios", icon: Users },
-      { href: "/checkins", label: "Check-ins", icon: Activity },
-      { href: "/classes", label: "Clases", icon: Calendar },
-      { href: "/routines", label: "Rutinas", icon: Dumbbell },
-      { href: "/messages", label: "Mensajes", icon: MessageSquare, needs: P.MESSAGES_READ },
+      { href: "/dashboard", label: "Hoy", icon: HouseSimpleIcon },
+      { href: "/checkins", label: "Mostrador", icon: DoorOpenIcon },
+      { href: "/members", label: "Socios", icon: UsersIcon },
+      { href: "/payments", label: "Caja", icon: CashRegisterIcon, needs: P.PAYMENTS_WRITE },
+      { href: "/classes", label: "Clases", icon: CalendarBlankIcon },
+      { href: "/reports", label: "Informe", icon: ChartBarIcon, needs: P.REPORTS_READ },
     ],
   },
   {
-    label: "Negocio",
+    label: "Más",
     items: [
-      { href: "/payments", label: "Caja y pagos", icon: CreditCard, needs: P.PAYMENTS_WRITE },
-      { href: "/plans", label: "Planes", icon: Tag, needs: P.PLANS_READ },
-      { href: "/machines", label: "Máquinas", icon: Wrench, needs: P.MACHINES_READ },
-      { href: "/reports", label: "Reportes", icon: BarChart3, needs: P.REPORTS_READ },
-    ],
-  },
-  {
-    label: "Sistema",
-    items: [
-      { href: "/audit", label: "Auditoría", icon: ScrollText, needs: P.AUDIT_READ },
-      { href: "/settings", label: "Configuración", icon: Settings },
-      { href: "/ayuda", label: "Ayuda", icon: HelpCircle },
+      { href: "/routines", label: "Rutinas", icon: BarbellIcon },
+      { href: "/messages", label: "Mensajes", icon: ChatTextIcon, needs: P.MESSAGES_READ },
+      { href: "/plans", label: "Planes", icon: TagIcon, needs: P.PLANS_READ },
+      { href: "/machines", label: "Máquinas", icon: WrenchIcon, needs: P.MACHINES_READ },
+      { href: "/audit", label: "Auditoría", icon: ScrollIcon, needs: P.AUDIT_READ },
+      { href: "/settings", label: "Ajustes", icon: GearSixIcon },
+      { href: "/ayuda", label: "Ayuda", icon: QuestionIcon },
     ],
   },
 ];
 
-/** Los cuatro destinos fijos de la barra inferior en móvil (el quinto es "Más"). */
-export const staffMobile: NavItem[] = [
-  { href: "/dashboard", label: "Panel", icon: LayoutDashboard },
-  { href: "/members", label: "Socios", icon: Users },
-  { href: "/payments", label: "Cobrar", icon: CreditCard },
-  { href: "/checkins", label: "Check-ins", icon: Activity },
+/** Destinos fijos de la barra inferior en móvil; "Más" abre el menú completo.
+ *  `featured` es la acción principal y va al centro, resaltada. */
+export const staffMobile: (NavItem & { featured?: boolean })[] = [
+  { href: "/dashboard", label: "Hoy", icon: HouseSimpleIcon },
+  { href: "/members", label: "Socios", icon: UsersIcon },
+  { href: "/payments", label: "Cobrar", icon: CashRegisterIcon, featured: true },
+  { href: "/checkins", label: "Mostrador", icon: DoorOpenIcon },
 ];
 
-export const trainerMobile: NavItem[] = [
-  { href: "/entrenador", label: "Mi día", icon: Sun },
-  { href: "/entrenador/socios", label: "Socios", icon: Users },
-  { href: "/entrenador/rutinas", label: "Rutinas", icon: ClipboardList },
-  { href: "/classes", label: "Clases", icon: Calendar },
+export const trainerMobile: (NavItem & { featured?: boolean })[] = [
+  { href: "/entrenador", label: "Mi día", icon: SunIcon },
+  { href: "/entrenador/socios", label: "Socios", icon: UsersIcon },
+  { href: "/entrenador/rutinas", label: "Rutinas", icon: ClipboardTextIcon },
+  { href: "/classes", label: "Clases", icon: CalendarBlankIcon },
 ];
 
 export function isActivePath(pathname: string, href: string) {

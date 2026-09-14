@@ -266,6 +266,9 @@ Cuando cometas un error durante una sesión, agrégalo aquí antes de terminar:
 | Recepción y entrenador entraban por URL a Reportes, Caja o Máquinas y veían tarjetas con "No se pudo cargar" | El menú filtraba por permiso (`needs`) pero las rutas no tenían guarda, y el panel pedía fuentes del dueño y marcaba el 403 esperado como fallo | `RouteGuard` en el layout del panel con reglas prefijo → permisos, y `useDashboardData` no pide lo que el rol no tiene. Probar cada pantalla con los TRES roles antes de dar un rediseño por terminado |
 | Capturas del producto para la landing salían con la burbuja "N" de Next | El indicador de desarrollo (`nextjs-portal`) se pinta encima en dev | Antes de capturar, inyectar `nextjs-portal{display:none!important}` por JS |
 
+| Importar `type Icon` desde `@phosphor-icons/react/ssr` rompía `tsc` | La entrada `ssr` (necesaria en componentes sin "use client") solo exporta iconos, no los tipos | Los tipos van siempre por `import type { Icon } from "@phosphor-icons/react"` (se borra al compilar); los iconos, por `/ssr` en archivos de servidor y por la raíz en los de cliente |
+| Un comparativo "151 % sobre lo normal" a las 6 de la mañana | Con 4 entradas típicas cualquier diferencia se vuelve un porcentaje enorme y alarmante | No mostrar variaciones porcentuales con base pequeña: el Hoy exige al menos 8 entradas típicas antes de pintar la píldora; debajo de eso, solo la frase con la cifra |
+
 **Protocolo:** Al detectar un error que no estaba documentado, añade una fila a la tabla antes del commit.
 
 ---

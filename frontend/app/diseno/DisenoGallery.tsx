@@ -6,6 +6,7 @@ import { Input } from "@/components/ui/input";
 import { StatusBadge } from "@/components/ui/status-badge";
 import { KpiCard } from "@/components/ui/kpi-card";
 import { GlassCard } from "@/components/common/GlassCard";
+import { HoyMuestra } from "./HoyMuestra";
 
 const SWATCHES = [
   ["Fondo", "--bg-base"],
@@ -23,7 +24,7 @@ export function DisenoGallery() {
   const { resolvedTheme, setTheme } = useTheme();
 
   return (
-    <main className="mx-auto flex max-w-[1200px] flex-col gap-10 px-8 py-10">
+    <main className="mx-auto flex max-w-[1240px] flex-col gap-10 px-8 py-10">
       <header className="flex items-end justify-between gap-6">
         <div>
           <p className="text-sm font-semibold text-ink-muted">Galería de desarrollo</p>
@@ -33,6 +34,11 @@ export function DisenoGallery() {
           Cambiar a {resolvedTheme === "dark" ? "claro" : "oscuro"}
         </Button>
       </header>
+
+      <section id="hoy" className="flex flex-col gap-4">
+        <h2 className="text-base font-semibold text-ink-muted">Hoy, con datos de ejemplo</h2>
+        <HoyMuestra />
+      </section>
 
       <section className="grid grid-cols-3 gap-4 sm:grid-cols-5 lg:grid-cols-9">
         {SWATCHES.map(([label, token]) => (
