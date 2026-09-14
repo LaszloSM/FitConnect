@@ -1,151 +1,134 @@
-# FitConnect — Sistema de diseño "Tiza"
+# FitConnect: sistema de diseño "Calor"
 
-Dirección elegida el 2026-09-12, tras la auditoría de la Fase 0 (`docs/design/AUDIT-2026-09.md`) y la
-comparación de tres direcciones en Stitch (proyecto "FitConnect Premium Prototyping System",
-design system `A · Tiza`).
+Dirección elegida el 2026-09-14, después de descartar Tiza (plano, minimal genérico) y Marcador (cobalto,
+banda). Se escogió entre tres direcciones en alta fidelidad (Pesas, Calor, Pase) y tres composiciones del
+Hoy. Ganó **1 · Refinado**. Lienzo de referencia: https://claude.ai/code/artifact/09f07a20-6787-4b84-99f4-56bd15a2e083
 
-**Atmósfera:** la pizarra de un box limpia a las 5:30 am. Calmada, precisa, legible bajo luz dura
-en la recepción. Densidad media-alta, poco movimiento, cero decoración que no signifique algo.
+**Escena:** la recepción de un gimnasio de barrio con luz de tarde. El dueño revisa el día en el portátil
+o el celular, muchas veces de noche. Tiene que sentirse cálido, con energía y con capas, nunca plano ni
+de plantilla.
 
-**Fuente de verdad de los valores:** `frontend/app/globals.css`. Este documento tiene las reglas;
-los números viven en el CSS y `npm run check:contrast` los verifica.
+**Fuente de verdad de los valores:** `frontend/app/globals.css`. Aquí van las reglas; los números viven en
+el CSS y `npm run check:contrast` los verifica. La galería `/diseno` (solo en desarrollo) muestra cada
+pieza en claro y oscuro.
 
 ---
 
 ## 1. Color
 
-Un solo acento. Todo lo demás es neutro o es una señal semántica.
+Estrategia **comprometida pero con medida**: neutros cálidos, un coral que marca acciones y selección, y
+señales de estado aparte.
 
 | Rol | Token / utilidad | Uso |
 |---|---|---|
-| Fondo (tiza) | `--bg-base` / `bg-surface` | Fondo de página |
-| Superficie | `--bg-card` / `bg-panel` | Solo lo que se toca o se lee como bloque: tablas, formularios, diálogos |
-| Menú | `--bg-sidebar` / `bg-sidebar` | Sidebar |
+| Fondo | `--bg-base` / `bg-surface` | Página |
+| Tarjeta | `--bg-card` / `bg-panel` | Tarjetas, diálogos, tablas |
+| Menú | `--bg-sidebar` / `bg-sidebar` | Barra lateral |
 | Campo | `--bg-input` / `bg-field` | Inputs |
-| Apagado | `--bg-muted` / `bg-muted` | Hover de filas, chips, esqueletos |
-| Tinta (grafito) | `--text-base` / `text-ink` | Texto principal |
-| Secundario | `--text-muted` / `text-ink-muted` | Metadatos, descripciones |
-| Línea | `--border-base` / `border-line` | Todos los divisores y bordes, 1 px |
-| **Pino (relleno)** | `--brand` / `bg-primary` | Botón primario, item activo, foco |
-| Tinta sobre pino | `--brand-contrast` / `text-primary-contrast` | Único texto sobre el relleno (casi blanco) |
-| Pino como texto | `--brand-ink` / `text-primary-ink` | Enlaces, acciones en línea |
-| Pino sobre oscuro fijo | `--brand-on-dark` | Kiosko y pantalla del gym |
+| Apagado | `--bg-muted` / `bg-muted` | Hover de filas, pistas de gráficos, esqueletos |
+| Atención | `--bg-attention` / `bg-attention` | Un solo bloque que pide atención (ingreso en riesgo) |
+| Tinta | `--text-base` / `text-ink` | Texto principal |
+| Secundario | `--text-muted` / `text-ink-muted` | Metadatos |
+| Línea | `--border-base` / `border-line` | Divisores y bordes de campos |
+| **Coral (relleno)** | `--brand` / `bg-primary` | Botón primario, item activo, barras de hoy |
+| Tinta sobre coral | `--brand-contrast` / `text-primary-contrast` | Texto sobre el relleno |
+| Coral como texto | `--brand-ink` / `text-primary-ink` | Enlaces y acciones en línea |
+| Coral suave | `--brand-muted` / `bg-primary-muted` | Fondo de marcadores numerados y rangos |
+| Serie de datos | `--data-1..3` | Segmentos (efectivo, tarjeta, transferencia) |
 
-Señales (`--signal-ok|warn|danger|info` + `-bg` + `-line`): solo para estado. Nunca decoran.
+Señales (`--signal-ok|warn|danger|info` con `-bg` y `-line`): verde al día, ámbar por vencer, rojo vencido o
+negado, azul hielo para congelado e informativo. **Siempre con icono y texto**, nunca solo color.
 
 **Reglas**
-- Los acentos por módulo desaparecieron: `--accent-*` apunta a `--text-muted` hasta que cada
-  flujo se rediseñe y deje de usarlos. No introducir colores por módulo.
-- Nada de tokens de shadcn (`text-muted-foreground`, `bg-popover`…): no existen aquí.
-- Nada de hex ni `bg-[#…]` en componentes. Si falta un color, falta un token.
-- Relleno y tinta son roles distintos: `bg-primary` con `text-primary-contrast`; el pino como
-  texto es `text-primary-ink`.
-- Nada de gradientes, glow, glassmorphism ni `border-l-4`. Alertas: fondo `-bg` + borde `-line`
-  completo.
+- Un solo botón primario coral por vista. Las acciones de fila son secundarias.
+- Un solo bloque `bg-attention` por vista.
+- Nada de tokens de shadcn, hex sueltos, gradientes decorativos, glassmorphism ni `border-l-4`.
+- Relleno y tinta son roles distintos: `bg-primary` + `text-primary-contrast`; como texto, `text-primary-ink`.
 
 ## 2. Tipografía
 
-- **Geist** para toda la UI. **Geist Mono** con `tabular-nums` para dinero (COP), cédulas, horas,
-  códigos y cualquier columna numérica.
-- Un solo estilo de cifra grande: Geist Mono 600, tracking -0.02em. No mezclar sans y mono para
-  montos en la misma pantalla.
-- Títulos en peso 600, tracking -0.015em, `text-wrap: balance`. Nunca 800.
-- Etiquetas y encabezados de sección en **sentence case**. Las MAYÚSCULAS con tracking quedan solo
-  para cabeceras de tabla, y con moderación.
+- **Bricolage Grotesque** (display, eje `opsz`): títulos de página y todas las cifras. Carga con `next/font`
+  como `--font-bricolage`.
+- **Figtree**: toda la interfaz que se lee (etiquetas, tablas, formularios). `--font-figtree`.
+- **Sin monoespaciada.** Dinero, cédulas, horas y códigos van en Bricolage con `tabular-nums`: clase `num`
+  (o `font-mono`, que queda como alias mientras se migra).
 
 | Uso | Tamaño | Peso |
 |---|---|---|
-| Título de página | 24 px | 600 |
-| Título de sección | 16 px | 600 |
-| Cuerpo / celdas | 14 px | 400 |
-| Metadato | 13 px | 400 |
-| Mínimo absoluto | 12 px | — |
-| Cifra KPI | 28–32 px mono | 600 |
+| Título de página (`h1`) | 40 px desktop, 32 px móvil | 700 |
+| Cifra protagonista de la vista | 52 px | 700 |
+| Cifra de sección | 28 a 38 px | 700 |
+| Título de sección | 16 px | 650 |
+| Cuerpo y celdas | 14 px | 400 a 600 |
+| Metadato | 12.5 a 13 px | 400 |
+| Mínimo absoluto | 11 px | |
 
-## 3. Espaciado y layout
+Etiquetas en sentence case. Sin eyebrows en mayúsculas.
 
-- Escala de 4 px (4, 8, 12, 16, 24, 32, 48).
-- **32 px de aire entre el header y el contenido de la página.** Siempre.
-- Las secciones se separan con divisores y aire, no con tarjetas. Una tarjeta existe solo si el
-  bloque es la interacción (una fila de "Vencen esta semana", un producto del POS).
-- Nunca tarjeta dentro de tarjeta.
-- Panel: franja de cifras continua con divisores verticales, luego dos columnas (trabajo vivo a la
-  izquierda, pendientes y caja a la derecha).
-- Contenido con ancho máximo de 1440 px.
+## 3. Superficies, forma y profundidad
 
-## 4. Radios y elevación
+- **Las tarjetas se separan por sombra, no por borde.** `surface-1` / `card` = `--shadow-card` (sombra cálida
+  en dos capas + brillo interior de 1 px). `surface-2` = elevación alta.
+- Dentro de una tarjeta, las columnas se separan con regla vertical de 1 px y aire; nunca tarjeta dentro de
+  tarjeta.
+- Radios: chips 8 px (`--radius-sm`), controles 11 px (`--radius-md`), tarjetas 18 px (`--radius-lg`),
+  diálogos 20 px (`--radius-xl`). `rounded-full` solo para puntos y avatares de persona.
+- El botón primario lleva `--shadow-primary` (sombra teñida de coral); en oscuro solo el brillo interior.
 
-| Token | Valor | Uso |
-|---|---|---|
-| `--radius-sm` | 6 px | Chips, badges, esqueletos |
-| `--radius-md` | 8 px | Botones e inputs (**nunca pill**) |
-| `--radius-lg` | 10 px | Paneles, tablas |
-| `--radius-xl` | 12 px | Diálogos, popovers |
+## 4. Composición del Hoy (1 · Refinado)
 
-`rounded-full` solo para avatares y puntos de estado. Sombras mínimas y teñidas; la jerarquía la
-dan fondo y línea, no la sombra. Diálogos y popovers sí llevan sombra.
+1. Encabezado: "Hoy" + Nuevo socio (secundario) + Cobrar (primario).
+2. **Tarjeta del día:** cifra de entradas con variación y comparación en frase ("un jueves normal lleva 36"),
+   gráfico de entradas por hora sobre la curva de un día normal con marcador "Ahora", y a la derecha la lista
+   **En vivo** con hora, persona y estado.
+3. **Franja de plata** (una tarjeta, cuatro columnas con reglas): cobrado hoy con sparkline y métodos,
+   por confirmar, por cobrar por antigüedad, cierre del mes con bullet graph.
+4. Abajo: **vencen esta semana** (tira de 7 días + filas con Cobrar) y **ingreso en riesgo** (bloque de
+   atención con las personas y el motivo en palabras).
+5. Pie: estado de caja y máquinas en una línea.
+
+Esta gramática se reutiliza en el resto de pantallas: una tarjeta protagonista con el instrumento de la
+vista, una franja de cifras relacionadas, listas accionables.
 
 ## 5. Componentes
 
-- **Botón primario:** relleno pino, texto casi blanco, radio 8 px, `active:translate-y-px`.
-  Uno por vista.
-- **Secundario:** borde línea sobre superficie. **Terciario:** texto `text-primary-ink`.
-- **Destructivo:** texto o borde de `--signal-danger`; relleno rojo solo en la confirmación.
-- **Inputs:** etiqueta arriba, ayuda y error debajo, foco con anillo pino. Nunca solo placeholder.
-- **Estados de acceso** (Permitido / Vencido / Bloqueado): chip pequeño con icono + texto.
-- **Tablas:** filas de 44–52 px, hora absoluta (`06:41`) en mono, acciones visibles en la fila
-  cuando son la tarea (Cobrar), en menú cuando son secundarias.
-- **Confirmaciones:** diálogo propio, nunca `window.confirm()`.
-- **Vacíos:** qué falta, por qué importa y la acción para poblarlo.
-- **Sin permiso:** explicar quién puede verlo; nunca "Sin permisos suficientes" pelado.
-- **Carga:** esqueleto con la misma rejilla que el contenido final.
+- **Botón primario:** coral, 40 px, radio 11, `font-semibold`, `active:scale-[0.97]`. Secundario: tarjeta con
+  borde. Destructivo: texto o borde rojo; relleno rojo solo en la confirmación.
+- **Chip de estado** (`StatusBadge`): radio 8, fondo de la señal, icono + texto, sin borde.
+- **Indicador:** cifra en Bricolage, píldora de variación (verde o roja con flecha), comparación en texto,
+  sparkline opcional. Si la fuente falla, "—" y "No se pudo cargar", nunca `$0`.
+- **Inputs:** etiqueta arriba, ayuda y error abajo, foco con anillo coral.
+- **Vacíos, carga y sin permiso:** igual que antes. Esqueleto con la geometría final; vacío que explica qué
+  falta y cómo poblarlo; sin permiso dice quién puede verlo.
+- **Iconos:** un solo set de trazo uniforme. Sin iconos en contenedores sobre los títulos.
 
 ## 6. Movimiento
 
-Tokens: `--ease-out`, `--ease-in-out`, `--duration-fast|base|slow` (150/220/320 ms).
+Tokens: `--ease-out`, `--ease-in-out`, `--ease-drawer`, `--duration-fast|base|slow` (150/220/320 ms).
 
 - Solo `transform` y `opacity`. Nada de `transition-all`.
-- Entradas: fade + 8 px de desplazamiento, stagger corto en listas.
-- Nada que arranque invisible esperando un observer: el primer frame siempre se lee.
-- `prefers-reduced-motion` se respeta globalmente (`globals.css`); en Framer Motion además
-  `useReducedMotion`.
+- Sin coreografía al navegar entre pantallas frecuentes. Se anima lo que cambia de verdad: una entrada nueva
+  en "En vivo", un cobro que suma, una cifra que cambia.
+- `prefers-reduced-motion` se respeta globalmente; en Framer Motion además `useReducedMotion`.
 
 ## 7. Responsive
 
-- **Móvil (< 768 px):** el sidebar no existe; barra inferior de 5 destinos (Panel, Socios,
-  Cobrar, Check-ins, Más). Todo a una columna. Nada de scroll horizontal del body; las tablas
-  anchas scrollean en su propio contenedor.
-- **Tablet (768–1279 px):** sidebar colapsado a iconos, abre como drawer.
-- **Escritorio (≥ 1280 px):** sidebar expandido, colapsable.
-- Targets táctiles ≥ 44 px.
+- **Móvil (< 768 px):** barra inferior de 5 destinos con Cobrar al centro. Una columna.
+- **Tablet (768 a 1279 px):** menú colapsado a iconos.
+- **Escritorio (>= 1280 px):** menú expandido.
+- Targets táctiles de 44 px o más. Las tablas anchas scrollean en su contenedor.
 
-## 8. Marca y logo
+## 8. Marca
 
-El logo está en rediseño por parte del dueño. Mientras tanto: wordmark de texto "FitConnect" en
-Geist 600 y un slot neutro de 28 px. Nada de verde lima ni del logo "FC" anterior en superficies
-nuevas.
+El logo está en rediseño por parte del dueño. Mientras tanto: wordmark "FitConnect" en Bricolage 700 y el
+monograma neutro.
 
-## 9. Landing
-
-Muestra el producto real, como los SaaS de referencia (Linear, Stripe, Attio):
-
-1. Nav: wordmark, Producto, Precios, Clientes, Preguntas, Ingresar, "Prueba 30 días gratis".
-2. Hero alineado a la izquierda: qué es y para quién en una frase, subtítulo con los tres trabajos
-   (acceso, cobro, caja) y el contexto colombiano, un solo CTA.
-3. Captura grande y nítida de la app real dentro de un marco de navegador.
-4. Clientes reales (cuando existan; nunca cifras ni logos inventados).
-5. Tres secciones en zig-zag, cada una con una captura real: check-in por cédula, cobro con
-   recibo, cierre de caja.
-6. Precios en COP y preguntas frecuentes.
-
-Sin fotos de personas ni músculos, sin narrativa abstracta.
-
-## 10. Cómo se hace cumplir
+## 9. Cómo se hace cumplir
 
 ```bash
-cd frontend && npm run check:contrast     # pares WCAG en claro y oscuro
+cd frontend && npm run check:contrast
 cd frontend && npx tsc --noEmit
 ```
 
-Contraste confirmado también en el navegador con color computado (ver CLAUDE.md). Todo cambio de UI
-se verifica en vivo con `/browse` antes de darlo por terminado.
+Además, `npx impeccable detect --json` sobre las pantallas renderizadas y revisión en vivo con `/browse`
+en claro, oscuro, 375 y 1440 px antes de dar un cambio por terminado.

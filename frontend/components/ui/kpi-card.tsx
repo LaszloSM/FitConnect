@@ -21,6 +21,28 @@ function colorDe(tono: Tono): string {
   return semanticos[tono] ?? "var(--text-muted)";
 }
 
+function Sparkline({ values }: { values: number[] }) {
+  const w = 72;
+  const h = 26;
+  const lo = Math.min(...values);
+  const span = Math.max(...values) - lo || 1;
+  const pts = values.map((v, i) => [2 + (i / (values.length - 1)) * (w - 4), 2 + (1 - (v - lo) / span) * (h - 4)]);
+  const [lx, ly] = pts[pts.length - 1];
+  return (
+    <svg width={w} height={h} className="shrink-0 overflow-visible" aria-hidden>
+      <polyline
+        points={pts.map((p) => p.join(",")).join(" ")}
+        fill="none"
+        stroke="var(--color-primary)"
+        strokeWidth={2}
+        strokeLinejoin="round"
+        strokeLinecap="round"
+      />
+      <circle cx={lx} cy={ly} r={3} fill="var(--color-primary)" stroke="var(--bg-card)" strokeWidth={2} />
+    </svg>
+  );
+}
+
 export interface KpiCardProps {
   label: string;
   /** Número: se anima. Texto: se pinta tal cual (por ejemplo un rango). */
@@ -31,6 +53,8 @@ export interface KpiCardProps {
   caption?: string;
   icon?: LucideIcon;
   tone?: Tono;
+  /** Serie corta (por ejemplo, los últimos 7 días) para la línea junto a la cifra. */
+  sparkline?: number[];
   /** Variación contra el período anterior, en porcentaje ya calculado. */
   delta?: number | null;
   /** Qué significa que suba. En morosidad, subir es malo. */
@@ -55,6 +79,7 @@ export function KpiCard({
   caption,
   icon: Icon,
   tone = "neutral",
+  sparkline,
   delta = null,
   deltaGoodWhen = "up",
   deltaLabel,
@@ -83,12 +108,16 @@ export function KpiCard({
     <>
       <div className="flex items-start justify-between gap-2">
         <span className="text-sm font-medium text-ink-muted">{label}</span>
-        {Icon && <Icon className="size-4 shrink-0" style={{ color: acento }} aria-hidden />}
+        {sparkline && sparkline.length > 1 ? (
+          <Sparkline values={sparkline} />
+        ) : (
+          Icon && <Icon className="size-4 shrink-0" style={{ color: acento }} aria-hidden />
+        )}
       </div>
 
       <p
         className={cn(
-          "font-mono text-[28px] font-semibold leading-none tracking-[-0.02em] tabular-nums",
+          "num text-[32px] leading-none",
           failed ? "text-ink-muted" : "text-ink"
         )}
       >
@@ -107,14 +136,19 @@ export function KpiCard({
         ) : (
           <>
             {delta !== null && delta !== 0 && (
-              <span
-                className="inline-flex items-center gap-0.5 font-mono text-xs font-medium tabular-nums"
-                style={{ color: bueno ? "var(--signal-ok)" : "var(--signal-danger)" }}
-              >
-                <Flecha className="size-3.5" aria-hidden />
-                {Math.abs(delta).toFixed(0)}%
-                {deltaLabel && <span className="ml-0.5 font-sans font-normal text-ink-muted">{deltaLabel}</span>}
-              </span>
+              <>
+                <span
+                  className="inline-flex h-6 items-center gap-0.5 rounded-full px-2 text-xs font-semibold tabular-nums"
+                  style={{
+                    color: bueno ? "var(--signal-ok)" : "var(--signal-danger)",
+                    background: bueno ? "var(--signal-ok-bg)" : "var(--signal-danger-bg)",
+                  }}
+                >
+                  <Flecha className="size-3.5" aria-hidden />
+                  {Math.abs(delta).toFixed(0)} %
+                </span>
+                {deltaLabel && <span className="text-xs text-ink-muted">{deltaLabel}</span>}
+              </>
             )}
             {caption && <span className="truncate text-sm text-ink-muted">{caption}</span>}
           </>
@@ -128,7 +162,7 @@ export function KpiCard({
       <GlassCard className={cn("p-0", cellClassName)}>
         <Link
           href={href}
-          className="flex flex-col gap-2.5 rounded-[var(--radius-lg)] p-4 transition-colors duration-150 hover:bg-muted focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
+          className="flex flex-col gap-3 rounded-[var(--radius-lg)] p-5 transition-colors duration-150 hover:bg-muted focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
         >
           {cuerpo}
         </Link>
@@ -136,5 +170,5 @@ export function KpiCard({
     );
   }
 
-  return <GlassCard className={cn("flex flex-col gap-2.5 p-4", cellClassName)}>{cuerpo}</GlassCard>;
+  return <GlassCard className={cn("flex flex-col gap-3 p-5", cellClassName)}>{cuerpo}</GlassCard>;
 }

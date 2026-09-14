@@ -52,7 +52,7 @@ function DialogContent({
         className={cn(
           // Móvil: hoja inferior a todo el ancho, al alcance del pulgar.
           // Desde `sm`: centrado. Entra desde abajo con opacidad, nunca desde scale(0).
-          "fixed inset-x-0 bottom-0 z-50 grid max-h-[92dvh] w-full gap-4 overflow-y-auto rounded-t-[var(--radius-xl)] border border-line bg-panel p-5 pb-[max(1.25rem,env(safe-area-inset-bottom))] text-sm text-ink shadow-[var(--shadow-dialog)] outline-none",
+          "fixed inset-x-0 bottom-0 z-50 grid max-h-[92dvh] w-full gap-4 overflow-y-auto rounded-t-[var(--radius-xl)] bg-panel p-5 pb-[max(1.25rem,env(safe-area-inset-bottom))] text-sm text-ink shadow-[var(--shadow-dialog)] outline-none",
           "sm:inset-x-auto sm:bottom-auto sm:left-1/2 sm:top-1/2 sm:max-w-lg sm:-translate-x-1/2 sm:-translate-y-1/2 sm:rounded-[var(--radius-xl)] sm:p-6",
           "transition-[opacity,transform] duration-200 ease-[var(--ease-out)] data-[starting-style]:translate-y-4 data-[starting-style]:opacity-0 data-[ending-style]:translate-y-2 data-[ending-style]:opacity-0 data-[ending-style]:duration-150",
           "sm:data-[starting-style]:-translate-y-[48%] sm:data-[ending-style]:-translate-y-[49%]",

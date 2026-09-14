@@ -5,6 +5,6 @@ export const config = {
   // con extensión (logos, imágenes, fuentes) servido desde /public.
   matcher: [
     // `$` en la negación deja pasar la raíz `/` (landing pública)
-    "/((?!api|_next/static|_next/image|favicon.ico|login|register|aceptar-invitacion|kiosk|screen|reportar|privacidad|terminos|tratamiento-datos|$|.*\\.[\\w]+$).*)",
+    "/((?!api|_next/static|_next/image|favicon.ico|login|register|aceptar-invitacion|kiosk|screen|reportar|diseno|privacidad|terminos|tratamiento-datos|$|.*\\.[\\w]+$).*)",
   ],
 };

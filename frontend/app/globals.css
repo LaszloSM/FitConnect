@@ -1,4 +1,3 @@
-@import url('https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&family=Geist+Mono:wght@400;500;600&display=swap');
 @import "tailwindcss";
 
 /* ── Qué significa `dark:` ───────────────────────────────────────────────────
@@ -33,14 +32,18 @@
   --color-ink-placeholder: var(--text-placeholder);
 
   --color-line: var(--border-base);
+  --color-attention: var(--bg-attention);
 
-  --font-sans: 'Geist', ui-sans-serif, system-ui, sans-serif;
-  --font-mono: 'Geist Mono', ui-monospace, SFMono-Regular, monospace;
-  --font-display: 'Geist', ui-sans-serif, system-ui, sans-serif;
+  --font-sans: var(--font-figtree), ui-sans-serif, system-ui, sans-serif;
+  /* No hay monoespaciada en Calor: cifras, cédulas y códigos usan la display
+     con cifras tabulares. `font-mono` queda como alias mientras se migra. */
+  --font-mono: var(--font-bricolage), var(--font-figtree), ui-sans-serif, sans-serif;
+  --font-display: var(--font-bricolage), var(--font-figtree), ui-sans-serif, sans-serif;
 
   --shadow-card: var(--elev-card);
   --shadow-card-hover: var(--elev-card-high);
   --shadow-glow: 0 0 0 1px color-mix(in oklch, var(--color-primary) 30%, transparent);
+  --shadow-primary: var(--shadow-primary);
 }
 
 @keyframes fadeInUp {
@@ -60,46 +63,46 @@
   100% { background-position: 200% 0; }
 }
 
-/* ── Tiza: tema claro (el principal) ─────────────────────────────────────────
-   Neutros de un solo tono (100, casi sin croma) para no mezclar grises cálidos
-   y fríos. El único color de marca es el verde pino; las señales semánticas
-   viven aparte.                                                              */
+/* ── Calor: tema claro (el principal) ────────────────────────────────────────
+   La recepción con luz de tarde: neutros cálidos (tono 50-70), un coral que
+   solo marca acciones y lo seleccionado, y tarjetas que se separan del fondo
+   por sombra, no por borde. Las señales de estado viven aparte del coral.    */
 :root {
-  --bg-base: oklch(0.965 0.004 100);
-  --bg-card: oklch(0.995 0.002 100);
-  --bg-sidebar: oklch(0.955 0.005 100);
-  --bg-input: oklch(1.000 0.000 100);
-  --bg-muted: oklch(0.935 0.005 100);
-  --border-base: oklch(0.830 0.006 100);
-  --text-base: oklch(0.215 0.008 100);
-  --text-muted: oklch(0.480 0.008 100);
-  --text-subtle: oklch(0.500 0.008 100);
-  --text-placeholder: oklch(0.640 0.006 100);
-  --elev-card: 0 1px 2px 0 oklch(0.2 0.01 100 / 0.06);
-  --elev-card-high: 0 4px 12px -2px oklch(0.2 0.01 100 / 0.10);
-  --shadow-sm: 0 1px 2px 0 oklch(0.2 0.01 100 / 0.05);
-  --shadow-md: 0 4px 12px -2px oklch(0.2 0.01 100 / 0.10);
-  --shadow-lg: 0 12px 24px -6px oklch(0.2 0.01 100 / 0.12);
-  --shadow-dialog: 0 24px 48px -12px oklch(0.2 0.01 100 / 0.18);
+  --bg-base: oklch(0.972 0.009 65);
+  --bg-card: oklch(0.996 0.003 70);
+  --bg-sidebar: oklch(0.948 0.012 60);
+  --bg-input: oklch(0.998 0.002 70);
+  --bg-muted: oklch(0.935 0.012 60);
+  --border-base: oklch(0.850 0.014 60);
+  --text-base: oklch(0.230 0.020 45);
+  --text-muted: oklch(0.490 0.020 50);
+  --text-subtle: oklch(0.500 0.020 50);
+  --text-placeholder: oklch(0.600 0.018 55);
+  --elev-card: 0 1px 2px oklch(0.4 0.05 45 / 0.06), 0 10px 28px -12px oklch(0.4 0.08 40 / 0.18), inset 0 1px 0 oklch(1 0 0 / 0.7);
+  --elev-card-high: 0 2px 4px oklch(0.4 0.05 45 / 0.07), 0 18px 40px -16px oklch(0.4 0.08 40 / 0.26), inset 0 1px 0 oklch(1 0 0 / 0.7);
+  --shadow-sm: 0 1px 2px oklch(0.4 0.05 45 / 0.06);
+  --shadow-md: 0 8px 20px -8px oklch(0.4 0.08 40 / 0.20);
+  --shadow-lg: 0 16px 36px -14px oklch(0.4 0.08 40 / 0.24);
+  --shadow-dialog: 0 28px 60px -18px oklch(0.35 0.08 40 / 0.32);
   --shadow-card: var(--elev-card);
   --shadow-card-elevated: var(--elev-card-high);
-  --skeleton-highlight: oklch(0.975 0.004 100);
+  --shadow-primary: inset 0 1px 0 oklch(1 0 0 / 0.25), 0 6px 16px -6px oklch(0.55 0.18 35 / 0.55);
+  --skeleton-highlight: oklch(0.975 0.008 65);
 
-  /* Marca — verde pino. El relleno es oscuro, así que la tinta encima es casi
-     blanca. El relleno y la tinta como texto son roles distintos: `-ink` se
-     redefine en oscuro porque ningún valor único cumple en los dos temas. */
-  --brand: oklch(0.480 0.080 172);
-  --brand-hover: oklch(0.420 0.075 172);
-  --brand-muted: oklch(0.950 0.022 172);
-  --brand-contrast: oklch(0.990 0.004 172);
-  --brand-ink: oklch(0.460 0.080 172);
+  /* Marca: coral. Relleno oscuro con tinta casi blanca encima; como texto va
+     `-ink`, un paso más oscuro para leerse sobre las tarjetas. */
+  --brand: oklch(0.545 0.185 35);
+  --brand-hover: oklch(0.505 0.180 35);
+  --brand-muted: oklch(0.940 0.040 45);
+  --brand-contrast: oklch(0.985 0.006 60);
+  --brand-ink: oklch(0.500 0.170 35);
   /* Marca sobre superficies oscuras fijas (kiosko, pantalla del gym). */
-  --brand-on-dark: oklch(0.760 0.100 172);
+  --brand-on-dark: oklch(0.740 0.140 42);
 
   /* Superficies FIJAS del kiosko y la pantalla del gym: no siguen el tema
-     porque se leen a metros de distancia en una tablet o un televisor. El
-     texto encima es siempre blanco; check-contrast mide cada par. */
-  --kiosk-bg: oklch(0.215 0.004 100);
+     porque se leen a metros de distancia. El texto encima es siempre blanco;
+     check-contrast mide cada par. */
+  --kiosk-bg: oklch(0.200 0.012 50);
   --kiosk-ok: oklch(0.460 0.110 150);
   --kiosk-warn: oklch(0.470 0.100 65);
   --kiosk-danger: oklch(0.480 0.170 28);
@@ -110,7 +113,7 @@
   --color-primary-contrast: var(--brand-contrast);
   --color-primary-ink: var(--brand-ink);
 
-  /* Un solo acento: los módulos ya no llevan color propio. Se conservan los
+  /* Un solo acento: los módulos no llevan color propio. Se conservan los
      nombres para no romper los consumidores mientras se rediseña cada flujo. */
   --accent-dashboard: var(--text-muted);
   --accent-members: var(--text-muted);
@@ -122,27 +125,37 @@
   --accent-reports: var(--text-muted);
   --accent-settings: var(--text-muted);
 
-  /* Señales semánticas, lejos del tono de marca (172) para que un "ok" no se
-     confunda con un botón. */
-  --signal-ok: oklch(0.500 0.120 145);
-  --signal-ok-bg: oklch(0.960 0.035 145);
-  --signal-ok-line: oklch(0.860 0.070 145);
-  --signal-warn: oklch(0.520 0.110 75);
-  --signal-warn-bg: oklch(0.965 0.040 85);
-  --signal-warn-line: oklch(0.860 0.075 85);
-  --signal-danger: oklch(0.520 0.180 28);
-  --signal-danger-bg: oklch(0.960 0.020 28);
-  --signal-danger-line: oklch(0.860 0.070 28);
-  --signal-info: oklch(0.500 0.110 245);
-  --signal-info-bg: oklch(0.960 0.020 245);
-  --signal-info-line: oklch(0.860 0.060 245);
+  /* Señales: verde al día, ámbar por vencer, rojo vencido o negado, y el azul
+     "hielo" para lo congelado e informativo. Siempre con icono y texto. */
+  --signal-ok: oklch(0.470 0.110 150);
+  --signal-ok-bg: oklch(0.940 0.040 150);
+  --signal-ok-line: oklch(0.850 0.070 150);
+  --signal-warn: oklch(0.500 0.110 65);
+  --signal-warn-bg: oklch(0.950 0.050 85);
+  --signal-warn-line: oklch(0.850 0.075 85);
+  --signal-danger: oklch(0.520 0.190 27);
+  --signal-danger-bg: oklch(0.940 0.040 27);
+  --signal-danger-line: oklch(0.830 0.080 27);
+  --signal-info: oklch(0.490 0.090 235);
+  --signal-info-bg: oklch(0.940 0.030 235);
+  --signal-info-line: oklch(0.830 0.060 235);
 
-  --radius-sm: 0.375rem;
-  --radius-md: 0.5rem;
-  --radius-lg: 0.625rem;
-  --radius-xl: 0.75rem;
+  /* Superficie cálida de lo que pide atención (ingreso en riesgo). */
+  --bg-attention: oklch(0.955 0.035 70);
+
+  /* Serie de datos: el coral y dos pasos más claros de la misma familia. */
+  --data-1: var(--brand);
+  --data-2: oklch(0.720 0.120 45);
+  --data-3: oklch(0.850 0.060 60);
+
+  /* Controles 11 px, tarjetas 18 px, diálogos 20 px, chips 8 px. */
+  --radius-sm: 0.5rem;
+  --radius-md: 0.6875rem;
+  --radius-lg: 1.125rem;
+  --radius-xl: 1.25rem;
   --ease-out: cubic-bezier(0.23, 1, 0.32, 1);
   --ease-in-out: cubic-bezier(0.77, 0, 0.175, 1);
+  --ease-drawer: cubic-bezier(0.32, 0.72, 0, 1);
   --duration-fast: 150ms;
   --duration-base: 220ms;
   --duration-slow: 320ms;
@@ -151,49 +164,56 @@
   --transition-slow: var(--duration-slow) var(--ease-out);
 }
 
-/* ── Tiza: tema oscuro ───────────────────────────────────────────────────── */
+/* ── Calor: tema oscuro ──────────────────────────────────────────────────── */
 .dark {
-  --bg-base: oklch(0.160 0.004 100);
-  --bg-card: oklch(0.200 0.005 100);
-  --bg-sidebar: oklch(0.140 0.004 100);
-  --bg-input: oklch(0.220 0.005 100);
-  --bg-muted: oklch(0.240 0.005 100);
-  --border-base: oklch(0.350 0.006 100);
-  --text-base: oklch(0.950 0.004 100);
-  --text-muted: oklch(0.720 0.006 100);
-  --text-subtle: oklch(0.660 0.006 100);
-  --text-placeholder: oklch(0.540 0.006 100);
-  --elev-card: 0 1px 2px 0 oklch(0 0 0 / 0.30);
-  --elev-card-high: 0 6px 16px -4px oklch(0 0 0 / 0.45);
-  --shadow-sm: 0 1px 2px 0 oklch(0 0 0 / 0.30);
-  --shadow-md: 0 6px 16px -4px oklch(0 0 0 / 0.45);
-  --shadow-lg: 0 14px 28px -8px oklch(0 0 0 / 0.50);
-  --shadow-dialog: 0 24px 56px -12px oklch(0 0 0 / 0.65);
+  --bg-base: oklch(0.170 0.012 50);
+  --bg-card: oklch(0.215 0.014 50);
+  --bg-sidebar: oklch(0.145 0.012 50);
+  --bg-input: oklch(0.235 0.014 50);
+  --bg-muted: oklch(0.270 0.014 50);
+  --border-base: oklch(0.350 0.014 50);
+  --text-base: oklch(0.955 0.008 70);
+  --text-muted: oklch(0.740 0.015 60);
+  --text-subtle: oklch(0.700 0.015 60);
+  --text-placeholder: oklch(0.580 0.015 60);
+  --elev-card: 0 1px 2px oklch(0 0 0 / 0.30), 0 12px 30px -12px oklch(0 0 0 / 0.55), inset 0 1px 0 oklch(1 0 0 / 0.05);
+  --elev-card-high: 0 2px 4px oklch(0 0 0 / 0.35), 0 20px 44px -16px oklch(0 0 0 / 0.65), inset 0 1px 0 oklch(1 0 0 / 0.06);
+  --shadow-sm: 0 1px 2px oklch(0 0 0 / 0.30);
+  --shadow-md: 0 8px 20px -8px oklch(0 0 0 / 0.50);
+  --shadow-lg: 0 16px 36px -14px oklch(0 0 0 / 0.60);
+  --shadow-dialog: 0 28px 60px -18px oklch(0 0 0 / 0.70);
   --shadow-card: var(--elev-card);
   --shadow-card-elevated: var(--elev-card-high);
-  --skeleton-highlight: oklch(0.280 0.005 100);
+  --shadow-primary: inset 0 1px 0 oklch(1 0 0 / 0.18);
+  --skeleton-highlight: oklch(0.300 0.014 50);
 
-  --brand-muted: oklch(0.270 0.040 172);
-  --brand-ink: oklch(0.760 0.100 172);
+  --brand: oklch(0.640 0.170 38);
+  --brand-hover: oklch(0.680 0.160 38);
+  --brand-muted: oklch(0.300 0.060 38);
+  --brand-contrast: oklch(0.180 0.020 40);
+  --brand-ink: oklch(0.760 0.130 42);
 
-  --signal-ok: oklch(0.740 0.120 145);
-  --signal-ok-bg: oklch(0.240 0.040 145);
-  --signal-ok-line: oklch(0.360 0.060 145);
-  --signal-warn: oklch(0.790 0.120 80);
-  --signal-warn-bg: oklch(0.250 0.040 80);
-  --signal-warn-line: oklch(0.370 0.060 80);
-  --signal-danger: oklch(0.720 0.150 28);
-  --signal-danger-bg: oklch(0.250 0.050 28);
-  --signal-danger-line: oklch(0.370 0.070 28);
-  --signal-info: oklch(0.740 0.100 245);
-  --signal-info-bg: oklch(0.240 0.040 245);
-  --signal-info-line: oklch(0.360 0.060 245);
+  --signal-ok: oklch(0.760 0.120 150);
+  --signal-ok-bg: oklch(0.290 0.050 150);
+  --signal-ok-line: oklch(0.400 0.070 150);
+  --signal-warn: oklch(0.800 0.120 80);
+  --signal-warn-bg: oklch(0.300 0.050 80);
+  --signal-warn-line: oklch(0.420 0.070 80);
+  --signal-danger: oklch(0.740 0.150 27);
+  --signal-danger-bg: oklch(0.300 0.070 27);
+  --signal-danger-line: oklch(0.420 0.090 27);
+  --signal-info: oklch(0.780 0.080 235);
+  --signal-info-bg: oklch(0.290 0.040 235);
+  --signal-info-line: oklch(0.400 0.060 235);
+
+  --bg-attention: oklch(0.250 0.030 65);
+  --data-2: oklch(0.520 0.100 42);
+  --data-3: oklch(0.380 0.050 45);
 }
 
 @layer base {
   html {
-    font-family: 'Geist', ui-sans-serif, system-ui, sans-serif;
-    font-feature-settings: "ss01";
+    font-family: var(--font-figtree), ui-sans-serif, system-ui, sans-serif;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
   }
@@ -207,6 +227,10 @@
   h1, h2, h3 {
     text-wrap: balance;
     letter-spacing: -0.015em;
+  }
+  h1 {
+    font-family: var(--font-bricolage), var(--font-figtree), ui-sans-serif, sans-serif;
+    letter-spacing: -0.02em;
   }
   @media (prefers-reduced-motion: reduce) {
     *, *::before, *::after {
@@ -224,20 +248,30 @@
   }
   .surface-1 {
     background-color: var(--bg-card);
-    border: 1px solid var(--border-base);
     border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-card);
   }
   .surface-2 {
     background-color: var(--bg-card);
-    border: 1px solid var(--border-base);
     border-radius: var(--radius-lg);
     box-shadow: var(--shadow-card-elevated);
   }
 
   .card {
     background-color: var(--bg-card);
-    border: 1px solid var(--border-base);
     border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-card);
+  }
+
+  /* Cifras: display con dígitos tabulares para que las columnas no bailen. */
+  .font-mono,
+  .num {
+    font-family: var(--font-bricolage), var(--font-figtree), ui-sans-serif, sans-serif;
+    font-variant-numeric: tabular-nums lining-nums;
+    letter-spacing: -0.015em;
+  }
+  .num {
+    font-weight: 700;
   }
 
   .skeleton {

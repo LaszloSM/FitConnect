@@ -1,3 +1,5 @@
+import { Check, Clock, Info, Minus, X, type LucideIcon } from "lucide-react";
+
 import { cn } from "@/lib/utils";
 
 export type StatusTone =
@@ -19,6 +21,17 @@ const TONE_VAR: Record<StatusTone, { tinta: string; fondo: string; linea: string
   neutral: { tinta: "--text-muted", fondo: "--bg-muted", linea: "--border-base" },
   violet: { tinta: "--signal-info", fondo: "--signal-info-bg", linea: "--signal-info-line" },
   fuchsia: { tinta: "--text-muted", fondo: "--bg-muted", linea: "--border-base" },
+};
+
+/** El estado se lee por icono y texto, no solo por color. */
+const TONE_ICON: Record<StatusTone, LucideIcon> = {
+  success: Check,
+  warning: Clock,
+  danger: X,
+  info: Info,
+  neutral: Minus,
+  violet: Info,
+  fuchsia: Minus,
 };
 
 const STATUS_PRESETS: Record<string, { label: string; tone: StatusTone }> = {
@@ -64,16 +77,16 @@ export function StatusBadge({ status, label, tone, className }: StatusBadgeProps
   const resolvedTone = tone ?? preset?.tone ?? "neutral";
   const resolvedLabel = label ?? preset?.label ?? status;
   const v = TONE_VAR[resolvedTone];
+  const Icon = TONE_ICON[resolvedTone];
   return (
     <span
       className={cn(
-        "inline-flex h-6 w-fit shrink-0 items-center gap-1.5 whitespace-nowrap rounded-[var(--radius-sm)] border px-2 text-xs font-medium",
+        "inline-flex h-6 w-fit shrink-0 items-center gap-1 whitespace-nowrap rounded-[var(--radius-sm)] pl-1.5 pr-2 text-xs font-semibold",
         className
       )}
-      style={{ color: `var(${v.tinta})`, background: `var(${v.fondo})`, borderColor: `var(${v.linea})` }}
+      style={{ color: `var(${v.tinta})`, background: `var(${v.fondo})` }}
     >
-      {/* El punto repite el estado en forma, no solo en color. */}
-      <span aria-hidden="true" className="size-1.5 rounded-full bg-current" />
+      <Icon aria-hidden="true" className="size-3.5" strokeWidth={2.4} />
       {resolvedLabel}
     </span>
   );

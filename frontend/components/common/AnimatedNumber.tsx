@@ -15,6 +15,7 @@ export function AnimatedNumber({
   duration?: number;
 }) {
   const [displayed, setDisplayed] = useState(0);
+  const formatter = new Intl.NumberFormat("es-CO", { minimumFractionDigits: decimals, maximumFractionDigits: decimals });
   const frameRef = useRef<number | null>(null);
   const startRef = useRef<number | null>(null);
   const startValRef = useRef(0);
@@ -30,6 +31,11 @@ export function AnimatedNumber({
     if (frameRef.current) cancelAnimationFrame(frameRef.current);
     startRef.current = null;
     startValRef.current = displayedRef.current;
+
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+      setDisplayed(safeValue);
+      return;
+    }
 
     const animate = (timestamp: number) => {
       if (!startRef.current) startRef.current = timestamp;
@@ -50,10 +56,10 @@ export function AnimatedNumber({
     };
   }, [safeValue, duration]);
 
-  const formatted = displayed.toFixed(decimals);
+  const formatted = formatter.format(displayed);
 
   return (
-    <span className="font-display font-bold tabular-nums">
+    <span className="num">
       {prefix}
       {formatted}
       {suffix}

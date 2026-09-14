@@ -7,12 +7,12 @@ import { cn } from "@/lib/utils"
 const buttonVariants = cva(
   // Solo se animan color y transform: `transition-all` también animaba el
   // layout y el anillo de foco. La presión se siente con scale 0.97.
-  "group/button inline-flex shrink-0 items-center justify-center rounded-[var(--radius-md)] border border-transparent bg-clip-padding text-sm font-medium whitespace-nowrap outline-none select-none transition-[color,background-color,border-color,transform] duration-150 ease-[var(--ease-out)] focus-visible:ring-2 focus-visible:ring-primary/40 focus-visible:ring-offset-2 focus-visible:ring-offset-panel active:not-aria-[haspopup]:scale-[0.97] disabled:pointer-events-none disabled:opacity-50 aria-invalid:border-[var(--signal-danger)] aria-invalid:ring-2 aria-invalid:ring-[var(--signal-danger-line)] [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4",
+  "group/button inline-flex shrink-0 items-center justify-center rounded-[var(--radius-md)] border border-transparent bg-clip-padding text-sm font-semibold whitespace-nowrap outline-none select-none transition-[color,background-color,border-color,transform] duration-150 ease-[var(--ease-out)] focus-visible:ring-2 focus-visible:ring-primary/40 focus-visible:ring-offset-2 focus-visible:ring-offset-panel active:not-aria-[haspopup]:scale-[0.97] disabled:pointer-events-none disabled:opacity-50 aria-invalid:border-[var(--signal-danger)] aria-invalid:ring-2 aria-invalid:ring-[var(--signal-danger-line)] [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4",
   {
     variants: {
       variant: {
-        default: "bg-primary text-primary-contrast hover:bg-primary-hover",
-        outline: "border-line bg-panel text-ink hover:bg-muted aria-expanded:bg-muted",
+        default: "bg-primary text-primary-contrast shadow-[var(--shadow-primary)] hover:bg-primary-hover",
+        outline: "border-line bg-panel text-ink shadow-[var(--shadow-sm)] hover:bg-muted aria-expanded:bg-muted",
         secondary: "bg-muted text-ink hover:bg-line aria-expanded:bg-line",
         ghost: "text-ink-muted hover:bg-muted hover:text-ink aria-expanded:bg-muted aria-expanded:text-ink",
         destructive:
@@ -21,14 +21,14 @@ const buttonVariants = cva(
       },
       size: {
         default:
-          "h-9 gap-1.5 px-3.5 has-data-[icon=inline-end]:pr-3 has-data-[icon=inline-start]:pl-3",
+          "h-10 gap-2 px-4 has-data-[icon=inline-end]:pr-3.5 has-data-[icon=inline-start]:pl-3.5",
         xs: "h-7 gap-1 rounded-[var(--radius-sm)] px-2 text-xs [&_svg:not([class*='size-'])]:size-3.5",
-        sm: "h-8 gap-1 px-3 text-[13px] [&_svg:not([class*='size-'])]:size-3.5",
-        lg: "h-10 gap-2 px-4",
-        icon: "size-9",
+        sm: "h-8 gap-1.5 rounded-[var(--radius-sm)] px-3 text-[13px] [&_svg:not([class*='size-'])]:size-3.5",
+        lg: "h-12 gap-2 px-5 text-[15px]",
+        icon: "size-10",
         "icon-xs": "size-7 rounded-[var(--radius-sm)] [&_svg:not([class*='size-'])]:size-3.5",
         "icon-sm": "size-8",
-        "icon-lg": "size-10",
+        "icon-lg": "size-12",
       },
     },
     defaultVariants: {

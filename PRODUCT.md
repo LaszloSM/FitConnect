@@ -13,10 +13,10 @@ product
 
 ## Brand
 - **Name:** FitConnect
-- **Visual direction:** Tiza (chosen 2026-09-12) — a clean chalkboard at 5:30 am. Calm, precise, light-first.
-- **Color:** one accent, pine green `oklch(0.480 0.080 172)` (#1F6F5C), over chalk neutrals (#F4F4F1) and graphite ink (#17191C). Semantic colors live apart. See DESIGN.md.
+- **Visual direction:** Calor (chosen 2026-09-14): the gym front desk in afternoon light. Warm, energetic, layered; cards with soft depth, trends and sparklines next to every figure. Not flat, not template.
+- **Color:** warm neutrals with one committed accent, coral `oklch(0.545 0.185 35)`, for actions, selection and today's data. Status signals (ok, warn, danger, ice) live apart and always carry an icon and text. See DESIGN.md.
 - **Tone:** Professional, trustworthy, energetic. Not casual. Not startup-cute. Like a tool a serious gym owner pays for.
-- **Typography:** Geist for all UI, Geist Mono (tabular) for money, IDs and times.
+- **Typography:** Bricolage Grotesque for page titles and every figure (tabular digits), Figtree for the interface. No monospace.
 - **Logo:** pending — the owner is designing a new one. Use the text wordmark "FitConnect" and a neutral logo slot until then.
 
 ## Anti-references
