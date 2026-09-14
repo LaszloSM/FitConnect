@@ -1,6 +1,6 @@
 /**
- * Tarjeta de plan (compuesta). En Tiza: superficie plana con línea, sin brillo
- * decorativo ni sombra grande; el precio manda por tamaño, no por peso 800.
+ * Tarjeta de plan (compuesta). En Calor: tarjeta con sombra y sin bordes; el
+ * precio va en Bricolage y manda por tamaño.
  */
 import React from 'react';
 import { cn } from '@/lib/utils';
@@ -8,7 +8,7 @@ import { cn } from '@/lib/utils';
 function Card({ className, ...props }: React.ComponentProps<'div'>) {
   return (
     <div
-      className={cn('relative w-full rounded-[var(--radius-lg)] border border-line bg-panel', className)}
+      className={cn('card relative w-full', className)}
       {...props}
     />
   );
@@ -22,7 +22,7 @@ function Header({
   ...props
 }: React.ComponentProps<'div'> & { glassEffect?: boolean }) {
   return (
-    <div className={cn('relative border-b border-line p-5', className)} {...props}>
+    <div className={cn('relative p-5', className)} {...props}>
       {children}
     </div>
   );
@@ -40,7 +40,7 @@ function PlanName({ className, ...props }: React.ComponentProps<'div'>) {
   return (
     <div
       className={cn(
-        "flex items-center gap-2 text-sm font-medium text-ink [&_svg:not([class*='size-'])]:size-4 [&_svg]:text-ink-muted",
+        "flex items-center gap-2 text-base font-semibold text-ink [&_svg:not([class*='size-'])]:size-4 [&_svg]:text-ink-muted",
         className,
       )}
       {...props}
@@ -52,7 +52,7 @@ function Badge({ className, ...props }: React.ComponentProps<'span'>) {
   return (
     <span
       className={cn(
-        'inline-flex h-6 items-center rounded-[var(--radius-sm)] border border-line bg-muted px-2 text-xs font-medium text-ink-muted',
+        'inline-flex h-6 items-center rounded-full bg-[var(--signal-ok-bg)] px-2.5 text-xs font-semibold text-[var(--signal-ok)]',
         className,
       )}
       {...props}
@@ -67,7 +67,7 @@ function Price({ className, ...props }: React.ComponentProps<'div'>) {
 function MainPrice({ className, ...props }: React.ComponentProps<'span'>) {
   return (
     <span
-      className={cn('font-mono text-3xl font-semibold tracking-[-0.02em] text-ink tabular-nums', className)}
+      className={cn('num text-[34px] leading-none text-ink', className)}
       {...props}
     />
   );
@@ -84,7 +84,7 @@ function OriginalPrice({ className, ...props }: React.ComponentProps<'span'>) {
 }
 
 function Body({ className, ...props }: React.ComponentProps<'div'>) {
-  return <div className={cn('space-y-4 p-5', className)} {...props} />;
+  return <div className={cn('space-y-4 border-t border-line/60 p-5', className)} {...props} />;
 }
 
 function List({ className, ...props }: React.ComponentProps<'ul'>) {

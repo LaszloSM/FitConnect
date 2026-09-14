@@ -90,6 +90,7 @@ function durationLabel(days: number) {
   if (days === 90) return "3 meses";
   if (days === 180) return "6 meses";
   if (days === 365) return "1 año";
+  if (days >= 3650) return "Sin vencimiento";
   return `${days} días`;
 }
 
@@ -118,10 +119,7 @@ interface PlanCardItemProps {
 
 function PlanCardItem({ plan, onEdit, onDelete, editable }: PlanCardItemProps) {
   const duration = durationLabel(plan.duration_days);
-  const features = [
-    `Acceso por ${duration}`,
-    ...(plan.description ? [plan.description] : []),
-  ];
+  const features = plan.description ? [plan.description] : [];
 
   return (
     <motion.div
@@ -134,13 +132,12 @@ function PlanCardItem({ plan, onEdit, onDelete, editable }: PlanCardItemProps) {
           {/* Plan name + status badge */}
           <PricingCard.Plan>
             <PricingCard.PlanName>
-              <Tag className="h-4 w-4 text-primary-ink" />
-              <span className="text-[var(--text-base)] font-semibold">{plan.name}</span>
+              <span>{plan.name}</span>
             </PricingCard.PlanName>
             {plan.is_active ? (
               <PricingCard.Badge>Activo</PricingCard.Badge>
             ) : (
-              <span className="inline-flex items-center gap-1 rounded-full border border-[var(--border-base)] px-2 py-0.5 text-[10px] font-medium text-[var(--text-muted)]">
+              <span className="inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-medium text-[var(--text-muted)] bg-muted/60">
                 <XCircle className="h-3 w-3" />
                 Inactivo
               </span>
@@ -155,7 +152,7 @@ function PlanCardItem({ plan, onEdit, onDelete, editable }: PlanCardItemProps) {
           <div className="flex items-center gap-1 text-xs text-[var(--text-muted)] mb-2">
             <Clock className="h-3 w-3" />
             {duration}
-            {plan.duration_days !== 30 && (
+            {plan.duration_days !== 30 && plan.duration_days < 3650 && (
               <span className="ml-1 opacity-60">
                 · {perMonthPrice(plan.price, plan.duration_days)}/mes aprox.
               </span>
@@ -201,7 +198,7 @@ function PlanCardItem({ plan, onEdit, onDelete, editable }: PlanCardItemProps) {
           )}
         </PricingCard.Header>
 
-        {/* Features */}
+        {features.length > 0 && (
         <PricingCard.Body>
           <PricingCard.List>
             {features.map((feature) => (
@@ -212,6 +209,7 @@ function PlanCardItem({ plan, onEdit, onDelete, editable }: PlanCardItemProps) {
             ))}
           </PricingCard.List>
         </PricingCard.Body>
+        )}
       </PricingCard.Card>
     </motion.div>
   );
@@ -346,7 +344,7 @@ export default function PlansClient() {
       <div className="flex items-start justify-between">
         <PageHeader
           module="plans"
-          title="Planes de membresía"
+          title="Planes"
           subtitle="Crea y gestiona los planes disponibles para tus miembros"
         />
         <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
@@ -591,7 +589,7 @@ export default function PlansClient() {
       {loading ? (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
           {Array.from({ length: 3 }).map((_, i) => (
-            <div key={i} className="rounded-2xl border border-[var(--border-base)] bg-[var(--bg-card)] p-5 space-y-3">
+            <div key={i} className="rounded-[var(--radius-lg)] bg-[var(--bg-card)] p-5 space-y-3 shadow-[var(--shadow-card)]">
               <div className="skeleton h-4 w-2/3 rounded" />
               <div className="skeleton h-8 w-1/2 rounded" />
               <div className="skeleton h-4 w-1/3 rounded" />
@@ -609,7 +607,7 @@ export default function PlansClient() {
       ) : (
         <motion.div
           variants={containerVariants}
-          initial="hidden"
+          initial={false}
           animate="visible"
           className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4"
         >

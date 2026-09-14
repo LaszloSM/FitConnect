@@ -10,6 +10,7 @@ import { formatCOP, formatTimeAgo, formatDate, formatDateTime, parseDateOnly, to
 import { GlassCard } from "@/components/common/GlassCard";
 import { Button } from "@/components/ui/button";
 import { StatusBadge } from "@/components/ui/status-badge";
+import { Avatar } from "@/components/dashboard/hoy/parts";
 import { ArrowLeftIcon as ArrowLeft, UserIcon as User, PhoneIcon as Phone, EnvelopeSimpleIcon as Mail, IdentificationCardIcon as IdCard, CalendarBlankIcon as Calendar, CreditCardIcon as CreditCard, ActivityIcon as Activity, TagIcon as Tag, XCircleIcon as BadgeX, SpinnerGapIcon as Loader2, QrCodeIcon as QrCode, PencilSimpleIcon as Pencil, SnowflakeIcon as Snowflake, PlayIcon as Play, HeartbeatIcon as HeartPulse, UserPlusIcon as UserPlus, TicketIcon as Ticket, BarbellIcon as Dumbbell, FingerprintIcon as Fingerprint, ChatTextIcon as MessageSquare, PaperPlaneTiltIcon as Send, UsersIcon as Users } from "@phosphor-icons/react";
 import { MemberRoutineTab } from "@/components/routines/MemberRoutineTab";
 import { MemberAccessTab } from "@/components/access/MemberAccessTab";
@@ -316,10 +317,10 @@ export default function MemberDetailClient({ memberId }: { memberId: string }) {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex flex-col gap-4 md:flex-row md:items-start">
+      <div className="flex flex-wrap items-start gap-x-4 gap-y-3 md:flex-nowrap">
         <button
           onClick={() => router.back()}
-          className="mt-0.5 flex items-center gap-1.5 text-[var(--text-muted)] hover:text-[var(--text-base)] text-sm transition-colors"
+          className="mt-0.5 flex w-full items-center md:w-auto gap-1.5 text-[var(--text-muted)] hover:text-[var(--text-base)] text-sm transition-colors"
         >
           <ArrowLeft className="h-4 w-4" />
           Volver
@@ -329,21 +330,22 @@ export default function MemberDetailClient({ memberId }: { memberId: string }) {
           <img
             src={member.photo_url}
             alt={member.full_name}
-            className="h-14 w-14 rounded-full object-cover shrink-0 ring-2 ring-[var(--border-base)]"
+            className="size-12 shrink-0 rounded-[16px] object-cover md:size-16 md:rounded-[21px]"
           />
         ) : (
-          <span className="h-14 w-14 rounded-full bg-muted text-ink text-lg font-semibold flex items-center justify-center shrink-0">
-            {(member.full_name?.[0] ?? "?").toUpperCase()}
-          </span>
+          <>
+            <span className="md:hidden"><Avatar name={member.full_name} size={48} /></span>
+            <span className="hidden md:block"><Avatar name={member.full_name} size={64} /></span>
+          </>
         )}
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-3 flex-wrap">
-            <h2 className="text-2xl font-semibold tracking-tight text-ink truncate">
+            <h1 className="truncate font-display text-[28px] font-bold leading-tight text-ink md:text-[34px]">
               {member.full_name}
-            </h2>
+            </h1>
             {member.parq_answers && Object.values(member.parq_answers).some(Boolean) && (
               <span
-                className="inline-flex h-6 items-center gap-1 rounded-[var(--radius-sm)] border border-[var(--signal-warn-line)] bg-[var(--signal-warn-bg)] px-2 text-xs font-medium text-[var(--signal-warn)]"
+                className="inline-flex h-6 items-center gap-1 rounded-[var(--radius-sm)] bg-[var(--signal-warn-bg)] px-2 text-xs font-medium text-[var(--signal-warn)]"
                 title="Respondió sí a una o más preguntas del PAR-Q: se recomienda aval médico antes de entrenar"
               >
                 <HeartPulse className="h-3 w-3" /> Requiere aval médico
@@ -498,24 +500,24 @@ export default function MemberDetailClient({ memberId }: { memberId: string }) {
             <span
               className={
                 member.status === "active"
-                  ? "inline-flex h-6 items-center rounded-[var(--radius-sm)] border border-[var(--signal-ok-line)] bg-[var(--signal-ok-bg)] px-2 text-xs font-medium text-[var(--signal-ok)]"
-                  : "inline-flex h-6 items-center gap-1 rounded-[var(--radius-sm)] border border-line bg-muted px-2 text-xs font-medium text-ink-muted"
+                  ? "inline-flex h-6 items-center rounded-[var(--radius-sm)] bg-[var(--signal-ok-bg)] px-2 text-xs font-medium text-[var(--signal-ok)]"
+                  : "inline-flex h-6 items-center gap-1 rounded-[var(--radius-sm)] bg-muted px-2 text-xs font-medium text-ink-muted"
               }
             >
               {member.status === "active" ? "Activo" : "Inactivo"}
             </span>
             {member.member_type === "visitor" && (
-              <span className="inline-flex h-6 items-center gap-1 rounded-[var(--radius-sm)] border border-line bg-muted px-2 text-xs font-medium text-ink-muted">
+              <span className="inline-flex h-6 items-center gap-1 rounded-[var(--radius-sm)] bg-muted px-2 text-xs font-medium text-ink-muted">
                 <Ticket className="h-3 w-3" /> Visitante · pase del día
               </span>
             )}
             {member.member_type === "staff" && (
-              <span className="inline-flex h-6 items-center gap-1 rounded-[var(--radius-sm)] border border-line bg-muted px-2 text-xs font-medium text-ink-muted">
+              <span className="inline-flex h-6 items-center gap-1 rounded-[var(--radius-sm)] bg-muted px-2 text-xs font-medium text-ink-muted">
                 <Users className="h-3 w-3" /> Equipo · acceso de cortesía
               </span>
             )}
             {activeMembership && (
-              <span className="inline-flex h-6 items-center gap-1 rounded-[var(--radius-sm)] border border-line bg-muted px-2 text-xs font-medium text-ink-muted">
+              <span className="inline-flex h-6 items-center gap-1 rounded-[var(--radius-sm)] bg-muted px-2 text-xs font-medium text-ink-muted">
                 <Tag className="h-3 w-3" />
                 {activeMembership.plan_name}
               </span>
@@ -530,7 +532,7 @@ export default function MemberDetailClient({ memberId }: { memberId: string }) {
             )}
           </p>
         </div>
-        <div className="flex items-center gap-2 shrink-0">
+        <div className="flex w-full items-center gap-2 shrink-0 md:w-auto">
           {member.phone && (
             <a
               href={`https://wa.me/${member.phone.replace(/\D/g, "")}`}
@@ -565,19 +567,18 @@ export default function MemberDetailClient({ memberId }: { memberId: string }) {
 
       {/* Tabs */}
       <div role="tablist" aria-label="Secciones de la ficha" className="-mx-4 flex gap-1 overflow-x-auto border-b border-line px-4 [scrollbar-width:none] md:mx-0 md:px-0">
-        {TAB_CONFIG.filter((t) => !esEntrenador || TRAINER_TABS.includes(t.key)).map(({ key, label, icon }) => (
+        {TAB_CONFIG.filter((t) => !esEntrenador || TRAINER_TABS.includes(t.key)).map(({ key, label }) => (
           <button
             key={key}
             onClick={() => setTab(key)}
             role="tab"
             aria-selected={tab === key}
-            className={`flex h-11 shrink-0 items-center gap-1.5 whitespace-nowrap px-3 text-sm font-medium border-b-2 -mb-px transition-colors ${
+            className={`flex h-11 shrink-0 items-center whitespace-nowrap px-3 text-sm border-b-[3px] -mb-px transition-colors ${
               tab === key
-                ? "border-primary text-ink"
+                ? "border-primary font-semibold text-ink"
                 : "border-transparent text-[var(--text-muted)] hover:text-[var(--text-base)]"
             }`}
           >
-            {icon}
             {label}
           </button>
         ))}
@@ -587,7 +588,7 @@ export default function MemberDetailClient({ memberId }: { memberId: string }) {
       <motion.div
         key={tab}
         variants={cardVariants}
-        initial="hidden"
+        initial={false}
         animate="visible"
         transition={{ duration: 0.2 }}
       >
@@ -644,7 +645,7 @@ export default function MemberDetailClient({ memberId }: { memberId: string }) {
                     return (
                       <div
                         key={m.id}
-                        className="p-3 rounded-[var(--radius-md)] border border-line bg-surface space-y-2"
+                        className="p-3 rounded-[var(--radius-md)] space-y-2 bg-muted/60"
                       >
                         <div className="flex flex-wrap items-center justify-between gap-3">
                           <div className="min-w-0">
@@ -731,7 +732,7 @@ export default function MemberDetailClient({ memberId }: { memberId: string }) {
                 const activePlanObj = plans.find((p: any) => p.name === activeMembership.plan_name);
                 const renewDate = activeMembership.end_date; // start day after current end
                 return (
-                  <div className="rounded-[var(--radius-md)] border border-[var(--signal-warn-line)] bg-[var(--signal-warn-bg)] p-3 flex flex-wrap items-center justify-between gap-3">
+                  <div className="rounded-[var(--radius-md)] bg-[var(--signal-warn-bg)] p-3 flex flex-wrap items-center justify-between gap-3">
                     <div>
                       <p className="text-sm font-medium text-[var(--signal-warn)]">
                         {daysLeft <= 0 ? "Membresía vencida" : `Vence en ${daysLeft} día${daysLeft !== 1 ? "s" : ""}`}
@@ -891,7 +892,7 @@ export default function MemberDetailClient({ memberId }: { memberId: string }) {
                   {payments.map((p: any) => (
                     <div
                       key={p.id}
-                      className="flex items-center gap-3 p-3 rounded-[var(--radius-md)] border border-line bg-surface text-sm"
+                      className="flex items-center gap-3 p-3 rounded-[var(--radius-md)] text-sm bg-muted/60"
                     >
                       <div className="flex-1 min-w-0">
                         <p className="text-[var(--text-base)] font-medium truncate">{p.concept || "Pago"}</p>
@@ -1007,7 +1008,7 @@ export default function MemberDetailClient({ memberId }: { memberId: string }) {
                   {checkins.map((c: any) => (
                     <div
                       key={c.id}
-                      className="flex items-center gap-3 p-3 rounded-[var(--radius-md)] border border-line bg-surface"
+                      className="flex items-center gap-3 p-3 rounded-[var(--radius-md)] bg-muted/60"
                     >
                       <div className={`w-7 h-7 rounded-full flex items-center justify-center shrink-0 ${
                         c.type === "entry"

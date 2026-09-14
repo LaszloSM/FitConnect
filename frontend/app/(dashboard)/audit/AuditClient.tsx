@@ -182,7 +182,7 @@ export default function AuditClient() {
 
   return (
     <motion.div
-      initial={{ opacity: 0, y: 8 }}
+      initial={false}
       animate={{ opacity: 1, y: 0 }}
       transition={{ ease: [0.16, 1, 0.3, 1], duration: 0.35 }}
       className="space-y-5"

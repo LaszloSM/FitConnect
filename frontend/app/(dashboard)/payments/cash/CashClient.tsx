@@ -232,13 +232,13 @@ export default function CashClient() {
     <div className="space-y-5">
       <div className="flex items-center gap-3">
         <Link href="/payments" className="flex items-center gap-1.5 text-[var(--text-muted)] hover:text-[var(--text-base)] text-sm transition-colors">
-          <ArrowLeft className="h-4 w-4" /> Pagos
+          <ArrowLeft className="h-4 w-4" /> Caja
         </Link>
       </div>
       <PageHeader
         module="payments"
-        title="Caja"
-        subtitle="Turno, egresos, retiros y cierre con arqueo"
+        title="Turno de caja"
+        subtitle="Egresos, retiros y cierre con arqueo."
         action={
           open && supervisa ? (
             <Button variant="outline" onClick={printXReport} disabled={busy}>
@@ -452,7 +452,7 @@ export default function CashClient() {
                   <Lock className="h-4 w-4" style={{ color: "var(--signal-warn)" }} />
                   <h3 className="text-sm font-semibold text-[var(--text-base)]">Cerrar turno</h3>
                 </div>
-                <div role="tablist" aria-label="Forma de contar" className="flex rounded-md border border-[var(--border-base)] p-0.5 text-xs">
+                <div role="tablist" aria-label="Forma de contar" className="flex rounded-[var(--radius-md)] p-0.5 text-xs bg-muted/60">
                   {([["denom", "Por billete"], ["total", "Solo total"]] as const).map(([v, l]) => (
                     <button
                       key={v}
@@ -561,7 +561,7 @@ export default function CashClient() {
           ) : (
             <div className="space-y-1.5">
               {closedHistory.map((s) => (
-                <div key={s.id} className="flex items-center justify-between gap-3 p-2.5 rounded-lg border border-[var(--border-base)] bg-[var(--bg-muted)] text-sm flex-wrap">
+                <div key={s.id} className="flex items-center justify-between gap-3 p-2.5 rounded-[var(--radius-md)] text-sm flex-wrap bg-muted/60">
                   <div className="min-w-0">
                     <p className="text-[var(--text-base)]">{s.closed_at ? formatDateTime(s.closed_at) : "—"}</p>
                     <p className="text-xs text-[var(--text-muted)] truncate">

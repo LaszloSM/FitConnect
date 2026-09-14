@@ -106,7 +106,7 @@ export function ExerciseFigure({
           loading="lazy"
           style={{ transitionDuration: `${Math.round((intervalMs * 0.7) / speed)}ms` }}
           className={cn(
-            "absolute inset-0 h-full w-full object-contain transition-all ease-in-out",
+            "absolute inset-0 h-full w-full object-contain transition-opacity ease-in-out",
             idx === i ? "opacity-100 scale-100" : "opacity-0 scale-[1.04]"
           )}
         />

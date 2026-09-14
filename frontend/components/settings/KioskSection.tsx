@@ -231,7 +231,7 @@ export default function KioskSection() {
           ) : devices.data.map((d) => {
             const k = KIND_BY_KEY[d.kind] ?? KIND_BY_KEY.kiosk;
             return (
-              <div key={d.id} className="flex items-center gap-3 rounded-xl border border-[var(--border-base)] bg-[var(--bg-base)] px-4 py-3">
+              <div key={d.id} className="flex items-center gap-3 rounded-[var(--radius-md)] px-4 py-3 bg-muted/60">
                 <span className="text-[var(--text-muted)] shrink-0">{k.icon}</span>
                 <div className="flex-1 min-w-0">
                   {renamingId === d.id ? (

@@ -182,7 +182,7 @@ export default function AgendaClient() {
 
   return (
     <motion.div
-      initial={{ opacity: 0, y: 8 }}
+      initial={false}
       animate={{ opacity: 1, y: 0 }}
       transition={{ ease: [0.16, 1, 0.3, 1], duration: 0.35 }}
       className="space-y-6"
@@ -224,7 +224,7 @@ export default function AgendaClient() {
               <ChevronRight className="h-4 w-4" />
             </button>
           </div>
-          <p className="text-sm font-semibold text-[var(--text-base)] capitalize">{weekLabel}</p>
+          <p className="text-sm font-semibold text-[var(--text-base)]">{weekLabel}</p>
         </div>
 
         {loading ? (
@@ -421,7 +421,7 @@ export default function AgendaClient() {
                     roster.map((b) => (
                       <div
                         key={b.booking_id}
-                        className="flex items-center gap-2 rounded-lg border border-[var(--border-base)] bg-[var(--bg-base)] px-3 py-2"
+                        className="flex items-center gap-2 rounded-[var(--radius-md)] px-3 py-2 bg-muted/60"
                       >
                         <div className="flex-1 min-w-0">
                           <p className="text-sm font-medium text-[var(--text-base)] truncate">{b.member_name}</p>

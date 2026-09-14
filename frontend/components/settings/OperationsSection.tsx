@@ -147,7 +147,7 @@ export default function OperationsSection() {
           </div>
         </div>
 
-        <div className="flex items-start justify-between gap-4 rounded-lg border border-[var(--border-base)] bg-[var(--bg-base)] p-4">
+        <div className="flex items-start justify-between gap-4 rounded-[var(--radius-md)] p-4 bg-muted/60">
           <div>
             <p className="text-sm font-medium text-[var(--text-base)]">Manejar turnos de caja</p>
             <p className="text-xs text-[var(--text-muted)] mt-0.5 max-w-md">
@@ -196,7 +196,7 @@ export default function OperationsSection() {
         {showNewLocation && (
           <form
             onSubmit={handleCreateLocation}
-            className="grid grid-cols-1 sm:grid-cols-2 gap-3 p-4 rounded-lg border border-[var(--border-base)] bg-[var(--bg-base)]"
+            className="grid grid-cols-1 sm:grid-cols-2 gap-3 p-4 rounded-[var(--radius-md)] bg-muted/60"
           >
             <div className="space-y-1">
               <Label className="text-[var(--text-muted)] text-xs">Nombre</Label>
@@ -257,7 +257,7 @@ export default function OperationsSection() {
             {locations.map((loc) => (
               <div
                 key={loc.id}
-                className="flex items-center gap-3 p-3 rounded-lg border border-[var(--border-base)] bg-[var(--bg-base)]"
+                className="flex items-center gap-3 p-3 rounded-[var(--radius-md)] bg-muted/60"
               >
                 <MapPin className="h-4 w-4 text-[var(--text-muted)] shrink-0" />
                 <div className="flex-1 min-w-0">

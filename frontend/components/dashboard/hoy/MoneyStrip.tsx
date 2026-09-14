@@ -75,7 +75,7 @@ export function MoneyStrip({
             <p className="num mt-2 text-[34px] leading-none text-ink">{formatCOP(cash.total)}</p>
             <p className="mt-1.5 text-[12.5px] text-ink-muted">
               {cash.count} {cash.count === 1 ? "cobro" : "cobros"}
-              {weekAverage !== null && `. Promedio diario de la semana: ${formatCOP(Math.round(weekAverage))}`}
+              {weekAverage !== null && weekAverage > 0 && `. Promedio diario de la semana: ${formatCOP(Math.round(weekAverage))}`}
             </p>
             <div className="mt-4">
               <SegmentBar parts={METHODS.map((m) => ({ ...m, value: Number(cash.by_method?.[m.key] ?? 0) }))} />

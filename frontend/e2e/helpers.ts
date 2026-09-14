@@ -42,5 +42,5 @@ export async function entrar(page: Page, email: string = EMAIL) {
   await page.fill('input[type="email"]', email);
   await page.fill('input[type="password"]', PASSWORD);
   await page.click('button[type="submit"]');
-  await page.waitForURL(/\/dashboard/, { timeout: 30_000 });
+  await page.waitForURL(/\/(dashboard|entrenador)/, { timeout: 30_000 });
 }

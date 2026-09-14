@@ -320,7 +320,7 @@ export default function GymSection() {
             return (
               <div
                 key={key}
-                className="flex items-center gap-3 p-3 rounded-lg border border-[var(--border-base)] bg-[var(--bg-base)]"
+                className="flex items-center gap-3 p-3 rounded-[var(--radius-md)] bg-muted/60"
               >
                 <Switch
                   checked={day.active}

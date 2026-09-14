@@ -202,7 +202,7 @@ export default function TrainerClient({ view }: { view: TrainerView }) {
               description="Cuando el gimnasio te asigne a alguien, aparecerá aquí con el estado de su membresía."
             />
           ) : (
-            <motion.ul variants={lista} initial="hidden" animate="visible" className="list-none m-0 p-0 divide-y divide-[var(--border-base)]">
+            <motion.ul variants={lista} initial={false} animate="visible" className="list-none m-0 p-0 divide-y divide-[var(--border-base)]">
               {members.map((m) => (
                 <motion.li key={m.id} variants={fila} className="py-3 first:pt-0 last:pb-0">
                   <div className="flex items-center justify-between gap-3">
@@ -255,7 +255,7 @@ export default function TrainerClient({ view }: { view: TrainerView }) {
               description="Arma una rutina en el módulo de Rutinas y asígnasela a uno de tus socios."
             />
           ) : (
-            <motion.ul variants={lista} initial="hidden" animate="visible" className="list-none m-0 p-0 divide-y divide-[var(--border-base)]">
+            <motion.ul variants={lista} initial={false} animate="visible" className="list-none m-0 p-0 divide-y divide-[var(--border-base)]">
               {routines.map((r) => (
                 <motion.li key={r.id} variants={fila} className="py-3 first:pt-0 last:pb-0">
                   <div className="flex items-center justify-between gap-3">
@@ -297,13 +297,13 @@ function Resumen({ etiqueta, valor, icono }: { etiqueta: string; valor: number; 
 
 function Sesiones({ items, conFecha }: { items: TrainerSession[]; conFecha: boolean }) {
   return (
-    <motion.ul variants={lista} initial="hidden" animate="visible" className="list-none m-0 p-0 space-y-2">
+    <motion.ul variants={lista} initial={false} animate="visible" className="list-none m-0 p-0 space-y-2">
       {items.map((s) => (
         <motion.li
           key={s.id}
           variants={fila}
           className={cn(
-            "flex items-center gap-3 rounded-lg border border-[var(--border-base)] px-3 py-2.5",
+            "flex items-center gap-3 rounded-[var(--radius-md)] px-3 py-2.5 bg-muted/60",
             s.status === "cancelled" && "opacity-60",
           )}
         >

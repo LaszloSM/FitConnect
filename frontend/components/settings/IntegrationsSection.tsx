@@ -126,7 +126,7 @@ export default function IntegrationsSection() {
               <Input type="password" value={wompi.integrity_secret} onChange={(e) => setWompi({ ...wompi, integrity_secret: e.target.value })} placeholder={status?.wompi_configured ? "•••• (guardado)" : "integrity_..."} className={inputCls} />
             </div>
           </div>
-          <div className="rounded-lg bg-[var(--bg-base)] border border-[var(--border-base)] p-3 text-xs text-[var(--text-muted)]">
+          <div className="rounded-[var(--radius-md)] p-3 text-xs text-[var(--text-muted)] bg-muted/60">
             URL del webhook (configúrala en tu panel Wompi): <code className="text-[var(--text-base)]">{typeof window !== "undefined" ? window.location.origin.replace(":3000", ":8000") : ""}/api/v1/webhooks/wompi</code>
           </div>
           <div className="flex justify-end">
@@ -168,7 +168,7 @@ export default function IntegrationsSection() {
             </Button>
           </div>
         </form>
-        <div className="rounded-lg border border-[var(--border-base)] bg-[var(--bg-base)] p-3 space-y-1.5">
+        <div className="rounded-[var(--radius-md)] p-3 space-y-1.5 bg-muted/60">
           <p className="text-xs font-semibold text-[var(--text-base)]">Plantillas que debes aprobar en WhatsApp Business (idioma es_CO):</p>
           <ul className="text-[11px] text-[var(--text-muted)] space-y-1 font-mono">
             <li>recordatorio_vencimiento: {"{{1}}"} nombre, {"{{2}}"} plan, {"{{3}}"} fecha, {"{{4}}"} link de pago</li>

@@ -64,7 +64,7 @@ export default function AppearanceSection() {
               onClick={() => setTheme(t.key)}
               aria-pressed={isActive}
               className={cn(
-                "relative flex flex-col items-center gap-3 p-4 rounded-xl border transition-all duration-200 text-center",
+                "relative flex flex-col items-center gap-3 p-4 rounded-xl border transition-colors duration-200 text-center",
                 isActive
                   ? "border-[var(--color-primary)] bg-[var(--color-primary-muted)] dark:bg-[var(--color-primary)]/20 shadow-sm"
                   : "border-[var(--border-base)] bg-[var(--bg-base)] hover:border-[var(--color-primary)]"

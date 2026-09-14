@@ -85,7 +85,7 @@ export default function PlanSection() {
           <GlassCard
             key={plan.key}
             className={cn(
-              "p-5 transition-all duration-200",
+              "p-5 transition-shadow duration-200",
               isActive && "ring-2 ring-[var(--color-primary)]"
             )}
           >

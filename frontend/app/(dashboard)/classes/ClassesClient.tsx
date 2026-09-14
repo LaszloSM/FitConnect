@@ -302,7 +302,7 @@ export default function ClassesClient() {
 
   return (
     <motion.div
-      initial={{ opacity: 0, y: 8 }}
+      initial={false}
       animate={{ opacity: 1, y: 0 }}
       transition={{ ease: [0.16, 1, 0.3, 1], duration: 0.35 }}
       className="space-y-6"
@@ -377,7 +377,7 @@ export default function ClassesClient() {
                   /* Sin lista no se cae a texto libre: una clase con un nombre
                      suelto no tiene entrenador real y el detector de choques de
                      horario no puede validarla. */
-                  <p className="text-xs text-[var(--text-muted)] rounded-md border border-[var(--border-base)] bg-[var(--bg-base)] px-3 py-2">
+                  <p className="text-xs text-[var(--text-muted)] rounded-[var(--radius-md)] px-3 py-2 bg-muted/60">
                     {trainersFailed ? (
                       <>No se pudo cargar el equipo. Recarga la página e inténtalo de nuevo.</>
                     ) : (
@@ -468,7 +468,7 @@ export default function ClassesClient() {
 
             {/* Schedule preview */}
             {schedulePreview && (
-              <div className="flex items-center gap-2 px-3 py-2 rounded-lg bg-muted border border-line text-ink">
+              <div className="flex items-center gap-2 px-3 py-2 rounded-[var(--radius-md)] text-ink bg-muted/60">
                 <span className="text-xs font-medium">{schedulePreview}</span>
               </div>
             )}
@@ -485,7 +485,7 @@ export default function ClassesClient() {
                     title={c.label}
                     style={{ background: c.value }}
                     className={cn(
-                      "h-7 w-7 rounded-full transition-all",
+                      "h-7 w-7 rounded-full transition-[opacity,transform,box-shadow]",
                       form.color === c.value ? "ring-2 ring-offset-2 ring-[var(--text-base)] ring-offset-[var(--bg-card)]" : "opacity-70 hover:opacity-100 hover:scale-105"
                     )}
                     aria-label={c.label}

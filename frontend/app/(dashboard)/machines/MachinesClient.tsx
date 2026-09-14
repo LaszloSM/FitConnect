@@ -473,7 +473,7 @@ export default function MachinesClient() {
 
   return (
     <motion.div
-      initial={{ opacity: 0, y: 8 }}
+      initial={false}
       animate={{ opacity: 1, y: 0 }}
       transition={{ ease: [0.16, 1, 0.3, 1], duration: 0.35 }}
       className="space-y-6"
@@ -535,7 +535,7 @@ export default function MachinesClient() {
 
       <GlassCard className="p-4 space-y-4">
         <div className="flex flex-wrap items-center gap-2">
-          <div role="tablist" aria-label="Vista" className="flex rounded-md border border-[var(--border-base)] p-0.5">
+          <div role="tablist" aria-label="Vista" className="flex rounded-[var(--radius-md)] p-0.5 bg-muted/60">
             {([["list", "Lista", List], ["calendar", "Calendario", CalendarDays]] as const).map(([v, l, Icon]) => (
               <button
                 key={v}
@@ -642,7 +642,7 @@ export default function MachinesClient() {
                   ) : (
                     <ul className="space-y-1.5">
                       {g.items.map((i) => (
-                        <li key={i.id} className="rounded-lg border border-[var(--border-base)] px-3 py-2">
+                        <li key={i.id} className="rounded-[var(--radius-md)] px-3 py-2 bg-muted/60">
                           <p className="text-sm font-medium text-[var(--text-base)] truncate">{i.name}</p>
                           <p className="text-xs tabular-nums" style={{ color: i.is_overdue ? "var(--signal-danger)" : "var(--text-muted)" }}>
                             {formatDate(parseDateOnly(i.next_maintenance_date))}
@@ -770,7 +770,7 @@ export default function MachinesClient() {
 
                       <div className="space-y-2">
                         {(logs[m.id] ?? []).map((log) => (
-                          <div key={log.id} className="p-3 rounded-lg border border-[var(--border-base)] bg-[var(--bg-card)] text-sm flex gap-3">
+                          <div key={log.id} className="p-3 rounded-[var(--radius-lg)] bg-[var(--bg-card)] text-sm flex gap-3 shadow-[var(--shadow-card)]">
                             {log.photo_url && (
                               <a href={log.photo_url} target="_blank" rel="noreferrer" className="shrink-0">
                                 {/* eslint-disable-next-line @next/next/no-img-element */}

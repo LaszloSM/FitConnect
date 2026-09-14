@@ -469,7 +469,7 @@ function AnnouncementsTab({
           </div>
         </FormField>
         {audience && (
-          <div className="rounded-lg border border-[var(--border-base)] bg-[var(--bg-muted)] px-3 py-2 text-xs text-[var(--text-muted)]">
+          <div className="rounded-[var(--radius-md)] px-3 py-2 text-xs text-[var(--text-muted)] bg-muted/60">
             Le llega a <strong className="text-[var(--text-base)]">{audience.total}</strong> socios
             {audience.without_phone > 0 && (
               <> · {audience.without_phone} sin teléfono (solo aviso en la app)</>

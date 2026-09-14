@@ -273,6 +273,9 @@ Cuando cometas un error durante una sesión, agrégalo aquí antes de terminar:
 | El recorrido de Playwright se colgó 4 minutos en `waitForLoadState("networkidle")` | La app mantiene abierta la conexión SSE de entradas en vivo: la red nunca queda inactiva | En e2e esperar `load` y que desaparezca `[aria-busy=true]`, nunca `networkidle` |
 | Las pruebas de login fallaban con `/api/auth/error` y "Jest worker encountered 2 child process exceptions" | El servidor de desarrollo se quedó sin memoria y sus workers murieron; además `TaskStop` del shell dejaba el `node` huérfano ocupando el puerto 3000 | Para e2e y QA con poca memoria: `npm run build` + `next start` en vez de `next dev`. Tras detener un servidor, liberar el puerto por PID (`Get-NetTCPConnection -LocalPort 3000`) antes de volver a arrancar |
 
+| Capturas del recorrido e2e tapadas por el tour de bienvenida y con "Cobrado hoy" en cero | El tour se muestra en todo gym sin `tour_completed_at`, y crear un socio con `payment_method: "cash"` deja el pago **pendiente** (no cobrado) | El sembrado (`e2e/datos.ts`) marca el tour con `POST /onboarding/tour-complete` y confirma el efectivo con `PATCH /payments/{id}/mark-paid` con turno abierto |
+| La ficha del socio en móvil salía como la lista de socios, sin ningún error | El sembrado hacía un login por helper y `/auth/login` admite 10 por minuto: el token volvió nulo, la búsqueda del socio falló en silencio y la ruta cayó al respaldo `/members` | Cachear el token por email en los helpers de e2e y exigir (`expect`) cada respuesta de la que depende una ruta, en vez de caer a un valor por defecto |
+
 **Protocolo:** Al detectar un error que no estaba documentado, añade una fila a la tabla antes del commit.
 
 ---

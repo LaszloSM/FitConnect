@@ -116,7 +116,7 @@ export default function RoutinesClient() {
   }
 
   return (
-    <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ ease: [0.16, 1, 0.3, 1], duration: 0.35 }} className="space-y-6">
+    <motion.div initial={false} animate={{ opacity: 1, y: 0 }} transition={{ ease: [0.16, 1, 0.3, 1], duration: 0.35 }} className="space-y-6">
       <PageHeader
         module="classes"
         title="Rutinas"
@@ -140,7 +140,7 @@ export default function RoutinesClient() {
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
           {routines.data.map((r, i) => (
-            <motion.div key={r.id} initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.25, delay: Math.min(i * 0.04, 0.3) }}>
+            <motion.div key={r.id} initial={false} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.25, delay: Math.min(i * 0.04, 0.3) }}>
               <GlassCard className="p-4 h-full flex flex-col gap-3">
                 <div className="flex items-start justify-between gap-2">
                   <div className="min-w-0">
@@ -225,7 +225,7 @@ function RoutineEditor({ form, facets, onChange, onCancel, onSave, saving, isNew
   const totalExercises = useMemo(() => form.days.reduce((a, d) => a + d.exercises.length, 0), [form.days]);
 
   return (
-    <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} className="space-y-4">
+    <motion.div initial={false} animate={{ opacity: 1, y: 0 }} className="space-y-4">
       <div className="flex items-center justify-between gap-3 flex-wrap">
         <button type="button" onClick={onCancel} className="flex items-center gap-1.5 text-sm text-[var(--text-muted)] hover:text-[var(--text-base)]"><ArrowLeft className="h-4 w-4" /> Rutinas</button>
         <div className="flex items-center gap-2">
@@ -278,12 +278,12 @@ function RoutineEditor({ form, facets, onChange, onCancel, onSave, saving, isNew
           </div>
 
           {day.exercises.length === 0 ? (
-            <p className="text-sm text-[var(--text-muted)] text-center py-8 rounded-xl border border-dashed border-[var(--border-base)]">Busca un ejercicio a la derecha y agrégalo a este día.</p>
+            <p className="text-sm text-[var(--text-muted)] text-center py-8 rounded-[var(--radius-md)] border-dashed bg-muted/60">Busca un ejercicio a la derecha y agrégalo a este día.</p>
           ) : (
             <div className="space-y-2">
               <AnimatePresence initial={false}>
                 {day.exercises.map((x, idx) => (
-                  <motion.div key={x.key} layout initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} className="flex items-start gap-3 rounded-xl border border-[var(--border-base)] bg-[var(--bg-base)] p-2.5">
+                  <motion.div key={x.key} layout initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} className="flex items-start gap-3 rounded-[var(--radius-md)] p-2.5 bg-muted/60">
                     <span className="text-[10px] font-bold text-[var(--text-muted)] w-4 pt-1">{idx + 1}</span>
                     <ExerciseFigure images={x.exercise.images} videoUrl={x.exercise.video_url} alt={x.exercise.name_es} size="sm" />
                     <div className="flex-1 min-w-0 space-y-1.5">
@@ -324,7 +324,7 @@ function RoutineEditor({ form, facets, onChange, onCancel, onSave, saving, isNew
             {searching && results.length === 0 ? <div className="skeleton h-16 rounded-xl" /> : results.length === 0 ? (
               <p className="text-xs text-[var(--text-muted)] text-center py-6">{facets && facets.total === 0 ? "La biblioteca está vacía: ejecuta scripts/import_exercises.py en el backend." : "Sin resultados"}</p>
             ) : results.map((e) => (
-              <div key={e.id} className="flex items-center gap-2.5 rounded-xl border border-[var(--border-base)] bg-[var(--bg-base)] p-2 group">
+              <div key={e.id} className="flex items-center gap-2.5 rounded-[var(--radius-md)] p-2 group bg-muted/60">
                 <ExerciseFigure images={e.images} videoUrl={e.video_url} alt={e.name_es} size="sm" />
                 <button type="button" onClick={() => setPreview(e)} className="flex-1 min-w-0 text-left">
                   <p className="text-xs font-semibold text-[var(--text-base)] truncate group-hover:text-primary-ink">{e.name_es}</p>
@@ -340,7 +340,7 @@ function RoutineEditor({ form, facets, onChange, onCancel, onSave, saving, isNew
       <AnimatePresence>
         {preview && (
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 z-50 bg-black/60 flex items-center justify-center p-4" onClick={() => setPreview(null)}>
-            <motion.div initial={{ scale: 0.96, y: 8 }} animate={{ scale: 1, y: 0 }} onClick={(e) => e.stopPropagation()} className="w-full max-w-lg rounded-2xl bg-[var(--bg-card)] border border-[var(--border-base)] p-5 space-y-3">
+            <motion.div initial={{ scale: 0.96, y: 8 }} animate={{ scale: 1, y: 0 }} onClick={(e) => e.stopPropagation()} className="w-full max-w-lg rounded-[var(--radius-lg)] bg-[var(--bg-card)] p-5 space-y-3 shadow-[var(--shadow-card)]">
               <div className="flex items-start justify-between gap-3">
                 <div>
                   <h3 className="text-base font-bold text-[var(--text-base)]">{preview.name_es}</h3>
@@ -402,7 +402,7 @@ function ExerciseVideoBox({ exercise, onChanged }: { exercise: Exercise; onChang
   };
 
   return (
-    <div className="rounded-xl border border-[var(--border-base)] p-3 space-y-2">
+    <div className="rounded-[var(--radius-md)] p-3 space-y-2 bg-muted/60">
       <p className="text-xs text-[var(--text-muted)]">
         {exercise.video_source === "gym"
           ? "Se está mostrando el video de tu gym."

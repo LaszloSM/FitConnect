@@ -162,7 +162,7 @@ export function TrainersCard({ onChanged }: { onChanged?: () => void }) {
               initial={{ opacity: 0, y: 8 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.25, delay: Math.min(idx * 0.04, 0.3) }}
-              className="group rounded-xl border border-[var(--border-base)] bg-[var(--bg-base)] p-3"
+              className="group rounded-[var(--radius-md)] p-3 bg-muted/60"
             >
               <div className="flex items-start gap-2.5">
                 <span className="h-10 w-10 rounded-full bg-muted text-ink flex items-center justify-center text-sm font-bold shrink-0">

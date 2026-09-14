@@ -184,7 +184,7 @@ export default function BillingSection() {
         {showNew && (
           <form
             onSubmit={handleAddAccount}
-            className="grid grid-cols-1 sm:grid-cols-2 gap-3 p-4 rounded-lg border border-[var(--border-base)] bg-[var(--bg-base)]"
+            className="grid grid-cols-1 sm:grid-cols-2 gap-3 p-4 rounded-[var(--radius-md)] bg-muted/60"
           >
             <div className="space-y-1">
               <Label className="text-[var(--text-muted)] text-xs">Tipo</Label>
@@ -268,7 +268,7 @@ export default function BillingSection() {
             {accounts.map((acc, idx) => (
               <div
                 key={`${acc.type}-${acc.account_number}`}
-                className="flex items-center gap-3 p-3 rounded-lg border border-[var(--border-base)] bg-[var(--bg-base)]"
+                className="flex items-center gap-3 p-3 rounded-[var(--radius-md)] bg-muted/60"
               >
                 {acc.type === "nequi" || acc.type === "daviplata" ? (
                   <Smartphone className="h-4 w-4 text-[var(--text-muted)] shrink-0" />

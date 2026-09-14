@@ -208,7 +208,7 @@ export default function TeamSection() {
               return (
                 <div
                   key={m.id}
-                  className="flex items-center gap-3 rounded-xl border border-[var(--border-base)] bg-[var(--bg-base)] px-4 py-3"
+                  className="flex items-center gap-3 rounded-[var(--radius-md)] px-4 py-3 bg-muted/60"
                 >
                   <div className={`flex-1 min-w-0 ${m.is_active ? "" : "opacity-60"}`}>
                     <p className="text-sm font-medium text-[var(--text-base)] truncate">
