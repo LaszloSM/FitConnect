@@ -66,7 +66,7 @@ export function HistoryTab({ refreshSignal }: { refreshSignal: number }) {
       });
       toast.success(
         refundKind === "correction"
-          ? "Monto corregido — la caja no se movió"
+          ? "Monto corregido: la caja no se movió"
           : `Devolución registrada${refundTarget.method === "cash" ? " · egreso en caja" : ""}`
       );
       setPayments((prev) => prev.map((p) => (p.id === refundTarget.id ? { ...p, status: data.status, refunded_at: data.refunded_at, refund_reason: data.refund_reason, refunded_amount: data.refunded_amount } : p)));

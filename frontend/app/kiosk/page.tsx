@@ -5,7 +5,7 @@ import KioskClient from "./KioskClient";
 export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
-  title: "Kiosko de entrada — FitConnect",
+  title: "Kiosko de entrada: FitConnect",
   robots: { index: false },
 };
 

@@ -261,7 +261,7 @@ export default function BillingSection() {
 
         {accounts.length === 0 ? (
           <p className="text-[var(--text-muted)] text-sm py-3 text-center">
-            Sin cuentas registradas — agrégalas para cobrar por transferencia en el POS.
+            Sin cuentas registradas: agrégalas para cobrar por transferencia en el POS.
           </p>
         ) : (
           <div className="space-y-2">

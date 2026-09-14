@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Política de Privacidad — FitConnect",
+  title: "Política de Privacidad: FitConnect",
   description: "Cómo FitConnect recolecta, usa y protege los datos personales.",
 };
 
@@ -74,7 +74,7 @@ export default function PrivacidadPage() {
 
       <h2>8. Contacto</h2>
       <p>
-        <strong>[RAZÓN SOCIAL]</strong> — <strong>[correo de contacto]</strong> — <strong>[ciudad]</strong>, Colombia.
+        <strong>[RAZÓN SOCIAL]</strong>: <strong>[correo de contacto]</strong>: <strong>[ciudad]</strong>, Colombia.
       </p>
     </article>
   );

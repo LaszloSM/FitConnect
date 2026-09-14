@@ -181,7 +181,7 @@ export function PosTab({
           concept: `Membresía ${summary.renewal.plan_name}`,
         });
       } else {
-        toast.success(`Cobrado ${formatCOP(data.amount)} — recibo ${data.receipt_number}`, {
+        toast.success(`Cobrado ${formatCOP(data.amount)}: recibo ${data.receipt_number}`, {
           action: { label: "Imprimir", onClick: () => openReceipt(client, data.payment_id) },
           duration: 8000,
         });
@@ -361,9 +361,9 @@ export function PosTab({
               transition={{ duration: 0.25 }}
               className="space-y-3"
             >
-              <div className="rounded-[var(--radius-lg)] border border-line bg-surface p-3 space-y-2">
+              <div className="space-y-2 rounded-[var(--radius-md)] bg-muted/60 p-3">
                 <div className="flex items-center gap-2">
-                  <span className="h-8 w-8 rounded-full bg-muted text-ink text-xs font-semibold flex items-center justify-center shrink-0">
+                  <span className="flex size-9 shrink-0 items-center justify-center rounded-[12px] bg-primary-muted text-xs font-bold text-primary-ink">
                     {summary.member_name[0]?.toUpperCase()}
                   </span>
                   <div className="min-w-0">
@@ -398,7 +398,7 @@ export function PosTab({
                     )}
                   </div>
                 ) : (
-                  <p className="text-xs text-[var(--text-muted)]">Sin membresías registradas — asígnale un plan desde su perfil.</p>
+                  <p className="text-xs text-[var(--text-muted)]">Sin membresías registradas: asígnale un plan desde su perfil.</p>
                 )}
               </div>
 
@@ -498,7 +498,7 @@ export function PosTab({
         ) : filteredProducts.length === 0 ? (
           <p className="text-sm text-[var(--text-muted)] py-6 text-center">
             {products.data.length === 0
-              ? "Sin productos en el catálogo — créalos en la pestaña Productos."
+              ? "Sin productos en el catálogo: créalos en la pestaña Productos."
               : "Ningún producto coincide con la búsqueda."}
           </p>
         ) : (
@@ -539,7 +539,7 @@ export function PosTab({
         )}
 
         {/* Carrito */}
-        <div className="rounded-[var(--radius-lg)] border border-line bg-surface p-3 space-y-2">
+        <div className="space-y-2 rounded-[var(--radius-md)] bg-muted/60 p-3">
           <div className="flex items-center gap-2">
             <ShoppingCart className="h-4 w-4 text-[var(--text-muted)]" />
             <p className="text-sm font-medium text-ink">

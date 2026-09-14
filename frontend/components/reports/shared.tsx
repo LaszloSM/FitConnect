@@ -121,10 +121,10 @@ export function Tile({ label, value, tone = "base", hint }: { label: string; val
     muted: "text-[var(--text-muted)]",
   }[tone];
   return (
-    <GlassCard className="p-4">
-      <p className="text-xs text-[var(--text-muted)]">{label}</p>
-      <p className={cn("text-lg font-bold font-mono", cls)}>{value}</p>
-      {hint && <p className="text-[10px] text-[var(--text-muted)] mt-0.5">{hint}</p>}
+    <GlassCard className="p-5">
+      <p className="text-[13px] font-semibold text-ink-muted">{label}</p>
+      <p className={cn("num mt-1.5 text-[26px] leading-none", cls)}>{value}</p>
+      {hint && <p className="mt-1.5 text-xs text-ink-muted">{hint}</p>}
     </GlassCard>
   );
 }
@@ -134,10 +134,7 @@ export function Card({ title, icon, children, className, right }: { title: strin
     <motion.div variants={cardVariants} className={className}>
       <GlassCard className="p-5 h-full">
         <div className="flex items-center justify-between gap-2 mb-4">
-          <div className="flex items-center gap-2">
-            {icon}
-            <h3 className="text-[var(--text-base)] font-semibold text-sm">{title}</h3>
-          </div>
+          <h3 className="text-base font-semibold text-ink">{title}</h3>
           {right}
         </div>
         {children}
@@ -147,7 +144,7 @@ export function Card({ title, icon, children, className, right }: { title: strin
 }
 
 export function Empty({ text }: { text: string }) {
-  return <p className="text-[var(--text-muted)] text-xs text-center py-8">{text}</p>;
+  return <p className="py-8 text-center text-sm text-ink-muted">{text}</p>;
 }
 
 export function TabSkeleton() {

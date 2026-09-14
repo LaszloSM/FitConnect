@@ -71,7 +71,7 @@ export function OnboardingTour() {
           {
             element: '[data-tour="live-now"]',
             popover: {
-              title: "Hoy en el gym — en vivo",
+              title: "Hoy en el gym: en vivo",
               description:
                 "Cada entrada por el quiosco aparece aquí al instante, junto con los ingresos de hoy, vencimientos y cumpleaños. Las acciones rápidas están a un clic.",
               side: "bottom",

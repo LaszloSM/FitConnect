@@ -86,7 +86,7 @@ export function TrainersCard({ onChanged }: { onChanged?: () => void }) {
     try {
       const client = apiClient(session.accessToken as string);
       await client.delete(`/api/v1/instructors/${i.id}`);
-      toast.success(`${i.full_name} archivado — sus clases conservan el nombre`);
+      toast.success(`${i.full_name} archivado: sus clases conservan el nombre`);
       await trainers.refetch();
       onChanged?.();
     } catch (err: unknown) {

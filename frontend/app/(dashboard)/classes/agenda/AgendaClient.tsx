@@ -136,7 +136,7 @@ export default function AgendaClient() {
       const creditsMsg =
         remaining === null || remaining === undefined
           ? ""
-          : ` — le quedan ${remaining} clase${remaining !== 1 ? "s" : ""}`;
+          : `: le quedan ${remaining} clase${remaining !== 1 ? "s" : ""}`;
       toast.success(
         res.data.status === "waitlisted"
           ? "Agregado a lista de espera"
@@ -158,7 +158,7 @@ export default function AgendaClient() {
       const res = await client.delete(`/api/v1/class-sessions/${selected.id}/bookings/${bookingId}`);
       toast.success(
         res.data.promoted_member_id
-          ? "Reserva cancelada — se promovió un miembro de la lista"
+          ? "Reserva cancelada: se promovió un miembro de la lista"
           : "Reserva cancelada"
       );
       await refreshSelected();
@@ -178,7 +178,7 @@ export default function AgendaClient() {
     }
   };
 
-  const weekLabel = `${format(weekStart, "d MMM", { locale: es })} — ${format(addDays(weekStart, 6), "d MMM yyyy", { locale: es })}`;
+  const weekLabel = `${format(weekStart, "d MMM", { locale: es })} al ${format(addDays(weekStart, 6), "d MMM yyyy", { locale: es })}`;
 
   return (
     <motion.div

@@ -179,7 +179,7 @@ export default function OperationsSection() {
           <div>
             <h3 className="text-sm font-semibold text-[var(--text-base)]">Sedes</h3>
             <p className="text-xs text-[var(--text-muted)] mt-0.5">
-              Ubicaciones del gym — check-ins, clases y máquinas se asocian a una sede
+              Ubicaciones del gym: check-ins, clases y máquinas se asocian a una sede
             </p>
           </div>
           {isOwner && (
@@ -250,7 +250,7 @@ export default function OperationsSection() {
 
         {locations.length === 0 ? (
           <p className="text-[var(--text-muted)] text-sm py-3 text-center">
-            Sin sedes registradas — el gym opera como sede única.
+            Sin sedes registradas: el gym opera como sede única.
           </p>
         ) : (
           <div className="space-y-2">

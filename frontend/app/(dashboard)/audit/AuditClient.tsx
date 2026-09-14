@@ -190,7 +190,7 @@ export default function AuditClient() {
       <PageHeader
         module="settings"
         title="Auditoría"
-        subtitle="Quién hizo qué — acciones sensibles del staff"
+        subtitle="Quién hizo qué: acciones sensibles del staff"
       />
 
       <div className="flex items-center justify-between gap-3 flex-wrap">

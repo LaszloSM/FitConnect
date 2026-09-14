@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Política de Tratamiento de Datos — FitConnect",
+  title: "Política de Tratamiento de Datos: FitConnect",
   description: "Política de tratamiento de datos personales conforme a la Ley 1581 de 2012.",
 };
 
@@ -90,7 +90,7 @@ export default function TratamientoDatosPage() {
 
       <h2>8. Contacto</h2>
       <p>
-        <strong>[RAZÓN SOCIAL]</strong> — <strong>[correo de contacto]</strong> — <strong>[ciudad]</strong>, Colombia.
+        <strong>[RAZÓN SOCIAL]</strong>: <strong>[correo de contacto]</strong>: <strong>[ciudad]</strong>, Colombia.
       </p>
     </article>
   );

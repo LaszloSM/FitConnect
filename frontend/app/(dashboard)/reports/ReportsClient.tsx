@@ -3,12 +3,12 @@
 import { useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { useSession } from "next-auth/react";
-import { motion } from "framer-motion";
+import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import { PageHeader } from "@/components/common/PageHeader";
 import { apiClient } from "@/lib/api";
 import { cn } from "@/lib/utils";
-import { ActivityIcon as Activity, BrainIcon as Brain, CalendarBlankIcon as Calendar, CalendarCheckIcon as CalendarCheck, SpinnerGapIcon as Loader2, PackageIcon as Package, TicketIcon as Ticket, TrendUpIcon as TrendingUp, UsersIcon as Users } from "@phosphor-icons/react";
+import { CalendarCheckIcon } from "@phosphor-icons/react";
 import { PeriodPicker, periodFor, type Period } from "@/components/reports/PeriodPicker";
 import { ExportButtons, downloadBlob } from "@/components/reports/shared";
 import { IngresosTab } from "@/components/reports/IngresosTab";
@@ -18,14 +18,14 @@ import { RetencionTab, InteligenciaTab } from "@/components/reports/RetencionInt
 
 type TabKey = "ingresos" | "ventas" | "pases" | "socios" | "asistencia" | "retencion" | "inteligencia";
 
-const TABS: { key: TabKey; label: string; icon: typeof TrendingUp; period: boolean; export: boolean }[] = [
-  { key: "ingresos", label: "Ingresos", icon: TrendingUp, period: true, export: true },
-  { key: "ventas", label: "Ventas", icon: Package, period: true, export: true },
-  { key: "pases", label: "Pases", icon: Ticket, period: true, export: true },
-  { key: "socios", label: "Socios", icon: Users, period: true, export: true },
-  { key: "asistencia", label: "Asistencia", icon: Activity, period: true, export: true },
-  { key: "retencion", label: "Retención", icon: Calendar, period: false, export: true },
-  { key: "inteligencia", label: "Inteligencia", icon: Brain, period: true, export: false },
+const TABS: { key: TabKey; label: string; period: boolean; export: boolean }[] = [
+  { key: "ingresos", label: "Ingresos", period: true, export: true },
+  { key: "ventas", label: "Ventas", period: true, export: true },
+  { key: "pases", label: "Pases", period: true, export: true },
+  { key: "socios", label: "Socios", period: true, export: true },
+  { key: "asistencia", label: "Asistencia", period: true, export: true },
+  { key: "retencion", label: "Retención", period: false, export: true },
+  { key: "inteligencia", label: "Inteligencia", period: true, export: false },
 ];
 
 export default function ReportsClient() {
@@ -55,38 +55,38 @@ export default function ReportsClient() {
   };
 
   return (
-    <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ ease: [0.16, 1, 0.3, 1], duration: 0.35 }} className="space-y-5">
+    <div className="space-y-6">
       <PageHeader
         module="reports"
         title="Informe"
         subtitle="Ingresos, ventas, socios, asistencia y retención por período. Con la marca de tu gym en PDF y Excel."
         action={
-          <button
-            type="button"
-            onClick={() => void monthClose()}
-            disabled={closing}
-            className="flex items-center gap-1.5 h-9 px-3 rounded-[var(--radius-md)] bg-primary text-primary-contrast text-sm font-medium hover:opacity-90 transition-opacity disabled:opacity-50"
-            title="PDF de una pieza con todo el mes del período elegido"
-          >
-            {closing ? <Loader2 className="h-4 w-4 animate-spin" /> : <CalendarCheck className="h-4 w-4" />}
-            Cierre de mes
-          </button>
+          <Button onClick={() => void monthClose()} isLoading={closing} title="PDF de una pieza con todo el mes del período elegido">
+            <CalendarCheckIcon weight="bold" /> Cierre de mes
+          </Button>
         }
       />
 
-      <div className="flex gap-1 flex-wrap border-b border-[var(--border-base)]">
-        {TABS.map(({ key, label, icon: Icon }) => (
+      <div
+        role="tablist"
+        aria-label="Secciones del informe"
+        className="-mx-4 flex gap-1 overflow-x-auto border-b border-line px-4 [scrollbar-width:none] md:mx-0 md:px-0"
+      >
+        {TABS.map(({ key, label }) => (
           <button
             key={key}
+            type="button"
+            role="tab"
+            aria-selected={activeTab === key}
             onClick={() => setActiveTab(key)}
             className={cn(
-              "flex items-center gap-2 px-3.5 py-2.5 text-sm font-medium transition-colors relative",
-              activeTab === key ? "text-ink" : "text-[var(--text-muted)] hover:text-[var(--text-base)]"
+              "relative flex h-11 shrink-0 items-center whitespace-nowrap px-3 text-sm outline-none transition-colors duration-150",
+              "after:absolute after:inset-x-2 after:-bottom-px after:h-[3px] after:rounded-full",
+              "focus-visible:rounded-[var(--radius-sm)] focus-visible:ring-2 focus-visible:ring-primary/40",
+              activeTab === key ? "font-semibold text-ink after:bg-primary" : "font-medium text-ink-muted hover:text-ink"
             )}
           >
-            <Icon className="h-4 w-4" />
             {label}
-            {activeTab === key && <motion.span layoutId="reports-tab-indicator" className="absolute bottom-0 left-0 right-0 h-0.5 bg-[var(--text-base)]" />}
           </button>
         ))}
       </div>
@@ -105,6 +105,6 @@ export default function ReportsClient() {
         {activeTab === "retencion" && <RetencionTab />}
         {activeTab === "inteligencia" && <InteligenciaTab period={period} />}
       </div>
-    </motion.div>
+    </div>
   );
 }

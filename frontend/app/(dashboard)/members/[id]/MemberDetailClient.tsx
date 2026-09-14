@@ -676,7 +676,7 @@ export default function MemberDetailClient({ memberId }: { memberId: string }) {
                                 type="button"
                                 title="Reactivar membresía (corre la fecha de fin)"
                                 disabled={actionBusy}
-                                onClick={() => membershipAction(m.id, "unfreeze", {}, "Membresía reactivada — fecha de fin extendida")}
+                                onClick={() => membershipAction(m.id, "unfreeze", {}, "Membresía reactivada: fecha de fin extendida")}
                                 className="flex h-8 items-center gap-1 px-2.5 rounded-[var(--radius-md)] border border-line text-xs text-ink hover:bg-muted transition-colors"
                               >
                                 <Play className="h-3 w-3" /> Reactivar
@@ -784,7 +784,7 @@ export default function MemberDetailClient({ memberId }: { memberId: string }) {
                         <option value="">Seleccionar plan…</option>
                         {plans.map((p: any) => (
                           <option key={p.id} value={p.id}>
-                            {p.name} — {formatCOP(p.price)} / {p.duration_days}d
+                            {p.name}, {formatCOP(p.price)} / {p.duration_days}d
                           </option>
                         ))}
                       </select>
@@ -801,7 +801,7 @@ export default function MemberDetailClient({ memberId }: { memberId: string }) {
                     </div>
                     <div className="sm:col-span-2">
                       <label className="text-[var(--text-muted)] text-xs mb-1 block">
-                        Método de pago <span className="opacity-60">(opcional — genera pago pendiente)</span>
+                        Método de pago <span className="opacity-60">(opcional: genera pago pendiente)</span>
                       </label>
                       <select
                         value={paymentMethod}
@@ -968,7 +968,7 @@ export default function MemberDetailClient({ memberId }: { memberId: string }) {
                           : "Entró al gym";
                       detail = ev.source === "kiosk" ? "Kiosko" : ev.source === "qr" ? "QR" : "Recepción";
                     } else if (ev.type === "payment") {
-                      title = `${ev.concept} — ${formatCOP(ev.amount)}`;
+                      title = `${ev.concept}, ${formatCOP(ev.amount)}`;
                       detail = ev.status === "paid" ? "Pagado" : ev.status === "pending" ? "Pendiente" : ev.status;
                     } else if (ev.type === "membership") {
                       title = `Membresía ${ev.plan_name}`;

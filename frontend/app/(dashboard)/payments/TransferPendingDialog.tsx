@@ -92,7 +92,7 @@ export function TransferInstructions({ ctx, compact = false }: { ctx: TransferCo
           </div>
         ) : (
           <p className="text-sm text-[var(--signal-warn)]">
-            No hay cuenta de recaudo — agrégala en Ajustes › Recaudo.
+            No hay cuenta de recaudo: agrégala en Ajustes › Recaudo.
           </p>
         )}
       </div>
@@ -142,7 +142,7 @@ export function TransferPendingDialog({
     setConfirming(true);
     try {
       await client().patch(`/api/v1/payments/${ctx.paymentId}/mark-paid`);
-      toast.success("Transferencia confirmada — recibo emitido", {
+      toast.success("Transferencia confirmada: recibo emitido", {
         action: { label: "Imprimir", onClick: () => openReceipt(client(), ctx.paymentId) },
         duration: 8000,
       });
@@ -240,7 +240,7 @@ export function TransferPendingDialog({
               <Loader2 className="h-4 w-4 animate-spin" />
             ) : (
               <>
-                <CheckCircle2 className="h-4 w-4 mr-1.5" /> Ya llegó — confirmar
+                <CheckCircle2 className="h-4 w-4 mr-1.5" /> Ya llegó: confirmar
               </>
             )}
           </Button>

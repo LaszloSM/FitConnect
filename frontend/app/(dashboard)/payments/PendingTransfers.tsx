@@ -34,7 +34,7 @@ export function PendingTransfers({ onChanged }: { onChanged?: () => void }) {
     setConfirming(p.id);
     try {
       await client().patch(`/api/v1/payments/${p.id}/mark-paid`);
-      toast.success(`Transferencia ${p.transfer_reference ?? ""} confirmada — recibo emitido`);
+      toast.success(`Transferencia ${p.transfer_reference ?? ""} confirmada: recibo emitido`);
       await pending.refetch();
       onChanged?.();
     } catch (err: any) {

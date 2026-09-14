@@ -147,7 +147,7 @@ export default function TeamSection() {
   const copyUrl = () => {
     if (!inviteUrl) return;
     void navigator.clipboard.writeText(inviteUrl.url);
-    toast.success("Enlace copiado — compártelo con la persona invitada");
+    toast.success("Enlace copiado: compártelo con la persona invitada");
   };
 
   return (
@@ -179,7 +179,7 @@ export default function TeamSection() {
         {inviteUrl && (
           <div className="rounded-xl bg-[var(--signal-warn-bg)] border border-[var(--signal-warn-line)] p-4 space-y-2">
             <p className="text-sm font-semibold text-[var(--text-base)]">
-              Invitación para {inviteUrl.name} — válida 48 horas
+              Invitación para {inviteUrl.name}: válida 48 horas
             </p>
             <div className="flex items-center gap-2">
               <code className="flex-1 min-w-0 truncate text-xs bg-white/60 dark:bg-black/20 rounded-lg px-3 py-2 text-[var(--text-base)]">

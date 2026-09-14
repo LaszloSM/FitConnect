@@ -46,7 +46,7 @@ export function QrScanner({ onDecode, paused = false }: QrScannerProps) {
           lastDecodedRef.current = { text: decodedText, at: now };
           onDecode(decodedText);
         },
-        () => {} // per-frame decode failure — ignore noise
+        () => {} // per-frame decode failure: ignore noise
       )
       .catch((err) => {
         const name = (err as { name?: string })?.name;

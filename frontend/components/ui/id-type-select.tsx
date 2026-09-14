@@ -40,7 +40,7 @@ function IdTypeSelect({ value, onChange, className, placeholder = "Tipo de docum
             return (
               <span className="flex items-center gap-2">
                 <Icon className="size-4 text-[var(--text-muted)]" />
-                <span>{found.short} — {found.label}</span>
+                <span>{found.short}: {found.label}</span>
               </span>
             )
           })()}
@@ -63,7 +63,7 @@ function IdTypeSelect({ value, onChange, className, placeholder = "Tipo de docum
                 >
                   <Icon className="size-4 text-[var(--text-muted)]" />
                   <SelectPrimitive.ItemText>
-                    <span className="font-medium">{short}</span> — {label}
+                    <span className="font-medium">{short}</span>: {label}
                   </SelectPrimitive.ItemText>
                   <SelectPrimitive.ItemIndicator
                     render={<span className="absolute right-2 flex size-4 items-center justify-center" />}

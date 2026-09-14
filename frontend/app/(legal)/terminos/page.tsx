@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Términos y Condiciones — FitConnect",
+  title: "Términos y Condiciones: FitConnect",
   description: "Términos de uso del servicio FitConnect.",
 };
 
@@ -71,7 +71,7 @@ export default function TerminosPage() {
 
       <h2>9. Contacto</h2>
       <p>
-        <strong>[RAZÓN SOCIAL]</strong> — <strong>[correo de contacto]</strong> — <strong>[ciudad]</strong>, Colombia.
+        <strong>[RAZÓN SOCIAL]</strong>: <strong>[correo de contacto]</strong>: <strong>[ciudad]</strong>, Colombia.
       </p>
     </article>
   );

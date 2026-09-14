@@ -543,7 +543,7 @@ export default function MembersClient() {
           value={form.id_number}
           onChange={(e) => setForm({ ...form, id_number: e.target.value })}
           inputMode="numeric"
-          placeholder="Cédula — identifica al miembro en el check-in"
+          placeholder="Cédula: identifica al miembro en el check-in"
           className={inputCls}
         />
       </div>
@@ -745,7 +745,7 @@ export default function MembersClient() {
                         <option value="">Selecciona un plan…</option>
                         {availablePlans.map((p) => (
                           <option key={p.id} value={p.id}>
-                            {p.name} — {formatCOP(p.price)} / {p.duration_days} días
+                            {p.name}, {formatCOP(p.price)} / {p.duration_days} días
                           </option>
                         ))}
                       </select>
@@ -861,7 +861,7 @@ export default function MembersClient() {
                               <option value="">Selecciona un plan…</option>
                               {availablePlans.map((p) => (
                                 <option key={p.id} value={p.id}>
-                                  {p.name} — {formatCOP(p.price)} / {p.duration_days} días
+                                  {p.name}, {formatCOP(p.price)} / {p.duration_days} días
                                 </option>
                               ))}
                             </select>
@@ -869,7 +869,7 @@ export default function MembersClient() {
                           <div className="space-y-2">
                             <Label className="text-[var(--text-muted)] text-sm">Fecha de inicio</Label>
                             <p className="text-sm text-[var(--text-base)]">
-                              Hoy — {new Date().toLocaleDateString("es-CO")}
+                              Hoy: {new Date().toLocaleDateString("es-CO")}
                               <span className="ml-1.5 text-xs text-[var(--text-muted)]">(la membresía inicia al crear el socio)</span>
                             </p>
                           </div>

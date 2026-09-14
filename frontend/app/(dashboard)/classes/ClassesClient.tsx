@@ -369,7 +369,7 @@ export default function ClassesClient() {
                     <option value="">Selecciona un entrenador...</option>
                     {instructors.map((i) => (
                       <option key={i.id} value={i.id}>
-                        {i.full_name}{i.specialty ? ` — ${i.specialty}` : ""}
+                        {i.full_name}{i.specialty ? `, ${i.specialty}` : ""}
                       </option>
                     ))}
                   </select>
