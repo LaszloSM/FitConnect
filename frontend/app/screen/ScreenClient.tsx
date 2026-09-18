@@ -6,6 +6,7 @@ import { useSearchParams } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import axios from "axios";
 import { ExerciseFigure, youtubeSearchUrl } from "@/components/routines/ExerciseFigure";
+import { BrandMark } from "@/components/common/BrandMark";
 import { cn } from "@/lib/utils";
 import { ArrowLeftIcon as ArrowLeft, CaretRightIcon as ChevronRight, BarbellIcon as Dumbbell, TimerIcon as Timer, WarningIcon as AlertTriangle, PlayCircleIcon as PlayCircle } from "@phosphor-icons/react";
 
@@ -22,7 +23,7 @@ interface RoutineDetail extends RoutineCard { days: Day[] }
 function ScreenMark() {
   return (
     <span className="flex items-center gap-3">
-      <span aria-hidden="true" className="flex size-9 items-center justify-center rounded-md bg-white text-lg font-semibold text-[var(--kiosk-bg)]">F</span>
+      <BrandMark size={36} className="text-white" />
       <span className="text-lg font-semibold text-white">FitConnect</span>
     </span>
   );

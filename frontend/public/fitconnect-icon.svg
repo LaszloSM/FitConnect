@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="FitConnect">
+  <rect width="64" height="64" rx="14" fill="#251A15"/>
+  <g transform="translate(8.065 8.087) scale(0.748)">
+    <g fill="none" stroke="#FAF5F0" stroke-width="7.5" stroke-linecap="round">
+      <path d="M25.94 47.22 A16 16 0 1 1 25.94 16.78"/>
+      <path d="M38.06 47.22 A16 16 0 1 0 38.06 16.78"/>
+    </g>
+    <circle cx="32" cy="32" r="5.5" fill="#FAF5F0"/>
+  </g>
+</svg>

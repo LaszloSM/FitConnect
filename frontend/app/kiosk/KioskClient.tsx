@@ -7,6 +7,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import axios from "axios";
 import { NumericKeypad } from "@/components/kiosk/NumericKeypad";
 import { QrScanner } from "@/components/common/QrScanner";
+import { BrandMark } from "@/components/common/BrandMark";
 import { CalendarDotsIcon as CalendarClock, CheckCircleIcon as CheckCircle2, SpinnerGapIcon as Loader2, QrCodeIcon as QrCode, XCircleIcon as XCircle, WarningIcon as AlertTriangle, KeyboardIcon as Keyboard } from "@phosphor-icons/react";
 
 const TOKEN_KEY = "fitconnect_kiosk_token";
@@ -29,17 +30,9 @@ function resultTone(r: KioskResult): "ok" | "warn" | "danger" {
   return "danger";
 }
 
-/** Marca del kiosko: el kiosko es una superficie oscura fija, así que el
- *  monograma va en claro (el BrandMark del producto sigue el tema). */
+/** Marca del kiosko: superficie oscura fija, así que el isotipo va en blanco. */
 function KioskMark() {
-  return (
-    <span
-      aria-hidden="true"
-      className="flex size-9 items-center justify-center rounded-md bg-white text-lg font-semibold text-[var(--kiosk-bg)]"
-    >
-      F
-    </span>
-  );
+  return <BrandMark size={36} className="text-white" />;
 }
 
 export default function KioskClient() {
