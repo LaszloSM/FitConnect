@@ -1,6 +1,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { BrandMark } from "@/components/common/BrandMark";
+import { BrandLockup } from "@/components/common/BrandLockup";
 import { ArrowRightIcon as ArrowRight, CheckIcon as Check, DatabaseIcon as Database, KeyIcon as KeyRound, LockIcon as Lock, ScrollIcon as ScrollText } from "@phosphor-icons/react/ssr";
 
 /*
@@ -130,8 +131,7 @@ export default function LandingClient() {
       <header className="sticky top-0 z-40 border-b border-line bg-surface/90 backdrop-blur">
         <div className="mx-auto flex h-14 max-w-6xl items-center justify-between px-5">
           <Link href="/" className="flex items-center gap-2.5">
-            <BrandMark className="h-7 w-7" />
-            <span className="font-semibold">FitConnect</span>
+            <BrandLockup height={22} />
           </Link>
           <nav className="hidden items-center gap-7 text-sm text-ink-muted md:flex" aria-label="Secciones">
             <a href="#producto" className="hover:text-ink">Producto</a>

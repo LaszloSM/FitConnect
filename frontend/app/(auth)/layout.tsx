@@ -1,4 +1,4 @@
-import { BrandMark } from "@/components/common/BrandMark";
+import { BrandLockup } from "@/components/common/BrandLockup";
 
 // Vista real del producto en lugar de un eslogan: quien entra ve lo que va a
 // operar. Datos de ejemplo, marcados como tal para lectores de pantalla.
@@ -14,8 +14,7 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
     <div className="flex min-h-dvh bg-surface">
       <aside className="hidden w-[46%] max-w-[600px] flex-col justify-between border-r border-line bg-sidebar p-12 lg:flex">
         <div className="flex items-center gap-2.5">
-          <BrandMark size={28} />
-          <span className="text-base font-semibold tracking-tight text-ink">FitConnect</span>
+          <BrandLockup height={22} />
         </div>
 
         <div className="space-y-8">

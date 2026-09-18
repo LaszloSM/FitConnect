@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { BrandMark } from "@/components/common/BrandMark";
+import { BrandLockup } from "@/components/common/BrandLockup";
 
 export function AuthCardHeader({ title, subtitle }: { title: string; subtitle: string }) {
   return (
@@ -7,8 +7,7 @@ export function AuthCardHeader({ title, subtitle }: { title: string; subtitle: s
       <div className="mb-10 flex items-center justify-between lg:mb-6">
         {/* En escritorio la marca ya está en el panel lateral. */}
         <Link href="/" className="flex items-center gap-2.5 lg:hidden" aria-label="FitConnect, ir al inicio">
-          <BrandMark size={26} />
-          <span className="text-base font-semibold tracking-tight text-ink">FitConnect</span>
+          <BrandLockup height={20} />
         </Link>
         <Link href="/" className="ml-auto text-sm text-ink-muted transition-colors hover:text-ink">
           Volver al inicio

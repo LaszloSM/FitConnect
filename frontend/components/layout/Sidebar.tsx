@@ -8,6 +8,7 @@ import { CaretDoubleLeftIcon as ChevronsLeft, SignOutIcon as LogOut, XIcon as X 
 import { useSidebar } from "./SidebarContext";
 import { staffGroups, trainerGroups, isActivePath } from "./nav";
 import { BrandMark } from "@/components/common/BrandMark";
+import { BrandLockup } from "@/components/common/BrandLockup";
 import { rolLegible, useCan } from "@/lib/permissions";
 import { cn } from "@/lib/utils";
 
@@ -37,10 +38,7 @@ function SidebarBody({ collapsed, onClose }: { collapsed: boolean; onClose?: () 
   return (
     <div className="flex h-full flex-col">
       <div className={cn("flex h-14 shrink-0 items-center gap-2.5 px-4", collapsed && "justify-center px-0")}>
-        <BrandMark size={30} />
-        {!collapsed && (
-          <span className="font-display text-base font-bold tracking-[-0.02em] text-ink">FitConnect</span>
-        )}
+        {collapsed ? <BrandMark size={30} /> : <BrandLockup height={22} />}
         {onClose && (
           <button
             onClick={onClose}

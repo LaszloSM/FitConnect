@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { BrandMark } from "@/components/common/BrandMark";
+import { BrandLockup } from "@/components/common/BrandLockup";
 
 const LINKS = [
   { href: "/privacidad", label: "Privacidad" },
@@ -13,8 +13,7 @@ export default function LegalLayout({ children }: { children: React.ReactNode })
       <header className="border-b border-[var(--border-base)]">
         <div className="mx-auto max-w-3xl px-5 h-16 flex items-center justify-between">
           <Link href="/" className="flex items-center gap-2.5">
-            <BrandMark size={28} />
-            <span className="font-display font-semibold">FitConnect</span>
+            <BrandLockup height={22} />
           </Link>
           <Link href="/" className="text-sm text-[var(--text-muted)] hover:text-[var(--text-base)] transition-colors">
             Volver al inicio
