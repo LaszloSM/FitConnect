@@ -276,6 +276,8 @@ Cuando cometas un error durante una sesión, agrégalo aquí antes de terminar:
 | Capturas del recorrido e2e tapadas por el tour de bienvenida y con "Cobrado hoy" en cero | El tour se muestra en todo gym sin `tour_completed_at`, y crear un socio con `payment_method: "cash"` deja el pago **pendiente** (no cobrado) | El sembrado (`e2e/datos.ts`) marca el tour con `POST /onboarding/tour-complete` y confirma el efectivo con `PATCH /payments/{id}/mark-paid` con turno abierto |
 | La ficha del socio en móvil salía como la lista de socios, sin ningún error | El sembrado hacía un login por helper y `/auth/login` admite 10 por minuto: el token volvió nulo, la búsqueda del socio falló en silencio y la ruta cayó al respaldo `/members` | Cachear el token por email en los helpers de e2e y exigir (`expect`) cada respuesta de la que depende una ruta, en vez de caer a un valor por defecto |
 
+| Hex de marca aproximado a ojo desde un token `oklch` | Los assets estáticos (favicon, SVG sueltos) no pueden usar CSS vars, así que hay que escribir el hex; `oklch(0.545 0.185 35)` se ve "coral" pero es `#C4360C`, no `#C64F2E`. El isotipo de la app usaba `currentColor` (correcto) y el favicon habría quedado de otro naranja | Convertir el token con la fórmula OKLab→sRGB antes de escribir un hex de marca, nunca estimarlo. Los hex de `public/*.svg` y de los iconos de `app/` son copias de los tokens de `globals.css`: si la marca cambia, se regeneran |
+
 **Protocolo:** Al detectar un error que no estaba documentado, añade una fila a la tabla antes del commit.
 
 ---
