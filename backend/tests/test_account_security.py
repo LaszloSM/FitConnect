@@ -284,3 +284,14 @@ async def test_invited_admin_must_set_up_two_step(client, mfa_required, monkeypa
     _, _, admin_token = await onboard_staff(client, owner_token, role="admin")
     r = await client.get("/api/v1/members", headers=_h(admin_token))
     assert r.status_code == 403 and r.json()["detail"] == "mfa_setup_required"
+
+
+async def test_public_links_work_for_gyms_on_trial(client):
+    """Un gimnasio recién creado está en prueba: el QR de sus máquinas debe abrir."""
+    from tests.test_machines_negocio import _machine
+    email, _ = await _register(client)
+    token = (await _login(client, email)).json()["access_token"]
+    m = await _machine(client, token)
+    path = (await client.post(f"/api/v1/machines/{m['id']}/report-link", headers=_h(token))).json()["path"]
+    _, _, slug, tok = path.split("/")
+    assert (await client.get(f"/api/v1/public/machines/{slug}/{tok}")).status_code == 200

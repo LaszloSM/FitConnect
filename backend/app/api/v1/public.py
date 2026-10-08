@@ -2,8 +2,9 @@
 desde WhatsApp. El tenant se resuelve por slug como en el webhook de Wompi."""
 import re
 import uuid
+from datetime import date, datetime
 
-from fastapi import APIRouter, HTTPException, Request
+from fastapi import APIRouter, File, HTTPException, Request, UploadFile
 from fastapi.responses import Response
 from pydantic import BaseModel, Field
 from sqlalchemy import select
@@ -22,6 +23,11 @@ from app.models.tenant.receipt import Receipt
 from app.services.exports import fetch_logo_png
 from app.services.receipt_pdf import build_receipt_pdf
 from app.services.signed_links import verify
+from app.core.timeutil import today_bogota
+from app.services.audit import audit
+from app.models.tenant.member import Gender, Member
+from app.schemas.member import PARQ_REQUIRED_KEYS, MemberBase
+from app.services import member_profile
 
 router = APIRouter(prefix="/public", tags=["public"])
 
@@ -38,7 +44,7 @@ async def public_receipt_pdf(request: Request, slug: str, token: str):
     payment_id = signed.split(":", 1)[1]
     async with MasterSessionLocal() as master_db:
         tenant = (await master_db.execute(select(Tenant).where(Tenant.slug == slug))).scalar_one_or_none()
-    if not tenant or getattr(tenant.status, "value", tenant.status) != "active":
+    if not tenant or getattr(tenant.status, "value", tenant.status) == "suspended":
         raise HTTPException(status_code=404, detail="Enlace inválido o vencido")
 
     engine = get_tenant_engine(settings.tenant_database_url_template.replace("{db_name}", tenant.db_name))
@@ -70,7 +76,8 @@ class PublicFaultReport(BaseModel):
 async def _tenant_activo(slug: str) -> Tenant:
     async with MasterSessionLocal() as master_db:
         tenant = (await master_db.execute(select(Tenant).where(Tenant.slug == slug))).scalar_one_or_none()
-    if not tenant or getattr(tenant.status, "value", tenant.status) != "active":
+    # En prueba, cortesía, pago pendiente o solo lectura los enlaces siguen sirviendo.
+    if not tenant or getattr(tenant.status, "value", tenant.status) == "suspended":
         raise HTTPException(status_code=404, detail=_NO_ENCONTRADA)
     return tenant
 
@@ -126,5 +133,155 @@ async def public_machine_fault(request: Request, slug: str, token: str, payload:
             reported_by=f"{nombre} (QR)" if nombre else "Reporte por QR",
         ))
         machine.status = MachineStatus.damaged
+        await db.commit()
+    return {"ok": True}
+
+
+# ─── Enlace para que el socio complete su ficha ───
+
+_LINK_INVALIDO = "Este enlace ya no sirve: venció o ya se usó. Pídele uno nuevo a tu gimnasio."
+
+
+class PublicProfileIn(BaseModel):
+    """Solo se escriben los campos que la ficha tiene VACÍOS: un enlace reenviado
+    no sirve para cambiar lo que el gimnasio ya tiene registrado."""
+    id_number: str | None = Field(default=None, max_length=50)
+    phone: str | None = Field(default=None, max_length=50)
+    email: str | None = Field(default=None, max_length=255)
+    birth_date: date | None = None
+    gender: Gender | None = None
+    address: str | None = Field(default=None, max_length=500)
+    city: str | None = Field(default=None, max_length=100)
+    emergency_contact_name: str | None = Field(default=None, max_length=255)
+    emergency_contact_phone: str | None = Field(default=None, max_length=50)
+    eps: str | None = Field(default=None, max_length=100)
+    blood_type: str | None = Field(default=None, max_length=5)
+    parq_answers: dict | None = None
+    accept_data: bool = False
+    accept_image: bool = False
+
+
+async def _profile_link(db, token: str):
+    if not _TOKEN_OK.match(token):
+        raise HTTPException(status_code=404, detail=_LINK_INVALIDO)
+    link = await member_profile.find_link(db, token)
+    member = await db.get(Member, link.member_id) if link else None
+    if not link or not member:
+        raise HTTPException(status_code=404, detail=_LINK_INVALIDO)
+    return link, member
+
+
+@router.get("/profile/{slug}/{token}")
+@limiter.limit("30/minute")
+async def public_profile(request: Request, slug: str, token: str):
+    """Qué le falta a la ficha. No devuelve los datos que ya tiene: el enlace
+    puede terminar en otras manos y no debe mostrar nada personal."""
+    tenant = await _tenant_activo(slug)
+    async with _tenant_session(tenant) as db:
+        link, member = await _profile_link(db, token)
+        if link.opened_at is None:
+            link.opened_at = datetime.utcnow()
+            await db.commit()
+        st = member_profile.status(member)
+        return {
+            "gym_name": tenant.name,
+            "first_name": (member.full_name or "").split(" ")[0].title(),
+            "missing": st["missing"] + [k for k in st["missing_optional"] if k != "photo"],
+            "labels": st["labels"],
+            "has_photo": bool(member.photo_url),
+            "image_consent": member.consent_image_at is not None,
+            "expires_at": link.expires_at.isoformat(),
+        }
+
+
+def _norm_phone(v: str | None) -> str | None:
+    return MemberBase.normalize_colombian_phone(v) if v else v
+
+
+@router.post("/profile/{slug}/{token}")
+@limiter.limit("10/minute")
+async def public_profile_submit(request: Request, slug: str, token: str, payload: PublicProfileIn):
+    tenant = await _tenant_activo(slug)
+    async with _tenant_session(tenant) as db:
+        link, member = await _profile_link(db, token)
+        if member.consent_data_at is None and not payload.accept_data:
+            raise HTTPException(status_code=422, detail="Para guardar tus datos debes aceptar la política de tratamiento de datos.")
+        data = payload.model_dump(exclude_none=True)
+        data.pop("accept_data", None)
+        data.pop("accept_image", None)
+        if "phone" in data:
+            data["phone"] = _norm_phone(data["phone"])
+        if "emergency_contact_phone" in data:
+            data["emergency_contact_phone"] = _norm_phone(data["emergency_contact_phone"])
+        if "blood_type" in data:
+            data["blood_type"] = data["blood_type"].upper()
+            if data["blood_type"] not in {"A+", "A-", "B+", "B-", "O+", "O-", "AB+", "AB-"}:
+                raise HTTPException(status_code=422, detail="RH no válido")
+        if "email" in data:
+            data["email"] = data["email"].strip().lower()
+            if not re.match(r"^[^@\s]+@[^@\s]+\.[^@\s]+$", data["email"]):
+                raise HTTPException(status_code=422, detail="Correo no válido")
+        if "id_number" in data:
+            data["id_number"] = re.sub(r"[^0-9A-Za-z]", "", data["id_number"])
+            if member.id_number is None:
+                taken = (await db.execute(
+                    select(Member.id).where(Member.id_number == data["id_number"], Member.id != member.id)
+                )).first()
+                if taken:
+                    raise HTTPException(status_code=409, detail="Ese documento ya está registrado en el gimnasio. Acércate a recepción.")
+        parq = data.pop("parq_answers", None)
+        filled: list[str] = []
+        for key, value in data.items():
+            if isinstance(value, str):
+                value = value.strip()
+            if value in ("", None) or getattr(member, key, None):
+                continue
+            setattr(member, key, value)
+            filled.append(key)
+        if parq is not None and member.parq_completed_at is None:
+            if PARQ_REQUIRED_KEYS - {k for k, v in parq.items() if isinstance(v, bool)}:
+                raise HTTPException(status_code=422, detail="Responde las 7 preguntas del cuestionario de salud.")
+            member.parq_answers = {k: bool(parq[k]) for k in sorted(PARQ_REQUIRED_KEYS)}
+            member.parq_completed_at = today_bogota()
+            filled.append("parq")
+        now = datetime.utcnow()
+        if payload.accept_data and member.consent_data_at is None:
+            member.consent_data_at = now
+            filled.append("consent_data")
+        if payload.accept_image and member.consent_image_at is None:
+            member.consent_image_at = now
+            filled.append("consent_image")
+        link.used_at = now
+        audit(db, None, "member.profile_self_update", "member", member.id, {"fields": filled},
+              actor_name="El socio (enlace)")
+        await db.commit()
+        parq_alert = bool(parq and any(parq.values()))
+        return {"ok": True, "filled": filled, "parq_alert": parq_alert,
+                "complete": member_profile.status(member)["complete"]}
+
+
+@router.post("/profile/{slug}/{token}/photo")
+@limiter.limit("5/minute")
+async def public_profile_photo(request: Request, slug: str, token: str, file: UploadFile = File(...)):
+    """Foto de la ficha, si no tiene y el socio autoriza su imagen en este paso.
+    Va antes del envío del formulario (el enlace aún no está usado)."""
+    from app.services.storage import upload_image
+    types = {"image/jpeg": "jpg", "image/png": "png", "image/webp": "webp"}
+    ext = types.get(file.content_type or "")
+    if not ext:
+        raise HTTPException(status_code=400, detail="Usa una foto JPG, PNG o WEBP")
+    data = bytearray()
+    while chunk := await file.read(1024 * 1024):
+        data.extend(chunk)
+        if len(data) > 5 * 1024 * 1024:
+            raise HTTPException(status_code=400, detail="La foto supera 5 MB")
+    tenant = await _tenant_activo(slug)
+    async with _tenant_session(tenant) as db:
+        _, member = await _profile_link(db, token)
+        if member.photo_url:
+            raise HTTPException(status_code=409, detail="Tu ficha ya tiene foto. Si quieres cambiarla, pídelo en recepción.")
+        if member.consent_image_at is None:
+            member.consent_image_at = datetime.utcnow()
+        member.photo_url = await upload_image(bytes(data), f"members/{slug}/{member.id}.{ext}", file.content_type)
         await db.commit()
     return {"ok": True}

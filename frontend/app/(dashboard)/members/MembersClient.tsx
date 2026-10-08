@@ -45,6 +45,7 @@ import { MembershipStatusBadge } from "@/components/common/MembershipStatusBadge
 import type { TrainingGoal } from "@/lib/types";
 import { P, useCan } from "@/lib/permissions";
 import { EnrollPanel } from "@/components/access/EnrollPanel";
+import { IncompleteProfilesBanner } from "@/components/members/IncompleteProfilesBanner";
 
 const TRAINING_GOALS = [
   { value: "weight_loss", label: "Bajar de peso" },
@@ -196,6 +197,7 @@ export default function MembersClient() {
   // sin filtro, un gimnasio con diez empleados los ve mezclados en su lista.
   const [typeFilter, setTypeFilter] = useState<"" | "member" | "visitor" | "staff">("");
   const [missingIdOnly, setMissingIdOnly] = useState(false);
+  const [incompleteOnly, setIncompleteOnly] = useState(false);
   const [missingIdCount, setMissingIdCount] = useState(0);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editing, setEditing] = useState<Member | null>(null);
@@ -264,6 +266,7 @@ export default function MembersClient() {
           ...(statusFilter ? { status: statusFilter } : {}),
           ...(typeFilter ? { member_type: typeFilter } : {}),
           ...(missingIdOnly ? { missing_id_number: true } : {}),
+          ...(incompleteOnly ? { incomplete: true } : {}),
         },
       });
       setMembers(res.data);
@@ -292,6 +295,7 @@ export default function MembersClient() {
         ...(statusFilter ? { status: statusFilter } : {}),
         ...(typeFilter ? { member_type: typeFilter } : {}),
         ...(missingIdOnly ? { missing_id_number: true } : {}),
+        ...(incompleteOnly ? { incomplete: true } : {}),
       },
     }).then((res) => {
       if (!cancelled) {
@@ -306,7 +310,7 @@ export default function MembersClient() {
       if (!cancelled) setLoading(false);
     });
     return () => { cancelled = true; };
-  }, [session?.accessToken, search, statusFilter, typeFilter, missingIdOnly]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [session?.accessToken, search, statusFilter, typeFilter, missingIdOnly, incompleteOnly]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // Contador para el banner de miembros antiguos sin cédula
   useEffect(() => {
@@ -1027,6 +1031,12 @@ export default function MembersClient() {
         </div>
       )}
 
+      <IncompleteProfilesBanner
+        active={incompleteOnly}
+        onToggle={() => setIncompleteOnly((v) => !v)}
+        canSend={can(P.MEMBERS_WRITE)}
+      />
+
       <GlassCard className="p-4">
         <div className="flex flex-wrap gap-3 mb-4">
           <div className="relative flex-1 min-w-[200px]">
@@ -1111,7 +1121,7 @@ export default function MembersClient() {
                   <TableCell colSpan={8}>
                     {/* Con un filtro puesto, "crea tu primer miembro" es falso:
                         el gimnasio sí tiene socios, solo que ninguno encaja. */}
-                    {search || statusFilter || typeFilter || missingIdOnly ? (
+                    {search || statusFilter || typeFilter || missingIdOnly || incompleteOnly ? (
                       <EmptyState
                         title="Ningún socio coincide"
                         description={

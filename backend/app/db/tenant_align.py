@@ -435,4 +435,27 @@ L2_DOS_PASOS: list[str] = [
     "ALTER TABLE users ADD COLUMN IF NOT EXISTS backup_codes JSONB NULL",
 ]
 
-ALIGN_STATEMENTS: list[str] = [*J1_INGRESOS_PASE_TRANSFERENCIAS, *J2_INVENTARIO, *J4_CONSENTIMIENTOS, *J6_ACCESO, *J7_VIDEO_EJERCICIOS, *J8_GYM_SETTINGS_FLAGS, *K1_LIBRO_MOVIMIENTOS, *K2_MENSAJERIA, *K3_ENTRENADORES, *K4_MAQUINAS, *K5_STAFF_SOCIO, *K6_CAJA, *K7_MANTENIMIENTO, *K8_MODELOS, *K9_IMPORTACION, *K10_TORNIQUETE, *L2_DOS_PASOS]
+L3_PERFIL: list[str] = [
+    # l3c4d5e6f7a8_enlaces_de_perfil.py
+    # Enlaces para que el socio complete sus datos (WhatsApp, correo, app).
+    """CREATE TABLE IF NOT EXISTS profile_links (
+        id UUID PRIMARY KEY,
+        member_id UUID NOT NULL REFERENCES members(id) ON DELETE CASCADE,
+        token_hash VARCHAR(64) NOT NULL,
+        channel VARCHAR(20) NOT NULL,
+        expires_at TIMESTAMP NOT NULL,
+        used_at TIMESTAMP NULL,
+        opened_at TIMESTAMP NULL,
+        created_by UUID NULL REFERENCES users(id),
+        created_at TIMESTAMP NOT NULL DEFAULT now(),
+        updated_at TIMESTAMP NOT NULL DEFAULT now()
+    )""",
+    """DO $$ BEGIN
+        IF NOT EXISTS (SELECT 1 FROM pg_constraint WHERE conname = 'profile_links_token_hash_key') THEN
+            ALTER TABLE profile_links ADD CONSTRAINT profile_links_token_hash_key UNIQUE (token_hash);
+        END IF;
+    END $$""",
+    "CREATE INDEX IF NOT EXISTS ix_profile_links_member_id ON profile_links (member_id)",
+]
+
+ALIGN_STATEMENTS: list[str] = [*J1_INGRESOS_PASE_TRANSFERENCIAS, *J2_INVENTARIO, *J4_CONSENTIMIENTOS, *J6_ACCESO, *J7_VIDEO_EJERCICIOS, *J8_GYM_SETTINGS_FLAGS, *K1_LIBRO_MOVIMIENTOS, *K2_MENSAJERIA, *K3_ENTRENADORES, *K4_MAQUINAS, *K5_STAFF_SOCIO, *K6_CAJA, *K7_MANTENIMIENTO, *K8_MODELOS, *K9_IMPORTACION, *K10_TORNIQUETE, *L2_DOS_PASOS, *L3_PERFIL]

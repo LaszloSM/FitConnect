@@ -1,5 +1,6 @@
 import json
 import uuid
+from typing import Literal
 from fastapi import APIRouter, Depends, File, Form, HTTPException, Query, UploadFile
 from fastapi.responses import Response
 from pydantic import BaseModel
@@ -27,7 +28,7 @@ from sqlalchemy.exc import IntegrityError
 from app.core.timeutil import today_bogota
 from app.services.gym_settings import get_gym_settings
 from app.services.membership_status import effective_status
-from app.services import member_import
+from app.services import member_import, member_profile
 from app.services.audit import audit
 from app.services.storage import resolve_media_url, delete_object, scoped_key
 
@@ -82,6 +83,7 @@ async def list_members(
     missing_id_number: bool = Query(False, description="Solo miembros sin cédula registrada"),
     id_number: str | None = Query(None, description="Cédula exacta (lookup del pase del día)"),
     member_type: str | None = Query(None, description="member | visitor"),
+    incomplete: bool = Query(False, description="Solo fichas a las que les falta algo obligatorio"),
     limit: int = Query(50, ge=1, le=200),
     offset: int = Query(0, ge=0),
     solo_mios: uuid.UUID | None = Depends(trainer_scope),
@@ -106,6 +108,9 @@ async def list_members(
         stmt = stmt.where(Member.id_number == id_number.strip())
     if member_type:
         stmt = stmt.where(Member.member_type == member_type)
+    if incomplete:
+        # Mismo criterio que el contador (profile-summary): solo socios, no personal ni visitantes.
+        stmt = stmt.where(Member.member_type == "member", member_profile.incomplete_condition())
     stmt = stmt.order_by(Member.created_at.desc()).limit(limit).offset(offset)
     result = await db.execute(stmt)
     members = result.scalars().all()
@@ -736,6 +741,22 @@ async def record_consent(
     return {"consent_data_at": member.consent_data_at, "consent_image_at": member.consent_image_at, "photo_url": resolve_media_url(member.photo_url) if member.photo_url else None}
 
 
+@router.get("/profile-summary")
+async def profile_summary(
+    db: AsyncSession = Depends(get_tenant_db_from_token),
+    solo_mios: uuid.UUID | None = Depends(trainer_scope),
+):
+    """Cuántas fichas están incompletas y a cuántas se les puede escribir."""
+    base = select(func.count()).select_from(Member).where(
+        Member.member_type == "member", member_profile.incomplete_condition())
+    if solo_mios is not None:
+        base = base.where(Member.trainer_id == solo_mios)
+    total = (await db.execute(base)).scalar_one()
+    with_phone = (await db.execute(base.where(Member.phone.is_not(None)))).scalar_one()
+    with_email = (await db.execute(base.where(Member.email.is_not(None)))).scalar_one()
+    return {"incomplete": total, "with_phone": with_phone, "with_email": with_email}
+
+
 @router.get("/{member_id}", response_model=MemberResponse)
 async def get_member(
     member_id: uuid.UUID,
@@ -825,3 +846,108 @@ async def delete_member(
     await db.delete(member)
     await db.commit()
     return None
+
+
+# ─── Completar la ficha por enlace (WhatsApp, correo, app) ──────────────────
+
+class ProfileLinkRequest(BaseModel):
+    channel: Literal["whatsapp", "email", "copy"]
+
+
+class BulkProfileLinksRequest(BaseModel):
+    channel: Literal["whatsapp", "email"]
+    limit: int = 100
+
+
+async def _send_profile_link(db, member: Member, channel: str, url: str, gym_name: str) -> tuple[bool, str | None]:
+    """Encola o envía el enlace. Devuelve (enviado, motivo si no)."""
+    text = member_profile.message_text(member, gym_name, url)
+    if channel == "whatsapp":
+        if not member.phone:
+            return False, "El socio no tiene celular registrado"
+        from app.services.events import emit_announcement
+        await emit_announcement(
+            db, idempotency_key=f"profile-link:{uuid.uuid4().hex}", title="Completa tus datos",
+            message=text, member_id=member.id, phone=member.phone,
+        )
+        return True, None
+    if channel == "email":
+        if not member.email:
+            return False, "El socio no tiene correo registrado"
+        from app.services import mailer
+        await mailer.send(member.email, f"{gym_name}: completa tus datos", text)
+        return True, None
+    return False, None
+
+
+@router.get("/{member_id}/profile-status", dependencies=[Depends(ensure_member_visible)])
+async def profile_status(member_id: uuid.UUID, db: AsyncSession = Depends(get_tenant_db_from_token)):
+    member = await db.get(Member, member_id)
+    if not member:
+        raise HTTPException(status_code=404, detail="Miembro no encontrado")
+    from app.models.tenant.profile_link import ProfileLink
+    last = (await db.execute(
+        select(ProfileLink).where(ProfileLink.member_id == member_id).order_by(ProfileLink.created_at.desc()).limit(1)
+    )).scalar_one_or_none()
+    return {
+        **member_profile.status(member),
+        "last_link": {
+            "channel": last.channel, "created_at": last.created_at.isoformat(),
+            "opened_at": last.opened_at.isoformat() if last.opened_at else None,
+            "used_at": last.used_at.isoformat() if last.used_at else None,
+            "expires_at": last.expires_at.isoformat(),
+        } if last else None,
+    }
+
+
+@router.post("/{member_id}/profile-link", dependencies=[Depends(require_perm(perm.MEMBERS_WRITE))])
+async def send_profile_link(
+    member_id: uuid.UUID,
+    payload: ProfileLinkRequest,
+    db: AsyncSession = Depends(get_tenant_db_from_token),
+    current_user: UserStaff = Depends(get_current_staff),
+    tenant: Tenant = Depends(get_tenant_from_claims),
+):
+    """Enlace personal para que el socio complete su ficha. "copy" solo lo
+    devuelve para pegarlo donde recepción quiera."""
+    member = await db.get(Member, member_id)
+    if not member:
+        raise HTTPException(status_code=404, detail="Miembro no encontrado")
+    gym = await get_gym_settings(db)
+    gym_name = getattr(gym, "legal_name", None) or tenant.name
+    link, token = await member_profile.create_link(db, member, channel=payload.channel, created_by=current_user.id)
+    url = member_profile.link_url(tenant.slug, token)
+    sent, reason = await _send_profile_link(db, member, payload.channel, url, gym_name)
+    if payload.channel != "copy" and not sent:
+        raise HTTPException(status_code=409, detail=reason)
+    audit(db, current_user, "member.profile_link", "member", member.id, {"channel": payload.channel})
+    await db.commit()
+    return {"url": url, "expires_at": link.expires_at.isoformat(), "sent": sent,
+            "message": member_profile.message_text(member, gym_name, url)}
+
+
+@router.post("/profile-links/bulk", dependencies=[Depends(require_perm(perm.MEMBERS_WRITE))])
+async def send_profile_links_bulk(
+    payload: BulkProfileLinksRequest,
+    db: AsyncSession = Depends(get_tenant_db_from_token),
+    current_user: UserStaff = Depends(get_current_staff),
+    tenant: Tenant = Depends(get_tenant_from_claims),
+):
+    """Envía el enlace a los socios con la ficha incompleta que tengan ese canal.
+    A quien ya se le mandó uno en los últimos 3 días no se le vuelve a mandar."""
+    limit = max(1, min(payload.limit, member_profile.BULK_MAX))
+    gym = await get_gym_settings(db)
+    gym_name = getattr(gym, "legal_name", None) or tenant.name
+    members = await member_profile.bulk_candidates(db, payload.channel, limit)
+    sent = 0
+    for member in members:
+        _, token = await member_profile.create_link(db, member, channel=payload.channel, created_by=current_user.id)
+        ok, _ = await _send_profile_link(db, member, payload.channel, member_profile.link_url(tenant.slug, token), gym_name)
+        sent += int(ok)
+    remaining = (await db.execute(
+        select(func.count()).select_from(Member).where(
+            Member.member_type == "member", member_profile.incomplete_condition())
+    )).scalar_one()
+    audit(db, current_user, "member.profile_links_bulk", "member", None, {"channel": payload.channel, "sent": sent})
+    await db.commit()
+    return {"sent": sent, "incomplete_total": remaining}

@@ -1074,11 +1074,12 @@ async def apply(db: AsyncSession, data: bytes, file_name: Optional[str], raw_opt
     db.add(batch)
     await db.flush()
 
-    now = utcnow_naive()
     changes: list[dict] = []
     for plan in plans:
         if plan.action == "create":
-            member = Member(**plan.values, consent_data_at=now, import_batch_id=batch.id)
+            # Sin consent_data_at: la autorización del sistema anterior no consta aquí.
+            # Se le pide al socio con el enlace de completar datos (member_profile).
+            member = Member(**plan.values, import_batch_id=batch.id)
             db.add(member)
             await db.flush()
             entry: dict[str, Any] = {"member_id": str(member.id), "created": True, "memberships": []}

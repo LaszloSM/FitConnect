@@ -39,6 +39,7 @@ from app.models.tenant.announcement import Announcement
 from app.models.tenant.import_batch import ImportBatch
 from app.models.tenant.device_command import DeviceCommand
 from app.models.tenant.device_user import DeviceUser
+from app.models.tenant.profile_link import ProfileLink
 
 __all__ = [
     "UserStaff", "UserRole",
@@ -81,4 +82,5 @@ __all__ = [
     "BiometricConsent", "MemberCredential", "AccessEvent",
     "ImportBatch",
     "DeviceCommand", "DeviceUser",
+    "ProfileLink",
 ]

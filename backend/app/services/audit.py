@@ -12,12 +12,13 @@ def audit(
     entity_type: str | None = None,
     entity_id: uuid.UUID | str | None = None,
     details: dict | None = None,
+    actor_name: str | None = None,
 ) -> None:
     """Agrega un registro de auditoría a la sesión (sin commit: viaja en la
     misma transacción que la operación que audita)."""
     db.add(AuditLog(
         actor_staff_id=actor.id if actor else None,
-        actor_name=actor.full_name if actor else "sistema",
+        actor_name=actor.full_name if actor else (actor_name or "sistema"),
         action=action,
         entity_type=entity_type,
         entity_id=str(entity_id) if entity_id else None,
