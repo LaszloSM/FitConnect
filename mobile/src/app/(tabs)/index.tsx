@@ -1,5 +1,5 @@
 import { router } from "expo-router";
-import { CaretRightIcon, CloudSlashIcon, IdentificationCardIcon, MegaphoneIcon, QrCodeIcon, UsersIcon } from "phosphor-react-native";
+import { CaretRightIcon, ChatCircleDotsIcon, CloudSlashIcon, IdentificationCardIcon, MegaphoneIcon, QrCodeIcon, UsersIcon } from "phosphor-react-native";
 import { Pressable, View } from "react-native";
 
 import { Button, Card, Chip, Empty, Notice, Num, Screen, Section, Title, Txt } from "@/components/ui";
@@ -146,6 +146,17 @@ export default function Home() {
           ) : null}
         </>
       ) : null}
+
+      <Card style={{ marginTop: space.xl }} onPress={() => router.push("/assistant")} accessibilityLabel="Abrir el asistente">
+        <View style={{ flexDirection: "row", alignItems: "center", gap: space.md }}>
+          <ChatCircleDotsIcon size={26} color={c.brandInk} />
+          <View style={{ flex: 1, gap: 2 }}>
+            <Txt weight="semi">Pregúntale al asistente</Txt>
+            <Txt muted size={13}>Planes de entreno y de comidas con base en evidencia</Txt>
+          </View>
+          <CaretRightIcon size={18} color={c.inkMuted} />
+        </View>
+      </Card>
     </Screen>
   );
 }

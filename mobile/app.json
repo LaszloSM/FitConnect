@@ -32,6 +32,13 @@
       "expo-router",
       "expo-secure-store",
       [
+        "expo-camera",
+        {
+          "cameraPermission": "FitConnect usa la cámara para leer el código de barras de los alimentos.",
+          "recordAudioAndroid": false
+        }
+      ],
+      [
         "expo-notifications",
         {
           "color": "#C4360C"

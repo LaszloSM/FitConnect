@@ -58,6 +58,38 @@ El código está en `mobile/` (cómo correrla y publicarla: `mobile/README.md`).
 - Códigos de entrada: 6 dígitos, 10 minutos, 5 intentos, máximo 5 por hora por correo.
 - Todo lo de un gimnasio exige que el vínculo sea de quien pregunta: uno ajeno responde 404.
 
+## Nutrición
+
+- **Metas del día** (pestaña Comer): gasto en reposo con Mifflin-St Jeor × nivel de actividad;
+  déficit del 20 % para bajar grasa, superávit del 10 % para ganar músculo. Proteína según la
+  ISSN y Morton 2018 (sobre el peso de referencia de IMC 25 si hay obesidad), grasa 25 %,
+  carbohidratos el resto, agua ~35 ml/kg. Nunca por debajo del gasto en reposo ni del piso
+  por sexo (1200 / 1500 kcal). Solo mayores de 18 y con la autorización de datos de salud.
+  Código: `backend/app/services/nutrition.py`, pruebas en `tests/test_nutrition.py`.
+- **Alimentos**: 50 alimentos comunes en Colombia con valores aproximados de USDA FoodData
+  Central (`backend/app/data/foods_reference.json`), código de barras con Open Food Facts
+  (el producto se guarda la primera vez) y alimentos propios que solo ve quien los crea.
+- **Registro**: por comida del día, también sin señal (se sube después sin duplicar).
+
+## Asistente
+
+- Usa la API de Claude (`ANTHROPIC_API_KEY`, modelo en `ASSISTANT_MODEL`, por defecto
+  `claude-sonnet-5-5`). Sin llave, la app lo muestra como no disponible.
+- Responde desde una base de conocimiento curada y citada (OMS, ACSM, ISSN, metaanálisis de
+  Schoenfeld y Morton) en `backend/app/services/assistant.py`.
+- Cuando la persona pide un plan, el modelo llama una herramienta y el servidor valida el plan
+  antes de guardarlo: un plan de comidas por debajo del mínimo seguro vuelve al modelo para que
+  lo corrija. Los planes se ven como agenda (comidas con hora y calorías, días de entreno con
+  ejercicios), se pueden pausar, borrar o editar, los de comidas pueden programar
+  recordatorios en el celular y los de entreno se registran serie a serie.
+- Guardas: mensajes de crisis reciben una respuesta fija con el 123 y la Línea 192 opción 4
+  sin llamar al modelo; señales de trastorno alimentario o de alarma médica apagan los planes
+  y remiten a un profesional; PAR-Q con respuestas afirmativas pide planes conservadores;
+  solo mayores de 18; 30 mensajes por día.
+- **Probado con un modelo simulado** (`tests/test_app_assistant.py`). Antes de abrirlo al
+  público hay que probarlo con la llave real y revisar las respuestas con un profesional de
+  la salud y un abogado.
+
 ## Pendiente
 
 - Publicar en las tiendas (requiere cuenta de EAS, Apple Developer y Google Play).
@@ -65,4 +97,5 @@ El código está en `mobile/` (cómo correrla y publicarla: `mobile/README.md`).
   revisarlo con un abogado.
 - QR de la app en el agente local del torniquete sin internet: hoy el torniquete lo valida en
   línea; sin red, el socio entra con cara, huella o documento.
-- Nutrición y asistente (fase 4).
+- Tabla de composición del ICBF completa (hoy: 50 alimentos de referencia aproximados).
+- Estimación de una comida por foto (requiere el modelo con visión y la llave real).

@@ -220,6 +220,7 @@ export const Field = forwardRef<TextInput, TextInputProps & { label: string; hin
         <Text style={{ fontFamily: fonts.bodySemi, fontSize: 14, color: c.ink }}>{label}</Text>
         <TextInput
           ref={ref}
+          accessibilityLabel={label}
           placeholderTextColor={c.inkMuted}
           style={[
             {

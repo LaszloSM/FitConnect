@@ -1,5 +1,5 @@
 import { Tabs } from "expo-router";
-import { BarbellIcon, CalendarIcon, HouseIcon, UserIcon } from "phosphor-react-native";
+import { BarbellIcon, CalendarIcon, ForkKnifeIcon, HouseIcon, UserIcon } from "phosphor-react-native";
 
 import { fonts, useColors } from "@/lib/theme";
 
@@ -25,6 +25,10 @@ export default function TabsLayout() {
       <Tabs.Screen
         name="train"
         options={{ title: "Entrenar", tabBarIcon: ({ color, focused }) => <BarbellIcon color={String(color)} size={24} weight={focused ? "fill" : "regular"} /> }}
+      />
+      <Tabs.Screen
+        name="eat"
+        options={{ title: "Comer", tabBarIcon: ({ color, focused }) => <ForkKnifeIcon color={String(color)} size={24} weight={focused ? "fill" : "regular"} /> }}
       />
       <Tabs.Screen
         name="profile"

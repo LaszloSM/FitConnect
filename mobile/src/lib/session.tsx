@@ -3,6 +3,8 @@ import { createContext, useCallback, useContext, useEffect, useMemo, useState, t
 import { api, clearTokens, currentRefreshToken, loadTokens, OfflineError, saveTokens, setSessionEndHandler } from "./api";
 import { cache, secure } from "./storage";
 import type { GymRef, Me } from "./types";
+import { syncMeals } from "./meals";
+import { clearAllReminders } from "./reminders";
 import { syncWorkouts } from "./workouts";
 
 type Status = "loading" | "signedOut" | "signedIn";
@@ -31,6 +33,7 @@ export function SessionProvider({ children }: { children: ReactNode }) {
 
   const forget = useCallback(async () => {
     await clearTokens();
+    await clearAllReminders();
     await cache.clearAll();
     await secure.del(GYM_KEY);
     setMe(null);
@@ -45,6 +48,7 @@ export function SessionProvider({ children }: { children: ReactNode }) {
       setOffline(false);
       await cache.set(ME_KEY, fresh);
       void syncWorkouts();
+      void syncMeals();
     } catch (e) {
       if (!(e instanceof OfflineError)) throw e;
       setOffline(true);

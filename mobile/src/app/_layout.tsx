@@ -59,6 +59,11 @@ function Routes({ fontsLoaded }: { fontsLoaded: boolean }) {
           <Stack.Screen name="gym-profile" options={{ headerShown: true, title: "Mis datos en el gimnasio" }} />
           <Stack.Screen name="payments" options={{ headerShown: true, title: "Pagos y renovación" }} />
           <Stack.Screen name="body" options={{ headerShown: true, title: "Mis medidas" }} />
+          <Stack.Screen name="add-food" options={{ headerShown: true, title: "Agregar alimento" }} />
+          <Stack.Screen name="scan" options={{ headerShown: true, title: "Escanear" }} />
+          <Stack.Screen name="assistant" options={{ headerShown: true, title: "Asistente" }} />
+          <Stack.Screen name="plans" options={{ headerShown: true, title: "Mis planes" }} />
+          <Stack.Screen name="plan/[id]" options={{ headerShown: true, title: "Plan" }} />
         </Stack.Protected>
         <Stack.Protected guard={!signedIn}>
           <Stack.Screen name="login" />

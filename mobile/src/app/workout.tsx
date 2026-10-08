@@ -10,7 +10,7 @@ import { api } from "@/lib/api";
 import { useSession } from "@/lib/session";
 import { cache } from "@/lib/storage";
 import { fonts, radius, space, useColors } from "@/lib/theme";
-import type { Routine, Workout, WorkoutEntry } from "@/lib/types";
+import type { Routine, SavedPlan, Workout, WorkoutEntry } from "@/lib/types";
 import { saveWorkout } from "@/lib/workouts";
 
 const DRAFT = "q:draft-workout";
@@ -56,7 +56,7 @@ function NumInput({ value, onChange, label, suffix }: { value: number | null; on
 }
 
 export default function WorkoutScreen() {
-  const { day } = useLocalSearchParams<{ day?: string }>();
+  const { day, planId, weekday } = useLocalSearchParams<{ day?: string; planId?: string; weekday?: string }>();
   const { gym } = useSession();
   const c = useColors();
   const [workout, setWorkout] = useState<Workout | null>(null);
@@ -79,7 +79,16 @@ export default function WorkoutScreen() {
       let entries: WorkoutEntry[] = [];
       let title = "Entreno libre";
       let routineRef: Workout["routine_ref"] = null;
-      if (day !== undefined && gym) {
+      if (planId && weekday !== undefined) {
+        const saved = await cache.get<SavedPlan>(`/api/v1/me/plans/${planId}`);
+        const p = saved?.value;
+        const d = p?.kind === "training" ? p.data.days.find((x) => String(x.weekday) === weekday) : undefined;
+        if (p && d) {
+          title = `${p.title} · ${d.title}`;
+          routineRef = { plan_id: p.id, weekday: d.weekday };
+          entries = d.exercises.map((e) => ({ exercise_id: null, exercise_name: e.name, sets: emptySets(e.sets, e.reps) }));
+        }
+      } else if (day !== undefined && gym) {
         const saved = await cache.get<{ routine: Routine | null }>(`/api/v1/me/gyms/${gym.link_id}/routine`);
         const r = saved?.value.routine;
         const d = r?.days.find((x) => String(x.day_index) === day);
@@ -94,13 +103,13 @@ export default function WorkoutScreen() {
         title,
         started_at: new Date().toISOString(),
         ended_at: null,
-        source: routineRef ? "gym_routine" : "free",
+        source: routineRef && !planId ? "gym_routine" : "free",
         routine_ref: routineRef,
         entries,
         notes: null,
       });
     })();
-  }, [day, gym]);
+  }, [day, gym, planId, weekday]);
 
   useEffect(() => {
     if (workout) void AsyncStorage.setItem(DRAFT, JSON.stringify(workout));

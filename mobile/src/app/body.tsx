@@ -16,6 +16,14 @@ const GOALS: { value: NonNullable<Profile["goal"]>; label: string }[] = [
   { value: "health", label: "Salud" },
 ];
 
+const ACTIVITY: { value: string; label: string }[] = [
+  { value: "sedentary", label: "Casi nada" },
+  { value: "light", label: "1 a 3 días" },
+  { value: "moderate", label: "3 a 5 días" },
+  { value: "active", label: "6 a 7 días" },
+  { value: "very_active", label: "Intenso a diario" },
+];
+
 const SEX: { value: NonNullable<Profile["sex"]>; label: string }[] = [
   { value: "female", label: "Mujer" },
   { value: "male", label: "Hombre" },
@@ -50,6 +58,7 @@ export default function Body() {
   const [birth, setBirth] = useState(p?.birth_date ?? "");
   const [sex, setSex] = useState<Profile["sex"]>(p?.sex ?? null);
   const [goal, setGoal] = useState<Profile["goal"]>(p?.goal ?? null);
+  const [activity, setActivity] = useState<string | null>(p?.activity_level ?? null);
   const [height, setHeight] = useState(p?.height_cm ? String(p.height_cm) : "");
   const [weight, setWeight] = useState(p?.weight_kg ? String(p.weight_kg) : "");
   const [error, setError] = useState<string | null>(null);
@@ -71,6 +80,7 @@ export default function Body() {
           birth_date: birth || null,
           sex,
           goal,
+          activity_level: activity,
           ...(health ? { height_cm: height ? Number(height) : null, weight_kg: weight ? Number(weight.replace(",", ".")) : null } : {}),
         },
       });
@@ -92,6 +102,8 @@ export default function Body() {
       <Choice options={SEX} value={sex} onChange={setSex} />
       <Section>Objetivo</Section>
       <Choice options={GOALS} value={goal} onChange={setGoal} />
+      <Section>¿Cuánto ejercicio haces por semana?</Section>
+      <Choice options={ACTIVITY} value={activity} onChange={setActivity} />
 
       <Section>Peso y talla</Section>
       {health ? (
