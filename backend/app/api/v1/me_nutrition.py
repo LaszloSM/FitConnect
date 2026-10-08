@@ -80,13 +80,13 @@ class FoodIn(BaseModel):
 
 @router.post("/foods", status_code=201)
 async def create_food(payload: FoodIn, user: AppUser = Depends(get_app_user)):
-    """Alimento propio (por 100 g, como en la etiqueta). Solo lo ve quien lo crea."""
+    """Alimento propio (por 100 g, como en la etiqueta). Solo lo ve quien lo crea.
+    No guarda el código de barras: ese código es global y un alimento privado no
+    puede aparecerle a otra persona que escanee el mismo producto."""
     if payload.protein_g + payload.carbs_g + payload.fat_g > 100:
         raise HTTPException(status_code=422, detail="Proteína, carbohidratos y grasa no pueden sumar más de 100 g por cada 100 g.")
     async with app_session() as adb:
-        if payload.barcode and (await adb.execute(select(Food.id).where(Food.barcode == payload.barcode))).first():
-            payload.barcode = None
-        food = Food(source="custom", owner_id=user.id, **payload.model_dump())
+        food = Food(source="custom", owner_id=user.id, **payload.model_dump(exclude={"barcode"}))
         adb.add(food)
         await adb.commit()
         return foods.out(food)

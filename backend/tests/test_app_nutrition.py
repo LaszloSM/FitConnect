@@ -97,3 +97,18 @@ def test_open_food_facts_energy_in_kj_is_converted():
                                                                  "nutriments": {"energy_100g": 2092}}})
     assert food["kcal"] == 500.0
     assert foods.parse_off("12345678", {"status": 0}) is None
+
+
+async def test_a_private_food_never_answers_someone_elses_scan(client, monkeypatch):
+    h = await _ready_user(client)
+    code = str(7701000000000 + uuid.uuid4().int % 99999)
+    mine = await client.post("/api/v1/me/foods", json={"name": "Mi receta secreta", "kcal": 300, "barcode": code},
+                             headers=h)
+    assert mine.status_code == 201 and mine.json()["barcode"] is None
+
+    async def nothing(c):
+        return None
+
+    monkeypatch.setattr(foods, "fetch_off", nothing)
+    other = await _ready_user(client)
+    assert (await client.get(f"/api/v1/me/foods/barcode/{code}", headers=other)).status_code == 404

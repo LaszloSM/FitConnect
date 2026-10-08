@@ -11,6 +11,7 @@ from typing import Optional
 
 import httpx
 from sqlalchemy import func, or_, select, text
+from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.models.app import Food
@@ -101,7 +102,7 @@ async def fetch_off(code: str) -> Optional[dict]:
 async def by_barcode(db: AsyncSession, code: str) -> Optional[Food]:
     if not re.fullmatch(r"\d{8,14}", code):
         return None
-    found = (await db.execute(select(Food).where(Food.barcode == code))).scalar_one_or_none()
+    found = (await db.execute(select(Food).where(Food.barcode == code, Food.owner_id.is_(None)))).scalar_one_or_none()
     if found:
         return found
     data = await fetch_off(code)
@@ -109,5 +110,10 @@ async def by_barcode(db: AsyncSession, code: str) -> Optional[Food]:
         return None
     food = Food(**data)
     db.add(food)
-    await db.commit()
+    try:
+        await db.commit()
+    except IntegrityError:
+        # Dos personas escanearon el mismo producto nuevo a la vez: gana la primera.
+        await db.rollback()
+        return (await db.execute(select(Food).where(Food.barcode == code))).scalar_one_or_none()
     return food
