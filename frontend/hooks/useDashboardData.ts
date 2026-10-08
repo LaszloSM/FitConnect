@@ -68,7 +68,7 @@ export interface DashboardData {
     id: string; transfer_reference: string | null;
     member_name: string | null; amount: number; elapsed_minutes: number;
   }[];
-  receivables: { member_id: string; amount_due: number; days_overdue: number }[];
+  receivables: { member_id: string; amount_due: number | null; days_overdue: number }[];
   todayClasses: Record<string, unknown>[];
   operations: OperationsData | null;
   shift: ShiftInfo | null;

@@ -36,6 +36,9 @@ class MemberBase(BaseModel):
     status: MemberStatus = MemberStatus.active
     notes: Optional[str] = Field(default=None, max_length=1000)
     trainer_id: Optional[uuid.UUID] = None
+    eps: Optional[str] = Field(default=None, max_length=100)
+    expectation: Optional[str] = Field(default=None, max_length=500)
+    access_by_document: bool = False
 
     @field_validator("phone", "emergency_contact_phone", mode="before")
     @classmethod
@@ -129,6 +132,9 @@ class MemberUpdate(BaseModel):
     status: Optional[MemberStatus] = None
     notes: Optional[str] = Field(default=None, max_length=1000)
     trainer_id: Optional[uuid.UUID] = None
+    eps: Optional[str] = Field(default=None, max_length=100)
+    expectation: Optional[str] = Field(default=None, max_length=500)
+    access_by_document: Optional[bool] = None
 
 
 class MemberResponse(MemberBase):

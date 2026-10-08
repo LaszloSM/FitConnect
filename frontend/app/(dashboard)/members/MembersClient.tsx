@@ -43,6 +43,7 @@ import {
 import { PlusIcon as Plus, MagnifyingGlassIcon as Search, PencilSimpleIcon as Pencil, TrashIcon as Trash2, WarningCircleIcon as AlertCircle, QrCodeIcon as QrCode, XIcon as X, TagIcon as Tag, ClockIcon as Clock, CheckCircleIcon as CheckCircle2, DownloadSimpleIcon as Download, CheckIcon as Check, UserIcon as User, HeartbeatIcon as HeartPulse, CreditCardIcon as CreditCard } from "@phosphor-icons/react";
 import { MembershipStatusBadge } from "@/components/common/MembershipStatusBadge";
 import type { TrainingGoal } from "@/lib/types";
+import { P, useCan } from "@/lib/permissions";
 
 const TRAINING_GOALS = [
   { value: "weight_loss", label: "Bajar de peso" },
@@ -72,6 +73,9 @@ const memberSchema = z.object({
   photo_url: z.string().optional(),
   parq_answers: z.record(z.string(), z.boolean()).optional(),
   parq_completed_at: z.string().optional(),
+  eps: z.string().max(100).optional(),
+  expectation: z.string().max(500).optional(),
+  access_by_document: z.boolean().optional(),
 });
 
 interface Member {
@@ -98,6 +102,9 @@ interface Member {
   parq_answers: Record<string, boolean> | null;
   parq_completed_at: string | null;
   qr_code: string | null;
+  eps: string | null;
+  expectation: string | null;
+  access_by_document: boolean;
   // Populated by backend list endpoint
   membership_status: "active" | "expired" | "none" | null;
   membership_end_date: string | null;
@@ -137,6 +144,9 @@ type FormState = {
   blood_type: string;
   photo_url: string;
   parq_answers: Record<string, boolean>;
+  eps: string;
+  expectation: string;
+  access_by_document: boolean;
 };
 
 const WIZARD_STEPS = [
@@ -164,11 +174,15 @@ const emptyForm: FormState = {
   blood_type: "",
   photo_url: "",
   parq_answers: {},
+  eps: "",
+  expectation: "",
+  access_by_document: false,
 };
 
 export default function MembersClient() {
   const { data: session } = useSession();
   const router = useRouter();
+  const { can } = useCan();
   const [members, setMembers] = useState<Member[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -405,6 +419,9 @@ export default function MembersClient() {
       blood_type: member.blood_type || "",
       photo_url: member.photo_url || "",
       parq_answers: member.parq_answers || {},
+      eps: member.eps || "",
+      expectation: member.expectation || "",
+      access_by_document: Boolean(member.access_by_document),
     });
     setDialogOpen(true);
   };
@@ -453,6 +470,8 @@ export default function MembersClient() {
       gender: form.gender || undefined,
       training_goal: form.training_goal || undefined,
       blood_type: form.blood_type || undefined,
+      eps: form.eps.trim() || undefined,
+      expectation: form.expectation.trim() || undefined,
       // No persistir blobs locales ni URLs firmadas (el backend guarda la key)
       photo_url: form.photo_url.startsWith("blob:") || form.photo_url.startsWith("http") ? undefined : form.photo_url || undefined,
       parq_completed_at: Object.keys(form.parq_answers).length > 0 ? todayISO() : undefined,
@@ -649,6 +668,26 @@ export default function MembersClient() {
           </select>
         </div>
         <div className="space-y-2">
+          <Label htmlFor="eps" className="text-[var(--text-muted)] text-sm">EPS</Label>
+          <Input id="eps" value={form.eps} maxLength={100} onChange={(e) => setForm({ ...form, eps: e.target.value })} placeholder="Ej. Sura, Nueva EPS, Sanitas" className={inputCls} />
+        </div>
+        <div className="space-y-2">
+          <Label htmlFor="expectation" className="text-[var(--text-muted)] text-sm">Expectativa</Label>
+          <Input id="expectation" value={form.expectation} maxLength={500} onChange={(e) => setForm({ ...form, expectation: e.target.value })} placeholder="Lo que busca, en sus palabras" className={inputCls} />
+        </div>
+        <label className="flex items-start gap-2.5 text-sm sm:col-span-2">
+          <input
+            type="checkbox"
+            className="mt-0.5 h-4 w-4"
+            checked={form.access_by_document}
+            onChange={(e) => setForm({ ...form, access_by_document: e.target.checked })}
+          />
+          <span>
+            Puede entrar digitando su cédula
+            <span className="block text-[13px] text-[var(--text-muted)]">Para quien no registra rostro ni huella (teclado del torniquete o kiosko).</span>
+          </span>
+        </label>
+        <div className="space-y-2">
           <Label className="text-[var(--text-muted)] text-sm">Contacto de emergencia {req && "*"}</Label>
           <Input value={form.emergency_contact_name} onChange={(e) => setForm({ ...form, emergency_contact_name: e.target.value })} placeholder="Nombre" className={inputCls} />
         </div>
@@ -669,7 +708,7 @@ export default function MembersClient() {
           subtitle="Busca, registra y cobra a los socios del gimnasio."
           action={
             <div className="flex items-center gap-2">
-              <MemberImportDialog onImported={() => fetchMembers(0)} />
+              {can(P.MEMBERS_IMPORT) && <MemberImportDialog onImported={() => fetchMembers(0)} />}
               <DialogTrigger
                 render={
                   <Button onClick={openCreate}>

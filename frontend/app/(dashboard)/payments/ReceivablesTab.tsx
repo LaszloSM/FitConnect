@@ -24,7 +24,7 @@ interface Receivable {
   end_date: string;
   effective_status: string;
   days_overdue: number;
-  amount_due: number;
+  amount_due: number | null;
   kind: "renewal" | "balance";
 }
 
@@ -33,8 +33,8 @@ function whatsappLink(r: Receivable): string | null {
   const phone = r.phone.replace(/\D/g, "");
   const message =
     r.kind === "renewal"
-      ? `Hola ${r.member_name.split(" ")[0]} 👋 Tu plan ${r.plan_name} venció el ${formatDate(r.end_date)}. Renueva por ${formatCOP(r.amount_due)} y sigue entrenando con nosotros 💪`
-      : `Hola ${r.member_name.split(" ")[0]} 👋 Tienes un saldo pendiente de ${formatCOP(r.amount_due)} de tu plan ${r.plan_name}. ¡Te esperamos en recepción!`;
+      ? `Hola ${r.member_name.split(" ")[0]} 👋 Tu plan ${r.plan_name} venció el ${formatDate(r.end_date)}. Renueva${r.amount_due != null ? ` por ${formatCOP(r.amount_due)}` : ""} y sigue entrenando con nosotros 💪`
+      : `Hola ${r.member_name.split(" ")[0]} 👋 Tienes un saldo pendiente de ${formatCOP(r.amount_due ?? 0)} de tu plan ${r.plan_name}. ¡Te esperamos en recepción!`;
   return `https://wa.me/${phone}?text=${encodeURIComponent(message)}`;
 }
 
@@ -61,7 +61,7 @@ export function ReceivablesTab({ onCollect }: { onCollect: (memberId: string) =>
       const phone = (r.phone ?? "").replace(/\D/g, "");
       if (phone) {
         const text = encodeURIComponent(
-          `Hola ${r.member_name.split(" ")[0]} 👋 Renueva tu plan ${r.plan_name} (${formatCOP(r.amount_due)}) pagando aquí: ${data.checkout_url}`
+          `Hola ${r.member_name.split(" ")[0]} 👋 Renueva tu plan ${r.plan_name}${r.amount_due != null ? ` (${formatCOP(r.amount_due)})` : ""} pagando aquí: ${data.checkout_url}`
         );
         window.open(`https://wa.me/${phone}?text=${text}`, "_blank");
       }
@@ -108,7 +108,7 @@ export function ReceivablesTab({ onCollect }: { onCollect: (memberId: string) =>
       key: "amount",
       header: "Por cobrar",
       cell: (r) => (
-        <span className="font-bold font-mono text-[var(--text-base)]">{formatCOP(r.amount_due)}</span>
+        <span className="font-bold font-mono text-[var(--text-base)]">{r.amount_due != null ? formatCOP(r.amount_due) : "—"}</span>
       ),
     },
     {

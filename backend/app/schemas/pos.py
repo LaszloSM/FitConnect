@@ -149,5 +149,6 @@ class ReceivableOut(BaseModel):
     end_date: date
     effective_status: str
     days_overdue: int
-    amount_due: Decimal
+    # None = renovación de una membresía importada sin plan equivalente: no hay precio que cobrar
+    amount_due: Optional[Decimal] = None
     kind: str  # "renewal" (vencida/en gracia) | "balance" (abono parcial pendiente)

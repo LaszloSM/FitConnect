@@ -17,7 +17,7 @@ from app.models.tenant.member import Member
 from app.models.tenant.membership import Membership
 from app.models.tenant.session_booking import SessionBooking
 from app.services.gym_settings import get_gym_settings
-from app.services.membership_status import effective_status
+from app.services.membership_status import charged_here, effective_status
 from app.services import realtime
 from app.services.storage import resolve_media_url
 
@@ -173,7 +173,8 @@ def publish_event(
         "membership_status": status,
         "day_pass": status == "ok" and membership is None,
         "plan_name": membership.plan_name if membership else ("Pase del día" if status == "ok" else None),
-        "amount_due": str(membership.price) if membership and status in ("expired", "in_grace") else None,
+        "amount_due": str(membership.price)
+        if membership and status in ("expired", "in_grace") and charged_here(membership) else None,
         "days_overdue": max((today - membership.end_date).days, 0) if membership else None,
         "upcoming_class": upcoming_class,
         "source": source,

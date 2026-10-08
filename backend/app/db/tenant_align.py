@@ -341,4 +341,34 @@ K8_MODELOS: list[str] = [
     END $$""",
 ]
 
-ALIGN_STATEMENTS: list[str] = [*J1_INGRESOS_PASE_TRANSFERENCIAS, *J2_INVENTARIO, *J4_CONSENTIMIENTOS, *J6_ACCESO, *J7_VIDEO_EJERCICIOS, *J8_GYM_SETTINGS_FLAGS, *K1_LIBRO_MOVIMIENTOS, *K2_MENSAJERIA, *K3_ENTRENADORES, *K4_MAQUINAS, *K5_STAFF_SOCIO, *K6_CAJA, *K7_MANTENIMIENTO, *K8_MODELOS]
+K9_IMPORTACION: list[str] = [
+    # k9c0d1e2f3a4_importacion_y_ticketeras.py
+    # Migracion desde el software anterior: lotes que se pueden deshacer, datos
+    # que ese software pedia (EPS, expectativa, ingreso por cedula) y ticketeras.
+    """CREATE TABLE IF NOT EXISTS import_batches (
+        id UUID PRIMARY KEY,
+        kind VARCHAR(20) NOT NULL,
+        file_name VARCHAR(255) NULL,
+        status VARCHAR(20) NOT NULL,
+        created_by UUID NULL REFERENCES users(id),
+        counts JSONB NULL,
+        changes JSONB NULL,
+        undone_at TIMESTAMP NULL,
+        undone_by UUID NULL REFERENCES users(id),
+        created_at TIMESTAMP NOT NULL DEFAULT now(),
+        updated_at TIMESTAMP NOT NULL DEFAULT now()
+    )""",
+    "ALTER TABLE members ADD COLUMN IF NOT EXISTS eps VARCHAR(100) NULL",
+    "ALTER TABLE members ADD COLUMN IF NOT EXISTS expectation VARCHAR(500) NULL",
+    "ALTER TABLE members ADD COLUMN IF NOT EXISTS access_by_document BOOLEAN NOT NULL DEFAULT false",
+    "ALTER TABLE members ADD COLUMN IF NOT EXISTS import_batch_id UUID NULL REFERENCES import_batches(id)",
+    "CREATE INDEX IF NOT EXISTS ix_members_import_batch_id ON members (import_batch_id)",
+    "ALTER TABLE memberships ADD COLUMN IF NOT EXISTS source VARCHAR(20) NOT NULL DEFAULT 'sale'",
+    "ALTER TABLE memberships ADD COLUMN IF NOT EXISTS import_batch_id UUID NULL REFERENCES import_batches(id)",
+    "CREATE INDEX IF NOT EXISTS ix_memberships_import_batch_id ON memberships (import_batch_id)",
+    "ALTER TABLE memberships ADD COLUMN IF NOT EXISTS entries_total INTEGER NULL",
+    "ALTER TABLE memberships ADD COLUMN IF NOT EXISTS entries_used INTEGER NOT NULL DEFAULT 0",
+    "ALTER TABLE member_plans ADD COLUMN IF NOT EXISTS entries_total INTEGER NULL",
+]
+
+ALIGN_STATEMENTS: list[str] = [*J1_INGRESOS_PASE_TRANSFERENCIAS, *J2_INVENTARIO, *J4_CONSENTIMIENTOS, *J6_ACCESO, *J7_VIDEO_EJERCICIOS, *J8_GYM_SETTINGS_FLAGS, *K1_LIBRO_MOVIMIENTOS, *K2_MENSAJERIA, *K3_ENTRENADORES, *K4_MAQUINAS, *K5_STAFF_SOCIO, *K6_CAJA, *K7_MANTENIMIENTO, *K8_MODELOS, *K9_IMPORTACION]

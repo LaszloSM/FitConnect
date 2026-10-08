@@ -36,6 +36,7 @@ from app.models.tenant.kiosk_device import KioskDevice
 from app.models.tenant.instructor import Instructor
 from app.models.tenant.message_template import MessageTemplate
 from app.models.tenant.announcement import Announcement
+from app.models.tenant.import_batch import ImportBatch
 
 __all__ = [
     "UserStaff", "UserRole",
@@ -76,4 +77,5 @@ __all__ = [
     "Announcement",
     "ExerciseMedia",
     "BiometricConsent", "MemberCredential", "AccessEvent",
+    "ImportBatch",
 ]

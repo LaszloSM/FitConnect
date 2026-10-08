@@ -1,5 +1,6 @@
+import json
 import uuid
-from fastapi import APIRouter, Depends, File, HTTPException, Query, UploadFile
+from fastapi import APIRouter, Depends, File, Form, HTTPException, Query, UploadFile
 from fastapi.responses import Response
 from pydantic import BaseModel
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -21,10 +22,13 @@ from app.models.tenant.routine import MemberRoutine
 from app.models.tenant.day_pass import DayPass
 from app.models.tenant.user_staff import UserRole, UserStaff
 from app.models.tenant.instructor import Instructor
+from app.models.tenant.import_batch import ImportBatch
+from sqlalchemy.exc import IntegrityError
 from app.core.timeutil import today_bogota
 from app.services.gym_settings import get_gym_settings
 from app.services.membership_status import effective_status
-from app.services.member_import import build_template, import_members
+from app.services import member_import
+from app.services.audit import audit
 from app.services.storage import resolve_media_url, delete_object, scoped_key
 
 # Todo /members exige staff activo; el borrado además exige owner/admin.
@@ -282,24 +286,136 @@ async def convert_visitor_to_member(
 @router.get("/import/template.xlsx", dependencies=[Depends(require_perm(perm.MEMBERS_IMPORT))])
 async def download_import_template():
     return Response(
-        content=build_template(),
+        content=member_import.build_template(),
         media_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-        headers={"Content-Disposition": 'attachment; filename="plantilla_miembros.xlsx"'},
+        headers={"Content-Disposition": 'attachment; filename="plantilla_socios.xlsx"'},
     )
+
+
+async def _read_import_file(file: UploadFile) -> bytes:
+    # Por trozos: un archivo enorme se corta apenas pasa el límite, sin cargarlo entero.
+    data = bytearray()
+    while chunk := await file.read(1024 * 1024):
+        data.extend(chunk)
+        if len(data) > member_import.MAX_BYTES:
+            raise HTTPException(status_code=413, detail="El archivo supera 5 MB. Divídelo en partes.")
+    if not data:
+        raise HTTPException(status_code=400, detail="El archivo está vacío")
+    return bytes(data)
+
+
+def _import_options(raw: str | None) -> dict | None:
+    if not raw:
+        return None
+    try:
+        parsed = json.loads(raw)
+    except ValueError:
+        raise HTTPException(status_code=400, detail="Opciones de importación inválidas")
+    if not isinstance(parsed, dict):
+        raise HTTPException(status_code=400, detail="Opciones de importación inválidas")
+    return parsed
+
+
+@router.post("/import/preview", dependencies=[Depends(require_perm(perm.MEMBERS_IMPORT))])
+async def preview_import(
+    file: UploadFile = File(...),
+    options: str | None = Form(None),
+    db: AsyncSession = Depends(get_tenant_db_from_token),
+):
+    """Analiza el archivo sin guardar nada: columnas detectadas, qué pasará con
+    cada persona y qué falta resolver (planes o entrenadores que no existen)."""
+    data = await _read_import_file(file)
+    try:
+        return await member_import.preview(db, data, file.filename, _import_options(options))
+    except member_import.ImportFileError as exc:
+        raise HTTPException(status_code=400, detail=str(exc))
+
+
+async def _apply_import(db, staff, file: UploadFile, options: dict | None) -> dict:
+    data = await _read_import_file(file)
+    try:
+        result = await member_import.apply(db, data, file.filename, options, staff.id)
+    except member_import.ImportFileError as exc:
+        raise HTTPException(status_code=400, detail=str(exc))
+    audit(db, staff, "member_import.apply", "import_batch", result["batch_id"], {
+        "file": file.filename, **{k: result["summary"][k] for k in ("create", "update", "memberships", "error")},
+    })
+    try:
+        await db.commit()
+    except IntegrityError:
+        await db.rollback()
+        raise HTTPException(
+            status_code=409,
+            detail="Alguien registró uno de estos socios mientras se importaba. Vuelve a generar la vista previa.",
+        )
+    return result
+
+
+@router.post("/import/commit", dependencies=[Depends(require_perm(perm.MEMBERS_IMPORT))])
+async def commit_import(
+    file: UploadFile = File(...),
+    options: str | None = Form(None),
+    db: AsyncSession = Depends(get_tenant_db_from_token),
+    staff: UserStaff = Depends(get_current_staff),
+):
+    return await _apply_import(db, staff, file, _import_options(options))
 
 
 @router.post("/import", dependencies=[Depends(require_perm(perm.MEMBERS_IMPORT))])
 async def import_members_file(
     file: UploadFile = File(...),
     db: AsyncSession = Depends(get_tenant_db_from_token),
+    staff: UserStaff = Depends(get_current_staff),
 ):
-    data = await file.read()
-    if not data:
-        raise HTTPException(status_code=400, detail="El archivo está vacío")
+    """Importación en un paso con el mapeo automático (compatibilidad)."""
+    result = await _apply_import(db, staff, file, None)
+    return {
+        "created": result["summary"]["create"],
+        "updated": result["summary"]["update"],
+        "batch_id": result["batch_id"],
+        "errors": result["errors"],
+    }
+
+
+@router.get("/import/batches", dependencies=[Depends(require_perm(perm.MEMBERS_IMPORT))])
+async def list_import_batches(db: AsyncSession = Depends(get_tenant_db_from_token)):
+    rows = (await db.execute(
+        select(ImportBatch, UserStaff.full_name)
+        .outerjoin(UserStaff, UserStaff.id == ImportBatch.created_by)
+        .order_by(ImportBatch.created_at.desc())
+        .limit(20)
+    )).all()
+    return [
+        {
+            "id": str(b.id),
+            "file_name": b.file_name,
+            "status": b.status,
+            "created_at": b.created_at.isoformat(),
+            "created_by": name,
+            "undone_at": b.undone_at.isoformat() if b.undone_at else None,
+            "counts": {k: v for k, v in (b.counts or {}).items() if k != "errors"},
+        }
+        for b, name in rows
+    ]
+
+
+@router.post("/import/batches/{batch_id}/undo", dependencies=[Depends(require_perm(perm.MEMBERS_IMPORT))])
+async def undo_import_batch(
+    batch_id: uuid.UUID,
+    db: AsyncSession = Depends(get_tenant_db_from_token),
+    staff: UserStaff = Depends(get_current_staff),
+):
+    # Bloqueo de fila: dos "deshacer" simultáneos no pueden revertir el mismo lote dos veces.
+    batch = await db.get(ImportBatch, batch_id, with_for_update=True)
+    if batch is None:
+        raise HTTPException(status_code=404, detail="Lote no encontrado")
     try:
-        return await import_members(db, data)
+        result = await member_import.undo(db, batch, staff.id)
     except ValueError as exc:
-        raise HTTPException(status_code=400, detail=str(exc))
+        raise HTTPException(status_code=409, detail=str(exc))
+    audit(db, staff, "member_import.undo", "import_batch", batch.id, result)
+    await db.commit()
+    return result
 
 
 @router.get("/{member_id}/billing-summary", dependencies=[
@@ -665,6 +781,8 @@ async def update_member(
             )
 
     for field, value in payload.model_dump(exclude_unset=True).items():
+        if field == "access_by_document" and value is None:
+            continue
         setattr(member, field, value)
 
     await db.commit()
