@@ -965,3 +965,50 @@ async def send_profile_links_bulk(
     audit(db, current_user, "member.profile_links_bulk", "member", None, {"channel": payload.channel, "sent": sent})
     await db.commit()
     return {"sent": sent, "incomplete_total": remaining}
+
+
+# ─── App para socios ───
+
+@router.get("/{member_id}/app-status", dependencies=[Depends(require_perm(perm.MEMBERS_READ))])
+async def member_app_status(
+    member_id: uuid.UUID,
+    db: AsyncSession = Depends(get_tenant_db_from_token),
+    tenant: Tenant = Depends(get_tenant_from_claims),
+):
+    """Si el socio ya usa la app. No expone el correo de su cuenta: es suyo, no del gimnasio."""
+    from app.db.master_session import MasterSessionLocal
+    from app.models.master.app_user import MemberLink
+    from app.services import subscription
+    if not await db.get(Member, member_id):
+        raise HTTPException(status_code=404, detail="Miembro no encontrado")
+    async with MasterSessionLocal() as master:
+        link = (await master.execute(select(MemberLink).where(
+            MemberLink.tenant_id == tenant.id, MemberLink.member_id == member_id, MemberLink.revoked_at.is_(None)
+        ))).scalar_one_or_none()
+    return {"module_enabled": "member_app" in subscription.effective(tenant)["modules"],
+            "linked": link is not None, "linked_at": link.created_at.isoformat() if link else None}
+
+
+@router.post("/{member_id}/app-code", dependencies=[Depends(require_perm(perm.MEMBERS_WRITE))])
+async def create_app_code(
+    member_id: uuid.UUID,
+    db: AsyncSession = Depends(get_tenant_db_from_token),
+    current_user: UserStaff = Depends(get_current_staff),
+    tenant: Tenant = Depends(get_tenant_from_claims),
+):
+    """Código de un solo uso (48 h) para que el socio vincule la app con su ficha.
+    Junto con su documento: quien tenga solo el código no entra."""
+    from app.db.master_session import MasterSessionLocal
+    from app.services import app_accounts, subscription
+    if "member_app" not in subscription.effective(tenant)["modules"]:
+        raise HTTPException(status_code=403, detail="La app para socios no está activa en tu plan.")
+    member = await db.get(Member, member_id)
+    if not member:
+        raise HTTPException(status_code=404, detail="Miembro no encontrado")
+    if not member.id_number:
+        raise HTTPException(status_code=409, detail="El socio necesita un documento registrado para vincular la app.")
+    async with MasterSessionLocal() as master:
+        code, expires = await app_accounts.create_link_code(master, tenant, member.id, created_by=current_user.id)
+    audit(db, current_user, "member.app_code", "member", member.id, {})
+    await db.commit()
+    return {"code": code, "expires_at": expires.isoformat(), "gym_slug": tenant.slug}

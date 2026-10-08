@@ -154,3 +154,31 @@ def create_challenge_token(purpose: str, minutes: int = 5, **claims) -> str:
     expire = datetime.now(timezone.utc) + timedelta(minutes=minutes)
     payload = {"scope": f"mfa_{purpose}", "exp": expire, "jti": str(uuid.uuid4()), **claims}
     return jwt.encode(payload, settings.secret_key, algorithm=settings.algorithm)
+
+
+# ─── App móvil (socios y usuarios independientes) ───────────────────────────
+
+def _app_key() -> str:
+    # Llave derivada y distinta: un token de la app no abre el panel del gimnasio ni al revés.
+    return hashlib.sha256(f"app::{settings.secret_key}".encode()).hexdigest()
+
+
+def create_app_token(app_user_id: str, session_id: str) -> str:
+    expire = datetime.now(timezone.utc) + timedelta(minutes=settings.app_access_minutes)
+    payload = {"sub": app_user_id, "sid": session_id, "scope": "app", "aud": "fitconnect-app", "exp": expire}
+    return jwt.encode(payload, _app_key(), algorithm=settings.algorithm)
+
+
+def decode_app_token(token: str) -> dict[str, Any]:
+    try:
+        payload = jwt.decode(token, _app_key(), algorithms=[settings.algorithm], audience="fitconnect-app")
+    except JWTError as exc:
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Sesión vencida") from exc
+    if payload.get("scope") != "app":
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Sesión inválida")
+    return payload
+
+
+def app_derived_key(purpose: str) -> bytes:
+    """Llaves de la app para otros usos (QR rotativo), sin reutilizar la de los tokens."""
+    return hashlib.sha256(f"app-{purpose}::{settings.secret_key}".encode()).digest()

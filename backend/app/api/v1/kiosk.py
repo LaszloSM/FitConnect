@@ -22,6 +22,7 @@ from app.core.timeutil import utcnow_naive
 from app.models.tenant.kiosk_device import KioskDevice
 from app.models.tenant.member import Member
 from app.models.tenant.user_staff import UserStaff
+from app.services import app_accounts
 from app.services.audit import audit
 from app.services.checkin import register_checkin, DuplicateCheckin
 from app.services.storage import resolve_media_url
@@ -50,7 +51,10 @@ async def kiosk_checkin(
 ):
     """Check-in desde el kiosko de la entrada. Respuesta mínima: sin PII más
     allá del nombre/foto que el propio miembro ve en pantalla."""
-    if payload.qr_code:
+    if payload.qr_code and app_accounts.is_rotating_qr(payload.qr_code):
+        member_id = await app_accounts.resolve_rotating_qr(token["db_name"], payload.qr_code)
+        member = await db.get(Member, member_id) if member_id else None
+    elif payload.qr_code:
         member = (await db.execute(
             select(Member).where(Member.qr_code == payload.qr_code)
         )).scalar_one_or_none()

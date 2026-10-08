@@ -23,10 +23,7 @@ from app.models.tenant.receipt import Receipt
 from app.services.exports import fetch_logo_png
 from app.services.receipt_pdf import build_receipt_pdf
 from app.services.signed_links import verify
-from app.core.timeutil import today_bogota
-from app.services.audit import audit
 from app.models.tenant.member import Gender, Member
-from app.schemas.member import PARQ_REQUIRED_KEYS, MemberBase, normalize_id_number
 from app.services import member_profile
 
 router = APIRouter(prefix="/public", tags=["public"])
@@ -194,10 +191,6 @@ async def public_profile(request: Request, slug: str, token: str):
         }
 
 
-def _norm_phone(v: str | None) -> str | None:
-    return MemberBase.normalize_colombian_phone(v) if v else v
-
-
 @router.post("/profile/{slug}/{token}")
 @limiter.limit("10/minute")
 async def public_profile_submit(request: Request, slug: str, token: str, payload: PublicProfileIn):
@@ -206,63 +199,11 @@ async def public_profile_submit(request: Request, slug: str, token: str, payload
         link, member = await _profile_link(db, token)
         if member.consent_data_at is None and not payload.accept_data:
             raise HTTPException(status_code=422, detail="Para guardar tus datos debes aceptar la política de tratamiento de datos.")
-        data = payload.model_dump(exclude_none=True)
-        data.pop("accept_data", None)
-        data.pop("accept_image", None)
-        if "phone" in data:
-            data["phone"] = _norm_phone(data["phone"])
-        if "emergency_contact_phone" in data:
-            data["emergency_contact_phone"] = _norm_phone(data["emergency_contact_phone"])
-        if "blood_type" in data:
-            data["blood_type"] = data["blood_type"].upper()
-            if data["blood_type"] not in {"A+", "A-", "B+", "B-", "O+", "O-", "AB+", "AB-"}:
-                raise HTTPException(status_code=422, detail="RH no válido")
-        if "email" in data:
-            data["email"] = data["email"].strip().lower()
-            if not re.match(r"^[^@\s]+@[^@\s]+\.[^@\s]+$", data["email"]):
-                raise HTTPException(status_code=422, detail="Correo no válido")
-        id_conflict = False
-        if "id_number" in data:
-            data["id_number"] = normalize_id_number(data["id_number"])
-            if member.id_number is None:
-                taken = (await db.execute(
-                    select(Member.id).where(Member.id_number == data["id_number"], Member.id != member.id)
-                )).first()
-                if taken:
-                    # No se le dice al que tiene el enlace: sería una forma de averiguar
-                    # quién es socio del gimnasio. Recepción lo ve en la auditoría.
-                    data.pop("id_number")
-                    id_conflict = True
-        parq = data.pop("parq_answers", None)
-        filled: list[str] = []
-        for key, value in data.items():
-            if isinstance(value, str):
-                value = value.strip()
-            if value in ("", None) or getattr(member, key, None):
-                continue
-            setattr(member, key, value)
-            filled.append(key)
-        if parq is not None and member.parq_completed_at is None:
-            if PARQ_REQUIRED_KEYS - {k for k, v in parq.items() if isinstance(v, bool)}:
-                raise HTTPException(status_code=422, detail="Responde las 7 preguntas del cuestionario de salud.")
-            member.parq_answers = {k: bool(parq[k]) for k in sorted(PARQ_REQUIRED_KEYS)}
-            member.parq_completed_at = today_bogota()
-            filled.append("parq")
-        now = datetime.utcnow()
-        if payload.accept_data and member.consent_data_at is None:
-            member.consent_data_at = now
-            filled.append("consent_data")
-        if payload.accept_image and member.consent_image_at is None:
-            member.consent_image_at = now
-            filled.append("consent_image")
-        link.used_at = now
-        audit(db, None, "member.profile_self_update", "member", member.id,
-              {"fields": filled, **({"id_number_conflict": True} if id_conflict else {})},
-              actor_name="El socio (enlace)")
+        result = await member_profile.apply_self_update(
+            db, member, payload.model_dump(exclude_none=True), actor_name="El socio (enlace)")
+        link.used_at = datetime.utcnow()
         await db.commit()
-        parq_alert = bool(parq and any(parq.values()))
-        return {"ok": True, "filled": filled, "parq_alert": parq_alert,
-                "complete": member_profile.status(member)["complete"]}
+        return result
 
 
 def _clean_photo(raw: bytes) -> bytes:

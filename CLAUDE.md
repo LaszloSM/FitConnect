@@ -309,6 +309,9 @@ Cuando cometas un error durante una sesión, agrégalo aquí antes de terminar:
 | Un modelo "bueno" en abstracto se mostraba aunque no le ganara a la regla que ya usa la app | Se medía solo el AUC del modelo, sin línea base | El modelo se compara contra la regla en la misma prueba hacia adelante, con intervalo por bootstrap agrupado por socio; solo se usa si el límite inferior de la ganancia es > 0 y su Brier le gana a la tasa base |
 | El pronóstico contaba dos veces el efecto quincena | Se estimaban quincena y festivos por separado sobre la serie cruda, y ambos absorbían lo mismo | Efectos estimados por backfitting (uno a la vez sobre el residuo del otro) y banda de error calibrada con el error fuera de muestra de varias ventanas (`band_scale`), no con el ajuste dentro de muestra |
 
+| `PydanticUndefinedAnnotation: name 'LinkIn' is not defined` al importar un router | `from __future__ import annotations` vuelve texto las anotaciones, y el decorador `@limiter.limit` de slowapi envuelve el endpoint: FastAPI ya no encuentra el modelo del cuerpo en el namespace | En routers de FastAPI no usar `from __future__ import annotations` (Python 3.12 ya admite `X \| None`). Probar con `python -c "import app.main"` antes de correr pruebas |
+| Una llave TOTP del QR en la copia sin conexión habría servido para fabricar QR válidos para siempre | El código se verifica con la misma llave que lo genera (simétrico): quien tenga la copia del PC de recepción tiene la llave | Llave por día derivada (`HMAC(base, fecha de Bogotá)`): la copia solo lleva hoy y mañana y la base nunca sale del servidor. Mismo algoritmo en Python, en el navegador y en el celular, con prueba cruzada |
+
 **Protocolo:** Al detectar un error que no estaba documentado, añade una fila a la tabla antes del commit.
 
 ---

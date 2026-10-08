@@ -62,6 +62,8 @@ const ACTION_LABELS: Record<string, string> = {
   "member.profile_link": "Envió el enlace para completar la ficha",
   "member.profile_links_bulk": "Envió enlaces para completar fichas",
   "member.profile_self_update": "El socio completó su ficha",
+  "member.app_code": "Generó el código para la app del socio",
+  "member.app_linked": "El socio vinculó la app",
   "security.mfa_enable": "Activó la verificación en dos pasos",
   "security.mfa_disable": "Desactivó la verificación en dos pasos",
   "security.mfa_backup_codes": "Generó códigos de respaldo nuevos",

@@ -54,6 +54,14 @@ class Settings(BaseSettings):
     # IPs desde las que se acepta el panel (vacío = cualquiera; Caddy también filtra).
     platform_allowed_ips: list[str] = []
     platform_url: str = "http://localhost:3100"
+    # ─── App móvil ───
+    # Base propia de los datos personales que registra la persona en la app
+    # (medidas, entrenos). Ningún gimnasio la consulta. Vacío = derivada de la
+    # plantilla de tenants con este nombre.
+    app_database_name: str = "fitconnect_app"
+    app_access_minutes: int = 30
+    app_refresh_days: int = 60
+    app_terms_version: str = "2026-10"
     # Días de prueba gratis de un gimnasio nuevo y de gracia tras vencer antes de solo lectura.
     default_trial_days: int = 14
     past_due_grace_days: int = 7

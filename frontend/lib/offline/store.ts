@@ -42,6 +42,8 @@ export interface Snapshot {
   grace_days: number;
   members: SnapshotMember[];
   plans: SnapshotPlan[];
+  /** QR de la app por vínculo: socio y llaves de hoy y mañana. */
+  app_qr?: Record<string, { member_id: string; keys: Record<string, string> }>;
 }
 
 export type QueueStatus = "pending" | "review" | "done";

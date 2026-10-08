@@ -3,7 +3,7 @@ from app.api.v1 import (
     auth, members, payments, checkins, dashboard, classes, machines,
     notifications, reports, member_plans, memberships, settings, users,
     locations, promo_codes, audit, admin, cash, webhooks, class_sessions,
-    products, kiosk, realtime, instructors, onboarding, messages, day_passes, public, insights, routines, access, access_devices, trainer, offline,
+    products, kiosk, realtime, instructors, onboarding, messages, day_passes, public, insights, routines, access, access_devices, trainer, offline, app_auth, me,
 )
 
 router = APIRouter(prefix="/api/v1")
@@ -44,3 +44,5 @@ router.include_router(access.member_router)
 router.include_router(access_devices.router)
 router.include_router(access_devices.member_router)
 router.include_router(offline.router)
+router.include_router(app_auth.router)
+router.include_router(me.router)

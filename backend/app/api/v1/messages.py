@@ -1,7 +1,7 @@
 import uuid
 from datetime import datetime
 
-from fastapi import APIRouter, Depends, HTTPException, Query, Request
+from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException, Query, Request
 from pydantic import BaseModel, Field
 from sqlalchemy import desc, select
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -20,6 +20,7 @@ from app.services.events import emit_announcement
 from app.services.gym_settings import get_gym_settings
 from app.services.idempotency import Idempotent
 from app.services.message_occasions import EDITABLE, OCCASIONS, SAMPLE_VALUES
+from app.services import push
 from app.services.message_templates import get_or_seed_templates, render
 from app.services.segments import SEGMENTS, resolve_members
 
@@ -162,6 +163,7 @@ async def list_announcements(
 async def send_announcement(
     payload: AnnouncementCreate,
     request: Request,
+    background: BackgroundTasks,
     db: AsyncSession = Depends(get_tenant_db_from_token),
     current_user: UserStaff = Depends(require_perm(perm.MESSAGES_SEND)),
     tenant: Tenant = Depends(get_tenant_from_claims),
@@ -215,6 +217,10 @@ async def send_announcement(
     response = _announcement_out(announcement)
     guard.remember(response, 201)
     won = await guard.commit()
+    if won is None:
+        # Quien tiene la app lo ve también como aviso en el celular.
+        background.add_task(push.notify_members, tenant.db_name, [m.id for m in members], gym_name,
+                            payload.title, {"type": "announcement", "id": str(announcement.id)})
     return won if won is not None else response
 
 

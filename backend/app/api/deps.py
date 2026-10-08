@@ -1,4 +1,5 @@
 from collections.abc import AsyncGenerator
+import uuid
 from fastapi import Request, Depends, HTTPException, status
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker
@@ -226,3 +227,27 @@ async def get_tenant_slug(
     if not tenant:
         raise HTTPException(status_code=404, detail="Tenant no encontrado")
     return tenant.slug
+
+
+# ─── App móvil ───
+
+async def get_app_user(
+    credentials: HTTPAuthorizationCredentials = Depends(security),
+    db: AsyncSession = Depends(get_master_db),
+):
+    """Persona de la app (socio o independiente). Revisa en cada petición que la
+    sesión siga abierta: cerrar sesión o borrar la cuenta corta el acceso ya."""
+    from app.core.security import decode_app_token
+    from app.models.master.app_user import AppSession, AppUser
+    payload = decode_app_token(credentials.credentials)
+    try:
+        sid, uid = uuid.UUID(payload["sid"]), uuid.UUID(payload["sub"])
+    except (KeyError, ValueError):
+        raise HTTPException(status_code=401, detail="Sesión inválida") from None
+    s = await db.get(AppSession, sid)
+    if s is None or s.revoked_at is not None or s.app_user_id != uid:
+        raise HTTPException(status_code=401, detail="Sesión cerrada. Vuelve a entrar.")
+    user = await db.get(AppUser, uid)
+    if user is None:
+        raise HTTPException(status_code=401, detail="Sesión cerrada. Vuelve a entrar.")
+    return user

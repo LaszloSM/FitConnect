@@ -17,7 +17,7 @@ from pydantic import BaseModel, Field
 from sqlalchemy import desc, select, text
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.api.deps import get_current_staff, get_tenant_db_from_token, require_perm
+from app.api.deps import get_current_staff, get_db_name, get_tenant_db_from_token, require_perm
 from app.core import permissions as perm
 from app.core.permissions import has_perm
 from app.core.timeutil import today_bogota, utcnow_naive
@@ -28,6 +28,7 @@ from app.models.tenant.member import Member
 from app.models.tenant.member_plan import MemberPlan
 from app.models.tenant.membership import Membership
 from app.models.tenant.user_staff import UserStaff
+from app.services import app_accounts
 from app.services.audit import audit
 from app.services.checkin import checkin_status, consume_entry, entries_left, status_from_memberships
 from app.services.gym_settings import get_gym_settings
@@ -46,7 +47,7 @@ MAX_AGE = timedelta(days=7)
 
 
 @router.get("/snapshot", dependencies=[Depends(require_perm(perm.CHECKINS_WRITE))])
-async def snapshot(db: AsyncSession = Depends(get_tenant_db_from_token)):
+async def snapshot(db: AsyncSession = Depends(get_tenant_db_from_token), db_name: str = Depends(get_db_name)):
     """Lo mínimo para decidir una entrada sin red: sin teléfonos, correos ni salud."""
     gym = await get_gym_settings(db)
     today = today_bogota()
@@ -87,6 +88,8 @@ async def snapshot(db: AsyncSession = Depends(get_tenant_db_from_token)):
         "today": today.isoformat(),
         "grace_days": gym.grace_days,
         "members": out,
+        # QR de la app: solo las llaves de hoy y mañana (ver app_accounts.offline_qr_keys).
+        "app_qr": await app_accounts.offline_qr_keys(db_name, today),
         "plans": [{"id": str(p.id), "name": p.name, "price": float(p.price), "duration_days": p.duration_days,
                    "entries_total": p.entries_total} for p in plans],
     }

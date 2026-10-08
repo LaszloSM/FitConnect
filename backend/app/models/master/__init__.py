@@ -6,6 +6,9 @@ from app.models.master.staff_invitation import StaffInvitation
 from app.models.master.exercise import Exercise
 from app.models.master.device_directory import DeviceDirectory
 from app.models.master.platform import PlatformAdmin, PlatformAuditLog, PasswordReset
+from app.models.master.app_user import (
+    AppUser, AppLoginCode, AppSession, MemberLink, AppLinkCode, AppConsent, AppPushToken,
+)
 
 __all__ = [
     "Tenant", "SubscriptionPlan", "TenantStatus",
@@ -15,4 +18,5 @@ __all__ = [
     "Exercise",
     "DeviceDirectory",
     "PlatformAdmin", "PlatformAuditLog", "PasswordReset",
+    "AppUser", "AppLoginCode", "AppSession", "MemberLink", "AppLinkCode", "AppConsent", "AppPushToken",
 ]

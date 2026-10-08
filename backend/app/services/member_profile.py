@@ -150,3 +150,73 @@ async def sent_recently(db: AsyncSession, member_id, minutes: int = 10) -> bool:
         select(ProfileLink.id).where(ProfileLink.member_id == member_id, ProfileLink.created_at >= since,
                                      ProfileLink.channel.in_(["whatsapp", "email"])).limit(1)
     )).first() is not None
+
+
+_BLOOD_TYPES = {"A+", "A-", "B+", "B-", "O+", "O-", "AB+", "AB-"}
+_SELF_FIELDS = {"id_number", "phone", "email", "birth_date", "gender", "address", "city",
+                "emergency_contact_name", "emergency_contact_phone", "eps", "blood_type"}
+
+
+async def apply_self_update(db: AsyncSession, member: Member, data: dict, *, actor_name: str) -> dict:
+    """El socio completa su ficha (enlace o app). Solo escribe los campos VACÍOS:
+    no sirve para cambiar lo que el gimnasio ya tiene registrado. No hace commit."""
+    import re
+    from fastapi import HTTPException
+    from app.core.timeutil import today_bogota
+    from app.schemas.member import PARQ_REQUIRED_KEYS, MemberBase, normalize_id_number
+    from app.services.audit import audit
+
+    accept_data = bool(data.pop("accept_data", False))
+    accept_image = bool(data.pop("accept_image", False))
+    if member.consent_data_at is None and not accept_data:
+        raise HTTPException(status_code=422, detail="Para guardar tus datos debes aceptar la política de tratamiento de datos.")
+    parq = data.pop("parq_answers", None)
+    data = {k: v for k, v in data.items() if k in _SELF_FIELDS and v is not None}
+    for key in ("phone", "emergency_contact_phone"):
+        if data.get(key):
+            data[key] = MemberBase.normalize_colombian_phone(data[key])
+    if "blood_type" in data:
+        data["blood_type"] = data["blood_type"].upper()
+        if data["blood_type"] not in _BLOOD_TYPES:
+            raise HTTPException(status_code=422, detail="RH no válido")
+    if "email" in data:
+        data["email"] = data["email"].strip().lower()
+        if not re.match(r"^[^@\s]+@[^@\s]+\.[^@\s]+$", data["email"]):
+            raise HTTPException(status_code=422, detail="Correo no válido")
+    id_conflict = False
+    if "id_number" in data:
+        data["id_number"] = normalize_id_number(data["id_number"])
+        if member.id_number is None:
+            taken = (await db.execute(
+                select(Member.id).where(Member.id_number == data["id_number"], Member.id != member.id)
+            )).first()
+            if taken:
+                # No se le dice a quien escribe: sería una forma de averiguar
+                # quién es socio del gimnasio. Recepción lo ve en la auditoría.
+                data.pop("id_number")
+                id_conflict = True
+    filled: list[str] = []
+    for key, value in data.items():
+        if isinstance(value, str):
+            value = value.strip()
+        if value in ("", None) or getattr(member, key, None):
+            continue
+        setattr(member, key, value)
+        filled.append(key)
+    if parq is not None and member.parq_completed_at is None:
+        if PARQ_REQUIRED_KEYS - {k for k, v in parq.items() if isinstance(v, bool)}:
+            raise HTTPException(status_code=422, detail="Responde las 7 preguntas del cuestionario de salud.")
+        member.parq_answers = {k: bool(parq[k]) for k in sorted(PARQ_REQUIRED_KEYS)}
+        member.parq_completed_at = today_bogota()
+        filled.append("parq")
+    now = datetime.utcnow()
+    if accept_data and member.consent_data_at is None:
+        member.consent_data_at = now
+        filled.append("consent_data")
+    if accept_image and member.consent_image_at is None:
+        member.consent_image_at = now
+        filled.append("consent_image")
+    audit(db, None, "member.profile_self_update", "member", member.id,
+          {"fields": filled, **({"id_number_conflict": True} if id_conflict else {})}, actor_name=actor_name)
+    return {"ok": True, "filled": filled, "parq_alert": bool(parq and any(parq.values())),
+            "complete": status(member)["complete"]}

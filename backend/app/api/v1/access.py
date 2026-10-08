@@ -114,7 +114,7 @@ async def access_offline_events(
         occ = d["occurred_at"]
         d["occurred_at"] = occ.astimezone(timezone.utc).replace(tzinfo=None) if occ.tzinfo else occ
         events.append(d)
-    result = await record_offline_events(db, device, events)
+    result = await record_offline_events(db, device, events, db_name=token["db_name"])
     await db.commit()
     return result
 
