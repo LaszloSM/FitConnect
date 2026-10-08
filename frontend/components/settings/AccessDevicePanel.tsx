@@ -6,6 +6,7 @@ import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { StatusBadge } from "@/components/ui/status-badge";
 import { apiClient } from "@/lib/api";
+import { formatDateTime } from "@/lib/format";
 import { parseApiError } from "@/lib/errors";
 import { formatTimeAgo } from "@/lib/format";
 import { P, useCan } from "@/lib/permissions";
@@ -19,6 +20,7 @@ export interface AccessConfig {
   pin_mode?: "document" | "sequential";
   enroll_command?: "ENROLL_FP" | "ENROLL_BIO";
   open_command?: string;
+  allowed_ips?: string[];
 }
 
 export const PROTOCOLS: { value: AccessProtocol; label: string; hint: string; vendor: string }[] = [
@@ -58,6 +60,8 @@ interface Status {
   with_fingerprint: number;
   pending_commands: number;
   failed_commands_24h: number;
+  ip_conflict?: { ip: string; at: string } | null;
+  has_allowed_ips?: boolean;
   recent_commands: { id: string; kind: string; status: string; error: string | null; pin: string | null; created_at: string }[];
 }
 
@@ -254,6 +258,23 @@ export function AccessDevicePanel({
         </div>
       </div>
 
+      {status?.ip_conflict && (
+        <p
+          role="alert"
+          className="rounded-[var(--radius-md)] border px-3 py-2.5 text-sm"
+          style={{ color: "var(--signal-danger)", background: "var(--signal-danger-bg)", borderColor: "var(--signal-danger-line)" }}
+        >
+          El {formatDateTime(status.ip_conflict.at + "Z")} otro aparato intentó conectarse con el serial de este torniquete
+          desde la IP <span className="num">{status.ip_conflict.ip}</span> y se rechazó. Si no fue un cambio de internet del
+          gimnasio, registra la IP pública del gimnasio en «IPs permitidas».
+        </p>
+      )}
+      {online && protocol === "zk_adms" && status && !status.has_allowed_ips && (
+        <p className="text-[13px] text-[var(--text-muted)]">
+          Recomendado: registra la IP pública del gimnasio en «IPs permitidas». El equipo solo se identifica con su serial,
+          que está impreso en él.
+        </p>
+      )}
       {!online && <SetupSteps protocol={protocol} serial={serial} />}
 
       {status && status.unlinked > 0 && (
@@ -353,9 +374,23 @@ export function AccessDevicePanel({
               </select>
             </label>
           )}
+          {draft.protocol === "zk_adms" && (
+            <label className="space-y-1 text-sm sm:col-span-2">
+              <span className="text-[var(--text-muted)]">IPs permitidas (IP pública del gimnasio, separadas por coma)</span>
+              <input
+                className="h-9 w-full rounded-[var(--radius-md)] border border-line bg-field px-2.5 text-sm text-ink"
+                placeholder="Vacío = cualquiera (no recomendado)"
+                value={(draft.allowed_ips ?? []).join(", ")}
+                onChange={(e) =>
+                  setDraft({ ...draft, allowed_ips: e.target.value.split(",").map((v) => v.trim()).filter(Boolean) })
+                }
+              />
+            </label>
+          )}
         </div>
         <p className="text-[12.5px] text-[var(--text-muted)]">
           Tras cambiar el bloqueo, prueba con un socio vencido: si el torniquete aún lo deja pasar, usa otra opción.
+          Si registras IPs y el internet del gimnasio cambia de IP, el torniquete dejará de sincronizar hasta que la actualices.
         </p>
         <Button type="button" variant="outline" size="sm" onClick={save} disabled={busy !== null}>
           {busy === "save" && <Loader2 className="h-4 w-4 mr-1.5 animate-spin" />}

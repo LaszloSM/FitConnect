@@ -4,7 +4,7 @@ import re
 import uuid
 from datetime import date, datetime
 
-from fastapi import APIRouter, File, HTTPException, Request, UploadFile
+from fastapi import APIRouter, File, Form, HTTPException, Request, UploadFile
 from fastapi.responses import Response
 from pydantic import BaseModel, Field
 from sqlalchemy import select
@@ -26,7 +26,7 @@ from app.services.signed_links import verify
 from app.core.timeutil import today_bogota
 from app.services.audit import audit
 from app.models.tenant.member import Gender, Member
-from app.schemas.member import PARQ_REQUIRED_KEYS, MemberBase
+from app.schemas.member import PARQ_REQUIRED_KEYS, MemberBase, normalize_id_number
 from app.services import member_profile
 
 router = APIRouter(prefix="/public", tags=["public"])
@@ -221,14 +221,18 @@ async def public_profile_submit(request: Request, slug: str, token: str, payload
             data["email"] = data["email"].strip().lower()
             if not re.match(r"^[^@\s]+@[^@\s]+\.[^@\s]+$", data["email"]):
                 raise HTTPException(status_code=422, detail="Correo no válido")
+        id_conflict = False
         if "id_number" in data:
-            data["id_number"] = re.sub(r"[^0-9A-Za-z]", "", data["id_number"])
+            data["id_number"] = normalize_id_number(data["id_number"])
             if member.id_number is None:
                 taken = (await db.execute(
                     select(Member.id).where(Member.id_number == data["id_number"], Member.id != member.id)
                 )).first()
                 if taken:
-                    raise HTTPException(status_code=409, detail="Ese documento ya está registrado en el gimnasio. Acércate a recepción.")
+                    # No se le dice al que tiene el enlace: sería una forma de averiguar
+                    # quién es socio del gimnasio. Recepción lo ve en la auditoría.
+                    data.pop("id_number")
+                    id_conflict = True
         parq = data.pop("parq_answers", None)
         filled: list[str] = []
         for key, value in data.items():
@@ -252,7 +256,8 @@ async def public_profile_submit(request: Request, slug: str, token: str, payload
             member.consent_image_at = now
             filled.append("consent_image")
         link.used_at = now
-        audit(db, None, "member.profile_self_update", "member", member.id, {"fields": filled},
+        audit(db, None, "member.profile_self_update", "member", member.id,
+              {"fields": filled, **({"id_number_conflict": True} if id_conflict else {})},
               actor_name="El socio (enlace)")
         await db.commit()
         parq_alert = bool(parq and any(parq.values()))
@@ -260,16 +265,32 @@ async def public_profile_submit(request: Request, slug: str, token: str, payload
                 "complete": member_profile.status(member)["complete"]}
 
 
+def _clean_photo(raw: bytes) -> bytes:
+    """Se abre como imagen de verdad (no basta el content-type que manda el
+    navegador) y se vuelve a guardar como JPEG: sale sin metadatos EXIF, que en
+    una foto de celular pueden traer la ubicación GPS."""
+    import io
+    from PIL import Image, ImageOps
+    try:
+        img = Image.open(io.BytesIO(raw))
+        if img.format not in ("JPEG", "PNG", "WEBP"):
+            raise ValueError(img.format)
+        img = ImageOps.exif_transpose(img).convert("RGB")
+    except Exception:
+        raise HTTPException(status_code=400, detail="El archivo no es una foto JPG, PNG o WEBP") from None
+    img.thumbnail((1024, 1024))
+    out = io.BytesIO()
+    img.save(out, "JPEG", quality=88)
+    return out.getvalue()
+
+
 @router.post("/profile/{slug}/{token}/photo")
 @limiter.limit("5/minute")
-async def public_profile_photo(request: Request, slug: str, token: str, file: UploadFile = File(...)):
-    """Foto de la ficha, si no tiene y el socio autoriza su imagen en este paso.
-    Va antes del envío del formulario (el enlace aún no está usado)."""
+async def public_profile_photo(request: Request, slug: str, token: str, file: UploadFile = File(...),
+                               accept_image: bool = Form(False)):
+    """Foto de la ficha, si no tiene, con la autorización de imagen marcada en este
+    paso. Va antes del envío del formulario (el enlace aún no está usado)."""
     from app.services.storage import upload_image
-    types = {"image/jpeg": "jpg", "image/png": "png", "image/webp": "webp"}
-    ext = types.get(file.content_type or "")
-    if not ext:
-        raise HTTPException(status_code=400, detail="Usa una foto JPG, PNG o WEBP")
     data = bytearray()
     while chunk := await file.read(1024 * 1024):
         data.extend(chunk)
@@ -280,8 +301,11 @@ async def public_profile_photo(request: Request, slug: str, token: str, file: Up
         _, member = await _profile_link(db, token)
         if member.photo_url:
             raise HTTPException(status_code=409, detail="Tu ficha ya tiene foto. Si quieres cambiarla, pídelo en recepción.")
+        if member.consent_image_at is None and not accept_image:
+            raise HTTPException(status_code=422, detail="Para guardar tu foto debes autorizar el uso de tu imagen.")
+        jpeg = _clean_photo(bytes(data))
         if member.consent_image_at is None:
             member.consent_image_at = datetime.utcnow()
-        member.photo_url = await upload_image(bytes(data), f"members/{slug}/{member.id}.{ext}", file.content_type)
+        member.photo_url = await upload_image(jpeg, f"members/{slug}/{member.id}.jpg", "image/jpeg")
         await db.commit()
     return {"ok": True}

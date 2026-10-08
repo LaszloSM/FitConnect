@@ -301,6 +301,10 @@ Cuando cometas un error durante una sesión, agrégalo aquí antes de terminar:
 | Al registrar una entrada sin red, lo que recepción ya estaba escribiendo se borraba | El handler limpiaba la búsqueda DESPUÉS de los `await` de IndexedDB | En acciones de mostrador, limpiar el formulario antes de los `await` (guardando antes los valores que se necesitan) |
 | La copia sin conexión ofrecía "Cortesía del equipo" como plan para cobrar | El plan interno del personal es un `MemberPlan` más | Todo listado de planes "vendibles" excluye `STAFF_PLAN_NAME` (como `onboarding.py`) |
 
+| El lote sin conexión aceptaba `decision="override"` de recepción (sin `ACCESS_OVERRIDE`) | El botón se escondía en el navegador, pero el endpoint solo exigía `CHECKINS_WRITE` | Todo endpoint que reciba una decisión hecha en el cliente revalida el permiso de esa decisión en el servidor; esconder el botón no es autorización |
+| El emulador ZKTeco marcaba con `datetime.now()` (UTC del contenedor) y el servidor lo leía como hora de Bogotá | Un equipo real marca en hora local; el emulador no | Simuladores de hardware usan la misma hora que el equipo real (`now` en `America/Bogota`), o las validaciones de fecha los rechazan con razón |
+| El service worker guardaba en Cache Storage la sesión con el token de acceso | Se cacheó la respuesta de `/api/auth/session` tal cual | Lo que se guarda para trabajar sin red se sanea (sin `accessToken`); al volver la red se pide la sesión real con `update()` |
+
 **Protocolo:** Al detectar un error que no estaba documentado, añade una fila a la tabla antes del commit.
 
 ---

@@ -130,7 +130,7 @@ function NewMemberForm({ snapshot, onDone }: { snapshot: Snapshot; onDone: (m: S
       id_type: "CC", parq_answers: parq, plan_id: planId, payment_method: "cash", consent_data: true,
     }, { temp_member_id: tempId });
     const member: SnapshotMember = {
-      id: tempId, name: f.full_name.trim(), id_number: f.id_number.trim(), qr: null, type: "member", status: "ok",
+      id: tempId, name: f.full_name.trim(), id_number: f.id_number.trim(), qr_hash: null, type: "member", status: "ok",
       plan: plan?.name ?? null, end_date: null, entries_left: plan?.entries_total ?? null,
     };
     await saveSnapshot({ ...snapshot, members: [member, ...snapshot.members] });
@@ -199,14 +199,23 @@ export function OfflineReception() {
     if (!online) void loadSnapshot().then(setSnapshot);
   }, [online, snapshotAt]);
 
+  const [qHash, setQHash] = useState("");
+  useEffect(() => {
+    const value = q.trim();
+    if (value.length < 8) return;
+    void crypto.subtle.digest("SHA-256", new TextEncoder().encode(value)).then((buf) =>
+      setQHash(Array.from(new Uint8Array(buf)).map((b) => b.toString(16).padStart(2, "0")).join("")),
+    );
+  }, [q]);
+
   const results = useMemo(() => {
     if (!snapshot || q.trim().length < 2) return [];
     const n = norm(q);
     const digits = q.replace(/\D/g, "");
     return snapshot.members
-      .filter((m) => (digits.length >= 4 && m.id_number?.startsWith(digits)) || m.qr === q.trim() || norm(m.name).includes(n))
+      .filter((m) => (digits.length >= 4 && m.id_number?.startsWith(digits)) || (qHash && m.qr_hash === qHash) || norm(m.name).includes(n))
       .slice(0, 8);
-  }, [snapshot, q]);
+  }, [snapshot, q, qHash]);
 
   if (online) return <QueueTray />;
 

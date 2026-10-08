@@ -141,3 +141,12 @@ async def bulk_candidates(db: AsyncSession, channel: str, limit: int) -> list[Me
     members = (await db.execute(stmt.order_by(Member.created_at).limit(limit * 3))).scalars().all()
     skip = await recently_sent(db, [m.id for m in members])
     return [m for m in members if m.id not in skip][:limit]
+
+
+async def sent_recently(db: AsyncSession, member_id, minutes: int = 10) -> bool:
+    """Un mismo socio no recibe otro WhatsApp o correo con enlace antes de esto."""
+    since = datetime.utcnow() - timedelta(minutes=minutes)
+    return (await db.execute(
+        select(ProfileLink.id).where(ProfileLink.member_id == member_id, ProfileLink.created_at >= since,
+                                     ProfileLink.channel.in_(["whatsapp", "email"])).limit(1)
+    )).first() is not None

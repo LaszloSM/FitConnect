@@ -13,6 +13,13 @@ from app.models.tenant.membership import MembershipStatus
 from app.schemas.pos import PaymentItemIn, PaymentItemOut
 
 
+def normalize_id_number(v: str) -> str:
+    """La cédula "1.098.765.432" y "1098765432" son la misma: sin esto la
+    unicidad (que compara texto exacto) dejaba entrar duplicados. Mismo criterio
+    que la importación (`member_import.normalize_document`)."""
+    return re.sub(r"[^0-9A-Za-z]", "", v).upper()
+
+
 # ─── Member ───
 class MemberBase(BaseModel):
     full_name: str = Field(min_length=2, max_length=255)
@@ -58,7 +65,7 @@ class MemberBase(BaseModel):
     def validate_id_number(cls, v: Optional[str]) -> Optional[str]:
         if not v:
             return v
-        return v.strip()
+        return normalize_id_number(v)
 
     @field_validator("blood_type", mode="before")
     @classmethod

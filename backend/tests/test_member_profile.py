@@ -138,7 +138,18 @@ async def test_document_already_taken_is_refused(client):
     link = (await client.post(f"/api/v1/members/{pedro}/profile-link", json={"channel": "copy"}, headers=_h(token))).json()
     slug, tok = re.search(r"/completar/([^/]+)/([\w-]+)$", link["url"]).groups()
     r = await client.post(f"/api/v1/public/profile/{slug}/{tok}", json={"id_number": taken, "accept_data": True})
-    assert r.status_code == 409
+    # No se revela que esa cédula existe (sería una forma de averiguar quién es socio).
+    assert r.status_code == 200, r.text
+    assert "id_number" not in r.json()["filled"]
+    pedro_after = (await client.get(f"/api/v1/members/{pedro}", headers=_h(token))).json()
+    assert pedro_after["id_number"] is None
+    # Con puntos es la misma cédula.
+    dotted = f"{taken[:1]}.{taken[1:4]}.{taken[4:]}"
+    dup = await client.post("/api/v1/members/import/commit", headers=_h(token), files={
+        "file": ("d.csv", f"Cédula;Nombre\n{dotted};OTRO NOMBRE\n".encode(), "text/csv")})
+    assert dup.status_code == 200
+    same = (await client.get("/api/v1/members", params={"id_number": taken}, headers=_h(token))).json()
+    assert len(same) == 1
 
 
 async def test_member_can_add_photo_once_through_the_link(client):
@@ -146,12 +157,21 @@ async def test_member_can_add_photo_once_through_the_link(client):
     mid = await _imported_member(client, token)
     link = (await client.post(f"/api/v1/members/{mid}/profile-link", json={"channel": "copy"}, headers=_h(token))).json()
     slug, tok = re.search(r"/completar/([^/]+)/([\w-]+)$", link["url"]).groups()
-    jpeg = b"\xff\xd8\xff\xe0" + b"0" * 2000 + b"\xff\xd9"
-    bad = await client.post(f"/api/v1/public/profile/{slug}/{tok}/photo", files={"file": ("a.gif", b"GIF89a", "image/gif")})
-    assert bad.status_code == 400
-    ok = await client.post(f"/api/v1/public/profile/{slug}/{tok}/photo", files={"file": ("yo.jpg", jpeg, "image/jpeg")})
+    import io
+    from PIL import Image
+    buf = io.BytesIO()
+    Image.new("RGB", (300, 400), (180, 120, 90)).save(buf, "PNG")
+    png = buf.getvalue()
+    fake = await client.post(f"/api/v1/public/profile/{slug}/{tok}/photo", data={"accept_image": "true"},
+                             files={"file": ("x.png", b"<html><script>alert(1)</script></html>", "image/png")})
+    assert fake.status_code == 400, "un HTML con content-type de imagen no se guarda"
+    no_consent = await client.post(f"/api/v1/public/profile/{slug}/{tok}/photo", files={"file": ("yo.png", png, "image/png")})
+    assert no_consent.status_code == 422
+    ok = await client.post(f"/api/v1/public/profile/{slug}/{tok}/photo", data={"accept_image": "true"},
+                           files={"file": ("yo.png", png, "image/png")})
     assert ok.status_code == 200, ok.text
-    twice = await client.post(f"/api/v1/public/profile/{slug}/{tok}/photo", files={"file": ("yo.jpg", jpeg, "image/jpeg")})
+    twice = await client.post(f"/api/v1/public/profile/{slug}/{tok}/photo", data={"accept_image": "true"},
+                              files={"file": ("yo.png", png, "image/png")})
     assert twice.status_code == 409
     member = (await client.get(f"/api/v1/members/{mid}", headers=_h(token))).json()
     assert member["photo_url"] and member["consent_image_at"]
@@ -164,3 +184,14 @@ async def test_profile_summary_counts_incomplete(client):
     assert r.status_code == 200, r.text
     body = r.json()
     assert body["incomplete"] >= 1 and body["with_phone"] >= 1
+
+
+async def test_same_member_cannot_be_spammed_with_links(client):
+    token = await create_owner_token(client)
+    mid = await _imported_member(client, token, phone="3007654321")
+    first = await client.post(f"/api/v1/members/{mid}/profile-link", json={"channel": "whatsapp"}, headers=_h(token))
+    assert first.status_code == 200, first.text
+    again = await client.post(f"/api/v1/members/{mid}/profile-link", json={"channel": "whatsapp"}, headers=_h(token))
+    assert again.status_code == 429
+    copy = await client.post(f"/api/v1/members/{mid}/profile-link", json={"channel": "copy"}, headers=_h(token))
+    assert copy.status_code == 200

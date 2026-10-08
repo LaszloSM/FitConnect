@@ -17,6 +17,7 @@ from __future__ import annotations
 import argparse
 import asyncio
 from dataclasses import dataclass, field
+from zoneinfo import ZoneInfo
 from datetime import datetime
 from typing import Optional
 
@@ -59,7 +60,8 @@ class ZkEmulator:
         user = self.users.get(pin)
         if user is None or not user.can_enter:
             return False, None
-        when = when or datetime.now()
+        # El equipo marca en su hora local (la que le dio el servidor en el handshake).
+        when = when or datetime.now(ZoneInfo("America/Bogota")).replace(tzinfo=None)
         line = f"{pin}\t{when:%Y-%m-%d %H:%M:%S}\t0\t{verify}\t0\t0\t0"
         r = await self.client.post("/iclock/cdata", params=self._q(table="ATTLOG", Stamp="9999"), content=line)
         return True, r

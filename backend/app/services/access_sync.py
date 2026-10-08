@@ -550,4 +550,7 @@ async def device_summary(db: AsyncSession, device: KioskDevice) -> dict:
         "with_fingerprint": sum(1 for u in users if (u.fingerprint_count or 0) > 0),
         "pending_commands": pending or 0,
         "failed_commands_24h": failed or 0,
+        # Otro aparato usó el serial de este equipo desde otra IP (ver iclock.py).
+        "ip_conflict": (device.config or {}).get("ip_conflict"),
+        "has_allowed_ips": bool((device.config or {}).get("allowed_ips")),
     }

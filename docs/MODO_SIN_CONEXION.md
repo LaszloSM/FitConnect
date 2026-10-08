@@ -27,20 +27,43 @@ El gimnasio sigue operando en un corte y, al volver la red, todo cuadra sin dupl
 5. La barra superior muestra "Sin conexión · N por subir", "Sincronizando" o
    "N por revisar".
 
+## ¿Y si no hay internet al abrir la página? (el "dinosaurio")
+
+No sale el dinosaurio si ese computador ya abrió FitConnect con internet: el
+service worker (`frontend/public/sw.js`) guarda el Mostrador y lo sirve sin red,
+aunque se haya cerrado el navegador o apagado el PC. Probado: con la red cortada
+se recarga la página y abre completa, con la sesión y la copia de socios.
+
+Para que sea a prueba de errores, en el PC de recepción **instala FitConnect como
+app** (Chrome o Edge › ícono "Instalar" en la barra de direcciones). Queda un
+ícono en el escritorio que abre directo el Mostrador, con o sin internet.
+
+Cuándo SÍ sale el dinosaurio, y qué hacer:
+- Un equipo que nunca abrió FitConnect, o al que le borraron los datos del
+  navegador: no hay nada guardado. Usar otro equipo de recepción o esperar la red.
+- Sin sesión abierta: sin red no se puede iniciar sesión. Dejar la sesión de
+  recepción abierta durante la jornada.
+
 ## Requisitos
 
-- Haber abierto el Mostrador con internet al menos una vez en ese equipo (para
-  tener la copia y la página guardada). Se puede recargar la página sin red.
-- La sesión debe estar abierta: sin red no se puede iniciar sesión.
-- El service worker (`frontend/public/sw.js`) solo se registra en producción.
+- Haber abierto el Mostrador con internet al menos una vez en ese equipo.
+- La sesión debe estar abierta.
+- El service worker solo se registra en producción (`npm run build`).
 
 ## Seguridad de la copia
 
-- Solo lo necesario para decidir una entrada: nombre, cédula, QR, estado, plan,
-  vencimiento y entradas. Nada de teléfonos, correos ni datos de salud.
-- Cifrada con AES-GCM; la llave se crea en ese navegador como no extraíble.
-- Al cerrar sesión (con red) la copia se borra; la cola pendiente se conserva
-  porque es trabajo que aún no llegó al servidor.
+- Solo lo necesario para decidir una entrada: nombre, cédula, estado, plan,
+  vencimiento y entradas. El QR del carné solo como huella (SHA-256): el código
+  que abre la puerta no queda en el equipo. Nada de teléfonos, correos ni salud.
+- Cifrada con AES-GCM con una llave no extraíble. Ojo: la llave vive en el mismo
+  navegador, así que quien copie el perfil entero del navegador se la lleva. La
+  protección real del PC de recepción es su usuario de Windows con contraseña y el
+  disco cifrado (BitLocker).
+- La sesión guardada para trabajar sin red no incluye el token de acceso.
+- Al cerrar sesión (y al llegar a la pantalla de ingreso) la copia se borra; la
+  cola pendiente se conserva porque es trabajo que aún no llegó al servidor.
+- Autorizar una entrada sin conexión exige el mismo permiso que con conexión; si
+  quien la anota no lo tiene, queda como entrada normal y va a revisión.
 
 ## Luz
 

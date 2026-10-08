@@ -925,6 +925,8 @@ async def send_profile_link(
     member = await db.get(Member, member_id)
     if not member:
         raise HTTPException(status_code=404, detail="Miembro no encontrado")
+    if payload.channel != "copy" and await member_profile.sent_recently(db, member.id):
+        raise HTTPException(status_code=429, detail="Ya se le envió un enlace hace menos de 10 minutos.")
     gym = await get_gym_settings(db)
     gym_name = getattr(gym, "legal_name", None) or tenant.name
     link, token = await member_profile.create_link(db, member, channel=payload.channel, created_by=current_user.id)

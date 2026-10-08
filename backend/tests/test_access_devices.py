@@ -229,3 +229,42 @@ async def test_agent_flow_for_hikvision(client):
     # Un token de staff no sirve como agente
     r = await client.get("/api/v1/access/agent/commands", headers=h)
     assert r.status_code == 401
+
+
+async def test_same_serial_from_another_ip_is_rejected_while_device_is_online(client):
+    h = _auth(await _owner_token(client))
+    _, serial = await _zk_device(client, h)
+    real = {"x-forwarded-for": "181.49.10.20"}
+    impostor = {"x-forwarded-for": "8.8.4.4"}
+    assert (await client.get("/iclock/cdata", params={"SN": serial}, headers=real)).status_code == 200
+    r = await client.get("/iclock/getrequest", params={"SN": serial}, headers=impostor)
+    assert r.text.strip() == "OK", "el impostor no recibe comandos"
+    r = await client.post("/iclock/cdata", params={"SN": serial, "table": "ATTLOG"}, headers=impostor,
+                          content="123\t2026-10-08 10:00:00\t0\t15\t0\t0\t0")
+    assert r.status_code == 404
+    assert (await client.get("/iclock/getrequest", params={"SN": serial}, headers=real)).status_code == 200
+
+
+async def test_punches_with_impossible_dates_are_ignored(client):
+    h = _auth(await _owner_token(client))
+    socio = await create_member(client, h, id_number=_cedula(), full_name="Fecha Rara")
+    dev, serial = await _zk_device(client, h)
+    emu = _emu(serial)
+    await emu.handshake()
+    emu.users[socio["id_number"]] = EmuUser(pin=socio["id_number"], face=True)
+    from datetime import datetime, timedelta
+    ok, r = await emu.punch(socio["id_number"], when=datetime(2020, 1, 1, 8, 0, 0))
+    assert ok and r.status_code == 200
+    hoy = (await client.get(f"/api/v1/checkins?member_id={socio['id']}", headers=h)).json()
+    assert not hoy, "una marcación de hace años no crea asistencia"
+    ok, r = await emu.punch(socio["id_number"], when=datetime.now() + timedelta(days=2))
+    assert not (await client.get(f"/api/v1/checkins?member_id={socio['id']}", headers=h)).json()
+
+
+async def test_unknown_and_disabled_serials_look_the_same(client):
+    h = _auth(await _owner_token(client))
+    dev, serial = await _zk_device(client, h)
+    assert (await client.delete(f"/api/v1/kiosk/devices/{dev['id']}", headers=h)).status_code in (200, 204)
+    a = await client.get("/iclock/cdata", params={"SN": serial})
+    b = await client.get("/iclock/cdata", params={"SN": f"ZK{uuid.uuid4().hex[:10].upper()}"})
+    assert (a.status_code, a.text) == (b.status_code, b.text)

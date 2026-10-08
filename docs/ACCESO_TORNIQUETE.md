@@ -98,11 +98,21 @@ Sin hardware: `backend/scripts/zk_adms_emulator.py` habla ADMS igual que el equi
 
 ## Seguridad del endpoint `/iclock`
 
-El equipo ZKTeco solo se identifica con su serial. Defensas: solo se aceptan seriales registrados en
-un dispositivo activo (índice global `device_directory`, un serial no puede estar en dos gimnasios),
-IPs permitidas opcionales, límite de peticiones. La nube **nunca devuelve datos de socios** al
-equipo: un serial suplantado solo podría registrar marcaciones falsas de ese gimnasio, que quedan en
-la bitácora con su origen.
+El protocolo ADMS de ZKTeco identifica al equipo solo por su serial, que está impreso
+en él: quien lo conozca puede intentar hacerse pasar por el torniquete. Defensas:
+
+- **IPs permitidas** (Ajustes › Dispositivos › Ajustes avanzados): la IP pública del
+  gimnasio. Es lo más importante; la pantalla lo recomienda mientras esté vacío.
+- Sin IPs registradas, si el mismo serial llama desde otra IP mientras el equipo real
+  está conectado, se rechaza y la pantalla del torniquete lo avisa en rojo.
+- En producción la foto del rostro solo se envía por HTTPS o a un equipo con IP
+  permitida.
+- Seriales desconocidos y desactivados reciben la misma respuesta (no se puede
+  averiguar cuáles existen); marcaciones con fecha imposible se ignoran; límite de
+  peticiones. Los tokens de una tableta de kiosko no sirven en los endpoints del agente.
+
+Lo que un impostor con el serial podría ver (si no hay IPs permitidas) son los
+comandos pendientes: nombre y cédula de los socios que se están sincronizando.
 
 ## Protección de datos (Ley 1581 de 2012)
 

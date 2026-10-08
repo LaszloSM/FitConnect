@@ -2,13 +2,14 @@
  *
  * - Archivos de /_next/static (llevan hash en el nombre): primero la caché.
  * - Páginas: primero la red; sin red, la última copia de esa página.
- * - /api/auth/session: primero la red; sin red, la última sesión válida. Sin
- *   esto NextAuth deja la pantalla sin sesión durante el corte y no la recupera
- *   al volver la red hasta recargar.
+ * - /api/auth/session: primero la red; sin red, la última sesión válida SIN el
+ *   token de acceso (quién es y su rol). Sin esto NextAuth deja la pantalla sin
+ *   sesión durante el corte y no la recupera al volver la red hasta recargar.
+ *   Al volver la red, OfflineProvider pide la sesión completa de nuevo.
  * - Todo lo demás (API del backend, otros orígenes): no se toca. Los datos para
  *   operar sin red viven cifrados en IndexedDB (lib/offline), no aquí.
  */
-const VERSION = "fc-v1";
+const VERSION = "fc-v2";
 const STATIC = `${VERSION}-static`;
 const PAGES = `${VERSION}-pages`;
 const SESSION = `${VERSION}-session`;
@@ -33,11 +34,32 @@ self.addEventListener("message", (event) => {
   if (event.data === "logout") event.waitUntil(caches.delete(SESSION));
 });
 
+/** Lo que se guarda de la sesión: quién es y qué puede hacer, nunca el token. */
+async function sanitizedSession(response) {
+  try {
+    const data = await response.clone().json();
+    if (data && typeof data === "object") {
+      delete data.accessToken;
+      delete data.error;
+    }
+    return new Response(JSON.stringify(data), { headers: { "Content-Type": "application/json" } });
+  } catch {
+    return null;
+  }
+}
+
 async function networkFirst(request, cacheName) {
   const cache = await caches.open(cacheName);
   try {
     const response = await fetch(request);
-    if (response.ok) cache.put(request, response.clone());
+    if (response.ok) {
+      if (cacheName === SESSION) {
+        const clean = await sanitizedSession(response);
+        if (clean) cache.put(request, clean);
+      } else {
+        cache.put(request, response.clone());
+      }
+    }
     return response;
   } catch (err) {
     const hit = await cache.match(request, { ignoreSearch: cacheName === PAGES });

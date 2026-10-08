@@ -72,3 +72,16 @@ async def test_member_create_replayed_with_same_key_does_not_duplicate(client):
     # Sin clave, la misma cédula sigue siendo un choque real.
     third = await client.post("/api/v1/members", json=payload, headers=_h(token))
     assert third.status_code in (400, 409)
+
+
+async def test_offline_override_requires_override_permission(client):
+    from tests.test_users import onboard_staff
+    owner = await create_owner_token(client)
+    gone = await create_member_without_membership(client, _h(owner))
+    _, _, recep = await onboard_staff(client, owner, role="receptionist")
+    at = (datetime.now(timezone.utc) - timedelta(minutes=10)).isoformat()
+    r = await client.post("/api/v1/offline/checkins", json={"events": [{
+        "client_event_id": uuid.uuid4().hex, "member_id": gone["id"], "occurred_at": at,
+        "decision": "override", "reason": "Lo conozco"}]}, headers=_h(recep))
+    assert r.status_code == 200, r.text
+    assert r.json()["results"][0]["result"] == "review", "sin permiso de autorizar no puede quedar como autorizada"

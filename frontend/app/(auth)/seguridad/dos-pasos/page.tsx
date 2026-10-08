@@ -2,10 +2,11 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { signOut, useSession } from "next-auth/react";
+import { useSession } from "next-auth/react";
 import { Button } from "@/components/ui/button";
 import { AuthCardHeader } from "@/components/common/AuthCardHeader";
 import { TwoStepSetup } from "@/components/security/TwoStepSetup";
+import { signOutClean } from "@/lib/offline/logout";
 
 /**
  * Dueños y administradores no entran al panel sin la verificación en dos pasos:
@@ -39,7 +40,7 @@ export default function TwoStepRequiredPage() {
       ) : (
         <button
           type="button"
-          onClick={() => signOut({ callbackUrl: "/login" })}
+          onClick={() => void signOutClean("/login")}
           className="mt-8 text-sm text-ink-muted hover:text-ink"
         >
           Salir

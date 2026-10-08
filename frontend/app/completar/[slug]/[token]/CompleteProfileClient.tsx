@@ -73,6 +73,7 @@ export default function CompleteProfileClient({ slug, token }: { slug: string; t
       if (photo) {
         const fd = new FormData();
         fd.append("file", photo);
+        fd.append("accept_image", String(acceptImage || info?.image_consent || false));
         await client.post(`${base}/photo`, fd, { headers: { "Content-Type": undefined } });
       }
       const body: Record<string, unknown> = { accept_data: acceptData, accept_image: acceptImage || Boolean(photo) };

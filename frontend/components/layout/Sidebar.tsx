@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useSession, signOut } from "next-auth/react";
+import { useSession } from "next-auth/react";
 import { useEffect, useState } from "react";
 import { CaretDoubleLeftIcon as ChevronsLeft, SignOutIcon as LogOut, XIcon as X } from "@phosphor-icons/react";
 import { useSidebar } from "./SidebarContext";
@@ -11,6 +11,7 @@ import { BrandMark } from "@/components/common/BrandMark";
 import { BrandLockup } from "@/components/common/BrandLockup";
 import { rolLegible, useCan } from "@/lib/permissions";
 import { cn } from "@/lib/utils";
+import { signOutClean } from "@/lib/offline/logout";
 
 function getInitials(name: string | null | undefined): string {
   if (!name) return "?";
@@ -111,7 +112,7 @@ function SidebarBody({ collapsed, onClose }: { collapsed: boolean; onClose?: () 
           )}
           {!collapsed && (
             <button
-              onClick={() => signOut({ callbackUrl: "/login" })}
+              onClick={() => void signOutClean("/login")}
               aria-label="Cerrar sesión"
               title="Cerrar sesión"
               className="flex size-9 items-center justify-center rounded-md text-ink-muted hover:bg-muted hover:text-[var(--signal-danger)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"

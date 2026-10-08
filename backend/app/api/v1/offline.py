@@ -6,6 +6,7 @@ y, sin red, decide con ella. Al volver la conexión sube las entradas que anotó
 autoridad: si alguien entró sin estar al día según el servidor, se marca para
 revisar en vez de borrarlo (la persona ya entró).
 """
+import hashlib
 import uuid
 from collections import defaultdict
 from datetime import datetime, timedelta, timezone
@@ -18,6 +19,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.api.deps import get_current_staff, get_tenant_db_from_token, require_perm
 from app.core import permissions as perm
+from app.core.permissions import has_perm
 from app.core.timeutil import today_bogota, utcnow_naive
 from app.models.tenant.access import AccessEvent
 from app.models.tenant.checkin import CheckIn, CheckInType
@@ -68,7 +70,9 @@ async def snapshot(db: AsyncSession = Depends(get_tenant_db_from_token)):
         if status == "no_membership":
             ms = None  # la "más relevante" sería una cancelada: no se muestra como su plan
         out.append({
-            "id": str(row.id), "name": row.full_name, "id_number": row.id_number, "qr": row.qr_code,
+            # El QR abre la puerta: en el equipo de recepción solo queda su huella (SHA-256).
+            "id": str(row.id), "name": row.full_name, "id_number": row.id_number,
+            "qr_hash": hashlib.sha256(row.qr_code.encode()).hexdigest() if row.qr_code else None,
             "type": row.member_type, "status": status,
             "plan": ms.plan_name if ms else None,
             "end_date": ms.end_date.isoformat() if ms and ms.end_date else None,
@@ -113,8 +117,12 @@ async def upload_checkins(
 ):
     gym = await get_gym_settings(db)
     now = utcnow_naive()
+    can_override = has_perm(current_user.role, perm.ACCESS_OVERRIDE)
     results = []
     for e in payload.events:
+        # Solo quien puede autorizar online puede autorizar sin conexión; si no,
+        # cuenta como una entrada normal y, si no estaba al día, va a revisión.
+        decision = e.decision if (e.decision != "override" or can_override) else "allowed"
         cid = f"web:{e.client_event_id}"
         # Dos pestañas sincronizando a la vez no deben duplicar: candado por evento.
         await db.execute(text("SELECT pg_advisory_xact_lock(hashtext(:k))"), {"k": cid})
@@ -138,21 +146,21 @@ async def upload_checkins(
         if ms is not None and server_allows:
             await consume_entry(db, ms, enforce=False)
         ci = CheckIn(
-            member_id=member.id, type=CheckInType.entry, decision=e.decision,
+            member_id=member.id, type=CheckInType.entry, decision=decision,
             denial_reason=None if server_allows else status, source="offline", created_at=at,
-            override_by=current_user.id if e.decision == "override" else None,
-            override_reason=(e.reason or "Autorizado sin conexión") if e.decision == "override" else None,
+            override_by=current_user.id if decision == "override" else None,
+            override_reason=(e.reason or "Autorizado sin conexión") if decision == "override" else None,
             notes="Registrada sin conexión",
         )
         db.add(ci)
         await db.flush()
         db.add(AccessEvent(
             device_id=None, member_id=member.id, credential_kind="reception", credential_ref=None,
-            direction="entry", decision=e.decision, reason=None if server_allows else status,
+            direction="entry", decision=decision, reason=None if server_allows else status,
             offline=True, client_event_id=cid, checkin_id=ci.id, occurred_at=at,
         ))
-        review = not server_allows and e.decision == "allowed"
-        if e.decision == "override":
+        review = not server_allows and decision == "allowed"
+        if decision == "override":
             audit(db, current_user, "checkin.override", "member", member.id,
                   {"reason": ci.override_reason, "offline": True})
         results.append({"client_event_id": e.client_event_id, "result": "review" if review else "ok",

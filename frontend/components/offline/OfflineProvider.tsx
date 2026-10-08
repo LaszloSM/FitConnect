@@ -19,7 +19,7 @@ export function useOffline(): OfflineState {
  * la red. Solo para quien registra entradas.
  */
 export function OfflineProvider() {
-  const { data: session, status } = useSession();
+  const { data: session, status, update } = useSession();
   const token = session?.accessToken;
   const { can, ready } = useCan();
   const enabled = ready && can(P.CHECKINS_WRITE);
@@ -41,11 +41,17 @@ export function OfflineProvider() {
   }, [status]);
 
   useEffect(() => {
-    if (!enabled || !token) return;
+    if (!enabled) return;
     let stopped = false;
     const tick = async (withSnapshot: boolean) => {
       const online = await checkConnection();
       if (!online || stopped) return;
+      if (!token) {
+        // Volvió la red con la sesión guardada sin token: se pide la sesión real
+        // y este efecto vuelve a correr con el token.
+        await update();
+        return;
+      }
       await flush(token);
       if (withSnapshot) await refreshSnapshot(token).catch(() => undefined);
     };
@@ -63,6 +69,7 @@ export function OfflineProvider() {
       window.removeEventListener("online", back);
       window.removeEventListener("offline", gone);
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [enabled, token]);
 
   return null;

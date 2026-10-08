@@ -1,4 +1,5 @@
 import logging
+import re
 import uuid
 from contextlib import asynccontextmanager
 
@@ -93,12 +94,18 @@ _WRITE_ALLOWED_PREFIXES = (
 )
 
 
+# Dentro de /access/ hay administración (enlazar usuarios del equipo) que no es
+# "que los socios entren": esa sí se bloquea en solo lectura.
+_ACCESS_ADMIN = re.compile(r"^/api/v1/access/devices/[^/]+/link$")
+
+
 @app.middleware("http")
 async def read_only_middleware(request: Request, call_next):
     """Gimnasio en solo lectura (prueba o pago vencidos más la gracia) o
     suspendido: se puede consultar, no registrar cambios."""
-    if request.method in ("POST", "PUT", "PATCH", "DELETE") and request.url.path.startswith("/api/v1/") \
-            and not request.url.path.startswith(_WRITE_ALLOWED_PREFIXES):
+    path = request.url.path
+    if request.method in ("POST", "PUT", "PATCH", "DELETE") and path.startswith("/api/v1/") \
+            and (not path.startswith(_WRITE_ALLOWED_PREFIXES) or _ACCESS_ADMIN.match(path)):
         auth = request.headers.get("authorization", "")
         if auth.lower().startswith("bearer "):
             # Firma verificada antes de tocar la base: un token inventado no cuesta consultas.

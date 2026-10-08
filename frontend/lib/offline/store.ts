@@ -3,10 +3,13 @@
 /**
  * Datos de recepción sin conexión, en IndexedDB y cifrados con AES-GCM.
  *
- * La llave se genera en este navegador como NO extraíble: el código de la página
- * puede usarla pero nadie puede leerla, así que una copia de los archivos del
- * navegador (un disco robado, una carpeta compartida) no sirve sin este perfil.
- * No reemplaza cerrar sesión en un equipo que no es del gimnasio.
+ * La llave se genera en este navegador como NO extraíble y vive en el mismo
+ * IndexedDB. Eso evita que los datos se lean abriendo los archivos del navegador
+ * con otra herramienta, pero quien copie el perfil completo del navegador se lleva
+ * también la llave. La protección de verdad del PC de recepción es su usuario de
+ * Windows con contraseña y el disco cifrado (BitLocker). Por eso la copia solo
+ * tiene lo mínimo (sin teléfonos, correos, salud ni el código QR) y se borra al
+ * cerrar sesión.
  */
 
 const DB_NAME = "fitconnect-offline";
@@ -16,7 +19,8 @@ export interface SnapshotMember {
   id: string;
   name: string;
   id_number: string | null;
-  qr: string | null;
+  /** SHA-256 del QR del carné: el código que abre la puerta no se guarda aquí. */
+  qr_hash: string | null;
   type: string;
   status: "ok" | "in_grace" | "scheduled" | "expired" | "frozen" | "no_entries" | "no_membership";
   plan: string | null;

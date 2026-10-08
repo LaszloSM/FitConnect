@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { signOut, useSession } from "next-auth/react";
+import { useSession } from "next-auth/react";
 import { useTheme } from "next-themes";
 import Link from "next/link";
 import { ConnectionIndicator } from "@/components/offline/ConnectionIndicator";
@@ -13,6 +13,7 @@ import { apiClient } from "@/lib/api";
 import { useSidebar } from "@/components/layout/SidebarContext";
 import { BrandMark } from "@/components/common/BrandMark";
 import { cn } from "@/lib/utils";
+import { signOutClean } from "@/lib/offline/logout";
 
 interface Notification {
   id: string;
@@ -234,7 +235,7 @@ export function Header() {
               Configuración
             </Link>
             <button
-              onClick={() => signOut({ callbackUrl: "/login" })}
+              onClick={() => void signOutClean("/login")}
               className="flex h-11 w-full items-center gap-3 border-t border-line px-4 text-sm text-[var(--signal-danger)] hover:bg-muted"
             >
               <LogOut className="size-4 shrink-0" />

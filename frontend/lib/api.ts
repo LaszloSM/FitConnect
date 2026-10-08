@@ -23,8 +23,8 @@ export function onUnauthorized(fn: Listener): () => void {
 export async function endSession(): Promise<void> {
   if (sessionEnding || typeof window === "undefined") return;
   sessionEnding = true;
-  const { signOut } = await import("next-auth/react");
-  await signOut({ callbackUrl: "/login?expired=1" });
+  const { signOutClean } = await import("@/lib/offline/logout");
+  await signOutClean("/login?expired=1");
 }
 
 function addResponseInterceptor(instance: AxiosInstance): AxiosInstance {

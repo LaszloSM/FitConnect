@@ -279,6 +279,9 @@ async def _agent_device(db: AsyncSession, token: dict) -> KioskDevice:
     device = await db.get(KioskDevice, uuid.UUID(token["device_id"]))
     if device is None or not device.is_active:
         raise HTTPException(status_code=401, detail="Dispositivo desactivado")
+    # El token de una tableta de kiosko no puede hacerse pasar por el agente de un torniquete.
+    if device.kind not in access_sync.HARDWARE_KINDS:
+        raise HTTPException(status_code=403, detail="Este dispositivo no es un torniquete ni un lector")
     device.last_seen_at = utcnow_naive()
     return device
 

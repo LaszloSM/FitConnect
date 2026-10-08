@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { AuthCardHeader, AuthNotice } from "@/components/common/AuthCardHeader";
+import { forgetOfflineData } from "@/lib/offline/logout";
 
 // Mensajes que llegan por la URL desde otros flujos.
 const AVISOS: Record<string, { tone: "warn" | "ok"; text: string }> = {
@@ -30,6 +31,8 @@ export default function LoginPage() {
     const params = new URLSearchParams(window.location.search);
     const key = Object.keys(AVISOS).find((k) => params.has(k));
     if (key) setNotice(AVISOS[key]);
+    // Sesión vencida o cerrada en otra pestaña: la copia de socios no se queda en el equipo.
+    void forgetOfflineData();
   }, []);
 
   async function finish() {

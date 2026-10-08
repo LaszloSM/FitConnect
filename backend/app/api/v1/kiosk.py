@@ -1,9 +1,10 @@
+import ipaddress
 import uuid
 from datetime import datetime, timezone, timedelta
 from fastapi import APIRouter, Depends, HTTPException, Request
 from typing import Literal, Optional
 
-from pydantic import BaseModel, Field, model_validator
+from pydantic import BaseModel, field_validator, Field, model_validator
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -136,6 +137,19 @@ class AccessConfig(BaseModel):
     open_command: Optional[str] = Field(default=None, max_length=60, pattern=r"^[A-Z_ ]+[0-9A-Fa-f ]*$")
     allowed_ips: Optional[list[str]] = Field(default=None, max_length=10)
     door: Optional[int] = Field(default=None, ge=1, le=8)
+
+    @field_validator("allowed_ips")
+    @classmethod
+    def _valid_ips(cls, v: Optional[list[str]]) -> Optional[list[str]]:
+        if v is None:
+            return v
+        out = []
+        for ip in v:
+            try:
+                out.append(str(ipaddress.ip_address(ip.strip())))
+            except ValueError:
+                raise ValueError(f"IP no válida: {ip}") from None
+        return out
 
 
 _CONFIG_KEYS = set(AccessConfig.model_fields)
