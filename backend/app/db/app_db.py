@@ -49,6 +49,9 @@ async def _ensure() -> None:
             await conn.run_sync(AppBase.metadata.create_all)
             for stmt in ALIGN_STATEMENTS:
                 await conn.execute(text(stmt))
+        from app.services.foods import seed_reference
+        async with async_sessionmaker(get_tenant_engine(_url()), expire_on_commit=False)() as session:
+            await seed_reference(session)
         _ready = True
 
 

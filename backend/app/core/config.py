@@ -62,6 +62,9 @@ class Settings(BaseSettings):
     app_access_minutes: int = 30
     app_refresh_days: int = 60
     app_terms_version: str = "2026-10"
+    # Asistente (API de Claude). Sin ANTHROPIC_API_KEY la app lo muestra como no disponible.
+    assistant_model: str = "claude-sonnet-5-5"
+    assistant_daily_limit: int = 30
     # Días de prueba gratis de un gimnasio nuevo y de gracia tras vencer antes de solo lectura.
     default_trial_days: int = 14
     past_due_grace_days: int = 7

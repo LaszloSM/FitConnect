@@ -200,10 +200,11 @@ async def delete_account(db: AsyncSession, user: AppUser) -> None:
     """Borra la cuenta y todo lo que es de la app. La ficha del gimnasio no se
     toca: es del gimnasio, que responde por ella ante el socio."""
     from app.db.app_db import app_session
-    from app.models.app import AppProfile, Workout
+    from app.models.app import AppProfile, AssistantMessage, Food, MealEntry, SavedPlan, Workout
     async with app_session() as adb:
-        await adb.execute(delete(Workout).where(Workout.app_user_id == user.id))
-        await adb.execute(delete(AppProfile).where(AppProfile.app_user_id == user.id))
+        for model in (Workout, MealEntry, SavedPlan, AssistantMessage, AppProfile):
+            await adb.execute(delete(model).where(model.app_user_id == user.id))
+        await adb.execute(delete(Food).where(Food.owner_id == user.id))
         await adb.commit()
     for model in (AppPushToken, AppConsent, AppSession, MemberLink):
         await db.execute(delete(model).where(model.app_user_id == user.id))
