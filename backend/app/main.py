@@ -12,6 +12,7 @@ from slowapi.errors import RateLimitExceeded
 from app.core.config import settings
 from app.core.logging import setup_logging, request_id_ctx
 from app.core.rate_limit import limiter
+from app.api.v1.iclock import router as iclock_router
 from app.api.v1.router import router as api_router
 from app.services.scheduler import start_scheduler, stop_scheduler
 from app.services.storage import StorageUnavailable
@@ -92,6 +93,8 @@ app.add_middleware(
 )
 
 app.include_router(api_router)
+# Equipos ZKTeco por ADMS: llaman a /iclock/* en la raíz (no se puede cambiar en el equipo).
+app.include_router(iclock_router)
 
 
 @app.get("/health")

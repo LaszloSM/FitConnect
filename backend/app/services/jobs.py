@@ -26,6 +26,7 @@ _EXPIRE_LOCK_KEY = 815001
 _RECONCILE_LOCK_KEY = 815002
 _OUTBOX_LOCK_KEY = 815003
 _ML_LOCK_KEY = 815004
+_ACCESS_LOCK_KEY = 815005
 
 
 async def _run_with_advisory_lock(key: int, name: str, work) -> None:
@@ -528,8 +529,23 @@ async def process_outbox_job() -> None:
     )
 
 
+async def _sync_tenant_access(session: AsyncSession, tenant: Tenant) -> None:
+    from app.services.access_sync import reconcile_all
+    await reconcile_all(session)
+
+
+async def sync_access_devices_job() -> None:
+    """Red de seguridad de los torniquetes: quien venció a medianoche, cambios
+    que no pasaron por un gancho, comandos sin respuesta. Cada 5 minutos."""
+    await _run_with_advisory_lock(
+        _ACCESS_LOCK_KEY, "sync_access_devices_job",
+        lambda: for_each_tenant(_sync_tenant_access),
+    )
+
+
 # Registro de jobs invocables manualmente (endpoint dev /admin/run-job/{name})
 JOBS = {
+    "sync_access_devices": sync_access_devices_job,
     "expire_memberships": expire_memberships_job,
     "reconcile_payments": reconcile_payments_job,
     "process_outbox": process_outbox_job,

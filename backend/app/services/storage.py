@@ -209,3 +209,25 @@ async def upload_image(data: bytes, key: str, content_type: str) -> str:
         raise StorageUnavailable(
             "El almacenamiento de archivos no está disponible; intenta de nuevo en unos minutos"
         ) from e
+
+
+def _download_sync(key: str, max_bytes: int) -> bytes:
+    obj = _s3().get_object(Bucket=settings.s3_bucket, Key=key)
+    body = obj["Body"].read(max_bytes + 1)
+    if len(body) > max_bytes:
+        raise ValueError("Archivo demasiado grande")
+    return body
+
+
+async def download_object(value: str | None, max_bytes: int = 2 * 1024 * 1024) -> bytes | None:
+    """Bytes de un objeto propio (key o URL del bucket). None si no existe."""
+    if not value:
+        return None
+    key = value if not value.startswith("http") else key_from_url(value)
+    if not key:
+        return None
+    try:
+        return await asyncio.to_thread(_download_sync, key, max_bytes)
+    except Exception as e:
+        logger.warning("No se pudo leer %s: %s", key, e)
+        return None

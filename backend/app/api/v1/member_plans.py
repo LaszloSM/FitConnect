@@ -240,6 +240,9 @@ async def _create_membership(
     db.add(membership)
     # El id de la membresía debe existir para vincular el pago (saldo pendiente computable)
     await db.flush()
+    # El torniquete se entera en la misma transacción (si algo falla, el reconciliador lo reintenta).
+    from app.services.access_sync import sync_member_id
+    await sync_member_id(db, member_id)
 
     if payment_method:
         method_map = {
@@ -375,6 +378,8 @@ async def give_courtesy(
     )
     db.add(membership)
     await db.flush()
+    from app.services.access_sync import sync_member_id
+    await sync_member_id(db, data.member_id)
     audit(db, current_user, "membership.courtesy", "membership", membership.id, {
         "member_id": str(data.member_id), "days": data.days, "reason": data.reason.strip(),
         "plan_name": plan.name if plan else None,

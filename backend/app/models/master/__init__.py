@@ -4,6 +4,7 @@ from app.models.master.owner import Owner
 from app.models.master.staff_directory import StaffDirectory
 from app.models.master.staff_invitation import StaffInvitation
 from app.models.master.exercise import Exercise
+from app.models.master.device_directory import DeviceDirectory
 
 __all__ = [
     "Tenant", "SubscriptionPlan", "TenantStatus",
@@ -11,4 +12,5 @@ __all__ = [
     "StaffDirectory",
     "StaffInvitation",
     "Exercise",
+    "DeviceDirectory",
 ]

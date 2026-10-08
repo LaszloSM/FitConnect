@@ -37,6 +37,8 @@ from app.models.tenant.instructor import Instructor
 from app.models.tenant.message_template import MessageTemplate
 from app.models.tenant.announcement import Announcement
 from app.models.tenant.import_batch import ImportBatch
+from app.models.tenant.device_command import DeviceCommand
+from app.models.tenant.device_user import DeviceUser
 
 __all__ = [
     "UserStaff", "UserRole",
@@ -78,4 +80,5 @@ __all__ = [
     "ExerciseMedia",
     "BiometricConsent", "MemberCredential", "AccessEvent",
     "ImportBatch",
+    "DeviceCommand", "DeviceUser",
 ]

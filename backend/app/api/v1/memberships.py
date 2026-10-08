@@ -13,6 +13,7 @@ from app.models.tenant.membership_freeze import MembershipFreeze
 from app.models.tenant.user_staff import UserStaff
 from app.schemas.member import MembershipResponse
 from app.services.audit import audit
+from app.services.access_sync import sync_member_id
 from app.services.gym_settings import get_gym_settings
 from app.services.membership_status import effective_status
 
@@ -50,6 +51,8 @@ async def cancel_membership(
     membership.status = MembershipStatus.cancelled.value
     audit(db, current_user, "membership.cancel", "membership", membership.id,
           {"member_id": str(membership.member_id), "plan_name": membership.plan_name})
+    await db.flush()
+    await sync_member_id(db, membership.member_id)
     await db.commit()
     await db.refresh(membership)
     return await _to_response(membership, db)
@@ -86,6 +89,8 @@ async def freeze_membership(
     membership.status = MembershipStatus.frozen.value
     audit(db, current_user, "membership.freeze", "membership", membership.id,
           {"member_id": str(membership.member_id), "reason": payload.reason})
+    await db.flush()
+    await sync_member_id(db, membership.member_id)
     await db.commit()
     await db.refresh(membership)
     return await _to_response(membership, db)
@@ -138,6 +143,8 @@ async def unfreeze_membership(
           {"member_id": str(membership.member_id), "days_applied": days,
            "new_end_date": membership.end_date.isoformat(),
            "chained_shifted": shifted})
+    await db.flush()
+    await sync_member_id(db, membership.member_id)
     await db.commit()
     await db.refresh(membership)
     return await _to_response(membership, db)

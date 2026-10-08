@@ -374,4 +374,58 @@ K9_IMPORTACION: list[str] = [
     "AND plan_name = 'Cortesía del equipo'",
 ]
 
-ALIGN_STATEMENTS: list[str] = [*J1_INGRESOS_PASE_TRANSFERENCIAS, *J2_INVENTARIO, *J4_CONSENTIMIENTOS, *J6_ACCESO, *J7_VIDEO_EJERCICIOS, *J8_GYM_SETTINGS_FLAGS, *K1_LIBRO_MOVIMIENTOS, *K2_MENSAJERIA, *K3_ENTRENADORES, *K4_MAQUINAS, *K5_STAFF_SOCIO, *K6_CAJA, *K7_MANTENIMIENTO, *K8_MODELOS, *K9_IMPORTACION]
+K10_TORNIQUETE: list[str] = [
+    # l1a2b3c4d5e6_torniquete_comandos.py
+    # Cola de comandos para torniquetes/lectores y lo que cada equipo tiene guardado.
+    "CREATE SEQUENCE IF NOT EXISTS device_command_seq START WITH 1",
+    """CREATE TABLE IF NOT EXISTS device_commands (
+        id UUID PRIMARY KEY,
+        wire_id BIGINT NOT NULL DEFAULT nextval('device_command_seq'),
+        device_id UUID NOT NULL REFERENCES kiosk_devices(id) ON DELETE CASCADE,
+        member_id UUID NULL REFERENCES members(id) ON DELETE SET NULL,
+        kind VARCHAR(30) NOT NULL,
+        payload JSONB NOT NULL,
+        status VARCHAR(20) NOT NULL,
+        attempts INTEGER NOT NULL,
+        sent_at TIMESTAMP NULL,
+        completed_at TIMESTAMP NULL,
+        return_code INTEGER NULL,
+        error VARCHAR(500) NULL,
+        created_by UUID NULL REFERENCES users(id),
+        created_at TIMESTAMP NOT NULL DEFAULT now(),
+        updated_at TIMESTAMP NOT NULL DEFAULT now()
+    )""",
+    """DO $$ BEGIN
+        IF NOT EXISTS (SELECT 1 FROM pg_constraint WHERE conname = 'device_commands_wire_id_key') THEN
+            ALTER TABLE device_commands ADD CONSTRAINT device_commands_wire_id_key UNIQUE (wire_id);
+        END IF;
+    END $$""",
+    "CREATE INDEX IF NOT EXISTS ix_device_commands_pending ON device_commands (device_id, status)",
+    "CREATE INDEX IF NOT EXISTS ix_device_commands_member_id ON device_commands (member_id)",
+    """CREATE TABLE IF NOT EXISTS device_users (
+        id UUID PRIMARY KEY,
+        device_id UUID NOT NULL REFERENCES kiosk_devices(id) ON DELETE CASCADE,
+        pin VARCHAR(64) NOT NULL,
+        name VARCHAR(255) NULL,
+        member_id UUID NULL REFERENCES members(id) ON DELETE SET NULL,
+        has_face BOOLEAN NOT NULL,
+        fingerprint_count INTEGER NOT NULL,
+        has_card BOOLEAN NOT NULL,
+        present BOOLEAN NOT NULL,
+        enabled BOOLEAN NULL,
+        synced_hash VARCHAR(64) NULL,
+        synced_at TIMESTAMP NULL,
+        last_seen_at TIMESTAMP NULL,
+        created_at TIMESTAMP NOT NULL DEFAULT now(),
+        updated_at TIMESTAMP NOT NULL DEFAULT now()
+    )""",
+    """DO $$ BEGIN
+        IF NOT EXISTS (SELECT 1 FROM pg_constraint WHERE conname = 'uq_device_users_device_pin') THEN
+            ALTER TABLE device_users ADD CONSTRAINT uq_device_users_device_pin UNIQUE (device_id, pin);
+        END IF;
+    END $$""",
+    "CREATE INDEX IF NOT EXISTS ix_device_users_device_id ON device_users (device_id)",
+    "CREATE INDEX IF NOT EXISTS ix_device_users_member_id ON device_users (member_id)",
+]
+
+ALIGN_STATEMENTS: list[str] = [*J1_INGRESOS_PASE_TRANSFERENCIAS, *J2_INVENTARIO, *J4_CONSENTIMIENTOS, *J6_ACCESO, *J7_VIDEO_EJERCICIOS, *J8_GYM_SETTINGS_FLAGS, *K1_LIBRO_MOVIMIENTOS, *K2_MENSAJERIA, *K3_ENTRENADORES, *K4_MAQUINAS, *K5_STAFF_SOCIO, *K6_CAJA, *K7_MANTENIMIENTO, *K8_MODELOS, *K9_IMPORTACION, *K10_TORNIQUETE]

@@ -258,7 +258,20 @@ async def revoke_biometric_consent(
     ))).scalars().all()
     for c in creds:
         c.revoked_at, c.revoked_by = now, current_user.id
-    audit(db, current_user, "biometric_consent.revoke", "member", member_id, {"kind": consent.kind, "credentials_revoked": len(creds)})
+    # Ley 1581: sin consentimiento la plantilla tampoco puede quedar en el equipo.
+    from app.models.tenant.device_user import DeviceUser
+    from app.services import access_sync
+    removed = 0
+    for device in await access_sync.command_devices(db):
+        pins = (await db.execute(select(DeviceUser.pin).where(
+            DeviceUser.device_id == device.id, DeviceUser.member_id == member_id, DeviceUser.present.is_(True)
+        ))).scalars().all()
+        for pin in pins:
+            await access_sync.enqueue(db, device, "biometric_delete", {"pin": pin, "biometric": consent.kind},
+                                      member_id=member_id, created_by=current_user.id)
+            removed += 1
+    audit(db, current_user, "biometric_consent.revoke", "member", member_id,
+          {"kind": consent.kind, "credentials_revoked": len(creds), "device_deletions": removed})
     await db.commit()
     return {"revoked": True, "credentials_revoked": len(creds)}
 
