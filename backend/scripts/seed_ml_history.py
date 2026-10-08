@@ -3,8 +3,8 @@
 `seed_demo_gym.py` crea un gimnasio de hoy: sus socios nacen hoy y ningún modelo
 puede aprender nada de un solo día. Este script escribe directo en la base del
 tenant (la API no permite fechar hacia atrás) socios con membresías encadenadas,
-visitas con hábitos distintos y pagos, con tres destinos: fieles, ocasionales y
-socios que se van. Solo para desarrollo.
+visitas y pagos que salen del simulador realista (`app/services/ml/simulator.py`):
+nada de perfiles con la respuesta sembrada. Solo para desarrollo.
 
 Uso (desde backend/):
     python scripts/seed_ml_history.py --slug gym-demo-xxxx --members 320
@@ -14,7 +14,7 @@ import asyncio
 import random
 import sys
 import uuid
-from datetime import date, datetime, timedelta, timezone
+from datetime import date, datetime, timezone
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
@@ -31,19 +31,11 @@ from app.models.tenant.checkin import CheckIn  # noqa: E402
 from app.models.tenant.member import Member, MemberStatus  # noqa: E402
 from app.models.tenant.membership import Membership  # noqa: E402
 from app.models.tenant.payment import Payment, PaymentMethod, PaymentStatus  # noqa: E402
+from app.services.ml.simulator import simulate  # noqa: E402
 
 NOMBRES = ["Ana", "Carlos", "Lucía", "Andrés", "Valentina", "Julián", "Camila", "Mateo", "Daniela", "Sebastián",
            "Paula", "Felipe", "Mariana", "Santiago", "Isabella", "Nicolás", "Sofía", "Tomás", "Laura", "David"]
 APELLIDOS = ["Ramírez", "Gómez", "Torres", "Rojas", "Castro", "Mendoza", "Vargas", "Pineda", "Salazar", "Correa"]
-
-PERFILES = {
-    #            peso, renueva, visitas/semana, horas preferidas
-    "fiel":      (0.40, 0.92, 4.2, (6, 7, 18)),
-    "ocasional": (0.35, 0.62, 1.6, (12, 13, 17)),
-    "se_va":     (0.25, 0.28, 2.6, (19, 20)),
-}
-PLANES = [("Mensual", 30, 85000, 95000), ("Trimestral", 90, 230000, 250000)]
-
 
 def _utc(d: date, hour: int, minute: int) -> datetime:
     local = datetime(d.year, d.month, d.day, hour, minute, tzinfo=BOGOTA)
@@ -61,59 +53,49 @@ async def seed(slug: str, n_members: int, seed_value: int) -> None:
 
     engine = create_async_engine(settings.tenant_database_url_template.replace("{db_name}", tenant.db_name), poolclass=NullPool)
     hoy = today_bogota()
+    # La historia sale del simulador realista (app/services/ml/simulator.py): el
+    # compromiso de cada socio cambia semana a semana y renovar depende de él con
+    # ruido. Ningún rasgo trae la respuesta sembrada.
+    h = simulate(hoy, members=n_members, seed=seed_value)
     socios = membresias = visitas = pagos = 0
     try:
         async with async_sessionmaker(engine, expire_on_commit=False)() as db:
-            for i in range(n_members):
-                perfil = rng.choices(list(PERFILES), weights=[p[0] for p in PERFILES.values()])[0]
-                _, renueva, por_semana, horas = PERFILES[perfil]
-                creado = hoy - timedelta(days=rng.randint(20, 300))
+            for mid, info in h.members.items():
                 socio = Member(
-                    id=uuid.uuid4(), full_name=f"{rng.choice(NOMBRES)} {rng.choice(APELLIDOS)}",
+                    id=mid, full_name=f"{rng.choice(NOMBRES)} {rng.choice(APELLIDOS)}",
                     phone=f"30{rng.randint(10000000, 99999999)}", member_type="member",
-                    status=MemberStatus.active, created_at=_utc(creado, 9, 0), updated_at=_utc(creado, 9, 0),
+                    status=MemberStatus.active if info.active else MemberStatus.inactive,
+                    created_at=_utc(info.created, 9, 0), updated_at=_utc(info.created, 9, 0),
                 )
                 db.add(socio)
                 # Sin relaciones ORM entre estos modelos, la unidad de trabajo no
                 # sabe que el socio va antes que sus visitas: flush explícito.
                 await db.flush()
                 socios += 1
-                plan, dias, precio_viejo, precio_nuevo = rng.choices(PLANES, weights=[0.8, 0.2])[0]
-                inicio = creado
-                while inicio <= hoy:
-                    precio = precio_viejo if inicio < hoy - timedelta(days=150) else precio_nuevo
-                    fin = inicio + timedelta(days=dias - 1)
+                for st in h.stints.get(mid, []):
+                    registrado = st.created or st.start
                     ms = Membership(
-                        id=uuid.uuid4(), member_id=socio.id, plan_name=plan, price=precio,
-                        start_date=inicio, end_date=fin, duration_days=dias,
-                        status="active" if fin >= hoy else "expired",
-                        created_at=_utc(inicio, 9, 5), updated_at=_utc(inicio, 9, 5),
+                        id=uuid.uuid4(), member_id=mid, plan_name=st.plan_name, price=st.price,
+                        start_date=st.start, end_date=st.end, duration_days=st.duration,
+                        status="active" if st.end >= hoy else "expired",
+                        created_at=_utc(registrado, 9, 5), updated_at=_utc(registrado, 9, 5),
                     )
                     db.add(ms)
                     await db.flush()
                     membresias += 1
-                    db.add(Payment(
-                        member_id=socio.id, membership_id=ms.id, amount=precio,
-                        method=rng.choice([PaymentMethod.cash, PaymentMethod.card, PaymentMethod.transfer]),
-                        status=PaymentStatus.paid, concept=f"Membresía {plan}", kind="membership",
-                        created_at=_utc(inicio, rng.choice(horas), rng.randint(0, 50)), updated_at=_utc(inicio, 9, 10),
-                    ))
-                    pagos += 1
-                    se_va = rng.random() > renueva
-                    d = inicio
-                    while d <= min(fin, hoy - timedelta(days=1)):
-                        apagado = se_va and (fin - d).days < 16
-                        ritmo = por_semana * (1.25 if d.weekday() in (0, 1, 2) else 0.8 if d.weekday() >= 5 else 1)
-                        if not apagado and rng.random() < ritmo / 7:
-                            ts = _utc(d, rng.choice(horas), rng.randint(0, 59))
-                            db.add(CheckIn(member_id=socio.id, created_at=ts, updated_at=ts, decision="allowed", source="reception"))
-                            visitas += 1
-                        d += timedelta(days=1)
-                    if se_va:
-                        socio.status = MemberStatus.inactive if fin < hoy - timedelta(days=30) else MemberStatus.active
-                        break
-                    inicio = fin + timedelta(days=1)
-                if i % 50 == 49:
+                    if registrado < hoy:
+                        db.add(Payment(
+                            member_id=mid, membership_id=ms.id, amount=st.price,
+                            method=rng.choice([PaymentMethod.cash, PaymentMethod.card, PaymentMethod.transfer]),
+                            status=PaymentStatus.paid, concept=f"Membresía {st.plan_name}", kind="membership",
+                            created_at=_utc(registrado, 10, rng.randint(0, 50)), updated_at=_utc(registrado, 10, 55),
+                        ))
+                        pagos += 1
+                for d, hour in h.hours.get(mid, []):
+                    ts = _utc(d, hour, rng.randint(0, 59))
+                    db.add(CheckIn(member_id=mid, created_at=ts, updated_at=ts, decision="allowed", source="reception"))
+                    visitas += 1
+                if socios % 50 == 0:
                     await db.flush()
             await db.commit()
     finally:

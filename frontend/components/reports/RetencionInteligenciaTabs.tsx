@@ -61,9 +61,14 @@ const STATUS_TEXT: Record<string, { label: string; tone: "success" | "warning" |
 function metricLine(m: ModelStatus): string {
   const x = m.metrics ?? {};
   if (m.status !== "trained" && m.status !== "weak") return m.detail ?? "";
-  if (m.name === "churn" && x.auc != null) return `${m.n_samples.toLocaleString("es-CO")} casos · AUC ${String(x.auc).replace(".", ",")}`;
+  const dec = (v: number) => String(v).replace(".", ",");
+  if (m.name === "churn" && x.auc != null) {
+    return `${m.n_samples.toLocaleString("es-CO")} membresías · modelo ${dec(x.auc)}${x.rule_auc != null ? ` contra regla ${dec(x.rule_auc)}` : ""} (AUC en las más recientes)`;
+  }
   if (m.name === "forecast" && x.backtest?.model_error_pct != null) {
-    return `error ${x.backtest.model_error_pct}% en 2 semanas (el ritmo lineal: ${x.backtest.pace_error_pct}%)`;
+    const b = x.backtest;
+    const n = b.windows ?? 1;
+    return `error medio ${dec(b.model_error_pct)} % en ${n} ${n === 1 ? "prueba" : "pruebas"} de 2 semanas (ritmo lineal: ${dec(b.pace_error_pct)} %)`;
   }
   if (m.name === "segments") return `${x.members} socios en ${x.groups} grupos`;
   if (m.name === "anomalies") return `${x.days} días revisados`;
@@ -295,18 +300,38 @@ export function InteligenciaTab({ period }: { period: Period }) {
       )}
 
       <Card
-        title="Socios en riesgo de abandono"
+        title="Socios en riesgo"
         icon={<Brain className="h-4 w-4 text-[var(--signal-danger)]" />}
         right={<MethodTag method={risk[0]?.method ?? (churnModel?.status === "trained" ? "modelo" : "reglas")} />}
       >
         {data.drivers?.method === "modelo" && data.drivers.drivers.length > 0 ? (
           <p className="text-xs text-[var(--text-muted)] mb-3">
-            Lo que más pesa en este gimnasio: {data.drivers.drivers.slice(0, 4).map((d) => `${d.feature} (${Math.round(d.weight * 100)}%)`).join(" · ")}
+            Para quienes vencen en los próximos 30 días, la probabilidad de que no renueven sale del modelo; el resto, de
+            las reglas. Lo que más pesa en este gimnasio:{" "}
+            {data.drivers.drivers.slice(0, 4).map((d) => `${d.feature} (${Math.round(d.weight * 100)}%)`).join(" · ")}.
           </p>
         ) : (
-          <p className="text-xs text-[var(--text-muted)] mb-3">
-            Puntaje por reglas (visitas, mora, vencimiento). {churnModel?.detail ?? ""}
-          </p>
+          <p className="text-xs text-[var(--text-muted)] mb-3">Puntaje por reglas (visitas, mora, vencimiento).</p>
+        )}
+        {churnModel?.detail && (churnModel.status === "trained" || churnModel.status === "weak") && (
+          <details className="mb-3 text-xs text-[var(--text-muted)]">
+            <summary className="cursor-pointer font-medium text-[var(--text-base)]">{churnModel.detail}</summary>
+            <div className="mt-2 space-y-1">
+              <p>
+                Se probó con las {churnModel.metrics?.test_samples ?? "—"} membresías que terminaron más recientemente,
+                mirando a cada socio 3 semanas antes de vencer y solo con lo que se sabía ese día.
+                {churnModel.metrics?.auc_ci ? ` Rango probable del acierto: ${churnModel.metrics.auc_ci.map((v: number) => String(v).replace(".", ",")).join(" a ")}.` : ""}
+              </p>
+              {Array.isArray(churnModel.metrics?.calibration) && churnModel.metrics.calibration.length > 0 && (
+                <p className="tabular-nums">
+                  Cuando dijo…{" "}
+                  {churnModel.metrics.calibration
+                    .map((c: { predicted: number; observed: number }) => `${Math.round(c.predicted * 100)} %, no renovó el ${Math.round(c.observed * 100)} %`)
+                    .join(" · ")}
+                </p>
+              )}
+            </div>
+          </details>
         )}
         {risk.length === 0 ? <Empty text="Ningún socio con señales de abandono. Buen trabajo." /> : <DataTable columns={columns} rows={risk} rowKey={(r) => r.member_id} />}
       </Card>
@@ -397,6 +422,12 @@ export function InteligenciaTab({ period }: { period: Period }) {
               {aforo.top?.length > 0 && (
                 <p className="text-xs text-[var(--text-muted)] mt-2">
                   Más lleno: {aforo.top.slice(0, 3).map((t: any) => `${t.weekday_label} ${formatDate(parseDateOnly(t.date))} ${t.hour}:00 (~${Math.round(t.expected)})`).join(" · ")}
+                </p>
+              )}
+              {aforo.holidays?.length > 0 && (
+                <p className="text-xs text-[var(--text-muted)] mt-1">
+                  Festivo: {aforo.holidays.map((d: string) => formatDate(parseDateOnly(d), "EEEE d MMM")).join(", ")}. Se espera
+                  ~{Math.round((aforo.holiday_factor ?? 0.6) * 100)} % de un día normal, según los festivos anteriores.
                 </p>
               )}
             </>

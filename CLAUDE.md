@@ -305,6 +305,10 @@ Cuando cometas un error durante una sesión, agrégalo aquí antes de terminar:
 | El emulador ZKTeco marcaba con `datetime.now()` (UTC del contenedor) y el servidor lo leía como hora de Bogotá | Un equipo real marca en hora local; el emulador no | Simuladores de hardware usan la misma hora que el equipo real (`now` en `America/Bogota`), o las validaciones de fecha los rechazan con razón |
 | El service worker guardaba en Cache Storage la sesión con el token de acceso | Se cacheó la respuesta de `/api/auth/session` tal cual | Lo que se guarda para trabajar sin red se sanea (sin `accessToken`); al volver la red se pide la sesión real con `update()` |
 
+| El modelo de abandono daba AUC 0,81 con renovaciones AL AZAR | Los rasgos se calculaban con datos posteriores al corte (membresías registradas después, visitas del período que se quería predecir): el modelo leía la respuesta | Toda fila de entrenamiento se arma con lo que se sabía en la fecha de corte (`Stint.created <= corte`). La prueba de fuga es obligatoria: `ml_evaluation_report.py --simulate --random` debe dar AUC ≈ 0,5 y "no usable" |
+| Un modelo "bueno" en abstracto se mostraba aunque no le ganara a la regla que ya usa la app | Se medía solo el AUC del modelo, sin línea base | El modelo se compara contra la regla en la misma prueba hacia adelante, con intervalo por bootstrap agrupado por socio; solo se usa si el límite inferior de la ganancia es > 0 y su Brier le gana a la tasa base |
+| El pronóstico contaba dos veces el efecto quincena | Se estimaban quincena y festivos por separado sobre la serie cruda, y ambos absorbían lo mismo | Efectos estimados por backfitting (uno a la vez sobre el residuo del otro) y banda de error calibrada con el error fuera de muestra de varias ventanas (`band_scale`), no con el ajuste dentro de muestra |
+
 **Protocolo:** Al detectar un error que no estaba documentado, añade una fila a la tabla antes del commit.
 
 ---

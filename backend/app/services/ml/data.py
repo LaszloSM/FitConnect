@@ -40,6 +40,9 @@ class Stint:
     duration: int
     price: float
     plan_name: str
+    #: Día en que se registró en el sistema. Una renovación cargada tarde (con
+    #: inicio en el pasado) no se conocía antes de esta fecha.
+    created: date | None = None
 
 
 @dataclass
@@ -79,13 +82,14 @@ async def load_history(db: AsyncSession, today: date, days: int = 300) -> Histor
     )).all():
         h.members[mid] = MemberInfo(_to_bogota(created).date(), status == MemberStatus.active, name, phone)
 
-    for mid, s, e, dur, price, plan in (await db.execute(
+    for mid, s, e, dur, price, plan, created in (await db.execute(
         select(Membership.member_id, Membership.start_date, Membership.end_date, Membership.duration_days,
-               Membership.price, Membership.plan_name)
+               Membership.price, Membership.plan_name, Membership.created_at)
         .where(Membership.status != MembershipStatus.cancelled.value)
     )).all():
         if mid in h.members:
-            h.stints.setdefault(mid, []).append(Stint(s, e, dur or (e - s).days, float(price or 0), plan))
+            h.stints.setdefault(mid, []).append(Stint(s, e, dur or (e - s).days, float(price or 0), plan,
+                                                      _to_bogota(created).date() if created else None))
 
     for mid, ts in (await db.execute(
         select(CheckIn.member_id, CheckIn.created_at)
@@ -128,7 +132,9 @@ def features_at(h: History, mid, T: date) -> list[float]:
     vprev = _between(fechas, T - timedelta(days=60), T - timedelta(days=30))
     semanas = {d.weekday() for d in fechas[:corte] if d > T - timedelta(days=60)}
 
-    tramos = [s for s in h.stints.get(mid, []) if s.start <= T]
+    # Solo lo que el sistema ya sabía en T: sin membresías que empiezan después
+    # ni las registradas después con fecha de inicio hacia atrás.
+    tramos = [s for s in h.stints.get(mid, []) if s.start <= T and (s.created is None or s.created <= T)]
     inicio = min([info.created] + [s.start for s in tramos])
     vigentes = [s for s in tramos if s.start <= T <= s.end]
     actual = vigentes[-1] if vigentes else (max(tramos, key=lambda s: s.end) if tramos else None)
@@ -257,3 +263,81 @@ def pricing_rows(h: History) -> list[dict]:
 
 def local_visits(h: History) -> list[datetime]:
     return h.visit_times
+
+
+# ─── ¿Renovará? ──────────────────────────────────────────────────────────────
+
+#: Se mira al socio 3 semanas antes de que venza: hay tiempo de hacer algo.
+LEAD_DAYS = 21
+#: Renovó si compró otra membresía hasta 30 días después de vencer.
+RENEW_WINDOW = 30
+
+
+def _renewed(tramos: list[Stint], s: Stint, by: date) -> bool:
+    return any(
+        o is not s and o.start > s.start and o.start <= s.end + timedelta(days=RENEW_WINDOW)
+        and (o.created is None or o.created <= by)
+        for o in tramos
+    )
+
+
+def renewal_dataset(h: History) -> tuple[list, list, list, list, list]:
+    """Una fila por membresía que terminó: el socio visto LEAD_DAYS antes del fin.
+
+    Devuelve (X, y, fecha de fin, socio, puntaje de la regla actual). y = 1 si NO
+    renovó. Se excluyen las que ya estaban renovadas en la fecha de corte (no hay
+    nada que predecir) y las que aún no tienen la ventana de renovación completa.
+    """
+    from app.services import insights_engine as eng
+
+    X, y, ends, groups, rule = [], [], [], [], []
+    madurez = h.today - timedelta(days=RENEW_WINDOW)
+    for mid, tramos in h.stints.items():
+        info = h.members.get(mid)
+        if info is None:
+            continue
+        for s in tramos:
+            T = s.end - timedelta(days=LEAD_DAYS)
+            if s.end > madurez or T - timedelta(days=60) < h.start or s.start > T or info.created > T:
+                continue
+            if _renewed(tramos, s, by=T):
+                continue
+            x = features_at(h, mid, T)
+            X.append(x)
+            y.append(0 if _renewed(tramos, s, by=s.end + timedelta(days=RENEW_WINDOW)) else 1)
+            ends.append(s.end)
+            groups.append(mid)
+            rule.append(rule_score(eng, x, T))
+    return X, y, ends, groups, rule
+
+
+def rule_score(eng, x: list[float], T: date) -> float:
+    """El puntaje de la regla que usa la app hoy, con lo que se sabía en T."""
+    dias_sin = None if x[0] >= NEVER else int(x[0])
+    fin = T + timedelta(days=int(x[6])) if x[7] else None
+    score, _ = eng.churn_score(
+        today=T, days_since_last_visit=dias_sin, visits_last_30=int(x[1]), visits_prev_30=int(x[2]),
+        membership_end=fin, membership_status="active" if x[7] else "expired",
+        days_overdue=max(-int(x[6]), 0), renewals_count=int(x[5]),
+    )
+    return float(score)
+
+
+def due_matrix(h: History, days: int = 30) -> tuple[list, list]:
+    """Socios activos cuya membresía vence en los próximos `days` días y que aún no renovaron."""
+    ids, filas = [], []
+    for mid, info in h.members.items():
+        if not info.active:
+            continue
+        tramos = h.stints.get(mid, [])
+        vigentes = [s for s in tramos if s.start <= h.today <= s.end]
+        if not vigentes:
+            continue
+        s = vigentes[-1]
+        if not (0 <= (s.end - h.today).days <= days):
+            continue
+        if any(o is not s and o.start > s.start for o in tramos):
+            continue
+        ids.append(mid)
+        filas.append(features_at(h, mid, h.today))
+    return ids, filas
