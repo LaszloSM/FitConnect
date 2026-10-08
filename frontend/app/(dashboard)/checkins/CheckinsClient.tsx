@@ -6,6 +6,7 @@ import { createPortal } from "react-dom";
 import { useSession } from "next-auth/react";
 import { motion, AnimatePresence, useReducedMotion } from "framer-motion";
 import { PageHeader } from "@/components/common/PageHeader";
+import { OpenTurnstileButton } from "@/components/access/OpenTurnstileButton";
 import { EmptyState } from "@/components/common/EmptyState";
 import { Avatar, CardHead } from "@/components/dashboard/hoy/parts";
 import { apiClient } from "@/lib/api";
@@ -231,9 +232,12 @@ export default function CheckinsClient() {
       <PageHeader
         title="Mostrador"
         action={
-          <Button type="button" variant="outline" onClick={() => setTvMode(true)}>
-            <TelevisionIcon /> Modo TV
-          </Button>
+          <div className="flex flex-wrap gap-2">
+            <OpenTurnstileButton />
+            <Button type="button" variant="outline" onClick={() => setTvMode(true)}>
+              <TelevisionIcon /> Modo TV
+            </Button>
+          </div>
         }
       />
 

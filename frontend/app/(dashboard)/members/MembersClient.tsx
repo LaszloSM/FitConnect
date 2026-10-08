@@ -40,10 +40,11 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { PlusIcon as Plus, MagnifyingGlassIcon as Search, PencilSimpleIcon as Pencil, TrashIcon as Trash2, WarningCircleIcon as AlertCircle, QrCodeIcon as QrCode, XIcon as X, TagIcon as Tag, ClockIcon as Clock, CheckCircleIcon as CheckCircle2, DownloadSimpleIcon as Download, CheckIcon as Check, UserIcon as User, HeartbeatIcon as HeartPulse, CreditCardIcon as CreditCard } from "@phosphor-icons/react";
+import { FingerprintIcon as Fingerprint, PlusIcon as Plus, MagnifyingGlassIcon as Search, PencilSimpleIcon as Pencil, TrashIcon as Trash2, WarningCircleIcon as AlertCircle, QrCodeIcon as QrCode, XIcon as X, TagIcon as Tag, ClockIcon as Clock, CheckCircleIcon as CheckCircle2, DownloadSimpleIcon as Download, CheckIcon as Check, UserIcon as User, HeartbeatIcon as HeartPulse, CreditCardIcon as CreditCard } from "@phosphor-icons/react";
 import { MembershipStatusBadge } from "@/components/common/MembershipStatusBadge";
 import type { TrainingGoal } from "@/lib/types";
 import { P, useCan } from "@/lib/permissions";
+import { EnrollPanel } from "@/components/access/EnrollPanel";
 
 const TRAINING_GOALS = [
   { value: "weight_loss", label: "Bajar de peso" },
@@ -153,6 +154,7 @@ const WIZARD_STEPS = [
   { label: "Datos personales", icon: User },
   { label: "Salud", icon: HeartPulse },
   { label: "Membresía", icon: CreditCard },
+  { label: "Acceso", icon: Fingerprint },
 ];
 
 const emptyForm: FormState = {
@@ -183,6 +185,8 @@ export default function MembersClient() {
   const { data: session } = useSession();
   const router = useRouter();
   const { can } = useCan();
+  // Socio recién creado: el paso "Acceso" registra rostro y huella en el torniquete.
+  const [created, setCreated] = useState<{ id: string; name: string; hasPhoto: boolean } | null>(null);
   const [members, setMembers] = useState<Member[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -369,6 +373,7 @@ export default function MembersClient() {
     setAssignPlanId("");
     setAssignStartDate("");
     setAssignPaymentMethod("");
+    setCreated(null);
   };
 
   const openCreate = () => { resetForm(); setConverting(null); setDialogOpen(true); };
@@ -525,7 +530,14 @@ export default function MembersClient() {
         });
       }
       toast.success(editing ? "Miembro actualizado" : converting ? "Visitante convertido en socio" : "Miembro creado");
-      setDialogOpen(false); resetForm(); setConverting(null); fetchMembers();
+      fetchMembers();
+      if (!editing && memberId && can(P.CREDENTIALS_WRITE)) {
+        setCreated({ id: memberId, name: form.full_name, hasPhoto: Boolean(photoFile && consentImage) });
+        setConverting(null);
+        setStep(3);
+        return;
+      }
+      setDialogOpen(false); resetForm(); setConverting(null);
     } catch (err: unknown) {
       toast.error(parseApiError(err, "Error guardando miembro"));
     } finally { setSubmitting(false); }
@@ -861,6 +873,15 @@ export default function MembersClient() {
                   })}
                 </div>
 
+                {step === 3 && created && (
+                  <div className="space-y-3">
+                    <p className="text-sm text-[var(--text-muted)]">
+                      {created.name.split(" ")[0]} ya es socio. Registra su rostro y su huella en el torniquete, o
+                      hazlo después desde su ficha › Acceso.
+                    </p>
+                    <EnrollPanel memberId={created.id} hasPhoto={created.hasPhoto} />
+                  </div>
+                )}
                 {step === 0 && personalFields}
                 {step === 1 && healthFields}
                 {step === 2 && (
@@ -945,8 +966,21 @@ export default function MembersClient() {
             )}
 
             <div className="flex items-center justify-between gap-2 pt-4 mt-2 border-t border-[var(--border-base)]">
-              <Button type="button" variant="ghost" onClick={() => setDialogOpen(false)} className="text-[var(--text-muted)]">Cancelar</Button>
-              {editing ? (
+              {step === 3 ? <span /> : (
+                <Button type="button" variant="ghost" onClick={() => setDialogOpen(false)} className="text-[var(--text-muted)]">Cancelar</Button>
+              )}
+              {step === 3 ? (
+                <div className="flex gap-2">
+                  {created && (
+                    <Button type="button" variant="outline" onClick={() => { const id = created.id; setDialogOpen(false); resetForm(); router.push(`/members/${id}`); }}>
+                      Ver ficha
+                    </Button>
+                  )}
+                  <Button type="button" onClick={() => { setDialogOpen(false); resetForm(); }}>
+                    Terminar
+                  </Button>
+                </div>
+              ) : editing ? (
                 <Button type="submit" disabled={submitting}>
                   {submitting ? "Guardando..." : "Guardar cambios"}
                 </Button>

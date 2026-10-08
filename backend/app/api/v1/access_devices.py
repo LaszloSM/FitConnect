@@ -68,6 +68,22 @@ def _require_protocol(device: KioskDevice) -> None:
 
 # ─── Personal ───────────────────────────────────────────────────────────────
 
+@router.get("/devices", dependencies=[Depends(require_perm(perm.ACCESS_VALIDATE))])
+async def list_access_devices(db: AsyncSession = Depends(get_tenant_db_from_token)):
+    """Torniquetes y lectores activos, para recepción (enrolar, abrir). Sin tokens ni ajustes."""
+    devices = (await db.execute(
+        select(KioskDevice).where(KioskDevice.is_active.is_(True), KioskDevice.kind.in_(access_sync.HARDWARE_KINDS))
+        .order_by(KioskDevice.name)
+    )).scalars().all()
+    now = utcnow_naive()
+    return [{
+        "id": str(d.id), "name": d.name, "kind": d.kind, "vendor": d.vendor, "location": d.location,
+        "protocol": access_sync.protocol_of(d), "connected": access_sync.takes_commands(d),
+        "online": bool(d.last_seen_at and (now - d.last_seen_at).total_seconds() < 300),
+        "last_seen_at": d.last_seen_at.isoformat() if d.last_seen_at else None,
+    } for d in devices]
+
+
 @router.get("/devices/{device_id}/status", dependencies=[Depends(require_perm(perm.ACCESS_VALIDATE))])
 async def device_status(device_id: uuid.UUID, db: AsyncSession = Depends(get_tenant_db_from_token)):
     device = await _hardware(db, device_id)

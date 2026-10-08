@@ -8,6 +8,8 @@ import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { apiClient } from "@/lib/api";
+import { EnrollPanel } from "@/components/access/EnrollPanel";
+import { P, useCan } from "@/lib/permissions";
 import { parseApiError } from "@/lib/errors";
 import { formatTimeAgo } from "@/lib/format";
 import { FingerprintIcon as Fingerprint, ScanIcon as ScanFace, CreditCardIcon as CreditCard, KeyIcon as KeyRound, SpinnerGapIcon as Loader2, ShieldCheckIcon as ShieldCheck, ShieldSlashIcon as ShieldOff, XIcon as X } from "@phosphor-icons/react";
@@ -26,9 +28,10 @@ const KIND_META: Record<CredKind, { label: string; icon: React.ReactNode; biomet
 };
 const DECISION: Record<string, string> = { allowed: "Permitido", duplicate: "Reingreso", denied: "Denegado", not_found: "No reconocido" };
 
-export function MemberAccessTab({ memberId, idNumber }: { memberId: string; idNumber: string }) {
+export function MemberAccessTab({ memberId, idNumber, hasPhoto = false }: { memberId: string; idNumber: string; hasPhoto?: boolean }) {
   const { data: session } = useSession();
   const isOwnerOrAdmin = session?.role === "owner" || session?.role === "admin";
+  const { can } = useCan();
   const [data, setData] = useState<{ consents: Consent[]; credentials: Credential[]; events: AccessEvent[]; consent_text_version: string } | null>(null);
   const [devices, setDevices] = useState<Device[]>([]);
   const [kind, setKind] = useState<CredKind>("fingerprint");
@@ -80,6 +83,12 @@ export function MemberAccessTab({ memberId, idNumber }: { memberId: string; idNu
   const activeCreds = data.credentials.filter((c) => !c.revoked_at);
   return (
     <div className="space-y-4">
+      {can(P.CREDENTIALS_WRITE) && (
+        <div className="rounded-xl border border-[var(--border-base)] bg-[var(--bg-base)] p-4 space-y-2">
+          <p className="text-sm font-semibold text-[var(--text-base)]">Registrar en el torniquete</p>
+          <EnrollPanel memberId={memberId} hasPhoto={hasPhoto} onEnrolled={load} />
+        </div>
+      )}
       <div className="rounded-xl border border-[var(--border-base)] bg-[var(--bg-base)] p-4 space-y-3">
         <p className="text-sm font-semibold text-[var(--text-base)]">Credenciales de acceso</p>
         <p className="text-sm text-[var(--text-muted)]">Por defecto el socio entra con su cédula ({idNumber}) o su carné QR en cualquier dispositivo. Aquí se registran huella, rostro, tarjeta o PIN cuando el gym tiene torniquete o lector. La huella nunca se guarda en FitConnect: solo el ID con que la registró el lector.</p>
@@ -97,8 +106,8 @@ export function MemberAccessTab({ memberId, idNumber }: { memberId: string; idNu
         ))}
       </div>
 
-      <div className="rounded-xl border border-[var(--border-base)] bg-[var(--bg-base)] p-4 space-y-3">
-        <p className="text-sm font-semibold text-[var(--text-base)]">Enrolar credencial</p>
+      <details className="rounded-xl border border-[var(--border-base)] bg-[var(--bg-base)] p-4 space-y-3">
+        <summary className="cursor-pointer text-sm font-semibold text-[var(--text-base)]">Asignar un ID manualmente (tarjeta, PIN o equipo sin conexión)</summary>
         <div className="flex gap-1.5 flex-wrap">
           {(Object.keys(KIND_META) as CredKind[]).map((k) => (
             <button key={k} type="button" onClick={() => setKind(k)} className={`rounded-lg px-3 py-1.5 text-xs font-medium border flex items-center gap-1.5 ${k === kind ? "bg-primary text-primary-contrast border-transparent" : "border-[var(--border-base)] text-[var(--text-muted)]"}`}>{KIND_META[k].icon} {KIND_META[k].label}</button>
@@ -125,8 +134,8 @@ export function MemberAccessTab({ memberId, idNumber }: { memberId: string; idNu
           )
         )}
         <Button onClick={enroll} disabled={busy || !readerId.trim()}>{busy ? <Loader2 className="h-4 w-4 animate-spin" /> : `Enrolar ${KIND_META[kind].label.toLowerCase()}`}</Button>
-        <p className="text-[11px] text-[var(--text-muted)]">Después de enrolar aquí, registra la huella o tarjeta en el equipo físico con el mismo ID. Si usas la cédula como ID no hay que mapear nada.</p>
-      </div>
+        <p className="text-[11px] text-[var(--text-muted)]">Para equipos que no están conectados a FitConnect: registra la huella o tarjeta en el equipo con el mismo ID. Si usas la cédula como ID no hay que mapear nada.</p>
+      </details>
 
       {data.consents.length > 0 && (
         <div className="rounded-xl border border-[var(--border-base)] bg-[var(--bg-base)] p-4 space-y-2">
@@ -137,7 +146,7 @@ export function MemberAccessTab({ memberId, idNumber }: { memberId: string; idNu
               <span className="flex-1 text-[var(--text-base)]">{c.kind === "face" ? "Rostro" : "Huella"} · firmado {formatTimeAgo(c.signed_at)} · v{c.text_version}{c.revoked_at ? ` · revocado ${formatTimeAgo(c.revoked_at)}` : ""}</span>
               {!c.revoked_at && isOwnerOrAdmin && (armedConsent === c.id ? (
                 <span className="flex items-center gap-2 text-xs">
-                  <span className="text-[var(--text-muted)]">Se revocan sus credenciales de ese tipo y hay que borrarlo del lector.</span>
+                  <span className="text-[var(--text-muted)]">Se revocan sus credenciales de ese tipo y se borra del torniquete.</span>
                   <button type="button" onClick={() => revokeConsent(c)} className="font-medium text-[var(--signal-danger)] hover:underline">Revocar</button>
                   <button type="button" onClick={() => setArmedConsent(null)} className="text-[var(--text-muted)] hover:text-[var(--text-base)]">No</button>
                 </span>

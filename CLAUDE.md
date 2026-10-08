@@ -281,6 +281,12 @@ Cuando cometas un error durante una sesión, agrégalo aquí antes de terminar:
 | "Stock por agotarse" sin fecha para un producto que solo vendió hoy | La ventana de 60 días del modelo era `hoy-60 … hoy-1`: las ventas del día no contaban y la velocidad salía en cero | Toda ventana "últimos N días" que incluya hoy es `hoy-(N-1) … hoy`. Probar con un dato creado hoy, que es lo que hace un test recién sembrado |
 | Membresía importada del software anterior con `price=0` usada como monto de renovación ("Renueva por $0") | `receivables` y el evento de check-in toman `membership.price` como lo que se debe cobrar; una membresía traída de otro sistema (o de cortesía) vale 0 porque ya se cobró allá | `Membership.source` (`sale`/`import`/`courtesy`) y `charged_here(m)`: si no se vendió aquí, la renovación sale del precio actual del plan, o queda sin monto (`None`, la UI pinta "—"). Al agregar un origen de membresía, revisar TODO consumidor de `Membership.price` |
 
+| `pkill -f "uvicorn app.main:app"` dentro de un comando de Bash mató la propia shell (exit 144) | `pkill -f` compara contra la línea de comando completa, y la del shell que lo ejecuta también contiene el patrón | Detener servidores por puerto/PID (`ss -ltnp \| grep :8000`), nunca con `pkill -f` de un patrón que aparece en el mismo comando |
+| Una prueba e2e "verde" esperando el texto «Conectado» | La palabra aparecía también en las instrucciones ("aquí aparecerá «Conectado»"): el `getByText` encontraba la instrucción, no el estado | Buscar estados con `{ exact: true }` o por rol/atributo; un texto que también está en la ayuda es un verde falso |
+| Socios del torniquete enlazados por cédula seguían pudiendo entrar vencidos | Al tomar el control, `apply_roster` enlazaba al socio pero no le enviaba su estado; nada más lo disparaba hasta que cambiara su membresía | Todo enlace nuevo dispositivo↔socio encola su estado de inmediato (`apply_roster` → `sync_member`) |
+| `get_gym_settings` dentro de un `begin_nested()` → "Can't operate on closed transaction" | El servicio hace `commit` cuando crea la fila de ajustes por primera vez | Leer ajustes ANTES de abrir un savepoint; dentro del savepoint solo escrituras propias |
+| SQLite del agente: "objects created in a thread can only be used in that same thread" | pyzk corre en `asyncio.to_thread` y usaba la conexión creada en el hilo principal | `check_same_thread=False` + candado (`RLock`) en todos los métodos del store |
+
 **Protocolo:** Al detectar un error que no estaba documentado, añade una fila a la tabla antes del commit.
 
 ---

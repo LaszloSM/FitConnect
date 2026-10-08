@@ -934,7 +934,7 @@ export default function MemberDetailClient({ memberId }: { memberId: string }) {
           )}
 
           {tab === "routine" && <MemberRoutineTab memberId={memberId} />}
-          {tab === "access" && <MemberAccessTab memberId={memberId} idNumber={member.id_number} />}
+          {tab === "access" && <MemberAccessTab memberId={memberId} idNumber={member.id_number} hasPhoto={Boolean(member.photo_url && member.consent_image_at)} />}
 
           {/* QR CARNÉ */}
           {tab === "qr" && (
