@@ -37,6 +37,7 @@ SG_ID=$(aws ec2 describe-instances --region "$REGION" --instance-ids "$INSTANCE_
 REGISTRY="$ACCOUNT_ID.dkr.ecr.$REGION.amazonaws.com"
 BACKEND_IMAGE="$REGISTRY/saas-gym-lite-backend:latest"
 FRONTEND_IMAGE="$REGISTRY/saas-gym-lite-frontend:latest"
+PLATFORM_IMAGE="$REGISTRY/saas-gym-lite-platform:latest"
 echo "  instancia $INSTANCE_ID · IP $PUBLIC_IP · registry $REGISTRY"
 
 step "2/9 Abrir SSH para tu IP actual"
@@ -52,6 +53,11 @@ fi
 SSH="ssh -i $PEM -o StrictHostKeyChecking=no -o ConnectTimeout=25 ec2-user@$PUBLIC_IP"
 $SSH 'echo "  SSH ok"' || fail "SSH sigue sin entrar"
 
+# Con dominio, PUBLIC_URL del servidor es https://<dominio>; sin él, la IP.
+PUBLIC_URL=$($SSH "grep -E '^PUBLIC_URL=' $REMOTE_DIR/.env | cut -d= -f2-" || true)
+PUBLIC_URL=${PUBLIC_URL:-http://$PUBLIC_IP}
+echo "  URL pública: $PUBLIC_URL"
+
 step "3/9 Login en ECR"
 aws ecr get-login-password --region "$REGION" | docker login --username AWS --password-stdin "$REGISTRY" >/dev/null
 echo "  ok"
@@ -61,21 +67,29 @@ docker build -t "$BACKEND_IMAGE" ./backend
 docker push "$BACKEND_IMAGE"
 
 step "5/9 Build + push del frontend (NEXT_PUBLIC_API_URL se hornea en build-time)"
-docker build --build-arg NEXT_PUBLIC_API_URL="http://$PUBLIC_IP" -t "$FRONTEND_IMAGE" ./frontend
+docker build --build-arg NEXT_PUBLIC_API_URL="$PUBLIC_URL" -t "$FRONTEND_IMAGE" ./frontend
 docker push "$FRONTEND_IMAGE"
+# El panel de plataforma llama a su propio origen (Caddy enruta /api/platform/*).
+docker build -t "$PLATFORM_IMAGE" ./platform
+docker push "$PLATFORM_IMAGE"
 
-step "6/9 Copiar compose y Caddyfile (el .env del servidor NO se toca: tiene los secretos)"
+step "6/9 Copiar compose, Caddyfile y respaldos (los secretos del .env no se tocan)"
 scp -i "$PEM" -o StrictHostKeyChecking=no deploy/docker-compose.prod.yml "ec2-user@$PUBLIC_IP:$REMOTE_DIR/docker-compose.yml"
-scp -i "$PEM" -o StrictHostKeyChecking=no deploy/Caddyfile "ec2-user@$PUBLIC_IP:$REMOTE_DIR/Caddyfile"
+scp -i "$PEM" -o StrictHostKeyChecking=no deploy/Caddyfile deploy/backup.sh deploy/restore.sh \
+  deploy/fitconnect-backup.service deploy/fitconnect-backup.timer "ec2-user@$PUBLIC_IP:$REMOTE_DIR/"
+# Única línea que se agrega al .env, y solo si falta: la imagen del panel (no es secreta).
+$SSH "grep -q '^PLATFORM_IMAGE=' $REMOTE_DIR/.env || echo 'PLATFORM_IMAGE=$PLATFORM_IMAGE' >> $REMOTE_DIR/.env"
+# Respaldo diario solo si el .env ya tiene bucket y frase (ver DEPLOY-LITE.md › Respaldos).
+$SSH "cd $REMOTE_DIR && if grep -q '^BACKUP_BUCKET=' .env && grep -q '^BACKUP_PASSPHRASE=' .env; then sudo cp fitconnect-backup.service fitconnect-backup.timer /etc/systemd/system/ && sudo systemctl daemon-reload && sudo systemctl enable --now fitconnect-backup.timer >/dev/null && echo '  respaldo diario activo'; else echo '  AVISO: sin BACKUP_BUCKET/BACKUP_PASSPHRASE en .env, NO hay respaldo diario'; fi"
 
 step "7/9 Levantar la nueva versión"
 # Solo backend y frontend: son las únicas que cambian y vienen de ECR. Un
 # `docker compose pull` a secas también intenta bajar postgres/redis/minio/caddy
 # de Docker Hub, que limita los pulls anónimos y aborta el despliegue entero.
-$SSH "cd $REMOTE_DIR && aws ecr get-login-password --region $REGION | docker login --username AWS --password-stdin $REGISTRY >/dev/null && docker compose pull backend frontend && docker compose up -d && docker compose restart caddy"
+$SSH "cd $REMOTE_DIR && aws ecr get-login-password --region $REGION | docker login --username AWS --password-stdin $REGISTRY >/dev/null && docker compose pull backend frontend platform && docker compose up -d && docker compose restart caddy"
 echo "  esperando a que el backend responda..."
 for i in $(seq 1 30); do
-  if curl -sf -m 10 "http://$PUBLIC_IP/health" >/dev/null; then echo "  backend arriba"; break; fi
+  if curl -sf -m 10 "$PUBLIC_URL/health" >/dev/null; then echo "  backend arriba"; break; fi
   sleep 5
   [ "$i" = 30 ] && fail "el backend no levantó; revisa: $SSH 'cd $REMOTE_DIR && docker compose logs --tail 80 backend'"
 done
@@ -92,10 +106,10 @@ if [ "$SKIP_ASSETS" != "1" ]; then
 fi
 
 step "9/9 Verificación"
-printf '  %-28s %s\n' "health"   "$(curl -s -m 15 -o /dev/null -w '%{http_code}' "http://$PUBLIC_IP/health")"
-printf '  %-28s %s\n' "frontend" "$(curl -s -m 15 -o /dev/null -w '%{http_code}' "http://$PUBLIC_IP/")"
+printf '  %-28s %s\n' "health"   "$(curl -s -m 15 -o /dev/null -w '%{http_code}' "$PUBLIC_URL/health")"
+printf '  %-28s %s\n' "frontend" "$(curl -s -m 15 -o /dev/null -w '%{http_code}' "$PUBLIC_URL/")"
 for r in day-passes/types products/categories insights/peak-hours insights/models insights/segments cash/differences machines/calendar exercises/facets routines access/events/recent; do
-  printf '  %-28s %s\n' "$r" "$(curl -s -m 15 -o /dev/null -w '%{http_code}' "http://$PUBLIC_IP/api/v1/$r")"
+  printf '  %-28s %s\n' "$r" "$(curl -s -m 15 -o /dev/null -w '%{http_code}' "$PUBLIC_URL/api/v1/$r")"
 done
 echo "  (401/403 = desplegado y pidiendo login · 404 = no llegó)"
 echo
@@ -104,7 +118,9 @@ echo
 BUCKET=fitconnect-media
 echo "  Bucket: los datos personales deben dar 403 y la marca del gym 404 (público, sin objeto)"
 for k in members/prueba-inexistente.webp proofs/prueba-inexistente.jpg gyms/prueba-inexistente.png exercises/prueba-inexistente.jpg; do
-  printf '  %-34s %s\n' "$k" "$(curl -s -m 15 -o /dev/null -w '%{http_code}' "http://$PUBLIC_IP:9000/$BUCKET/$k")"
+  printf '  %-34s %s\n' "$k" "$(curl -s -m 15 -o /dev/null -w '%{http_code}' "$PUBLIC_URL/$BUCKET/$k")"
 done
+printf '  %-34s %s\n' "MinIO directo :9000 (debe fallar)" "$(curl -s -m 8 -o /dev/null -w '%{http_code}' "http://$PUBLIC_IP:9000/" || true)"
 echo
-echo "Listo. App: http://$PUBLIC_IP"
+echo "Listo. App: $PUBLIC_URL"
+echo "Panel de plataforma: admin.<dominio> o, sin dominio, ssh -L 9100:localhost:9100 ec2-user@$PUBLIC_IP y abrir http://localhost:9100"

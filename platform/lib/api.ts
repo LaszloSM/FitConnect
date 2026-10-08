@@ -6,7 +6,9 @@
  * la app de los gimnasios.
  */
 const KEY = "fc-platform-session";
-export const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
+// En producción el panel llama a su mismo origen (Caddy enruta /api/platform/* al
+// backend). En desarrollo se define NEXT_PUBLIC_API_URL=http://localhost:8000.
+export const API_URL = process.env.NEXT_PUBLIC_API_URL ?? "";
 
 export interface PlatformSession {
   access_token: string;

@@ -19,7 +19,7 @@ data "aws_ami" "al2023" {
 
 resource "aws_security_group" "app" {
   name        = "${local.name_prefix}-app"
-  description = "HTTP/HTTPS publico, SSH restringido, MinIO para media"
+  description = "HTTP/HTTPS publico, SSH restringido, MinIO para media" # cambiarla recrea el SG
   vpc_id      = data.aws_vpc.default.id
 
   ingress {
@@ -34,14 +34,6 @@ resource "aws_security_group" "app" {
     description = "HTTPS"
     from_port   = 443
     to_port     = 443
-    protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]
-  }
-
-  ingress {
-    description = "MinIO (media publica)"
-    from_port   = 9000
-    to_port     = 9000
     protocol    = "tcp"
     cidr_blocks = ["0.0.0.0/0"]
   }
@@ -113,6 +105,13 @@ resource "aws_instance" "app" {
   key_name               = aws_key_pair.app.key_name
   vpc_security_group_ids = [aws_security_group.app.id]
   iam_instance_profile   = aws_iam_instance_profile.instance.name
+
+  # Hop limit 2: los contenedores (backend: correo por SES, respaldos) usan el rol
+  # de la instancia a través de IMDSv2; con 1 la respuesta no les llega.
+  metadata_options {
+    http_tokens                 = "required"
+    http_put_response_hop_limit = 2
+  }
 
   root_block_device {
     volume_size = var.root_volume_gb

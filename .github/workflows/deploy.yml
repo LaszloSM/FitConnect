@@ -114,6 +114,9 @@ jobs:
         run: cd frontend && npm run check:colors
 
       - run: cd frontend && npm run build
+      # Panel de plataforma (admin.<dominio>): app aparte, se compila aparte.
+      - name: Panel de plataforma
+        run: cd platform && npm ci && npm run build
       - name: Install Playwright
         run: cd frontend && npx playwright install --with-deps chromium
       - name: Start services

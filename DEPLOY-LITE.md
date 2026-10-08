@@ -11,10 +11,11 @@ cuestión de aplicar ese Terraform y restaurar un dump de la DB.
 ## Arquitectura
 
 ```
-Internet ──► EIP:80 ──► Caddy ──► /api/*, /docs, /openapi.json ──► backend:8000
-                          │
-                          └─► resto ──► frontend:3000
-         EIP:9000 ──► MinIO (media pública)
+Internet ──► EIP:80/443 ──► Caddy ─┬─► /api/v1/*, /iclock/*, /docs, /health ──► backend:8000
+                                   ├─► /fitconnect-media/* ──► MinIO (sin puerto público)
+                                   └─► resto ──► frontend:3000
+             admin.<dominio> ──► Caddy (lista de IPs) ─┬─► /api/platform/* ──► backend:8000
+                                                       └─► resto ──► platform:3100
 ```
 
 - **EC2 t3.small** (2 vCPU / 2GB + 2GB swap), Amazon Linux 2023, 30GB gp3 cifrado
@@ -22,7 +23,8 @@ Internet ──► EIP:80 ──► Caddy ──► /api/*, /docs, /openapi.json
 - **ECR**: 2 repos (backend/frontend) con lifecycle de 5 imágenes
 - **Sin RDS/ElastiCache/ALB/NAT/WAF**: Postgres, Redis y MinIO corren como
   contenedores en la instancia con volúmenes Docker
-- **Backups**: snapshots EBS (ver abajo)
+- **Backups**: respaldo diario cifrado a S3 con bloqueo de 30 días (ver abajo)
+- **Recuperación**: alarma de CloudWatch que mueve la instancia a otro host si falla el hardware
 
 ## Despliegue en un comando (redeploy)
 
@@ -87,6 +89,7 @@ SECRET_KEY=<secret_key del terraform.tfvars>
 NEXTAUTH_SECRET=<nextauth_secret del terraform.tfvars>
 SETTINGS_ENCRYPTION_KEY=<clave Fernet: openssl rand -base64 32 | tr '+/' '-_'>
 MINIO_PASSWORD=<openssl rand -hex 16>
+PLATFORM_IMAGE=<ecr_platform>:latest
 ```
 
 Copiar los archivos y arrancar:
@@ -125,28 +128,78 @@ Las migraciones del Master DB corren solas al arrancar el backend
 ssh -i $PEM ec2-user@$PUBLIC_IP   "cd /opt/fitconnect && docker compose pull backend frontend && docker compose up -d"
 ```
 
-## Backups
+## Respaldos
 
-Snapshot diario del volumen EBS vía Amazon Data Lifecycle Manager, o manual:
+`deploy/backup.sh` corre todos los días a las 3:15 a. m. (timer `fitconnect-backup`):
+base completa (todos los gimnasios) y fotos/comprobantes, cifrados con AES-256 y
+subidos al bucket `backups_bucket` de Terraform. La instancia solo puede escribir
+en ese bucket (no leer ni borrar) y cada copia queda bloqueada 30 días: si alguien
+entra al servidor, no puede destruir los respaldos.
 
-```bash
-aws ec2 create-snapshot --volume-id <vol-id> --description "fitconnect backup"
+Activarlos (una vez), en `/opt/fitconnect/.env`:
+
+```
+BACKUP_BUCKET=<terraform output -raw backups_bucket>
+BACKUP_PASSPHRASE=<openssl rand -base64 48>
 ```
 
-Para un dump lógico de la DB:
+**Guarda la frase también fuera del servidor** (gestor de contraseñas): sin ella
+los respaldos no se pueden abrir. El siguiente `deploy-lite.sh` instala el timer.
+Probar a mano: `ssh ... 'bash /opt/fitconnect/backup.sh'`.
 
-```bash
-ssh -i $PEM ec2-user@$PUBLIC_IP \
-  "docker compose -f /opt/fitconnect/docker-compose.yml exec db pg_dumpall -U gymuser" > backup.sql
+**Prueba de restauración (una vez al mes):** bajar el último respaldo con tus
+credenciales, copiarlo al servidor y correr
+`bash restore.sh --check backups/db-<fecha>.sql.gz.enc`. Levanta un Postgres
+temporal, restaura y cuenta gimnasios sin tocar la base en uso. Restaurar de
+verdad: `--apply` (pide escribir RESTAURAR) y `--media` para las fotos.
+
+Los snapshots EBS siguen siendo un buen complemento (Data Lifecycle Manager).
+
+## Dominio + HTTPS
+
+1. Apuntar el dominio y `admin.<dominio>` (registros A) a la EIP.
+2. En `/opt/fitconnect/.env`:
+
+```
+SITE_ADDRESS=fitconnect.co
+PUBLIC_URL=https://fitconnect.co
+PLATFORM_ADDRESS=admin.fitconnect.co
+PLATFORM_URL=https://admin.fitconnect.co
+PLATFORM_ALLOWED_IPS=<tu IP>/32 <IP de la oficina>/32
 ```
 
-## Dominio + HTTPS (después)
+3. `bash scripts/deploy-lite.sh` (recompila el frontend con la URL nueva).
+   Caddy saca y renueva los certificados de Let's Encrypt solo.
 
-Con un dominio apuntando a la EIP, editar `deploy/Caddyfile`: cambiar `:80`
-por el dominio (`fitconnect.com { ... }`) y Caddy emite el certificado
-Let's Encrypt automáticamente. Actualizar `PUBLIC_URL=https://<dominio>` en
-`.env`, rebuild del frontend con el nuevo `NEXT_PUBLIC_API_URL` y
-`docker compose up -d`.
+Los torniquetes ZKTeco se configuran con el dominio, puerto 443 y HTTPS. Si un
+modelo viejo no soporta HTTPS: `ICLOCK_HTTP_ADDRESS=http://fitconnect.co` y abrir
+solo `/iclock/*` por HTTP (no transporta datos de socios).
+
+## Panel de plataforma
+
+Las cuentas solo se crean en el servidor:
+
+```bash
+ssh ... 'cd /opt/fitconnect && docker compose exec backend python scripts/create_platform_admin.py --email tu@correo.com --name "Tu Nombre"'
+```
+
+En el primer ingreso muestra un QR para la app autenticadora (obligatoria) y 8
+códigos de respaldo. Celular perdido: `--reset-2fa`. Sin dominio, el panel no se
+publica: `ssh -L 9100:localhost:9100 ec2-user@<ip>` y abrir http://localhost:9100.
+
+## Correo (recuperar contraseña)
+
+Sin `SES_FROM_EMAIL` el enlace de recuperación solo queda en el log del backend.
+Para enviarlo: verificar el dominio en Amazon SES, salir del sandbox de SES y
+poner `SES_FROM_EMAIL=no-responder@<dominio>` en `.env`. El permiso
+`ses:SendEmail` ya está en el rol de la instancia.
+
+## Verificación en dos pasos
+
+Dueños y administradores deben configurar la app autenticadora en su siguiente
+ingreso (incluidas las cuentas que ya existían). Si un dueño pierde el celular y
+los códigos de respaldo, se reinicia desde el panel de plataforma › gimnasio ›
+"El dueño perdió el celular", verificando antes su identidad por teléfono.
 
 ## Costo
 

@@ -51,8 +51,7 @@ services:
     environment:
       MINIO_ROOT_USER: fitconnect
       MINIO_ROOT_PASSWORD: ${MINIO_PASSWORD}
-    ports:
-      - "9000:9000"
+    # Sin puerto publicado: fotos y comprobantes salen por Caddy (/fitconnect-media/*).
     volumes:
       - minio_data:/data
     healthcheck:
@@ -77,7 +76,9 @@ services:
       - FRONTEND_URL=${PUBLIC_URL}
       - SETTINGS_ENCRYPTION_KEY=${SETTINGS_ENCRYPTION_KEY}
       - S3_ENDPOINT_URL=http://minio:9000
-      - S3_PUBLIC_URL=${PUBLIC_URL}:9000
+      - S3_PUBLIC_URL=${PUBLIC_URL}
+      - PLATFORM_URL=${PLATFORM_URL:-http://localhost:9100}
+      - SES_FROM_EMAIL=${SES_FROM_EMAIL:-}
       - S3_BUCKET=fitconnect-media
       - S3_ACCESS_KEY=fitconnect
       - S3_SECRET_KEY=${MINIO_PASSWORD}
@@ -102,19 +103,37 @@ services:
     depends_on:
       - backend
 
+  platform:
+    # Panel de plataforma (admin.<dominio>). Llama a la API por su mismo origen
+    # (/api/platform/* lo enruta Caddy), así que no necesita CORS ni cookies.
+    image: ${PLATFORM_IMAGE}
+    restart: always
+    logging: *default-logging
+    depends_on:
+      - backend
+
   caddy:
     image: caddy:2-alpine
     restart: always
     logging: *default-logging
+    environment:
+      - SITE_ADDRESS=${SITE_ADDRESS:-:80}
+      - PLATFORM_ADDRESS=${PLATFORM_ADDRESS:-:9100}
+      - PLATFORM_ALLOWED_IPS=${PLATFORM_ALLOWED_IPS:-0.0.0.0/0 ::/0}
+      - ICLOCK_HTTP_ADDRESS=${ICLOCK_HTTP_ADDRESS:-:8088}
     ports:
       - "80:80"
       - "443:443"
+      # Sin dominio, el panel de plataforma solo se abre por túnel SSH:
+      #   ssh -L 9100:localhost:9100 ec2-user@<ip>  →  http://localhost:9100
+      - "127.0.0.1:9100:9100"
     volumes:
       - ./Caddyfile:/etc/caddy/Caddyfile:ro
       - caddy_data:/data
     depends_on:
       - backend
       - frontend
+      - platform
 
 volumes:
   postgres_data:
