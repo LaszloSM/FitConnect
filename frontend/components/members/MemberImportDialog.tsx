@@ -100,6 +100,8 @@ const KEEP_AS_IMPORTED = "";
 
 type Step = "file" | "review" | "done";
 
+const plural = (n: number, one: string, many: string) => `${n} ${n === 1 ? one : many}`;
+
 interface Overrides {
   mapping?: Record<string, string | null>;
   on_conflict?: "keep" | "file";
@@ -120,6 +122,7 @@ export function MemberImportDialog({ onImported }: { onImported: () => void }) {
   const [trainerMap, setTrainerMap] = useState<Record<string, string | null>>({});
   const [onConflict, setOnConflict] = useState<"keep" | "file">("keep");
   const [onlyAttention, setOnlyAttention] = useState(false);
+  const [showColumns, setShowColumns] = useState<boolean | null>(null);
   const [result, setResult] = useState<ApplyResult | null>(null);
   const [batches, setBatches] = useState<Batch[]>([]);
   const [undoing, setUndoing] = useState<string | null>(null);
@@ -134,6 +137,7 @@ export function MemberImportDialog({ onImported }: { onImported: () => void }) {
     setTrainerMap({});
     setOnConflict("keep");
     setOnlyAttention(false);
+    setShowColumns(null);
     setResult(null);
     if (inputRef.current) inputRef.current.value = "";
   };
@@ -250,6 +254,9 @@ export function MemberImportDialog({ onImported }: { onImported: () => void }) {
   }, [preview, onlyAttention]);
 
   const toImport = preview ? preview.summary.create + preview.summary.update : 0;
+  const recognized = preview ? preview.columns.filter((c) => c.field).length : 0;
+  // Si todo se reconoció, el mapeo queda plegado: lo importante es qué pasa con cada persona.
+  const columnsOpen = showColumns ?? (preview ? recognized < preview.columns.filter((c) => c.header).length : false);
 
   return (
     <Dialog
@@ -344,15 +351,26 @@ export function MemberImportDialog({ onImported }: { onImported: () => void }) {
         {step === "review" && preview && (
           <div className="space-y-6 py-1">
             <div className="flex flex-wrap gap-2" aria-live="polite">
-              <StatusBadge status="import" label={`${preview.summary.create} nuevos`} tone="success" />
+              <StatusBadge status="import" label={plural(preview.summary.create, "nuevo", "nuevos")} tone="success" />
               <StatusBadge status="import" label={`${preview.summary.update} se completan`} tone="info" />
               <StatusBadge status="import" label={`${preview.summary.unchanged} sin cambios`} tone="neutral" />
               {preview.summary.error > 0 && <StatusBadge status="import" label={`${preview.summary.error} con error`} tone="danger" />}
-              <StatusBadge status="import" label={`${preview.summary.memberships} membresías`} tone="neutral" />
+              <StatusBadge status="import" label={plural(preview.summary.memberships, "membresía", "membresías")} tone="neutral" />
             </div>
 
             <section className="space-y-2">
-              <h3 className="text-base font-semibold">Columnas del archivo</h3>
+              <div className="flex items-center justify-between gap-3">
+                <h3 className="text-base font-semibold">
+                  Columnas del archivo{" "}
+                  <span className="font-normal text-[var(--text-muted)]">
+                    · {recognized} de {preview.columns.length} reconocidas
+                  </span>
+                </h3>
+                <Button type="button" variant="ghost" size="sm" onClick={() => setShowColumns(!columnsOpen)} aria-expanded={columnsOpen}>
+                  {columnsOpen ? "Ocultar" : "Ajustar columnas"}
+                </Button>
+              </div>
+              {columnsOpen && (
               <div className="grid gap-x-4 gap-y-3 sm:grid-cols-2">
                 {preview.columns.map((c) => (
                   <label key={c.index} className="space-y-1">
@@ -379,6 +397,7 @@ export function MemberImportDialog({ onImported }: { onImported: () => void }) {
                   </label>
                 ))}
               </div>
+              )}
             </section>
 
             {preview.unmatched_plans.length > 0 && (
@@ -521,9 +540,9 @@ export function MemberImportDialog({ onImported }: { onImported: () => void }) {
         {step === "done" && result && (
           <div className="space-y-3 py-1">
             <div className="flex flex-wrap gap-2">
-              <StatusBadge status="import" label={`${result.summary.create} nuevos`} tone="success" />
-              <StatusBadge status="import" label={`${result.summary.update} completados`} tone="info" />
-              <StatusBadge status="import" label={`${result.summary.memberships} membresías`} tone="neutral" />
+              <StatusBadge status="import" label={plural(result.summary.create, "nuevo", "nuevos")} tone="success" />
+              <StatusBadge status="import" label={plural(result.summary.update, "completado", "completados")} tone="info" />
+              <StatusBadge status="import" label={plural(result.summary.memberships, "membresía", "membresías")} tone="neutral" />
               {result.errors.length > 0 && <StatusBadge status="import" label={`${result.errors.length} filas no importadas`} tone="danger" />}
             </div>
             {result.errors.length > 0 && (
@@ -556,7 +575,7 @@ export function MemberImportDialog({ onImported }: { onImported: () => void }) {
               </Button>
               <Button type="button" onClick={commit} disabled={working || toImport === 0}>
                 {working && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
-                {toImport === 0 ? "Nada que importar" : `Importar ${toImport} persona(s)`}
+                {toImport === 0 ? "Nada que importar" : `Importar ${plural(toImport, "persona", "personas")}`}
               </Button>
             </>
           )}
