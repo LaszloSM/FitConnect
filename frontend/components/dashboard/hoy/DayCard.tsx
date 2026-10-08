@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
 import { formatDateTime, gymHour, gymWeekday, parseUTC, todayInGym } from "@/lib/format";
@@ -24,6 +25,8 @@ function hourOf(iso: string): number {
 }
 
 export function DayCard({ entries, occupancy }: { entries: TodayEntry[]; occupancy: DashboardData["occupancy"] }) {
+  // Solo se anima lo que cambia de verdad: la entrada que acaba de llegar (DESIGN.md §6).
+  const reduce = useReducedMotion();
   const allowed = entries.filter((e) => e.decision !== "denied");
   const byHour = Array<number>(24).fill(0);
   for (const e of allowed) byHour[hourOf(e.created_at)] += 1;
@@ -146,10 +149,19 @@ export function DayCard({ entries, occupancy }: { entries: TodayEntry[]; occupan
           <p className="mt-4 text-sm text-ink-muted">Nadie ha entrado todavía hoy. Cada entrada del kiosko aparece aquí al instante.</p>
         ) : (
           <ul className="mt-2 divide-y divide-line/60" aria-live="polite">
+            <AnimatePresence initial={false}>
             {entries.slice(0, 5).map((e) => {
               const d = DECISION[e.decision ?? "allowed"] ?? DECISION.allowed;
               return (
-                <li key={e.id} className="flex items-center gap-2.5 py-2.5">
+                <motion.li
+                  key={e.id}
+                  layout={!reduce}
+                  initial={reduce ? false : { opacity: 0, y: -10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={reduce ? undefined : { opacity: 0 }}
+                  transition={{ duration: 0.32, ease: [0.22, 1, 0.36, 1] }}
+                  className="flex items-center gap-2.5 py-2.5"
+                >
                   <span className="num w-10 shrink-0 text-[12.5px] text-ink-muted">{formatDateTime(e.created_at, "HH:mm")}</span>
                   <Avatar name={e.member_name} size={30} />
                   <div className="min-w-0">
@@ -158,9 +170,10 @@ export function DayCard({ entries, occupancy }: { entries: TodayEntry[]; occupan
                       {d.text}
                     </p>
                   </div>
-                </li>
+                </motion.li>
               );
             })}
+            </AnimatePresence>
           </ul>
         )}
         {entries.length > 5 && (

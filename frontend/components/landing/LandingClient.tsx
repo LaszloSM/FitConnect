@@ -2,7 +2,10 @@ import Image from "next/image";
 import Link from "next/link";
 import { BrandMark } from "@/components/common/BrandMark";
 import { BrandLockup } from "@/components/common/BrandLockup";
-import { ArrowRightIcon as ArrowRight, CheckIcon as Check, DatabaseIcon as Database, KeyIcon as KeyRound, LockIcon as Lock, ScrollIcon as ScrollText } from "@phosphor-icons/react/ssr";
+import { ArrowRightIcon as ArrowRight, CheckIcon as Check, CloudSlashIcon as CloudOff, DatabaseIcon as Database, FingerprintIcon as Fingerprint, IdentificationCardIcon as IdCard, KeyIcon as KeyRound, LockIcon as Lock, QrCodeIcon as QrCode, ScanSmileyIcon as Face, ScrollIcon as ScrollText } from "@phosphor-icons/react/ssr";
+import { PhoneShowcase } from "./PhoneShowcase";
+import { ProductTour } from "./ProductTour";
+import { Reveal } from "./Reveal";
 
 /*
  * Landing en Tiza claro. Muestra el producto real: cada imagen es una captura
@@ -10,16 +13,16 @@ import { ArrowRightIcon as ArrowRight, CheckIcon as Check, DatabaseIcon as Datab
  * inventadas ni logos de clientes que no existen.
  */
 
-function Screenshot({ src, alt, path, priority = false }: { src: string; alt: string; path: string; priority?: boolean }) {
+function Screenshot({ src, alt, path }: { src: string; alt: string; path: string }) {
   return (
     <figure className="overflow-hidden rounded-[var(--radius-xl)] bg-panel shadow-[var(--shadow-lg)] ring-1 ring-line/60">
       <div className="flex h-9 items-center gap-2 border-b border-line px-4" aria-hidden="true">
         <span className="size-2.5 rounded-full bg-[var(--border-base)]" />
         <span className="size-2.5 rounded-full bg-[var(--border-base)]" />
         <span className="size-2.5 rounded-full bg-[var(--border-base)]" />
-        <span className="ml-3 truncate font-mono text-xs text-ink-subtle">app.fitconnect.co{path}</span>
+        <span className="num ml-3 truncate text-xs text-ink-subtle">app.fitconnect.co{path}</span>
       </div>
-      <Image src={src} alt={alt} width={1440} height={900} priority={priority} className="block h-auto w-full" sizes="(min-width: 1024px) 1100px, 100vw" />
+      <Image src={src} alt={alt} width={1440} height={900} className="block h-auto w-full" sizes="(min-width: 1024px) 1100px, 100vw" />
     </figure>
   );
 }
@@ -29,7 +32,7 @@ const MOMENTOS = [
     hora: "5:58",
     titulo: "La puerta decide sola",
     texto: "El socio digita su cédula en una tablet vieja y entra si está al día. Si debe, el kiosko lo manda a recepción y su ficha salta en el mostrador con lo que debe.",
-    detalle: ["Cédula, QR, huella o torniquete", "Personal del gimnasio entra con su propia ficha"],
+    detalle: ["Cédula, QR de la app, cara, huella o torniquete", "Personal del gimnasio entra con su propia ficha"],
     img: "/landing/socios.png",
     path: "/members",
     alt: "Lista de socios con estado de membresía, vencimiento y saldo",
@@ -55,7 +58,7 @@ const MOMENTOS = [
   {
     hora: "21:30",
     titulo: "Te avisa antes de que se vayan",
-    texto: "Modelos entrenados cada noche con el historial de tu gimnasio marcan a quién estás por perder y cómo va a cerrar el mes. Cada número dice con qué se calculó.",
+    texto: "Modelos entrenados cada noche con el historial de tu gimnasio marcan quién probablemente no renueva y cómo va a cerrar el mes. Cada número dice con qué se calculó.",
     detalle: ["Si el modelo no supera a la regla simple, se usa la regla y lo dice", "Sin enviar datos de tus socios a terceros"],
     img: "/landing/inteligencia.png",
     path: "/reports?tab=inteligencia",
@@ -95,22 +98,23 @@ const PRICING: { name: string; price: string; tagline: string; highlight: boolea
     name: "Avanzado", price: "$300.000", tagline: "El panel más la app para tus socios", highlight: true,
     features: [
       { text: "Todo lo del plan Básico" },
-      { text: "App móvil para tus socios", soon: true },
-      { text: "Reservas y pagos desde la app", soon: true },
+      { text: "App para tus socios: QR de entrada, clases, pagos y rutinas", soon: true },
+      { text: "Entrenos y comidas en la app, también sin señal", soon: true },
     ],
   },
   {
     name: "Premium", price: "$480.000", tagline: "Avanzado con acompañamiento en la app", highlight: false,
     features: [
       { text: "Todo lo del plan Avanzado" },
-      { text: "Rutinas y seguimiento personalizados en la app", soon: true },
+      { text: "Asistente de entrenamiento y alimentación en la app", soon: true },
       { text: "Soporte prioritario" },
     ],
   },
 ];
 
 const FAQS = [
-  { q: "¿Necesito comprar hardware para la entrada?", a: "No. El kiosko es una página web: cualquier tablet o celular viejo en la entrada funciona. Si más adelante quieres torniquete, huella o reconocimiento facial, el sistema ya los integra." },
+  { q: "¿Necesito comprar hardware para la entrada?", a: "No. El kiosko es una página web: cualquier tablet o celular viejo en la entrada funciona. Si ya tienes torniquete con cara o huella (ZKTeco o Hikvision), FitConnect lo controla y registras a los socios desde su ficha." },
+  { q: "¿Qué pasa si se va el internet?", a: "El torniquete sigue decidiendo con la lista que ya tiene y guarda las marcaciones. La recepción sigue funcionando en el navegador: entradas, altas y cobros en efectivo se guardan en el equipo y suben solos cuando vuelve la red, sin duplicados." },
   { q: "¿Qué pasa si un socio vencido intenta entrar?", a: "El kiosko lo manda a recepción y en el mostrador salta su ficha con cuánto debe y un botón para autorizarlo si decides dejarlo pasar. Esa autorización queda en la auditoría." },
   { q: "¿La inteligencia funciona si mi gimnasio es nuevo?", a: "Los modelos se entrenan con tu propio historial. Mientras no haya suficiente, la pantalla usa reglas simples y te dice cuántos datos faltan. A medida que el gimnasio opera, se entrenan solos cada noche." },
   { q: "¿Mis recepcionistas van a ver cuánto gana el gimnasio?", a: "No. Cada rol ve solo lo suyo: recepción opera la entrada, el cobro y la caja, sin ingresos del mes, reportes ni auditoría. Lo que no le corresponde ni siquiera aparece en su menú." },
@@ -127,7 +131,7 @@ const CTA_SECONDARY =
 
 export default function LandingClient() {
   return (
-    <div className="min-h-dvh overflow-x-hidden bg-surface text-ink">
+    <div className="min-h-dvh overflow-x-clip bg-surface text-ink">
       <header className="sticky top-0 z-40 border-b border-line bg-surface/90 backdrop-blur">
         <div className="mx-auto flex h-14 max-w-6xl items-center justify-between px-5">
           <Link href="/" className="flex items-center gap-2.5">
@@ -135,6 +139,8 @@ export default function LandingClient() {
           </Link>
           <nav className="hidden items-center gap-7 text-sm text-ink-muted md:flex" aria-label="Secciones">
             <a href="#producto" className="hover:text-ink">Producto</a>
+            <a href="#app" className="hover:text-ink">App</a>
+            <a href="#acceso" className="hover:text-ink">Acceso</a>
             <a href="#inteligencia" className="hover:text-ink">Inteligencia</a>
             <a href="#precios" className="hover:text-ink">Precios</a>
             <a href="#preguntas" className="hover:text-ink">Preguntas</a>
@@ -169,7 +175,7 @@ export default function LandingClient() {
               <p className="text-sm text-ink-subtle">Sin tarjeta de crédito · Importas tus socios desde Excel · Ley 1581 de datos personales</p>
             </div>
             <div className="mt-12">
-              <Screenshot src="/landing/panel.png" path="/dashboard" alt="Panel de FitConnect: entradas, caja del día, transferencias por confirmar, socios por cobrar y membresías que vencen esta semana" priority />
+              <ProductTour />
             </div>
           </div>
         </section>
@@ -184,7 +190,7 @@ export default function LandingClient() {
               ["Ley 1581", "Autorización y datos sensibles"],
             ].map(([t, d]) => (
               <div key={t} className="px-4 py-6 first:pl-0 md:px-6">
-                <dt className="font-mono text-sm font-semibold">{t}</dt>
+                <dt className="num text-sm font-semibold">{t}</dt>
                 <dd className="mt-1 text-sm text-ink-muted">{d}</dd>
               </div>
             ))}
@@ -194,15 +200,15 @@ export default function LandingClient() {
         {/* Un día en el gimnasio, con capturas reales en zig-zag */}
         <section id="producto" className="scroll-mt-16 px-5 py-20">
           <div className="mx-auto max-w-6xl">
-            <div className="mb-14 max-w-2xl space-y-3">
+            <Reveal className="mb-14 max-w-2xl space-y-3">
               <h2 className="text-3xl font-semibold tracking-[-0.02em] sm:text-4xl [text-wrap:balance]">Un día en tu gimnasio, de la primera entrada al cierre</h2>
               <p className="text-ink-muted">Así se ve FitConnect en los momentos donde un gimnasio gana o pierde plata. Son pantallas del producto, no ilustraciones.</p>
-            </div>
+            </Reveal>
             <ol className="space-y-20">
               {MOMENTOS.map((m, i) => (
                 <li key={m.hora} className={i % 2 === 1 ? "grid items-center gap-10 lg:grid-cols-[1.2fr_0.8fr]" : "grid items-center gap-10 lg:grid-cols-[0.8fr_1.2fr]"}>
-                  <div className={i % 2 === 1 ? "space-y-4 lg:order-2" : "space-y-4"}>
-                    <p className="font-mono text-sm tabular-nums text-primary-ink">{m.hora}</p>
+                  <Reveal className={i % 2 === 1 ? "space-y-4 lg:order-2" : "space-y-4"}>
+                    <p className="num text-sm text-primary-ink">{m.hora}</p>
                     <h3 className="text-2xl font-semibold tracking-[-0.02em]">{m.titulo}</h3>
                     <p className="leading-relaxed text-ink-muted">{m.texto}</p>
                     <ul className="space-y-2">
@@ -212,11 +218,63 @@ export default function LandingClient() {
                         </li>
                       ))}
                     </ul>
-                  </div>
-                  <Screenshot src={m.img} path={m.path} alt={m.alt} />
+                  </Reveal>
+                  <Reveal delay={0.08}>
+                    <Screenshot src={m.img} path={m.path} alt={m.alt} />
+                  </Reveal>
                 </li>
               ))}
             </ol>
+          </div>
+        </section>
+
+        {/* La app del socio, con pantallas reales */}
+        <section id="app" className="scroll-mt-16 border-t border-line bg-panel px-5 py-20">
+          <div className="mx-auto max-w-6xl">
+            <Reveal className="mb-12 max-w-2xl space-y-3">
+              <p className="text-sm font-medium text-primary-ink">App para tus socios · Android y iPhone</p>
+              <h2 className="text-3xl font-semibold tracking-[-0.02em] sm:text-4xl [text-wrap:balance]">Tu gimnasio en el bolsillo de cada socio</h2>
+              <p className="text-ink-muted">
+                Entran con su correo, recepción les da un código y la app queda unida a su ficha. Lo que registran para sí mismos (medidas, entrenos, comidas) vive aparte y el gimnasio no lo ve.
+              </p>
+              <p className="inline-block rounded-[var(--radius-sm)] border border-[var(--signal-warn-line)] bg-[var(--signal-warn-bg)] px-2 py-0.5 text-xs text-[var(--signal-warn)]">
+                Próximamente en App Store y Google Play
+              </p>
+            </Reveal>
+            <PhoneShowcase />
+          </div>
+        </section>
+
+        {/* Torniquete y recepción sin internet */}
+        <section id="acceso" className="scroll-mt-16 border-t border-line px-5 py-20">
+          <div className="mx-auto grid max-w-6xl gap-12 lg:grid-cols-[0.9fr_1.1fr]">
+            <Reveal className="space-y-4">
+              <h2 className="text-3xl font-semibold tracking-[-0.02em] sm:text-4xl [text-wrap:balance]">El torniquete obedece a FitConnect, aunque se caiga el internet</h2>
+              <p className="leading-relaxed text-ink-muted">
+                Conectas tu terminal ZKTeco o Hikvision y FitConnect le dice quién está al día. La cara y la huella se registran desde la ficha del socio, como en el software de siempre, y el equipo decide solo si se va la red.
+              </p>
+              <p className="leading-relaxed text-ink-muted">
+                Si el internet se cae en recepción, la página sigue abriendo: registras entradas, altas y cobros en efectivo, y todo sube solo y sin duplicados cuando vuelve.
+              </p>
+            </Reveal>
+            <Reveal delay={0.08}>
+              <ul className="grid gap-4 sm:grid-cols-2">
+                {[
+                  { icon: Face, t: "Cara", d: "Foto desde la ficha o captura en el propio equipo." },
+                  { icon: Fingerprint, t: "Huella", d: "El equipo entra en modo registro desde la web y muestra el avance." },
+                  { icon: QrCode, t: "QR de la app", d: "Cambia cada 30 segundos; el de una captura ya no sirve." },
+                  { icon: IdCard, t: "Cédula", d: "Para quien no tiene celular a la mano." },
+                  { icon: CloudOff, t: "Sin internet", d: "El torniquete guarda las marcaciones y las sube al volver." },
+                  { icon: Lock, t: "Al día, o no pasa", d: "Vence la membresía y el equipo lo sabe sin que nadie haga nada." },
+                ].map(({ icon: Icon, t, d }) => (
+                  <li key={t} className="rounded-[var(--radius-lg)] bg-panel p-5 shadow-[var(--shadow-card)]">
+                    <Icon className="size-5 text-primary-ink" aria-hidden="true" />
+                    <p className="mt-3 font-medium">{t}</p>
+                    <p className="mt-1 text-sm text-ink-muted">{d}</p>
+                  </li>
+                ))}
+              </ul>
+            </Reveal>
           </div>
         </section>
 
@@ -231,9 +289,9 @@ export default function LandingClient() {
             </div>
             <dl className="divide-y divide-line border-y border-line">
               {[
-                ["Riesgo de abandono", "Gradient boosting sobre visitas, vencimientos y pagos de tus socios"],
-                ["Cierre del mes", "Holt-Winters con el patrón semanal de tus ingresos, comparado contra el ritmo simple"],
-                ["Aforo de la semana", "Regresión día × hora sobre tus entradas de las últimas 8 semanas"],
+                ["¿Renovará?", "Probabilidad calibrada de que cada socio no renueve, vista tres semanas antes de vencer. Solo se usa si le gana a la regla simple"],
+                ["Cierre del mes", "Holt-Winters con el patrón semanal, la quincena y los festivos de Colombia, probado en cuatro ventanas contra el ritmo simple"],
+                ["Aforo de la semana", "Regresión día × hora sobre tus entradas de las últimas 8 semanas, sin contar festivos"],
                 ["Segmentos", "K-means que separa fieles, recién llegados y los que se están alejando"],
                 ["Reacción al precio", "Elasticidad de la renovación cuando un plan cambió de precio"],
                 ["Días fuera de lo normal", "Isolation Forest sobre ingresos y asistencia de cada día"],
@@ -304,7 +362,7 @@ export default function LandingClient() {
                       {plan.highlight && <span className="rounded-[var(--radius-sm)] bg-primary px-2 py-0.5 text-xs font-medium text-primary-contrast">Recomendado</span>}
                     </div>
                     <p className="mt-1 text-sm text-ink-muted">{plan.tagline}</p>
-                    <p className="mt-5 font-mono text-4xl font-semibold tracking-[-0.03em] tabular-nums">{plan.price}</p>
+                    <p className="num mt-5 text-4xl font-semibold tracking-[-0.03em]">{plan.price}</p>
                     <p className="mt-1 text-sm text-ink-subtle">COP al mes por sede</p>
                   </div>
                   <ul className="space-y-2.5">
@@ -325,7 +383,7 @@ export default function LandingClient() {
               ))}
             </div>
             <p className="mt-6 max-w-2xl text-sm text-ink-subtle">
-              Lo marcado como &quot;Próximamente&quot; está en desarrollo: si contratas hoy aseguras el precio y lo recibes apenas salga, sin costo adicional.
+              Lo marcado como &quot;Próximamente&quot; ya está construido y llega cuando la app esté publicada en las tiendas: si contratas hoy aseguras el precio y lo recibes sin costo adicional.
             </p>
           </div>
         </section>

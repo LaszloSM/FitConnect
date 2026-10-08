@@ -316,6 +316,10 @@ Cuando cometas un error durante una sesión, agrégalo aquí antes de terminar:
 | `npx expo install` fallaba con "HTTP Proxy Network Error: Forbidden" | Consulta la API de Expo para resolver versiones y el proxy no la deja pasar | Instalar con `npm install paquete@<versión>` tomando la versión de `node_modules/expo/bundledNativeModules.json`, que es exactamente lo que `expo install` habría elegido |
 | Un backend viejo seguía en el puerto 8000 y las rutas nuevas daban 404 | El `uvicorn` nuevo falló con el puerto ocupado y su error quedó en un log que nadie leyó | Antes de probar contra un servidor recién arrancado: `ps -eo pid,lstart,args \| grep uvicorn` y confirmar que la hora de arranque es la de ahora |
 
+| El encabezado de la landing (`sticky top-0`) se iba con el scroll | El contenedor raíz tenía `overflow-x-hidden`: eso lo vuelve contenedor de scroll y el `sticky` queda atado a él, no a la ventana | Para cortar el desborde horizontal sin romper `sticky`, `overflow-x-clip` (no crea contenedor de scroll) |
+| La landing y el registro prometían 30 días de prueba y el backend daba 14 | El valor se fijó en el backend sin revisar lo que ya decía el sitio público | Un número que ve el cliente (días de prueba, precios, límites) se busca en `frontend/` y `platform/` antes de cambiarlo en el backend |
+| `priority` de `next/image` está obsoleto en Next 16 | Se reemplazó por `preload` | Usar `preload` (o `loading="eager"`/`fetchPriority`); leer `node_modules/next/dist/docs/` antes de usar una prop de memoria |
+
 **Protocolo:** Al detectar un error que no estaba documentado, añade una fila a la tabla antes del commit.
 
 ---

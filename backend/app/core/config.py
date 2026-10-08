@@ -66,7 +66,7 @@ class Settings(BaseSettings):
     assistant_model: str = "claude-sonnet-5-5"
     assistant_daily_limit: int = 30
     # Días de prueba gratis de un gimnasio nuevo y de gracia tras vencer antes de solo lectura.
-    default_trial_days: int = 14
+    default_trial_days: int = 30  # lo que promete la landing y el registro
     past_due_grace_days: int = 7
     # URL pública de la API (enlaces firmados enviados por WhatsApp)
     public_api_url: str = "http://localhost:8000"

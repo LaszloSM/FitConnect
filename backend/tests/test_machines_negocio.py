@@ -11,7 +11,9 @@ _TOKENS: dict[str, str] = {}
 async def _owner_token(client):
     if "owner" in _TOKENS:
         return _TOKENS["owner"]
-    email = "maquinas-negocio@gym.com"
+    # Gimnasio nuevo en cada corrida: /machines/costs muestra el top 10 y un tenant
+    # reutilizado acumula máquinas con el mismo costo, que empujan la de esta prueba fuera.
+    email = f"maquinas-negocio-{uuid.uuid4().hex[:8]}@gym.com"
     await client.post("/api/v1/auth/register", json={
         "email": email, "password": "Pass123456!",
         "full_name": "Owner Negocio", "gym_name": "Gym Negocio", "city": "Cali",
