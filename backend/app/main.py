@@ -89,7 +89,7 @@ async def request_id_middleware(request: Request, call_next):
 # al sistema y que los socios entren al gimnasio.
 _WRITE_ALLOWED_PREFIXES = (
     "/api/v1/auth/", "/api/v1/access/", "/api/v1/kiosk/checkin", "/api/v1/kiosk/ping",
-    "/api/v1/webhooks/", "/api/v1/public/", "/api/v1/checkins",
+    "/api/v1/webhooks/", "/api/v1/public/", "/api/v1/checkins", "/api/v1/offline/checkins",
 )
 
 

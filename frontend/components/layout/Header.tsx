@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import { signOut, useSession } from "next-auth/react";
 import { useTheme } from "next-themes";
 import Link from "next/link";
+import { ConnectionIndicator } from "@/components/offline/ConnectionIndicator";
 import { BellIcon as Bell, SignOutIcon as LogOut, ListIcon as Menu, MoonIcon as Moon, GearSixIcon as Settings, SunIcon as Sun } from "@phosphor-icons/react";
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
@@ -148,6 +149,8 @@ export function Header() {
           </>
         )}
       </span>
+
+      <ConnectionIndicator />
 
       <button
         aria-label={esOscuro ? "Cambiar a modo claro" : "Cambiar a modo oscuro"}

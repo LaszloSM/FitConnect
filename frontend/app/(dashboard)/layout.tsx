@@ -9,6 +9,7 @@ import { SidebarProvider, useSidebar } from "@/components/layout/SidebarContext"
 import { CheckinToaster } from "@/components/common/CheckinToaster";
 import { SessionGuard } from "@/components/common/SessionGuard";
 import { SubscriptionBanner } from "@/components/layout/SubscriptionBanner";
+import { OfflineProvider } from "@/components/offline/OfflineProvider";
 import { SIDEBAR_COLLAPSED_W, SIDEBAR_EXPANDED_W } from "@/lib/layout-constants";
 
 function DashboardShell({ children }: { children: React.ReactNode }) {
@@ -44,6 +45,7 @@ function DashboardShell({ children }: { children: React.ReactNode }) {
       <MobileNav />
       <CheckinToaster />
       <SessionGuard />
+      <OfflineProvider />
     </div>
   );
 }

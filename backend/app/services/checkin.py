@@ -35,21 +35,12 @@ class DuplicateCheckin(Exception):
     pass
 
 
-async def checkin_status(member_id: uuid.UUID, db: AsyncSession, grace_days: int) -> tuple[str, Membership | None]:
-    """(estado para check-in, membresía más relevante).
-    Estado: ok | in_grace | scheduled | expired | frozen | no_entries | no_membership.
-    `no_entries` = ticketera vigente pero sin entradas.
-    Un pase del día activo para hoy vale como 'ok' cuando ninguna membresía da acceso."""
-    from app.services.day_passes import active_pass_today
-    today = today_bogota()
-    memberships = (await db.execute(
-        select(Membership).where(Membership.member_id == member_id)
-        .order_by(desc(Membership.end_date))
-    )).scalars().all()
+def status_from_memberships(memberships, *, today, grace_days: int, has_pass_today: bool) -> tuple[str, Membership | None]:
+    """Regla pura del estado de acceso a partir de las membresías del socio
+    (ordenadas por fin descendente). La usan el check-in en vivo y la copia sin
+    conexión de recepción: una sola implementación para que no diverjan."""
     if not memberships:
-        if await active_pass_today(db, member_id):
-            return "ok", None
-        return "no_membership", None
+        return ("ok", None) if has_pass_today else ("no_membership", None)
     best = "no_membership"
     best_membership = memberships[0]
     priority = {"ok": 6, "in_grace": 5, "frozen": 4, "scheduled": 3, "no_entries": 2, "expired": 2,
@@ -66,10 +57,29 @@ async def checkin_status(member_id: uuid.UUID, db: AsyncSession, grace_days: int
     # admite "cancelled" y para el negocio es el mismo estado)
     if best == "cancelled":
         best = "no_membership"
-    if best not in _ALLOWED_STATUSES and await active_pass_today(db, member_id):
+    if best not in _ALLOWED_STATUSES and has_pass_today:
         # Socio vencido/congelado que compró un pase para hoy: entra por el pase
         return "ok", None
     return best, best_membership
+
+
+async def checkin_status(member_id: uuid.UUID, db: AsyncSession, grace_days: int) -> tuple[str, Membership | None]:
+    """(estado para check-in, membresía más relevante).
+    Estado: ok | in_grace | scheduled | expired | frozen | no_entries | no_membership.
+    `no_entries` = ticketera vigente pero sin entradas.
+    Un pase del día activo para hoy vale como 'ok' cuando ninguna membresía da acceso."""
+    from app.services.day_passes import active_pass_today
+    memberships = (await db.execute(
+        select(Membership).where(Membership.member_id == member_id)
+        .order_by(desc(Membership.end_date))
+    )).scalars().all()
+    status, best = status_from_memberships(memberships, today=today_bogota(), grace_days=grace_days,
+                                           has_pass_today=False)
+    if status in _ALLOWED_STATUSES:
+        return status, best
+    if await active_pass_today(db, member_id):
+        return "ok", None
+    return status, best
 
 
 def entries_left(membership: Membership) -> int | None:

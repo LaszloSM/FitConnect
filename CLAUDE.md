@@ -297,6 +297,10 @@ Cuando cometas un error durante una sesión, agrégalo aquí antes de terminar:
 | La importación marcaba `consent_data_at = ahora` a cada socio | Se asumió que la autorización del software anterior "contaba"; registrar una autorización que nadie dio aquí es un dato falso (Ley 1581) | Los importados quedan sin autorización y el enlace de completar ficha se la pide al socio. Un consentimiento solo se registra cuando la persona lo da en FitConnect |
 | `label:has-text('No')` en Playwright marcaba "Nombre" en vez del botón "No" | `has-text` es subcadena e ignora mayúsculas | Para textos cortos usar `{ hasText: /^No$/ }` o `text-is`; confirmar con una captura cuando el envío no avanza |
 
+| Sin red, NextAuth dejaba la pantalla sin sesión y al volver la red NO la recuperaba hasta recargar | `fetchData` devuelve `null` ante un error de red y `_getSession` no vuelve a consultar si la sesión es `null` | El service worker (`public/sw.js`) responde `/api/auth/session` con la última sesión válida cuando la red falla, y la borra al cerrar sesión. Solo se registra en producción: el modo sin conexión se prueba con `npm run build && next start`, nunca con `next dev` |
+| Al registrar una entrada sin red, lo que recepción ya estaba escribiendo se borraba | El handler limpiaba la búsqueda DESPUÉS de los `await` de IndexedDB | En acciones de mostrador, limpiar el formulario antes de los `await` (guardando antes los valores que se necesitan) |
+| La copia sin conexión ofrecía "Cortesía del equipo" como plan para cobrar | El plan interno del personal es un `MemberPlan` más | Todo listado de planes "vendibles" excluye `STAFF_PLAN_NAME` (como `onboarding.py`) |
+
 **Protocolo:** Al detectar un error que no estaba documentado, añade una fila a la tabla antes del commit.
 
 ---

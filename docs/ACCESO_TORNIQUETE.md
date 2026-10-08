@@ -52,7 +52,7 @@ Si el menú tiene "Comunicación › Servidor en la nube / ADMS / Cloud Server",
 | Crear socio | Paso «Acceso» del asistente: consentimiento + registrar rostro (en el equipo o con la foto de la ficha) y huella, con el progreso en vivo |
 | Se revoca el consentimiento biométrico | Se borra el rostro o la huella **del equipo** y la credencial |
 | Recepción necesita abrir | Botón «Abrir torniquete» en el Mostrador (queda en auditoría) |
-| Se va el internet | El equipo sigue decidiendo con lo que sabe; las marcaciones se guardan (en el equipo o en el agente) y se suben al volver, sin duplicados |
+| Se va el internet | El equipo sigue decidiendo con lo que sabe; las marcaciones se guardan (en el equipo o en el agente) y se suben al volver, sin duplicados. Recepción sigue con la copia local del navegador (`MODO_SIN_CONEXION.md`) |
 | Se va la luz | Hardware: UPS para torniquete, router y PC; ver abajo |
 
 ## Ajustes avanzados por equipo (instalador)

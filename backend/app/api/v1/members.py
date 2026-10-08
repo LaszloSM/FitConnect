@@ -1,7 +1,7 @@
 import json
 import uuid
 from typing import Literal
-from fastapi import APIRouter, Depends, File, Form, HTTPException, Query, UploadFile
+from fastapi import APIRouter, Depends, File, Form, HTTPException, Query, Request, UploadFile
 from fastapi.responses import Response
 from pydantic import BaseModel
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -30,6 +30,7 @@ from app.services.gym_settings import get_gym_settings
 from app.services.membership_status import effective_status
 from app.services import member_import, member_profile
 from app.services.audit import audit
+from app.services.idempotency import Idempotent
 from app.services.storage import resolve_media_url, delete_object, scoped_key
 
 # Todo /members exige staff activo; el borrado además exige owner/admin.
@@ -156,10 +157,18 @@ async def list_members(
 @router.post("", response_model=MemberResponse, status_code=201, dependencies=[Depends(require_perm(perm.MEMBERS_WRITE))])
 async def create_member(
     payload: MemberCreate,
+    request: Request,
     db: AsyncSession = Depends(get_tenant_db_from_token),
     slug: str = Depends(get_tenant_slug),
     tenant: Tenant = Depends(get_tenant_from_claims),
 ):
+    # El alta hecha sin conexión se reenvía con la misma clave al volver la red:
+    # si la primera sí llegó, se devuelve ese socio en vez de un 409 de cédula.
+    guard = Idempotent(db, request, "members.create", payload.model_dump(mode="json"))
+    replay = await guard.check()
+    if replay is not None:
+        return replay
+
     if payload.email:
         existing = await db.execute(select(Member).where(Member.email == payload.email))
         if existing.scalar_one_or_none():
@@ -222,9 +231,12 @@ async def create_member(
         member_id=member.id, phone=member.phone,
     )
 
-    await db.commit()
+    await db.flush()
     await db.refresh(member)
-    return member
+    response = MemberResponse.model_validate(member).model_dump(mode="json")
+    guard.remember(response, 201)
+    won = await guard.commit()
+    return won if won is not None else response
 
 
 @router.post("/{member_id}/convert-to-member", response_model=MemberResponse, dependencies=[Depends(require_perm(perm.MEMBERS_WRITE))])
