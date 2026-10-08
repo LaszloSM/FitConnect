@@ -27,6 +27,7 @@ _RECONCILE_LOCK_KEY = 815002
 _OUTBOX_LOCK_KEY = 815003
 _ML_LOCK_KEY = 815004
 _ACCESS_LOCK_KEY = 815005
+_SUBSCRIPTION_LOCK_KEY = 815006
 
 
 async def _run_with_advisory_lock(key: int, name: str, work) -> None:
@@ -529,6 +530,18 @@ async def process_outbox_job() -> None:
     )
 
 
+async def advance_subscriptions_job() -> None:
+    """Fin de pruebas y de gracias: persiste el estado de cada suscripción."""
+    from app.db.master_session import MasterSessionLocal
+    from app.services.subscription import advance_all, forget
+
+    async def work():
+        async with MasterSessionLocal() as master:
+            await advance_all(master)
+        forget()
+    await _run_with_advisory_lock(_SUBSCRIPTION_LOCK_KEY, "advance_subscriptions_job", work)
+
+
 async def _sync_tenant_access(session: AsyncSession, tenant: Tenant) -> None:
     from app.services.access_sync import reconcile_all
     await reconcile_all(session)
@@ -546,6 +559,7 @@ async def sync_access_devices_job() -> None:
 # Registro de jobs invocables manualmente (endpoint dev /admin/run-job/{name})
 JOBS = {
     "sync_access_devices": sync_access_devices_job,
+    "advance_subscriptions": advance_subscriptions_job,
     "expire_memberships": expire_memberships_job,
     "reconcile_payments": reconcile_payments_job,
     "process_outbox": process_outbox_job,

@@ -36,6 +36,14 @@ function addResponseInterceptor(instance: AxiosInstance): AxiosInstance {
       if (error?.response?.status === 401 && unauthorizedListener) {
         unauthorizedListener();
       }
+      // Cuenta en solo lectura o sin la verificación en dos pasos: lo resuelve
+      // un aviso global (SubscriptionBanner / SessionGuard), no cada pantalla.
+      if (typeof window !== "undefined") {
+        const status = error?.response?.status;
+        const data = error?.response?.data;
+        if (status === 402 && data?.code === "read_only") window.dispatchEvent(new Event("fc:read-only"));
+        if (status === 403 && data?.detail === "mfa_setup_required") window.location.assign("/seguridad/dos-pasos");
+      }
       // Re-throw as-is — parseApiError() en lib/errors.ts extrae el mensaje legible
       return Promise.reject(error);
     }

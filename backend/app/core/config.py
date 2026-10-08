@@ -41,6 +41,22 @@ class Settings(BaseSettings):
     cors_origins: list[str] = ["http://localhost:3000"]
     # URL pública del frontend, para construir links (ej. invitaciones de staff).
     frontend_url: str = "http://localhost:3000"
+    # ─── Seguridad de cuentas ───
+    # Roles a los que se les exige verificación en dos pasos. Vacío = nadie (útil en pruebas).
+    mfa_required_roles: list[str] = ["owner", "admin"]
+    # Intentos fallidos de login por correo antes de bloquear 15 minutos.
+    login_max_failures: int = 10
+    # ─── Panel de plataforma (admin.<dominio>) ───
+    # Llave propia para sus tokens: un token de gimnasio nunca sirve en el panel ni al revés.
+    # Si no se define, se deriva de secret_key.
+    platform_secret_key: str = ""
+    platform_token_minutes: int = 30
+    # IPs desde las que se acepta el panel (vacío = cualquiera; Caddy también filtra).
+    platform_allowed_ips: list[str] = []
+    platform_url: str = "http://localhost:3100"
+    # Días de prueba gratis de un gimnasio nuevo y de gracia tras vencer antes de solo lectura.
+    default_trial_days: int = 14
+    past_due_grace_days: int = 7
     # URL pública de la API (enlaces firmados enviados por WhatsApp)
     public_api_url: str = "http://localhost:8000"
     # Clave Fernet para cifrar secretos de integraciones (Wompi, WhatsApp) en gym_settings.

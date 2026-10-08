@@ -39,6 +39,7 @@ def create_access_token(
     db_name: str | None,
     role: str = "owner",
     staff_id: str | None = None,
+    **extra,
 ) -> str:
     """Genera JWT con contexto de owner + tenant para multi-tenant DB dinámica.
 
@@ -54,11 +55,13 @@ def create_access_token(
         "staff_id": staff_id,
         "exp": expire,
         "jti": str(uuid.uuid4()),
+        "iat": int(datetime.now(timezone.utc).timestamp()),
+        **extra,
     }
     return jwt.encode(payload, settings.secret_key, algorithm=settings.algorithm)
 
 
-def create_staff_token(staff_id: str, db_name: str, role: str) -> str:
+def create_staff_token(staff_id: str, db_name: str, role: str, **extra) -> str:
     """Genera JWT para staff del gym (admin/receptionist) autenticado contra tenant DB."""
     expire = datetime.now(timezone.utc) + timedelta(minutes=settings.access_token_expire_minutes)
     payload = {
@@ -68,6 +71,8 @@ def create_staff_token(staff_id: str, db_name: str, role: str) -> str:
         "role": role,
         "exp": expire,
         "jti": str(uuid.uuid4()),
+        "iat": int(datetime.now(timezone.utc).timestamp()),
+        **extra,
     }
     return jwt.encode(payload, settings.secret_key, algorithm=settings.algorithm)
 
@@ -114,3 +119,38 @@ def decode_token(token: str) -> dict[str, Any]:
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Token inválido o expirado",
         ) from exc
+
+
+# ─── Panel de plataforma ────────────────────────────────────────────────────
+
+def _platform_key() -> str:
+    if settings.platform_secret_key:
+        return settings.platform_secret_key
+    # Derivada pero distinta: un token de gimnasio no valida aquí ni al revés.
+    return hashlib.sha256(f"platform::{settings.secret_key}".encode()).hexdigest()
+
+
+def create_platform_token(admin_id: str, scope: str = "platform", minutes: int | None = None, **extra) -> str:
+    expire = datetime.now(timezone.utc) + timedelta(minutes=minutes or settings.platform_token_minutes)
+    payload = {"sub": admin_id, "scope": scope, "aud": "fitconnect-platform", "exp": expire,
+               "jti": str(uuid.uuid4()), **extra}
+    return jwt.encode(payload, _platform_key(), algorithm=settings.algorithm)
+
+
+def decode_platform_token(token: str, scope: str = "platform") -> dict[str, Any]:
+    try:
+        payload = jwt.decode(token, _platform_key(), algorithms=[settings.algorithm], audience="fitconnect-platform")
+    except JWTError as exc:
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Sesión inválida o vencida") from exc
+    if payload.get("scope") != scope:
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Sesión inválida")
+    return payload
+
+
+# ─── Verificación en dos pasos del gimnasio ─────────────────────────────────
+
+def create_challenge_token(purpose: str, minutes: int = 5, **claims) -> str:
+    """Token corto para el segundo paso del login (no da acceso a nada más)."""
+    expire = datetime.now(timezone.utc) + timedelta(minutes=minutes)
+    payload = {"scope": f"mfa_{purpose}", "exp": expire, "jti": str(uuid.uuid4()), **claims}
+    return jwt.encode(payload, settings.secret_key, algorithm=settings.algorithm)

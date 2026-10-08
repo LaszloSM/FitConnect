@@ -10,6 +10,8 @@ declare module "next-auth" {
     dbName: string;
     /** "RefreshFailed": el token venció y no se pudo renovar; hay que volver a entrar. */
     error?: string;
+    /** Dueño o administrador que aún no configuró la verificación en dos pasos. */
+    mfaSetupRequired?: boolean;
   }
 }
 
@@ -22,5 +24,6 @@ declare module "next-auth/jwt" {
     dbName: string;
     accessTokenExpires?: number;
     error?: string;
+    mfaSetupRequired?: boolean;
   }
 }

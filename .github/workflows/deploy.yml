@@ -45,6 +45,8 @@ jobs:
       REDIS_URL: redis://localhost:6379
       SECRET_KEY: ci-test-secret-key
       ENVIRONMENT: development
+      # El 2FA obligatorio se prueba aparte (test_account_security.py).
+      MFA_REQUIRED_ROLES: '[]'
       # Almacenamiento de objetos: sin esto el test que sube un video falla con
       # "Unable to locate credentials" y nadie se enteraba, porque el lint de
       # ruff reventaba antes de llegar a pytest.
