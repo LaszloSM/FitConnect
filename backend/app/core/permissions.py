@@ -31,6 +31,9 @@ MEMBERS_DELETE = "members.delete"
 MEMBERS_IMPORT = "members.import"
 
 MEMBERSHIPS_WRITE = "memberships.write"
+# Regalar una membresía de $0 (semana de prueba, compensación): sale de caja sin
+# pasar por caja, así que la decide administración, no recepción.
+MEMBERSHIPS_COURTESY = "memberships.courtesy"
 # Historial de plata de un socio dentro de su ficha. Recepción lo necesita en
 # el mostrador ("¿ya pagué?"), el entrenador no tiene nada que hacer ahí.
 MEMBER_MONEY_READ = "members.money_read"
@@ -124,6 +127,7 @@ _ADMIN: frozenset[str] = _RECEPTIONIST | frozenset({
     CASH_READ,
     PLANS_WRITE,
     MEMBERS_DELETE, MEMBERS_IMPORT,
+    MEMBERSHIPS_COURTESY,
     DAY_PASSES_WRITE,
     PRODUCTS_WRITE,
     MACHINES_WRITE,

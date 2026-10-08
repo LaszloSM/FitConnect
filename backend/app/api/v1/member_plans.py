@@ -6,7 +6,7 @@ from app.api.deps import get_tenant_db_from_token, require_perm
 from app.schemas.member import MembershipResponse
 from app.core import permissions as perm
 from app.services.audit import audit
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 from datetime import date, timedelta
 from typing import Literal
 import uuid
@@ -26,6 +26,8 @@ class PlanCreate(BaseModel):
     # Plan con entrenador; sesiones: None = sin tope
     includes_trainer: bool = False
     trainer_sessions_per_month: int | None = None
+    # Ticketera: número de entradas que incluye (None = ilimitadas durante la vigencia)
+    entries_total: int | None = Field(default=None, ge=1, le=1000)
 
 
 class PlanUpdate(BaseModel):
@@ -38,6 +40,7 @@ class PlanUpdate(BaseModel):
     class_credits_per_month: int | None = None
     includes_trainer: bool | None = None
     trainer_sessions_per_month: int | None = None
+    entries_total: int | None = Field(default=None, ge=1, le=1000)
 
 
 class AssignMembership(BaseModel):
@@ -224,6 +227,7 @@ async def _create_membership(
         class_credits_per_month=getattr(plan, "class_credits_per_month", None),
         includes_trainer=bool(getattr(plan, "includes_trainer", False)),
         trainer_sessions_per_month=getattr(plan, "trainer_sessions_per_month", None),
+        entries_total=getattr(plan, "entries_total", None),
         price=net_price,
         discount_amount=discount,
         discount_reason=reason,
@@ -306,6 +310,74 @@ async def assign_membership(
         "plan_name": plan.name,
         "price": str(membership.price),
         "discount": str(membership.discount_amount) if membership.discount_amount else None,
+    })
+    response = MembershipResponse.model_validate(membership, from_attributes=True)
+    guard.remember(response, 201)
+    won = await guard.commit()
+    return won if won is not None else response
+
+
+class CourtesyMembership(BaseModel):
+    member_id: uuid.UUID
+    days: int = Field(ge=1, le=365)
+    reason: str = Field(min_length=3, max_length=255)
+    # Opcional: copia los derechos de ese plan (clases, ticketera). Sin plan, acceso al gimnasio y clases.
+    plan_id: uuid.UUID | None = None
+
+
+@router.post("/courtesy", response_model=MembershipResponse, status_code=201)
+async def give_courtesy(
+    data: CourtesyMembership,
+    request: Request,
+    db: AsyncSession = Depends(get_tenant_db_from_token),
+    current_user=Depends(require_perm(perm.MEMBERSHIPS_COURTESY)),
+):
+    """Membresía regalada por el gym (semana de prueba, premio, compensación).
+    Vale $0, no genera deuda ni ingreso y queda auditada con motivo y autor."""
+    from app.core.timeutil import today_bogota
+    from app.models.tenant.member import Member
+    from app.models.tenant.member_plan import MemberPlan
+    from app.models.tenant.membership import Membership, MembershipStatus
+    from app.services.gym_settings import get_gym_settings
+    from app.services.membership_status import next_chain_start
+
+    guard = Idempotent(db, request, "member_plans.courtesy", data.model_dump(mode="json"))
+    replay = await guard.check()
+    if replay is not None:
+        return replay
+
+    if not (await db.execute(select(Member.id).where(Member.id == data.member_id))).scalar_one_or_none():
+        raise HTTPException(status_code=404, detail="Miembro no encontrado")
+    plan = None
+    if data.plan_id:
+        plan = (await db.execute(select(MemberPlan).where(MemberPlan.id == data.plan_id))).scalar_one_or_none()
+        if plan is None:
+            raise HTTPException(status_code=404, detail="Plan no encontrado")
+
+    gym = await get_gym_settings(db)
+    today = today_bogota()
+    start = await next_chain_start(db, data.member_id, gym.grace_days, today, today=today)
+    membership = Membership(
+        member_id=data.member_id,
+        plan_id=plan.id if plan else None,
+        plan_name=f"Cortesía · {plan.name}"[:100] if plan else "Cortesía",
+        access_type=plan.access_type if plan else "gym_and_classes",
+        class_credits_per_month=plan.class_credits_per_month if plan else None,
+        entries_total=plan.entries_total if plan else None,
+        price=0,
+        discount_reason=data.reason.strip(),
+        start_date=start,
+        end_date=start + timedelta(days=data.days),
+        duration_days=data.days,
+        status=MembershipStatus.active.value,
+        source="courtesy",
+        notes=f"Cortesía: {data.reason.strip()}"[:500],
+    )
+    db.add(membership)
+    await db.flush()
+    audit(db, current_user, "membership.courtesy", "membership", membership.id, {
+        "member_id": str(data.member_id), "days": data.days, "reason": data.reason.strip(),
+        "plan_name": plan.name if plan else None,
     })
     response = MembershipResponse.model_validate(membership, from_attributes=True)
     guard.remember(response, 201)

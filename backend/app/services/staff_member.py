@@ -142,6 +142,7 @@ async def _ensure_courtesy_membership(db: AsyncSession, ficha: Member) -> None:
         end_date=hoy + timedelta(days=STAFF_PLAN_DAYS),
         status=MembershipStatus.active.value,
         access_type=plan.access_type,
+        source="courtesy",
     ))
 
 

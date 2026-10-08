@@ -38,6 +38,7 @@ const planSchema = z.object({
   class_credits_per_month: z.number().int().min(1).nullable(),
   includes_trainer: z.boolean(),
   trainer_sessions_per_month: z.number().int().min(1).nullable(),
+  entries_total: z.number().int().min(1, "Mínimo 1 entrada").max(1000).nullable(),
 });
 
 type PlanForm = z.infer<typeof planSchema>;
@@ -53,6 +54,7 @@ interface Plan {
   class_credits_per_month: number | null;
   includes_trainer: boolean;
   trainer_sessions_per_month: number | null;
+  entries_total: number | null;
 }
 
 const ACCESS_OPTIONS = [
@@ -168,6 +170,11 @@ function PlanCardItem({ plan, onEdit, onDelete, editable }: PlanCardItemProps) {
                 </span>
               );
             })()}
+            {plan.entries_total != null && (
+              <span className="inline-flex w-fit items-center rounded-full px-2 py-0.5 text-[11px] font-semibold bg-[var(--signal-warn-bg)] text-[var(--signal-warn)]">
+                Ticketera · {plan.entries_total} {plan.entries_total === 1 ? "entrada" : "entradas"}
+              </span>
+            )}
             {plan.includes_trainer && (
               <span className="inline-flex w-fit items-center rounded-full px-2 py-0.5 text-[11px] font-semibold bg-[var(--signal-ok-bg)] text-[var(--signal-ok)]">
                 {plan.trainer_sessions_per_month == null
@@ -225,6 +232,7 @@ const emptyForm: PlanForm = {
   class_credits_per_month: null,
   includes_trainer: false,
   trainer_sessions_per_month: null,
+  entries_total: null,
 };
 
 export default function PlansClient() {
@@ -277,6 +285,7 @@ export default function PlansClient() {
       class_credits_per_month: plan.class_credits_per_month ?? null,
       includes_trainer: plan.includes_trainer ?? false,
       trainer_sessions_per_month: plan.trainer_sessions_per_month ?? null,
+      entries_total: plan.entries_total ?? null,
     });
     setErrors({});
     setDialogOpen(true);
@@ -479,6 +488,49 @@ export default function PlansClient() {
                   })}
                 </div>
               </div>
+
+              <label
+                className={cn(
+                  "flex items-center gap-3 rounded-xl border px-3 py-2.5 cursor-pointer transition-colors",
+                  form.entries_total != null
+                    ? "border-[var(--brand)] bg-muted"
+                    : "border-[var(--border-base)] hover:border-[var(--text-muted)]"
+                )}
+              >
+                <input
+                  type="checkbox"
+                  checked={form.entries_total != null}
+                  onChange={(e) => setForm({ ...form, entries_total: e.target.checked ? form.entries_total ?? 10 : null })}
+                  className="sr-only"
+                />
+                <span
+                  className={cn(
+                    "h-4 w-4 rounded border-2 shrink-0",
+                    form.entries_total != null ? "border-transparent bg-primary" : "border-[var(--border-base)]"
+                  )}
+                />
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm font-medium text-[var(--text-base)]">Ticketera (por número de entradas)</p>
+                  <p className="text-xs text-[var(--text-muted)]">
+                    Cada ingreso descuenta una entrada. La duración es el plazo para gastarlas.
+                  </p>
+                </div>
+                {form.entries_total != null && (
+                  <div className="flex items-center gap-2 shrink-0">
+                    <input
+                      type="number"
+                      min={1}
+                      max={1000}
+                      aria-label="Número de entradas"
+                      value={form.entries_total}
+                      onClick={(e) => e.stopPropagation()}
+                      onChange={(e) => setForm({ ...form, entries_total: Math.max(1, Number(e.target.value)) })}
+                      className="w-16 h-8 rounded-md border border-[var(--border-base)] bg-[var(--bg-base)] px-2 text-sm text-center text-[var(--text-base)]"
+                    />
+                    <span className="text-xs text-[var(--text-muted)]">entradas</span>
+                  </div>
+                )}
+              </label>
 
               <label
                 className={cn(

@@ -29,6 +29,7 @@ export const P = {
   MEMBERS_DELETE: "members.delete",
   MEMBERS_IMPORT: "members.import",
   MEMBERSHIPS_WRITE: "memberships.write",
+  MEMBERSHIPS_COURTESY: "memberships.courtesy",
   MEMBER_MONEY_READ: "members.money_read",
 
   DAY_PASSES_SELL: "day_passes.sell",

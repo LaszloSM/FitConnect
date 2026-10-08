@@ -6,7 +6,7 @@ register_checkin(db, member, source="biometric") sin tocar nada más.
 import uuid
 from datetime import datetime, timedelta
 
-from sqlalchemy import select, desc
+from sqlalchemy import select, desc, update
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.timeutil import today_bogota, now_bogota, utcnow_naive
@@ -37,7 +37,8 @@ class DuplicateCheckin(Exception):
 
 async def checkin_status(member_id: uuid.UUID, db: AsyncSession, grace_days: int) -> tuple[str, Membership | None]:
     """(estado para check-in, membresía más relevante).
-    Estado: ok | in_grace | scheduled | expired | frozen | no_membership.
+    Estado: ok | in_grace | scheduled | expired | frozen | no_entries | no_membership.
+    `no_entries` = ticketera vigente pero sin entradas.
     Un pase del día activo para hoy vale como 'ok' cuando ninguna membresía da acceso."""
     from app.services.day_passes import active_pass_today
     today = today_bogota()
@@ -51,10 +52,13 @@ async def checkin_status(member_id: uuid.UUID, db: AsyncSession, grace_days: int
         return "no_membership", None
     best = "no_membership"
     best_membership = memberships[0]
-    priority = {"ok": 6, "in_grace": 5, "frozen": 4, "scheduled": 3, "expired": 2, "cancelled": 1, "no_membership": 0}
+    priority = {"ok": 6, "in_grace": 5, "frozen": 4, "scheduled": 3, "no_entries": 2, "expired": 2,
+                "cancelled": 1, "no_membership": 0}
     for m in memberships:
         st = effective_status(m, today=today, grace_days=grace_days)
         st = "ok" if st == "active" else st
+        if st in _ALLOWED_STATUSES and entries_left(m) == 0:
+            st = "no_entries"
         if priority.get(st, 0) > priority.get(best, 0):
             best = st
             best_membership = m
@@ -66,6 +70,30 @@ async def checkin_status(member_id: uuid.UUID, db: AsyncSession, grace_days: int
         # Socio vencido/congelado que compró un pase para hoy: entra por el pase
         return "ok", None
     return best, best_membership
+
+
+def entries_left(membership: Membership) -> int | None:
+    """Entradas que le quedan a una ticketera; None si el plan es ilimitado."""
+    if membership.entries_total is None:
+        return None
+    return max(membership.entries_total - (membership.entries_used or 0), 0)
+
+
+async def consume_entry(db: AsyncSession, membership: Membership, enforce: bool = True) -> bool:
+    """Descuenta una entrada de la ticketera en una sola sentencia: dos lectores
+    que marcan a la vez no pueden gastar la misma última entrada. Con
+    `enforce=False` (entradas que el torniquete ya dejó pasar sin red) se
+    registra aunque el saldo quede agotado."""
+    if membership.entries_total is None:
+        return True
+    stmt = update(Membership).where(Membership.id == membership.id)
+    if enforce:
+        stmt = stmt.where(Membership.entries_used < Membership.entries_total)
+    result = await db.execute(
+        stmt.values(entries_used=Membership.entries_used + 1).execution_options(synchronize_session=False)
+    )
+    await db.refresh(membership, ["entries_used"])
+    return result.rowcount == 1
 
 
 def decision_for(status: str) -> tuple[str, str | None]:
@@ -132,6 +160,9 @@ async def register_checkin(
     if decision == "allowed":
         # Pase del día: ingresos ilimitados, solo se evita el doble toque accidental
         await _reject_if_duplicate(member.id, db, window=DAY_PASS_DEDUP_WINDOW if membership is None else DEDUP_WINDOW)
+        if membership is not None and not await consume_entry(db, membership):
+            status = "no_entries"
+            decision, denial_reason = decision_for(status)
 
     checkin = CheckIn(
         member_id=member.id,

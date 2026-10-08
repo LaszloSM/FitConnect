@@ -195,6 +195,10 @@ class MembershipResponse(MembershipBase):
     # Snapshot de derechos del plan al momento de la venta
     access_type: Optional[str] = None
     class_credits_per_month: Optional[int] = None
+    # Ticketera: entradas compradas (None = ilimitadas) y usadas
+    entries_total: Optional[int] = None
+    entries_used: int = 0
+    source: str = "sale"
     # Derivado de end_date/status en tiempo de lectura (no persiste un status stale)
     effective_status: Optional[Literal["active", "scheduled", "frozen", "in_grace", "expired", "cancelled"]] = None
 
@@ -281,7 +285,7 @@ class CheckInResponse(BaseModel):
     source: Optional[str] = None
     # Inyectados por el endpoint — no vienen directo de la tabla checkins
     member_name: Optional[str] = None
-    membership_status: Optional[Literal["ok", "in_grace", "scheduled", "expired", "frozen", "no_membership"]] = None
+    membership_status: Optional[Literal["ok", "in_grace", "scheduled", "expired", "frozen", "no_entries", "no_membership"]] = None
     # Clase marcada como asistida automáticamente al entrar (±60 min)
     upcoming_class: Optional[dict] = None
 

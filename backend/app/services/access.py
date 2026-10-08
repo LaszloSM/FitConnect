@@ -13,7 +13,7 @@ from app.models.tenant.access import AccessEvent, MemberCredential
 from app.models.tenant.checkin import CheckIn, CheckInType
 from app.models.tenant.kiosk_device import KioskDevice
 from app.models.tenant.member import Member
-from app.services.checkin import register_checkin, DuplicateCheckin, checkin_status, decision_for
+from app.services.checkin import register_checkin, DuplicateCheckin, checkin_status, consume_entry, decision_for
 from app.services.gym_settings import get_gym_settings
 from app.services.storage import resolve_media_url
 
@@ -22,6 +22,7 @@ DENIAL_MESSAGES = {
     "frozen": "Plan congelado. Pasa por recepción.",
     "scheduled": "Tu plan empieza más adelante. Pasa por recepción.",
     "no_membership": "Sin plan activo. Pasa por recepción.",
+    "no_entries": "Se acabaron las entradas de tu plan. Pasa por recepción.",
     "not_found": "Credencial no reconocida. Pasa por recepción.",
     "device_inactive": "Dispositivo desactivado.",
 }
@@ -150,6 +151,10 @@ async def record_offline_events(db: AsyncSession, device: KioskDevice, events: l
         decision = e["decision"] if member else "not_found"
         checkin_id = None
         if member and decision == "allowed" and e.get("direction", "entry") == "entry":
+            # El equipo ya lo dejó pasar: la entrada se descuenta aunque agote el saldo.
+            _, ms = await checkin_status(member.id, db, (await get_gym_settings(db)).grace_days)
+            if ms is not None:
+                await consume_entry(db, ms, enforce=False)
             ci = CheckIn(member_id=member.id, type=CheckInType.entry, decision="allowed", denial_reason=None,
                          source=device.kind, created_at=e["occurred_at"])
             db.add(ci)

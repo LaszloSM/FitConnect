@@ -369,6 +369,9 @@ K9_IMPORTACION: list[str] = [
     "ALTER TABLE memberships ADD COLUMN IF NOT EXISTS entries_total INTEGER NULL",
     "ALTER TABLE memberships ADD COLUMN IF NOT EXISTS entries_used INTEGER NOT NULL DEFAULT 0",
     "ALTER TABLE member_plans ADD COLUMN IF NOT EXISTS entries_total INTEGER NULL",
+    # Las cortesías del personal que ya existían nacieron como 'sale'.
+    "UPDATE memberships SET source = 'courtesy' WHERE source = 'sale' AND price = 0 "
+    "AND plan_name = 'Cortesía del equipo'",
 ]
 
 ALIGN_STATEMENTS: list[str] = [*J1_INGRESOS_PASE_TRANSFERENCIAS, *J2_INVENTARIO, *J4_CONSENTIMIENTOS, *J6_ACCESO, *J7_VIDEO_EJERCICIOS, *J8_GYM_SETTINGS_FLAGS, *K1_LIBRO_MOVIMIENTOS, *K2_MENSAJERIA, *K3_ENTRENADORES, *K4_MAQUINAS, *K5_STAFF_SOCIO, *K6_CAJA, *K7_MANTENIMIENTO, *K8_MODELOS, *K9_IMPORTACION]

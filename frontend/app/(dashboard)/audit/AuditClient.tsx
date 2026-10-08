@@ -53,6 +53,7 @@ const ACTION_LABELS: Record<string, string> = {
   "machine.report_link": "Generó el QR de reporte de una máquina",
   "member.convert": "Convirtió visitante en socio",
   "member.consent": "Registró consentimiento",
+  "membership.courtesy": "Dio una cortesía",
   "member_import.apply": "Importó socios",
   "member_import.undo": "Deshizo una importación",
   "biometric_consent.sign": "Firmó consentimiento biométrico",
