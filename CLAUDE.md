@@ -278,6 +278,8 @@ Cuando cometas un error durante una sesión, agrégalo aquí antes de terminar:
 
 | Hex de marca aproximado a ojo desde un token `oklch` | Los assets estáticos (favicon, SVG sueltos) no pueden usar CSS vars, así que hay que escribir el hex; `oklch(0.545 0.185 35)` se ve "coral" pero es `#C4360C`, no `#C64F2E`. El isotipo de la app usaba `currentColor` (correcto) y el favicon habría quedado de otro naranja | Convertir el token con la fórmula OKLab→sRGB antes de escribir un hex de marca, nunca estimarlo. Los hex de `public/*.svg` y de los iconos de `app/` son copias de los tokens de `globals.css`: si la marca cambia, se regeneran |
 
+| "Stock por agotarse" sin fecha para un producto que solo vendió hoy | La ventana de 60 días del modelo era `hoy-60 … hoy-1`: las ventas del día no contaban y la velocidad salía en cero | Toda ventana "últimos N días" que incluya hoy es `hoy-(N-1) … hoy`. Probar con un dato creado hoy, que es lo que hace un test recién sembrado |
+
 **Protocolo:** Al detectar un error que no estaba documentado, añade una fila a la tabla antes del commit.
 
 ---

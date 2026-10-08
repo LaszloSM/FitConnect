@@ -118,7 +118,7 @@ async def stockout(db: AsyncSession) -> list[dict]:
         d = rd._to_bogota(ts).date()
         por_dia = ventas.setdefault(str(pid), {})
         por_dia[d] = por_dia.get(d, 0.0) + float(-qty)
-    dias = [hoy - timedelta(days=60 - i) for i in range(60)]
+    dias = [hoy - timedelta(days=59 - i) for i in range(60)]
     for f in filas:
         por_dia = ventas.get(f["product_id"])
         if not por_dia:
