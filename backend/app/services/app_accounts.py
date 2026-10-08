@@ -229,10 +229,19 @@ def qr_secret(link_id: uuid.UUID) -> str:
     return base64.b32encode(digest).decode().rstrip("=")
 
 
-def qr_day_key(link_id: uuid.UUID, day: date) -> str:
-    base = base64.b32decode(qr_secret(link_id) + "=" * (-len(qr_secret(link_id)) % 8))
+def day_key_from_secret(secret: str, day: date) -> str:
+    base = base64.b32decode(secret + "=" * (-len(secret) % 8))
     digest = hmac.new(base, day.isoformat().encode(), hashlib.sha1).digest()
     return base64.b32encode(digest).decode().rstrip("=")
+
+
+def qr_day_key(link_id: uuid.UUID, day: date) -> str:
+    return day_key_from_secret(qr_secret(link_id), day)
+
+
+def code_for_secret(secret: str, at: float) -> str:
+    """El código de 6 dígitos que muestra el celular en el instante `at`."""
+    return totp.code_at(day_key_from_secret(secret, _bogota_day(at)), at)
 
 
 def _bogota_day(ts: float) -> date:
@@ -241,7 +250,7 @@ def _bogota_day(ts: float) -> date:
 
 def qr_payload(link_id: uuid.UUID, at: float | None = None) -> str:
     at = time.time() if at is None else at
-    return f"{QR_PREFIX}{link_id.hex}.{totp.code_at(qr_day_key(link_id, _bogota_day(at)), at)}"
+    return f"{QR_PREFIX}{link_id.hex}.{code_for_secret(qr_secret(link_id), at)}"
 
 
 def is_rotating_qr(raw: str | None) -> bool:

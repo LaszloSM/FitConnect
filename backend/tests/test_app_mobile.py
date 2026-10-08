@@ -338,3 +338,13 @@ async def test_announcement_reaches_the_phone_only_with_consent(client):
     # Retirar el permiso borra el token: no le llega nada más.
     await client.post("/api/v1/me/consents", json={"kind": "notifications", "granted": False}, headers=h)
     assert await push._tokens_for_members(decode_token(owner)["db_name"], [uuid.UUID(member["id"])]) == []
+
+
+# Vector compartido con mobile/scripts/qr.test.mts y frontend (lib/offline/appQr.ts):
+# si alguien cambia el algoritmo en un lado, esta prueba y la del celular se rompen.
+QR_VECTOR = [(1791435599.0, "525483"), (1791435600.0, "473293"), (1791478799.0, "604036")]
+
+
+def test_qr_algorithm_matches_the_shared_vector():
+    for at, code in QR_VECTOR:
+        assert app_accounts.code_for_secret("JBSWY3DPEHPK3PXP", at) == code

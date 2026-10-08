@@ -312,6 +312,10 @@ Cuando cometas un error durante una sesión, agrégalo aquí antes de terminar:
 | `PydanticUndefinedAnnotation: name 'LinkIn' is not defined` al importar un router | `from __future__ import annotations` vuelve texto las anotaciones, y el decorador `@limiter.limit` de slowapi envuelve el endpoint: FastAPI ya no encuentra el modelo del cuerpo en el namespace | En routers de FastAPI no usar `from __future__ import annotations` (Python 3.12 ya admite `X \| None`). Probar con `python -c "import app.main"` antes de correr pruebas |
 | Una llave TOTP del QR en la copia sin conexión habría servido para fabricar QR válidos para siempre | El código se verifica con la misma llave que lo genera (simétrico): quien tenga la copia del PC de recepción tiene la llave | Llave por día derivada (`HMAC(base, fecha de Bogotá)`): la copia solo lleva hoy y mañana y la base nunca sale del servidor. Mismo algoritmo en Python, en el navegador y en el celular, con prueba cruzada |
 
+| Los logs INFO de la app desaparecían después de dar de alta un gimnasio (solo quedaban los de uvicorn) | El alta migra la base del gimnasio en caliente y el `fileConfig(alembic.ini)` de `env.py` reemplazaba los handlers del logger raíz y lo dejaba en `WARN`. `disable_existing_loggers=False` no evita eso | Los `env.py` solo llaman `fileConfig` si el raíz no tiene handlers (CLI de alembic). Cubierto por `tests/test_logging_survives_migrations.py` |
+| `npx expo install` fallaba con "HTTP Proxy Network Error: Forbidden" | Consulta la API de Expo para resolver versiones y el proxy no la deja pasar | Instalar con `npm install paquete@<versión>` tomando la versión de `node_modules/expo/bundledNativeModules.json`, que es exactamente lo que `expo install` habría elegido |
+| Un backend viejo seguía en el puerto 8000 y las rutas nuevas daban 404 | El `uvicorn` nuevo falló con el puerto ocupado y su error quedó en un log que nadie leyó | Antes de probar contra un servidor recién arrancado: `ps -eo pid,lstart,args \| grep uvicorn` y confirmar que la hora de arranque es la de ahora |
+
 **Protocolo:** Al detectar un error que no estaba documentado, añade una fila a la tabla antes del commit.
 
 ---

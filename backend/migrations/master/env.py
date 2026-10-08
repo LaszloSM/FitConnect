@@ -1,4 +1,5 @@
 import asyncio
+import logging
 from logging.config import fileConfig
 from sqlalchemy.ext.asyncio import create_async_engine
 from alembic import context
@@ -12,7 +13,9 @@ config.set_main_option("sqlalchemy.url", db_url)
 
 target_metadata = MasterBase.metadata
 
-if config.config_file_name is not None:
+# Dentro de la app (arranque o alta de un gimnasio) el logging ya está configurado:
+# fileConfig de alembic.ini pondría el raíz en WARN y se perderían los INFO de la app.
+if config.config_file_name is not None and not logging.getLogger().handlers:
     # disable_existing_loggers=False es obligatorio. En producción el backend corre
     # `alembic upgrade head` sobre este env al arrancar (app/db/migrate.py, con
     # RUN_MIGRATIONS_ON_STARTUP=true). Con el default (True), fileConfig apaga los

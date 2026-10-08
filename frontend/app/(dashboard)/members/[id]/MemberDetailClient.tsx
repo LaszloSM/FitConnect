@@ -17,6 +17,7 @@ import { MemberAccessTab } from "@/components/access/MemberAccessTab";
 import { CourtesyDialog } from "@/components/members/CourtesyDialog";
 import { P, useCan } from "@/lib/permissions";
 import { ProfileCompletion } from "@/components/members/ProfileCompletion";
+import { MemberAppAccess } from "@/components/members/MemberAppAccess";
 import { QRCodeDisplay } from "@/components/common/QRCodeDisplay";
 import {
   Dialog,
@@ -603,6 +604,7 @@ export default function MemberDetailClient({ memberId }: { memberId: string }) {
               {can(P.MEMBERS_WRITE) && (
                 <ProfileCompletion memberId={memberId} hasPhone={Boolean(member.phone)} hasEmail={Boolean(member.email)} />
               )}
+              {can(P.MEMBERS_WRITE) && <MemberAppAccess memberId={memberId} hasDocument={Boolean(member.id_number)} />}
               <dl className="grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-4">
                 {([
                   { label: "Correo", value: member.email, icon: <Mail className="h-3.5 w-3.5" /> },
