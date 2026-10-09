@@ -175,14 +175,23 @@ def resolve_media_url(value: str | None, ttl: int = SIGNED_URL_TTL) -> str | Non
         return None
 
 
-async def ensure_bucket() -> None:
+async def ensure_bucket(attempts: int = 1, delay: float = 3.0) -> bool:
     """Crea el bucket si falta y aplica la política pública restrictiva. Se
     llama al arrancar: un bucket creado por una versión anterior tenía
-    `bucket/*` legible por cualquiera y debe cerrarse aunque nadie suba nada."""
-    try:
-        await asyncio.to_thread(_ensure_bucket_sync)
-    except Exception as e:  # el arranque nunca depende del almacenamiento
-        logger.warning("No se pudo preparar el bucket al arrancar: %s", e)
+    `bucket/*` legible por cualquiera y debe cerrarse aunque nadie suba nada.
+    Reintenta porque MinIO puede seguir arrancando cuando el backend ya está
+    listo (su imagen no trae con qué declarar un healthcheck)."""
+    for i in range(attempts):
+        try:
+            await asyncio.to_thread(_ensure_bucket_sync)
+            if _policy_applied:
+                return True
+        except Exception as e:  # el arranque nunca depende del almacenamiento
+            if i == attempts - 1:
+                logger.warning("No se pudo preparar el bucket al arrancar: %s", e)
+        if i < attempts - 1:
+            await asyncio.sleep(delay)
+    return False
 
 
 def _upload_sync(data: bytes, key: str, content_type: str) -> str:

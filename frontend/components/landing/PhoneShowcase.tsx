@@ -46,7 +46,7 @@ export function PhoneShowcase() {
           );
         })}
       </ol>
-      <div className="order-1 mx-auto w-[250px] shrink-0 rounded-[44px] sm:w-[270px] lg:order-2 bg-[#1F1814] p-3 shadow-[var(--shadow-lg)]">
+      <div className="order-1 mx-auto w-[250px] shrink-0 rounded-[44px] sm:w-[270px] lg:order-2 bg-[var(--kiosk-bg)] p-3 shadow-[var(--shadow-lg)]">
         <div className="relative aspect-[585/1266] overflow-hidden rounded-[34px] bg-surface">
           <AnimatePresence initial={false} mode="popLayout">
             <motion.div

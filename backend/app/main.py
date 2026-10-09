@@ -1,3 +1,4 @@
+import asyncio
 import logging
 import re
 import uuid
@@ -37,9 +38,10 @@ async def lifespan(app: FastAPI):
         from app.db.migrate import run_master_migrations
         await run_master_migrations()
     from app.services.storage import ensure_bucket
-    await ensure_bucket()
+    bucket_task = asyncio.create_task(ensure_bucket(attempts=20))
     start_scheduler()
     yield
+    bucket_task.cancel()
     stop_scheduler()
 
 

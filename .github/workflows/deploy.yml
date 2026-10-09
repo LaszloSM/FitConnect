@@ -76,14 +76,19 @@ jobs:
           psql -h localhost -U gymuser -d gymdb_master -c "CREATE DATABASE gymdb_test;"
 
       # MinIO no va en `services:` porque necesita el comando `server /data` y
-      # los service containers de Actions no admiten `command`.
+      # los service containers de Actions no admiten `command`. La imagen es la
+      # de Chainguard: MinIO cerró la suya en Docker Hub y en quay.io.
       - name: Almacenamiento de objetos (MinIO)
         run: |
-          docker run -d --name minio -p 9000:9000             -e MINIO_ROOT_USER=minioadmin -e MINIO_ROOT_PASSWORD=minioadmin             quay.io/minio/minio:latest server /data
+          docker run -d --name minio -p 9000:9000 \
+            -e MINIO_ROOT_USER=minioadmin -e MINIO_ROOT_PASSWORD=minioadmin \
+            cgr.dev/chainguard/minio:latest server /data
           for i in $(seq 1 30); do
-            curl -sf http://localhost:9000/minio/health/live && echo "MinIO listo" && break
+            curl -sf http://localhost:9000/minio/health/live && echo "MinIO listo" && exit 0
             sleep 2
           done
+          docker logs minio
+          exit 1
 
       - name: Run master migrations
         run: cd backend && alembic upgrade head
@@ -134,8 +139,49 @@ jobs:
           done
       - run: cd frontend && npx playwright test
 
+  # Las imágenes se construyen en cada PR aunque no se despliegue: un Dockerfile
+  # roto o una imagen de terceros que desapareció (como pasó con MinIO) se ve
+  # aquí y no el día que se recrea el servidor.
+  docker-build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: docker/setup-buildx-action@v3
+      - name: Imagen del backend
+        uses: docker/build-push-action@v6
+        with:
+          context: ./backend
+          push: false
+          cache-from: type=gha,scope=backend
+          cache-to: type=gha,mode=max,scope=backend
+      - name: Imagen del frontend
+        uses: docker/build-push-action@v6
+        with:
+          context: ./frontend
+          push: false
+          cache-from: type=gha,scope=frontend
+          cache-to: type=gha,mode=max,scope=frontend
+      - name: Imagen del panel de plataforma
+        uses: docker/build-push-action@v6
+        with:
+          context: ./platform
+          push: false
+          cache-from: type=gha,scope=platform
+          cache-to: type=gha,mode=max,scope=platform
+      - name: Compose de producción válido y sus imágenes de terceros descargables
+        env:
+          BACKEND_IMAGE: backend:ci
+          FRONTEND_IMAGE: frontend:ci
+          PLATFORM_IMAGE: platform:ci
+        run: |
+          docker compose -f deploy/docker-compose.prod.yml config --quiet
+          for img in $(docker compose -f deploy/docker-compose.prod.yml config --images | grep -v ':ci$' | sort -u); do
+            echo "Descargando $img"
+            docker pull --quiet "$img"
+          done
+
   deploy:
-    needs: [test-backend, test-frontend]
+    needs: [test-backend, test-frontend, docker-build]
     # Solo despliega cuando AWS está configurado. Activar creando la variable de
     # repositorio AWS_DEPLOY_ENABLED=true (Settings > Secrets and variables >
     # Actions > Variables) junto con los secrets ECR_*/AWS_DEPLOY_ROLE_ARN.
