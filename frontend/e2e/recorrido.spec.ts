@@ -51,7 +51,16 @@ async function capturar(page: Page, archivo: string, ruta: string, movil = false
   await expect(page.getByText("Error cargando", { exact: false })).toHaveCount(0);
   if (movil) {
     const overflow = await page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth);
-    expect(overflow, `${ruta} desborda en móvil`).toBeLessThanOrEqual(1);
+    // Si se desborda, nombrar a los culpables: sin esto el log de CI solo dice «8 px».
+    const culpables = overflow > 1 ? await page.evaluate(() => {
+      const w = window.innerWidth;
+      return [...document.querySelectorAll("body *")]
+        .filter((el) => el.getBoundingClientRect().right > w + 1)
+        .filter((el) => !el.parentElement || el.parentElement.getBoundingClientRect().right <= w + 1)
+        .slice(0, 5)
+        .map((el) => `${el.tagName.toLowerCase()}.${String(el.className).slice(0, 80)} «${(el.textContent || "").trim().slice(0, 40)}» right=${Math.round(el.getBoundingClientRect().right)}`);
+    }) : [];
+    expect(overflow, `${ruta} desborda en móvil: ${culpables.join(" | ")}`).toBeLessThanOrEqual(1);
   }
   await page.screenshot({ path: `test-results/recorrido/${archivo}.png`, fullPage: true });
 }

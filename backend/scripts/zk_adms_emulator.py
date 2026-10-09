@@ -145,6 +145,23 @@ class ZkEmulator:
         return 0
 
 
+async def _loop(api: str, serial: str, seconds: int) -> None:
+    """Equipo conectado de forma continua. Mientras el serial no esté
+    registrado el servidor lo rechaza y se reintenta: así puede arrancar antes
+    de que alguien cree el dispositivo (las pruebas e2e de CI)."""
+    async with httpx.AsyncClient(base_url=api, timeout=10) as client:
+        emu = ZkEmulator(client=client, serial=serial)
+        for _ in range(seconds):
+            try:
+                await emu.handshake()
+                got = await emu.poll()
+                if got:
+                    print("comandos", got, flush=True)
+            except httpx.HTTPError as e:
+                print("sin conexión:", type(e).__name__, flush=True)
+            await asyncio.sleep(1)
+
+
 async def _main() -> None:
     ap = argparse.ArgumentParser(description="Emulador ZKTeco ADMS para FitConnect")
     ap.add_argument("--api", required=True, help="URL base, ej. https://app.midominio.co")
@@ -152,7 +169,12 @@ async def _main() -> None:
     ap.add_argument("--users", default="", help="PINs (cédulas) que el equipo ya tiene, separados por coma")
     ap.add_argument("--punch", default="", help="PIN que marca entrada")
     ap.add_argument("--poll", action="store_true", help="Pedir y ejecutar comandos")
+    ap.add_argument("--loop", type=int, default=0,
+                    help="Segundos que se queda conectado como un equipo real (handshake y comandos cada segundo)")
     args = ap.parse_args()
+    if args.loop:
+        await _loop(args.api, args.sn, args.loop)
+        return
     async with httpx.AsyncClient(base_url=args.api, timeout=20) as client:
         emu = ZkEmulator(client=client, serial=args.sn)
         for pin in filter(None, args.users.split(",")):

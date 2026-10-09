@@ -140,6 +140,13 @@ jobs:
             echo "Waiting... attempt $i"
             sleep 3
           done
+      # Un torniquete ZKTeco emulado para qa-torniquete.spec.ts: se queda
+      # conectado y espera a que la prueba registre su serial.
+      - name: Torniquete emulado
+        run: |
+          pip install --quiet httpx
+          nohup python backend/scripts/zk_adms_emulator.py --api http://localhost:8000 --sn QA-EMU-0001 --loop 900 \
+            > emulador.log 2>&1 &
       - run: cd frontend && npx playwright test
 
   # Las imágenes se construyen en cada PR aunque no se despliegue: un Dockerfile
