@@ -83,9 +83,11 @@ def main() -> int:
         return 1
     OUT.parent.mkdir(exist_ok=True)
     data = sorted(kept.values(), key=lambda p: p["code"])
-    with gzip.open(OUT, "wt", encoding="utf-8", compresslevel=9) as fh:
-        json.dump({"source": "Open Food Facts (ODbL)", "url": URL, "products": data}, fh, ensure_ascii=False,
-                  separators=(",", ":"))
+    body = json.dumps({"source": "Open Food Facts (ODbL)", "url": URL, "products": data}, ensure_ascii=False,
+                      separators=(",", ":")).encode("utf-8")
+    # Fecha fija en el gzip: sin cambios reales no hay commit del robot.
+    with open(OUT, "wb") as raw, gzip.GzipFile(fileobj=raw, mode="wb", compresslevel=9, mtime=0) as gz:
+        gz.write(body)
     print(f"Open Food Facts: {len(data):,} productos de Colombia de {seen:,} filas -> {OUT.name}")
     return 0
 
