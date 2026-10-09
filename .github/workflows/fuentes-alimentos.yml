@@ -1,6 +1,7 @@
 name: Fuentes de alimentos
 
-# Baja USDA FoodData Central y la TCAC del ICBF y sube el extracto a la rama.
+# Baja USDA FoodData Central, la TCAC del ICBF y los productos de Colombia de
+# Open Food Facts, y sube el extracto a la rama.
 # Los servidores de USDA no responden desde todos los entornos de desarrollo;
 # desde los runners de GitHub sí.
 on:
@@ -8,6 +9,7 @@ on:
   push:
     paths:
       - backend/scripts/fetch_food_sources.py
+      - backend/scripts/fetch_off.py
       - .github/workflows/fuentes-alimentos.yml
 
 permissions:
@@ -23,11 +25,13 @@ jobs:
           python-version: "3.12"
       - run: sudo apt-get update -qq && sudo apt-get install -y -qq poppler-utils
       - run: python backend/scripts/fetch_food_sources.py
+      # ~1 GB comprimido: se lee en streaming y quedan solo los productos de Colombia.
+      - run: python backend/scripts/fetch_off.py
       - name: Subir el extracto si cambió
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add backend/data_sources
           if git diff --cached --quiet; then echo "Sin cambios"; exit 0; fi
-          git commit -m "chore: actualizar extracto de USDA y TCAC para la base de alimentos"
+          git commit -m "chore: actualizar extracto de USDA, TCAC y Open Food Facts para la base de alimentos"
           git push
