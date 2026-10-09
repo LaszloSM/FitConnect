@@ -35,7 +35,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.core.config import settings
 from app.core.timeutil import today_bogota, utcnow_naive
 from app.models.app import Food, PlanJob, SavedPlan
-from app.services import auto_plans, credits, plans
+from app.services import auto_plans, credits, plans, portion_fit
 
 logger = logging.getLogger(__name__)
 PACIFIC = ZoneInfo("America/Los_Angeles")  # la cuota diaria de Google se reinicia a medianoche del Pacífico
@@ -214,22 +214,37 @@ def training_prompt(person: plans.Person, req: dict) -> str:
     }, ensure_ascii=False)
 
 
-def _fit_to_target(meals: list[dict], foods_by_key: dict[str, Food], kcal_goal: float) -> list[dict]:
-    """Escala los gramos del día si el modelo se alejó más de 10 % de la meta.
-    El ajuste se limita a ±30 %: más que eso es un plan mal hecho, no impreciso."""
-    total = sum(float(foods_by_key[i["ref_key"]].kcal) * float(i["grams"]) / 100
-                for m in meals for i in m["items"] if i["ref_key"] in foods_by_key)
-    if total <= 0 or abs(total - kcal_goal) <= 0.10 * kcal_goal:
+def _fit_to_target(meals: list[dict], foods_by_key: dict[str, Food], targets: dict) -> list[dict]:
+    """Ajusta los gramos que propuso el modelo para cumplir calorías y macros
+    del día (`portion_fit`). Cada cantidad se mueve entre 60 % y 150 % de la
+    propuesta, y nunca pasa la porción razonable del alimento (180 g de
+    almendras se vuelven 40 g): el modelo elige qué comer y el servidor afina cuánto."""
+    slots, refs = [], []
+    for m in meals:
+        slot = portion_fit.Slot(share=None)
+        for i in m.get("items") or []:
+            g = i.get("grams") if isinstance(i, dict) else None
+            if isinstance(g, (int, float)) and g > 0 and i.get("ref_key") in foods_by_key:
+                hi = min(1500.0, 1.5 * g)
+                if i["ref_key"] in auto_plans.FOOD_BOUNDS:
+                    hi = min(hi, auto_plans.FOOD_BOUNDS[i["ref_key"]][1])
+                slot.items.append(portion_fit.Item(food=foods_by_key[i["ref_key"]], lo=min(max(5.0, 0.6 * g), hi),
+                                                   hi=hi, typical=min(float(g), hi)))
+                refs.append(i)
+        slots.append(slot)
+    if not refs:
         return meals
-    k = max(0.7, min(1.3, kcal_goal / total))
-    return [{**m, "items": [{**i, "grams": round(float(i["grams"]) * k / 5) * 5 or 5} for i in m["items"]]} for m in meals]
+    flat = [g for gs in portion_fit.fit(slots, targets) for g in gs]
+    for i, g in zip(refs, flat):
+        i["grams"] = g
+    return meals
 
 
 async def ai_meal_plan(adb: AsyncSession, person: plans.Person, req: dict) -> dict:
     foods = await candidate_foods(adb, req.get("restrictions", []))
     raw = await call_gemini(SYSTEM, meal_prompt(person, req, foods), meal_schema(list(foods)))
     meals = [m for m in (raw.get("meals") or []) if isinstance(m, dict)]
-    meals = _fit_to_target(meals, foods, float(person.targets["kcal"]))
+    meals = _fit_to_target(meals, foods, person.targets)
     data = {"notes": raw.get("notes"),
             "meals": [{"time": m.get("time"), "name": m.get("name"), "items": [
                 {"food_id": str(foods[i["ref_key"]].id) if i.get("ref_key") in foods else None, "grams": i.get("grams")}

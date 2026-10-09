@@ -84,7 +84,7 @@ async def test_restrictions_are_respected(client):
     r = await client.post("/api/v1/me/plans/generate",
                           json=gen(meals={"meals_per_day": 3, "restrictions": ["vegetarian", "no_dairy"]}), headers=h)
     names = [i["food"].lower() for m in r.json()["plan"]["data"]["meals"] for i in m["items"]]
-    assert not any(w in n for n in names for w in ("pollo", "res", "cerdo", "tilapia", "atún", "yogur", "queso"))
+    assert not any(w in n for n in names for w in ("pollo", " res", "cerdo", "tilapia", "atún", "yogur", "queso")), names
 
 
 async def test_auto_training_plan_shapes(client):
@@ -131,7 +131,7 @@ async def test_ai_needs_key_consent_and_credits(client, monkeypatch, quota):
 async def _meal_keys():
     async with app_session() as adb:
         rows = (await adb.execute(select(Food).where(Food.ref_key.in_(
-            ["tcac_5", "huevo_entero", "papaya", "tcac_10", "pechuga_pollo_asada", "lechuga", "aceite_oliva_usda",
+            ["tcac_5", "huevo_cocido", "papaya", "tcac_10", "pechuga_pollo_asada", "lechuga", "aceite_oliva_usda",
              "tilapia_cocida", "papa_cocida_usda"])))).scalars().all()
     return {f.ref_key: f for f in rows}
 
@@ -140,7 +140,7 @@ async def test_ai_meal_plan_is_recomputed_from_the_database(client, monkeypatch,
     h = await _adult(client, ai=True)
     await _meal_keys()
     model_day = {"notes": "Día equilibrado.", "meals": [
-        {"time": "07:00", "name": "Desayuno", "items": [{"ref_key": "tcac_5", "grams": 120}, {"ref_key": "huevo_entero", "grams": 100},
+        {"time": "07:00", "name": "Desayuno", "items": [{"ref_key": "tcac_5", "grams": 120}, {"ref_key": "huevo_cocido", "grams": 100},
                                                         {"ref_key": "papaya", "grams": 150}]},
         {"time": "13:00", "name": "Almuerzo", "items": [{"ref_key": "tcac_10", "grams": 200}, {"ref_key": "pechuga_pollo_asada", "grams": 150},
                                                         {"ref_key": "lechuga", "grams": 60}, {"ref_key": "aceite_oliva_usda", "grams": 10}]},

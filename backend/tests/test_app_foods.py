@@ -59,6 +59,14 @@ async def test_search_ignores_accents_and_uses_synonyms(client):
     assert platos and platos[0]["origin"].startswith("Estimado por receta")
 
 
+async def test_empty_search_shows_everyday_foods_first(client):
+    """Antes de escribir se ve lo que se come a diario (arepa, arroz), no el abecedario."""
+    h = await _ready_user(client)
+    names = [f["name"] for f in (await client.get("/api/v1/me/foods", params={"q": ""}, headers=h)).json()]
+    assert names[:2] == ["Arepa de maíz blanco, con sal", "Arroz blanco, cocido"]
+    assert "Achiote" not in names and "Cerveza" not in names
+
+
 async def test_custom_food_from_a_label_serving(client):
     h = await _ready_user(client)
     body = {"name": "Barra de proteína X", "basis": "serving", "serving_grams": 40, "serving_label": "1 barra",

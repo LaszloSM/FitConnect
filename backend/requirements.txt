@@ -20,6 +20,7 @@ reportlab==4.2.2
 # más que el backend entero en una EC2 de 2 GB.
 numpy==2.2.2
 scikit-learn==1.6.1
+scipy>=1.13,<2
 slowapi==0.1.9
 apscheduler==3.10.4
 sentry-sdk==2.18.0

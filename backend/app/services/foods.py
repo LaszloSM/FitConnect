@@ -135,6 +135,14 @@ async def usage_counts(db: AsyncSession, user_id: uuid.UUID, days: int = 90) -> 
     return Counter({fid: n for fid, n in rows})
 
 
+#: Lo que se muestra antes de escribir: lo más comido en Colombia, no el orden alfabético.
+COMMON = ["tcac_5", "tcac_10", "plato_huevos_pericos", "plato_huevo_frito", "banano_usda", "cafe_preparado",
+          "pechuga_pollo_asada", "frijol_rojo_cocido", "papa_cocida_usda", "aguacate_usda", "pan_blanco_tajado",
+          "leche_entera_usda", "lentejas_cocidas", "tcac_247", "lomo_res_asado", "avena_usda", "papaya",
+          "mango_usda", "jugo_naranja", "tomate_usda", "plato_arepa_queso_rellena", "plato_arroz_pollo",
+          "plato_ajiaco", "plato_sancocho_gallina", "plato_bandeja_paisa"]
+
+
 async def search(db: AsyncSession, user_id: uuid.UUID, q: str, limit: int = 25,
                  category: Optional[str] = None) -> list[Food]:
     """Sin tildes, por sinónimos y con lo que la persona más come primero."""
@@ -142,6 +150,11 @@ async def search(db: AsyncSession, user_id: uuid.UUID, q: str, limit: int = 25,
     if category:
         stmt = stmt.where(Food.category == category)
     tokens = normalize(q).split()
+    if not tokens and not category:
+        rows = list((await db.execute(stmt.where(Food.ref_key.in_(COMMON)))).scalars().all())
+        rank = {k: i for i, k in enumerate(COMMON)}
+        used = await usage_counts(db, user_id)
+        return sorted(rows, key=lambda f: (-used.get(f.id, 0), rank.get(f.ref_key, len(COMMON))))[:limit]
     for t in tokens[:5]:
         stmt = stmt.where(Food.search_text.contains(t))
     rows = list((await db.execute(stmt.order_by(Food.name).limit(300))).scalars().all())

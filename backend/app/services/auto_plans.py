@@ -2,9 +2,9 @@
 proveedor, cuando se acabó la cuota o cuando el modelo falla.
 
 - Comidas: plantillas por tiempo de comida con alimentos comunes en Colombia.
-  La proteína de cada comida se ajusta a su parte de la meta y los
-  carbohidratos completan las calorías; después se escala el día para quedar
-  a ±5 % de la meta.
+  Las reglas eligen los alimentos y `portion_fit` ajusta los gramos para
+  cumplir a la vez calorías, proteína, grasa y carbohidratos, con porciones
+  razonables para cada alimento.
 - Entreno: divisiones clásicas según los días disponibles (cuerpo completo,
   torso/pierna, empuje/tirón/pierna), con series y repeticiones según el
   nivel y el foco [RT-ACSM], [REPS-SCHOENFELD].
@@ -19,6 +19,7 @@ from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.models.app import Food
+from app.services import portion_fit
 
 # ─── Comidas ───
 
@@ -35,7 +36,7 @@ SLOTS = {
 OPTIONS = {
     "breakfast": {
         "carb": ["tcac_5", "pan_integral_usda", "avena_usda", "tcac_9"],
-        "protein": ["huevo_entero", "yogur_griego", "queso_mozzarella_semi", "tofu_firme"],
+        "protein": ["huevo_cocido", "yogur_griego", "queso_mozzarella_semi", "tofu_firme"],
         "fruit": ["papaya", "banano_usda", "pina", "mango_usda", "fresa_usda"],
     },
     "lunch": {
@@ -47,7 +48,7 @@ OPTIONS = {
     },
     "dinner": {
         "carb": ["tcac_5", "papa_cocida_usda", "batata_asada", "tcac_10", "tortilla_maiz"],
-        "protein": ["tilapia_cocida", "pechuga_pollo_asada", "huevo_entero", "atun_agua_usda", "lomo_cerdo_asado",
+        "protein": ["tilapia_cocida", "pechuga_pollo_asada", "huevo_cocido", "atun_agua_usda", "lomo_cerdo_asado",
                     "garbanzos_cocidos"],
         "veg": ["ensalada", "calabacin", "brocoli_cocido", "champinones"],
         "fat": ["aceite_oliva_usda", "aguacate_usda"],
@@ -58,6 +59,18 @@ OPTIONS = {
     },
 }
 VEG_MIX = ["lechuga", "tomate_usda", "pepino"]
+#: Proteína de refuerzo cuando la comida elegida no alcanza la meta del día
+#: (típico en planes vegetarianos o con desayunos de pocos huevos).
+BOOSTERS = {
+    "breakfast": ["clara_huevo", "yogur_griego", "queso_cottage", "tofu_firme"],
+    "lunch": ["pechuga_pollo_asada", "tofu_firme", "huevo_cocido", "lentejas_cocidas"],
+    "dinner": ["pechuga_pollo_asada", "tofu_firme", "huevo_cocido", "garbanzos_cocidos"],
+    "snack": ["yogur_griego", "queso_cottage", "huevo_cocido", "clara_huevo"],
+}
+FAT_BOOSTERS = {
+    "breakfast": ["aguacate_usda", "mani_tostado_usda"], "lunch": ["aguacate_usda", "aceite_oliva_usda"],
+    "dinner": ["aguacate_usda", "aceite_oliva_usda"], "snack": ["mani_tostado_usda", "almendras"],
+}
 RESTRICTED = {
     "vegetarian": {"pechuga_pollo_asada", "lomo_res_asado", "tilapia_cocida", "lomo_cerdo_asado", "muslo_pollo_asado",
                    "atun_agua_usda"},
@@ -74,7 +87,8 @@ def _seed(user_id, day: date, salt: str) -> int:
 
 
 async def _foods(adb: AsyncSession) -> dict[str, Food]:
-    keys = {k for meal in OPTIONS.values() for opts in meal.values() for k in opts} | set(VEG_MIX)
+    keys = ({k for meal in OPTIONS.values() for opts in meal.values() for k in opts} | set(VEG_MIX)
+            | {k for opts in BOOSTERS.values() for k in opts} | {k for opts in FAT_BOOSTERS.values() for k in opts})
     rows = (await adb.execute(select(Food).where(Food.ref_key.in_(keys), Food.owner_id.is_(None)))).scalars().all()
     return {f.ref_key: f for f in rows}
 
@@ -84,77 +98,103 @@ def _pick(options: list[str], banned: set[str], have: dict[str, Food], seed: int
     return ok[seed % len(ok)] if ok else None
 
 
-def _round5(g: float) -> int:
-    return max(5, int(round(g / 5) * 5))
+#: Porciones razonables por alimento (mínimo, máximo, múltiplo en gramos).
+FOOD_BOUNDS = {
+    "huevo_cocido": (50, 150, 50), "clara_huevo": (66, 198, 33), "yogur_griego": (120, 300, 10), "queso_mozzarella_semi": (20, 60, 5),
+    "queso_cottage": (60, 200, 10), "tofu_firme": (80, 220, 10), "mani_tostado_usda": (15, 40, 5),
+    "almendras": (15, 40, 5), "aguacate_usda": (30, 100, 5), "aceite_oliva_usda": (3, 20, 1),
+    "avena_usda": (30, 80, 5), "pan_integral_usda": (28, 112, 28), "tcac_5": (40, 240, 5),
+    "tortilla_maiz": (26, 130, 26), "lentejas_cocidas": (100, 300, 10), "frijol_rojo_cocido": (100, 300, 10),
+    "garbanzos_cocidos": (100, 300, 10),
+}
+ROLE_BOUNDS = {"protein": (60, 250, 5), "carb": (40, 300, 5), "veg": (60, 200, 10), "fruit": (80, 220, 10),
+               "fat": (5, 60, 5), "mix": (20, 80, 5)}
+
+
+def _item(key: str, role: str, food: Food, scale: float) -> portion_fit.Item:
+    """Los alimentos con porción conocida (huevos, quesos, aceite) tienen su
+    propio tope; los demás crecen en proporción con metas altas."""
+    if key in FOOD_BOUNDS:
+        lo, hi, step = FOOD_BOUNDS[key]
+    else:
+        lo, hi, step = ROLE_BOUNDS[role]
+        hi = hi * scale if role in ("protein", "carb", "fruit") else hi
+    usual = next((float(p["grams"]) for p in food.portions or [] if p.get("label") != "100 g"), None)
+    typical = min(hi, max(lo, usual * (scale if role == "carb" else 1))) if usual else None
+    return portion_fit.Item(food=food, lo=lo, hi=hi, step=step, typical=typical)
+
+
+def _plural(word: str) -> str:
+    return word + ("s" if word[-1] in "aeiouáéó" else "es")
 
 
 def _portion_label(food: Food, grams: float) -> Optional[str]:
+    """La porción casera que corresponde a los gramos («1 taza», «3 huevos»)."""
     for p in food.portions or []:
-        if p.get("label") != "100 g" and abs(float(p["grams"]) - grams) <= max(5, 0.1 * grams):
-            return p["label"]
+        label, pg = p.get("label") or "", float(p.get("grams") or 0)
+        if label == "100 g" or pg <= 0:
+            continue
+        if abs(pg - grams) <= max(5, 0.1 * grams):
+            return label
+        parts = label.split(" ")
+        n = grams / pg
+        if len(parts) == 2 and parts[0] == "1" and abs(n - round(n)) < 0.08 and 2 <= round(n) <= 6:
+            return f"{round(n)} {_plural(parts[1])}"
     return None
 
 
 async def meal_plan(adb: AsyncSession, user_id, targets: dict, meals_per_day: int,
                     restrictions: list[str], day: date) -> dict:
-    """Plan del día como el que validaría `plans.validate_meals` (con ids)."""
+    """Plan del día como el que validaría `plans.validate_meals` (con ids).
+
+    Las reglas eligen los alimentos de cada comida; las cantidades las ajusta
+    `portion_fit` para cumplir calorías y macros a la vez."""
     have = await _foods(adb)
     banned = set().union(*(RESTRICTED.get(r, set()) for r in restrictions)) if restrictions else set()
-    kcal_goal = float(targets["kcal"])
-    prot_goal = float(targets["protein_g"])
-    meals = []
+    slots: list[tuple[str, str, portion_fit.Slot]] = []
+    # Con metas altas o con solo tres comidas, cada porción puede ser más grande.
+    scale = max(1.0, float(targets["kcal"]) / 2000) * (4 / 3 if meals_per_day == 3 else 1.0)
     for i, (time, name, kind, share) in enumerate(SLOTS.get(meals_per_day, SLOTS[3])):
         opts = OPTIONS[kind]
         seed = _seed(user_id, day, f"{i}")
-        items: list[tuple[Food, float]] = []
-        slot_kcal = kcal_goal * share
-        prot_key = _pick(opts.get("protein", []), banned, have, seed)
-        if prot_key:
-            f = have[prot_key]
-            per_g = float(f.protein_g) / 100
-            grams = min(250.0, prot_goal * share / per_g) if per_g > 0.02 else 150.0
-            if prot_key in ("mani_tostado_usda", "almendras"):
-                grams = 30.0
-            items.append((f, grams))
-        for role, grams in (("veg", 120.0), ("fruit", 150.0), ("fat", 0.0)):
-            key = _pick(opts.get(role, []), banned, have, seed // 7)
+        slot = portion_fit.Slot(share=share)
+        for role, sub in (("protein", seed), ("veg", seed // 7), ("fruit", seed // 7), ("fat", seed // 7), ("carb", seed // 13)):
+            key = _pick(opts.get(role, []), banned, have, sub)
             if not key:
                 continue
             if key == "ensalada":
-                items += [(have[k], 40.0) for k in VEG_MIX if k in have]
-                continue
-            f = have[key]
-            if role == "fat":
-                grams = 50.0 if key == "aguacate_usda" else 7.0
-            items.append((f, grams))
-        carb_key = _pick(opts.get("carb", []), banned, have, seed // 13)
-        used = sum(float(f.kcal) * g / 100 for f, g in items)
-        if carb_key:
-            f = have[carb_key]
-            rest = max(0.0, slot_kcal - used)
-            grams = min(400.0, rest / (float(f.kcal) / 100)) if float(f.kcal) > 0 else 0.0
-            if grams >= 20:
-                items.append((f, grams))
-        meals.append((time, name, items))
-    # Ajuste final del día: se escalan los carbohidratos y las grasas para
-    # caer a ±5 % de la meta sin mover la proteína.
-    total = sum(float(f.kcal) * g / 100 for _, _, its in meals for f, g in its)
-    if total > 0 and abs(total - kcal_goal) > 0.05 * kcal_goal:
-        prot_kcal = sum(float(f.kcal) * g / 100 for _, _, its in meals for f, g in its
-                        if float(f.protein_g) * 4 > 0.4 * float(f.kcal or 1))
-        flex = total - prot_kcal
-        if flex > 0:
-            k = max(0.5, min(1.8, (kcal_goal - prot_kcal) / flex))
-            meals = [(t, n, [(f, g if float(f.protein_g) * 4 > 0.4 * float(f.kcal or 1) else g * k) for f, g in its])
-                     for t, n, its in meals]
+                slot.items += [_item(k, "mix", have[k], scale) for k in VEG_MIX if k in have]
+            else:
+                slot.items.append(_item(key, role, have[key], scale))
+        slots.append((time, name, slot))
+    grams = portion_fit.fit([s for _, _, s in slots], targets)
+    # Si con lo elegido no se llega a la proteína, se agrega un refuerzo en
+    # las comidas más grandes (hasta dos) y se vuelve a ajustar.
+    # Si con lo elegido no se llega a la proteína o a la grasa, se agrega un
+    # refuerzo en las comidas más grandes y se vuelve a ajustar.
+    kinds = [k for _, _, k, _ in SLOTS.get(meals_per_day, SLOTS[3])]
+    order = sorted(range(len(slots)), key=lambda n: -(slots[n][2].share or 0))
+    for macro, role, options, limit in (("protein_g", "protein", BOOSTERS, 3), ("fat_g", "fat", FAT_BOOSTERS, 2)):
+        for n in order[:limit]:
+            if portion_fit.totals([s for _, _, s in slots], grams)[macro] >= 0.92 * float(targets[macro]):
+                break
+            present = {it.food.ref_key for it in slots[n][2].items}
+            key = next((k for k in options[kinds[n]] if k in have and k not in banned and k not in present), None)
+            if key:
+                slots[n][2].items.append(_item(key, role, have[key], scale))
+                grams = portion_fit.fit([s for _, _, s in slots], targets)
     out_meals = []
-    for time, name, its in meals:
+    for (time, name, slot), gs in zip(slots, grams):
         out_meals.append({"time": time, "name": name, "items": [
-            {"food_id": str(f.id), "grams": _round5(g), "portion": _portion_label(f, _round5(g))} for f, g in its]})
+            {"food_id": str(it.food.id), "grams": g, "portion": _portion_label(it.food, g)} for it, g in zip(slot.items, gs)]})
     notes = ("Plan automático armado con tus metas y alimentos comunes en Colombia. Puedes cambiar alimentos y "
              "cantidades; las cifras se recalculan solas.")
     if restrictions:
         notes += " Respeta: " + ", ".join(RESTRICTION_LABELS.get(r, r).lower() for r in restrictions) + "."
+    protein = portion_fit.totals([s for _, _, s in slots], grams)["protein_g"]
+    if protein < 0.9 * float(targets["protein_g"]):
+        notes += (f" Con estos alimentos la proteína llega a {round(protein)} g de los {round(float(targets['protein_g']))} g "
+                  "de tu meta: si puedes, suma una porción de huevo, lácteos o legumbres.")
     return {"notes": notes, "meals": out_meals,
             "targets": {k: targets[k] for k in ("kcal", "protein_g", "carbs_g", "fat_g")}}
 
