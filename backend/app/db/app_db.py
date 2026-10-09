@@ -33,6 +33,10 @@ ALIGN_STATEMENTS: list[str] = [
     "CREATE UNIQUE INDEX IF NOT EXISTS foods_ref_key_key ON foods (ref_key)",
     "ALTER TABLE meal_entries ADD COLUMN IF NOT EXISTS fiber_g NUMERIC(6, 1) NOT NULL DEFAULT 0",
     "ALTER TABLE meal_entries ADD COLUMN IF NOT EXISTS nutrients JSONB NOT NULL DEFAULT '{}'::jsonb",
+    # La búsqueda es `search_text LIKE '%x%'`: con decenas de miles de productos
+    # empacados solo escala con un índice de trigramas.
+    "CREATE EXTENSION IF NOT EXISTS pg_trgm",
+    "CREATE INDEX IF NOT EXISTS foods_search_trgm ON foods USING gin (search_text gin_trgm_ops)",
 ]
 
 _ready = False
@@ -66,9 +70,10 @@ async def _ensure() -> None:
             await conn.run_sync(AppBase.metadata.create_all)
             for stmt in ALIGN_STATEMENTS:
                 await conn.execute(text(stmt))
-        from app.services.foods import seed_reference
+        from app.services.foods import seed_packaged, seed_reference
         async with async_sessionmaker(get_tenant_engine(_url()), expire_on_commit=False)() as session:
             await seed_reference(session)
+            await seed_packaged(session)
         _ready = True
 
 
