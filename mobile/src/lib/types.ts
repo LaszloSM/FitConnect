@@ -326,3 +326,18 @@ export interface WeightPoint {
   day: string;
   weight_kg: number;
 }
+
+export interface WaterDay {
+  day: string;
+  total_ml: number;
+  goal_ml: number;
+  glass_ml: number;
+  entries: { id: string; ml: number }[];
+}
+
+export interface Streak {
+  current: number;
+  best: number;
+  today_logged: boolean;
+  week: { day: string; logged: boolean }[];
+}

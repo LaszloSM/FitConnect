@@ -9,7 +9,7 @@ import { type ReactNode, useEffect, useRef } from "react";
 import { Animated, Easing, Modal, Platform, Pressable, ScrollView, Text, TextInput, View, type ViewStyle } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
-import { fonts, radius, space, useColors } from "@/lib/theme";
+import { fonts, motion, radius, space, useColors } from "@/lib/theme";
 
 function tap() {
   if (Platform.OS !== "web") void Haptics.selectionAsync().catch(() => undefined);
@@ -28,7 +28,7 @@ export function Segmented<T extends string>({
 }) {
   const c = useColors();
   return (
-    <View accessibilityRole="tablist" style={[{ flexDirection: "row", backgroundColor: c.muted, borderRadius: radius.md, padding: 3 }, style]}>
+    <View accessibilityRole="tablist" style={[{ flexDirection: "row", backgroundColor: c.muted, borderRadius: radius.pill, padding: 4 }, style]}>
       {options.map((o) => {
         const on = o.value === value;
         return (
@@ -43,16 +43,16 @@ export function Segmented<T extends string>({
             style={({ pressed }) => [
               {
                 flex: 1,
-                minHeight: 40,
+                minHeight: 38,
                 alignItems: "center",
                 justifyContent: "center",
-                borderRadius: radius.md - 3,
+                borderRadius: radius.pill,
                 backgroundColor: on ? c.card : "transparent",
               },
               on && { shadowColor: c.shadow, shadowOpacity: 0.08, shadowRadius: 6, shadowOffset: { width: 0, height: 2 }, elevation: 1 },
               pressed && !on && { opacity: 0.7 },
             ]}>
-            <Text style={{ fontFamily: on ? fonts.bodySemi : fonts.bodyMedium, fontSize: 14, color: on ? c.ink : c.inkMuted }}>{o.label}</Text>
+            <Text style={{ fontFamily: on ? fonts.bodySemi : fonts.bodyMedium, fontSize: 14, color: on ? c.brandInk : c.inkMuted }}>{o.label}</Text>
           </Pressable>
         );
       })}
@@ -89,17 +89,17 @@ export function Choices<T extends string>({
             }}
             style={({ pressed }) => [
               {
-                paddingHorizontal: 14,
-                minHeight: 44,
+                paddingHorizontal: 16,
+                minHeight: 40,
                 justifyContent: "center",
-                borderRadius: radius.md,
+                borderRadius: radius.pill,
                 borderWidth: 1,
-                borderColor: on ? c.brand : c.line,
-                backgroundColor: on ? c.brandMuted : c.card,
+                borderColor: on ? c.brandMuted : c.muted,
+                backgroundColor: on ? c.brandMuted : c.muted,
               },
               pressed && { transform: [{ scale: 0.97 }] },
             ]}>
-            <Text style={{ fontFamily: on ? fonts.bodySemi : fonts.body, fontSize: 14, color: on ? c.brandInk : c.ink }}>{o.label}</Text>
+            <Text style={{ fontFamily: on ? fonts.bodySemi : fonts.bodyMedium, fontSize: 14, color: on ? c.brandInk : c.inkMuted }}>{o.label}</Text>
           </Pressable>
         );
       })}
@@ -126,7 +126,7 @@ export function Stepper({ value, onChange, unit = "g", min = 1, max = 3000 }: { 
       onPress={() => set(delta < 0 ? Math.ceil(value / step) * step - step : Math.floor(value / step) * step + step)}
       hitSlop={6}
       style={({ pressed }) => [
-        { width: 52, height: 52, borderRadius: radius.md, backgroundColor: c.muted, alignItems: "center", justifyContent: "center" },
+        { width: 52, height: 52, borderRadius: radius.pill, backgroundColor: c.muted, alignItems: "center", justifyContent: "center" },
         pressed && { transform: [{ scale: 0.95 }], opacity: 0.85 },
       ]}>
       {icon}
@@ -198,15 +198,15 @@ export function Sheet({ open, onClose, title, children }: { open: boolean; onClo
   useEffect(() => {
     Animated.timing(t, {
       toValue: open ? 1 : 0,
-      duration: open ? 240 : 160,
-      easing: open ? Easing.bezier(0.32, 0.72, 0, 1) : Easing.out(Easing.quad),
+      duration: open ? 420 : 200,
+      easing: open ? motion.drawer : motion.out,
       useNativeDriver: Platform.OS !== "web",
     }).start();
   }, [open, t]);
 
   return (
     <Modal visible={open} transparent animationType="none" onRequestClose={onClose} statusBarTranslucent>
-      <Animated.View style={{ flex: 1, backgroundColor: "rgba(20,12,8,0.45)", opacity: t }}>
+      <Animated.View style={{ flex: 1, backgroundColor: c.scrim, opacity: t }}>
         <Pressable accessibilityLabel="Cerrar" style={{ flex: 1 }} onPress={onClose} />
       </Animated.View>
       <Animated.View
@@ -217,12 +217,12 @@ export function Sheet({ open, onClose, title, children }: { open: boolean; onClo
           bottom: 0,
           maxHeight: "88%",
           backgroundColor: c.card,
-          borderTopLeftRadius: radius.xl + 4,
-          borderTopRightRadius: radius.xl + 4,
+          borderTopLeftRadius: radius.xl,
+          borderTopRightRadius: radius.xl,
           paddingBottom: insets.bottom + space.lg,
           transform: [{ translateY: t.interpolate({ inputRange: [0, 1], outputRange: [480, 0] }) }],
           shadowColor: c.shadow,
-          shadowOpacity: 0.18,
+          shadowOpacity: 0.08,
           shadowRadius: 24,
           shadowOffset: { width: 0, height: -6 },
           elevation: 12,
@@ -231,11 +231,11 @@ export function Sheet({ open, onClose, title, children }: { open: boolean; onClo
           <View style={{ width: 40, height: 5, borderRadius: 3, backgroundColor: c.line }} />
         </View>
         {title ? (
-          <Text accessibilityRole="header" style={{ fontFamily: fonts.bodySemi, fontSize: 17, color: c.ink, paddingHorizontal: space.lg, paddingTop: space.md }}>
+          <Text accessibilityRole="header" style={{ fontFamily: fonts.display, fontSize: 20, color: c.ink, paddingHorizontal: space.xl, paddingTop: space.md }}>
             {title}
           </Text>
         ) : null}
-        <ScrollView keyboardShouldPersistTaps="handled" contentContainerStyle={{ padding: space.lg, gap: space.md }}>
+        <ScrollView keyboardShouldPersistTaps="handled" contentContainerStyle={{ paddingHorizontal: space.xl, paddingVertical: space.lg, gap: space.md }}>
           {children}
         </ScrollView>
       </Animated.View>

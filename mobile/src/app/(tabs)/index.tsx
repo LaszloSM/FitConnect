@@ -1,16 +1,32 @@
-import { router } from "expo-router";
-import { CaretRightIcon, CloudSlashIcon, ForkKnifeIcon, IdentificationCardIcon, MegaphoneIcon, QrCodeIcon, SparkleIcon, UsersIcon } from "phosphor-react-native";
-import { Pressable, View } from "react-native";
+import { router, useFocusEffect } from "expo-router";
+import {
+  ArrowRightIcon,
+  ArrowsClockwiseIcon,
+  CalendarCheckIcon,
+  CaretDownIcon,
+  CloudSlashIcon,
+  IdentificationCardIcon,
+  MapPinIcon,
+  MegaphoneIcon,
+  PlusIcon,
+  QrCodeIcon,
+  SparkleIcon,
+  UsersThreeIcon,
+} from "phosphor-react-native";
+import { useCallback, useState } from "react";
+import { Text, View } from "react-native";
 
-import { Meter } from "@/components/charts";
-import { Button, Card, Chip, Empty, Notice, Num, Screen, Section, Title, Txt } from "@/components/ui";
+import { CalorieRing, Meter } from "@/components/charts";
+import { AppHeader, RegisterSheet, StreakCard, WaterCard } from "@/components/today";
+import { Button, Card, Chip, Empty, IconButton, IconTile, ListRow, Notice, Press, Rise, Screen, Section, TextLink, Ticker, Txt } from "@/components/ui";
 import { formatDay, formatTime, plural, weekdayLabel } from "@/lib/format";
 import { STATUS_TONE, stripQr } from "@/lib/gym";
-import { bogotaToday } from "@/lib/meals";
+import { bogotaToday, pendingMeals, syncMeals } from "@/lib/meals";
 import { useSession } from "@/lib/session";
-import { space, useColors } from "@/lib/theme";
-import type { Announcement, DayMeals, GymSummary, TargetsResponse } from "@/lib/types";
+import { fonts, space, typeScale, useColors } from "@/lib/theme";
+import type { Announcement, DayMeals, GymSummary, MealEntry, Streak, TargetsResponse } from "@/lib/types";
 import { useCached } from "@/lib/useCached";
+import { useWater } from "@/lib/water";
 
 function timeOf(ms: number) {
   const d = new Date(ms);
@@ -20,6 +36,7 @@ function timeOf(ms: number) {
 export default function Home() {
   const { me, gym, setGym } = useSession();
   const c = useColors();
+  const day = bogotaToday();
   const first = (me?.user.full_name ?? "").split(" ")[0];
   const usable = gym?.app_enabled ? gym : null;
   const summary = useCached<GymSummary>(usable ? `/api/v1/me/gyms/${usable.link_id}` : null, stripQr);
@@ -27,28 +44,76 @@ export default function Home() {
   const s = summary.data;
   const health = Boolean(me?.consents.health);
   const targets = useCached<TargetsResponse>(health ? "/api/v1/me/nutrition/targets" : null);
-  const today = useCached<DayMeals>(health ? `/api/v1/me/meals?day=${bogotaToday()}` : null);
-  const t = targets.data?.targets;
+  const today = useCached<DayMeals>(`/api/v1/me/meals?day=${day}`);
+  const streak = useCached<Streak>("/api/v1/me/streak");
+  const water = useWater(day);
+  const [pending, setPending] = useState<MealEntry[]>([]);
+  const [register, setRegister] = useState(false);
+  const [pickGym, setPickGym] = useState(false);
+  const t = targets.data?.available ? targets.data.targets : undefined;
+
+  useFocusEffect(
+    useCallback(() => {
+      void (async () => {
+        setPending(await syncMeals().catch(() => pendingMeals()));
+        void today.reload();
+        void streak.reload();
+        void targets.reload();
+        void water.reload();
+      })();
+      // Las recargas cambian cuando cambia la consulta (p. ej. al autorizar
+      // datos de salud): con [] se quedaba la primera, que no pedía nada.
+      // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [today.reload, streak.reload, targets.reload, water.reload]),
+  );
 
   const reload = () => {
     void summary.reload();
     void news.reload();
     void today.reload();
+    void streak.reload();
+    void water.reload();
   };
 
-  return (
-    <Screen refreshing={summary.loading && Boolean(s)} onRefresh={usable ? reload : undefined}>
-      <Title sub={gym ? gym.gym_name : "Tu entreno, tu progreso"}>{first ? `Hola, ${first}` : "Hola"}</Title>
+  const server = today.data?.entries ?? [];
+  const entries = [...server, ...pending.filter((p) => p.day === day && !server.some((e) => e.id === p.id))];
+  const kcal = entries.reduce((a, e) => a + e.kcal, 0);
+  const protein = entries.reduce((a, e) => a + e.protein_g, 0);
+  const left = t ? Math.round(t.kcal - kcal) : null;
+  const m = s?.membership;
+  const daysLeft = m?.days_left !== null && m?.days_left !== undefined && m.days_left >= 0 ? m.days_left : null;
+  const manyGyms = (me?.gyms.length ?? 0) > 1;
 
-      {(me?.gyms.length ?? 0) > 1 ? (
-        <View style={{ flexDirection: "row", gap: space.sm, marginBottom: space.md, flexWrap: "wrap" }}>
-          {me!.gyms.map((g) => (
-            <Pressable key={g.link_id} accessibilityRole="button" onPress={() => setGym(g.link_id)}>
-              <Chip tone={g.link_id === gym?.link_id ? "info" : "neutral"} label={g.gym_name} />
-            </Pressable>
-          ))}
-        </View>
-      ) : null}
+  return (
+    <Screen refreshing={summary.loading && Boolean(s)} onRefresh={reload}>
+      <AppHeader name={me?.user.full_name ?? undefined} />
+
+      <View style={{ marginBottom: space.lg, gap: space.sm }}>
+        <Text accessibilityRole="header" style={{ fontFamily: fonts.display, fontSize: typeScale.title.size + 4, lineHeight: typeScale.title.line + 4, letterSpacing: -0.6, color: c.ink }}>
+          {first ? `Hola, ${first}` : "Hola"}
+        </Text>
+        {gym ? (
+          <Press
+            accessibilityRole={manyGyms ? "button" : "text"}
+            accessibilityLabel={manyGyms ? `Sede: ${gym.gym_name}. Toca para cambiar` : `Sede: ${gym.gym_name}`}
+            disabled={!manyGyms}
+            onPress={() => setPickGym((v) => !v)}
+            style={{ flexDirection: "row", alignItems: "center", gap: 6, alignSelf: "flex-start", backgroundColor: c.muted, borderRadius: 999, paddingHorizontal: 12, minHeight: 34 }}>
+            <MapPinIcon size={15} color={c.brandInk} weight="bold" />
+            <Txt size={13.5} weight="semi" numberOfLines={1}>{gym.gym_name}</Txt>
+            {manyGyms ? <CaretDownIcon size={13} color={c.inkMuted} weight="bold" /> : null}
+          </Press>
+        ) : null}
+        {pickGym && manyGyms ? (
+          <View style={{ flexDirection: "row", flexWrap: "wrap", gap: space.sm }}>
+            {me!.gyms.map((g) => (
+              <Press key={g.link_id} accessibilityRole="button" onPress={() => { setGym(g.link_id); setPickGym(false); }}>
+                <Chip tone={g.link_id === gym?.link_id ? "brand" : "neutral"} label={g.gym_name} />
+              </Press>
+            ))}
+          </View>
+        ) : null}
+      </View>
 
       {summary.stale ? (
         <Notice tone="info" icon={CloudSlashIcon}>
@@ -58,129 +123,180 @@ export default function Home() {
 
       {!gym ? (
         <Empty
+          icon={IdentificationCardIcon}
           title="¿Entrenas en un gimnasio con FitConnect?"
           action={<Button label="Vincular mi gimnasio" onPress={() => router.push("/link")} style={{ marginTop: space.sm, alignSelf: "stretch" }} />}>
           Pide en recepción tu código para la app. Con él y tu documento ves tu membresía, entras con QR y reservas clases.
         </Empty>
       ) : !gym.app_enabled ? (
-        <Notice tone="warn">{gym.gym_name} todavía no tiene activa la app para socios. Tus entrenos sí quedan guardados aquí.</Notice>
+        <Notice tone="warn">{gym.gym_name} todavía no tiene activa la app para socios. Tus entrenos y comidas sí quedan guardados aquí.</Notice>
       ) : summary.error && !s ? (
         <Notice tone="danger">{summary.error}</Notice>
-      ) : s ? (
-        <>
-          <Card style={{ gap: space.md }}>
-            <View style={{ flexDirection: "row", justifyContent: "space-between", alignItems: "center" }}>
+      ) : m ? (
+        <Rise>
+          <Card style={{ gap: space.lg, padding: space.xl }}>
+            <View style={{ flexDirection: "row", justifyContent: "space-between", alignItems: "center", gap: space.sm }}>
               <Txt weight="semi" size={16}>Mi membresía</Txt>
-              <Chip tone={STATUS_TONE[s.membership.status]} label={s.membership.status_label} />
+              <Chip tone={STATUS_TONE[m.status]} label={m.status_label} />
             </View>
-            {s.membership.end_date ? (
-              <View style={{ gap: 2 }}>
-                <Num size={40}>
-                  {s.membership.days_left !== null && s.membership.days_left >= 0
-                    ? plural(s.membership.days_left, "día", "días")
-                    : formatDay(s.membership.end_date)}
-                </Num>
-                <Txt muted size={14}>
-                  {s.membership.plan_name} · {s.membership.days_left !== null && s.membership.days_left >= 0 ? "vence" : "venció"} el {formatDay(s.membership.end_date)}
-                  {s.membership.entries_left !== null ? ` · ${plural(s.membership.entries_left, "entrada", "entradas")}` : ""}
-                </Txt>
+            {m.end_date ? (
+              <View style={{ gap: 6 }}>
+                {daysLeft !== null ? (
+                  <View style={{ flexDirection: "row", alignItems: "baseline", gap: 8 }}>
+                    <Ticker value={daysLeft} size={52} style={{ color: c.brand }} />
+                    <Txt size={18} weight="semi">{daysLeft === 1 ? "día restante" : "días restantes"}</Txt>
+                  </View>
+                ) : (
+                  <Txt size={18} weight="semi">Venció el {formatDay(m.end_date)}</Txt>
+                )}
+                <View style={{ flexDirection: "row", justifyContent: "space-between", gap: space.md }}>
+                  <Txt size={13.5} weight="semi" numberOfLines={1} style={{ flex: 1 }}>{m.plan_name}</Txt>
+                  <Txt size={13.5} muted>
+                    {daysLeft !== null ? "Vence" : "Venció"} {formatDay(m.end_date)}
+                    {m.entries_left !== null ? ` · ${plural(m.entries_left, "entrada", "entradas")}` : ""}
+                  </Txt>
+                </View>
               </View>
             ) : (
               <Txt muted size={14}>No tienes una membresía vigente. Puedes renovar desde Pagos o en recepción.</Txt>
             )}
-            <Button label="Mostrar mi QR de entrada" icon={QrCodeIcon} onPress={() => router.push("/qr")} />
-            {!s.membership.can_enter ? (
-              <Button label="Renovar" variant="secondary" onPress={() => router.push("/payments")} />
-            ) : null}
-          </Card>
-
-          <Card style={{ marginTop: space.md, flexDirection: "row", alignItems: "center", gap: space.md }}>
-            <UsersIcon size={24} color={c.inkMuted} />
-            <Txt size={14} style={{ flex: 1 }}>
-              {s.occupancy.recent_entries === 0
-                ? "Nadie ha entrado en la última hora y media."
-                : `${plural(s.occupancy.recent_entries, "persona entró", "personas entraron")} en la última hora y media.`}
-            </Txt>
-          </Card>
-
-          {!s.profile.complete ? (
-            <Card style={{ marginTop: space.md }} onPress={() => router.push("/gym-profile")} accessibilityLabel="Completar mi ficha">
-              <View style={{ flexDirection: "row", alignItems: "center", gap: space.md }}>
-                <IdentificationCardIcon size={24} color={c.warn} />
-                <View style={{ flex: 1, gap: 2 }}>
-                  <Txt weight="semi">Completa tu ficha ({s.profile.percent} %)</Txt>
-                  <Txt muted size={13} numberOfLines={2}>Falta: {s.profile.missing.join(", ").toLowerCase()}</Txt>
-                </View>
-                <CaretRightIcon size={18} color={c.inkMuted} />
-              </View>
-            </Card>
-          ) : null}
-
-          {s.next_bookings.length ? (
-            <>
-              <Section>Tus próximas clases</Section>
-              <Card style={{ gap: space.md }}>
-                {s.next_bookings.map((b) => (
-                  <View key={b.booking_id} style={{ flexDirection: "row", justifyContent: "space-between", alignItems: "center" }}>
-                    <View>
-                      <Txt weight="semi">{b.class_name}</Txt>
-                      <Txt muted size={13}>
-                        {weekdayLabel(b.session_date)} · {formatTime(b.start_time)}
-                      </Txt>
-                    </View>
-                    {b.status === "waitlisted" ? <Chip tone="warn" label="En espera" /> : <Chip tone="ok" label="Reservada" />}
-                  </View>
-                ))}
-              </Card>
-            </>
-          ) : null}
-
-          {news.data?.length ? (
-            <>
-              <Section>Avisos del gimnasio</Section>
-              <View style={{ gap: space.sm }}>
-                {news.data.slice(0, 3).map((a) => (
-                  <Card key={a.id} style={{ gap: 4 }}>
-                    <View style={{ flexDirection: "row", gap: space.sm, alignItems: "center" }}>
-                      <MegaphoneIcon size={18} color={c.brandInk} />
-                      <Txt weight="semi" style={{ flex: 1 }}>{a.title}</Txt>
-                    </View>
-                    <Txt muted size={14}>{a.body}</Txt>
-                  </Card>
-                ))}
-              </View>
-            </>
-          ) : null}
-        </>
-      ) : null}
-
-      {t ? (
-        <>
-          <Section>Hoy en tu plato</Section>
-          <Card onPress={() => router.push("/eat")} accessibilityLabel="Ver lo que comí hoy" style={{ gap: space.md }}>
-            <View style={{ flexDirection: "row", alignItems: "center", gap: space.md }}>
-              <ForkKnifeIcon size={22} color={c.brandInk} />
-              <Txt weight="semi" style={{ flex: 1 }}>
-                {today.data?.entries.length ? `Te quedan ${Math.max(0, Math.round(t.kcal - today.data.totals.kcal)).toLocaleString("es-CO")} kcal` : "Aún no registras comidas hoy"}
-              </Txt>
-              <CaretRightIcon size={18} color={c.inkMuted} />
+            <View style={{ flexDirection: "row", gap: space.sm }}>
+              <Button label="Mostrar QR" icon={QrCodeIcon} onPress={() => router.push("/qr")} style={{ flex: 1 }} />
+              <Button label="Renovar" variant="secondary" icon={ArrowsClockwiseIcon} onPress={() => router.push("/payments")} style={{ flex: 1 }} />
             </View>
-            <Meter label="Calorías" value={today.data?.totals.kcal ?? 0} target={t.kcal} unit="kcal" />
-            <Meter label="Proteína" value={today.data?.totals.protein_g ?? 0} target={t.protein_g} unit="g" />
           </Card>
-        </>
+          {!s.profile.complete ? (
+            <Press
+              accessibilityRole="button"
+              accessibilityLabel="Completar mi ficha del gimnasio"
+              onPress={() => router.push("/gym-profile")}
+              style={{ flexDirection: "row", alignItems: "center", gap: space.sm, marginTop: space.md, paddingHorizontal: space.xs }}>
+              <IdentificationCardIcon size={18} color={c.warn} />
+              <Txt size={13.5} muted style={{ flex: 1 }} numberOfLines={1}>
+                Tu ficha va en {s.profile.percent} %: falta {s.profile.missing.join(", ").toLowerCase()}
+              </Txt>
+              <Txt size={13.5} weight="semi" style={{ color: c.brandInk }}>Completar</Txt>
+            </Press>
+          ) : null}
+        </Rise>
       ) : null}
 
-      <Card style={{ marginTop: space.xl }} onPress={() => router.push("/generate")} accessibilityLabel="Generar un plan">
-        <View style={{ flexDirection: "row", alignItems: "center", gap: space.md }}>
-          <SparkleIcon size={26} color={c.brandInk} />
-          <View style={{ flex: 1, gap: 2 }}>
-            <Txt weight="semi">Generar un plan</Txt>
-            <Txt muted size={13}>De comidas o de entreno, con tus metas. El automático es gratis.</Txt>
+      <Rise delay={60}>
+        <Section action={<TextLink label="Ver día" onPress={() => router.push("/eat")} />}>Hoy en tu plato</Section>
+        <Card style={{ gap: space.lg }}>
+          {t ? (
+            <View style={{ flexDirection: "row", alignItems: "center", gap: space.lg }}>
+              <CalorieRing value={kcal} target={t.kcal} size={104} stroke={11} />
+              <View style={{ flex: 1, gap: 2 }}>
+                <View style={{ flexDirection: "row", alignItems: "baseline", gap: 6 }}>
+                  <Ticker value={Math.abs(left ?? 0)} size={34} />
+                  <Txt size={14} weight="semi">{left !== null && left < 0 ? "kcal de más" : "kcal restantes"}</Txt>
+                </View>
+                <Txt muted size={13}>{entries.length ? `${plural(entries.length, "registro", "registros")} hoy` : "Aún no registras comidas hoy"}</Txt>
+              </View>
+              <IconButton icon={PlusIcon} label="Registrar comida" onPress={() => setRegister(true)} />
+            </View>
+          ) : (
+            <View style={{ flexDirection: "row", alignItems: "center", gap: space.md }}>
+              <View style={{ flex: 1, gap: 4 }}>
+                <Txt weight="semi">{entries.length ? `${Math.round(kcal).toLocaleString("es-CO")} kcal hoy` : "Aún no registras comidas hoy"}</Txt>
+                <Txt muted size={13}>
+                  {targets.data?.message ?? "Con tus medidas calculamos tu meta del día."}
+                </Txt>
+              </View>
+              <IconButton icon={PlusIcon} label="Registrar comida" onPress={() => setRegister(true)} />
+            </View>
+          )}
+          {t ? (
+            <View style={{ gap: space.md }}>
+              <Meter label="Calorías" value={kcal} target={t.kcal} unit="kcal" color={c.brand} showPct={false} />
+              <Meter label="Proteína" value={protein} target={t.protein_g} unit="g" color={c.protein} showPct={false} />
+            </View>
+          ) : null}
+        </Card>
+      </Rise>
+
+      <Rise delay={120} style={{ flexDirection: "row", gap: space.md, marginTop: space.md }}>
+        <WaterCard water={water.water} onAdd={() => void water.add()} onRemove={() => void water.remove()} />
+        <StreakCard streak={streak.data} />
+      </Rise>
+
+      {s?.next_bookings.length ? (
+        <Rise delay={180}>
+          <Section action={<TextLink label="Ver agenda" onPress={() => router.push("/classes")} />}>Próximas clases</Section>
+          <Card style={{ paddingVertical: space.xs }}>
+            {s.next_bookings.slice(0, 2).map((b, i, arr) => (
+              <ListRow
+                key={b.booking_id}
+                icon={CalendarCheckIcon}
+                title={b.class_name}
+                detail={`${weekdayLabel(b.session_date)} · ${formatTime(b.start_time)}`}
+                right={b.status === "waitlisted" ? <Chip tone="warn" label="En espera" /> : <Chip tone="ok" label="Reservada" />}
+                last={i === arr.length - 1}
+                onPress={() => router.push("/classes")}
+              />
+            ))}
+          </Card>
+        </Rise>
+      ) : null}
+
+      <Rise delay={220}>
+        <Card tone="peach" style={{ marginTop: space.xl, gap: space.md, padding: space.xl }} onPress={() => router.push("/generate")} accessibilityLabel="Generar un plan">
+          <Chip tone="brand" label="Planes" icon={SparkleIcon} style={{ backgroundColor: c.card }} />
+          <View style={{ gap: 4 }}>
+            <Text style={{ fontFamily: fonts.display, fontSize: 22, letterSpacing: -0.3, color: c.ink }}>Generar un plan</Text>
+            <Txt muted size={14}>De comidas o de entreno, con tus metas. El automático es gratis.</Txt>
           </View>
-          <CaretRightIcon size={18} color={c.inkMuted} />
-        </View>
-      </Card>
+          <View style={{ flexDirection: "row", alignItems: "center", gap: 6 }}>
+            <Txt weight="semi" size={14.5} style={{ color: c.brandInk }}>Diseñar mi plan</Txt>
+            <ArrowRightIcon size={16} color={c.brandInk} weight="bold" />
+          </View>
+        </Card>
+      </Rise>
+
+      {s ? (
+        <Rise delay={260}>
+          <View style={{ flexDirection: "row", alignItems: "center", gap: space.md, marginTop: space.xl }}>
+            <IconTile icon={UsersThreeIcon} />
+            <View style={{ flex: 1 }}>
+              <Txt weight="semi">
+                {s.occupancy.recent_entries === 0 ? "Sede tranquila" : `${plural(s.occupancy.recent_entries, "persona", "personas")} en la sede`}
+              </Txt>
+              <Txt muted size={13}>Entradas en la última hora y media</Txt>
+            </View>
+          </View>
+        </Rise>
+      ) : null}
+
+      {news.data?.length ? (
+        <Rise delay={300}>
+          <Section>Avisos de la sede</Section>
+          <View style={{ gap: space.sm }}>
+            {news.data.slice(0, 3).map((a) => (
+              <Card key={a.id} tone="muted" style={{ flexDirection: "row", gap: space.md }}>
+                <IconTile icon={MegaphoneIcon} tone="wash" />
+                <View style={{ flex: 1, gap: 4 }}>
+                  <Txt weight="semi">{a.title}</Txt>
+                  <Txt muted size={14}>{a.body}</Txt>
+                </View>
+              </Card>
+            ))}
+          </View>
+        </Rise>
+      ) : null}
+
+      <RegisterSheet
+        open={register}
+        onClose={() => setRegister(false)}
+        day={day}
+        onLogged={() => {
+          void (async () => {
+            setPending(await pendingMeals());
+            void today.reload();
+            void streak.reload();
+          })();
+        }}
+      />
     </Screen>
   );
 }
