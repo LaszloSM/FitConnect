@@ -1,0 +1,165 @@
+name: Desplegar servidor (EC2 lite)
+
+# Despliegue a la EC2 lite sin Docker local ni SSH: construye las tres imágenes
+# aquí, las sube a ECR y le habla a la instancia por SSM (Session Manager).
+# Se lanza a mano desde Actions › «Desplegar servidor (EC2 lite)» › Run workflow.
+# Configuración (una vez): DEPLOY-LITE.md › «Desplegar desde GitHub».
+on:
+  workflow_dispatch:
+    inputs:
+      import_exercises:
+        description: "Reimportar la biblioteca de ejercicios (tarda unos minutos)"
+        type: boolean
+        default: false
+
+concurrency:
+  group: deploy-lite
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+  id-token: write
+
+env:
+  AWS_REGION: us-east-1
+  NAME_PREFIX: saas-gym-lite
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    environment: produccion
+    env:
+      # `secrets` no se puede leer en un `if:` de paso; por variable sí.
+      USE_ROLE: ${{ secrets.AWS_DEPLOY_ROLE_ARN != '' }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Credenciales de AWS (rol OIDC)
+        if: env.USE_ROLE == 'true'
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ secrets.AWS_DEPLOY_ROLE_ARN }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Credenciales de AWS (llaves de acceso)
+        if: env.USE_ROLE != 'true'
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Ubicar la instancia
+        id: target
+        run: |
+          instance=$(aws ec2 describe-instances \
+            --filters "Name=tag:Name,Values=${NAME_PREFIX}-app" "Name=instance-state-name,Values=running" \
+            --query "Reservations[].Instances[].InstanceId" --output text)
+          [ -n "$instance" ] && [ "$instance" != None ] || { echo "::error::No hay una instancia corriendo con Name=${NAME_PREFIX}-app"; exit 1; }
+          [ "$(wc -w <<<"$instance")" = 1 ] || { echo "::error::Hay más de una instancia ${NAME_PREFIX}-app: $instance"; exit 1; }
+          ping=$(aws ssm describe-instance-information --filters "Key=InstanceIds,Values=$instance" \
+            --query "InstanceInformationList[0].PingStatus" --output text)
+          [ "$ping" = Online ] || { echo "::error::La instancia $instance no está conectada a SSM (estado: $ping)"; exit 1; }
+          account=$(aws sts get-caller-identity --query Account --output text)
+          {
+            echo "instance=$instance"
+            echo "registry=$account.dkr.ecr.$AWS_REGION.amazonaws.com"
+            echo "tag=${GITHUB_SHA::12}"
+          } >> "$GITHUB_OUTPUT"
+          echo "Instancia $instance (SSM: $ping)"
+
+      - name: Empaquetar lo que va al servidor
+        run: |
+          tar -czf "$RUNNER_TEMP/bundle.tgz" \
+            deploy/docker-compose.prod.yml deploy/Caddyfile deploy/backup.sh deploy/restore.sh \
+            deploy/fitconnect-backup.service deploy/fitconnect-backup.timer \
+            deploy/lite/remote.sh backend/db-init
+          ls -l "$RUNNER_TEMP/bundle.tgz"
+
+      # Antes de construir nada: si al .env le falta una clave obligatoria, la
+      # versión nueva no arranca y el servidor quedaría caído.
+      - name: Revisión previa del servidor
+        id: preflight
+        run: |
+          bash deploy/lite/ssm-run.sh "${{ steps.target.outputs.instance }}" "$RUNNER_TEMP/bundle.tgz" preflight | tee "$RUNNER_TEMP/preflight.log"
+          url=$(grep -m1 '^FC_PUBLIC_URL=' "$RUNNER_TEMP/preflight.log" | cut -d= -f2-)
+          [ -n "$url" ] || { echo "::error::La revisión previa no devolvió PUBLIC_URL"; exit 1; }
+          echo "public_url=$url" >> "$GITHUB_OUTPUT"
+
+      - name: Repositorios de ECR
+        run: |
+          for svc in backend frontend platform; do
+            repo="${NAME_PREFIX}-$svc"
+            if ! aws ecr describe-repositories --repository-names "$repo" >/dev/null 2>&1; then
+              aws ecr create-repository --repository-name "$repo" --image-scanning-configuration scanOnPush=true >/dev/null
+              echo "creado $repo"
+            fi
+          done
+
+      - uses: aws-actions/amazon-ecr-login@v2
+      - uses: docker/setup-buildx-action@v3
+
+      - name: Imagen del backend
+        uses: docker/build-push-action@v6
+        with:
+          context: ./backend
+          push: true
+          tags: |
+            ${{ steps.target.outputs.registry }}/${{ env.NAME_PREFIX }}-backend:${{ steps.target.outputs.tag }}
+            ${{ steps.target.outputs.registry }}/${{ env.NAME_PREFIX }}-backend:latest
+          cache-from: type=gha,scope=lite-backend
+          cache-to: type=gha,mode=max,scope=lite-backend
+
+      # NEXT_PUBLIC_API_URL se hornea al compilar: sale del PUBLIC_URL del servidor.
+      - name: Imagen del frontend
+        uses: docker/build-push-action@v6
+        with:
+          context: ./frontend
+          push: true
+          build-args: NEXT_PUBLIC_API_URL=${{ steps.preflight.outputs.public_url }}
+          tags: |
+            ${{ steps.target.outputs.registry }}/${{ env.NAME_PREFIX }}-frontend:${{ steps.target.outputs.tag }}
+            ${{ steps.target.outputs.registry }}/${{ env.NAME_PREFIX }}-frontend:latest
+          cache-from: type=gha,scope=lite-frontend
+          cache-to: type=gha,mode=max,scope=lite-frontend
+
+      - name: Imagen del panel de plataforma
+        uses: docker/build-push-action@v6
+        with:
+          context: ./platform
+          push: true
+          tags: |
+            ${{ steps.target.outputs.registry }}/${{ env.NAME_PREFIX }}-platform:${{ steps.target.outputs.tag }}
+            ${{ steps.target.outputs.registry }}/${{ env.NAME_PREFIX }}-platform:latest
+          cache-from: type=gha,scope=lite-platform
+          cache-to: type=gha,mode=max,scope=lite-platform
+
+      - name: Desplegar (respaldo de la base, archivos y up -d)
+        run: |
+          bash deploy/lite/ssm-run.sh "${{ steps.target.outputs.instance }}" "$RUNNER_TEMP/bundle.tgz" \
+            deploy "${{ steps.target.outputs.registry }}" "${{ steps.target.outputs.tag }}"
+
+      - name: Alinear gimnasios y scripts idempotentes
+        run: |
+          bash deploy/lite/ssm-run.sh "${{ steps.target.outputs.instance }}" "$RUNNER_TEMP/bundle.tgz" \
+            post ${{ inputs.import_exercises && '--assets' || '' }}
+
+      - name: Verificar desde afuera
+        env:
+          URL: ${{ steps.preflight.outputs.public_url }}
+        run: |
+          code() { curl -s -m 20 -o /dev/null -w '%{http_code}' "$1" || true; }
+          health=$(code "$URL/health"); front=$(code "$URL/"); plans=$(code "$URL/api/v1/me/plans/options")
+          printf '%-34s %s\n' "health" "$health" "frontend" "$front" "me/plans/options (401 = nuevo)" "$plans"
+          for k in members/prueba-inexistente.webp proofs/prueba-inexistente.jpg gyms/prueba-inexistente.png; do
+            printf '%-34s %s\n' "fitconnect-media/$k" "$(code "$URL/fitconnect-media/$k")"
+          done
+          [ "$health" = 200 ] || { echo "::error::/health respondió $health"; exit 1; }
+          case "$front" in 200|307|308) ;; *) echo "::error::el frontend respondió $front"; exit 1 ;; esac
+          # Un 404 aquí significa que sigue la versión vieja (la ruta es nueva).
+          case "$plans" in 401|403) ;; *) echo "::error::/api/v1/me/plans/options respondió $plans: la versión nueva no está sirviendo"; exit 1 ;; esac
+          {
+            echo "### Desplegado ${{ steps.target.outputs.tag }}"
+            echo "App: $URL · health $health · planes $plans"
+          } >> "$GITHUB_STEP_SUMMARY"
