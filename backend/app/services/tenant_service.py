@@ -10,7 +10,8 @@ from app.core.security import hash_password
 from app.services.staff_member import ensure_staff_member
 from app.db.master_session import MasterSessionLocal
 from app.db.tenant_base import TenantBase
-from app.models.master.tenant import Tenant, TenantStatus, SubscriptionPlan
+from app.services.subscription import new_tenant_defaults
+from app.models.master.tenant import Tenant, SubscriptionPlan
 from app.models.master.owner import Owner
 from app.models.master.staff_directory import StaffDirectory
 from app.models.tenant.user_staff import UserStaff, UserRole
@@ -107,7 +108,8 @@ async def create_tenant(owner_email: str, gym_name: str, city: str, owner_full_n
             country=country,
             phone=phone,
             plan=SubscriptionPlan.basic,
-            status=TenantStatus.active,
+            # Todo gimnasio nuevo empieza en prueba gratis (ver services/subscription.py).
+            **new_tenant_defaults(),
         )
         master_db.add(tenant)
         await master_db.flush()

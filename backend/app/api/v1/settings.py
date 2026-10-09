@@ -118,6 +118,8 @@ async def update_profile(
         if not verify_password(payload.current_password, current_user.hashed_password):
             raise HTTPException(status_code=400, detail="Contraseña actual incorrecta")
         current_user.hashed_password = hash_password(payload.new_password)
+        from app.services.account_security import end_sessions_before_now
+        await end_sessions_before_now(current_user.id)
 
     if payload.full_name is not None:
         current_user.full_name = payload.full_name
@@ -432,3 +434,13 @@ async def update_integrations(
 # emisor consultaba, y dos de ellos ni siquiera tenían un emisor detrás. El
 # interruptor de verdad es `is_active` por ocasión, en la pantalla de Mensajes:
 # un solo sitio decide qué manda el gym.
+
+
+@router.get("/subscription")
+async def get_subscription(
+    tenant: Tenant = Depends(get_tenant_from_claims),
+    _staff=Depends(get_current_staff),
+):
+    """Estado de la suscripción a FitConnect, para el aviso de la barra superior."""
+    from app.services.subscription import effective
+    return effective(tenant)

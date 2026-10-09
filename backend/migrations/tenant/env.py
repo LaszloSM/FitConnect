@@ -1,4 +1,5 @@
 import asyncio
+import logging
 from logging.config import fileConfig
 from sqlalchemy.ext.asyncio import create_async_engine
 from alembic import context
@@ -15,7 +16,9 @@ config.set_main_option("sqlalchemy.url", db_url)
 
 target_metadata = TenantBase.metadata
 
-if config.config_file_name is not None:
+# Dentro de la app (arranque o alta de un gimnasio) el logging ya está configurado:
+# fileConfig de alembic.ini pondría el raíz en WARN y se perderían los INFO de la app.
+if config.config_file_name is not None and not logging.getLogger().handlers:
     # Ver la nota en migrations/env.py: con el default (True) este fileConfig deja
     # mudo al proceso entero, y los tenants se migran desde la app en caliente.
     fileConfig(config.config_file_name, disable_existing_loggers=False)

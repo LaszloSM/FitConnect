@@ -26,6 +26,9 @@ _EXPIRE_LOCK_KEY = 815001
 _RECONCILE_LOCK_KEY = 815002
 _OUTBOX_LOCK_KEY = 815003
 _ML_LOCK_KEY = 815004
+_ACCESS_LOCK_KEY = 815005
+_SUBSCRIPTION_LOCK_KEY = 815006
+_PLAN_JOBS_LOCK_KEY = 815007
 
 
 async def _run_with_advisory_lock(key: int, name: str, work) -> None:
@@ -528,9 +531,47 @@ async def process_outbox_job() -> None:
     )
 
 
+async def advance_subscriptions_job() -> None:
+    """Fin de pruebas y de gracias: persiste el estado de cada suscripción."""
+    from app.db.master_session import MasterSessionLocal
+    from app.services.subscription import advance_all, forget
+
+    async def work():
+        async with MasterSessionLocal() as master:
+            await advance_all(master)
+        forget()
+    await _run_with_advisory_lock(_SUBSCRIPTION_LOCK_KEY, "advance_subscriptions_job", work)
+
+
+async def _sync_tenant_access(session: AsyncSession, tenant: Tenant) -> None:
+    from app.services.access_sync import reconcile_all
+    await reconcile_all(session)
+
+
+async def sync_access_devices_job() -> None:
+    """Red de seguridad de los torniquetes: quien venció a medianoche, cambios
+    que no pasaron por un gancho, comandos sin respuesta. Cada 5 minutos."""
+    await _run_with_advisory_lock(
+        _ACCESS_LOCK_KEY, "sync_access_devices_job",
+        lambda: for_each_tenant(_sync_tenant_access),
+    )
+
+
 # Registro de jobs invocables manualmente (endpoint dev /admin/run-job/{name})
 JOBS = {
+    "sync_access_devices": sync_access_devices_job,
+    "advance_subscriptions": advance_subscriptions_job,
     "expire_memberships": expire_memberships_job,
     "reconcile_payments": reconcile_payments_job,
     "process_outbox": process_outbox_job,
 }
+
+
+async def process_plan_jobs_job() -> None:
+    """Pedidos de planes con IA que esperan cupo (ver services/plan_generator)."""
+    from app.services.plan_generator import process_queue
+
+    async def work():
+        await process_queue(limit=20)
+
+    await _run_with_advisory_lock(_PLAN_JOBS_LOCK_KEY, "process_plan_jobs_job", work)

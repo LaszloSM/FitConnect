@@ -14,6 +14,10 @@ import { Avatar } from "@/components/dashboard/hoy/parts";
 import { ArrowLeftIcon as ArrowLeft, UserIcon as User, PhoneIcon as Phone, EnvelopeSimpleIcon as Mail, IdentificationCardIcon as IdCard, CalendarBlankIcon as Calendar, CreditCardIcon as CreditCard, ActivityIcon as Activity, TagIcon as Tag, XCircleIcon as BadgeX, SpinnerGapIcon as Loader2, QrCodeIcon as QrCode, PencilSimpleIcon as Pencil, SnowflakeIcon as Snowflake, PlayIcon as Play, HeartbeatIcon as HeartPulse, UserPlusIcon as UserPlus, TicketIcon as Ticket, BarbellIcon as Dumbbell, FingerprintIcon as Fingerprint, ChatTextIcon as MessageSquare, PaperPlaneTiltIcon as Send, UsersIcon as Users } from "@phosphor-icons/react";
 import { MemberRoutineTab } from "@/components/routines/MemberRoutineTab";
 import { MemberAccessTab } from "@/components/access/MemberAccessTab";
+import { CourtesyDialog } from "@/components/members/CourtesyDialog";
+import { P, useCan } from "@/lib/permissions";
+import { ProfileCompletion } from "@/components/members/ProfileCompletion";
+import { MemberAppAccess } from "@/components/members/MemberAppAccess";
 import { QRCodeDisplay } from "@/components/common/QRCodeDisplay";
 import {
   Dialog,
@@ -80,6 +84,7 @@ export default function MemberDetailClient({ memberId }: { memberId: string }) {
   const [editOpen, setEditOpen] = useState(false);
   const [editSaving, setEditSaving] = useState(false);
   const esEntrenador = session?.role === "trainer";
+  const { can } = useCan();
   const [trainers, setTrainers] = useState<{ id: string; full_name: string }[]>([]);
   const [trainerId, setTrainerId] = useState("");
   const [msgOpen, setMsgOpen] = useState(false);
@@ -596,6 +601,10 @@ export default function MemberDetailClient({ memberId }: { memberId: string }) {
           {/* PERFIL */}
           {tab === "info" && (
             <div className="space-y-5">
+              {can(P.MEMBERS_WRITE) && (
+                <ProfileCompletion memberId={memberId} hasPhone={Boolean(member.phone)} hasEmail={Boolean(member.email)} />
+              )}
+              {can(P.MEMBERS_WRITE) && <MemberAppAccess memberId={memberId} hasDocument={Boolean(member.id_number)} />}
               <dl className="grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-4">
                 {([
                   { label: "Correo", value: member.email, icon: <Mail className="h-3.5 w-3.5" /> },
@@ -652,12 +661,23 @@ export default function MemberDetailClient({ memberId }: { memberId: string }) {
                             <p className="text-[var(--text-base)] text-sm font-medium">{m.plan_name}</p>
                             <p className="text-[var(--text-muted)] text-xs font-mono tabular-nums mt-0.5">
                               {m.start_date} → {m.end_date}
+                              {m.source === "import" && <span className="ml-2 font-sans">· importada</span>}
+                              {m.source === "courtesy" && <span className="ml-2 font-sans">· cortesía</span>}
                               {m.discount_amount && Number(m.discount_amount) > 0 && (
                                 <span className="ml-2 text-[var(--signal-ok)]">
                                   −{formatCOP(Number(m.discount_amount))}{m.discount_reason ? ` (${m.discount_reason})` : ""}
                                 </span>
                               )}
                             </p>
+                            {m.entries_total != null && (
+                              <p className="mt-1 text-xs text-[var(--text-muted)]">
+                                Ticketera:{" "}
+                                <span className="num font-semibold text-[var(--text-base)]">
+                                  {Math.max(m.entries_total - (m.entries_used ?? 0), 0)}
+                                </span>{" "}
+                                de {m.entries_total} entradas disponibles
+                              </p>
+                            )}
                           </div>
                           <div className="flex items-center gap-2 shrink-0">
                             <MembershipStatusPill status={st} />
@@ -769,9 +789,17 @@ export default function MemberDetailClient({ memberId }: { memberId: string }) {
 
               {/* Asignar nueva */}
               <div className="pt-4 border-t border-[var(--border-base)]">
-                <p className="text-ink text-sm font-medium mb-3">
-                  Asignar membresía
-                </p>
+                <div className="mb-3 flex items-center justify-between gap-3">
+                  <p className="text-ink text-sm font-medium">Asignar membresía</p>
+                  {can(P.MEMBERSHIPS_COURTESY) && member && (
+                    <CourtesyDialog
+                      memberId={memberId}
+                      memberName={member.full_name}
+                      plans={plans.map((p: any) => ({ id: p.id, name: p.name }))}
+                      onDone={refreshMemberships}
+                    />
+                  )}
+                </div>
                 <form onSubmit={handleAssign} className="space-y-3">
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                     <div>
@@ -912,7 +940,7 @@ export default function MemberDetailClient({ memberId }: { memberId: string }) {
           )}
 
           {tab === "routine" && <MemberRoutineTab memberId={memberId} />}
-          {tab === "access" && <MemberAccessTab memberId={memberId} idNumber={member.id_number} />}
+          {tab === "access" && <MemberAccessTab memberId={memberId} idNumber={member.id_number} hasPhoto={Boolean(member.photo_url && member.consent_image_at)} />}
 
           {/* QR CARNÉ */}
           {tab === "qr" && (

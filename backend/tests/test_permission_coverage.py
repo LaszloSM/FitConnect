@@ -21,6 +21,8 @@ EXEMPT_PREFIXES = (
     "/api/v1/auth/",
     "/api/v1/webhooks/",
     "/api/v1/public/",
+    # Entrar a la app móvil con el código del correo: aún no hay principal.
+    "/api/v1/app/auth/",
 )
 
 # Excepciones justificadas, una por una. Añadir aquí exige explicar por qué.
@@ -49,6 +51,12 @@ def _device_authenticated(route) -> bool:
     )
 
 
+def _app_person(route) -> bool:
+    """App móvil: la autentica el token de la persona, que solo alcanza lo suyo
+    (cada ruta de gimnasio comprueba que el vínculo sea de quien pregunta)."""
+    return any(getattr(dep.call, "__name__", "") == "get_app_user" for dep in route.dependant.dependencies)
+
+
 def _guarded_perms(route) -> set[str]:
     """Capacidades exigidas por una ruta (dependencias del router + del endpoint)."""
     found: set[str] = set()
@@ -70,7 +78,7 @@ def _staff_routes():
         for method in getattr(route, "methods", set()) & MUTATING:
             if path.startswith(EXEMPT_PREFIXES) or (method, path) in EXEMPT_PATHS:
                 continue
-            if _device_authenticated(route):
+            if _device_authenticated(route) or _app_person(route):
                 continue
             yield method, path, route
 

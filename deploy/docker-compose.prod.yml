@@ -39,27 +39,30 @@ services:
       timeout: 3s
       retries: 5
 
+  # MinIO dejó de publicar imágenes (Docker Hub y quay.io responden 401 desde
+  # septiembre de 2026); la instancia solo seguía viva por la imagen en caché.
+  # Chainguard la construye desde el código y se baja sin cuenta. Corre como
+  # uid 65532: `minio-init` le pasa el volumen que dejó la imagen vieja (root).
+  minio-init:
+    image: busybox:1.36
+    command: ["chown", "-R", "65532:65532", "/data"]
+    volumes:
+      - minio_data:/data
+
   minio:
-    # quay.io es el registro propio de MinIO. `minio/minio` en Docker Hub ya no
-    # se puede bajar (pull access denied), y la instancia solo seguía
-    # levantándolo porque tenía la imagen en caché: recrearla la habría dejado
-    # sin almacenamiento de fotos y comprobantes.
-    image: quay.io/minio/minio:latest
+    image: cgr.dev/chainguard/minio:latest
     restart: always
     logging: *default-logging
-    command: server /data
+    command: ["server", "/data"]
     environment:
       MINIO_ROOT_USER: fitconnect
       MINIO_ROOT_PASSWORD: ${MINIO_PASSWORD}
-    ports:
-      - "9000:9000"
+    # Sin puerto publicado: fotos y comprobantes salen por Caddy (/fitconnect-media/*).
     volumes:
       - minio_data:/data
-    healthcheck:
-      test: ["CMD", "mc", "ready", "local"]
-      interval: 5s
-      timeout: 5s
-      retries: 5
+    depends_on:
+      minio-init:
+        condition: service_completed_successfully
 
   backend:
     image: ${BACKEND_IMAGE}
@@ -77,7 +80,12 @@ services:
       - FRONTEND_URL=${PUBLIC_URL}
       - SETTINGS_ENCRYPTION_KEY=${SETTINGS_ENCRYPTION_KEY}
       - S3_ENDPOINT_URL=http://minio:9000
-      - S3_PUBLIC_URL=${PUBLIC_URL}:9000
+      - S3_PUBLIC_URL=${PUBLIC_URL}
+      - PLATFORM_URL=${PLATFORM_URL:-http://localhost:9100}
+      - SES_FROM_EMAIL=${SES_FROM_EMAIL:-}
+      # Planes con IA. Vacío = la app solo genera planes automáticos.
+      - GEMINI_API_KEY=${GEMINI_API_KEY:-}
+      - GEMINI_MODEL=${GEMINI_MODEL:-gemini-2.5-flash-lite}
       - S3_BUCKET=fitconnect-media
       - S3_ACCESS_KEY=fitconnect
       - S3_SECRET_KEY=${MINIO_PASSWORD}
@@ -88,7 +96,7 @@ services:
       redis:
         condition: service_healthy
       minio:
-        condition: service_healthy
+        condition: service_started
 
   frontend:
     image: ${FRONTEND_IMAGE}
@@ -102,19 +110,37 @@ services:
     depends_on:
       - backend
 
+  platform:
+    # Panel de plataforma (admin.<dominio>). Llama a la API por su mismo origen
+    # (/api/platform/* lo enruta Caddy), así que no necesita CORS ni cookies.
+    image: ${PLATFORM_IMAGE}
+    restart: always
+    logging: *default-logging
+    depends_on:
+      - backend
+
   caddy:
     image: caddy:2-alpine
     restart: always
     logging: *default-logging
+    environment:
+      - SITE_ADDRESS=${SITE_ADDRESS:-:80}
+      - PLATFORM_ADDRESS=${PLATFORM_ADDRESS:-:9100}
+      - PLATFORM_ALLOWED_IPS=${PLATFORM_ALLOWED_IPS:-0.0.0.0/0 ::/0}
+      - ICLOCK_HTTP_ADDRESS=${ICLOCK_HTTP_ADDRESS:-:8088}
     ports:
       - "80:80"
       - "443:443"
+      # Sin dominio, el panel de plataforma solo se abre por túnel SSH:
+      #   ssh -L 9100:localhost:9100 ec2-user@<ip>  →  http://localhost:9100
+      - "127.0.0.1:9100:9100"
     volumes:
       - ./Caddyfile:/etc/caddy/Caddyfile:ro
       - caddy_data:/data
     depends_on:
       - backend
       - frontend
+      - platform
 
 volumes:
   postgres_data:

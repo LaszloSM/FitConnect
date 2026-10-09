@@ -1,5 +1,7 @@
+import json
 import uuid
-from fastapi import APIRouter, Depends, File, HTTPException, Query, UploadFile
+from typing import Literal
+from fastapi import APIRouter, Depends, File, Form, HTTPException, Query, Request, UploadFile
 from fastapi.responses import Response
 from pydantic import BaseModel
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -21,10 +23,14 @@ from app.models.tenant.routine import MemberRoutine
 from app.models.tenant.day_pass import DayPass
 from app.models.tenant.user_staff import UserRole, UserStaff
 from app.models.tenant.instructor import Instructor
+from app.models.tenant.import_batch import ImportBatch
+from sqlalchemy.exc import IntegrityError
 from app.core.timeutil import today_bogota
 from app.services.gym_settings import get_gym_settings
 from app.services.membership_status import effective_status
-from app.services.member_import import build_template, import_members
+from app.services import member_import, member_profile
+from app.services.audit import audit
+from app.services.idempotency import Idempotent
 from app.services.storage import resolve_media_url, delete_object, scoped_key
 
 # Todo /members exige staff activo; el borrado además exige owner/admin.
@@ -78,6 +84,7 @@ async def list_members(
     missing_id_number: bool = Query(False, description="Solo miembros sin cédula registrada"),
     id_number: str | None = Query(None, description="Cédula exacta (lookup del pase del día)"),
     member_type: str | None = Query(None, description="member | visitor"),
+    incomplete: bool = Query(False, description="Solo fichas a las que les falta algo obligatorio"),
     limit: int = Query(50, ge=1, le=200),
     offset: int = Query(0, ge=0),
     solo_mios: uuid.UUID | None = Depends(trainer_scope),
@@ -102,6 +109,9 @@ async def list_members(
         stmt = stmt.where(Member.id_number == id_number.strip())
     if member_type:
         stmt = stmt.where(Member.member_type == member_type)
+    if incomplete:
+        # Mismo criterio que el contador (profile-summary): solo socios, no personal ni visitantes.
+        stmt = stmt.where(Member.member_type == "member", member_profile.incomplete_condition())
     stmt = stmt.order_by(Member.created_at.desc()).limit(limit).offset(offset)
     result = await db.execute(stmt)
     members = result.scalars().all()
@@ -147,10 +157,18 @@ async def list_members(
 @router.post("", response_model=MemberResponse, status_code=201, dependencies=[Depends(require_perm(perm.MEMBERS_WRITE))])
 async def create_member(
     payload: MemberCreate,
+    request: Request,
     db: AsyncSession = Depends(get_tenant_db_from_token),
     slug: str = Depends(get_tenant_slug),
     tenant: Tenant = Depends(get_tenant_from_claims),
 ):
+    # El alta hecha sin conexión se reenvía con la misma clave al volver la red:
+    # si la primera sí llegó, se devuelve ese socio en vez de un 409 de cédula.
+    guard = Idempotent(db, request, "members.create", payload.model_dump(mode="json"))
+    replay = await guard.check()
+    if replay is not None:
+        return replay
+
     if payload.email:
         existing = await db.execute(select(Member).where(Member.email == payload.email))
         if existing.scalar_one_or_none():
@@ -213,9 +231,12 @@ async def create_member(
         member_id=member.id, phone=member.phone,
     )
 
-    await db.commit()
+    await db.flush()
     await db.refresh(member)
-    return member
+    response = MemberResponse.model_validate(member).model_dump(mode="json")
+    guard.remember(response, 201)
+    won = await guard.commit()
+    return won if won is not None else response
 
 
 @router.post("/{member_id}/convert-to-member", response_model=MemberResponse, dependencies=[Depends(require_perm(perm.MEMBERS_WRITE))])
@@ -282,24 +303,136 @@ async def convert_visitor_to_member(
 @router.get("/import/template.xlsx", dependencies=[Depends(require_perm(perm.MEMBERS_IMPORT))])
 async def download_import_template():
     return Response(
-        content=build_template(),
+        content=member_import.build_template(),
         media_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-        headers={"Content-Disposition": 'attachment; filename="plantilla_miembros.xlsx"'},
+        headers={"Content-Disposition": 'attachment; filename="plantilla_socios.xlsx"'},
     )
+
+
+async def _read_import_file(file: UploadFile) -> bytes:
+    # Por trozos: un archivo enorme se corta apenas pasa el límite, sin cargarlo entero.
+    data = bytearray()
+    while chunk := await file.read(1024 * 1024):
+        data.extend(chunk)
+        if len(data) > member_import.MAX_BYTES:
+            raise HTTPException(status_code=413, detail="El archivo supera 5 MB. Divídelo en partes.")
+    if not data:
+        raise HTTPException(status_code=400, detail="El archivo está vacío")
+    return bytes(data)
+
+
+def _import_options(raw: str | None) -> dict | None:
+    if not raw:
+        return None
+    try:
+        parsed = json.loads(raw)
+    except ValueError:
+        raise HTTPException(status_code=400, detail="Opciones de importación inválidas")
+    if not isinstance(parsed, dict):
+        raise HTTPException(status_code=400, detail="Opciones de importación inválidas")
+    return parsed
+
+
+@router.post("/import/preview", dependencies=[Depends(require_perm(perm.MEMBERS_IMPORT))])
+async def preview_import(
+    file: UploadFile = File(...),
+    options: str | None = Form(None),
+    db: AsyncSession = Depends(get_tenant_db_from_token),
+):
+    """Analiza el archivo sin guardar nada: columnas detectadas, qué pasará con
+    cada persona y qué falta resolver (planes o entrenadores que no existen)."""
+    data = await _read_import_file(file)
+    try:
+        return await member_import.preview(db, data, file.filename, _import_options(options))
+    except member_import.ImportFileError as exc:
+        raise HTTPException(status_code=400, detail=str(exc))
+
+
+async def _apply_import(db, staff, file: UploadFile, options: dict | None) -> dict:
+    data = await _read_import_file(file)
+    try:
+        result = await member_import.apply(db, data, file.filename, options, staff.id)
+    except member_import.ImportFileError as exc:
+        raise HTTPException(status_code=400, detail=str(exc))
+    audit(db, staff, "member_import.apply", "import_batch", result["batch_id"], {
+        "file": file.filename, **{k: result["summary"][k] for k in ("create", "update", "memberships", "error")},
+    })
+    try:
+        await db.commit()
+    except IntegrityError:
+        await db.rollback()
+        raise HTTPException(
+            status_code=409,
+            detail="Alguien registró uno de estos socios mientras se importaba. Vuelve a generar la vista previa.",
+        )
+    return result
+
+
+@router.post("/import/commit", dependencies=[Depends(require_perm(perm.MEMBERS_IMPORT))])
+async def commit_import(
+    file: UploadFile = File(...),
+    options: str | None = Form(None),
+    db: AsyncSession = Depends(get_tenant_db_from_token),
+    staff: UserStaff = Depends(get_current_staff),
+):
+    return await _apply_import(db, staff, file, _import_options(options))
 
 
 @router.post("/import", dependencies=[Depends(require_perm(perm.MEMBERS_IMPORT))])
 async def import_members_file(
     file: UploadFile = File(...),
     db: AsyncSession = Depends(get_tenant_db_from_token),
+    staff: UserStaff = Depends(get_current_staff),
 ):
-    data = await file.read()
-    if not data:
-        raise HTTPException(status_code=400, detail="El archivo está vacío")
+    """Importación en un paso con el mapeo automático (compatibilidad)."""
+    result = await _apply_import(db, staff, file, None)
+    return {
+        "created": result["summary"]["create"],
+        "updated": result["summary"]["update"],
+        "batch_id": result["batch_id"],
+        "errors": result["errors"],
+    }
+
+
+@router.get("/import/batches", dependencies=[Depends(require_perm(perm.MEMBERS_IMPORT))])
+async def list_import_batches(db: AsyncSession = Depends(get_tenant_db_from_token)):
+    rows = (await db.execute(
+        select(ImportBatch, UserStaff.full_name)
+        .outerjoin(UserStaff, UserStaff.id == ImportBatch.created_by)
+        .order_by(ImportBatch.created_at.desc())
+        .limit(20)
+    )).all()
+    return [
+        {
+            "id": str(b.id),
+            "file_name": b.file_name,
+            "status": b.status,
+            "created_at": b.created_at.isoformat(),
+            "created_by": name,
+            "undone_at": b.undone_at.isoformat() if b.undone_at else None,
+            "counts": {k: v for k, v in (b.counts or {}).items() if k != "errors"},
+        }
+        for b, name in rows
+    ]
+
+
+@router.post("/import/batches/{batch_id}/undo", dependencies=[Depends(require_perm(perm.MEMBERS_IMPORT))])
+async def undo_import_batch(
+    batch_id: uuid.UUID,
+    db: AsyncSession = Depends(get_tenant_db_from_token),
+    staff: UserStaff = Depends(get_current_staff),
+):
+    # Bloqueo de fila: dos "deshacer" simultáneos no pueden revertir el mismo lote dos veces.
+    batch = await db.get(ImportBatch, batch_id, with_for_update=True)
+    if batch is None:
+        raise HTTPException(status_code=404, detail="Lote no encontrado")
     try:
-        return await import_members(db, data)
+        result = await member_import.undo(db, batch, staff.id)
     except ValueError as exc:
-        raise HTTPException(status_code=400, detail=str(exc))
+        raise HTTPException(status_code=409, detail=str(exc))
+    audit(db, staff, "member_import.undo", "import_batch", batch.id, result)
+    await db.commit()
+    return result
 
 
 @router.get("/{member_id}/billing-summary", dependencies=[
@@ -620,6 +753,22 @@ async def record_consent(
     return {"consent_data_at": member.consent_data_at, "consent_image_at": member.consent_image_at, "photo_url": resolve_media_url(member.photo_url) if member.photo_url else None}
 
 
+@router.get("/profile-summary")
+async def profile_summary(
+    db: AsyncSession = Depends(get_tenant_db_from_token),
+    solo_mios: uuid.UUID | None = Depends(trainer_scope),
+):
+    """Cuántas fichas están incompletas y a cuántas se les puede escribir."""
+    base = select(func.count()).select_from(Member).where(
+        Member.member_type == "member", member_profile.incomplete_condition())
+    if solo_mios is not None:
+        base = base.where(Member.trainer_id == solo_mios)
+    total = (await db.execute(base)).scalar_one()
+    with_phone = (await db.execute(base.where(Member.phone.is_not(None)))).scalar_one()
+    with_email = (await db.execute(base.where(Member.email.is_not(None)))).scalar_one()
+    return {"incomplete": total, "with_phone": with_phone, "with_email": with_email}
+
+
 @router.get("/{member_id}", response_model=MemberResponse)
 async def get_member(
     member_id: uuid.UUID,
@@ -665,6 +814,8 @@ async def update_member(
             )
 
     for field, value in payload.model_dump(exclude_unset=True).items():
+        if field == "access_by_document" and value is None:
+            continue
         setattr(member, field, value)
 
     await db.commit()
@@ -707,3 +858,157 @@ async def delete_member(
     await db.delete(member)
     await db.commit()
     return None
+
+
+# ─── Completar la ficha por enlace (WhatsApp, correo, app) ──────────────────
+
+class ProfileLinkRequest(BaseModel):
+    channel: Literal["whatsapp", "email", "copy"]
+
+
+class BulkProfileLinksRequest(BaseModel):
+    channel: Literal["whatsapp", "email"]
+    limit: int = 100
+
+
+async def _send_profile_link(db, member: Member, channel: str, url: str, gym_name: str) -> tuple[bool, str | None]:
+    """Encola o envía el enlace. Devuelve (enviado, motivo si no)."""
+    text = member_profile.message_text(member, gym_name, url)
+    if channel == "whatsapp":
+        if not member.phone:
+            return False, "El socio no tiene celular registrado"
+        from app.services.events import emit_announcement
+        await emit_announcement(
+            db, idempotency_key=f"profile-link:{uuid.uuid4().hex}", title="Completa tus datos",
+            message=text, member_id=member.id, phone=member.phone,
+        )
+        return True, None
+    if channel == "email":
+        if not member.email:
+            return False, "El socio no tiene correo registrado"
+        from app.services import mailer
+        await mailer.send(member.email, f"{gym_name}: completa tus datos", text)
+        return True, None
+    return False, None
+
+
+@router.get("/{member_id}/profile-status", dependencies=[Depends(ensure_member_visible)])
+async def profile_status(member_id: uuid.UUID, db: AsyncSession = Depends(get_tenant_db_from_token)):
+    member = await db.get(Member, member_id)
+    if not member:
+        raise HTTPException(status_code=404, detail="Miembro no encontrado")
+    from app.models.tenant.profile_link import ProfileLink
+    last = (await db.execute(
+        select(ProfileLink).where(ProfileLink.member_id == member_id).order_by(ProfileLink.created_at.desc()).limit(1)
+    )).scalar_one_or_none()
+    return {
+        **member_profile.status(member),
+        "last_link": {
+            "channel": last.channel, "created_at": last.created_at.isoformat(),
+            "opened_at": last.opened_at.isoformat() if last.opened_at else None,
+            "used_at": last.used_at.isoformat() if last.used_at else None,
+            "expires_at": last.expires_at.isoformat(),
+        } if last else None,
+    }
+
+
+@router.post("/{member_id}/profile-link", dependencies=[Depends(require_perm(perm.MEMBERS_WRITE))])
+async def send_profile_link(
+    member_id: uuid.UUID,
+    payload: ProfileLinkRequest,
+    db: AsyncSession = Depends(get_tenant_db_from_token),
+    current_user: UserStaff = Depends(get_current_staff),
+    tenant: Tenant = Depends(get_tenant_from_claims),
+):
+    """Enlace personal para que el socio complete su ficha. "copy" solo lo
+    devuelve para pegarlo donde recepción quiera."""
+    member = await db.get(Member, member_id)
+    if not member:
+        raise HTTPException(status_code=404, detail="Miembro no encontrado")
+    if payload.channel != "copy" and await member_profile.sent_recently(db, member.id):
+        raise HTTPException(status_code=429, detail="Ya se le envió un enlace hace menos de 10 minutos.")
+    gym = await get_gym_settings(db)
+    gym_name = getattr(gym, "legal_name", None) or tenant.name
+    link, token = await member_profile.create_link(db, member, channel=payload.channel, created_by=current_user.id)
+    url = member_profile.link_url(tenant.slug, token)
+    sent, reason = await _send_profile_link(db, member, payload.channel, url, gym_name)
+    if payload.channel != "copy" and not sent:
+        raise HTTPException(status_code=409, detail=reason)
+    audit(db, current_user, "member.profile_link", "member", member.id, {"channel": payload.channel})
+    await db.commit()
+    return {"url": url, "expires_at": link.expires_at.isoformat(), "sent": sent,
+            "message": member_profile.message_text(member, gym_name, url)}
+
+
+@router.post("/profile-links/bulk", dependencies=[Depends(require_perm(perm.MEMBERS_WRITE))])
+async def send_profile_links_bulk(
+    payload: BulkProfileLinksRequest,
+    db: AsyncSession = Depends(get_tenant_db_from_token),
+    current_user: UserStaff = Depends(get_current_staff),
+    tenant: Tenant = Depends(get_tenant_from_claims),
+):
+    """Envía el enlace a los socios con la ficha incompleta que tengan ese canal.
+    A quien ya se le mandó uno en los últimos 3 días no se le vuelve a mandar."""
+    limit = max(1, min(payload.limit, member_profile.BULK_MAX))
+    gym = await get_gym_settings(db)
+    gym_name = getattr(gym, "legal_name", None) or tenant.name
+    members = await member_profile.bulk_candidates(db, payload.channel, limit)
+    sent = 0
+    for member in members:
+        _, token = await member_profile.create_link(db, member, channel=payload.channel, created_by=current_user.id)
+        ok, _ = await _send_profile_link(db, member, payload.channel, member_profile.link_url(tenant.slug, token), gym_name)
+        sent += int(ok)
+    remaining = (await db.execute(
+        select(func.count()).select_from(Member).where(
+            Member.member_type == "member", member_profile.incomplete_condition())
+    )).scalar_one()
+    audit(db, current_user, "member.profile_links_bulk", "member", None, {"channel": payload.channel, "sent": sent})
+    await db.commit()
+    return {"sent": sent, "incomplete_total": remaining}
+
+
+# ─── App para socios ───
+
+@router.get("/{member_id}/app-status", dependencies=[Depends(require_perm(perm.MEMBERS_READ))])
+async def member_app_status(
+    member_id: uuid.UUID,
+    db: AsyncSession = Depends(get_tenant_db_from_token),
+    tenant: Tenant = Depends(get_tenant_from_claims),
+):
+    """Si el socio ya usa la app. No expone el correo de su cuenta: es suyo, no del gimnasio."""
+    from app.db.master_session import MasterSessionLocal
+    from app.models.master.app_user import MemberLink
+    from app.services import subscription
+    if not await db.get(Member, member_id):
+        raise HTTPException(status_code=404, detail="Miembro no encontrado")
+    async with MasterSessionLocal() as master:
+        link = (await master.execute(select(MemberLink).where(
+            MemberLink.tenant_id == tenant.id, MemberLink.member_id == member_id, MemberLink.revoked_at.is_(None)
+        ))).scalar_one_or_none()
+    return {"module_enabled": "member_app" in subscription.effective(tenant)["modules"],
+            "linked": link is not None, "linked_at": link.created_at.isoformat() if link else None}
+
+
+@router.post("/{member_id}/app-code", dependencies=[Depends(require_perm(perm.MEMBERS_WRITE))])
+async def create_app_code(
+    member_id: uuid.UUID,
+    db: AsyncSession = Depends(get_tenant_db_from_token),
+    current_user: UserStaff = Depends(get_current_staff),
+    tenant: Tenant = Depends(get_tenant_from_claims),
+):
+    """Código de un solo uso (48 h) para que el socio vincule la app con su ficha.
+    Junto con su documento: quien tenga solo el código no entra."""
+    from app.db.master_session import MasterSessionLocal
+    from app.services import app_accounts, subscription
+    if "member_app" not in subscription.effective(tenant)["modules"]:
+        raise HTTPException(status_code=403, detail="La app para socios no está activa en tu plan.")
+    member = await db.get(Member, member_id)
+    if not member:
+        raise HTTPException(status_code=404, detail="Miembro no encontrado")
+    if not member.id_number:
+        raise HTTPException(status_code=409, detail="El socio necesita un documento registrado para vincular la app.")
+    async with MasterSessionLocal() as master:
+        code, expires = await app_accounts.create_link_code(master, tenant, member.id, created_by=current_user.id)
+    audit(db, current_user, "member.app_code", "member", member.id, {})
+    await db.commit()
+    return {"code": code, "expires_at": expires.isoformat(), "gym_slug": tenant.slug}

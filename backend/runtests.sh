@@ -30,6 +30,8 @@ export S3_SECRET_KEY="minioadmin"
 export S3_REGION="us-east-1"
 # /admin/run-job/* solo existe en development, y 5 tests de jobs lo usan.
 export ENVIRONMENT="development"
+# La suite crea dueños a cada rato: el 2FA obligatorio se prueba aparte (test_account_security.py).
+export MFA_REQUIRED_ROLES='[]'
 
 if [ "${1:-}" = "--migrate" ]; then
   shift

@@ -40,9 +40,12 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { PlusIcon as Plus, MagnifyingGlassIcon as Search, PencilSimpleIcon as Pencil, TrashIcon as Trash2, WarningCircleIcon as AlertCircle, QrCodeIcon as QrCode, XIcon as X, TagIcon as Tag, ClockIcon as Clock, CheckCircleIcon as CheckCircle2, DownloadSimpleIcon as Download, CheckIcon as Check, UserIcon as User, HeartbeatIcon as HeartPulse, CreditCardIcon as CreditCard } from "@phosphor-icons/react";
+import { FingerprintIcon as Fingerprint, PlusIcon as Plus, MagnifyingGlassIcon as Search, PencilSimpleIcon as Pencil, TrashIcon as Trash2, WarningCircleIcon as AlertCircle, QrCodeIcon as QrCode, XIcon as X, TagIcon as Tag, ClockIcon as Clock, CheckCircleIcon as CheckCircle2, DownloadSimpleIcon as Download, CheckIcon as Check, UserIcon as User, HeartbeatIcon as HeartPulse, CreditCardIcon as CreditCard } from "@phosphor-icons/react";
 import { MembershipStatusBadge } from "@/components/common/MembershipStatusBadge";
 import type { TrainingGoal } from "@/lib/types";
+import { P, useCan } from "@/lib/permissions";
+import { EnrollPanel } from "@/components/access/EnrollPanel";
+import { IncompleteProfilesBanner } from "@/components/members/IncompleteProfilesBanner";
 
 const TRAINING_GOALS = [
   { value: "weight_loss", label: "Bajar de peso" },
@@ -72,6 +75,9 @@ const memberSchema = z.object({
   photo_url: z.string().optional(),
   parq_answers: z.record(z.string(), z.boolean()).optional(),
   parq_completed_at: z.string().optional(),
+  eps: z.string().max(100).optional(),
+  expectation: z.string().max(500).optional(),
+  access_by_document: z.boolean().optional(),
 });
 
 interface Member {
@@ -98,6 +104,9 @@ interface Member {
   parq_answers: Record<string, boolean> | null;
   parq_completed_at: string | null;
   qr_code: string | null;
+  eps: string | null;
+  expectation: string | null;
+  access_by_document: boolean;
   // Populated by backend list endpoint
   membership_status: "active" | "expired" | "none" | null;
   membership_end_date: string | null;
@@ -137,12 +146,16 @@ type FormState = {
   blood_type: string;
   photo_url: string;
   parq_answers: Record<string, boolean>;
+  eps: string;
+  expectation: string;
+  access_by_document: boolean;
 };
 
 const WIZARD_STEPS = [
   { label: "Datos personales", icon: User },
   { label: "Salud", icon: HeartPulse },
   { label: "Membresía", icon: CreditCard },
+  { label: "Acceso", icon: Fingerprint },
 ];
 
 const emptyForm: FormState = {
@@ -164,11 +177,17 @@ const emptyForm: FormState = {
   blood_type: "",
   photo_url: "",
   parq_answers: {},
+  eps: "",
+  expectation: "",
+  access_by_document: false,
 };
 
 export default function MembersClient() {
   const { data: session } = useSession();
   const router = useRouter();
+  const { can } = useCan();
+  // Socio recién creado: el paso "Acceso" registra rostro y huella en el torniquete.
+  const [created, setCreated] = useState<{ id: string; name: string; hasPhoto: boolean } | null>(null);
   const [members, setMembers] = useState<Member[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -178,6 +197,7 @@ export default function MembersClient() {
   // sin filtro, un gimnasio con diez empleados los ve mezclados en su lista.
   const [typeFilter, setTypeFilter] = useState<"" | "member" | "visitor" | "staff">("");
   const [missingIdOnly, setMissingIdOnly] = useState(false);
+  const [incompleteOnly, setIncompleteOnly] = useState(false);
   const [missingIdCount, setMissingIdCount] = useState(0);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editing, setEditing] = useState<Member | null>(null);
@@ -246,6 +266,7 @@ export default function MembersClient() {
           ...(statusFilter ? { status: statusFilter } : {}),
           ...(typeFilter ? { member_type: typeFilter } : {}),
           ...(missingIdOnly ? { missing_id_number: true } : {}),
+          ...(incompleteOnly ? { incomplete: true } : {}),
         },
       });
       setMembers(res.data);
@@ -274,6 +295,7 @@ export default function MembersClient() {
         ...(statusFilter ? { status: statusFilter } : {}),
         ...(typeFilter ? { member_type: typeFilter } : {}),
         ...(missingIdOnly ? { missing_id_number: true } : {}),
+        ...(incompleteOnly ? { incomplete: true } : {}),
       },
     }).then((res) => {
       if (!cancelled) {
@@ -288,7 +310,7 @@ export default function MembersClient() {
       if (!cancelled) setLoading(false);
     });
     return () => { cancelled = true; };
-  }, [session?.accessToken, search, statusFilter, typeFilter, missingIdOnly]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [session?.accessToken, search, statusFilter, typeFilter, missingIdOnly, incompleteOnly]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // Contador para el banner de miembros antiguos sin cédula
   useEffect(() => {
@@ -355,6 +377,7 @@ export default function MembersClient() {
     setAssignPlanId("");
     setAssignStartDate("");
     setAssignPaymentMethod("");
+    setCreated(null);
   };
 
   const openCreate = () => { resetForm(); setConverting(null); setDialogOpen(true); };
@@ -405,6 +428,9 @@ export default function MembersClient() {
       blood_type: member.blood_type || "",
       photo_url: member.photo_url || "",
       parq_answers: member.parq_answers || {},
+      eps: member.eps || "",
+      expectation: member.expectation || "",
+      access_by_document: Boolean(member.access_by_document),
     });
     setDialogOpen(true);
   };
@@ -453,6 +479,8 @@ export default function MembersClient() {
       gender: form.gender || undefined,
       training_goal: form.training_goal || undefined,
       blood_type: form.blood_type || undefined,
+      eps: form.eps.trim() || undefined,
+      expectation: form.expectation.trim() || undefined,
       // No persistir blobs locales ni URLs firmadas (el backend guarda la key)
       photo_url: form.photo_url.startsWith("blob:") || form.photo_url.startsWith("http") ? undefined : form.photo_url || undefined,
       parq_completed_at: Object.keys(form.parq_answers).length > 0 ? todayISO() : undefined,
@@ -506,7 +534,14 @@ export default function MembersClient() {
         });
       }
       toast.success(editing ? "Miembro actualizado" : converting ? "Visitante convertido en socio" : "Miembro creado");
-      setDialogOpen(false); resetForm(); setConverting(null); fetchMembers();
+      fetchMembers();
+      if (!editing && memberId && can(P.CREDENTIALS_WRITE)) {
+        setCreated({ id: memberId, name: form.full_name, hasPhoto: Boolean(photoFile && consentImage) });
+        setConverting(null);
+        setStep(3);
+        return;
+      }
+      setDialogOpen(false); resetForm(); setConverting(null);
     } catch (err: unknown) {
       toast.error(parseApiError(err, "Error guardando miembro"));
     } finally { setSubmitting(false); }
@@ -649,6 +684,26 @@ export default function MembersClient() {
           </select>
         </div>
         <div className="space-y-2">
+          <Label htmlFor="eps" className="text-[var(--text-muted)] text-sm">EPS</Label>
+          <Input id="eps" value={form.eps} maxLength={100} onChange={(e) => setForm({ ...form, eps: e.target.value })} placeholder="Ej. Sura, Nueva EPS, Sanitas" className={inputCls} />
+        </div>
+        <div className="space-y-2">
+          <Label htmlFor="expectation" className="text-[var(--text-muted)] text-sm">Expectativa</Label>
+          <Input id="expectation" value={form.expectation} maxLength={500} onChange={(e) => setForm({ ...form, expectation: e.target.value })} placeholder="Lo que busca, en sus palabras" className={inputCls} />
+        </div>
+        <label className="flex items-start gap-2.5 text-sm sm:col-span-2">
+          <input
+            type="checkbox"
+            className="mt-0.5 h-4 w-4"
+            checked={form.access_by_document}
+            onChange={(e) => setForm({ ...form, access_by_document: e.target.checked })}
+          />
+          <span>
+            Puede entrar digitando su cédula
+            <span className="block text-[13px] text-[var(--text-muted)]">Para quien no registra rostro ni huella (teclado del torniquete o kiosko).</span>
+          </span>
+        </label>
+        <div className="space-y-2">
           <Label className="text-[var(--text-muted)] text-sm">Contacto de emergencia {req && "*"}</Label>
           <Input value={form.emergency_contact_name} onChange={(e) => setForm({ ...form, emergency_contact_name: e.target.value })} placeholder="Nombre" className={inputCls} />
         </div>
@@ -669,7 +724,7 @@ export default function MembersClient() {
           subtitle="Busca, registra y cobra a los socios del gimnasio."
           action={
             <div className="flex items-center gap-2">
-              <MemberImportDialog onImported={() => fetchMembers(0)} />
+              {can(P.MEMBERS_IMPORT) && <MemberImportDialog onImported={() => fetchMembers(0)} />}
               <DialogTrigger
                 render={
                   <Button onClick={openCreate}>
@@ -822,6 +877,15 @@ export default function MembersClient() {
                   })}
                 </div>
 
+                {step === 3 && created && (
+                  <div className="space-y-3">
+                    <p className="text-sm text-[var(--text-muted)]">
+                      {created.name.split(" ")[0]} ya es socio. Registra su rostro y su huella en el torniquete, o
+                      hazlo después desde su ficha › Acceso.
+                    </p>
+                    <EnrollPanel memberId={created.id} hasPhoto={created.hasPhoto} />
+                  </div>
+                )}
                 {step === 0 && personalFields}
                 {step === 1 && healthFields}
                 {step === 2 && (
@@ -906,8 +970,21 @@ export default function MembersClient() {
             )}
 
             <div className="flex items-center justify-between gap-2 pt-4 mt-2 border-t border-[var(--border-base)]">
-              <Button type="button" variant="ghost" onClick={() => setDialogOpen(false)} className="text-[var(--text-muted)]">Cancelar</Button>
-              {editing ? (
+              {step === 3 ? <span /> : (
+                <Button type="button" variant="ghost" onClick={() => setDialogOpen(false)} className="text-[var(--text-muted)]">Cancelar</Button>
+              )}
+              {step === 3 ? (
+                <div className="flex gap-2">
+                  {created && (
+                    <Button type="button" variant="outline" onClick={() => { const id = created.id; setDialogOpen(false); resetForm(); router.push(`/members/${id}`); }}>
+                      Ver ficha
+                    </Button>
+                  )}
+                  <Button type="button" onClick={() => { setDialogOpen(false); resetForm(); }}>
+                    Terminar
+                  </Button>
+                </div>
+              ) : editing ? (
                 <Button type="submit" disabled={submitting}>
                   {submitting ? "Guardando..." : "Guardar cambios"}
                 </Button>
@@ -953,6 +1030,12 @@ export default function MembersClient() {
           </button>
         </div>
       )}
+
+      <IncompleteProfilesBanner
+        active={incompleteOnly}
+        onToggle={() => setIncompleteOnly((v) => !v)}
+        canSend={can(P.MEMBERS_WRITE)}
+      />
 
       <GlassCard className="p-4">
         <div className="flex flex-wrap gap-3 mb-4">
@@ -1038,7 +1121,7 @@ export default function MembersClient() {
                   <TableCell colSpan={8}>
                     {/* Con un filtro puesto, "crea tu primer miembro" es falso:
                         el gimnasio sí tiene socios, solo que ninguno encaja. */}
-                    {search || statusFilter || typeFilter || missingIdOnly ? (
+                    {search || statusFilter || typeFilter || missingIdOnly || incompleteOnly ? (
                       <EmptyState
                         title="Ningún socio coincide"
                         description={

@@ -1,88 +1,127 @@
-# Control de acceso: torniquete, huella y protección de datos biométricos
+# Control de acceso: torniquete, rostro, huella y protección de datos
 
-## Qué hay hoy (bloque 6)
+## Cómo funciona (en una frase)
 
-FitConnect ya tiene el "cerebro" de acceso listo para conectar hardware. Funciona igual
-para el kiosko, la recepción y un torniquete: la decisión de dejar pasar sale siempre de
-`app/services/access.py::verify_access`, que usa las mismas reglas del check-in (membresía
-vigente, gracia, congelado, pase del día).
+El torniquete reconoce el rostro o la huella **por sí mismo** y decide en el momento; FitConnect le
+dice **quién está al día y hasta cuándo**, recibe cada entrada como asistencia y registra rostros y
+huellas desde la ficha del socio. Por eso sigue funcionando aunque se vaya el internet.
 
-| Pieza | Dónde | Qué hace |
-|---|---|---|
-| Dispositivos | Ajustes › Dispositivos (`kiosk_devices`) | Cada equipo (tablet kiosko, torniquete, lector, pantalla) tiene su **token** propio, revocable. Tipo, marca, modelo, serial, ubicación y política offline. |
-| `POST /api/v1/access/verify` | token de dispositivo | Recibe `id_number`, `qr_code` **o** `device_user_id` (el ID interno del lector) + `direction`. Responde `allow` (abrir/bloquear), motivo, nombre y foto (URL firmada 15 min). Registra el check-in y el evento. |
-| `POST /api/v1/access/heartbeat` | token de dispositivo | "Estoy vivo": actualiza `last_seen_at`, devuelve config y renueva el token. |
-| `GET /api/v1/access/allowlist` | token de dispositivo | Lista de socios al día que entraron en las últimas 24 h, para que el equipo pueda dejar pasar sin red (solo si la política del dispositivo es `allow_recent`). |
-| `POST /api/v1/access/events` | token de dispositivo | Lote de eventos que el equipo autorizó/denegó sin red. Idempotente por `client_event_id`; las entradas permitidas quedan como asistencia. |
-| Credenciales | Ficha del socio › Acceso (`member_credentials`) | Mapeo `tipo + ID en el lector → socio`. Tipos: huella, rostro, tarjeta, PIN. Por convención, si no hay mapeo, **el ID del lector es la cédula**. |
-| Consentimiento biométrico | Ficha del socio › Acceso (`biometric_consents`) | Obligatorio antes de enrolar huella o rostro (Ley 1581 de 2012: los datos biométricos son **sensibles** y exigen autorización previa, expresa e informada). Revocarlo revoca las credenciales. |
-| Bitácora | `access_events` | Cada intento: permitido, denegado, desconocido, duplicado, offline. Visible en Ajustes › Dispositivos y en la ficha del socio. |
-| Simulador | `backend/scripts/access_simulator.py` | Hace exactamente lo que hará el agente del hardware. Sirve para demostrar y para probar sin equipo. |
+```
+ Socio ─► Torniquete (rostro/huella, decide solo) ─► marcación ─► FitConnect (check-in, alertas)
+                 ▲                                                       │
+                 └──── quién está habilitado y hasta cuándo ◄────────────┘
+```
 
-### Dónde vive la huella
+## Marcas y formas de conexión
 
-**Nunca en FitConnect.** La plantilla biométrica (el "dibujo" de la huella) se guarda dentro
-del lector. FitConnect solo guarda que "el usuario 1234 del lector de la entrada es la
-socia María" y su consentimiento firmado. Si el gym cambia de lector, se vuelve a enrolar;
-si la socia revoca el consentimiento, se borra su mapeo y hay que borrarla también del
-lector (el agente lo hará automáticamente cuando exista; hoy es manual en el equipo).
+| Equipo | Conexión | ¿PC en el gym? | Dónde está el código |
+|---|---|---|---|
+| ZKTeco con "Servidor en la nube" / ADMS (SpeedFace, ProFace, MB, iFace…) | El equipo llama solo a `https://<dominio>/iclock/*` | No | `backend/app/api/v1/iclock.py`, `services/access_drivers/zk_adms.py` |
+| Hikvision MinMoe (DS-K1T…) | Agente local por ISAPI | Sí (recepción) | `agent/fitconnect_agent/drivers/hikvision.py` |
+| ZKTeco antiguo sin ADMS (puerto 4370) | Agente local por TCP (pyzk) | Sí | `agent/fitconnect_agent/drivers/zk_tcp.py` |
+| Otra marca | Agente o integrador que llama `POST /api/v1/access/verify` | Depende | `backend/app/api/v1/access.py` |
 
-## Cómo funciona un torniquete (para quien nunca ha manejado uno)
+**¿Cuál es el equipo del gimnasio?** Etiqueta detrás de la pantalla o Menú › Sistema › Información.
+Si el menú tiene "Comunicación › Servidor en la nube / ADMS / Cloud Server", es la primera fila.
 
-Un torniquete es un mueble con un motor/relé que se **libera** cuando recibe una señal
-eléctrica. Quién manda esa señal es la clave:
+## Puesta en marcha (gimnasio piloto)
 
-1. **Lector integrado** (huella, rostro, tarjeta, teclado): el torniquete trae su propio
-   lector y su propia memoria de usuarios. Marca típica en Colombia: ZKTeco (modelos
-   TS1000/TS2000 con lector FR1200 o panel inBio, o la serie ProFace/SpeedFace en la
-   mismo mueble). Anviz, Hikvision y Suprema también.
-2. **El lector decide solo** (modo "standalone"): solo sabe qué usuarios tiene cargados.
-   No sabe si pagaron. Por eso hace falta integrarlo con FitConnect.
-3. **Integración**: hay dos maneras, y las dos ya están contempladas por la API:
+1. **FitConnect**: Ajustes › Dispositivos › Torniquete. Marca y conexión; para ZKTeco ADMS el
+   **número de serie** (Menú › Sistema › Información). Se muestran los pasos exactos.
+2. **Equipo ZKTeco ADMS**: Menú › Comunicación › Servidor en la nube → dirección = dominio de
+   FitConnect, puerto 443, HTTPS activado, proxy desactivado. En un minuto aparece «Conectado».
+   Requiere **HTTPS con certificado válido** (algunos firmwares rechazan certificados propios).
+3. **Equipo por agente**: instalar el agente en el PC de recepción (`agent/README.md`), pegar el
+   token del dispositivo, IP, usuario y clave del equipo, `--check`, y dejarlo como servicio.
+4. **Toma de control**: «Sincronizar ahora». FitConnect lee los usuarios que ya tiene el equipo
+   (los que registró el programa anterior), los enlaza por cédula y les envía su estado. Quien
+   está vencido queda bloqueado **sin borrarle el rostro ni la huella**. Los que no coinciden se
+   ven en «Ver cuáles» y se enlazan desde la ficha › Acceso › Asignar un ID manualmente.
+5. **Probar los casos** (checklist abajo) con socios reales.
+6. Apagar el programa anterior: dos sistemas no pueden mandar al mismo equipo.
 
-   - **Agente local (recomendado para empezar)**: un programa pequeño (Python) corre en
-     un computador o mini-PC del gym en la misma red del lector. Cuando el lector
-     reconoce una huella, el agente le pregunta a FitConnect (`/access/verify`) y, si la
-     respuesta es `allow`, le ordena al torniquete abrir (por el SDK del fabricante o por
-     un relé USB/red). Si se va el internet, usa la `allowlist` y luego reporta con
-     `/access/events`. Para ZKTeco existe `pyzk` (protocolo UDP/TCP del equipo) y el SDK
-     oficial (Windows). Este agente **no existe todavía**: se escribe cuando el gym tenga
-     el equipo, porque cada modelo habla distinto.
-   - **Push directo (ADMS / "cloud")**: lectores modernos (ZKTeco con ADMS, Hikvision
-     ISAPI) pueden enviar cada marcación por HTTP a un servidor. Ahí FitConnect
-     recibiría el evento y respondería abrir/cerrar. Requiere un endpoint por fabricante
-     (formato propio). Se hace después del agente.
+## Qué pasa en cada situación
 
-## Recomendación de compra para el primer gym
+| Situación | Qué hace FitConnect |
+|---|---|
+| Se vende, renueva, congela, reactiva o cancela una membresía, o se da una cortesía | Encola el nuevo estado del socio en cada equipo, en la misma transacción |
+| Se vence a medianoche | El job `sync_access_devices` (cada 5 min) lo bloquea. En Hikvision la fecha de vigencia ya está en el equipo |
+| Ticketera sin entradas | Se bloquea igual que un vencido |
+| Marcación en el equipo | Check-in (dos marcaciones en 5 min cuentan una). Se descuenta la entrada de la ticketera |
+| El equipo dejó pasar a alguien que no está al día (estado viejo) | Se registra la entrada, se avisa a recepción y se corrige el equipo de inmediato |
+| Crear socio | Paso «Acceso» del asistente: consentimiento + registrar rostro (en el equipo o con la foto de la ficha) y huella, con el progreso en vivo |
+| Se revoca el consentimiento biométrico | Se borra el rostro o la huella **del equipo** y la credencial |
+| Recepción necesita abrir | Botón «Abrir torniquete» en el Mostrador (queda en auditoría) |
+| Se va el internet | El equipo sigue decidiendo con lo que sabe; las marcaciones se guardan (en el equipo o en el agente) y se suben al volver, sin duplicados. Recepción sigue con la copia local del navegador (`MODO_SIN_CONEXION.md`) |
+| Se va la luz | Hardware: UPS para torniquete, router y PC; ver abajo |
 
-- Torniquete tipo **trípode** (más barato y robusto que las puertas de vidrio) con
-  **panel de acceso** y lector de huella + tarjeta. Pide que el equipo tenga **puerto de
-  red (TCP/IP)** y soporte **SDK o ADMS**; sin eso no se puede integrar.
-- Un mini-PC o el mismo computador de recepción para correr el agente.
-- **Plan B siempre**: el kiosko con cédula y la recepción siguen funcionando aunque el
-  torniquete falle. El staff puede abrir manualmente.
+## Ajustes avanzados por equipo (instalador)
 
-## Checklist de puesta en marcha
+Lo que cambia entre firmwares queda configurable en Ajustes › Dispositivos › Estado y control:
 
-1. Crear el dispositivo en Ajustes › Dispositivos (tipo Torniquete, política offline) y
-   guardar el token en el agente.
-2. Probar con el simulador desde la red del gym:
-   `python scripts/access_simulator.py --api https://app... --token ... --id <cédula>`.
-3. Firmar consentimiento biométrico de cada socio (ficha › Acceso) y enrolar la huella en
-   el lector usando **la cédula como ID de usuario** (así no hay que mapear nada).
-4. Cuando llegue el equipo: instalar el agente, apuntarlo a la API, validar los 8 casos del
-   contrato (`tests/test_access.py`): activo, vencido, en gracia, visitante con pase de
-   hoy, pase de ayer, credencial revocada, dispositivo inactivo, lote offline.
+- **Cómo bloquear**: `timezone` (ZKTeco: sin acceso por horario, conserva la biometría; por
+  defecto), `validity` (Hikvision: fecha de vigencia), `delete` (borrar del equipo; último recurso).
+  Tras elegir, probar con un socio vencido.
+- **ID del socio en el equipo**: la cédula (por defecto) o números cortos para equipos que solo
+  aceptan ID de pocos dígitos.
+- **Orden para registrar huella** (ZKTeco ADMS): `ENROLL_FP` (la mayoría) o `ENROLL_BIO`.
+- **Orden para abrir** (ZKTeco ADMS): por defecto `CONTROL DEVICE 01010105`; si el modelo usa
+  otra, se cambia en `config.open_command`.
+- **IPs permitidas** (`config.allowed_ips`): solo aceptar marcaciones desde la IP pública del gym.
 
-## Protección de datos (resumen legal operativo)
+Si el firmware no acepta registrar rostro o huella desde la nube, la ficha lo dice y muestra el ID
+para registrarlo en el menú del equipo; FitConnect detecta solo cuando el equipo reporta la nueva
+plantilla y crea la credencial.
 
-- Los datos biométricos son datos **sensibles** (Ley 1581/2012, art. 5-6): requieren
-  autorización previa, expresa e informada, indicando que es opcional. FitConnect exige el
-  consentimiento antes de enrolar y registra versión del texto, fecha y quién lo tomó.
-- La política de tratamiento pública (`/tratamiento-datos`) incluye la sección de datos
-  biométricos.
-- FitConnect no almacena plantillas biométricas; el lector sí. El gym debe borrar al
-  socio del lector cuando revoca (o cuando se retira), y esa obligación queda en la
-  política y en la bitácora.
-- Toda foto de socio se sirve con URL firmada de 15 minutos (bloque 4); el torniquete
-  solo la ve al momento del acceso.
+## Checklist de instalación (30 minutos)
+
+1. «Conectado» en Ajustes › Dispositivos.
+2. Sincronizar: el número de usuarios del equipo coincide; los socios quedaron enlazados.
+3. Socio activo con rostro → abre, aparece en el Mostrador.
+4. Socio vencido → no abre.
+5. Renovar a ese socio desde la caja → en menos de un minuto abre.
+6. Socio nuevo: crear con el asistente, registrar rostro y huella → abre con ambos.
+7. Ticketera: entra hasta agotar entradas, luego no.
+8. Desconectar el internet del gym: el activo sigue entrando; al reconectar, las entradas aparecen.
+9. «Abrir torniquete» desde el Mostrador.
+10. Revocar el consentimiento de un socio de prueba → su huella ya no abre.
+
+Sin hardware: `backend/scripts/zk_adms_emulator.py` habla ADMS igual que el equipo, y
+`backend/tests/test_access_devices.py` recorre todo lo anterior.
+
+## Luz e internet (hardware recomendado)
+
+- **UPS** para torniquete, router y PC de recepción (1 a 2 horas).
+- **Router 4G de respaldo** con conmutación automática.
+- Confirmar con el instalador que el torniquete quede **libre para salir sin energía** (evacuación).
+- PC del agente: encendido automático al volver la luz (BIOS) y agente como servicio.
+
+## Seguridad del endpoint `/iclock`
+
+El protocolo ADMS de ZKTeco identifica al equipo solo por su serial, que está impreso
+en él: quien lo conozca puede intentar hacerse pasar por el torniquete. Defensas:
+
+- **IPs permitidas** (Ajustes › Dispositivos › Ajustes avanzados): la IP pública del
+  gimnasio. Es lo más importante; la pantalla lo recomienda mientras esté vacío.
+- Sin IPs registradas, si el mismo serial llama desde otra IP mientras el equipo real
+  está conectado, se rechaza y la pantalla del torniquete lo avisa en rojo.
+- En producción la foto del rostro solo se envía por HTTPS o a un equipo con IP
+  permitida.
+- Seriales desconocidos y desactivados reciben la misma respuesta (no se puede
+  averiguar cuáles existen); marcaciones con fecha imposible se ignoran; límite de
+  peticiones. Los tokens de una tableta de kiosko no sirven en los endpoints del agente.
+
+Lo que un impostor con el serial podría ver (si no hay IPs permitidas) son los
+comandos pendientes: nombre y cédula de los socios que se están sincronizando.
+
+## Protección de datos (Ley 1581 de 2012)
+
+- Los datos biométricos son **sensibles**: autorización previa, expresa e informada, opcional. El
+  panel de registro no avanza sin ella y guarda versión, fecha y quién la tomó.
+- Las **plantillas no se guardan en FitConnect**: viven en el equipo. Lo único que viaja es la foto de
+  la ficha cuando se usa como rostro (con autorización de imagen), y se borra de la cola apenas el
+  equipo la recibe.
+- ZKTeco por TCP: al bloquear, las huellas se guardan temporalmente en el PC del gimnasio (no en la
+  nube) para restaurarlas al renovar.
+- Revocar el consentimiento borra la biometría del equipo automáticamente.
+- Fotos de socios: URL firmada de 15 minutos.

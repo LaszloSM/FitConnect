@@ -36,11 +36,46 @@ class Settings(BaseSettings):
     # TTL del token efímero del SSE de recepción (segundos).
     realtime_token_ttl_seconds: int = 120
     algorithm: str = "HS256"
-    anthropic_api_key: str = ""
     ses_from_email: str = ""
     cors_origins: list[str] = ["http://localhost:3000"]
     # URL pública del frontend, para construir links (ej. invitaciones de staff).
     frontend_url: str = "http://localhost:3000"
+    # ─── Seguridad de cuentas ───
+    # Roles a los que se les exige verificación en dos pasos. Vacío = nadie (útil en pruebas).
+    mfa_required_roles: list[str] = ["owner", "admin"]
+    # Intentos fallidos de login por correo antes de bloquear 15 minutos.
+    login_max_failures: int = 10
+    # ─── Panel de plataforma (admin.<dominio>) ───
+    # Llave propia para sus tokens: un token de gimnasio nunca sirve en el panel ni al revés.
+    # Si no se define, se deriva de secret_key.
+    platform_secret_key: str = ""
+    platform_token_minutes: int = 30
+    # IPs desde las que se acepta el panel (vacío = cualquiera; Caddy también filtra).
+    platform_allowed_ips: list[str] = []
+    platform_url: str = "http://localhost:3100"
+    # ─── App móvil ───
+    # Base propia de los datos personales que registra la persona en la app
+    # (medidas, entrenos). Ningún gimnasio la consulta. Vacío = derivada de la
+    # plantilla de tenants con este nombre.
+    app_database_name: str = "fitconnect_app"
+    app_access_minutes: int = 30
+    app_refresh_days: int = 60
+    app_terms_version: str = "2026-10"
+    # Planes con IA (Gemini, modo estructurado: solo devuelve JSON). Sin
+    # GEMINI_API_KEY la app genera los planes automáticos, que no usan IA.
+    gemini_api_key: str = ""
+    gemini_model: str = "gemini-2.5-flash-lite"
+    gemini_base_url: str = "https://generativelanguage.googleapis.com/v1beta"
+    # Cuota que se le pide al proveedor (por debajo de la del plan gratis, que
+    # Google cambia sin aviso). Lo que no cabe espera en fila.
+    gemini_rpm: int = 8
+    gemini_rpd: int = 200
+    # Créditos de planes con IA: de bienvenida y recarga gratis cada semana.
+    plan_welcome_credits: int = 3
+    plan_free_weekly: int = 2
+    # Días de prueba gratis de un gimnasio nuevo y de gracia tras vencer antes de solo lectura.
+    default_trial_days: int = 30  # lo que promete la landing y el registro
+    past_due_grace_days: int = 7
     # URL pública de la API (enlaces firmados enviados por WhatsApp)
     public_api_url: str = "http://localhost:8000"
     # Clave Fernet para cifrar secretos de integraciones (Wompi, WhatsApp) en gym_settings.

@@ -34,29 +34,45 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
       credentials: {
         email: { label: "Email", type: "email" },
         password: { label: "Password", type: "password" },
+        challenge_token: { type: "text" },
+        code: { type: "text" },
       },
       async authorize(credentials) {
         const apiUrl = API_URL();
-        // El owner entra por /auth/login; el staff (admin/recepción) por
-        // /auth/staff/login. Probamos owner primero y caemos a staff.
-        const login = (path: string) =>
+        const post = (path: string, body: unknown) =>
           fetch(`${apiUrl}${path}`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(credentials),
+            body: JSON.stringify(body),
           });
-        let res = await login("/api/v1/auth/login");
-        if (!res.ok) {
-          res = await login("/api/v1/auth/staff/login");
+        let res: Response;
+        if (credentials.challenge_token) {
+          // Segundo paso: código de la app autenticadora o de respaldo.
+          res = await post("/api/v1/auth/mfa/verify", {
+            challenge_token: credentials.challenge_token,
+            code: String(credentials.code ?? "").replace(/\s/g, ""),
+          });
+        } else {
+          // El owner entra por /auth/login; el staff (admin/recepción) por
+          // /auth/staff/login. Probamos owner primero y caemos a staff.
+          const body = { email: credentials.email, password: credentials.password };
+          res = await post("/api/v1/auth/login", body);
+          if (!res.ok && res.status !== 403 && res.status !== 429) {
+            res = await post("/api/v1/auth/staff/login", body);
+          }
         }
         if (!res.ok) {
           const err = await res.json().catch(() => ({}));
           throw new BackendAuthError(err.detail || "Credenciales incorrectas");
         }
         const data = await res.json();
+        if (data.challenge_token) {
+          // La página de login lee el prefijo y pide el código.
+          throw new BackendAuthError(`mfa:${data.challenge_token}`);
+        }
         return {
           id: data.tenant_id,
-          email: credentials.email as string,
+          email: (credentials.email as string) || "",
           name: data.full_name,
           accessToken: data.access_token,
           role: data.role,
@@ -65,6 +81,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
           // Las capacidades las decide el backend y viajan con el login: la UI
           // no mantiene su propia copia de la matriz, que se desincronizaría.
           permissions: (data.permissions ?? []) as string[],
+          mfaSetupRequired: Boolean(data.mfa_setup_required),
         };
       },
     }),
@@ -73,9 +90,23 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
     authorized({ auth }) {
       return !!auth?.user;
     },
-    async jwt({ token, user }) {
+    async jwt({ token, user, trigger, session }) {
+      if (trigger === "update" && session?.accessToken) {
+        // Tras activar la verificación en dos pasos el backend entrega una sesión
+        // completa; la reemplaza aquí sin pedir la contraseña otra vez.
+        const s = session as { accessToken: string; permissions?: string[] };
+        token.accessToken = s.accessToken;
+        if (s.permissions) token.permissions = s.permissions;
+        token.accessTokenExpires = expiryOf(s.accessToken);
+        token.mfaSetupRequired = false;
+        delete token.error;
+        return token;
+      }
       if (user) {
-        const u = user as { accessToken: string; role: string; tenantId: string; dbName: string; permissions?: string[] } & typeof user;
+        const u = user as {
+          accessToken: string; role: string; tenantId: string; dbName: string; permissions?: string[]; mfaSetupRequired?: boolean;
+        } & typeof user;
+        token.mfaSetupRequired = Boolean(u.mfaSetupRequired);
         token.accessToken = u.accessToken;
         token.role = u.role;
         token.tenantId = u.tenantId;
@@ -120,7 +151,20 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
       session.tenantId = token.tenantId as string;
       session.dbName = token.dbName as string;
       session.error = token.error as string | undefined;
+      session.mfaSetupRequired = Boolean(token.mfaSetupRequired);
       return session;
+    },
+  },
+  events: {
+    // Cerrar sesión de verdad: el backend invalida el token aunque no haya vencido.
+    async signOut(message) {
+      const token = "token" in message ? message.token : null;
+      const access = token?.accessToken as string | undefined;
+      if (!access) return;
+      await fetch(`${API_URL()}/api/v1/auth/logout`, {
+        method: "POST",
+        headers: { Authorization: `Bearer ${access}` },
+      }).catch(() => undefined);
     },
   },
   pages: { signIn: "/login" },

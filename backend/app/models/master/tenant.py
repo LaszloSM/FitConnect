@@ -1,7 +1,8 @@
 import uuid
 import enum
 from typing import Optional
-from sqlalchemy import String, Enum as SAEnum
+from datetime import date, datetime
+from sqlalchemy import String, Enum as SAEnum, Date, DateTime, Text
 from sqlalchemy.dialects.postgresql import UUID, JSONB
 from sqlalchemy.orm import mapped_column, Mapped
 from app.db.master_base import MasterBase, MasterTimestampMixin
@@ -14,7 +15,12 @@ class SubscriptionPlan(str, enum.Enum):
 
 
 class TenantStatus(str, enum.Enum):
+    #: Prueba gratis hasta `trial_ends_at`.
+    trialing = "trialing"
     active = "active"
+    #: Venció la prueba o el pago: todo funciona unos días con aviso.
+    past_due = "past_due"
+    #: Solo lectura: se puede consultar pero no registrar cambios (los socios siguen entrando).
     read_only = "read_only"
     suspended = "suspended"
 
@@ -39,3 +45,13 @@ class Tenant(MasterBase, MasterTimestampMixin):
     city: Mapped[str | None] = mapped_column(String(100), nullable=True)
     country: Mapped[str | None] = mapped_column(String(2), nullable=True, default="CO")
     operating_hours: Mapped[Optional[dict]] = mapped_column(JSONB, nullable=True, default=None)
+    # ─── Suscripción a FitConnect (lo gestiona el panel de plataforma) ───
+    trial_ends_at: Mapped[Optional[date]] = mapped_column(Date, nullable=True)
+    #: Cortesía: acceso completo sin cobro hasta esta fecha (pilotos, aliados).
+    comp_until: Mapped[Optional[date]] = mapped_column(Date, nullable=True)
+    comp_reason: Mapped[Optional[str]] = mapped_column(String(255), nullable=True)
+    #: Desde cuándo está en el estado actual (para pasar de mora a solo lectura).
+    status_changed_at: Mapped[Optional[datetime]] = mapped_column(DateTime, nullable=True)
+    #: Módulos activados además del plan: {"member_app": true, "ai": false}
+    modules: Mapped[dict] = mapped_column(JSONB, nullable=False, default=dict, server_default="{}")
+    internal_notes: Mapped[Optional[str]] = mapped_column(Text, nullable=True)

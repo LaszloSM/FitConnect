@@ -1,7 +1,7 @@
 import uuid
 import enum
 from datetime import date
-from sqlalchemy import String, Enum as SAEnum, Date, DateTime, ForeignKey, Index, text
+from sqlalchemy import Boolean, String, Enum as SAEnum, Date, DateTime, ForeignKey, Index, text
 from datetime import datetime
 from sqlalchemy.dialects.postgresql import UUID, JSONB
 from sqlalchemy.orm import mapped_column, Mapped
@@ -140,4 +140,17 @@ class Member(TenantBase, TenantTimestampMixin):
     #: —con cuenta y sin ella— y ambas entran al gimnasio.
     instructor_profile_id: Mapped[Optional[uuid.UUID]] = mapped_column(
         UUID(as_uuid=True), ForeignKey("instructors.id"), nullable=True
+    )
+    eps: Mapped[Optional[str]] = mapped_column(String(100), nullable=True)
+    #: Lo que la persona dijo que busca, en sus palabras (el software anterior lo
+    #: llamaba "Expectativa"). `training_goal` es la versión normalizada.
+    expectation: Mapped[Optional[str]] = mapped_column(String(500), nullable=True)
+    #: Puede entrar digitando su cédula (teclado del torniquete o kiosko), sin
+    #: rostro ni huella.
+    access_by_document: Mapped[bool] = mapped_column(
+        Boolean, default=False, server_default="false", nullable=False
+    )
+    #: Lote de importación que creó la ficha (para poder deshacerlo).
+    import_batch_id: Mapped[Optional[uuid.UUID]] = mapped_column(
+        UUID(as_uuid=True), ForeignKey("import_batches.id"), nullable=True, index=True
     )

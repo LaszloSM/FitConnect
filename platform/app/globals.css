@@ -1,0 +1,112 @@
+@import "tailwindcss";
+
+/* Mismos valores del sistema "Calor" del panel de gimnasios (frontend/app/globals.css),
+   solo tema claro: es una herramienta interna de oficina. */
+:root {
+  --bg-base: oklch(0.972 0.009 65);
+  --bg-card: oklch(0.996 0.003 70);
+  --bg-sidebar: oklch(0.948 0.012 60);
+  --bg-input: oklch(0.998 0.002 70);
+  --bg-muted: oklch(0.935 0.012 60);
+  --border-base: oklch(0.850 0.014 60);
+  --text-base: oklch(0.230 0.020 45);
+  --text-muted: oklch(0.490 0.020 50);
+  --brand: oklch(0.545 0.185 35);
+  --brand-hover: oklch(0.505 0.180 35);
+  --brand-contrast: oklch(0.985 0.006 60);
+  --brand-ink: oklch(0.500 0.170 35);
+  --signal-ok: oklch(0.470 0.110 150);
+  --signal-ok-bg: oklch(0.940 0.040 150);
+  --signal-ok-line: oklch(0.850 0.070 150);
+  --signal-warn: oklch(0.500 0.110 65);
+  --signal-warn-bg: oklch(0.950 0.050 85);
+  --signal-warn-line: oklch(0.850 0.075 85);
+  --signal-danger: oklch(0.520 0.190 27);
+  --signal-danger-bg: oklch(0.940 0.040 27);
+  --signal-danger-line: oklch(0.830 0.080 27);
+  --signal-info: oklch(0.490 0.090 235);
+  --signal-info-bg: oklch(0.940 0.030 235);
+  --signal-info-line: oklch(0.830 0.060 235);
+  --shadow-card: 0 1px 2px oklch(0.4 0.05 45 / 0.06), 0 10px 28px -12px oklch(0.4 0.08 40 / 0.18), inset 0 1px 0 oklch(1 0 0 / 0.7);
+  --shadow-primary: inset 0 1px 0 oklch(1 0 0 / 0.25), 0 6px 16px -6px oklch(0.55 0.18 35 / 0.55);
+  --radius-sm: 0.5rem;
+  --radius-md: 0.6875rem;
+  --radius-lg: 1.125rem;
+}
+
+@theme inline {
+  --color-surface: var(--bg-base);
+  --color-panel: var(--bg-card);
+  --color-sidebar: var(--bg-sidebar);
+  --color-field: var(--bg-input);
+  --color-muted: var(--bg-muted);
+  --color-line: var(--border-base);
+  --color-ink: var(--text-base);
+  --color-ink-muted: var(--text-muted);
+  --color-primary: var(--brand);
+  --color-primary-hover: var(--brand-hover);
+  --color-primary-contrast: var(--brand-contrast);
+  --color-primary-ink: var(--brand-ink);
+  --font-sans: var(--font-figtree), system-ui, sans-serif;
+  --font-display: var(--font-bricolage), system-ui, sans-serif;
+}
+
+body {
+  background: var(--bg-base);
+  color: var(--text-base);
+}
+
+.num {
+  font-family: var(--font-bricolage), system-ui, sans-serif;
+  font-variant-numeric: tabular-nums;
+}
+
+@layer components {
+.card {
+  background: var(--bg-card);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-card);
+}
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  height: 2.5rem;
+  padding: 0 1rem;
+  border-radius: var(--radius-md);
+  font-size: 0.875rem;
+  font-weight: 600;
+  border: 1px solid transparent;
+  transition: background-color 150ms, transform 150ms;
+  white-space: nowrap;
+  cursor: pointer;
+}
+.btn:active { transform: scale(0.97); }
+.btn:disabled { opacity: 0.5; pointer-events: none; }
+.btn-primary { background: var(--brand); color: var(--brand-contrast); box-shadow: var(--shadow-primary); }
+.btn-primary:hover { background: var(--brand-hover); }
+.btn-outline { background: var(--bg-card); border-color: var(--border-base); color: var(--text-base); }
+.btn-outline:hover { background: var(--bg-muted); }
+.btn-danger { background: var(--bg-card); border-color: var(--signal-danger-line); color: var(--signal-danger); }
+.btn-danger:hover { background: var(--signal-danger-bg); }
+.btn-sm { height: 2rem; padding: 0 0.75rem; font-size: 0.8125rem; border-radius: var(--radius-sm); }
+
+.field {
+  height: 2.5rem;
+  width: 100%;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border-base);
+  background: var(--bg-input);
+  padding: 0 0.75rem;
+  font-size: 0.875rem;
+  color: var(--text-base);
+  outline: none;
+}
+.field:focus { box-shadow: 0 0 0 2px oklch(0.545 0.185 35 / 0.35); }
+textarea.field { height: auto; padding: 0.5rem 0.75rem; }
+
+}
+
+:focus-visible { outline: 2px solid oklch(0.545 0.185 35 / 0.45); outline-offset: 2px; }

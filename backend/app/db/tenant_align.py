@@ -341,4 +341,121 @@ K8_MODELOS: list[str] = [
     END $$""",
 ]
 
-ALIGN_STATEMENTS: list[str] = [*J1_INGRESOS_PASE_TRANSFERENCIAS, *J2_INVENTARIO, *J4_CONSENTIMIENTOS, *J6_ACCESO, *J7_VIDEO_EJERCICIOS, *J8_GYM_SETTINGS_FLAGS, *K1_LIBRO_MOVIMIENTOS, *K2_MENSAJERIA, *K3_ENTRENADORES, *K4_MAQUINAS, *K5_STAFF_SOCIO, *K6_CAJA, *K7_MANTENIMIENTO, *K8_MODELOS]
+K9_IMPORTACION: list[str] = [
+    # k9c0d1e2f3a4_importacion_y_ticketeras.py
+    # Migracion desde el software anterior: lotes que se pueden deshacer, datos
+    # que ese software pedia (EPS, expectativa, ingreso por cedula) y ticketeras.
+    """CREATE TABLE IF NOT EXISTS import_batches (
+        id UUID PRIMARY KEY,
+        kind VARCHAR(20) NOT NULL,
+        file_name VARCHAR(255) NULL,
+        status VARCHAR(20) NOT NULL,
+        created_by UUID NULL REFERENCES users(id),
+        counts JSONB NULL,
+        changes JSONB NULL,
+        undone_at TIMESTAMP NULL,
+        undone_by UUID NULL REFERENCES users(id),
+        created_at TIMESTAMP NOT NULL DEFAULT now(),
+        updated_at TIMESTAMP NOT NULL DEFAULT now()
+    )""",
+    "ALTER TABLE members ADD COLUMN IF NOT EXISTS eps VARCHAR(100) NULL",
+    "ALTER TABLE members ADD COLUMN IF NOT EXISTS expectation VARCHAR(500) NULL",
+    "ALTER TABLE members ADD COLUMN IF NOT EXISTS access_by_document BOOLEAN NOT NULL DEFAULT false",
+    "ALTER TABLE members ADD COLUMN IF NOT EXISTS import_batch_id UUID NULL REFERENCES import_batches(id)",
+    "CREATE INDEX IF NOT EXISTS ix_members_import_batch_id ON members (import_batch_id)",
+    "ALTER TABLE memberships ADD COLUMN IF NOT EXISTS source VARCHAR(20) NOT NULL DEFAULT 'sale'",
+    "ALTER TABLE memberships ADD COLUMN IF NOT EXISTS import_batch_id UUID NULL REFERENCES import_batches(id)",
+    "CREATE INDEX IF NOT EXISTS ix_memberships_import_batch_id ON memberships (import_batch_id)",
+    "ALTER TABLE memberships ADD COLUMN IF NOT EXISTS entries_total INTEGER NULL",
+    "ALTER TABLE memberships ADD COLUMN IF NOT EXISTS entries_used INTEGER NOT NULL DEFAULT 0",
+    "ALTER TABLE member_plans ADD COLUMN IF NOT EXISTS entries_total INTEGER NULL",
+    # Las cortesías del personal que ya existían nacieron como 'sale'.
+    "UPDATE memberships SET source = 'courtesy' WHERE source = 'sale' AND price = 0 "
+    "AND plan_name = 'Cortesía del equipo'",
+]
+
+K10_TORNIQUETE: list[str] = [
+    # l1a2b3c4d5e6_torniquete_comandos.py
+    # Cola de comandos para torniquetes/lectores y lo que cada equipo tiene guardado.
+    "CREATE SEQUENCE IF NOT EXISTS device_command_seq START WITH 1",
+    """CREATE TABLE IF NOT EXISTS device_commands (
+        id UUID PRIMARY KEY,
+        wire_id BIGINT NOT NULL DEFAULT nextval('device_command_seq'),
+        device_id UUID NOT NULL REFERENCES kiosk_devices(id) ON DELETE CASCADE,
+        member_id UUID NULL REFERENCES members(id) ON DELETE SET NULL,
+        kind VARCHAR(30) NOT NULL,
+        payload JSONB NOT NULL,
+        status VARCHAR(20) NOT NULL,
+        attempts INTEGER NOT NULL,
+        sent_at TIMESTAMP NULL,
+        completed_at TIMESTAMP NULL,
+        return_code INTEGER NULL,
+        error VARCHAR(500) NULL,
+        created_by UUID NULL REFERENCES users(id),
+        created_at TIMESTAMP NOT NULL DEFAULT now(),
+        updated_at TIMESTAMP NOT NULL DEFAULT now()
+    )""",
+    """DO $$ BEGIN
+        IF NOT EXISTS (SELECT 1 FROM pg_constraint WHERE conname = 'device_commands_wire_id_key') THEN
+            ALTER TABLE device_commands ADD CONSTRAINT device_commands_wire_id_key UNIQUE (wire_id);
+        END IF;
+    END $$""",
+    "CREATE INDEX IF NOT EXISTS ix_device_commands_pending ON device_commands (device_id, status)",
+    "CREATE INDEX IF NOT EXISTS ix_device_commands_member_id ON device_commands (member_id)",
+    """CREATE TABLE IF NOT EXISTS device_users (
+        id UUID PRIMARY KEY,
+        device_id UUID NOT NULL REFERENCES kiosk_devices(id) ON DELETE CASCADE,
+        pin VARCHAR(64) NOT NULL,
+        name VARCHAR(255) NULL,
+        member_id UUID NULL REFERENCES members(id) ON DELETE SET NULL,
+        has_face BOOLEAN NOT NULL,
+        fingerprint_count INTEGER NOT NULL,
+        has_card BOOLEAN NOT NULL,
+        present BOOLEAN NOT NULL,
+        enabled BOOLEAN NULL,
+        synced_hash VARCHAR(64) NULL,
+        synced_at TIMESTAMP NULL,
+        last_seen_at TIMESTAMP NULL,
+        created_at TIMESTAMP NOT NULL DEFAULT now(),
+        updated_at TIMESTAMP NOT NULL DEFAULT now()
+    )""",
+    """DO $$ BEGIN
+        IF NOT EXISTS (SELECT 1 FROM pg_constraint WHERE conname = 'uq_device_users_device_pin') THEN
+            ALTER TABLE device_users ADD CONSTRAINT uq_device_users_device_pin UNIQUE (device_id, pin);
+        END IF;
+    END $$""",
+    "CREATE INDEX IF NOT EXISTS ix_device_users_device_id ON device_users (device_id)",
+    "CREATE INDEX IF NOT EXISTS ix_device_users_member_id ON device_users (member_id)",
+]
+
+L2_DOS_PASOS: list[str] = [
+    # l2b3c4d5e6f7_verificacion_dos_pasos.py
+    "ALTER TABLE users ADD COLUMN IF NOT EXISTS totp_secret_enc VARCHAR(500) NULL",
+    "ALTER TABLE users ADD COLUMN IF NOT EXISTS totp_enabled BOOLEAN NOT NULL DEFAULT false",
+    "ALTER TABLE users ADD COLUMN IF NOT EXISTS backup_codes JSONB NULL",
+]
+
+L3_PERFIL: list[str] = [
+    # l3c4d5e6f7a8_enlaces_de_perfil.py
+    # Enlaces para que el socio complete sus datos (WhatsApp, correo, app).
+    """CREATE TABLE IF NOT EXISTS profile_links (
+        id UUID PRIMARY KEY,
+        member_id UUID NOT NULL REFERENCES members(id) ON DELETE CASCADE,
+        token_hash VARCHAR(64) NOT NULL,
+        channel VARCHAR(20) NOT NULL,
+        expires_at TIMESTAMP NOT NULL,
+        used_at TIMESTAMP NULL,
+        opened_at TIMESTAMP NULL,
+        created_by UUID NULL REFERENCES users(id),
+        created_at TIMESTAMP NOT NULL DEFAULT now(),
+        updated_at TIMESTAMP NOT NULL DEFAULT now()
+    )""",
+    """DO $$ BEGIN
+        IF NOT EXISTS (SELECT 1 FROM pg_constraint WHERE conname = 'profile_links_token_hash_key') THEN
+            ALTER TABLE profile_links ADD CONSTRAINT profile_links_token_hash_key UNIQUE (token_hash);
+        END IF;
+    END $$""",
+    "CREATE INDEX IF NOT EXISTS ix_profile_links_member_id ON profile_links (member_id)",
+]
+
+ALIGN_STATEMENTS: list[str] = [*J1_INGRESOS_PASE_TRANSFERENCIAS, *J2_INVENTARIO, *J4_CONSENTIMIENTOS, *J6_ACCESO, *J7_VIDEO_EJERCICIOS, *J8_GYM_SETTINGS_FLAGS, *K1_LIBRO_MOVIMIENTOS, *K2_MENSAJERIA, *K3_ENTRENADORES, *K4_MAQUINAS, *K5_STAFF_SOCIO, *K6_CAJA, *K7_MANTENIMIENTO, *K8_MODELOS, *K9_IMPORTACION, *K10_TORNIQUETE, *L2_DOS_PASOS, *L3_PERFIL]

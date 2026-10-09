@@ -1,7 +1,36 @@
-# Enrutamiento: el backend FastAPI vive bajo /api/v1 (mas /docs, /openapi.json
+# Enrutamiento: el backend FastAPI vive bajo /api/v1 (más /docs, /openapi.json
 # y su health en /health). OJO: /api/auth/* (NextAuth) y /api/health son rutas
 # del frontend Next.js — nunca enrutar /api/* completo al backend.
-:80 {
+#
+# Variables (en el .env del servidor):
+#   SITE_ADDRESS          dominio de la app (fitconnect.co). Con dominio, Caddy saca
+#                         el certificado HTTPS solo. Sin definir: :80 por IP.
+#   PLATFORM_ADDRESS      admin.fitconnect.co. Sin definir: :9100, publicado solo en
+#                         127.0.0.1 del servidor (se entra por túnel SSH).
+#   PLATFORM_ALLOWED_IPS  IPs desde donde se puede abrir el panel (separadas por espacio).
+#   ICLOCK_HTTP_ADDRESS   http://fitconnect.co solo si un torniquete ZKTeco no soporta
+#                         HTTPS. Sin definir: no se publica.
+
+(security_headers) {
+	header {
+		-Server
+		X-Content-Type-Options nosniff
+		Referrer-Policy strict-origin-when-cross-origin
+	}
+}
+
+(app_routes) {
+	# Fotos y comprobantes: MinIO no se expone; la URL firmada pasa por aquí con el
+	# mismo Host con que se firmó (S3_PUBLIC_URL = PUBLIC_URL).
+	@media path /fitconnect-media/*
+	handle @media {
+		reverse_proxy minio:9000
+	}
+	# Torniquetes ZKTeco por ADMS.
+	@iclock path /iclock/*
+	handle @iclock {
+		reverse_proxy backend:8000
+	}
 	@backend path /api/v1/* /docs /openapi.json /health
 	handle @backend {
 		reverse_proxy backend:8000
@@ -9,4 +38,32 @@
 	handle {
 		reverse_proxy frontend:3000
 	}
+}
+
+{$SITE_ADDRESS::80} {
+	import security_headers
+	encode gzip
+	import app_routes
+}
+
+{$PLATFORM_ADDRESS::9100} {
+	import security_headers
+	header X-Robots-Tag "noindex, nofollow"
+	@outside not remote_ip {$PLATFORM_ALLOWED_IPS:0.0.0.0/0 ::/0}
+	respond @outside "Acceso no permitido desde esta red" 403
+	@api path /api/platform/*
+	handle @api {
+		reverse_proxy backend:8000
+	}
+	handle {
+		reverse_proxy platform:3100
+	}
+}
+
+{$ICLOCK_HTTP_ADDRESS::8088} {
+	@iclock path /iclock/*
+	handle @iclock {
+		reverse_proxy backend:8000
+	}
+	respond 404
 }

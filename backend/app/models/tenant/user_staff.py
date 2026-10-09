@@ -1,7 +1,8 @@
 import uuid
+from typing import Optional
 import enum
 from sqlalchemy import String, Boolean, Enum as SAEnum, UniqueConstraint
-from sqlalchemy.dialects.postgresql import UUID
+from sqlalchemy.dialects.postgresql import JSONB, UUID
 from sqlalchemy.orm import mapped_column, Mapped
 from app.db.tenant_base import TenantBase, TenantTimestampMixin
 
@@ -28,3 +29,7 @@ class UserStaff(TenantBase, TenantTimestampMixin):
     role: Mapped[UserRole] = mapped_column(SAEnum(UserRole), default=UserRole.receptionist, nullable=False)
     is_active: Mapped[bool] = mapped_column(Boolean, default=True, nullable=False)
     email_verified: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False)
+    # Verificación en dos pasos por app autenticadora (obligatoria para dueño y administrador).
+    totp_secret_enc: Mapped[Optional[str]] = mapped_column(String(500), nullable=True)
+    totp_enabled: Mapped[bool] = mapped_column(Boolean, default=False, server_default="false", nullable=False)
+    backup_codes: Mapped[Optional[list]] = mapped_column(JSONB, nullable=True)

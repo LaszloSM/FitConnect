@@ -19,12 +19,12 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.timeutil import now_bogota, today_bogota
 from app.models.tenant.ml_model import MlModel
-from app.services.ml import anomalies, churn, data, forecast, occupancy, pricing, segments
+from app.services.ml import anomalies, churn, data, forecast, occupancy, pricing, renewal, segments
 
 logger = logging.getLogger(__name__)
 
 MODEL_LABELS = {
-    "churn": "Riesgo de abandono",
+    "churn": "¿Renovará?",
     "forecast": "Ingresos del mes",
     "segments": "Segmentos de socios",
     "anomalies": "Días fuera de lo normal",
@@ -32,24 +32,25 @@ MODEL_LABELS = {
     "pricing": "Reacción al precio",
 }
 MODEL_METHODS = {
-    "churn": "Gradient boosting",
-    "forecast": "Holt-Winters semanal",
+    "churn": "Gradient boosting calibrado, comparado con la regla",
+    "forecast": "Holt-Winters semanal con quincena y festivos",
     "segments": "K-means",
     "anomalies": "Isolation Forest",
-    "occupancy": "Regresión ponderada día × hora",
+    "occupancy": "Regresión ponderada día × hora, con festivos",
     "pricing": "Elasticidad por plan",
 }
 
 
 def _train_churn(h: data.History) -> dict:
-    X, y, snap = data.churn_dataset(h)
-    model = churn.train(np.array(X), np.array(y), np.array(snap))
+    """Probabilidad de NO renovar (ver `renewal.py`). Se guarda con el nombre
+    "churn" para no romper lo ya almacenado por gimnasio."""
+    model = renewal.train(*data.renewal_dataset(h))
     buf = io.BytesIO()
     joblib.dump(model, buf)
     usable = model.metrics["usable"]
     return {
         "status": "trained" if usable else "weak",
-        "detail": None if usable else f"El modelo todavía acierta poco (AUC {model.metrics['auc']}): se siguen usando las reglas.",
+        "detail": renewal.verdict(model.metrics),
         "n_samples": model.metrics["samples"],
         "metrics": {**model.metrics, "drivers": churn.drivers(model)},
         "payload": buf.getvalue(),
@@ -59,8 +60,9 @@ def _train_churn(h: data.History) -> dict:
 def _train_forecast(h: data.History) -> dict:
     inicio = max(filter(None, [h.first_activity, h.start])) if h.first_activity else h.today
     _, ingresos, _ = data.daily_arrays(h, inicio, h.today)
-    modelo = forecast.fit(ingresos)
-    prueba = forecast.backtest(ingresos)
+    ayer = h.today - timedelta(days=1)
+    modelo = forecast.fit(ingresos, ayer)
+    prueba = forecast.backtest(ingresos, last_date=ayer)
     peor = (
         prueba["model_error_pct"] is not None
         and prueba["pace_error_pct"] is not None
@@ -69,11 +71,13 @@ def _train_forecast(h: data.History) -> dict:
     return {
         "status": "weak" if peor else "trained",
         "detail": (
-            f"En las últimas 2 semanas el modelo erró {prueba['model_error_pct']}% y el ritmo lineal "
-            f"{prueba['pace_error_pct']}%: por ahora se usa el ritmo."
+            f"En {prueba['windows']} {'prueba' if prueba['windows'] == 1 else 'pruebas'} de 2 semanas hacia atrás "
+            f"el modelo erró en promedio {str(prueba['model_error_pct']).replace('.', ',')} % y el ritmo lineal "
+            f"{str(prueba['pace_error_pct']).replace('.', ',')} %: por ahora se usa el ritmo."
         ) if peor else None,
         "n_samples": len(ingresos),
-        "metrics": {"days": len(ingresos), "params": list(modelo.params), "backtest": prueba},
+        "metrics": {"days": len(ingresos), "params": list(modelo.params), "backtest": prueba,
+                    "effects": {k: round(v, 0) for k, v in modelo.effects.items()}},
     }
 
 
@@ -98,10 +102,12 @@ def _train_anomalies(h: data.History) -> dict:
 
 
 def _train_occupancy(h: data.History) -> dict:
-    grid, dias = occupancy.expected_grid(data.local_visits(h), h.today)
+    visitas = data.local_visits(h)
+    grid, dias = occupancy.expected_grid(visitas, h.today)
+    factor = occupancy.holiday_ratio(visitas, grid, h.today)
     return {
-        "status": "trained", "n_samples": dias, "metrics": {"days_with_visits": dias},
-        "result": {**occupancy.next_week(grid, h.today), "computed_for": h.today.isoformat()},
+        "status": "trained", "n_samples": dias, "metrics": {"days_with_visits": dias, "holiday_factor": factor},
+        "result": {**occupancy.next_week(grid, h.today, factor), "computed_for": h.today.isoformat()},
     }
 
 

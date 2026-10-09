@@ -50,3 +50,13 @@ class Membership(TenantBase, TenantTimestampMixin):
     )
     trainer_sessions_per_month: Mapped[Optional[int]] = mapped_column(Integer, nullable=True)
     notes: Mapped[Optional[str]] = mapped_column(String(500), nullable=True)
+    #: sale = vendida en FitConnect; import = traída del software anterior (ya
+    #: se cobró allá, por eso no tiene pago); courtesy = regalada por el gym.
+    source: Mapped[str] = mapped_column(String(20), default="sale", server_default="sale", nullable=False)
+    import_batch_id: Mapped[Optional[uuid.UUID]] = mapped_column(
+        UUID(as_uuid=True), ForeignKey("import_batches.id"), nullable=True, index=True
+    )
+    #: Ticketera: entradas compradas (NULL = acceso ilimitado durante la vigencia)
+    #: y entradas ya usadas. Cada acceso permitido descuenta una.
+    entries_total: Mapped[Optional[int]] = mapped_column(Integer, nullable=True)
+    entries_used: Mapped[int] = mapped_column(Integer, default=0, server_default="0", nullable=False)

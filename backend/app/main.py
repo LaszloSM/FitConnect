@@ -1,4 +1,6 @@
+import asyncio
 import logging
+import re
 import uuid
 from contextlib import asynccontextmanager
 
@@ -12,6 +14,8 @@ from slowapi.errors import RateLimitExceeded
 from app.core.config import settings
 from app.core.logging import setup_logging, request_id_ctx
 from app.core.rate_limit import limiter
+from app.api.v1.iclock import router as iclock_router
+from app.api.platform import router as platform_router
 from app.api.v1.router import router as api_router
 from app.services.scheduler import start_scheduler, stop_scheduler
 from app.services.storage import StorageUnavailable
@@ -34,9 +38,10 @@ async def lifespan(app: FastAPI):
         from app.db.migrate import run_master_migrations
         await run_master_migrations()
     from app.services.storage import ensure_bucket
-    await ensure_bucket()
+    bucket_task = asyncio.create_task(ensure_bucket(attempts=20))
     start_scheduler()
     yield
+    bucket_task.cancel()
     stop_scheduler()
 
 
@@ -83,15 +88,78 @@ async def request_id_middleware(request: Request, call_next):
     return response
 
 
+# Rutas que cambian datos pero deben seguir funcionando en solo lectura: entrar
+# al sistema y que los socios entren al gimnasio.
+_WRITE_ALLOWED_PREFIXES = (
+    "/api/v1/auth/", "/api/v1/access/", "/api/v1/kiosk/checkin", "/api/v1/kiosk/ping",
+    "/api/v1/webhooks/", "/api/v1/public/", "/api/v1/checkins", "/api/v1/offline/checkins",
+)
+
+
+# Dentro de /access/ hay administración (enlazar usuarios del equipo) que no es
+# "que los socios entren": esa sí se bloquea en solo lectura.
+_ACCESS_ADMIN = re.compile(r"^/api/v1/access/devices/[^/]+/link$")
+
+
+@app.middleware("http")
+async def read_only_middleware(request: Request, call_next):
+    """Gimnasio en solo lectura (prueba o pago vencidos más la gracia) o
+    suspendido: se puede consultar, no registrar cambios."""
+    path = request.url.path
+    if request.method in ("POST", "PUT", "PATCH", "DELETE") and path.startswith("/api/v1/") \
+            and (not path.startswith(_WRITE_ALLOWED_PREFIXES) or _ACCESS_ADMIN.match(path)):
+        auth = request.headers.get("authorization", "")
+        if auth.lower().startswith("bearer "):
+            # Firma verificada antes de tocar la base: un token inventado no cuesta consultas.
+            try:
+                from app.core.security import decode_token
+                db_name = decode_token(auth[7:]).get("db_name")
+            except Exception:
+                db_name = None
+            if db_name:
+                from app.services.subscription import can_write
+                if not await can_write(db_name):
+                    return JSONResponse(status_code=402, content={
+                        "detail": "Tu cuenta de FitConnect está en solo lectura. Escríbenos para reactivarla.",
+                        "code": "read_only",
+                    })
+    return await call_next(request)
+
+
+@app.middleware("http")
+async def security_headers_middleware(request: Request, call_next):
+    response = await call_next(request)
+    response.headers.setdefault("X-Content-Type-Options", "nosniff")
+    response.headers.setdefault("X-Frame-Options", "DENY")
+    response.headers.setdefault("Referrer-Policy", "strict-origin-when-cross-origin")
+    if request.url.scheme == "https" or request.headers.get("x-forwarded-proto") == "https":
+        response.headers.setdefault("Strict-Transport-Security", "max-age=31536000; includeSubDomains")
+    return response
+
+
+def _cors_origins() -> list[str]:
+    # El panel de plataforma vive en su propio subdominio (admin.<dominio>). En
+    # producción un localhost por defecto no se agrega.
+    origins = list(settings.cors_origins)
+    local = "localhost" in settings.platform_url or "127.0.0.1" in settings.platform_url
+    if settings.platform_url and not (settings.environment == "production" and local):
+        origins.append(settings.platform_url.rstrip("/"))
+    return origins
+
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=settings.cors_origins,
+    allow_origins=_cors_origins(),
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
 
 app.include_router(api_router)
+# Equipos ZKTeco por ADMS: llaman a /iclock/* en la raíz (no se puede cambiar en el equipo).
+app.include_router(iclock_router)
+# Panel de plataforma (admin.<dominio>): API aparte, tokens aparte, 2FA obligatorio.
+app.include_router(platform_router)
 
 
 @app.get("/health")

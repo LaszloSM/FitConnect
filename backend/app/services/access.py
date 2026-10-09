@@ -2,7 +2,7 @@
 aquí. Resuelve la credencial → socio, decide con las reglas de check-in
 (membresía, gracia, pase del día) y deja bitácora en access_events."""
 from dataclasses import dataclass, field
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 import uuid
 
 from sqlalchemy import select, desc
@@ -13,7 +13,8 @@ from app.models.tenant.access import AccessEvent, MemberCredential
 from app.models.tenant.checkin import CheckIn, CheckInType
 from app.models.tenant.kiosk_device import KioskDevice
 from app.models.tenant.member import Member
-from app.services.checkin import register_checkin, DuplicateCheckin, checkin_status, decision_for
+from app.services import app_accounts
+from app.services.checkin import register_checkin, DuplicateCheckin, checkin_status, consume_entry, decision_for
 from app.services.gym_settings import get_gym_settings
 from app.services.storage import resolve_media_url
 
@@ -22,6 +23,7 @@ DENIAL_MESSAGES = {
     "frozen": "Plan congelado. Pasa por recepción.",
     "scheduled": "Tu plan empieza más adelante. Pasa por recepción.",
     "no_membership": "Sin plan activo. Pasa por recepción.",
+    "no_entries": "Se acabaron las entradas de tu plan. Pasa por recepción.",
     "not_found": "Credencial no reconocida. Pasa por recepción.",
     "device_inactive": "Dispositivo desactivado.",
 }
@@ -52,10 +54,17 @@ class AccessDecision:
 async def resolve_member(
     db: AsyncSession, *, id_number: str | None = None, qr_code: str | None = None,
     device_user_id: str | None = None, device_id: uuid.UUID | None = None,
+    db_name: str | None = None, at: datetime | None = None,
 ) -> tuple[Member | None, str, str | None]:
     """→ (socio, tipo de credencial usada, referencia). El ID de usuario dentro
     del lector se mapea por member_credentials; si no hay mapeo, por convención
     el ID del lector es la cédula."""
+    if qr_code and app_accounts.is_rotating_qr(qr_code):
+        # QR de la app: se guarda la referencia del vínculo, nunca el código del momento.
+        ref = qr_code.strip()[:37]
+        member_id = await app_accounts.resolve_rotating_qr(
+            db_name, qr_code, at=at.replace(tzinfo=timezone.utc).timestamp() if at else None) if db_name else None
+        return (await db.get(Member, member_id) if member_id else None), "app_qr", ref
     if qr_code:
         m = (await db.execute(select(Member).where(Member.qr_code == qr_code.strip()))).scalar_one_or_none()
         return m, "qr", qr_code.strip()[:64]
@@ -96,7 +105,8 @@ async def verify_access(
     db: AsyncSession, device: KioskDevice, *, id_number: str | None = None, qr_code: str | None = None,
     device_user_id: str | None = None, direction: str = "entry", db_name: str | None = None,
 ) -> AccessDecision:
-    member, kind, ref = await resolve_member(db, id_number=id_number, qr_code=qr_code, device_user_id=device_user_id, device_id=device.id)
+    member, kind, ref = await resolve_member(db, id_number=id_number, qr_code=qr_code, device_user_id=device_user_id,
+                                             device_id=device.id, db_name=db_name)
     if not member:
         _log(db, device, None, kind, ref, direction, "not_found", "not_found")
         return AccessDecision(False, "not_found", "not_found", DENIAL_MESSAGES["not_found"])
@@ -130,7 +140,8 @@ async def verify_access(
     )
 
 
-async def record_offline_events(db: AsyncSession, device: KioskDevice, events: list[dict]) -> dict:
+async def record_offline_events(db: AsyncSession, device: KioskDevice, events: list[dict],
+                                db_name: str | None = None) -> dict:
     """Lote que el agente reporta tras un corte de red. Idempotente por
     client_event_id. Las entradas que el equipo autorizó offline se registran
     como asistencia (source = tipo de dispositivo)."""
@@ -146,10 +157,15 @@ async def record_offline_events(db: AsyncSession, device: KioskDevice, events: l
             skipped += 1
             continue
         member, kind, ref = await resolve_member(db, id_number=e.get("id_number"), qr_code=e.get("qr_code"),
-                                                 device_user_id=e.get("device_user_id"), device_id=device.id)
+                                                 device_user_id=e.get("device_user_id"), device_id=device.id,
+                                                 db_name=db_name, at=e.get("occurred_at"))
         decision = e["decision"] if member else "not_found"
         checkin_id = None
         if member and decision == "allowed" and e.get("direction", "entry") == "entry":
+            # El equipo ya lo dejó pasar: la entrada se descuenta aunque agote el saldo.
+            _, ms = await checkin_status(member.id, db, (await get_gym_settings(db)).grace_days)
+            if ms is not None:
+                await consume_entry(db, ms, enforce=False)
             ci = CheckIn(member_id=member.id, type=CheckInType.entry, decision="allowed", denial_reason=None,
                          source=device.kind, created_at=e["occurred_at"])
             db.add(ci)

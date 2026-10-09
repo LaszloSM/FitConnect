@@ -6,6 +6,9 @@ import { createPortal } from "react-dom";
 import { useSession } from "next-auth/react";
 import { motion, AnimatePresence, useReducedMotion } from "framer-motion";
 import { PageHeader } from "@/components/common/PageHeader";
+import { OpenTurnstileButton } from "@/components/access/OpenTurnstileButton";
+import { OfflineReception } from "@/components/offline/OfflineReception";
+import { useOffline } from "@/components/offline/OfflineProvider";
 import { EmptyState } from "@/components/common/EmptyState";
 import { Avatar, CardHead } from "@/components/dashboard/hoy/parts";
 import { apiClient } from "@/lib/api";
@@ -24,6 +27,7 @@ const DENIAL_LABELS: Record<string, string> = {
   expired: "vencida",
   frozen: "congelada",
   no_membership: "sin membresía",
+  no_entries: "sin entradas en su ticketera",
   scheduled: "aún no inicia",
 };
 
@@ -193,6 +197,16 @@ export default function CheckinsClient() {
   const [overriding, setOverriding] = useState(false);
   const [liveAlerts, setLiveAlerts] = useState<ReceptionEvent[]>([]);
   const [tvMode, setTvMode] = useState(false);
+  const { online } = useOffline();
+
+  // Al volver la red (y tras subir lo hecho sin conexión) se recargan las entradas del día.
+  useEffect(() => {
+    if (online) void fetchToday();
+    const synced = () => void fetchToday();
+    window.addEventListener("fc:synced", synced);
+    return () => window.removeEventListener("fc:synced", synced);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [online]);
 
   useReceptionEvents((event) => {
     if (event.type !== "checkin") return;
@@ -230,11 +244,17 @@ export default function CheckinsClient() {
       <PageHeader
         title="Mostrador"
         action={
-          <Button type="button" variant="outline" onClick={() => setTvMode(true)}>
-            <TelevisionIcon /> Modo TV
-          </Button>
+          <div className="flex flex-wrap gap-2">
+            <OpenTurnstileButton />
+            <Button type="button" variant="outline" onClick={() => setTvMode(true)}>
+              <TelevisionIcon /> Modo TV
+            </Button>
+          </div>
         }
       />
+
+      {/* Sin red: busca en la copia local y anota para subir luego. Con red: solo la bandeja de pendientes. */}
+      <OfflineReception />
 
       {/* Portal: un ancestro del layout con transform convierte el fixed en relativo a él. */}
       {tvMode && createPortal(<TvMode checkins={checkins} onExit={() => setTvMode(false)} />, document.body)}

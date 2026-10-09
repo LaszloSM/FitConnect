@@ -35,58 +35,66 @@ async def forecast(db: AsyncSession) -> dict:
         base["method_detail"] += f" {fila.detail}"
         base["backtest"] = (fila.metrics or {}).get("backtest")
         return base
-    serie = await data.revenue_series(db, today_bogota())
+    hoy = today_bogota()
+    serie = await data.revenue_series(db, hoy)
     try:
-        modelo = fc.fit(serie)
+        modelo = fc.fit(serie, hoy - timedelta(days=1))
     except ValueError as exc:
         base["method_detail"] += f" El modelo no se usa todavía: {exc}."
         return base
     restantes = base["days_in_month"] - base["elapsed_days"]
-    base.update(fc.project_month(modelo, base["month_to_date"], restantes, skip=1))
+    escala = float(((fila.metrics or {}).get("backtest") or {}).get("band_scale") or 1.0) if fila else 1.0
+    base.update(fc.project_month(modelo, base["month_to_date"], restantes, skip=1, band_scale=escala))
     prev = base.get("avg_previous_months")
     base["vs_previous_pct"] = round((base["projection"] - prev) / prev * 100, 1) if prev else None
     base["method"] = MODEL
-    base["method_detail"] = f"Holt-Winters con estacionalidad semanal, ajustado con {len(serie)} días de ingresos."
+    extras = [n for n, v in (("quincena", modelo.effects.get("payday")), ("festivos", modelo.effects.get("holiday"))) if v]
+    base["method_detail"] = (f"Holt-Winters con estacionalidad semanal{' + ' + ' y '.join(extras) if extras else ''}, "
+                             f"ajustado con {len(serie)} días de ingresos.")
     if fila and fila.metrics:
         base["backtest"] = fila.metrics.get("backtest")
     return base
 
 
 async def churn_risk(db: AsyncSession, limit: int = 100) -> list[dict]:
+    """Socios en riesgo. La regla cubre a todos; si el modelo de renovación
+    demostró ganarle (ver `renewal.py`), los que vencen en los próximos 30 días
+    llevan la probabilidad del modelo, que es para lo que se validó."""
+    filas = await rd.churn_risk(db, limit=1000)
+    for f in filas:
+        f["method"] = RULES
+        f["probability"] = None
     modelo = registry.load_churn(await registry.get(db, "churn"))
     if modelo is None:
-        filas = await rd.churn_risk(db, limit)
-        for f in filas:
-            f["method"] = RULES
-            f["probability"] = None
-        return filas
+        return filas[:limit]
 
     h = await data.load_history(db, today_bogota(), days=200)
-    ids, X = data.current_matrix(h)
+    ids, X = data.due_matrix(h)
     if not ids:
-        return []
+        return filas[:limit]
     matriz = np.array(X)
     probas = churn.predict(modelo, matriz)
-    salida = []
+    por_id = {f["member_id"]: f for f in filas}
     for i, mid in enumerate(ids):
         score = int(round(float(probas[i]) * 100))
-        if score < 35:
-            continue
         info = h.members[mid]
         actual = data.current_stint(h, mid)
-        vigente = bool(actual and actual.start <= h.today <= actual.end)
         dias_sin = int(matriz[i, 0]) if matriz[i, 0] < data.NEVER else None
-        salida.append({
+        fila = {
             "member_id": str(mid), "full_name": info.full_name, "phone": info.phone,
             "score": score, "probability": round(float(probas[i]), 3), "level": eng.churn_level(score),
-            "reasons": churn.explain(modelo, matriz[i]) or ["patrón parecido al de socios que se fueron"],
+            "reasons": churn.explain(modelo, matriz[i]) or ["patrón parecido al de socios que no renovaron"],
             "days_since_last_visit": dias_sin,
-            "membership_status": "active" if vigente else ("expired" if actual else "no_membership"),
+            "membership_status": "active",
             "plan_name": actual.plan_name if actual else None,
             "end_date": actual.end.isoformat() if actual else None,
             "method": MODEL,
-        })
-    salida.sort(key=lambda r: -r["score"])
+        }
+        if score >= 35:
+            por_id[str(mid)] = {**por_id.get(str(mid), {}), **fila}
+        else:
+            por_id.pop(str(mid), None)
+    salida = sorted(por_id.values(), key=lambda r: -r["score"])
     return salida[:limit]
 
 
@@ -118,7 +126,7 @@ async def stockout(db: AsyncSession) -> list[dict]:
         d = rd._to_bogota(ts).date()
         por_dia = ventas.setdefault(str(pid), {})
         por_dia[d] = por_dia.get(d, 0.0) + float(-qty)
-    dias = [hoy - timedelta(days=60 - i) for i in range(60)]
+    dias = [hoy - timedelta(days=59 - i) for i in range(60)]
     for f in filas:
         por_dia = ventas.get(f["product_id"])
         if not por_dia:

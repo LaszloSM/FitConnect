@@ -45,6 +45,37 @@ class TokenResponse(BaseModel):
     #: en el login para que la UI no tenga que mantener una copia de la matriz:
     #: una copia se desincroniza y convierte un permiso en una pantalla rota.
     permissions: list[str] = []
+    #: Dueño o administrador sin verificación en dos pasos: debe configurarla ya.
+    mfa_setup_required: bool = False
+
+
+class MfaChallenge(BaseModel):
+    """La contraseña era correcta; falta el código de la app autenticadora."""
+    otp_required: bool = True
+    challenge_token: str
+
+
+class MfaVerifyRequest(BaseModel):
+    challenge_token: str
+    code: str
+
+
+class MfaCodeRequest(BaseModel):
+    code: str
+
+
+class MfaDisableRequest(BaseModel):
+    password: str
+    code: str
+
+
+class ForgotPasswordRequest(BaseModel):
+    email: EmailStr
+
+
+class ResetPasswordRequest(BaseModel):
+    token: str
+    password: str
 
 
 class PasswordResetRequest(BaseModel):

@@ -112,3 +112,10 @@ async def recompute_member_chain(
     if changes:
         audit(db, actor, "membership.rechain", "member", member_id, {"moved": changes})
     return changes
+
+
+def charged_here(membership: Membership) -> bool:
+    """La membresía se vendió en FitConnect. Las importadas (ya cobradas en el
+    software anterior) y las de cortesía tienen precio 0: ese precio no sirve
+    como monto de renovación ni de deuda."""
+    return getattr(membership, "source", "sale") == "sale"

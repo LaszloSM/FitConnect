@@ -21,7 +21,7 @@ from app.models.tenant.receipt import Receipt
 from app.models.tenant.user_staff import UserStaff
 from app.services.audit import audit
 from app.services.gym_settings import get_gym_settings
-from app.services.membership_status import effective_status, recompute_member_chain
+from app.services.membership_status import charged_here, effective_status, recompute_member_chain
 from app.services.receipts import issue_receipt
 from app.services.payment_links import create_payment_link_for
 from app.services.payments import (
@@ -441,6 +441,13 @@ async def list_receivables(
     )).all()
     linked_by_membership = {mid: n for mid, n in linked_rows}
 
+    # Una membresía importada o regalada vale 0: la renovación se cobra al
+    # precio actual de su plan, o queda sin monto si no tiene plan equivalente.
+    from app.models.tenant.member_plan import MemberPlan
+    plan_price = {pid: price for pid, price in (await db.execute(
+        select(MemberPlan.id, MemberPlan.price).where(MemberPlan.is_active.is_(True))
+    )).all()}
+
     results: list[ReceivableOut] = []
     for member_id, m in latest.items():
         info = members.get(member_id)
@@ -455,7 +462,7 @@ async def list_receivables(
                 member_id=member_id, member_name=name, phone=phone,
                 plan_id=m.plan_id, plan_name=m.plan_name, end_date=m.end_date,
                 effective_status=st, days_overdue=days_overdue,
-                amount_due=m.price, kind="renewal",
+                amount_due=m.price if charged_here(m) else plan_price.get(m.plan_id), kind="renewal",
             ))
         elif st in ("active", "frozen") and linked_by_membership.get(m.id):
             balance = m.price - Decimal(paid_by_membership.get(m.id, 0))

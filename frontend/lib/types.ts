@@ -133,7 +133,7 @@ export interface OperationsSettings {
 }
 
 export type CheckInType = "entry" | "exit";
-export type CheckInMembershipStatus = "ok" | "expired" | "no_membership";
+export type CheckInMembershipStatus = "ok" | "expired" | "no_entries" | "no_membership";
 
 export interface CheckIn {
   id: string;

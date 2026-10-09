@@ -21,6 +21,7 @@ const DENIAL_LABELS: Record<string, string> = {
   expired: "membresía vencida",
   frozen: "membresía congelada",
   no_membership: "sin membresía",
+  no_entries: "sin entradas en su ticketera",
   scheduled: "membresía aún no inicia",
 };
 

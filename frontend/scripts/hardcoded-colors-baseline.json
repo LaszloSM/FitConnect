@@ -3,7 +3,7 @@
   "app/(dashboard)/machines/MachinesClient.tsx": 3,
   "app/(dashboard)/payments/cash/CashClient.tsx": 5,
   "app/(dashboard)/payments/shared.ts": 5,
+  "app/manifest.ts": 2,
   "components/common/QRCodeDisplay.tsx": 3,
-  "components/common/QrScanner.tsx": 2,
-  "components/members/MemberImportDialog.tsx": 2
+  "components/common/QrScanner.tsx": 2
 }

@@ -8,6 +8,8 @@ import { RouteGuard } from "@/components/layout/RouteGuard";
 import { SidebarProvider, useSidebar } from "@/components/layout/SidebarContext";
 import { CheckinToaster } from "@/components/common/CheckinToaster";
 import { SessionGuard } from "@/components/common/SessionGuard";
+import { SubscriptionBanner } from "@/components/layout/SubscriptionBanner";
+import { OfflineProvider } from "@/components/offline/OfflineProvider";
 import { SIDEBAR_COLLAPSED_W, SIDEBAR_EXPANDED_W } from "@/lib/layout-constants";
 
 function DashboardShell({ children }: { children: React.ReactNode }) {
@@ -36,12 +38,14 @@ function DashboardShell({ children }: { children: React.ReactNode }) {
         className="pb-24 pt-[calc(3.5rem+1.5rem)] transition-[padding] duration-200 ease-[var(--ease-out)] md:pb-10 md:pt-[calc(3.5rem+2rem)] lg:pl-[var(--sidebar-w)]"
       >
         <div className="mx-auto w-full max-w-[1440px] px-4 md:px-6 lg:px-8">
+          <SubscriptionBanner />
           <RouteGuard>{children}</RouteGuard>
         </div>
       </main>
       <MobileNav />
       <CheckinToaster />
       <SessionGuard />
+      <OfflineProvider />
     </div>
   );
 }

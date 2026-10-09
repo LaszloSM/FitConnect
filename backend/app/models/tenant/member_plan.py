@@ -28,3 +28,6 @@ class MemberPlan(TenantBase, TenantTimestampMixin):
         Boolean, default=False, server_default="false", nullable=False
     )
     trainer_sessions_per_month: Mapped[Optional[int]] = mapped_column(Integer, nullable=True)
+    #: Ticketera: número de entradas que da el plan (NULL = ilimitadas). La
+    #: vigencia sigue siendo `duration_days`: es el plazo para gastarlas.
+    entries_total: Mapped[Optional[int]] = mapped_column(Integer, nullable=True)

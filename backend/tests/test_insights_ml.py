@@ -49,9 +49,10 @@ def _synthetic_history(n_members: int = 320, seed: int = 7) -> data.History:
 def test_every_model_trains_on_a_gym_with_history():
     resultados = registry.train_from_history(_synthetic_history())
     estados = {k: v["status"] for k, v in resultados.items()}
-    assert estados["churn"] == "trained", resultados["churn"].get("detail")
-    assert resultados["churn"]["metrics"]["auc"] >= 0.7
-    assert estados["forecast"] == "trained"
+    # Con 4 ventanas hacia atrás el pronóstico solo se usa si le gana al ritmo en
+    # promedio; si no, queda "weak" y la pantalla sigue con el ritmo, y lo dice.
+    assert estados["forecast"] in ("trained", "weak")
+    assert resultados["forecast"]["metrics"]["backtest"]["windows"] >= 2
     assert estados["segments"] == "trained"
     assert estados["occupancy"] == "trained"
     assert estados["pricing"] == "trained"
@@ -104,3 +105,47 @@ async def test_insights_degrade_to_rules_on_an_empty_gym(client):
     drivers = await client.get("/api/v1/insights/churn-drivers", headers=headers)
     assert drivers.json()["method"] == "reglas"
     assert (await client.get("/api/v1/insights/churn-risk", headers=headers)).status_code == 200
+
+
+# ─── ¿Renovará? ──────────────────────────────────────────────────────────────
+
+from app.services.ml import renewal  # noqa: E402
+from app.services.ml.simulator import simulate  # noqa: E402
+
+
+def test_renewal_model_learns_behaviour_and_reports_honest_metrics():
+    h = simulate(date(2026, 10, 8), members=600, seed=2)
+    r = registry.train_from_history(h)["churn"]
+    assert r["status"] in ("trained", "weak"), r.get("detail")
+    m = r["metrics"]
+    assert m["auc"] >= 0.65 and m["test_samples"] >= 40
+    assert m["rule_auc"] is not None and m["gain_vs_rule_ci"] and m["auc_ci"]
+    assert m["brier"] < m["brier_reference"]
+    assert r["detail"]
+    # Si dice que se usa, es porque le ganó a la regla con margen.
+    if r["status"] == "trained":
+        assert m["gain_vs_rule_ci"][0] > 0
+
+
+def test_renewal_model_finds_nothing_when_renewing_is_pure_luck():
+    """Si el modelo encuentra señal donde no la hay, algún rasgo trae la respuesta (fuga)."""
+    h = simulate(date(2026, 10, 8), members=600, seed=1, random_labels=True)
+    m = renewal.train(*data.renewal_dataset(h))
+    assert m.metrics["usable"] is False
+    assert m.metrics["auc"] < 0.62
+
+
+def test_a_renewal_registered_late_is_not_seen_before_it_was_registered():
+    hoy = date(2026, 10, 8)
+    h = data.History(today=hoy, start=hoy - timedelta(days=300))
+    mid = uuid.uuid4()
+    h.members[mid] = data.MemberInfo(hoy - timedelta(days=200), True, "Ana", None)
+    primera = data.Stint(hoy - timedelta(days=100), hoy - timedelta(days=71), 30, 90000, "Mensual", hoy - timedelta(days=100))
+    # Renovación que empieza al día siguiente pero se registró 20 días después.
+    tarde = data.Stint(hoy - timedelta(days=70), hoy - timedelta(days=41), 30, 90000, "Mensual", hoy - timedelta(days=50))
+    h.stints[mid] = [primera, tarde]
+    h.finalize()
+    corte = hoy - timedelta(days=60)
+    fila = data.features_at(h, mid, corte)
+    assert fila[5] == 0, "no puede contar una renovación que en el corte nadie había registrado"
+    assert fila[7] == 0.0, "en el corte no había membresía vigente registrada"

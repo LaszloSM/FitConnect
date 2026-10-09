@@ -124,3 +124,55 @@ def test_inventory_uses_the_weekly_pattern():
     v = inventory.smoothed_velocity(unidades)
     assert inventory.run_out(40, v, perfil, hoy) is not None
     assert inventory.run_out(40, 0, perfil, hoy) is None
+
+
+# ─── Festivos, quincena y prueba hacia atrás ─────────────────────────────────
+
+from app.services.ml.holidays import holidays, is_holiday  # noqa: E402
+
+
+def test_colombian_holidays_2026_match_the_official_calendar():
+    oficial = {
+        "2026-01-01", "2026-01-12", "2026-03-23", "2026-04-02", "2026-04-03", "2026-05-01", "2026-05-18",
+        "2026-06-08", "2026-06-15", "2026-06-29", "2026-07-20", "2026-08-07", "2026-08-17", "2026-10-12",
+        "2026-11-02", "2026-11-16", "2026-12-08", "2026-12-25",
+    }
+    assert {d.isoformat() for d in holidays(2026)} == oficial
+
+
+def test_forecast_learns_the_payday_bump_and_backtests_several_windows():
+    fin = date(2026, 9, 30)
+    dias = [fin - timedelta(days=139 - i) for i in range(140)]
+    rng = np.random.default_rng(3)
+    semana = [900, 700, 700, 800, 1000, 1500, 300]
+    serie = np.array([(semana[d.weekday()] - 600 if is_holiday(d) else semana[d.weekday()]
+                       + (1500 if forecast.is_payday(d) else 0)) + rng.normal(0, 60) for d in dias])
+    modelo = forecast.fit(serie, fin)
+    assert abs(modelo.effects["payday"] - 1500) < 200
+    assert abs(modelo.effects["holiday"] + 600) < 200
+    siguiente = modelo.forecast(20)
+    oct14_16 = [siguiente[i] for i in range(20) if forecast.is_payday(fin + timedelta(days=i + 1))]
+    normales = [siguiente[i] for i in range(20) if not forecast.is_payday(fin + timedelta(days=i + 1))
+                and not is_holiday(fin + timedelta(days=i + 1))]
+    assert np.mean(oct14_16) > np.mean(normales) + 800
+    bt = forecast.backtest(serie, last_date=fin)
+    assert bt["windows"] == 4 and bt["model_error_pct"] < bt["pace_error_pct"]
+    assert bt["band_scale"] >= 1.0
+    # Sin fechas no sabe de quincenas y erra mucho más: por eso se le pasan.
+    assert forecast.backtest(serie)["model_error_pct"] > bt["model_error_pct"]
+
+
+def test_occupancy_ignores_holidays_and_flags_the_next_one():
+    hoy = date(2026, 10, 8)  # el lunes 12 de octubre es festivo
+    visitas = []
+    for i in range(1, 56):
+        d = hoy - timedelta(days=i)
+        n = 1 if is_holiday(d) else (20 if d.weekday() == 0 else 3)
+        visitas += [datetime(d.year, d.month, d.day, 18, 5)] * n
+    grid, _ = occupancy.expected_grid(visitas, hoy)
+    assert grid[0, 18] > 15, "el lunes festivo del pasado no baja el promedio de los lunes"
+    factor = occupancy.holiday_ratio(visitas, grid, hoy)
+    semana = occupancy.next_week(grid, hoy, factor)
+    assert semana["holidays"] == ["2026-10-12"]
+    lunes = [c for c in semana["cells"] if c["holiday"] and c["hour"] == 18][0]
+    assert lunes["count"] < grid[0, 18]

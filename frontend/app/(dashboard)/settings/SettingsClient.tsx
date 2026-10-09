@@ -5,7 +5,7 @@ import { useSearchParams } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import { PageHeader } from "@/components/common/PageHeader";
 import { cn } from "@/lib/utils";
-import { UserIcon as User, BuildingsIcon as Building2, CreditCardIcon as CreditCard, PaletteIcon as Palette, SlidersHorizontalIcon as SlidersHorizontal, PlugIcon as Plug, DevicesIcon as MonitorSmartphone, BankIcon as Landmark, UsersIcon as Users, TicketIcon as Ticket } from "@phosphor-icons/react";
+import { UserIcon as User, BuildingsIcon as Building2, CreditCardIcon as CreditCard, PaletteIcon as Palette, SlidersHorizontalIcon as SlidersHorizontal, PlugIcon as Plug, DevicesIcon as MonitorSmartphone, BankIcon as Landmark, UsersIcon as Users, TicketIcon as Ticket, ShieldCheckIcon as ShieldCheck } from "@phosphor-icons/react";
 import { P, useCan, type Permission } from "@/lib/permissions";
 
 // Imports estáticos a propósito. Con `next/dynamic` y sin fallback, un chunk que
@@ -23,9 +23,10 @@ import AppearanceSection from "@/components/settings/AppearanceSection";
 import KioskSection from "@/components/settings/KioskSection";
 import TeamSection from "@/components/settings/TeamSection";
 import DayPassSection from "@/components/settings/DayPassSection";
+import SecuritySection from "@/components/settings/SecuritySection";
 
-type TabKey = "profile" | "gym" | "operations" | "billing" | "daypass" | "kiosk" | "integrations" | "team" | "plan" | "appearance";
-const TAB_KEYS: TabKey[] = ["profile", "gym", "operations", "billing", "daypass", "kiosk", "integrations", "team", "plan", "appearance"];
+type TabKey = "profile" | "security" | "gym" | "operations" | "billing" | "daypass" | "kiosk" | "integrations" | "team" | "plan" | "appearance";
+const TAB_KEYS: TabKey[] = ["profile", "security", "gym", "operations", "billing", "daypass", "kiosk", "integrations", "team", "plan", "appearance"];
 
 interface Tab {
   key: TabKey;
@@ -38,6 +39,7 @@ interface Tab {
 const TABS: Tab[] = [
   // Perfil y Apariencia son de la propia cuenta: no exigen nada.
   { key: "profile",       label: "Perfil",          icon: User },
+  { key: "security",      label: "Seguridad",       icon: ShieldCheck },
   { key: "gym",           label: "Gimnasio",         icon: Building2,           needs: P.SETTINGS_PROFILE },
   { key: "operations",    label: "Operación",        icon: SlidersHorizontal,   needs: P.SETTINGS_WRITE },
   { key: "billing",       label: "Recaudo",          icon: Landmark,            needs: P.SETTINGS_READ },
@@ -51,6 +53,7 @@ const TABS: Tab[] = [
 
 const SECTION_MAP: Record<TabKey, React.ComponentType> = {
   profile:       ProfileSection,
+  security:      SecuritySection,
   gym:           GymSection,
   operations:    OperationsSection,
   billing:       BillingSection,

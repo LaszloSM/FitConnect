@@ -10,6 +10,7 @@ const DENIAL_LABELS: Record<string, string> = {
   expired: "Membresía vencida",
   frozen: "Membresía congelada",
   no_membership: "Sin membresía",
+  no_entries: "Sin entradas",
 };
 
 function waLink(phone: string | null, text: string): string | null {

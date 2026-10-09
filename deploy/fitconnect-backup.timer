@@ -1,0 +1,10 @@
+[Unit]
+Description=Respaldo diario de FitConnect (3:15 a. m. Colombia)
+
+[Timer]
+OnCalendar=*-*-* 08:15:00 UTC
+Persistent=true
+RandomizedDelaySec=300
+
+[Install]
+WantedBy=timers.target

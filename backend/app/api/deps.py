@@ -1,5 +1,6 @@
 from collections.abc import AsyncGenerator
-from fastapi import Depends, HTTPException, status
+import uuid
+from fastapi import Request, Depends, HTTPException, status
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker
 from jose import JWTError
@@ -17,7 +18,28 @@ from sqlalchemy import select
 security = HTTPBearer()
 
 
+async def _person_session(payload: dict, request: Request) -> None:
+    """Reglas de toda sesión de persona del panel del gimnasio: no es un token de
+    dispositivo ni de segundo paso, no se cerró, y si al dueño o al administrador
+    le falta configurar la verificación en dos pasos, solo puede configurarla."""
+    if payload.get("scope"):
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Token no válido para esta operación")
+    from app.services import account_security, subscription
+    if await account_security.is_revoked(payload.get("jti")):
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Sesión cerrada")
+    if await account_security.issued_before_password_change(payload.get("staff_id"), payload.get("iat")):
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="La contraseña cambió. Vuelve a entrar.")
+    if payload.get("mfa") == "setup_required" and not request.url.path.startswith("/api/v1/auth/"):
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="mfa_setup_required")
+    db_name = payload.get("db_name")
+    if db_name and (await subscription.access_state(db_name))["suspended"]:
+        # 401 y no 403: el panel cierra la sesión y el login explica la suspensión.
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED,
+                            detail="La cuenta de este gimnasio está suspendida. Escribe a soporte de FitConnect.")
+
+
 async def get_current_owner(
+    request: Request,
     credentials: HTTPAuthorizationCredentials = Depends(security),
     db: AsyncSession = Depends(get_master_db),
 ) -> Owner:
@@ -27,8 +49,9 @@ async def get_current_owner(
         payload = decode_token(token)
     except JWTError:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Token inválido")
+    await _person_session(payload, request)
 
-    result = await db.execute(select(Owner).where(Owner.id == payload["sub"]))
+    result = await db.execute(select(Owner).where(Owner.id == payload.get("sub")))
     owner = result.scalar_one_or_none()
     if not owner or not owner.is_active:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Usuario no encontrado")
@@ -36,6 +59,7 @@ async def get_current_owner(
 
 
 async def get_tenant_db_from_token(
+    request: Request,
     credentials: HTTPAuthorizationCredentials = Depends(security),
 ) -> AsyncGenerator[AsyncSession, None]:
     """Dependency que abre una sesión en la DB del tenant según el JWT.
@@ -46,6 +70,7 @@ async def get_tenant_db_from_token(
         payload = decode_token(token)
     except JWTError:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Token inválido")
+    await _person_session(payload, request)
 
     db_name = payload.get("db_name")
     if not db_name:
@@ -58,6 +83,7 @@ async def get_tenant_db_from_token(
 
 
 async def get_tenant_from_claims(
+    request: Request,
     credentials: HTTPAuthorizationCredentials = Depends(security),
     db: AsyncSession = Depends(get_master_db),
 ) -> Tenant:
@@ -72,8 +98,7 @@ async def get_tenant_from_claims(
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Token inválido")
     # Kiosko y realtime tienen scope propio y viven en tablets/pantallas del gym:
     # no son un principal del panel aunque lleven db_name firmado.
-    if payload.get("scope"):
-        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Token sin identidad de staff")
+    await _person_session(payload, request)
     tenant_id = payload.get("tenant_id")
     db_name = payload.get("db_name")
     if tenant_id:
@@ -90,6 +115,7 @@ async def get_tenant_from_claims(
 
 
 async def get_db_name(
+    request: Request,
     credentials: HTTPAuthorizationCredentials = Depends(security),
 ) -> str:
     """Extrae el db_name del JWT (staff u owner) — para publicar eventos por tenant."""
@@ -97,6 +123,7 @@ async def get_db_name(
         payload = decode_token(credentials.credentials)
     except JWTError:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Token inválido")
+    await _person_session(payload, request)
     db_name = payload.get("db_name")
     if not db_name:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Token sin contexto de tenant")
@@ -200,3 +227,27 @@ async def get_tenant_slug(
     if not tenant:
         raise HTTPException(status_code=404, detail="Tenant no encontrado")
     return tenant.slug
+
+
+# ─── App móvil ───
+
+async def get_app_user(
+    credentials: HTTPAuthorizationCredentials = Depends(security),
+    db: AsyncSession = Depends(get_master_db),
+):
+    """Persona de la app (socio o independiente). Revisa en cada petición que la
+    sesión siga abierta: cerrar sesión o borrar la cuenta corta el acceso ya."""
+    from app.core.security import decode_app_token
+    from app.models.master.app_user import AppSession, AppUser
+    payload = decode_app_token(credentials.credentials)
+    try:
+        sid, uid = uuid.UUID(payload["sid"]), uuid.UUID(payload["sub"])
+    except (KeyError, ValueError):
+        raise HTTPException(status_code=401, detail="Sesión inválida") from None
+    s = await db.get(AppSession, sid)
+    if s is None or s.revoked_at is not None or s.app_user_id != uid:
+        raise HTTPException(status_code=401, detail="Sesión cerrada. Vuelve a entrar.")
+    user = await db.get(AppUser, uid)
+    if user is None:
+        raise HTTPException(status_code=401, detail="Sesión cerrada. Vuelve a entrar.")
+    return user

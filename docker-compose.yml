@@ -32,13 +32,19 @@ services:
       timeout: 3s
       retries: 5
 
+  # MinIO dejó de publicar imágenes (Docker Hub y quay.io responden 401 desde
+  # septiembre de 2026). Chainguard la sigue construyendo desde el código y se
+  # baja sin cuenta. Corre como uid 65532 y no trae shell ni `mc`: por eso el
+  # volumen lo prepara `minio-init` y no hay healthcheck dentro del contenedor.
+  minio-init:
+    image: busybox:1.36
+    command: ["chown", "-R", "65532:65532", "/data"]
+    volumes:
+      - minio_data:/data
+
   minio:
-    # quay.io es el registro propio de MinIO. `minio/minio` en Docker Hub ya no
-    # se puede bajar (pull access denied), y la instancia solo seguía
-    # levantándolo porque tenía la imagen en caché: recrearla la habría dejado
-    # sin almacenamiento de fotos y comprobantes.
-    image: quay.io/minio/minio:latest
-    command: server /data --console-address ":9001"
+    image: cgr.dev/chainguard/minio:latest
+    command: ["server", "/data", "--console-address", ":9001"]
     environment:
       MINIO_ROOT_USER: minioadmin
       MINIO_ROOT_PASSWORD: minioadmin
@@ -47,11 +53,9 @@ services:
       - "9001:9001"
     volumes:
       - minio_data:/data
-    healthcheck:
-      test: ["CMD", "mc", "ready", "local"]
-      interval: 5s
-      timeout: 5s
-      retries: 5
+    depends_on:
+      minio-init:
+        condition: service_completed_successfully
 
   backend:
     build: ./backend
@@ -72,7 +76,8 @@ services:
       # y `POST /auth/register` devuelve 500 ('relation "owners" does not
       # exist'); en local no se notaba porque el volumen ya traía el esquema.
       - RUN_MIGRATIONS_ON_STARTUP=true
-      - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY:-}
+      - MFA_REQUIRED_ROLES=${MFA_REQUIRED_ROLES:-["owner","admin"]}
+      - GEMINI_API_KEY=${GEMINI_API_KEY:-}
       # Almacenamiento de objetos S3-compatible: MinIO en local, S3 real en prod
       # (basta cambiar estas env vars; el código usa boto3 sin cambios).
       - S3_ENDPOINT_URL=http://minio:9000
@@ -87,7 +92,7 @@ services:
       redis:
         condition: service_healthy
       minio:
-        condition: service_healthy
+        condition: service_started
 
   frontend:
     build:

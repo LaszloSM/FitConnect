@@ -19,5 +19,9 @@ export function SessionGuard() {
 
   useEffect(() => onUnauthorized(() => void endSession()), []);
 
+  useEffect(() => {
+    if (session?.mfaSetupRequired) window.location.assign("/seguridad/dos-pasos");
+  }, [session?.mfaSetupRequired]);
+
   return null;
 }

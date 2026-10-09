@@ -13,6 +13,13 @@ from app.models.tenant.membership import MembershipStatus
 from app.schemas.pos import PaymentItemIn, PaymentItemOut
 
 
+def normalize_id_number(v: str) -> str:
+    """La cédula "1.098.765.432" y "1098765432" son la misma: sin esto la
+    unicidad (que compara texto exacto) dejaba entrar duplicados. Mismo criterio
+    que la importación (`member_import.normalize_document`)."""
+    return re.sub(r"[^0-9A-Za-z]", "", v).upper()
+
+
 # ─── Member ───
 class MemberBase(BaseModel):
     full_name: str = Field(min_length=2, max_length=255)
@@ -36,6 +43,9 @@ class MemberBase(BaseModel):
     status: MemberStatus = MemberStatus.active
     notes: Optional[str] = Field(default=None, max_length=1000)
     trainer_id: Optional[uuid.UUID] = None
+    eps: Optional[str] = Field(default=None, max_length=100)
+    expectation: Optional[str] = Field(default=None, max_length=500)
+    access_by_document: bool = False
 
     @field_validator("phone", "emergency_contact_phone", mode="before")
     @classmethod
@@ -55,7 +65,7 @@ class MemberBase(BaseModel):
     def validate_id_number(cls, v: Optional[str]) -> Optional[str]:
         if not v:
             return v
-        return v.strip()
+        return normalize_id_number(v)
 
     @field_validator("blood_type", mode="before")
     @classmethod
@@ -129,6 +139,9 @@ class MemberUpdate(BaseModel):
     status: Optional[MemberStatus] = None
     notes: Optional[str] = Field(default=None, max_length=1000)
     trainer_id: Optional[uuid.UUID] = None
+    eps: Optional[str] = Field(default=None, max_length=100)
+    expectation: Optional[str] = Field(default=None, max_length=500)
+    access_by_document: Optional[bool] = None
 
 
 class MemberResponse(MemberBase):
@@ -189,6 +202,10 @@ class MembershipResponse(MembershipBase):
     # Snapshot de derechos del plan al momento de la venta
     access_type: Optional[str] = None
     class_credits_per_month: Optional[int] = None
+    # Ticketera: entradas compradas (None = ilimitadas) y usadas
+    entries_total: Optional[int] = None
+    entries_used: int = 0
+    source: str = "sale"
     # Derivado de end_date/status en tiempo de lectura (no persiste un status stale)
     effective_status: Optional[Literal["active", "scheduled", "frozen", "in_grace", "expired", "cancelled"]] = None
 
@@ -275,7 +292,7 @@ class CheckInResponse(BaseModel):
     source: Optional[str] = None
     # Inyectados por el endpoint — no vienen directo de la tabla checkins
     member_name: Optional[str] = None
-    membership_status: Optional[Literal["ok", "in_grace", "scheduled", "expired", "frozen", "no_membership"]] = None
+    membership_status: Optional[Literal["ok", "in_grace", "scheduled", "expired", "frozen", "no_entries", "no_membership"]] = None
     # Clase marcada como asistida automáticamente al entrar (±60 min)
     upcoming_class: Optional[dict] = None
 
