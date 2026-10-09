@@ -26,7 +26,77 @@ Internet ──► EIP:80/443 ──► Caddy ─┬─► /api/v1/*, /iclock/*,
 - **Backups**: respaldo diario cifrado a S3 con bloqueo de 30 días (ver abajo)
 - **Recuperación**: alarma de CloudWatch que mueve la instancia a otro host si falla el hardware
 
-## Despliegue en un comando (redeploy)
+## Desplegar desde GitHub (sin Docker ni SSH)
+
+Actions › **Desplegar servidor (EC2 lite)** › *Run workflow*. Construye las tres
+imágenes en GitHub, las sube a ECR y le habla a la instancia por SSM (Session
+Manager), así que no hace falta Docker en tu PC ni abrir el puerto 22. En orden:
+
+1. **Revisión previa:** si al `.env` del servidor le falta una clave obligatoria
+   (`PUBLIC_URL`, `BACKEND_IMAGE`, `FRONTEND_IMAGE`, `DB_PASSWORD`, `SECRET_KEY`,
+   `NEXTAUTH_SECRET`, `SETTINGS_ENCRYPTION_KEY`, `MINIO_PASSWORD`) o hay menos de
+   3 GB libres, se detiene **antes** de tocar nada y dice cuál falta.
+2. Build y push de backend, frontend (con `NEXT_PUBLIC_API_URL` = `PUBLIC_URL`
+   del servidor) y panel de plataforma, con la etiqueta del commit.
+3. En el servidor:
+   - respaldo de la base (`backups/pre-deploy-<fecha>.sql.gz`, quedan los 3 últimos);
+   - las imágenes que estaban corriendo se etiquetan `:previo`;
+   - compose, Caddyfile y respaldos nuevos, y `up -d` del commit exacto;
+   - espera a que `/health` diga `ok`.
+4. Aligner de gimnasios (`migrate_tenants.py`) y scripts idempotentes; con la
+   casilla marcada, reimporta la biblioteca de ejercicios.
+5. Verificación desde afuera: `/health`, el frontend y una ruta nueva
+   (`/api/v1/me/plans/options` debe dar 401, no 404).
+
+El `.env` del servidor no se reescribe: solo se agrega `PLATFORM_IMAGE` si falta.
+
+**Volver atrás** (si la versión nueva falla después de arrancar), por Session Manager:
+
+```bash
+cd /opt/fitconnect
+R=902734531628.dkr.ecr.us-east-1.amazonaws.com
+sudo BACKEND_IMAGE=$R/saas-gym-lite-backend:previo FRONTEND_IMAGE=$R/saas-gym-lite-frontend:previo \
+  PLATFORM_IMAGE=$R/saas-gym-lite-platform:previo docker compose up -d
+```
+
+Las migraciones del Master ya corrieron hacia adelante; si la base también hay
+que devolverla, está el respaldo `backups/pre-deploy-*.sql.gz` de ese despliegue.
+
+### Configuración (una vez)
+
+En IAM, crear el usuario `github-deploy-lite` **sin acceso a la consola**, con
+esta política en línea (cambia `ACCOUNT` por tu número de cuenta), y sacarle una
+llave de acceso («Aplicación que se ejecuta fuera de AWS»):
+
+```json
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    { "Effect": "Allow", "Action": ["ecr:GetAuthorizationToken", "ec2:DescribeInstances",
+        "ssm:DescribeInstanceInformation", "ssm:GetCommandInvocation"], "Resource": "*" },
+    { "Effect": "Allow",
+      "Action": ["ecr:DescribeRepositories", "ecr:CreateRepository", "ecr:BatchCheckLayerAvailability",
+        "ecr:BatchGetImage", "ecr:GetDownloadUrlForLayer", "ecr:InitiateLayerUpload",
+        "ecr:UploadLayerPart", "ecr:CompleteLayerUpload", "ecr:PutImage"],
+      "Resource": "arn:aws:ecr:us-east-1:ACCOUNT:repository/saas-gym-lite-*" },
+    { "Effect": "Allow", "Action": "ssm:SendCommand",
+      "Resource": "arn:aws:ssm:us-east-1::document/AWS-RunShellScript" },
+    { "Effect": "Allow", "Action": "ssm:SendCommand",
+      "Resource": "arn:aws:ec2:us-east-1:ACCOUNT:instance/*",
+      "Condition": { "StringEquals": { "ssm:resourceTag/Name": "saas-gym-lite-app" } } }
+  ]
+}
+```
+
+En GitHub › Settings › Secrets and variables › Actions › *New repository secret*:
+`AWS_ACCESS_KEY_ID` y `AWS_SECRET_ACCESS_KEY`. (Si prefieres no guardar llaves,
+un rol OIDC en `AWS_DEPLOY_ROLE_ARN` tiene prioridad sobre ellas.)
+
+Ojo: `ssm:SendCommand` corre comandos como root en el servidor. Quien pueda
+lanzar el workflow controla la instancia: el entorno `produccion` de GitHub
+(Settings › Environments) permite exigir aprobación antes de cada despliegue.
+
+## Despliegue en un comando desde tu PC (redeploy)
 
 Con la infraestructura ya creada, todo el despliegue está automatizado:
 
