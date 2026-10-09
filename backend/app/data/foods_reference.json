@@ -1,5 +1,5 @@
 {
- "version": 2,
+ "version": 3,
  "sources": [
   "ICBF. Tabla de Composición de Alimentos Colombianos (TCAC), 2015.",
   "U.S. Department of Agriculture, Agricultural Research Service. FoodData Central (SR Legacy 2018 y Foundation Foods 2026). Dominio público.",
@@ -671,6 +671,116 @@
    "origin": "ICBF, TCAC 2015 (código 537)"
   },
   {
+   "ref_key": "carne_molida_de_pavo_cocida_usda",
+   "name": "Carne molida de pavo, cocida",
+   "category": "aves",
+   "synonyms": [
+    "pavo molido"
+   ],
+   "kcal": 203.0,
+   "protein_g": 27.4,
+   "carbs_g": 0.0,
+   "fat_g": 10.4,
+   "fiber_g": 0.0,
+   "nutrients": {
+    "sugars_g": 0.0,
+    "sat_fat_g": 2.67,
+    "sodium_mg": 78.0,
+    "potassium_mg": 294.0,
+    "calcium_mg": 28.0,
+    "iron_mg": 1.52,
+    "vit_c_mg": 0.0,
+    "vit_a_ug": 24.0,
+    "vit_d_ug": 0.2,
+    "vit_b12_ug": 1.34,
+    "cholesterol_mg": 93.0
+   },
+   "portions": [
+    {
+     "label": "1 hamburguesa",
+     "grams": 82
+    },
+    {
+     "label": "100 g",
+     "grams": 100
+    }
+   ],
+   "origin": "USDA FoodData Central, SR Legacy 171506"
+  },
+  {
+   "ref_key": "carne_molida_de_pavo_cruda_usda",
+   "name": "Carne molida de pavo, cruda",
+   "category": "aves",
+   "synonyms": [
+    "pavo molido"
+   ],
+   "kcal": 148.0,
+   "protein_g": 19.7,
+   "carbs_g": 0.0,
+   "fat_g": 7.7,
+   "fiber_g": 0.0,
+   "nutrients": {
+    "sugars_g": 0.0,
+    "sat_fat_g": 2.02,
+    "sodium_mg": 58.0,
+    "potassium_mg": 237.0,
+    "calcium_mg": 19.0,
+    "iron_mg": 1.09,
+    "vit_c_mg": 0.0,
+    "vit_a_ug": 20.0,
+    "vit_d_ug": 0.4,
+    "vit_b12_ug": 1.0,
+    "cholesterol_mg": 69.0
+   },
+   "portions": [
+    {
+     "label": "1 hamburguesa",
+     "grams": 114
+    },
+    {
+     "label": "100 g",
+     "grams": 100
+    }
+   ],
+   "origin": "USDA FoodData Central, SR Legacy 171505"
+  },
+  {
+   "ref_key": "carne_molida_de_pollo_cruda_usda",
+   "name": "Carne molida de pollo, cruda",
+   "category": "aves",
+   "synonyms": [
+    "pollo molido"
+   ],
+   "kcal": 143.0,
+   "protein_g": 17.4,
+   "carbs_g": 0.0,
+   "fat_g": 8.1,
+   "fiber_g": 0.0,
+   "nutrients": {
+    "sugars_g": 0.0,
+    "sat_fat_g": 2.3,
+    "sodium_mg": 60.0,
+    "potassium_mg": 522.0,
+    "calcium_mg": 6.0,
+    "iron_mg": 0.82,
+    "vit_c_mg": 0.0,
+    "vit_a_ug": 0.0,
+    "vit_b12_ug": 0.56,
+    "cholesterol_mg": 86.0
+   },
+   "portions": [
+    {
+     "label": "1 porción",
+     "grams": 113
+    },
+    {
+     "label": "100 g",
+     "grams": 100
+    }
+   ],
+   "origin": "USDA FoodData Central, SR Legacy 171116"
+  },
+  {
    "ref_key": "tcac_550",
    "name": "Chorizo de pollo",
    "category": "aves",
@@ -729,6 +839,43 @@
     }
    ],
    "origin": "USDA FoodData Central, SR Legacy 172388"
+  },
+  {
+   "ref_key": "patas_de_pollo_cocidas_usda",
+   "name": "Patas de pollo, cocidas",
+   "category": "aves",
+   "synonyms": [
+    "patica de pollo"
+   ],
+   "kcal": 215.0,
+   "protein_g": 19.4,
+   "carbs_g": 0.2,
+   "fat_g": 14.6,
+   "fiber_g": 0.0,
+   "nutrients": {
+    "sugars_g": 0.0,
+    "sat_fat_g": 3.92,
+    "sodium_mg": 67.0,
+    "potassium_mg": 31.0,
+    "calcium_mg": 88.0,
+    "iron_mg": 0.91,
+    "vit_c_mg": 0.0,
+    "vit_a_ug": 30.0,
+    "vit_d_ug": 0.2,
+    "vit_b12_ug": 0.47,
+    "cholesterol_mg": 84.0
+   },
+   "portions": [
+    {
+     "label": "1 porción",
+     "grams": 85
+    },
+    {
+     "label": "100 g",
+     "grams": 100
+    }
+   ],
+   "origin": "USDA FoodData Central, SR Legacy 171119"
   },
   {
    "ref_key": "pechuga_pavo_asada",
@@ -801,6 +948,151 @@
    "origin": "USDA FoodData Central, SR Legacy 171477"
   },
   {
+   "ref_key": "pechuga_de_pollo_tajada_fiambre_usda",
+   "name": "Pechuga de pollo tajada, horneada",
+   "category": "aves",
+   "synonyms": [
+    "jamón de pollo",
+    "fiambre de pollo"
+   ],
+   "kcal": 134.0,
+   "protein_g": 14.6,
+   "carbs_g": 1.8,
+   "fat_g": 7.7,
+   "fiber_g": 0.0,
+   "nutrients": {
+    "sugars_g": 0.43,
+    "sat_fat_g": 2.48,
+    "sodium_mg": 883.0,
+    "potassium_mg": 324.0,
+    "calcium_mg": 6.0,
+    "iron_mg": 0.32,
+    "vit_c_mg": 0.0,
+    "vit_a_ug": 0.0,
+    "vit_b12_ug": 0.24,
+    "cholesterol_mg": 39.0
+   },
+   "portions": [
+    {
+     "label": "1 porción",
+     "grams": 56
+    },
+    {
+     "label": "100 g",
+     "grams": 100
+    }
+   ],
+   "origin": "USDA FoodData Central, SR Legacy 174608"
+  },
+  {
+   "ref_key": "salami_de_pavo_usda",
+   "name": "Salami de pavo",
+   "category": "aves",
+   "synonyms": [],
+   "kcal": 172.0,
+   "protein_g": 19.2,
+   "carbs_g": 1.6,
+   "fat_g": 9.2,
+   "fiber_g": 0.1,
+   "nutrients": {
+    "sugars_g": 1.12,
+    "sat_fat_g": 2.78,
+    "sodium_mg": 1107.0,
+    "potassium_mg": 216.0,
+    "calcium_mg": 40.0,
+    "iron_mg": 1.25,
+    "vit_c_mg": 0.0,
+    "vit_a_ug": 2.0,
+    "vit_d_ug": 0.6,
+    "vit_b12_ug": 0.99,
+    "cholesterol_mg": 76.0
+   },
+   "portions": [
+    {
+     "label": "1 porción",
+     "grams": 28
+    },
+    {
+     "label": "100 g",
+     "grams": 100
+    }
+   ],
+   "origin": "USDA FoodData Central, SR Legacy 172937"
+  },
+  {
+   "ref_key": "salchicha_de_pavo_cocida_usda",
+   "name": "Salchicha de pavo, cocida",
+   "category": "aves",
+   "synonyms": [],
+   "kcal": 196.0,
+   "protein_g": 23.9,
+   "carbs_g": 0.0,
+   "fat_g": 10.4,
+   "fiber_g": 0.0,
+   "nutrients": {
+    "sugars_g": 0.0,
+    "sat_fat_g": 2.27,
+    "sodium_mg": 665.0,
+    "potassium_mg": 298.0,
+    "calcium_mg": 22.0,
+    "iron_mg": 1.49,
+    "vit_c_mg": 0.7,
+    "vit_a_ug": 13.0,
+    "vit_b12_ug": 1.23,
+    "cholesterol_mg": 92.0
+   },
+   "portions": [
+    {
+     "label": "1 porción",
+     "grams": 57
+    },
+    {
+     "label": "100 g",
+     "grams": 100
+    }
+   ],
+   "origin": "USDA FoodData Central, SR Legacy 173871"
+  },
+  {
+   "ref_key": "agua_tonica_usda",
+   "name": "Agua tónica",
+   "category": "bebidas",
+   "synonyms": [],
+   "kcal": 34.0,
+   "protein_g": 0.0,
+   "carbs_g": 8.8,
+   "fat_g": 0.0,
+   "fiber_g": 0.0,
+   "nutrients": {
+    "sugars_g": 8.8,
+    "sat_fat_g": 0.0,
+    "sodium_mg": 12.0,
+    "potassium_mg": 0.0,
+    "calcium_mg": 1.0,
+    "iron_mg": 0.01,
+    "vit_c_mg": 0.0,
+    "vit_a_ug": 0.0,
+    "vit_d_ug": 0.0,
+    "vit_b12_ug": 0.0,
+    "cholesterol_mg": 0.0
+   },
+   "portions": [
+    {
+     "label": "1 lata",
+     "grams": 366
+    },
+    {
+     "label": "1 botella pequeña",
+     "grams": 336
+    },
+    {
+     "label": "100 g",
+     "grams": 100
+    }
+   ],
+   "origin": "USDA FoodData Central, SR Legacy 171869"
+  },
+  {
    "ref_key": "bebida_almendras",
    "name": "Bebida de almendras sin azúcar",
    "category": "bebidas",
@@ -836,6 +1128,84 @@
     }
    ],
    "origin": "USDA FoodData Central, SR Legacy 174832"
+  },
+  {
+   "ref_key": "bebida_de_arroz_sin_azucar_usda",
+   "name": "Bebida de arroz sin azúcar",
+   "category": "bebidas",
+   "synonyms": [
+    "leche de arroz"
+   ],
+   "kcal": 47.0,
+   "protein_g": 0.3,
+   "carbs_g": 9.2,
+   "fat_g": 1.0,
+   "fiber_g": 0.3,
+   "nutrients": {
+    "sugars_g": 5.28,
+    "sat_fat_g": 0.0,
+    "sodium_mg": 39.0,
+    "potassium_mg": 27.0,
+    "calcium_mg": 118.0,
+    "iron_mg": 0.2,
+    "vit_c_mg": 0.0,
+    "vit_a_ug": 63.0,
+    "vit_d_ug": 1.0,
+    "vit_b12_ug": 0.63,
+    "cholesterol_mg": 0.0
+   },
+   "portions": [
+    {
+     "label": "1 vaso",
+     "grams": 240
+    },
+    {
+     "label": "100 g",
+     "grams": 100
+    }
+   ],
+   "origin": "USDA FoodData Central, SR Legacy 171942"
+  },
+  {
+   "ref_key": "bebida_de_naranja_usda",
+   "name": "Bebida de naranja",
+   "category": "bebidas",
+   "synonyms": [
+    "refresco de naranja",
+    "jugo de naranja en caja"
+   ],
+   "kcal": 54.0,
+   "protein_g": 0.2,
+   "carbs_g": 13.4,
+   "fat_g": 0.0,
+   "fiber_g": 0.2,
+   "nutrients": {
+    "sugars_g": 9.36,
+    "sat_fat_g": 0.0,
+    "sodium_mg": 2.0,
+    "potassium_mg": 42.0,
+    "calcium_mg": 2.0,
+    "iron_mg": 0.11,
+    "vit_c_mg": 15.0,
+    "vit_a_ug": 2.0,
+    "vit_b12_ug": 0.0,
+    "cholesterol_mg": 0.0
+   },
+   "portions": [
+    {
+     "label": "1 vaso",
+     "grams": 249
+    },
+    {
+     "label": "1 cajita",
+     "grams": 263
+    },
+    {
+     "label": "100 g",
+     "grams": 100
+    }
+   ],
+   "origin": "USDA FoodData Central, SR Legacy 169044"
   },
   {
    "ref_key": "bebida_soya",
@@ -908,6 +1278,43 @@
     }
    ],
    "origin": "USDA FoodData Central, SR Legacy 173210"
+  },
+  {
+   "ref_key": "bebida_energizante_sin_azucar_usda",
+   "name": "Bebida energizante sin azúcar",
+   "category": "bebidas",
+   "synonyms": [
+    "energizante light"
+   ],
+   "kcal": 4.0,
+   "protein_g": 0.4,
+   "carbs_g": 0.4,
+   "fat_g": 0.0,
+   "fiber_g": 0.0,
+   "nutrients": {
+    "sugars_g": 0.0,
+    "sat_fat_g": 0.0,
+    "sodium_mg": 42.0,
+    "potassium_mg": 0.0,
+    "calcium_mg": 0.0,
+    "iron_mg": 0.0,
+    "vit_c_mg": 25.0,
+    "vit_a_ug": 0.0,
+    "vit_d_ug": 0.0,
+    "vit_b12_ug": 2.5,
+    "cholesterol_mg": 0.0
+   },
+   "portions": [
+    {
+     "label": "1 lata pequeña",
+     "grams": 240
+    },
+    {
+     "label": "100 g",
+     "grams": 100
+    }
+   ],
+   "origin": "USDA FoodData Central, SR Legacy 174822"
   },
   {
    "ref_key": "cafe_preparado",
@@ -1105,6 +1512,233 @@
    "origin": "USDA FoodData Central, SR Legacy 168746"
   },
   {
+   "ref_key": "cerveza_light_usda",
+   "name": "Cerveza light",
+   "category": "bebidas",
+   "synonyms": [
+    "cerveza ligera"
+   ],
+   "kcal": 29.0,
+   "protein_g": 0.2,
+   "carbs_g": 1.6,
+   "fat_g": 0.0,
+   "fiber_g": 0.0,
+   "nutrients": {
+    "sugars_g": 0.09,
+    "sat_fat_g": 0.0,
+    "sodium_mg": 4.0,
+    "potassium_mg": 21.0,
+    "calcium_mg": 4.0,
+    "iron_mg": 0.03,
+    "vit_c_mg": 0.0,
+    "vit_a_ug": 0.0,
+    "vit_d_ug": 0.0,
+    "vit_b12_ug": 0.02,
+    "cholesterol_mg": 0.0
+   },
+   "portions": [
+    {
+     "label": "1 lata o botella",
+     "grams": 354
+    },
+    {
+     "label": "100 g",
+     "grams": 100
+    }
+   ],
+   "origin": "USDA FoodData Central, SR Legacy 168749"
+  },
+  {
+   "ref_key": "ginger_ale_usda",
+   "name": "Gaseosa de jengibre",
+   "category": "bebidas",
+   "synonyms": [
+    "ginger ale"
+   ],
+   "kcal": 34.0,
+   "protein_g": 0.0,
+   "carbs_g": 8.8,
+   "fat_g": 0.0,
+   "fiber_g": 0.0,
+   "nutrients": {
+    "sugars_g": 8.9,
+    "sat_fat_g": 0.0,
+    "sodium_mg": 7.0,
+    "potassium_mg": 1.0,
+    "calcium_mg": 3.0,
+    "iron_mg": 0.18,
+    "vit_c_mg": 0.0,
+    "vit_a_ug": 0.0,
+    "vit_d_ug": 0.0,
+    "vit_b12_ug": 0.0,
+    "cholesterol_mg": 0.0
+   },
+   "portions": [
+    {
+     "label": "1 lata",
+     "grams": 366
+    },
+    {
+     "label": "1 botella personal",
+     "grams": 488
+    },
+    {
+     "label": "100 g",
+     "grams": 100
+    }
+   ],
+   "origin": "USDA FoodData Central, SR Legacy 174846"
+  },
+  {
+   "ref_key": "gaseosa_de_naranja_usda",
+   "name": "Gaseosa de naranja",
+   "category": "bebidas",
+   "synonyms": [
+    "soda de naranja"
+   ],
+   "kcal": 48.0,
+   "protein_g": 0.0,
+   "carbs_g": 12.3,
+   "fat_g": 0.0,
+   "fiber_g": 0.0,
+   "nutrients": {
+    "sat_fat_g": 0.0,
+    "sodium_mg": 12.0,
+    "potassium_mg": 2.0,
+    "calcium_mg": 5.0,
+    "iron_mg": 0.06,
+    "vit_c_mg": 0.0,
+    "vit_a_ug": 0.0,
+    "vit_b12_ug": 0.0,
+    "cholesterol_mg": 0.0
+   },
+   "portions": [
+    {
+     "label": "1 lata",
+     "grams": 372
+    },
+    {
+     "label": "1 botella personal",
+     "grams": 496
+    },
+    {
+     "label": "100 g",
+     "grams": 100
+    }
+   ],
+   "origin": "USDA FoodData Central, SR Legacy 174854"
+  },
+  {
+   "ref_key": "gaseosa_de_uva_usda",
+   "name": "Gaseosa de uva",
+   "category": "bebidas",
+   "synonyms": [
+    "soda de uva"
+   ],
+   "kcal": 43.0,
+   "protein_g": 0.0,
+   "carbs_g": 11.2,
+   "fat_g": 0.0,
+   "fiber_g": 0.0,
+   "nutrients": {
+    "sat_fat_g": 0.0,
+    "sodium_mg": 15.0,
+    "potassium_mg": 1.0,
+    "calcium_mg": 3.0,
+    "iron_mg": 0.08,
+    "vit_c_mg": 0.0,
+    "vit_a_ug": 0.0,
+    "vit_b12_ug": 0.0,
+    "cholesterol_mg": 0.0
+   },
+   "portions": [
+    {
+     "label": "1 lata",
+     "grams": 372
+    },
+    {
+     "label": "100 g",
+     "grams": 100
+    }
+   ],
+   "origin": "USDA FoodData Central, SR Legacy 173203"
+  },
+  {
+   "ref_key": "jugo_de_arandano_usda",
+   "name": "Jugo de arándano",
+   "category": "bebidas",
+   "synonyms": [
+    "cranberry"
+   ],
+   "kcal": 54.0,
+   "protein_g": 0.0,
+   "carbs_g": 13.5,
+   "fat_g": 0.1,
+   "fiber_g": 0.0,
+   "nutrients": {
+    "sugars_g": 11.87,
+    "sat_fat_g": 0.01,
+    "sodium_mg": 2.0,
+    "potassium_mg": 14.0,
+    "calcium_mg": 3.0,
+    "iron_mg": 0.1,
+    "vit_c_mg": 42.3,
+    "vit_a_ug": 0.0,
+    "vit_d_ug": 0.0,
+    "vit_b12_ug": 0.0,
+    "cholesterol_mg": 0.0
+   },
+   "portions": [
+    {
+     "label": "1 vaso",
+     "grams": 253
+    },
+    {
+     "label": "100 g",
+     "grams": 100
+    }
+   ],
+   "origin": "USDA FoodData Central, SR Legacy 171903"
+  },
+  {
+   "ref_key": "jugo_de_maracuya_natural_usda",
+   "name": "Jugo de maracuyá natural, sin azúcar",
+   "category": "bebidas",
+   "synonyms": [
+    "zumo de maracuyá",
+    "parchita"
+   ],
+   "kcal": 60.0,
+   "protein_g": 0.7,
+   "carbs_g": 14.4,
+   "fat_g": 0.2,
+   "fiber_g": 0.2,
+   "nutrients": {
+    "sugars_g": 14.25,
+    "sat_fat_g": 0.01,
+    "sodium_mg": 6.0,
+    "potassium_mg": 278.0,
+    "calcium_mg": 4.0,
+    "iron_mg": 0.36,
+    "vit_c_mg": 18.2,
+    "vit_a_ug": 47.0,
+    "vit_d_ug": 0.0,
+    "vit_b12_ug": 0.0,
+    "cholesterol_mg": 0.0
+   },
+   "portions": [
+    {
+     "label": "1 vaso",
+     "grams": 247
+    },
+    {
+     "label": "100 g",
+     "grams": 100
+    }
+   ],
+   "origin": "USDA FoodData Central, SR Legacy 169110"
+  },
+  {
    "ref_key": "jugo_naranja",
    "name": "Jugo de naranja natural",
    "category": "bebidas",
@@ -1140,6 +1774,43 @@
    "origin": "USDA FoodData Central, SR Legacy 169098"
   },
   {
+   "ref_key": "jugo_de_toronja_natural_usda",
+   "name": "Jugo de toronja natural",
+   "category": "bebidas",
+   "synonyms": [
+    "zumo de toronja",
+    "jugo de pomelo"
+   ],
+   "kcal": 39.0,
+   "protein_g": 0.5,
+   "carbs_g": 9.2,
+   "fat_g": 0.1,
+   "fiber_g": 0.0,
+   "nutrients": {
+    "sat_fat_g": 0.01,
+    "sodium_mg": 1.0,
+    "potassium_mg": 162.0,
+    "calcium_mg": 9.0,
+    "iron_mg": 0.2,
+    "vit_c_mg": 38.0,
+    "vit_a_ug": 22.0,
+    "vit_d_ug": 0.0,
+    "vit_b12_ug": 0.0,
+    "cholesterol_mg": 0.0
+   },
+   "portions": [
+    {
+     "label": "1 vaso",
+     "grams": 247
+    },
+    {
+     "label": "100 g",
+     "grams": 100
+    }
+   ],
+   "origin": "USDA FoodData Central, SR Legacy 167774"
+  },
+  {
    "ref_key": "leche_chocolatada",
    "name": "Leche chocolatada semidescremada",
    "category": "bebidas",
@@ -1173,6 +1844,279 @@
     }
    ],
    "origin": "USDA FoodData Central, SR Legacy 170880"
+  },
+  {
+   "ref_key": "leche_de_coco_usda",
+   "name": "Leche de coco",
+   "category": "bebidas",
+   "synonyms": [],
+   "kcal": 230.0,
+   "protein_g": 2.3,
+   "carbs_g": 5.5,
+   "fat_g": 23.8,
+   "fiber_g": 2.2,
+   "nutrients": {
+    "sugars_g": 3.34,
+    "sat_fat_g": 21.14,
+    "sodium_mg": 15.0,
+    "potassium_mg": 263.0,
+    "calcium_mg": 16.0,
+    "iron_mg": 1.64,
+    "vit_c_mg": 2.8,
+    "vit_a_ug": 0.0,
+    "vit_d_ug": 0.0,
+    "vit_b12_ug": 0.0,
+    "cholesterol_mg": 0.0
+   },
+   "portions": [
+    {
+     "label": "1 cucharada",
+     "grams": 15
+    },
+    {
+     "label": "1 taza",
+     "grams": 240
+    },
+    {
+     "label": "100 g",
+     "grams": 100
+    }
+   ],
+   "origin": "USDA FoodData Central, SR Legacy 170172"
+  },
+  {
+   "ref_key": "malteada_de_fresa_usda",
+   "name": "Malteada de fresa",
+   "category": "bebidas",
+   "synonyms": [
+    "batido de fresa",
+    "milkshake de fresa"
+   ],
+   "kcal": 113.0,
+   "protein_g": 3.4,
+   "carbs_g": 18.9,
+   "fat_g": 2.8,
+   "fiber_g": 0.4,
+   "nutrients": {
+    "sat_fat_g": 1.73,
+    "sodium_mg": 83.0,
+    "potassium_mg": 182.0,
+    "calcium_mg": 113.0,
+    "iron_mg": 0.11,
+    "vit_c_mg": 0.8,
+    "vit_a_ug": 26.0,
+    "vit_d_ug": 0.0,
+    "vit_b12_ug": 0.31,
+    "cholesterol_mg": 11.0
+   },
+   "portions": [
+    {
+     "label": "1 vaso pequeño",
+     "grams": 282
+    },
+    {
+     "label": "1 vaso mediano",
+     "grams": 376
+    },
+    {
+     "label": "100 g",
+     "grams": 100
+    }
+   ],
+   "origin": "USDA FoodData Central, SR Legacy 175102"
+  },
+  {
+   "ref_key": "malteada_de_vainilla_usda",
+   "name": "Malteada de vainilla",
+   "category": "bebidas",
+   "synonyms": [
+    "batido de vainilla",
+    "milkshake de vainilla"
+   ],
+   "kcal": 148.0,
+   "protein_g": 3.4,
+   "carbs_g": 19.6,
+   "fat_g": 6.5,
+   "fiber_g": 0.9,
+   "nutrients": {
+    "sugars_g": 13.63,
+    "sat_fat_g": 3.96,
+    "sodium_mg": 81.0,
+    "potassium_mg": 166.0,
+    "calcium_mg": 115.0,
+    "iron_mg": 0.46,
+    "vit_c_mg": 0.0,
+    "vit_a_ug": 91.0,
+    "vit_d_ug": 0.0,
+    "vit_b12_ug": 0.22,
+    "cholesterol_mg": 23.0
+   },
+   "portions": [
+    {
+     "label": "1 vaso pequeño",
+     "grams": 250
+    },
+    {
+     "label": "1 taza",
+     "grams": 166
+    },
+    {
+     "label": "100 g",
+     "grams": 100
+    }
+   ],
+   "origin": "USDA FoodData Central, SR Legacy 173226"
+  },
+  {
+   "ref_key": "cacao_en_polvo_para_bebida_usda",
+   "name": "Mezcla de cacao en polvo para bebida",
+   "category": "bebidas",
+   "synonyms": [
+    "chocolate en polvo",
+    "cocoa instantánea"
+   ],
+   "kcal": 398.0,
+   "protein_g": 6.7,
+   "carbs_g": 83.7,
+   "fat_g": 4.0,
+   "fiber_g": 3.7,
+   "nutrients": {
+    "sugars_g": 65.55,
+    "sat_fat_g": 2.38,
+    "sodium_mg": 504.0,
+    "potassium_mg": 712.0,
+    "calcium_mg": 133.0,
+    "iron_mg": 1.19,
+    "vit_c_mg": 0.2,
+    "vit_a_ug": 1.0,
+    "vit_d_ug": 0.0,
+    "vit_b12_ug": 0.35,
+    "cholesterol_mg": 0.0
+   },
+   "portions": [
+    {
+     "label": "1 sobre",
+     "grams": 28
+    },
+    {
+     "label": "100 g",
+     "grams": 100
+    }
+   ],
+   "origin": "USDA FoodData Central, SR Legacy 174122"
+  },
+  {
+   "ref_key": "nectar_de_mango_usda",
+   "name": "Néctar de mango",
+   "category": "bebidas",
+   "synonyms": [
+    "jugo de mango en caja"
+   ],
+   "kcal": 51.0,
+   "protein_g": 0.1,
+   "carbs_g": 13.1,
+   "fat_g": 0.1,
+   "fiber_g": 0.3,
+   "nutrients": {
+    "sugars_g": 12.45,
+    "sat_fat_g": 0.01,
+    "sodium_mg": 5.0,
+    "potassium_mg": 24.0,
+    "calcium_mg": 17.0,
+    "iron_mg": 0.36,
+    "vit_c_mg": 15.2,
+    "vit_a_ug": 35.0,
+    "vit_d_ug": 0.0,
+    "vit_b12_ug": 0.0,
+    "cholesterol_mg": 0.0
+   },
+   "portions": [
+    {
+     "label": "1 vaso",
+     "grams": 251
+    },
+    {
+     "label": "100 g",
+     "grams": 100
+    }
+   ],
+   "origin": "USDA FoodData Central, SR Legacy 167785"
+  },
+  {
+   "ref_key": "ponche_de_huevo_usda",
+   "name": "Ponche de huevo, sin licor",
+   "category": "bebidas",
+   "synonyms": [
+    "eggnog",
+    "sabajón sin licor",
+    "huevos"
+   ],
+   "kcal": 88.0,
+   "protein_g": 4.5,
+   "carbs_g": 8.1,
+   "fat_g": 4.2,
+   "fiber_g": 0.0,
+   "nutrients": {
+    "sugars_g": 8.05,
+    "sat_fat_g": 2.59,
+    "sodium_mg": 54.0,
+    "potassium_mg": 165.0,
+    "calcium_mg": 130.0,
+    "iron_mg": 0.2,
+    "vit_c_mg": 1.5,
+    "vit_a_ug": 59.0,
+    "vit_d_ug": 1.2,
+    "vit_b12_ug": 0.45,
+    "cholesterol_mg": 59.0
+   },
+   "portions": [
+    {
+     "label": "1 taza",
+     "grams": 254
+    },
+    {
+     "label": "100 g",
+     "grams": 100
+    }
+   ],
+   "origin": "USDA FoodData Central, SR Legacy 171258"
+  },
+  {
+   "ref_key": "refresco_en_polvo_limon_usda",
+   "name": "Refresco en polvo sabor limón",
+   "category": "bebidas",
+   "synonyms": [
+    "limonada en polvo"
+   ],
+   "kcal": 376.0,
+   "protein_g": 0.0,
+   "carbs_g": 97.6,
+   "fat_g": 1.1,
+   "fiber_g": 0.4,
+   "nutrients": {
+    "sugars_g": 94.7,
+    "sat_fat_g": 0.15,
+    "sodium_mg": 51.0,
+    "potassium_mg": 147.0,
+    "calcium_mg": 20.0,
+    "iron_mg": 0.19,
+    "vit_c_mg": 39.9,
+    "vit_a_ug": 0.0,
+    "vit_d_ug": 0.0,
+    "vit_b12_ug": 0.0,
+    "cholesterol_mg": 0.0
+   },
+   "portions": [
+    {
+     "label": "1 porción",
+     "grams": 18
+    },
+    {
+     "label": "100 g",
+     "grams": 100
+    }
+   ],
+   "origin": "USDA FoodData Central, SR Legacy 174858"
   },
   {
    "ref_key": "te_negro",
@@ -1230,6 +2174,78 @@
     }
    ],
    "origin": "ICBF, TCAC 2015 (código 744)"
+  },
+  {
+   "ref_key": "vino_rosado_usda",
+   "name": "Vino rosado",
+   "category": "bebidas",
+   "synonyms": [
+    "vino rosé"
+   ],
+   "kcal": 83.0,
+   "protein_g": 0.4,
+   "carbs_g": 3.8,
+   "fat_g": 0.0,
+   "fiber_g": 0.0,
+   "nutrients": {
+    "sugars_g": 3.8,
+    "sat_fat_g": 0.0,
+    "sodium_mg": 5.0,
+    "potassium_mg": 59.0,
+    "calcium_mg": 10.0,
+    "iron_mg": 0.2,
+    "vit_c_mg": 0.0,
+    "vit_a_ug": 0.0,
+    "vit_d_ug": 0.0,
+    "vit_b12_ug": 0.01,
+    "cholesterol_mg": 0.0
+   },
+   "portions": [
+    {
+     "label": "1 copa",
+     "grams": 148
+    },
+    {
+     "label": "100 g",
+     "grams": 100
+    }
+   ],
+   "origin": "USDA FoodData Central, SR Legacy 171908"
+  },
+  {
+   "ref_key": "vino_tinto_usda",
+   "name": "Vino tinto",
+   "category": "bebidas",
+   "synonyms": [],
+   "kcal": 85.0,
+   "protein_g": 0.1,
+   "carbs_g": 2.6,
+   "fat_g": 0.0,
+   "fiber_g": 0.0,
+   "nutrients": {
+    "sugars_g": 0.62,
+    "sat_fat_g": 0.0,
+    "sodium_mg": 4.0,
+    "potassium_mg": 127.0,
+    "calcium_mg": 8.0,
+    "iron_mg": 0.46,
+    "vit_c_mg": 0.0,
+    "vit_a_ug": 0.0,
+    "vit_d_ug": 0.0,
+    "vit_b12_ug": 0.0,
+    "cholesterol_mg": 0.0
+   },
+   "portions": [
+    {
+     "label": "1 copa",
+     "grams": 147
+    },
+    {
+     "label": "100 g",
+     "grams": 100
+    }
+   ],
+   "origin": "USDA FoodData Central, SR Legacy 173190"
   },
   {
    "ref_key": "tcac_467",
@@ -1382,6 +2398,156 @@
     }
    ],
    "origin": "ICBF, TCAC 2015 (código 472)"
+  },
+  {
+   "ref_key": "cerdo_molido_magro_cocido_usda",
+   "name": "Carne de cerdo molida magra, cocida",
+   "category": "carnes",
+   "synonyms": [
+    "marrano"
+   ],
+   "kcal": 187.0,
+   "protein_g": 30.6,
+   "carbs_g": 0.0,
+   "fat_g": 7.2,
+   "fiber_g": 0.0,
+   "nutrients": {
+    "sugars_g": 0.0,
+    "sat_fat_g": 1.95,
+    "sodium_mg": 84.0,
+    "potassium_mg": 428.0,
+    "calcium_mg": 19.0,
+    "iron_mg": 1.05,
+    "vit_c_mg": 0.0,
+    "vit_a_ug": 0.0,
+    "vit_d_ug": 0.2,
+    "vit_b12_ug": 0.86,
+    "cholesterol_mg": 78.0
+   },
+   "portions": [
+    {
+     "label": "1 porción",
+     "grams": 85
+    },
+    {
+     "label": "100 g",
+     "grams": 100
+    }
+   ],
+   "origin": "USDA FoodData Central, SR Legacy 169193"
+  },
+  {
+   "ref_key": "cerdo_molido_magro_crudo_usda",
+   "name": "Carne de cerdo molida magra, cruda",
+   "category": "carnes",
+   "synonyms": [
+    "carne molida de cerdo",
+    "marrano"
+   ],
+   "kcal": 121.0,
+   "protein_g": 21.1,
+   "carbs_g": 0.2,
+   "fat_g": 4.0,
+   "fiber_g": 0.0,
+   "nutrients": {
+    "sugars_g": 0.0,
+    "sat_fat_g": 1.42,
+    "sodium_mg": 67.0,
+    "potassium_mg": 310.0,
+    "calcium_mg": 15.0,
+    "iron_mg": 0.86,
+    "vit_c_mg": 0.0,
+    "vit_a_ug": 0.0,
+    "vit_d_ug": 0.1,
+    "vit_b12_ug": 0.64,
+    "cholesterol_mg": 59.0
+   },
+   "portions": [
+    {
+     "label": "1 porción",
+     "grams": 113
+    },
+    {
+     "label": "100 g",
+     "grams": 100
+    }
+   ],
+   "origin": "USDA FoodData Central, SR Legacy 169190"
+  },
+  {
+   "ref_key": "cerdo_molido_cocido_usda",
+   "name": "Carne de cerdo molida, cocida",
+   "category": "carnes",
+   "synonyms": [
+    "marrano"
+   ],
+   "kcal": 289.0,
+   "protein_g": 26.7,
+   "carbs_g": 0.6,
+   "fat_g": 20.0,
+   "fiber_g": 0.0,
+   "nutrients": {
+    "sugars_g": 0.0,
+    "sat_fat_g": 6.63,
+    "sodium_mg": 89.0,
+    "potassium_mg": 354.0,
+    "calcium_mg": 20.0,
+    "iron_mg": 1.1,
+    "vit_c_mg": 0.0,
+    "vit_a_ug": 0.0,
+    "vit_d_ug": 0.5,
+    "vit_b12_ug": 1.02,
+    "cholesterol_mg": 89.0
+   },
+   "portions": [
+    {
+     "label": "1 porción",
+     "grams": 85
+    },
+    {
+     "label": "100 g",
+     "grams": 100
+    }
+   ],
+   "origin": "USDA FoodData Central, SR Legacy 169192"
+  },
+  {
+   "ref_key": "cerdo_molido_crudo_usda",
+   "name": "Carne de cerdo molida, cruda",
+   "category": "carnes",
+   "synonyms": [
+    "carne molida de cerdo",
+    "marrano"
+   ],
+   "kcal": 218.0,
+   "protein_g": 18.0,
+   "carbs_g": 0.4,
+   "fat_g": 16.0,
+   "fiber_g": 0.0,
+   "nutrients": {
+    "sugars_g": 0.0,
+    "sat_fat_g": 4.93,
+    "sodium_mg": 68.0,
+    "potassium_mg": 244.0,
+    "calcium_mg": 15.0,
+    "iron_mg": 0.88,
+    "vit_c_mg": 0.0,
+    "vit_a_ug": 0.0,
+    "vit_d_ug": 0.4,
+    "vit_b12_ug": 0.73,
+    "cholesterol_mg": 68.0
+   },
+   "portions": [
+    {
+     "label": "1 porción",
+     "grams": 113
+    },
+    {
+     "label": "100 g",
+     "grams": 100
+    }
+   ],
+   "origin": "USDA FoodData Central, SR Legacy 168372"
   },
   {
    "ref_key": "tcac_473",
@@ -2434,6 +3600,43 @@
    "origin": "ICBF, TCAC 2015 (código 513)"
   },
   {
+   "ref_key": "res_molida_80_20_cruda_usda",
+   "name": "Carne de res molida 80/20, cruda",
+   "category": "carnes",
+   "synonyms": [
+    "carne molida corriente"
+   ],
+   "kcal": 254.0,
+   "protein_g": 17.2,
+   "carbs_g": 0.0,
+   "fat_g": 20.0,
+   "fiber_g": 0.0,
+   "nutrients": {
+    "sugars_g": 0.0,
+    "sat_fat_g": 7.58,
+    "sodium_mg": 66.0,
+    "potassium_mg": 270.0,
+    "calcium_mg": 18.0,
+    "iron_mg": 1.94,
+    "vit_c_mg": 0.0,
+    "vit_a_ug": 4.0,
+    "vit_d_ug": 0.1,
+    "vit_b12_ug": 2.14,
+    "cholesterol_mg": 71.0
+   },
+   "portions": [
+    {
+     "label": "1 porción",
+     "grams": 113
+    },
+    {
+     "label": "100 g",
+     "grams": 100
+    }
+   ],
+   "origin": "USDA FoodData Central, SR Legacy 174036"
+  },
+  {
    "ref_key": "carne_molida_90_asada",
    "name": "Carne de res molida 90/10, asada",
    "category": "carnes",
@@ -2469,6 +3672,156 @@
     }
    ],
    "origin": "USDA FoodData Central, SR Legacy 174031"
+  },
+  {
+   "ref_key": "res_molida_90_10_cruda_usda",
+   "name": "Carne de res molida 90/10, cruda",
+   "category": "carnes",
+   "synonyms": [
+    "carne molida"
+   ],
+   "kcal": 176.0,
+   "protein_g": 20.0,
+   "carbs_g": 0.0,
+   "fat_g": 10.0,
+   "fiber_g": 0.0,
+   "nutrients": {
+    "sugars_g": 0.0,
+    "sat_fat_g": 3.93,
+    "sodium_mg": 66.0,
+    "potassium_mg": 321.0,
+    "calcium_mg": 12.0,
+    "iron_mg": 2.24,
+    "vit_c_mg": 0.0,
+    "vit_a_ug": 4.0,
+    "vit_d_ug": 0.1,
+    "vit_b12_ug": 2.21,
+    "cholesterol_mg": 65.0
+   },
+   "portions": [
+    {
+     "label": "1 porción",
+     "grams": 113
+    },
+    {
+     "label": "100 g",
+     "grams": 100
+    }
+   ],
+   "origin": "USDA FoodData Central, SR Legacy 174030"
+  },
+  {
+   "ref_key": "res_molida_95_5_cruda_usda",
+   "name": "Carne de res molida magra 95/5, cruda",
+   "category": "carnes",
+   "synonyms": [
+    "carne molida especial",
+    "carne molida extra magra"
+   ],
+   "kcal": 137.0,
+   "protein_g": 21.4,
+   "carbs_g": 0.0,
+   "fat_g": 5.0,
+   "fiber_g": 0.0,
+   "nutrients": {
+    "sugars_g": 0.0,
+    "sat_fat_g": 2.18,
+    "sodium_mg": 66.0,
+    "potassium_mg": 346.0,
+    "calcium_mg": 9.0,
+    "iron_mg": 2.38,
+    "vit_c_mg": 0.0,
+    "vit_a_ug": 4.0,
+    "vit_d_ug": 0.1,
+    "vit_b12_ug": 2.24,
+    "cholesterol_mg": 62.0
+   },
+   "portions": [
+    {
+     "label": "1 porción",
+     "grams": 113
+    },
+    {
+     "label": "100 g",
+     "grams": 100
+    }
+   ],
+   "origin": "USDA FoodData Central, SR Legacy 171790"
+  },
+  {
+   "ref_key": "res_molida_cocida_usda",
+   "name": "Carne de res molida, cocida",
+   "category": "carnes",
+   "synonyms": [
+    "carne molida guisada"
+   ],
+   "kcal": 240.0,
+   "protein_g": 25.1,
+   "carbs_g": 0.6,
+   "fat_g": 14.5,
+   "fiber_g": 0.0,
+   "nutrients": {
+    "sugars_g": 0.0,
+    "sat_fat_g": 5.6,
+    "sodium_mg": 85.0,
+    "potassium_mg": 353.0,
+    "calcium_mg": 25.0,
+    "iron_mg": 2.67,
+    "vit_c_mg": 0.0,
+    "vit_a_ug": 7.0,
+    "vit_d_ug": 0.2,
+    "vit_b12_ug": 2.73,
+    "cholesterol_mg": 84.0
+   },
+   "portions": [
+    {
+     "label": "1 porción",
+     "grams": 85
+    },
+    {
+     "label": "100 g",
+     "grams": 100
+    }
+   ],
+   "origin": "USDA FoodData Central, SR Legacy 172161"
+  },
+  {
+   "ref_key": "res_para_guisar_cruda_usda",
+   "name": "Carne de res para guisar, cruda",
+   "category": "carnes",
+   "synonyms": [
+    "carne para sudar",
+    "paletero"
+   ],
+   "kcal": 124.0,
+   "protein_g": 21.9,
+   "carbs_g": 0.2,
+   "fat_g": 4.0,
+   "fiber_g": 0.0,
+   "nutrients": {
+    "sugars_g": 0.0,
+    "sat_fat_g": 1.75,
+    "sodium_mg": 81.0,
+    "potassium_mg": 359.0,
+    "calcium_mg": 14.0,
+    "iron_mg": 2.2,
+    "vit_c_mg": 0.0,
+    "vit_a_ug": 2.0,
+    "vit_d_ug": 0.1,
+    "vit_b12_ug": 2.42,
+    "cholesterol_mg": 66.0
+   },
+   "portions": [
+    {
+     "label": "1 porción",
+     "grams": 113
+    },
+    {
+     "label": "100 g",
+     "grams": 100
+    }
+   ],
+   "origin": "USDA FoodData Central, SR Legacy 170809"
   },
   {
    "ref_key": "tcac_538",
@@ -2770,6 +4123,78 @@
    "origin": "ICBF, TCAC 2015 (código 548)"
   },
   {
+   "ref_key": "carne_molida_de_cerdo_cocida_usda",
+   "name": "Carne molida de cerdo, cocida",
+   "category": "carnes",
+   "synonyms": [
+    "cerdo molido"
+   ],
+   "kcal": 297.0,
+   "protein_g": 25.7,
+   "carbs_g": 0.0,
+   "fat_g": 20.8,
+   "fiber_g": 0.0,
+   "nutrients": {
+    "sugars_g": 0.0,
+    "sat_fat_g": 7.72,
+    "sodium_mg": 73.0,
+    "potassium_mg": 362.0,
+    "calcium_mg": 22.0,
+    "iron_mg": 1.29,
+    "vit_c_mg": 0.7,
+    "vit_a_ug": 2.0,
+    "vit_d_ug": 0.5,
+    "vit_b12_ug": 0.54,
+    "cholesterol_mg": 94.0
+   },
+   "portions": [
+    {
+     "label": "1 porción",
+     "grams": 85
+    },
+    {
+     "label": "100 g",
+     "grams": 100
+    }
+   ],
+   "origin": "USDA FoodData Central, SR Legacy 167903"
+  },
+  {
+   "ref_key": "carne_molida_de_cerdo_cruda_usda",
+   "name": "Carne molida de cerdo, cruda",
+   "category": "carnes",
+   "synonyms": [
+    "cerdo molido"
+   ],
+   "kcal": 263.0,
+   "protein_g": 16.9,
+   "carbs_g": 0.0,
+   "fat_g": 21.2,
+   "fiber_g": 0.0,
+   "nutrients": {
+    "sat_fat_g": 7.87,
+    "sodium_mg": 56.0,
+    "potassium_mg": 287.0,
+    "calcium_mg": 14.0,
+    "iron_mg": 0.88,
+    "vit_c_mg": 0.7,
+    "vit_a_ug": 2.0,
+    "vit_b12_ug": 0.7,
+    "cholesterol_mg": 72.0
+   },
+   "portions": [
+    {
+     "label": "1 porción",
+     "grams": 113
+    },
+    {
+     "label": "100 g",
+     "grams": 100
+    }
+   ],
+   "origin": "USDA FoodData Central, SR Legacy 167902"
+  },
+  {
    "ref_key": "tcac_549",
    "name": "Chicharrón de cerdo",
    "category": "carnes",
@@ -2841,6 +4266,41 @@
     }
    ],
    "origin": "ICBF, TCAC 2015 (código 553)"
+  },
+  {
+   "ref_key": "cola_de_cerdo_cruda_usda",
+   "name": "Cola de cerdo, cruda",
+   "category": "carnes",
+   "synonyms": [
+    "rabo de cerdo"
+   ],
+   "kcal": 378.0,
+   "protein_g": 17.8,
+   "carbs_g": 0.0,
+   "fat_g": 33.5,
+   "fiber_g": 0.0,
+   "nutrients": {
+    "sat_fat_g": 11.64,
+    "sodium_mg": 63.0,
+    "potassium_mg": 349.0,
+    "calcium_mg": 18.0,
+    "iron_mg": 0.99,
+    "vit_c_mg": 0.0,
+    "vit_a_ug": 0.0,
+    "vit_b12_ug": 0.88,
+    "cholesterol_mg": 97.0
+   },
+   "portions": [
+    {
+     "label": "1 porción",
+     "grams": 113
+    },
+    {
+     "label": "100 g",
+     "grams": 100
+    }
+   ],
+   "origin": "USDA FoodData Central, SR Legacy 168291"
   },
   {
    "ref_key": "tcac_554",
@@ -2954,6 +4414,41 @@
     }
    ],
    "origin": "ICBF, TCAC 2015 (código 558)"
+  },
+  {
+   "ref_key": "costilla_de_res_cruda_usda",
+   "name": "Costilla de res, cruda",
+   "category": "carnes",
+   "synonyms": [
+    "costilla para caldo"
+   ],
+   "kcal": 390.0,
+   "protein_g": 14.4,
+   "carbs_g": 0.4,
+   "fat_g": 36.2,
+   "fiber_g": 0.0,
+   "nutrients": {
+    "sat_fat_g": 15.76,
+    "sodium_mg": 49.0,
+    "potassium_mg": 232.0,
+    "calcium_mg": 9.0,
+    "iron_mg": 1.55,
+    "vit_c_mg": 0.0,
+    "vit_a_ug": 0.0,
+    "vit_b12_ug": 2.56,
+    "cholesterol_mg": 76.0
+   },
+   "portions": [
+    {
+     "label": "1 porción",
+     "grams": 113
+    },
+    {
+     "label": "100 g",
+     "grams": 100
+    }
+   ],
+   "origin": "USDA FoodData Central, SR Legacy 169439"
   },
   {
    "ref_key": "tcac_560",
@@ -3287,6 +4782,84 @@
    "origin": "ICBF, TCAC 2015 (código 575)"
   },
   {
+   "ref_key": "jamon_ahumado_con_miel_usda",
+   "name": "Jamón ahumado con miel",
+   "category": "carnes",
+   "synonyms": [
+    "jamón a la miel"
+   ],
+   "kcal": 122.0,
+   "protein_g": 17.9,
+   "carbs_g": 7.3,
+   "fat_g": 2.4,
+   "fiber_g": 0.0,
+   "nutrients": {
+    "sugars_g": 0.0,
+    "sat_fat_g": 0.87,
+    "sodium_mg": 900.0,
+    "potassium_mg": 165.0,
+    "calcium_mg": 6.0,
+    "iron_mg": 0.39,
+    "vit_c_mg": 0.6,
+    "vit_a_ug": 0.0,
+    "vit_b12_ug": 0.38,
+    "cholesterol_mg": 22.0
+   },
+   "portions": [
+    {
+     "label": "1 porción",
+     "grams": 55
+    },
+    {
+     "label": "100 g",
+     "grams": 100
+    }
+   ],
+   "origin": "USDA FoodData Central, SR Legacy 174611"
+  },
+  {
+   "ref_key": "jamon_entero_horneado_usda",
+   "name": "Jamón de cerdo, horneado",
+   "category": "carnes",
+   "synonyms": [
+    "pernil de cerdo",
+    "jamón navideño"
+   ],
+   "kcal": 157.0,
+   "protein_g": 25.1,
+   "carbs_g": 0.0,
+   "fat_g": 5.5,
+   "fiber_g": 0.0,
+   "nutrients": {
+    "sugars_g": 0.0,
+    "sat_fat_g": 1.84,
+    "sodium_mg": 1327.0,
+    "potassium_mg": 316.0,
+    "calcium_mg": 7.0,
+    "iron_mg": 0.94,
+    "vit_c_mg": 0.0,
+    "vit_a_ug": 0.0,
+    "vit_d_ug": 0.9,
+    "vit_b12_ug": 0.7,
+    "cholesterol_mg": 55.0
+   },
+   "portions": [
+    {
+     "label": "1 taza en cubos",
+     "grams": 140
+    },
+    {
+     "label": "1 porción",
+     "grams": 85
+    },
+    {
+     "label": "100 g",
+     "grams": 100
+    }
+   ],
+   "origin": "USDA FoodData Central, SR Legacy 168284"
+  },
+  {
    "ref_key": "tcac_576",
    "name": "Jamón de chigüiro",
    "category": "carnes",
@@ -3387,6 +4960,48 @@
     }
    ],
    "origin": "ICBF, TCAC 2015 (código 579)"
+  },
+  {
+   "ref_key": "lomo_ancho_res_crudo_usda",
+   "name": "Lomo ancho de res, crudo",
+   "category": "carnes",
+   "synonyms": [
+    "bistec",
+    "chatas",
+    "solomito"
+   ],
+   "kcal": 117.0,
+   "protein_g": 23.1,
+   "carbs_g": 0.0,
+   "fat_g": 2.7,
+   "fiber_g": 0.0,
+   "nutrients": {
+    "sugars_g": 0.0,
+    "sat_fat_g": 1.03,
+    "sodium_mg": 55.0,
+    "potassium_mg": 342.0,
+    "calcium_mg": 9.0,
+    "iron_mg": 1.85,
+    "vit_c_mg": 0.0,
+    "vit_a_ug": 0.0,
+    "vit_b12_ug": 1.27,
+    "cholesterol_mg": 55.0
+   },
+   "portions": [
+    {
+     "label": "1 bistec",
+     "grams": 214
+    },
+    {
+     "label": "1 porción",
+     "grams": 113
+    },
+    {
+     "label": "100 g",
+     "grams": 100
+    }
+   ],
+   "origin": "USDA FoodData Central, SR Legacy 169429"
   },
   {
    "ref_key": "lomo_cerdo_asado",
@@ -3580,6 +5195,44 @@
    "origin": "ICBF, TCAC 2015 (código 584)"
   },
   {
+   "ref_key": "mondongo_res_crudo_usda",
+   "name": "Mondongo de res, crudo",
+   "category": "carnes",
+   "synonyms": [
+    "callo",
+    "panza de res"
+   ],
+   "kcal": 85.0,
+   "protein_g": 12.1,
+   "carbs_g": 0.0,
+   "fat_g": 3.7,
+   "fiber_g": 0.0,
+   "nutrients": {
+    "sugars_g": 0.0,
+    "sat_fat_g": 1.29,
+    "sodium_mg": 97.0,
+    "potassium_mg": 67.0,
+    "calcium_mg": 69.0,
+    "iron_mg": 0.59,
+    "vit_c_mg": 0.0,
+    "vit_a_ug": 0.0,
+    "vit_d_ug": 0.0,
+    "vit_b12_ug": 1.39,
+    "cholesterol_mg": 122.0
+   },
+   "portions": [
+    {
+     "label": "1 porción",
+     "grams": 113
+    },
+    {
+     "label": "100 g",
+     "grams": 100
+    }
+   ],
+   "origin": "USDA FoodData Central, SR Legacy 170599"
+  },
+  {
    "ref_key": "tcac_587",
    "name": "Pajarilla de res",
    "category": "carnes",
@@ -3623,6 +5276,43 @@
     }
    ],
    "origin": "ICBF, TCAC 2015 (código 588)"
+  },
+  {
+   "ref_key": "pata_de_cerdo_cruda_usda",
+   "name": "Pata de cerdo, cruda",
+   "category": "carnes",
+   "synonyms": [
+    "pezuña de cerdo",
+    "patica de cerdo"
+   ],
+   "kcal": 212.0,
+   "protein_g": 23.2,
+   "carbs_g": 0.0,
+   "fat_g": 12.6,
+   "fiber_g": 0.0,
+   "nutrients": {
+    "sugars_g": 0.0,
+    "sat_fat_g": 3.57,
+    "sodium_mg": 132.0,
+    "potassium_mg": 63.0,
+    "calcium_mg": 70.0,
+    "iron_mg": 0.58,
+    "vit_c_mg": 0.0,
+    "vit_a_ug": 0.0,
+    "vit_b12_ug": 0.52,
+    "cholesterol_mg": 88.0
+   },
+   "portions": [
+    {
+     "label": "1 porción",
+     "grams": 113
+    },
+    {
+     "label": "100 g",
+     "grams": 100
+    }
+   ],
+   "origin": "USDA FoodData Central, SR Legacy 167859"
   },
   {
    "ref_key": "tcac_589",
@@ -3800,6 +5490,43 @@
    "origin": "ICBF, TCAC 2015 (código 596)"
   },
   {
+   "ref_key": "salami_usda",
+   "name": "Salami",
+   "category": "carnes",
+   "synonyms": [
+    "salami de cerdo y res"
+   ],
+   "kcal": 336.0,
+   "protein_g": 21.9,
+   "carbs_g": 2.4,
+   "fat_g": 25.9,
+   "fiber_g": 0.0,
+   "nutrients": {
+    "sugars_g": 0.96,
+    "sat_fat_g": 9.32,
+    "sodium_mg": 1740.0,
+    "potassium_mg": 316.0,
+    "calcium_mg": 15.0,
+    "iron_mg": 1.56,
+    "vit_c_mg": 0.0,
+    "vit_a_ug": 0.0,
+    "vit_d_ug": 1.0,
+    "vit_b12_ug": 1.52,
+    "cholesterol_mg": 89.0
+   },
+   "portions": [
+    {
+     "label": "1 tajada",
+     "grams": 12.3
+    },
+    {
+     "label": "100 g",
+     "grams": 100
+    }
+   ],
+   "origin": "USDA FoodData Central, SR Legacy 172936"
+  },
+  {
    "ref_key": "tcac_597",
    "name": "Salchicha",
    "category": "carnes",
@@ -3825,6 +5552,43 @@
     }
    ],
    "origin": "ICBF, TCAC 2015 (código 597)"
+  },
+  {
+   "ref_key": "salchicha_alemana_de_cerdo_cocida_usda",
+   "name": "Salchicha alemana de cerdo, cocida",
+   "category": "carnes",
+   "synonyms": [
+    "bratwurst"
+   ],
+   "kcal": 333.0,
+   "protein_g": 13.7,
+   "carbs_g": 2.9,
+   "fat_g": 29.2,
+   "fiber_g": 0.0,
+   "nutrients": {
+    "sugars_g": 0.0,
+    "sat_fat_g": 10.0,
+    "sodium_mg": 846.0,
+    "potassium_mg": 348.0,
+    "calcium_mg": 28.0,
+    "iron_mg": 0.53,
+    "vit_c_mg": 0.0,
+    "vit_a_ug": 2.0,
+    "vit_d_ug": 1.1,
+    "vit_b12_ug": 0.73,
+    "cholesterol_mg": 74.0
+   },
+   "portions": [
+    {
+     "label": "1 unidad",
+     "grams": 85
+    },
+    {
+     "label": "100 g",
+     "grams": 100
+    }
+   ],
+   "origin": "USDA FoodData Central, SR Legacy 171620"
   },
   {
    "ref_key": "tcac_599",
@@ -3871,6 +5635,42 @@
     }
    ],
    "origin": "ICBF, TCAC 2015 (código 600)"
+  },
+  {
+   "ref_key": "salchicha_italiana_de_cerdo_cruda_usda",
+   "name": "Salchicha italiana de cerdo, cruda",
+   "category": "carnes",
+   "synonyms": [
+    "chorizo italiano"
+   ],
+   "kcal": 290.0,
+   "protein_g": 13.9,
+   "carbs_g": 3.0,
+   "fat_g": 24.3,
+   "fiber_g": 0.0,
+   "nutrients": {
+    "sugars_g": 1.19,
+    "sat_fat_g": 8.62,
+    "sodium_mg": 563.0,
+    "potassium_mg": 211.0,
+    "calcium_mg": 12.0,
+    "iron_mg": 1.77,
+    "vit_c_mg": 0.0,
+    "vit_a_ug": 0.0,
+    "vit_b12_ug": 1.0,
+    "cholesterol_mg": 69.0
+   },
+   "portions": [
+    {
+     "label": "1 unidad",
+     "grams": 101
+    },
+    {
+     "label": "100 g",
+     "grams": 100
+    }
+   ],
+   "origin": "USDA FoodData Central, SR Legacy 171631"
   },
   {
    "ref_key": "tcac_602",
@@ -4143,6 +5943,123 @@
    "origin": "ICBF, TCAC 2015 (código 614)"
   },
   {
+   "ref_key": "tocineta_canadiense_frita_usda",
+   "name": "Tocineta canadiense, frita",
+   "category": "carnes",
+   "synonyms": [
+    "lomo de cerdo ahumado",
+    "canadian bacon"
+   ],
+   "kcal": 146.0,
+   "protein_g": 28.3,
+   "carbs_g": 1.8,
+   "fat_g": 2.8,
+   "fiber_g": 0.0,
+   "nutrients": {
+    "sugars_g": 1.2,
+    "sat_fat_g": 1.04,
+    "sodium_mg": 993.0,
+    "potassium_mg": 999.0,
+    "calcium_mg": 7.0,
+    "iron_mg": 0.56,
+    "vit_c_mg": 0.0,
+    "vit_a_ug": 0.0,
+    "vit_d_ug": 0.2,
+    "vit_b12_ug": 0.43,
+    "cholesterol_mg": 67.0
+   },
+   "portions": [
+    {
+     "label": "1 tajada",
+     "grams": 13.8
+    },
+    {
+     "label": "100 g",
+     "grams": 100
+    }
+   ],
+   "origin": "USDA FoodData Central, SR Legacy 168383"
+  },
+  {
+   "ref_key": "tocineta_frita_usda",
+   "name": "Tocineta, frita",
+   "category": "carnes",
+   "synonyms": [
+    "tocino ahumado",
+    "bacon"
+   ],
+   "kcal": 468.0,
+   "protein_g": 33.9,
+   "carbs_g": 1.7,
+   "fat_g": 35.1,
+   "fiber_g": 0.0,
+   "nutrients": {
+    "sugars_g": 0.0,
+    "sat_fat_g": 11.96,
+    "sodium_mg": 1684.0,
+    "potassium_mg": 499.0,
+    "calcium_mg": 11.0,
+    "iron_mg": 0.95,
+    "vit_c_mg": 0.0,
+    "vit_a_ug": 11.0,
+    "vit_d_ug": 0.4,
+    "vit_b12_ug": 1.09,
+    "cholesterol_mg": 99.0
+   },
+   "portions": [
+    {
+     "label": "1 tajada",
+     "grams": 11.5
+    },
+    {
+     "label": "3 tajadas",
+     "grams": 35
+    },
+    {
+     "label": "100 g",
+     "grams": 100
+    }
+   ],
+   "origin": "USDA FoodData Central, SR Legacy 168322"
+  },
+  {
+   "ref_key": "tocineta_horneada_usda",
+   "name": "Tocineta, horneada",
+   "category": "carnes",
+   "synonyms": [
+    "tocino",
+    "bacon"
+   ],
+   "kcal": 548.0,
+   "protein_g": 35.7,
+   "carbs_g": 1.4,
+   "fat_g": 43.3,
+   "fiber_g": 0.0,
+   "nutrients": {
+    "sugars_g": 0.0,
+    "sat_fat_g": 14.19,
+    "sodium_mg": 2193.0,
+    "potassium_mg": 539.0,
+    "calcium_mg": 10.0,
+    "iron_mg": 1.49,
+    "vit_c_mg": 0.0,
+    "vit_a_ug": 11.0,
+    "vit_b12_ug": 1.16,
+    "cholesterol_mg": 107.0
+   },
+   "portions": [
+    {
+     "label": "1 tajada",
+     "grams": 8.1
+    },
+    {
+     "label": "100 g",
+     "grams": 100
+    }
+   ],
+   "origin": "USDA FoodData Central, SR Legacy 167914"
+  },
+  {
    "ref_key": "tcac_615",
    "name": "Tocino de cerdo",
    "category": "carnes",
@@ -4385,6 +6302,41 @@
     }
    ],
    "origin": "ICBF, TCAC 2015 (código 2)"
+  },
+  {
+   "ref_key": "amaranto_crudo_usda",
+   "name": "Amaranto, crudo",
+   "category": "cereales",
+   "synonyms": [],
+   "kcal": 371.0,
+   "protein_g": 13.6,
+   "carbs_g": 65.2,
+   "fat_g": 7.0,
+   "fiber_g": 6.7,
+   "nutrients": {
+    "sugars_g": 1.69,
+    "sat_fat_g": 1.46,
+    "sodium_mg": 4.0,
+    "potassium_mg": 508.0,
+    "calcium_mg": 159.0,
+    "iron_mg": 7.61,
+    "vit_c_mg": 4.2,
+    "vit_a_ug": 0.0,
+    "vit_d_ug": 0.0,
+    "vit_b12_ug": 0.0,
+    "cholesterol_mg": 0.0
+   },
+   "portions": [
+    {
+     "label": "1 taza",
+     "grams": 193
+    },
+    {
+     "label": "100 g",
+     "grams": 100
+    }
+   ],
+   "origin": "USDA FoodData Central, SR Legacy 170682"
   },
   {
    "ref_key": "tcac_3",
@@ -4677,6 +6629,42 @@
    "origin": "ICBF, TCAC 2015 (código 11)"
   },
   {
+   "ref_key": "arroz_grano_corto_cocido_usda",
+   "name": "Arroz de grano corto, cocido",
+   "category": "cereales",
+   "synonyms": [
+    "arroz para sushi"
+   ],
+   "kcal": 130.0,
+   "protein_g": 2.4,
+   "carbs_g": 28.7,
+   "fat_g": 0.2,
+   "fiber_g": 0.0,
+   "nutrients": {
+    "sat_fat_g": 0.05,
+    "sodium_mg": 0.0,
+    "potassium_mg": 26.0,
+    "calcium_mg": 1.0,
+    "iron_mg": 1.46,
+    "vit_c_mg": 0.0,
+    "vit_a_ug": 0.0,
+    "vit_d_ug": 0.0,
+    "vit_b12_ug": 0.0,
+    "cholesterol_mg": 0.0
+   },
+   "portions": [
+    {
+     "label": "1 taza",
+     "grams": 186
+    },
+    {
+     "label": "100 g",
+     "grams": 100
+    }
+   ],
+   "origin": "USDA FoodData Central, SR Legacy 168882"
+  },
+  {
    "ref_key": "arroz_integral_cocido",
    "name": "Arroz integral, cocido",
    "category": "cereales",
@@ -4738,6 +6726,80 @@
    "origin": "ICBF, TCAC 2015 (código 12)"
   },
   {
+   "ref_key": "arroz_parbolizado_cocido_usda",
+   "name": "Arroz parbolizado, cocido",
+   "category": "cereales",
+   "synonyms": [
+    "arroz vaporizado"
+   ],
+   "kcal": 123.0,
+   "protein_g": 2.9,
+   "carbs_g": 26.1,
+   "fat_g": 0.4,
+   "fiber_g": 0.9,
+   "nutrients": {
+    "sugars_g": 0.11,
+    "sat_fat_g": 0.07,
+    "sodium_mg": 2.0,
+    "potassium_mg": 56.0,
+    "calcium_mg": 19.0,
+    "iron_mg": 1.81,
+    "vit_c_mg": 0.0,
+    "vit_a_ug": 0.0,
+    "vit_d_ug": 0.0,
+    "vit_b12_ug": 0.0,
+    "cholesterol_mg": 0.0
+   },
+   "portions": [
+    {
+     "label": "1 taza",
+     "grams": 158
+    },
+    {
+     "label": "100 g",
+     "grams": 100
+    }
+   ],
+   "origin": "USDA FoodData Central, SR Legacy 169708"
+  },
+  {
+   "ref_key": "arroz_parbolizado_crudo_usda",
+   "name": "Arroz parbolizado, crudo",
+   "category": "cereales",
+   "synonyms": [
+    "arroz vaporizado"
+   ],
+   "kcal": 374.0,
+   "protein_g": 7.5,
+   "carbs_g": 80.9,
+   "fat_g": 1.0,
+   "fiber_g": 1.8,
+   "nutrients": {
+    "sugars_g": 0.33,
+    "sat_fat_g": 0.29,
+    "sodium_mg": 2.0,
+    "potassium_mg": 174.0,
+    "calcium_mg": 71.0,
+    "iron_mg": 3.33,
+    "vit_c_mg": 0.0,
+    "vit_a_ug": 0.0,
+    "vit_d_ug": 0.0,
+    "vit_b12_ug": 0.0,
+    "cholesterol_mg": 0.0
+   },
+   "portions": [
+    {
+     "label": "1 taza",
+     "grams": 185
+    },
+    {
+     "label": "100 g",
+     "grams": 100
+    }
+   ],
+   "origin": "USDA FoodData Central, SR Legacy 169707"
+  },
+  {
    "ref_key": "tcac_14",
    "name": "Avena en hojuelas",
    "category": "cereales",
@@ -4771,6 +6833,48 @@
     }
    ],
    "origin": "ICBF, TCAC 2015 (código 14)"
+  },
+  {
+   "ref_key": "avena_cocida_en_agua_usda",
+   "name": "Avena en hojuelas, cocida en agua",
+   "category": "cereales",
+   "synonyms": [
+    "avena en agua",
+    "colada de avena en agua",
+    "oats"
+   ],
+   "kcal": 71.0,
+   "protein_g": 2.5,
+   "carbs_g": 12.0,
+   "fat_g": 1.5,
+   "fiber_g": 1.7,
+   "nutrients": {
+    "sugars_g": 0.27,
+    "sat_fat_g": 0.31,
+    "sodium_mg": 71.0,
+    "potassium_mg": 70.0,
+    "calcium_mg": 9.0,
+    "iron_mg": 0.9,
+    "vit_c_mg": 0.0,
+    "vit_a_ug": 0.0,
+    "vit_b12_ug": 0.0,
+    "cholesterol_mg": 0.0
+   },
+   "portions": [
+    {
+     "label": "1 taza",
+     "grams": 234
+    },
+    {
+     "label": "3/4 de taza",
+     "grams": 175
+    },
+    {
+     "label": "100 g",
+     "grams": 100
+    }
+   ],
+   "origin": "USDA FoodData Central, SR Legacy 171675"
   },
   {
    "ref_key": "avena_usda",
@@ -4850,6 +6954,45 @@
    "origin": "ICBF, TCAC 2015 (código 15)"
   },
   {
+   "ref_key": "avena_instantanea_cruda_usda",
+   "name": "Avena instantánea, cruda",
+   "category": "cereales",
+   "synonyms": [
+    "avena de sobre",
+    "avena en hojuelas",
+    "oats"
+   ],
+   "kcal": 362.0,
+   "protein_g": 11.9,
+   "carbs_g": 69.5,
+   "fat_g": 6.9,
+   "fiber_g": 10.0,
+   "nutrients": {
+    "sugars_g": 1.5,
+    "sat_fat_g": 1.35,
+    "sodium_mg": 220.0,
+    "potassium_mg": 366.0,
+    "calcium_mg": 351.0,
+    "iron_mg": 24.72,
+    "vit_c_mg": 0.0,
+    "vit_a_ug": 772.0,
+    "vit_d_ug": 0.0,
+    "vit_b12_ug": 0.0,
+    "cholesterol_mg": 0.0
+   },
+   "portions": [
+    {
+     "label": "1 sobre",
+     "grams": 28
+    },
+    {
+     "label": "100 g",
+     "grams": 100
+    }
+   ],
+   "origin": "USDA FoodData Central, SR Legacy 171661"
+  },
+  {
    "ref_key": "tcac_16",
    "name": "Avena nacional, crudo",
    "category": "cereales",
@@ -4916,6 +7059,43 @@
     }
    ],
    "origin": "ICBF, TCAC 2015 (código 17)"
+  },
+  {
+   "ref_key": "bagel_integral_usda",
+   "name": "Bagel integral",
+   "category": "cereales",
+   "synonyms": [
+    "pan bagel"
+   ],
+   "kcal": 250.0,
+   "protein_g": 10.2,
+   "carbs_g": 48.9,
+   "fat_g": 1.5,
+   "fiber_g": 4.1,
+   "nutrients": {
+    "sugars_g": 6.12,
+    "sat_fat_g": 0.0,
+    "sodium_mg": 439.0,
+    "potassium_mg": 165.0,
+    "calcium_mg": 20.0,
+    "iron_mg": 2.76,
+    "vit_c_mg": 0.0,
+    "vit_a_ug": 0.0,
+    "vit_d_ug": 0.0,
+    "vit_b12_ug": 0.0,
+    "cholesterol_mg": 0.0
+   },
+   "portions": [
+    {
+     "label": "1 unidad",
+     "grams": 98
+    },
+    {
+     "label": "100 g",
+     "grams": 100
+    }
+   ],
+   "origin": "USDA FoodData Central, SR Legacy 167533"
   },
   {
    "ref_key": "tcac_18",
@@ -4993,6 +7173,41 @@
    "origin": "ICBF, TCAC 2015 (código 20)"
   },
   {
+   "ref_key": "cebada_perlada_cocida_usda",
+   "name": "Cebada perlada, cocida",
+   "category": "cereales",
+   "synonyms": [],
+   "kcal": 123.0,
+   "protein_g": 2.3,
+   "carbs_g": 28.2,
+   "fat_g": 0.4,
+   "fiber_g": 3.8,
+   "nutrients": {
+    "sugars_g": 0.28,
+    "sat_fat_g": 0.09,
+    "sodium_mg": 3.0,
+    "potassium_mg": 93.0,
+    "calcium_mg": 11.0,
+    "iron_mg": 1.33,
+    "vit_c_mg": 0.0,
+    "vit_a_ug": 0.0,
+    "vit_d_ug": 0.0,
+    "vit_b12_ug": 0.0,
+    "cholesterol_mg": 0.0
+   },
+   "portions": [
+    {
+     "label": "1 taza",
+     "grams": 157
+    },
+    {
+     "label": "100 g",
+     "grams": 100
+    }
+   ],
+   "origin": "USDA FoodData Central, SR Legacy 170285"
+  },
+  {
    "ref_key": "tcac_21",
    "name": "Cebada, molida",
    "category": "cereales",
@@ -5013,6 +7228,74 @@
     }
    ],
    "origin": "ICBF, TCAC 2015 (código 21)"
+  },
+  {
+   "ref_key": "cereal_arroz_inflado_usda",
+   "name": "Cereal de arroz inflado",
+   "category": "cereales",
+   "synonyms": [
+    "arroz tostado"
+   ],
+   "kcal": 402.0,
+   "protein_g": 6.3,
+   "carbs_g": 89.8,
+   "fat_g": 0.5,
+   "fiber_g": 1.7,
+   "nutrients": {
+    "sat_fat_g": 0.13,
+    "sodium_mg": 3.0,
+    "potassium_mg": 113.0,
+    "calcium_mg": 6.0,
+    "iron_mg": 31.7,
+    "vit_c_mg": 0.0,
+    "vit_a_ug": 0.0,
+    "vit_b12_ug": 0.0,
+    "cholesterol_mg": 0.0
+   },
+   "portions": [
+    {
+     "label": "1 taza",
+     "grams": 14
+    },
+    {
+     "label": "100 g",
+     "grams": 100
+    }
+   ],
+   "origin": "USDA FoodData Central, SR Legacy 173912"
+  },
+  {
+   "ref_key": "cereal_trigo_inflado_usda",
+   "name": "Cereal de trigo inflado",
+   "category": "cereales",
+   "synonyms": [],
+   "kcal": 364.0,
+   "protein_g": 14.7,
+   "carbs_g": 79.6,
+   "fat_g": 1.2,
+   "fiber_g": 4.4,
+   "nutrients": {
+    "sat_fat_g": 0.2,
+    "sodium_mg": 4.0,
+    "potassium_mg": 348.0,
+    "calcium_mg": 28.0,
+    "iron_mg": 31.7,
+    "vit_c_mg": 0.0,
+    "vit_a_ug": 0.0,
+    "vit_b12_ug": 0.0,
+    "cholesterol_mg": 0.0
+   },
+   "portions": [
+    {
+     "label": "1 taza",
+     "grams": 12
+    },
+    {
+     "label": "100 g",
+     "grams": 100
+    }
+   ],
+   "origin": "USDA FoodData Central, SR Legacy 173913"
   },
   {
    "ref_key": "tcac_22",
@@ -5039,6 +7322,48 @@
    "origin": "ICBF, TCAC 2015 (código 22)"
   },
   {
+   "ref_key": "croissant_de_queso_usda",
+   "name": "Croissant de queso",
+   "category": "cereales",
+   "synonyms": [
+    "croissant relleno de queso",
+    "quesito"
+   ],
+   "kcal": 414.0,
+   "protein_g": 9.2,
+   "carbs_g": 47.0,
+   "fat_g": 20.9,
+   "fiber_g": 2.6,
+   "nutrients": {
+    "sugars_g": 11.35,
+    "sat_fat_g": 10.63,
+    "sodium_mg": 361.0,
+    "potassium_mg": 132.0,
+    "calcium_mg": 53.0,
+    "iron_mg": 2.15,
+    "vit_c_mg": 0.2,
+    "vit_a_ug": 204.0,
+    "vit_d_ug": 0.0,
+    "vit_b12_ug": 0.32,
+    "cholesterol_mg": 57.0
+   },
+   "portions": [
+    {
+     "label": "1 unidad mediana",
+     "grams": 57
+    },
+    {
+     "label": "1 unidad pequeña",
+     "grams": 42
+    },
+    {
+     "label": "100 g",
+     "grams": 100
+    }
+   ],
+   "origin": "USDA FoodData Central, SR Legacy 174989"
+  },
+  {
    "ref_key": "tcac_23",
    "name": "Croissant, horneado",
    "category": "cereales",
@@ -5060,6 +7385,46 @@
     }
    ],
    "origin": "ICBF, TCAC 2015 (código 23)"
+  },
+  {
+   "ref_key": "crutones_usda",
+   "name": "Crutones",
+   "category": "cereales",
+   "synonyms": [
+    "croutones",
+    "pan tostado en cubos"
+   ],
+   "kcal": 407.0,
+   "protein_g": 11.9,
+   "carbs_g": 73.5,
+   "fat_g": 6.6,
+   "fiber_g": 5.1,
+   "nutrients": {
+    "sat_fat_g": 1.51,
+    "sodium_mg": 698.0,
+    "potassium_mg": 124.0,
+    "calcium_mg": 76.0,
+    "iron_mg": 4.08,
+    "vit_c_mg": 0.0,
+    "vit_a_ug": 0.0,
+    "vit_b12_ug": 0.0,
+    "cholesterol_mg": 0.0
+   },
+   "portions": [
+    {
+     "label": "1 taza",
+     "grams": 30
+    },
+    {
+     "label": "1/2 taza",
+     "grams": 15
+    },
+    {
+     "label": "100 g",
+     "grams": 100
+    }
+   ],
+   "origin": "USDA FoodData Central, SR Legacy 172751"
   },
   {
    "ref_key": "tcac_24",
@@ -5106,6 +7471,43 @@
    "origin": "ICBF, TCAC 2015 (código 25)"
   },
   {
+   "ref_key": "cuscus_cocido_usda",
+   "name": "Cuscús, cocido",
+   "category": "cereales",
+   "synonyms": [
+    "couscous"
+   ],
+   "kcal": 112.0,
+   "protein_g": 3.8,
+   "carbs_g": 23.2,
+   "fat_g": 0.2,
+   "fiber_g": 1.4,
+   "nutrients": {
+    "sugars_g": 0.1,
+    "sat_fat_g": 0.03,
+    "sodium_mg": 5.0,
+    "potassium_mg": 58.0,
+    "calcium_mg": 8.0,
+    "iron_mg": 0.38,
+    "vit_c_mg": 0.0,
+    "vit_a_ug": 0.0,
+    "vit_d_ug": 0.0,
+    "vit_b12_ug": 0.0,
+    "cholesterol_mg": 0.0
+   },
+   "portions": [
+    {
+     "label": "1 taza",
+     "grams": 157
+    },
+    {
+     "label": "100 g",
+     "grams": 100
+    }
+   ],
+   "origin": "USDA FoodData Central, SR Legacy 169700"
+  },
+  {
    "ref_key": "tcac_26",
    "name": "Fécula de maíz, precocido, secado",
    "category": "cereales",
@@ -5123,6 +7525,81 @@
     }
    ],
    "origin": "ICBF, TCAC 2015 (código 26)"
+  },
+  {
+   "ref_key": "fideos_de_arroz_cocidos_usda",
+   "name": "Fideos de arroz, cocidos",
+   "category": "cereales",
+   "synonyms": [
+    "tallarines de arroz"
+   ],
+   "kcal": 108.0,
+   "protein_g": 1.8,
+   "carbs_g": 24.0,
+   "fat_g": 0.2,
+   "fiber_g": 1.0,
+   "nutrients": {
+    "sugars_g": 0.03,
+    "sat_fat_g": 0.02,
+    "sodium_mg": 19.0,
+    "potassium_mg": 4.0,
+    "calcium_mg": 4.0,
+    "iron_mg": 0.14,
+    "vit_c_mg": 0.0,
+    "vit_a_ug": 0.0,
+    "vit_d_ug": 0.0,
+    "vit_b12_ug": 0.0,
+    "cholesterol_mg": 0.0
+   },
+   "portions": [
+    {
+     "label": "1 taza",
+     "grams": 176
+    },
+    {
+     "label": "100 g",
+     "grams": 100
+    }
+   ],
+   "origin": "USDA FoodData Central, SR Legacy 168914"
+  },
+  {
+   "ref_key": "fideos_de_huevo_cocidos_usda",
+   "name": "Fideos de huevo, cocidos",
+   "category": "cereales",
+   "synonyms": [
+    "tallarín de huevo",
+    "huevos"
+   ],
+   "kcal": 138.0,
+   "protein_g": 4.5,
+   "carbs_g": 25.2,
+   "fat_g": 2.1,
+   "fiber_g": 1.2,
+   "nutrients": {
+    "sugars_g": 0.4,
+    "sat_fat_g": 0.42,
+    "sodium_mg": 5.0,
+    "potassium_mg": 38.0,
+    "calcium_mg": 12.0,
+    "iron_mg": 1.47,
+    "vit_c_mg": 0.0,
+    "vit_a_ug": 6.0,
+    "vit_d_ug": 0.1,
+    "vit_b12_ug": 0.09,
+    "cholesterol_mg": 29.0
+   },
+   "portions": [
+    {
+     "label": "1 taza",
+     "grams": 160
+    },
+    {
+     "label": "100 g",
+     "grams": 100
+    }
+   ],
+   "origin": "USDA FoodData Central, SR Legacy 169732"
   },
   {
    "ref_key": "tcac_27",
@@ -5388,6 +7865,45 @@
     }
    ],
    "origin": "ICBF, TCAC 2015 (código 38)"
+  },
+  {
+   "ref_key": "germen_de_trigo_tostado_usda",
+   "name": "Germen de trigo, tostado",
+   "category": "cereales",
+   "synonyms": [],
+   "kcal": 382.0,
+   "protein_g": 29.1,
+   "carbs_g": 49.6,
+   "fat_g": 10.7,
+   "fiber_g": 15.1,
+   "nutrients": {
+    "sugars_g": 7.8,
+    "sat_fat_g": 1.83,
+    "sodium_mg": 4.0,
+    "potassium_mg": 947.0,
+    "calcium_mg": 45.0,
+    "iron_mg": 9.09,
+    "vit_c_mg": 6.0,
+    "vit_a_ug": 5.0,
+    "vit_d_ug": 0.0,
+    "vit_b12_ug": 0.0,
+    "cholesterol_mg": 0.0
+   },
+   "portions": [
+    {
+     "label": "1 cucharada",
+     "grams": 7
+    },
+    {
+     "label": "1 taza",
+     "grams": 113
+    },
+    {
+     "label": "100 g",
+     "grams": 100
+    }
+   ],
+   "origin": "USDA FoodData Central, SR Legacy 173896"
   },
   {
    "ref_key": "granola",
@@ -6367,6 +8883,86 @@
    "origin": "ICBF, TCAC 2015 (código 69)"
   },
   {
+   "ref_key": "masa_filo_usda",
+   "name": "Masa filo",
+   "category": "cereales",
+   "synonyms": [
+    "pasta filo",
+    "hojaldre filo"
+   ],
+   "kcal": 299.0,
+   "protein_g": 7.1,
+   "carbs_g": 52.6,
+   "fat_g": 6.0,
+   "fiber_g": 1.9,
+   "nutrients": {
+    "sugars_g": 0.18,
+    "sat_fat_g": 1.47,
+    "sodium_mg": 483.0,
+    "potassium_mg": 74.0,
+    "calcium_mg": 11.0,
+    "iron_mg": 3.21,
+    "vit_c_mg": 0.0,
+    "vit_a_ug": 0.0,
+    "vit_d_ug": 0.0,
+    "vit_b12_ug": 0.0,
+    "cholesterol_mg": 0.0
+   },
+   "portions": [
+    {
+     "label": "1 lámina",
+     "grams": 19
+    },
+    {
+     "label": "100 g",
+     "grams": 100
+    }
+   ],
+   "origin": "USDA FoodData Central, SR Legacy 172791"
+  },
+  {
+   "ref_key": "mazorca_amarilla_cruda_usda",
+   "name": "Mazorca amarilla, cruda",
+   "category": "cereales",
+   "synonyms": [
+    "choclo",
+    "maíz tierno"
+   ],
+   "kcal": 86.0,
+   "protein_g": 3.3,
+   "carbs_g": 18.7,
+   "fat_g": 1.4,
+   "fiber_g": 2.0,
+   "nutrients": {
+    "sugars_g": 6.26,
+    "sat_fat_g": 0.33,
+    "sodium_mg": 15.0,
+    "potassium_mg": 270.0,
+    "calcium_mg": 2.0,
+    "iron_mg": 0.52,
+    "vit_c_mg": 6.8,
+    "vit_a_ug": 9.0,
+    "vit_d_ug": 0.0,
+    "vit_b12_ug": 0.0,
+    "cholesterol_mg": 0.0
+   },
+   "portions": [
+    {
+     "label": "1 mazorca mediana",
+     "grams": 102
+    },
+    {
+     "label": "1 taza de granos",
+     "grams": 145
+    },
+    {
+     "label": "100 g",
+     "grams": 100
+    }
+   ],
+   "origin": "USDA FoodData Central, SR Legacy 169998"
+  },
+  {
    "ref_key": "tcac_894",
    "name": "Mezcla lista para croquetas vegetarianas",
    "category": "cereales",
@@ -6384,6 +8980,75 @@
     }
    ],
    "origin": "ICBF, TCAC 2015 (código 894)"
+  },
+  {
+   "ref_key": "mijo_cocido_usda",
+   "name": "Mijo, cocido",
+   "category": "cereales",
+   "synonyms": [],
+   "kcal": 119.0,
+   "protein_g": 3.5,
+   "carbs_g": 23.7,
+   "fat_g": 1.0,
+   "fiber_g": 1.3,
+   "nutrients": {
+    "sugars_g": 0.13,
+    "sat_fat_g": 0.17,
+    "sodium_mg": 2.0,
+    "potassium_mg": 62.0,
+    "calcium_mg": 3.0,
+    "iron_mg": 0.63,
+    "vit_c_mg": 0.0,
+    "vit_a_ug": 0.0,
+    "vit_d_ug": 0.0,
+    "vit_b12_ug": 0.0,
+    "cholesterol_mg": 0.0
+   },
+   "portions": [
+    {
+     "label": "1 taza",
+     "grams": 174
+    },
+    {
+     "label": "100 g",
+     "grams": 100
+    }
+   ],
+   "origin": "USDA FoodData Central, SR Legacy 168871"
+  },
+  {
+   "ref_key": "mijo_crudo_usda",
+   "name": "Mijo, crudo",
+   "category": "cereales",
+   "synonyms": [],
+   "kcal": 378.0,
+   "protein_g": 11.0,
+   "carbs_g": 72.8,
+   "fat_g": 4.2,
+   "fiber_g": 8.5,
+   "nutrients": {
+    "sat_fat_g": 0.72,
+    "sodium_mg": 5.0,
+    "potassium_mg": 195.0,
+    "calcium_mg": 8.0,
+    "iron_mg": 3.01,
+    "vit_c_mg": 0.0,
+    "vit_a_ug": 0.0,
+    "vit_d_ug": 0.0,
+    "vit_b12_ug": 0.0,
+    "cholesterol_mg": 0.0
+   },
+   "portions": [
+    {
+     "label": "1 taza",
+     "grams": 200
+    },
+    {
+     "label": "100 g",
+     "grams": 100
+    }
+   ],
+   "origin": "USDA FoodData Central, SR Legacy 169702"
   },
   {
    "ref_key": "tcac_70",
@@ -6451,6 +9116,50 @@
     }
    ],
    "origin": "ICBF, TCAC 2015 (código 72)"
+  },
+  {
+   "ref_key": "muffin_de_salvado_de_avena_usda",
+   "name": "Muffin de salvado de avena",
+   "category": "cereales",
+   "synonyms": [
+    "ponqué de avena",
+    "magdalena de avena",
+    "avena en hojuelas",
+    "oats"
+   ],
+   "kcal": 270.0,
+   "protein_g": 7.0,
+   "carbs_g": 48.3,
+   "fat_g": 7.4,
+   "fiber_g": 4.6,
+   "nutrients": {
+    "sugars_g": 8.22,
+    "sat_fat_g": 1.09,
+    "sodium_mg": 393.0,
+    "potassium_mg": 507.0,
+    "calcium_mg": 63.0,
+    "iron_mg": 4.2,
+    "vit_c_mg": 0.0,
+    "vit_a_ug": 0.0,
+    "vit_d_ug": 0.0,
+    "vit_b12_ug": 0.01,
+    "cholesterol_mg": 0.0
+   },
+   "portions": [
+    {
+     "label": "1 unidad mediana",
+     "grams": 113
+    },
+    {
+     "label": "1 unidad pequeña",
+     "grams": 66
+    },
+    {
+     "label": "100 g",
+     "grams": 100
+    }
+   ],
+   "origin": "USDA FoodData Central, SR Legacy 172769"
   },
   {
    "ref_key": "tcac_73",
@@ -6553,6 +9262,45 @@
    "origin": "USDA FoodData Central, SR Legacy 174924"
   },
   {
+   "ref_key": "pan_de_avena_usda",
+   "name": "Pan de avena",
+   "category": "cereales",
+   "synonyms": [
+    "pan tajado de avena",
+    "avena en hojuelas",
+    "oats"
+   ],
+   "kcal": 269.0,
+   "protein_g": 8.4,
+   "carbs_g": 48.5,
+   "fat_g": 4.4,
+   "fiber_g": 4.0,
+   "nutrients": {
+    "sugars_g": 8.14,
+    "sat_fat_g": 0.7,
+    "sodium_mg": 447.0,
+    "potassium_mg": 142.0,
+    "calcium_mg": 66.0,
+    "iron_mg": 2.7,
+    "vit_c_mg": 0.0,
+    "vit_a_ug": 5.0,
+    "vit_d_ug": 0.0,
+    "vit_b12_ug": 0.03,
+    "cholesterol_mg": 0.0
+   },
+   "portions": [
+    {
+     "label": "1 tajada",
+     "grams": 27
+    },
+    {
+     "label": "100 g",
+     "grams": 100
+    }
+   ],
+   "origin": "USDA FoodData Central, SR Legacy 172678"
+  },
+  {
    "ref_key": "tcac_76",
    "name": "Pan de centeno",
    "category": "cereales",
@@ -6617,6 +9365,43 @@
    "origin": "ICBF, TCAC 2015 (código 77)"
   },
   {
+   "ref_key": "pan_de_huevo_usda",
+   "name": "Pan de huevo",
+   "category": "cereales",
+   "synonyms": [
+    "huevos"
+   ],
+   "kcal": 287.0,
+   "protein_g": 9.5,
+   "carbs_g": 47.8,
+   "fat_g": 6.0,
+   "fiber_g": 2.3,
+   "nutrients": {
+    "sugars_g": 1.78,
+    "sat_fat_g": 1.59,
+    "sodium_mg": 380.0,
+    "potassium_mg": 115.0,
+    "calcium_mg": 93.0,
+    "iron_mg": 3.04,
+    "vit_c_mg": 0.0,
+    "vit_a_ug": 63.0,
+    "vit_d_ug": 0.4,
+    "vit_b12_ug": 0.1,
+    "cholesterol_mg": 51.0
+   },
+   "portions": [
+    {
+     "label": "1 tajada",
+     "grams": 40
+    },
+    {
+     "label": "100 g",
+     "grams": 100
+    }
+   ],
+   "origin": "USDA FoodData Central, SR Legacy 172673"
+  },
+  {
    "ref_key": "tcac_79",
    "name": "Pan de queso",
    "category": "cereales",
@@ -6675,6 +9460,41 @@
     }
    ],
    "origin": "ICBF, TCAC 2015 (código 80)"
+  },
+  {
+   "ref_key": "pan_dulce_con_queso_usda",
+   "name": "Pan dulce con queso",
+   "category": "cereales",
+   "synonyms": [
+    "pan dulce relleno de queso",
+    "quesito"
+   ],
+   "kcal": 360.0,
+   "protein_g": 7.1,
+   "carbs_g": 43.7,
+   "fat_g": 18.3,
+   "fiber_g": 1.2,
+   "nutrients": {
+    "sat_fat_g": 6.06,
+    "sodium_mg": 357.0,
+    "potassium_mg": 137.0,
+    "calcium_mg": 118.0,
+    "iron_mg": 0.76,
+    "vit_c_mg": 0.2,
+    "vit_b12_ug": 0.3,
+    "cholesterol_mg": 76.0
+   },
+   "portions": [
+    {
+     "label": "1 unidad",
+     "grams": 66
+    },
+    {
+     "label": "100 g",
+     "grams": 100
+    }
+   ],
+   "origin": "USDA FoodData Central, SR Legacy 175033"
   },
   {
    "ref_key": "tcac_82",
@@ -7081,6 +9901,43 @@
    "origin": "USDA FoodData Central, SR Legacy 169737"
   },
   {
+   "ref_key": "pasta_maiz_sin_gluten_cocida_usda",
+   "name": "Pasta de maíz sin gluten, cocida",
+   "category": "cereales",
+   "synonyms": [
+    "pasta sin gluten",
+    "espagueti",
+    "macarrones"
+   ],
+   "kcal": 126.0,
+   "protein_g": 2.6,
+   "carbs_g": 27.9,
+   "fat_g": 0.7,
+   "fiber_g": 4.8,
+   "nutrients": {
+    "sat_fat_g": 0.1,
+    "sodium_mg": 0.0,
+    "potassium_mg": 31.0,
+    "calcium_mg": 1.0,
+    "iron_mg": 0.25,
+    "vit_c_mg": 0.0,
+    "vit_a_ug": 3.0,
+    "vit_b12_ug": 0.0,
+    "cholesterol_mg": 0.0
+   },
+   "portions": [
+    {
+     "label": "1 taza",
+     "grams": 140
+    },
+    {
+     "label": "100 g",
+     "grams": 100
+    }
+   ],
+   "origin": "USDA FoodData Central, SR Legacy 168900"
+  },
+  {
    "ref_key": "tcac_97",
    "name": "Pasta fina",
    "category": "cereales",
@@ -7110,6 +9967,43 @@
     }
    ],
    "origin": "ICBF, TCAC 2015 (código 97)"
+  },
+  {
+   "ref_key": "pasta_fresca_cocida_usda",
+   "name": "Pasta fresca, cocida",
+   "category": "cereales",
+   "synonyms": [
+    "pasta refrigerada",
+    "espagueti",
+    "macarrones"
+   ],
+   "kcal": 131.0,
+   "protein_g": 5.2,
+   "carbs_g": 24.9,
+   "fat_g": 1.1,
+   "fiber_g": 0.0,
+   "nutrients": {
+    "sat_fat_g": 0.15,
+    "sodium_mg": 6.0,
+    "potassium_mg": 24.0,
+    "calcium_mg": 6.0,
+    "iron_mg": 1.14,
+    "vit_c_mg": 0.0,
+    "vit_a_ug": 6.0,
+    "vit_b12_ug": 0.14,
+    "cholesterol_mg": 33.0
+   },
+   "portions": [
+    {
+     "label": "1 porción",
+     "grams": 128
+    },
+    {
+     "label": "100 g",
+     "grams": 100
+    }
+   ],
+   "origin": "USDA FoodData Central, SR Legacy 169728"
   },
   {
    "ref_key": "tcac_897",
@@ -7166,6 +10060,41 @@
     }
    ],
    "origin": "USDA FoodData Central, SR Legacy 168917"
+  },
+  {
+   "ref_key": "quinua_cruda_usda",
+   "name": "Quinua, cruda",
+   "category": "cereales",
+   "synonyms": [
+    "quinoa"
+   ],
+   "kcal": 368.0,
+   "protein_g": 14.1,
+   "carbs_g": 64.2,
+   "fat_g": 6.1,
+   "fiber_g": 7.0,
+   "nutrients": {
+    "sat_fat_g": 0.71,
+    "sodium_mg": 5.0,
+    "potassium_mg": 563.0,
+    "calcium_mg": 47.0,
+    "iron_mg": 4.57,
+    "vit_a_ug": 1.0,
+    "vit_d_ug": 0.0,
+    "vit_b12_ug": 0.0,
+    "cholesterol_mg": 0.0
+   },
+   "portions": [
+    {
+     "label": "1 taza",
+     "grams": 170
+    },
+    {
+     "label": "100 g",
+     "grams": 100
+    }
+   ],
+   "origin": "USDA FoodData Central, SR Legacy 168874"
   },
   {
    "ref_key": "tcac_105",
@@ -7286,6 +10215,49 @@
     }
    ],
    "origin": "ICBF, TCAC 2015 (código 109)"
+  },
+  {
+   "ref_key": "salvado_de_avena_crudo_usda",
+   "name": "Salvado de avena, crudo",
+   "category": "cereales",
+   "synonyms": [
+    "afrecho de avena",
+    "avena en hojuelas",
+    "oats"
+   ],
+   "kcal": 246.0,
+   "protein_g": 17.3,
+   "carbs_g": 66.2,
+   "fat_g": 7.0,
+   "fiber_g": 15.4,
+   "nutrients": {
+    "sugars_g": 1.45,
+    "sat_fat_g": 1.33,
+    "sodium_mg": 4.0,
+    "potassium_mg": 566.0,
+    "calcium_mg": 58.0,
+    "iron_mg": 5.41,
+    "vit_c_mg": 0.0,
+    "vit_a_ug": 0.0,
+    "vit_d_ug": 0.0,
+    "vit_b12_ug": 0.0,
+    "cholesterol_mg": 0.0
+   },
+   "portions": [
+    {
+     "label": "1 cucharada",
+     "grams": 6
+    },
+    {
+     "label": "1 taza",
+     "grams": 94
+    },
+    {
+     "label": "100 g",
+     "grams": 100
+    }
+   ],
+   "origin": "USDA FoodData Central, SR Legacy 168872"
   },
   {
    "ref_key": "tcac_110",
@@ -7444,6 +10416,48 @@
    "origin": "USDA FoodData Central, SR Legacy 175037"
   },
   {
+   "ref_key": "tortilla_para_taco_horneada_usda",
+   "name": "Tortilla para taco, horneada",
+   "category": "cereales",
+   "synonyms": [
+    "concha de taco",
+    "taco shell"
+   ],
+   "kcal": 476.0,
+   "protein_g": 6.4,
+   "carbs_g": 63.5,
+   "fat_g": 21.8,
+   "fiber_g": 6.7,
+   "nutrients": {
+    "sugars_g": 1.5,
+    "sat_fat_g": 7.11,
+    "sodium_mg": 324.0,
+    "potassium_mg": 231.0,
+    "calcium_mg": 100.0,
+    "iron_mg": 1.64,
+    "vit_c_mg": 0.0,
+    "vit_a_ug": 1.0,
+    "vit_d_ug": 0.0,
+    "vit_b12_ug": 0.0,
+    "cholesterol_mg": 0.0
+   },
+   "portions": [
+    {
+     "label": "1 unidad",
+     "grams": 13
+    },
+    {
+     "label": "1 unidad grande",
+     "grams": 21
+    },
+    {
+     "label": "100 g",
+     "grams": 100
+    }
+   ],
+   "origin": "USDA FoodData Central, SR Legacy 172800"
+  },
+  {
    "ref_key": "tcac_114",
    "name": "Tostada",
    "category": "cereales",
@@ -7466,6 +10480,41 @@
     }
    ],
    "origin": "ICBF, TCAC 2015 (código 114)"
+  },
+  {
+   "ref_key": "tostada_de_maiz_usda",
+   "name": "Tostada de maíz",
+   "category": "cereales",
+   "synonyms": [
+    "tostada mexicana"
+   ],
+   "kcal": 474.0,
+   "protein_g": 6.2,
+   "carbs_g": 64.4,
+   "fat_g": 23.4,
+   "fiber_g": 5.8,
+   "nutrients": {
+    "sat_fat_g": 7.01,
+    "sodium_mg": 657.0,
+    "potassium_mg": 237.0,
+    "calcium_mg": 76.0,
+    "iron_mg": 1.53
+   },
+   "portions": [
+    {
+     "label": "1 unidad",
+     "grams": 12
+    },
+    {
+     "label": "3 unidades",
+     "grams": 37
+    },
+    {
+     "label": "100 g",
+     "grams": 100
+    }
+   ],
+   "origin": "USDA FoodData Central, SR Legacy 167525"
   },
   {
    "ref_key": "tcac_115",
@@ -7514,6 +10563,48 @@
    "origin": "ICBF, TCAC 2015 (código 116)"
   },
   {
+   "ref_key": "trigo_bulgur_cocido_usda",
+   "name": "Trigo bulgur, cocido",
+   "category": "cereales",
+   "synonyms": [
+    "burgol",
+    "trigo para quibbe"
+   ],
+   "kcal": 83.0,
+   "protein_g": 3.1,
+   "carbs_g": 18.6,
+   "fat_g": 0.2,
+   "fiber_g": 4.5,
+   "nutrients": {
+    "sugars_g": 0.1,
+    "sat_fat_g": 0.04,
+    "sodium_mg": 5.0,
+    "potassium_mg": 68.0,
+    "calcium_mg": 10.0,
+    "iron_mg": 0.96,
+    "vit_c_mg": 0.0,
+    "vit_a_ug": 0.0,
+    "vit_d_ug": 0.0,
+    "vit_b12_ug": 0.0,
+    "cholesterol_mg": 0.0
+   },
+   "portions": [
+    {
+     "label": "1 taza",
+     "grams": 182
+    },
+    {
+     "label": "1 cucharada",
+     "grams": 8.4
+    },
+    {
+     "label": "100 g",
+     "grams": 100
+    }
+   ],
+   "origin": "USDA FoodData Central, SR Legacy 170287"
+  },
+  {
    "ref_key": "tcac_117",
    "name": "Trigo, grano entero, molido",
    "category": "cereales",
@@ -7550,6 +10641,44 @@
     }
    ],
    "origin": "ICBF, TCAC 2015 (código 118)"
+  },
+  {
+   "ref_key": "arequipe_usda",
+   "name": "Arequipe",
+   "category": "dulces",
+   "synonyms": [
+    "dulce de leche",
+    "manjar"
+   ],
+   "kcal": 315.0,
+   "protein_g": 6.8,
+   "carbs_g": 55.4,
+   "fat_g": 7.3,
+   "fiber_g": 0.0,
+   "nutrients": {
+    "sugars_g": 49.74,
+    "sat_fat_g": 4.53,
+    "sodium_mg": 129.0,
+    "potassium_mg": 350.0,
+    "calcium_mg": 251.0,
+    "iron_mg": 0.17,
+    "vit_c_mg": 2.6,
+    "vit_a_ug": 74.0,
+    "vit_d_ug": 0.2,
+    "vit_b12_ug": 0.31,
+    "cholesterol_mg": 29.0
+   },
+   "portions": [
+    {
+     "label": "1 cucharada",
+     "grams": 19
+    },
+    {
+     "label": "100 g",
+     "grams": 100
+    }
+   ],
+   "origin": "USDA FoodData Central, SR Legacy 173461"
   },
   {
    "ref_key": "tcac_687",
@@ -7617,6 +10746,48 @@
    "origin": "USDA FoodData Central, SR Legacy 169655"
   },
   {
+   "ref_key": "azucar_pulverizada_usda",
+   "name": "Azúcar pulverizada",
+   "category": "dulces",
+   "synonyms": [
+    "azúcar glas",
+    "azúcar impalpable"
+   ],
+   "kcal": 389.0,
+   "protein_g": 0.0,
+   "carbs_g": 99.8,
+   "fat_g": 0.0,
+   "fiber_g": 0.0,
+   "nutrients": {
+    "sugars_g": 97.81,
+    "sat_fat_g": 0.0,
+    "sodium_mg": 2.0,
+    "potassium_mg": 2.0,
+    "calcium_mg": 1.0,
+    "iron_mg": 0.06,
+    "vit_c_mg": 0.0,
+    "vit_a_ug": 0.0,
+    "vit_d_ug": 0.0,
+    "vit_b12_ug": 0.0,
+    "cholesterol_mg": 0.0
+   },
+   "portions": [
+    {
+     "label": "1 cucharada",
+     "grams": 8
+    },
+    {
+     "label": "1 cucharadita",
+     "grams": 2.5
+    },
+    {
+     "label": "100 g",
+     "grams": 100
+    }
+   ],
+   "origin": "USDA FoodData Central, SR Legacy 169656"
+  },
+  {
    "ref_key": "tcac_688",
    "name": "Azúcar, blanco",
    "category": "dulces",
@@ -7679,6 +10850,44 @@
     }
    ],
    "origin": "ICBF, TCAC 2015 (código 689)"
+  },
+  {
+   "ref_key": "barra_de_mani_con_caramelo_usda",
+   "name": "Barra de maní con caramelo",
+   "category": "dulces",
+   "synonyms": [
+    "turrón de maní",
+    "panelita de maní"
+   ],
+   "kcal": 522.0,
+   "protein_g": 15.5,
+   "carbs_g": 47.4,
+   "fat_g": 33.7,
+   "fiber_g": 4.1,
+   "nutrients": {
+    "sugars_g": 42.22,
+    "sat_fat_g": 4.68,
+    "sodium_mg": 156.0,
+    "potassium_mg": 407.0,
+    "calcium_mg": 78.0,
+    "iron_mg": 0.97,
+    "vit_c_mg": 0.0,
+    "vit_a_ug": 0.0,
+    "vit_d_ug": 0.0,
+    "vit_b12_ug": 0.0,
+    "cholesterol_mg": 0.0
+   },
+   "portions": [
+    {
+     "label": "1 barra",
+     "grams": 40
+    },
+    {
+     "label": "100 g",
+     "grams": 100
+    }
+   ],
+   "origin": "USDA FoodData Central, SR Legacy 169585"
   },
   {
    "ref_key": "tcac_692",
@@ -8112,6 +11321,115 @@
    "origin": "ICBF, TCAC 2015 (código 707)"
   },
   {
+   "ref_key": "dulce_de_tamarindo_usda",
+   "name": "Dulce de tamarindo",
+   "category": "dulces",
+   "synonyms": [
+    "bolitas de tamarindo"
+   ],
+   "kcal": 331.0,
+   "protein_g": 0.0,
+   "carbs_g": 92.0,
+   "fat_g": 0.0,
+   "fiber_g": 2.5,
+   "nutrients": {
+    "sugars_g": 78.57,
+    "sat_fat_g": 0.0,
+    "sodium_mg": 1643.0,
+    "potassium_mg": 309.0,
+    "calcium_mg": 0.0,
+    "iron_mg": 0.0,
+    "vit_c_mg": 0.0,
+    "vit_a_ug": 1.0,
+    "vit_d_ug": 0.0,
+    "vit_b12_ug": 0.0,
+    "cholesterol_mg": 0.0
+   },
+   "portions": [
+    {
+     "label": "1 porción",
+     "grams": 14
+    },
+    {
+     "label": "100 g",
+     "grams": 100
+    }
+   ],
+   "origin": "USDA FoodData Central, SR Legacy 170281"
+  },
+  {
+   "ref_key": "fresas_en_almibar_usda",
+   "name": "Fresas en almíbar",
+   "category": "dulces",
+   "synonyms": [],
+   "kcal": 92.0,
+   "protein_g": 0.6,
+   "carbs_g": 23.5,
+   "fat_g": 0.3,
+   "fiber_g": 1.7,
+   "nutrients": {
+    "sugars_g": 21.83,
+    "sat_fat_g": 0.01,
+    "sodium_mg": 4.0,
+    "potassium_mg": 86.0,
+    "calcium_mg": 13.0,
+    "iron_mg": 0.49,
+    "vit_c_mg": 31.7,
+    "vit_a_ug": 1.0,
+    "vit_d_ug": 0.0,
+    "vit_b12_ug": 0.0,
+    "cholesterol_mg": 0.0
+   },
+   "portions": [
+    {
+     "label": "1 taza",
+     "grams": 254
+    },
+    {
+     "label": "100 g",
+     "grams": 100
+    }
+   ],
+   "origin": "USDA FoodData Central, SR Legacy 168172"
+  },
+  {
+   "ref_key": "fruta_confitada_usda",
+   "name": "Fruta confitada",
+   "category": "dulces",
+   "synonyms": [
+    "frutas cristalizadas"
+   ],
+   "kcal": 322.0,
+   "protein_g": 0.3,
+   "carbs_g": 82.7,
+   "fat_g": 0.1,
+   "fiber_g": 1.6,
+   "nutrients": {
+    "sugars_g": 80.68,
+    "sat_fat_g": 0.01,
+    "sodium_mg": 98.0,
+    "potassium_mg": 56.0,
+    "calcium_mg": 18.0,
+    "iron_mg": 0.17,
+    "vit_c_mg": 0.0,
+    "vit_a_ug": 1.0,
+    "vit_d_ug": 0.0,
+    "vit_b12_ug": 0.0,
+    "cholesterol_mg": 0.0
+   },
+   "portions": [
+    {
+     "label": "1 cucharada",
+     "grams": 12
+    },
+    {
+     "label": "100 g",
+     "grams": 100
+    }
+   ],
+   "origin": "USDA FoodData Central, SR Legacy 167781"
+  },
+  {
    "ref_key": "tcac_708",
    "name": "Goma de mascar",
    "category": "dulces",
@@ -8135,6 +11453,48 @@
    "origin": "ICBF, TCAC 2015 (código 708)"
   },
   {
+   "ref_key": "gomitas_de_gelatina_usda",
+   "name": "Gomitas de gelatina",
+   "category": "dulces",
+   "synonyms": [
+    "gomas",
+    "jelly beans"
+   ],
+   "kcal": 375.0,
+   "protein_g": 0.0,
+   "carbs_g": 93.5,
+   "fat_g": 0.1,
+   "fiber_g": 0.2,
+   "nutrients": {
+    "sugars_g": 70.0,
+    "sat_fat_g": 0.0,
+    "sodium_mg": 50.0,
+    "potassium_mg": 37.0,
+    "calcium_mg": 3.0,
+    "iron_mg": 0.13,
+    "vit_c_mg": 0.0,
+    "vit_a_ug": 0.0,
+    "vit_d_ug": 0.0,
+    "vit_b12_ug": 0.0,
+    "cholesterol_mg": 0.0
+   },
+   "portions": [
+    {
+     "label": "10 unidades pequeñas",
+     "grams": 11
+    },
+    {
+     "label": "10 unidades grandes",
+     "grams": 28
+    },
+    {
+     "label": "100 g",
+     "grams": 100
+    }
+   ],
+   "origin": "USDA FoodData Central, SR Legacy 167991"
+  },
+  {
    "ref_key": "tcac_709",
    "name": "Helado de agua",
    "category": "dulces",
@@ -8155,6 +11515,82 @@
     }
    ],
    "origin": "ICBF, TCAC 2015 (código 709)"
+  },
+  {
+   "ref_key": "helado_de_chocolate_usda",
+   "name": "Helado de chocolate",
+   "category": "dulces",
+   "synonyms": [],
+   "kcal": 216.0,
+   "protein_g": 3.8,
+   "carbs_g": 28.2,
+   "fat_g": 11.0,
+   "fiber_g": 1.2,
+   "nutrients": {
+    "sugars_g": 25.36,
+    "sat_fat_g": 6.8,
+    "sodium_mg": 76.0,
+    "potassium_mg": 249.0,
+    "calcium_mg": 109.0,
+    "iron_mg": 0.93,
+    "vit_c_mg": 0.7,
+    "vit_a_ug": 118.0,
+    "vit_d_ug": 0.2,
+    "vit_b12_ug": 0.29,
+    "cholesterol_mg": 34.0
+   },
+   "portions": [
+    {
+     "label": "1/2 taza",
+     "grams": 66
+    },
+    {
+     "label": "1 unidad individual",
+     "grams": 58
+    },
+    {
+     "label": "100 g",
+     "grams": 100
+    }
+   ],
+   "origin": "USDA FoodData Central, SR Legacy 168809"
+  },
+  {
+   "ref_key": "helado_de_fresa_usda",
+   "name": "Helado de fresa",
+   "category": "dulces",
+   "synonyms": [],
+   "kcal": 192.0,
+   "protein_g": 3.2,
+   "carbs_g": 27.6,
+   "fat_g": 8.4,
+   "fiber_g": 0.9,
+   "nutrients": {
+    "sat_fat_g": 5.19,
+    "sodium_mg": 60.0,
+    "potassium_mg": 188.0,
+    "calcium_mg": 120.0,
+    "iron_mg": 0.21,
+    "vit_c_mg": 7.7,
+    "vit_a_ug": 96.0,
+    "vit_b12_ug": 0.3,
+    "cholesterol_mg": 29.0
+   },
+   "portions": [
+    {
+     "label": "1/2 taza",
+     "grams": 66
+    },
+    {
+     "label": "1 unidad individual",
+     "grams": 58
+    },
+    {
+     "label": "100 g",
+     "grams": 100
+    }
+   ],
+   "origin": "USDA FoodData Central, SR Legacy 168810"
   },
   {
    "ref_key": "helado_vainilla",
@@ -8190,6 +11626,43 @@
     }
    ],
    "origin": "USDA FoodData Central, SR Legacy 167575"
+  },
+  {
+   "ref_key": "jalea_de_frutas_usda",
+   "name": "Jalea de frutas",
+   "category": "dulces",
+   "synonyms": [
+    "gelatina para untar"
+   ],
+   "kcal": 266.0,
+   "protein_g": 0.1,
+   "carbs_g": 70.0,
+   "fat_g": 0.0,
+   "fiber_g": 1.0,
+   "nutrients": {
+    "sugars_g": 51.22,
+    "sat_fat_g": 0.01,
+    "sodium_mg": 30.0,
+    "potassium_mg": 54.0,
+    "calcium_mg": 7.0,
+    "iron_mg": 0.19,
+    "vit_c_mg": 0.9,
+    "vit_a_ug": 0.0,
+    "vit_d_ug": 0.0,
+    "vit_b12_ug": 0.0,
+    "cholesterol_mg": 0.0
+   },
+   "portions": [
+    {
+     "label": "1 cucharada",
+     "grams": 21
+    },
+    {
+     "label": "100 g",
+     "grams": 100
+    }
+   ],
+   "origin": "USDA FoodData Central, SR Legacy 169642"
   },
   {
    "ref_key": "tcac_710",
@@ -8367,6 +11840,41 @@
    "origin": "ICBF, TCAC 2015 (código 717)"
   },
   {
+   "ref_key": "mermelada_de_naranja_usda",
+   "name": "Mermelada de naranja",
+   "category": "dulces",
+   "synonyms": [],
+   "kcal": 246.0,
+   "protein_g": 0.3,
+   "carbs_g": 66.3,
+   "fat_g": 0.0,
+   "fiber_g": 0.7,
+   "nutrients": {
+    "sugars_g": 60.0,
+    "sat_fat_g": 0.0,
+    "sodium_mg": 56.0,
+    "potassium_mg": 37.0,
+    "calcium_mg": 38.0,
+    "iron_mg": 0.15,
+    "vit_c_mg": 4.8,
+    "vit_a_ug": 3.0,
+    "vit_d_ug": 0.0,
+    "vit_b12_ug": 0.0,
+    "cholesterol_mg": 0.0
+   },
+   "portions": [
+    {
+     "label": "1 cucharada",
+     "grams": 20
+    },
+    {
+     "label": "100 g",
+     "grams": 100
+    }
+   ],
+   "origin": "USDA FoodData Central, SR Legacy 168819"
+  },
+  {
    "ref_key": "miel",
    "name": "Miel de abejas",
    "category": "dulces",
@@ -8431,6 +11939,48 @@
    "origin": "ICBF, TCAC 2015 (código 720)"
   },
   {
+   "ref_key": "miel_de_maple_usda",
+   "name": "Miel de maple",
+   "category": "dulces",
+   "synonyms": [
+    "sirope de arce",
+    "jarabe de maple"
+   ],
+   "kcal": 260.0,
+   "protein_g": 0.0,
+   "carbs_g": 67.0,
+   "fat_g": 0.1,
+   "fiber_g": 0.0,
+   "nutrients": {
+    "sugars_g": 60.46,
+    "sat_fat_g": 0.01,
+    "sodium_mg": 12.0,
+    "potassium_mg": 212.0,
+    "calcium_mg": 102.0,
+    "iron_mg": 0.11,
+    "vit_c_mg": 0.0,
+    "vit_a_ug": 0.0,
+    "vit_d_ug": 0.0,
+    "vit_b12_ug": 0.0,
+    "cholesterol_mg": 0.0
+   },
+   "portions": [
+    {
+     "label": "1 cucharada",
+     "grams": 20
+    },
+    {
+     "label": "1/4 de taza",
+     "grams": 83
+    },
+    {
+     "label": "100 g",
+     "grams": 100
+    }
+   ],
+   "origin": "USDA FoodData Central, SR Legacy 169661"
+  },
+  {
    "ref_key": "tcac_722",
    "name": "Panelita de leche",
    "category": "dulces",
@@ -8458,6 +12008,351 @@
    "origin": "ICBF, TCAC 2015 (código 722)"
   },
   {
+   "ref_key": "pastel_danes_de_frutas_usda",
+   "name": "Pastel danés de frutas",
+   "category": "dulces",
+   "synonyms": [
+    "pastel hojaldrado de frutas"
+   ],
+   "kcal": 371.0,
+   "protein_g": 5.4,
+   "carbs_g": 47.8,
+   "fat_g": 18.5,
+   "fiber_g": 1.9,
+   "nutrients": {
+    "sugars_g": 27.53,
+    "sat_fat_g": 4.86,
+    "sodium_mg": 445.0,
+    "potassium_mg": 83.0,
+    "calcium_mg": 46.0,
+    "iron_mg": 1.77,
+    "vit_c_mg": 3.9,
+    "vit_a_ug": 15.0,
+    "vit_d_ug": 0.0,
+    "vit_b12_ug": 0.09,
+    "cholesterol_mg": 114.0
+   },
+   "portions": [
+    {
+     "label": "1 unidad mediana",
+     "grams": 71
+    },
+    {
+     "label": "1 unidad pequeña",
+     "grams": 35
+    },
+    {
+     "label": "100 g",
+     "grams": 100
+    }
+   ],
+   "origin": "USDA FoodData Central, SR Legacy 172755"
+  },
+  {
+   "ref_key": "pie_de_durazno_usda",
+   "name": "Pie de durazno",
+   "category": "dulces",
+   "synonyms": [
+    "tarta de durazno",
+    "kuchen de durazno"
+   ],
+   "kcal": 224.0,
+   "protein_g": 1.9,
+   "carbs_g": 32.9,
+   "fat_g": 10.0,
+   "fiber_g": 0.8,
+   "nutrients": {
+    "sugars_g": 16.23,
+    "sat_fat_g": 1.51,
+    "sodium_mg": 217.0,
+    "potassium_mg": 125.0,
+    "calcium_mg": 8.0,
+    "iron_mg": 0.5,
+    "vit_c_mg": 0.9,
+    "vit_a_ug": 10.0,
+    "vit_d_ug": 0.0,
+    "vit_b12_ug": 0.0,
+    "cholesterol_mg": 0.0
+   },
+   "portions": [
+    {
+     "label": "1 porción (1/6 de pie)",
+     "grams": 117
+    },
+    {
+     "label": "100 g",
+     "grams": 100
+    }
+   ],
+   "origin": "USDA FoodData Central, SR Legacy 175020"
+  },
+  {
+   "ref_key": "salsa_de_fresa_para_postres_usda",
+   "name": "Salsa de fresa para postres",
+   "category": "dulces",
+   "synonyms": [
+    "topping de fresa",
+    "sirope de fresa"
+   ],
+   "kcal": 254.0,
+   "protein_g": 0.2,
+   "carbs_g": 66.3,
+   "fat_g": 0.1,
+   "fiber_g": 0.7,
+   "nutrients": {
+    "sugars_g": 27.38,
+    "sat_fat_g": 0.01,
+    "sodium_mg": 21.0,
+    "potassium_mg": 51.0,
+    "calcium_mg": 6.0,
+    "iron_mg": 0.28,
+    "vit_c_mg": 13.7,
+    "vit_a_ug": 1.0,
+    "vit_d_ug": 0.0,
+    "vit_b12_ug": 0.0,
+    "cholesterol_mg": 0.0
+   },
+   "portions": [
+    {
+     "label": "2 cucharadas",
+     "grams": 42
+    },
+    {
+     "label": "100 g",
+     "grams": 100
+    }
+   ],
+   "origin": "USDA FoodData Central, SR Legacy 168758"
+  },
+  {
+   "ref_key": "sandwich_de_helado_usda",
+   "name": "Sándwich de helado",
+   "category": "dulces",
+   "synonyms": [
+    "galleta con helado"
+   ],
+   "kcal": 237.0,
+   "protein_g": 4.3,
+   "carbs_g": 37.1,
+   "fat_g": 8.6,
+   "fiber_g": 0.0,
+   "nutrients": {
+    "sugars_g": 18.57,
+    "sat_fat_g": 2.32,
+    "sodium_mg": 129.0,
+    "potassium_mg": 115.0,
+    "calcium_mg": 86.0,
+    "iron_mg": 0.26,
+    "vit_c_mg": 0.0,
+    "vit_a_ug": 86.0,
+    "vit_d_ug": 0.0,
+    "vit_b12_ug": 0.05,
+    "cholesterol_mg": 21.0
+   },
+   "portions": [
+    {
+     "label": "1 unidad",
+     "grams": 70
+    },
+    {
+     "label": "100 g",
+     "grams": 100
+    }
+   ],
+   "origin": "USDA FoodData Central, SR Legacy 172226"
+  },
+  {
+   "ref_key": "sirope_de_chocolate_usda",
+   "name": "Sirope de chocolate",
+   "category": "dulces",
+   "synonyms": [
+    "salsa de chocolate"
+   ],
+   "kcal": 279.0,
+   "protein_g": 2.1,
+   "carbs_g": 65.1,
+   "fat_g": 1.1,
+   "fiber_g": 2.6,
+   "nutrients": {
+    "sugars_g": 49.65,
+    "sat_fat_g": 0.52,
+    "sodium_mg": 72.0,
+    "potassium_mg": 224.0,
+    "calcium_mg": 14.0,
+    "iron_mg": 2.11,
+    "vit_c_mg": 0.2,
+    "vit_a_ug": 0.0,
+    "vit_d_ug": 0.0,
+    "vit_b12_ug": 0.0,
+    "cholesterol_mg": 0.0
+   },
+   "portions": [
+    {
+     "label": "2 cucharadas",
+     "grams": 39
+    },
+    {
+     "label": "100 g",
+     "grams": 100
+    }
+   ],
+   "origin": "USDA FoodData Central, SR Legacy 174117"
+  },
+  {
+   "ref_key": "sirope_sin_azucar_usda",
+   "name": "Sirope sin azúcar",
+   "category": "dulces",
+   "synonyms": [
+    "jarabe dietético",
+    "miel sin azúcar"
+   ],
+   "kcal": 51.0,
+   "protein_g": 0.8,
+   "carbs_g": 12.0,
+   "fat_g": 0.0,
+   "fiber_g": 0.7,
+   "nutrients": {
+    "sugars_g": 0.01,
+    "sat_fat_g": 0.0,
+    "sodium_mg": 210.0,
+    "potassium_mg": 0.0,
+    "calcium_mg": 0.0,
+    "iron_mg": 0.0,
+    "vit_c_mg": 0.0,
+    "vit_a_ug": 0.0,
+    "vit_d_ug": 0.0,
+    "vit_b12_ug": 0.0,
+    "cholesterol_mg": 0.0
+   },
+   "portions": [
+    {
+     "label": "1 cucharada",
+     "grams": 15
+    },
+    {
+     "label": "100 g",
+     "grams": 100
+    }
+   ],
+   "origin": "USDA FoodData Central, SR Legacy 169878"
+  },
+  {
+   "ref_key": "sorbete_de_naranja_usda",
+   "name": "Sorbete de naranja",
+   "category": "dulces",
+   "synonyms": [
+    "helado de naranja"
+   ],
+   "kcal": 144.0,
+   "protein_g": 1.1,
+   "carbs_g": 30.4,
+   "fat_g": 2.0,
+   "fiber_g": 1.3,
+   "nutrients": {
+    "sugars_g": 24.32,
+    "sat_fat_g": 1.16,
+    "sodium_mg": 46.0,
+    "potassium_mg": 96.0,
+    "calcium_mg": 54.0,
+    "iron_mg": 0.14,
+    "vit_c_mg": 2.3,
+    "vit_a_ug": 12.0,
+    "vit_d_ug": 0.0,
+    "vit_b12_ug": 0.13,
+    "cholesterol_mg": 1.0
+   },
+   "portions": [
+    {
+     "label": "1/2 taza",
+     "grams": 74
+    },
+    {
+     "label": "1 paleta",
+     "grams": 66
+    },
+    {
+     "label": "100 g",
+     "grams": 100
+    }
+   ],
+   "origin": "USDA FoodData Central, SR Legacy 167577"
+  },
+  {
+   "ref_key": "strudel_de_manzana_usda",
+   "name": "Strudel de manzana",
+   "category": "dulces",
+   "synonyms": [
+    "pastel de manzana"
+   ],
+   "kcal": 274.0,
+   "protein_g": 3.3,
+   "carbs_g": 41.1,
+   "fat_g": 11.2,
+   "fiber_g": 2.2,
+   "nutrients": {
+    "sugars_g": 25.75,
+    "sat_fat_g": 2.04,
+    "sodium_mg": 135.0,
+    "potassium_mg": 149.0,
+    "calcium_mg": 15.0,
+    "iron_mg": 0.42,
+    "vit_c_mg": 1.7,
+    "vit_a_ug": 6.0,
+    "vit_d_ug": 0.0,
+    "vit_b12_ug": 0.22,
+    "cholesterol_mg": 6.0
+   },
+   "portions": [
+    {
+     "label": "1 porción",
+     "grams": 71
+    },
+    {
+     "label": "100 g",
+     "grams": 100
+    }
+   ],
+   "origin": "USDA FoodData Central, SR Legacy 175032"
+  },
+  {
+   "ref_key": "turron_de_ajonjoli_usda",
+   "name": "Turrón de ajonjolí",
+   "category": "dulces",
+   "synonyms": [
+    "crocante de ajonjolí",
+    "dulce de ajonjolí"
+   ],
+   "kcal": 516.0,
+   "protein_g": 11.6,
+   "carbs_g": 50.3,
+   "fat_g": 33.3,
+   "fiber_g": 7.7,
+   "nutrients": {
+    "sugars_g": 31.17,
+    "sat_fat_g": 4.66,
+    "sodium_mg": 167.0,
+    "potassium_mg": 307.0,
+    "calcium_mg": 639.0,
+    "iron_mg": 4.27,
+    "vit_c_mg": 0.0,
+    "vit_a_ug": 0.0,
+    "vit_d_ug": 0.0,
+    "vit_b12_ug": 0.0,
+    "cholesterol_mg": 0.0
+   },
+   "portions": [
+    {
+     "label": "20 unidades",
+     "grams": 35
+    },
+    {
+     "label": "100 g",
+     "grams": 100
+    }
+   ],
+   "origin": "USDA FoodData Central, SR Legacy 169588"
+  },
+  {
    "ref_key": "tcac_723",
    "name": "Uchuva, almíbar",
    "category": "dulces",
@@ -8479,6 +12374,46 @@
     }
    ],
    "origin": "ICBF, TCAC 2015 (código 723)"
+  },
+  {
+   "ref_key": "acerola_cruda_usda",
+   "name": "Acerola, cruda",
+   "category": "frutas",
+   "synonyms": [
+    "cereza costeña",
+    "cereza criolla"
+   ],
+   "kcal": 32.0,
+   "protein_g": 0.4,
+   "carbs_g": 7.7,
+   "fat_g": 0.3,
+   "fiber_g": 1.1,
+   "nutrients": {
+    "sat_fat_g": 0.07,
+    "sodium_mg": 7.0,
+    "potassium_mg": 146.0,
+    "calcium_mg": 12.0,
+    "iron_mg": 0.2,
+    "vit_c_mg": 1677.6,
+    "vit_a_ug": 38.0,
+    "vit_b12_ug": 0.0,
+    "cholesterol_mg": 0.0
+   },
+   "portions": [
+    {
+     "label": "1 unidad",
+     "grams": 4.8
+    },
+    {
+     "label": "1 taza",
+     "grams": 98
+    },
+    {
+     "label": "100 g",
+     "grams": 100
+    }
+   ],
+   "origin": "USDA FoodData Central, SR Legacy 171686"
   },
   {
    "ref_key": "aguacate_usda",
@@ -8518,6 +12453,49 @@
    "origin": "USDA FoodData Central, SR Legacy 171705"
   },
   {
+   "ref_key": "aguacate_criollo_crudo_usda",
+   "name": "Aguacate criollo, crudo",
+   "category": "frutas",
+   "synonyms": [
+    "aguacate papelillo",
+    "aguacate común",
+    "palta"
+   ],
+   "kcal": 120.0,
+   "protein_g": 2.2,
+   "carbs_g": 7.8,
+   "fat_g": 10.1,
+   "fiber_g": 5.6,
+   "nutrients": {
+    "sugars_g": 2.42,
+    "sat_fat_g": 1.96,
+    "sodium_mg": 2.0,
+    "potassium_mg": 351.0,
+    "calcium_mg": 10.0,
+    "iron_mg": 0.17,
+    "vit_c_mg": 17.4,
+    "vit_a_ug": 7.0,
+    "vit_d_ug": 0.0,
+    "vit_b12_ug": 0.0,
+    "cholesterol_mg": 0.0
+   },
+   "portions": [
+    {
+     "label": "1 unidad sin semilla",
+     "grams": 304
+    },
+    {
+     "label": "1 taza en puré",
+     "grams": 230
+    },
+    {
+     "label": "100 g",
+     "grams": 100
+    }
+   ],
+   "origin": "USDA FoodData Central, SR Legacy 171707"
+  },
+  {
    "ref_key": "tcac_252",
    "name": "Aguacate hass, maduro, pulpa",
    "category": "frutas",
@@ -8548,6 +12526,48 @@
     }
    ],
    "origin": "ICBF, TCAC 2015 (código 252)"
+  },
+  {
+   "ref_key": "albaricoque_seco_usda",
+   "name": "Albaricoque seco",
+   "category": "frutas",
+   "synonyms": [
+    "orejones",
+    "damasco seco"
+   ],
+   "kcal": 241.0,
+   "protein_g": 3.4,
+   "carbs_g": 62.6,
+   "fat_g": 0.5,
+   "fiber_g": 7.3,
+   "nutrients": {
+    "sugars_g": 53.44,
+    "sat_fat_g": 0.02,
+    "sodium_mg": 10.0,
+    "potassium_mg": 1162.0,
+    "calcium_mg": 55.0,
+    "iron_mg": 2.66,
+    "vit_c_mg": 1.0,
+    "vit_a_ug": 180.0,
+    "vit_d_ug": 0.0,
+    "vit_b12_ug": 0.0,
+    "cholesterol_mg": 0.0
+   },
+   "portions": [
+    {
+     "label": "1 mitad",
+     "grams": 3.5
+    },
+    {
+     "label": "1 taza",
+     "grams": 130
+    },
+    {
+     "label": "100 g",
+     "grams": 100
+    }
+   ],
+   "origin": "USDA FoodData Central, SR Legacy 173941"
   },
   {
    "ref_key": "tcac_254",
@@ -9021,6 +13041,37 @@
    "origin": "ICBF, TCAC 2015 (código 271)"
   },
   {
+   "ref_key": "bayas_de_goji_secas_usda",
+   "name": "Bayas de goji, secas",
+   "category": "frutas",
+   "synonyms": [],
+   "kcal": 349.0,
+   "protein_g": 14.3,
+   "carbs_g": 77.1,
+   "fat_g": 0.4,
+   "fiber_g": 13.0,
+   "nutrients": {
+    "sugars_g": 45.61,
+    "sat_fat_g": 0.0,
+    "sodium_mg": 298.0,
+    "calcium_mg": 190.0,
+    "iron_mg": 6.8,
+    "vit_c_mg": 48.4,
+    "cholesterol_mg": 0.0
+   },
+   "portions": [
+    {
+     "label": "1 cucharada",
+     "grams": 6
+    },
+    {
+     "label": "100 g",
+     "grams": 100
+    }
+   ],
+   "origin": "USDA FoodData Central, SR Legacy 173032"
+  },
+  {
    "ref_key": "tcac_272",
    "name": "Borojó, maduro, pulpa",
    "category": "frutas",
@@ -9286,6 +13337,47 @@
    "origin": "ICBF, TCAC 2015 (código 283)"
   },
   {
+   "ref_key": "cereza_dulce_cruda_usda",
+   "name": "Cereza dulce, cruda",
+   "category": "frutas",
+   "synonyms": [
+    "cereza importada"
+   ],
+   "kcal": 63.0,
+   "protein_g": 1.1,
+   "carbs_g": 16.0,
+   "fat_g": 0.2,
+   "fiber_g": 2.1,
+   "nutrients": {
+    "sugars_g": 12.82,
+    "sat_fat_g": 0.04,
+    "sodium_mg": 0.0,
+    "potassium_mg": 222.0,
+    "calcium_mg": 13.0,
+    "iron_mg": 0.36,
+    "vit_c_mg": 7.0,
+    "vit_a_ug": 3.0,
+    "vit_d_ug": 0.0,
+    "vit_b12_ug": 0.0,
+    "cholesterol_mg": 0.0
+   },
+   "portions": [
+    {
+     "label": "1 taza sin semilla",
+     "grams": 154
+    },
+    {
+     "label": "1 unidad",
+     "grams": 8.2
+    },
+    {
+     "label": "100 g",
+     "grams": 100
+    }
+   ],
+   "origin": "USDA FoodData Central, SR Legacy 171719"
+  },
+  {
    "ref_key": "tcac_284",
    "name": "Cereza, maduro, pulpa",
    "category": "frutas",
@@ -9347,6 +13439,44 @@
     }
    ],
    "origin": "ICBF, TCAC 2015 (código 286)"
+  },
+  {
+   "ref_key": "chirimoya_cruda_usda",
+   "name": "Chirimoya, cruda",
+   "category": "frutas",
+   "synonyms": [],
+   "kcal": 75.0,
+   "protein_g": 1.6,
+   "carbs_g": 17.7,
+   "fat_g": 0.7,
+   "fiber_g": 3.0,
+   "nutrients": {
+    "sugars_g": 12.87,
+    "sat_fat_g": 0.23,
+    "sodium_mg": 7.0,
+    "potassium_mg": 287.0,
+    "calcium_mg": 10.0,
+    "iron_mg": 0.27,
+    "vit_c_mg": 12.6,
+    "vit_a_ug": 0.0,
+    "vit_b12_ug": 0.0,
+    "cholesterol_mg": 0.0
+   },
+   "portions": [
+    {
+     "label": "1 unidad",
+     "grams": 235
+    },
+    {
+     "label": "1 taza en trozos",
+     "grams": 160
+    },
+    {
+     "label": "100 g",
+     "grams": 100
+    }
+   ],
+   "origin": "USDA FoodData Central, SR Legacy 173953"
   },
   {
    "ref_key": "tcac_288",
@@ -9437,6 +13567,88 @@
     }
    ],
    "origin": "ICBF, TCAC 2015 (código 291)"
+  },
+  {
+   "ref_key": "ciruela_pasa_usda",
+   "name": "Ciruela pasa",
+   "category": "frutas",
+   "synonyms": [
+    "ciruela seca"
+   ],
+   "kcal": 240.0,
+   "protein_g": 2.2,
+   "carbs_g": 63.9,
+   "fat_g": 0.4,
+   "fiber_g": 7.1,
+   "nutrients": {
+    "sugars_g": 38.13,
+    "sat_fat_g": 0.09,
+    "sodium_mg": 2.0,
+    "potassium_mg": 732.0,
+    "calcium_mg": 43.0,
+    "iron_mg": 0.93,
+    "vit_c_mg": 0.6,
+    "vit_a_ug": 39.0,
+    "vit_d_ug": 0.0,
+    "vit_b12_ug": 0.0,
+    "cholesterol_mg": 0.0
+   },
+   "portions": [
+    {
+     "label": "1 unidad sin semilla",
+     "grams": 9.5
+    },
+    {
+     "label": "1 taza",
+     "grams": 174
+    },
+    {
+     "label": "100 g",
+     "grams": 100
+    }
+   ],
+   "origin": "USDA FoodData Central, SR Legacy 168162"
+  },
+  {
+   "ref_key": "ciruela_roja_cruda_usda",
+   "name": "Ciruela roja, cruda",
+   "category": "frutas",
+   "synonyms": [
+    "ciruela importada"
+   ],
+   "kcal": 46.0,
+   "protein_g": 0.7,
+   "carbs_g": 11.4,
+   "fat_g": 0.3,
+   "fiber_g": 1.4,
+   "nutrients": {
+    "sugars_g": 9.92,
+    "sat_fat_g": 0.02,
+    "sodium_mg": 0.0,
+    "potassium_mg": 157.0,
+    "calcium_mg": 6.0,
+    "iron_mg": 0.17,
+    "vit_c_mg": 9.5,
+    "vit_a_ug": 17.0,
+    "vit_d_ug": 0.0,
+    "vit_b12_ug": 0.0,
+    "cholesterol_mg": 0.0
+   },
+   "portions": [
+    {
+     "label": "1 unidad",
+     "grams": 66
+    },
+    {
+     "label": "1 taza en tajadas",
+     "grams": 165
+    },
+    {
+     "label": "100 g",
+     "grams": 100
+    }
+   ],
+   "origin": "USDA FoodData Central, SR Legacy 169949"
   },
   {
    "ref_key": "tcac_293",
@@ -9593,6 +13805,38 @@
    "origin": "ICBF, TCAC 2015 (código 298)"
   },
   {
+   "ref_key": "datil_medjool_usda",
+   "name": "Dátil medjool",
+   "category": "frutas",
+   "synonyms": [],
+   "kcal": 277.0,
+   "protein_g": 1.8,
+   "carbs_g": 75.0,
+   "fat_g": 0.1,
+   "fiber_g": 6.7,
+   "nutrients": {
+    "sugars_g": 66.47,
+    "sodium_mg": 1.0,
+    "potassium_mg": 696.0,
+    "calcium_mg": 64.0,
+    "iron_mg": 0.9,
+    "vit_c_mg": 0.0,
+    "vit_a_ug": 7.0,
+    "vit_d_ug": 0.0
+   },
+   "portions": [
+    {
+     "label": "1 unidad sin semilla",
+     "grams": 24
+    },
+    {
+     "label": "100 g",
+     "grams": 100
+    }
+   ],
+   "origin": "USDA FoodData Central, SR Legacy 168191"
+  },
+  {
    "ref_key": "tcac_299",
    "name": "Dátil, maduro, fruto entero",
    "category": "frutas",
@@ -9657,6 +13901,45 @@
     }
    ],
    "origin": "ICBF, TCAC 2015 (código 301)"
+  },
+  {
+   "ref_key": "frambuesa_cruda_usda",
+   "name": "Frambuesa, cruda",
+   "category": "frutas",
+   "synonyms": [],
+   "kcal": 52.0,
+   "protein_g": 1.2,
+   "carbs_g": 11.9,
+   "fat_g": 0.7,
+   "fiber_g": 6.5,
+   "nutrients": {
+    "sugars_g": 4.42,
+    "sat_fat_g": 0.02,
+    "sodium_mg": 1.0,
+    "potassium_mg": 151.0,
+    "calcium_mg": 25.0,
+    "iron_mg": 0.69,
+    "vit_c_mg": 26.2,
+    "vit_a_ug": 2.0,
+    "vit_d_ug": 0.0,
+    "vit_b12_ug": 0.0,
+    "cholesterol_mg": 0.0
+   },
+   "portions": [
+    {
+     "label": "1 taza",
+     "grams": 123
+    },
+    {
+     "label": "10 unidades",
+     "grams": 19
+    },
+    {
+     "label": "100 g",
+     "grams": 100
+    }
+   ],
+   "origin": "USDA FoodData Central, SR Legacy 167755"
   },
   {
    "ref_key": "tcac_302",
@@ -9967,6 +14250,47 @@
    "origin": "ICBF, TCAC 2015 (código 313)"
   },
   {
+   "ref_key": "higo_seco_usda",
+   "name": "Higo seco",
+   "category": "frutas",
+   "synonyms": [
+    "higo deshidratado"
+   ],
+   "kcal": 249.0,
+   "protein_g": 3.3,
+   "carbs_g": 63.9,
+   "fat_g": 0.9,
+   "fiber_g": 9.8,
+   "nutrients": {
+    "sugars_g": 47.92,
+    "sat_fat_g": 0.14,
+    "sodium_mg": 10.0,
+    "potassium_mg": 680.0,
+    "calcium_mg": 162.0,
+    "iron_mg": 2.03,
+    "vit_c_mg": 1.2,
+    "vit_a_ug": 0.0,
+    "vit_d_ug": 0.0,
+    "vit_b12_ug": 0.0,
+    "cholesterol_mg": 0.0
+   },
+   "portions": [
+    {
+     "label": "1 unidad",
+     "grams": 8.4
+    },
+    {
+     "label": "1 taza",
+     "grams": 149
+    },
+    {
+     "label": "100 g",
+     "grams": 100
+    }
+   ],
+   "origin": "USDA FoodData Central, SR Legacy 174665"
+  },
+  {
    "ref_key": "tcac_314",
    "name": "Higo, maduro",
    "category": "frutas",
@@ -10050,6 +14374,51 @@
    "origin": "ICBF, TCAC 2015 (código 317)"
   },
   {
+   "ref_key": "jugo_de_limon_usda",
+   "name": "Jugo de limón",
+   "category": "frutas",
+   "synonyms": [
+    "zumo de limón"
+   ],
+   "kcal": 25.0,
+   "protein_g": 0.4,
+   "carbs_g": 8.4,
+   "fat_g": 0.1,
+   "fiber_g": 0.4,
+   "nutrients": {
+    "sugars_g": 1.69,
+    "sat_fat_g": 0.01,
+    "sodium_mg": 2.0,
+    "potassium_mg": 117.0,
+    "calcium_mg": 14.0,
+    "iron_mg": 0.09,
+    "vit_c_mg": 30.0,
+    "vit_a_ug": 2.0,
+    "vit_d_ug": 0.0,
+    "vit_b12_ug": 0.0,
+    "cholesterol_mg": 0.0
+   },
+   "portions": [
+    {
+     "label": "Jugo de 1 limón",
+     "grams": 44
+    },
+    {
+     "label": "1 cucharada",
+     "grams": 15
+    },
+    {
+     "label": "1 taza",
+     "grams": 242
+    },
+    {
+     "label": "100 g",
+     "grams": 100
+    }
+   ],
+   "origin": "USDA FoodData Central, SR Legacy 168156"
+  },
+  {
    "ref_key": "kiwi",
    "name": "Kiwi",
    "category": "frutas",
@@ -10102,6 +14471,47 @@
     }
    ],
    "origin": "ICBF, TCAC 2015 (código 318)"
+  },
+  {
+   "ref_key": "lichi_crudo_usda",
+   "name": "Lichi, crudo",
+   "category": "frutas",
+   "synonyms": [
+    "litchi"
+   ],
+   "kcal": 66.0,
+   "protein_g": 0.8,
+   "carbs_g": 16.5,
+   "fat_g": 0.4,
+   "fiber_g": 1.3,
+   "nutrients": {
+    "sugars_g": 15.23,
+    "sat_fat_g": 0.1,
+    "sodium_mg": 1.0,
+    "potassium_mg": 171.0,
+    "calcium_mg": 5.0,
+    "iron_mg": 0.31,
+    "vit_c_mg": 71.5,
+    "vit_a_ug": 0.0,
+    "vit_d_ug": 0.0,
+    "vit_b12_ug": 0.0,
+    "cholesterol_mg": 0.0
+   },
+   "portions": [
+    {
+     "label": "1 unidad",
+     "grams": 9.6
+    },
+    {
+     "label": "1 taza",
+     "grams": 190
+    },
+    {
+     "label": "100 g",
+     "grams": 100
+    }
+   ],
+   "origin": "USDA FoodData Central, SR Legacy 169086"
   },
   {
    "ref_key": "tcac_319",
@@ -10419,6 +14829,43 @@
    "origin": "USDA FoodData Central, SR Legacy 169910"
   },
   {
+   "ref_key": "mango_deshidratado_azucarado_usda",
+   "name": "Mango deshidratado, azucarado",
+   "category": "frutas",
+   "synonyms": [
+    "mango seco"
+   ],
+   "kcal": 319.0,
+   "protein_g": 2.5,
+   "carbs_g": 78.6,
+   "fat_g": 1.2,
+   "fiber_g": 2.4,
+   "nutrients": {
+    "sugars_g": 66.27,
+    "sat_fat_g": 0.29,
+    "sodium_mg": 162.0,
+    "potassium_mg": 279.0,
+    "calcium_mg": 0.0,
+    "iron_mg": 0.23,
+    "vit_c_mg": 42.3,
+    "vit_a_ug": 67.0,
+    "vit_d_ug": 0.0,
+    "vit_b12_ug": 0.0,
+    "cholesterol_mg": 0.0
+   },
+   "portions": [
+    {
+     "label": "1 puñado",
+     "grams": 30
+    },
+    {
+     "label": "100 g",
+     "grams": 100
+    }
+   ],
+   "origin": "USDA FoodData Central, SR Legacy 169091"
+  },
+  {
    "ref_key": "tcac_328",
    "name": "Mango tommy atkins, maduro, pulpa",
    "category": "frutas",
@@ -10524,6 +14971,43 @@
    "origin": "ICBF, TCAC 2015 (código 331)"
   },
   {
+   "ref_key": "manzana_amarilla_cruda_usda",
+   "name": "Manzana amarilla con cáscara, cruda",
+   "category": "frutas",
+   "synonyms": [
+    "manzana golden",
+    "manzana verde amarilla"
+   ],
+   "kcal": 57.0,
+   "protein_g": 0.3,
+   "carbs_g": 13.6,
+   "fat_g": 0.1,
+   "fiber_g": 2.4,
+   "nutrients": {
+    "sugars_g": 10.04,
+    "sodium_mg": 2.0,
+    "potassium_mg": 100.0,
+    "calcium_mg": 6.0,
+    "iron_mg": 0.13,
+    "vit_a_ug": 3.0
+   },
+   "portions": [
+    {
+     "label": "1 unidad mediana",
+     "grams": 169
+    },
+    {
+     "label": "1 taza en tajadas",
+     "grams": 109
+    },
+    {
+     "label": "100 g",
+     "grams": 100
+    }
+   ],
+   "origin": "USDA FoodData Central, SR Legacy 168202"
+  },
+  {
    "ref_key": "manzana",
    "name": "Manzana con cáscara",
    "category": "frutas",
@@ -10557,6 +15041,85 @@
     }
    ],
    "origin": "USDA FoodData Central, SR Legacy 171688"
+  },
+  {
+   "ref_key": "manzana_deshidratada_usda",
+   "name": "Manzana deshidratada",
+   "category": "frutas",
+   "synonyms": [
+    "manzana seca",
+    "chips de manzana"
+   ],
+   "kcal": 243.0,
+   "protein_g": 0.9,
+   "carbs_g": 65.9,
+   "fat_g": 0.3,
+   "fiber_g": 8.7,
+   "nutrients": {
+    "sugars_g": 57.19,
+    "sat_fat_g": 0.05,
+    "sodium_mg": 87.0,
+    "potassium_mg": 450.0,
+    "calcium_mg": 14.0,
+    "iron_mg": 1.4,
+    "vit_c_mg": 3.9,
+    "vit_a_ug": 0.0,
+    "vit_d_ug": 0.0,
+    "vit_b12_ug": 0.0,
+    "cholesterol_mg": 0.0
+   },
+   "portions": [
+    {
+     "label": "1 aro",
+     "grams": 6.4
+    },
+    {
+     "label": "1 taza",
+     "grams": 86
+    },
+    {
+     "label": "100 g",
+     "grams": 100
+    }
+   ],
+   "origin": "USDA FoodData Central, SR Legacy 171691"
+  },
+  {
+   "ref_key": "manzana_cocida_usda",
+   "name": "Manzana sin cáscara, cocida",
+   "category": "frutas",
+   "synonyms": [
+    "manzana hervida"
+   ],
+   "kcal": 53.0,
+   "protein_g": 0.3,
+   "carbs_g": 13.6,
+   "fat_g": 0.4,
+   "fiber_g": 2.4,
+   "nutrients": {
+    "sugars_g": 11.01,
+    "sat_fat_g": 0.06,
+    "sodium_mg": 1.0,
+    "potassium_mg": 88.0,
+    "calcium_mg": 5.0,
+    "iron_mg": 0.19,
+    "vit_c_mg": 0.2,
+    "vit_a_ug": 2.0,
+    "vit_d_ug": 0.0,
+    "vit_b12_ug": 0.0,
+    "cholesterol_mg": 0.0
+   },
+   "portions": [
+    {
+     "label": "1 taza en tajadas",
+     "grams": 171
+    },
+    {
+     "label": "100 g",
+     "grams": 100
+    }
+   ],
+   "origin": "USDA FoodData Central, SR Legacy 173928"
   },
   {
    "ref_key": "tcac_332",
@@ -10712,6 +15275,43 @@
    "origin": "ICBF, TCAC 2015 (código 337)"
   },
   {
+   "ref_key": "melon_verde_crudo_usda",
+   "name": "Melón verde, crudo",
+   "category": "frutas",
+   "synonyms": [
+    "melón honeydew"
+   ],
+   "kcal": 36.0,
+   "protein_g": 0.5,
+   "carbs_g": 9.1,
+   "fat_g": 0.1,
+   "fiber_g": 0.8,
+   "nutrients": {
+    "sugars_g": 8.12,
+    "sat_fat_g": 0.04,
+    "sodium_mg": 18.0,
+    "potassium_mg": 228.0,
+    "calcium_mg": 6.0,
+    "iron_mg": 0.17,
+    "vit_c_mg": 18.0,
+    "vit_a_ug": 3.0,
+    "vit_d_ug": 0.0,
+    "vit_b12_ug": 0.0,
+    "cholesterol_mg": 0.0
+   },
+   "portions": [
+    {
+     "label": "1 taza en cubos",
+     "grams": 170
+    },
+    {
+     "label": "100 g",
+     "grams": 100
+    }
+   ],
+   "origin": "USDA FoodData Central, SR Legacy 169911"
+  },
+  {
    "ref_key": "tcac_338",
    "name": "Melón, maduro, pulpa",
    "category": "frutas",
@@ -10734,6 +15334,39 @@
     }
    ],
    "origin": "ICBF, TCAC 2015 (código 338)"
+  },
+  {
+   "ref_key": "membrillo_crudo_usda",
+   "name": "Membrillo, crudo",
+   "category": "frutas",
+   "synonyms": [],
+   "kcal": 57.0,
+   "protein_g": 0.4,
+   "carbs_g": 15.3,
+   "fat_g": 0.1,
+   "fiber_g": 1.9,
+   "nutrients": {
+    "sat_fat_g": 0.01,
+    "sodium_mg": 4.0,
+    "potassium_mg": 197.0,
+    "calcium_mg": 11.0,
+    "iron_mg": 0.7,
+    "vit_c_mg": 15.0,
+    "vit_a_ug": 2.0,
+    "vit_b12_ug": 0.0,
+    "cholesterol_mg": 0.0
+   },
+   "portions": [
+    {
+     "label": "1 unidad",
+     "grams": 92
+    },
+    {
+     "label": "100 g",
+     "grams": 100
+    }
+   ],
+   "origin": "USDA FoodData Central, SR Legacy 168163"
   },
   {
    "ref_key": "tcac_339",
@@ -10821,6 +15454,85 @@
     }
    ],
    "origin": "ICBF, TCAC 2015 (código 340)"
+  },
+  {
+   "ref_key": "nectarina_cruda_usda",
+   "name": "Nectarina, cruda",
+   "category": "frutas",
+   "synonyms": [],
+   "kcal": 44.0,
+   "protein_g": 1.1,
+   "carbs_g": 10.6,
+   "fat_g": 0.3,
+   "fiber_g": 1.7,
+   "nutrients": {
+    "sugars_g": 7.89,
+    "sat_fat_g": 0.03,
+    "sodium_mg": 0.0,
+    "potassium_mg": 201.0,
+    "calcium_mg": 6.0,
+    "iron_mg": 0.28,
+    "vit_c_mg": 5.4,
+    "vit_a_ug": 17.0,
+    "vit_d_ug": 0.0,
+    "vit_b12_ug": 0.0,
+    "cholesterol_mg": 0.0
+   },
+   "portions": [
+    {
+     "label": "1 unidad mediana",
+     "grams": 142
+    },
+    {
+     "label": "1 taza en tajadas",
+     "grams": 143
+    },
+    {
+     "label": "100 g",
+     "grams": 100
+    }
+   ],
+   "origin": "USDA FoodData Central, SR Legacy 169914"
+  },
+  {
+   "ref_key": "nispero_costeno_crudo_usda",
+   "name": "Níspero costeño, crudo",
+   "category": "frutas",
+   "synonyms": [
+    "zapotillo",
+    "chicozapote"
+   ],
+   "kcal": 83.0,
+   "protein_g": 0.4,
+   "carbs_g": 20.0,
+   "fat_g": 1.1,
+   "fiber_g": 5.3,
+   "nutrients": {
+    "sat_fat_g": 0.19,
+    "sodium_mg": 12.0,
+    "potassium_mg": 193.0,
+    "calcium_mg": 21.0,
+    "iron_mg": 0.8,
+    "vit_c_mg": 14.7,
+    "vit_a_ug": 3.0,
+    "vit_b12_ug": 0.0,
+    "cholesterol_mg": 0.0
+   },
+   "portions": [
+    {
+     "label": "1 unidad",
+     "grams": 170
+    },
+    {
+     "label": "1 taza de pulpa",
+     "grams": 241
+    },
+    {
+     "label": "100 g",
+     "grams": 100
+    }
+   ],
+   "origin": "USDA FoodData Central, SR Legacy 167759"
   },
   {
    "ref_key": "tcac_341",
@@ -11019,6 +15731,45 @@
     }
    ],
    "origin": "USDA FoodData Central, SR Legacy 169124"
+  },
+  {
+   "ref_key": "pina_oro_miel_cruda_usda",
+   "name": "Piña oro miel, cruda",
+   "category": "frutas",
+   "synonyms": [
+    "piña golden",
+    "piña md2"
+   ],
+   "kcal": 51.0,
+   "protein_g": 0.5,
+   "carbs_g": 13.5,
+   "fat_g": 0.1,
+   "fiber_g": 1.4,
+   "nutrients": {
+    "sugars_g": 10.32,
+    "sodium_mg": 1.0,
+    "potassium_mg": 108.0,
+    "calcium_mg": 13.0,
+    "iron_mg": 0.28,
+    "vit_c_mg": 56.4,
+    "vit_a_ug": 3.0,
+    "vit_d_ug": 0.0
+   },
+   "portions": [
+    {
+     "label": "1 taza en trozos",
+     "grams": 165
+    },
+    {
+     "label": "1 tajada",
+     "grams": 166
+    },
+    {
+     "label": "100 g",
+     "grams": 100
+    }
+   ],
+   "origin": "USDA FoodData Central, SR Legacy 168194"
   },
   {
    "ref_key": "tcac_348",
@@ -11509,6 +16260,42 @@
    "origin": "ICBF, TCAC 2015 (código 366)"
   },
   {
+   "ref_key": "ajonjoli_tostado_usda",
+   "name": "Ajonjolí tostado",
+   "category": "frutos_secos",
+   "synonyms": [
+    "sésamo"
+   ],
+   "kcal": 565.0,
+   "protein_g": 17.0,
+   "carbs_g": 25.7,
+   "fat_g": 48.0,
+   "fiber_g": 14.0,
+   "nutrients": {
+    "sat_fat_g": 6.72,
+    "sodium_mg": 11.0,
+    "potassium_mg": 475.0,
+    "calcium_mg": 989.0,
+    "iron_mg": 14.76,
+    "vit_c_mg": 0.0,
+    "vit_a_ug": 0.0,
+    "vit_d_ug": 0.0,
+    "vit_b12_ug": 0.0,
+    "cholesterol_mg": 0.0
+   },
+   "portions": [
+    {
+     "label": "1 cucharada",
+     "grams": 9
+    },
+    {
+     "label": "100 g",
+     "grams": 100
+    }
+   ],
+   "origin": "USDA FoodData Central, SR Legacy 170151"
+  },
+  {
    "ref_key": "tcac_255",
    "name": "Almendra, Sacha Inchi",
    "category": "frutos_secos",
@@ -11627,6 +16414,47 @@
    "origin": "ICBF, TCAC 2015 (código 961)"
   },
   {
+   "ref_key": "mani_frito_con_sal_usda",
+   "name": "Maní frito, con sal",
+   "category": "frutos_secos",
+   "synonyms": [
+    "maní salado"
+   ],
+   "kcal": 599.0,
+   "protein_g": 28.0,
+   "carbs_g": 15.3,
+   "fat_g": 52.5,
+   "fiber_g": 9.4,
+   "nutrients": {
+    "sugars_g": 4.18,
+    "sat_fat_g": 8.65,
+    "sodium_mg": 320.0,
+    "potassium_mg": 726.0,
+    "calcium_mg": 61.0,
+    "iron_mg": 1.52,
+    "vit_c_mg": 0.8,
+    "vit_a_ug": 0.0,
+    "vit_d_ug": 0.0,
+    "vit_b12_ug": 0.0,
+    "cholesterol_mg": 0.0
+   },
+   "portions": [
+    {
+     "label": "1 puñado (32 unidades)",
+     "grams": 28
+    },
+    {
+     "label": "1 taza",
+     "grams": 144
+    },
+    {
+     "label": "100 g",
+     "grams": 100
+    }
+   ],
+   "origin": "USDA FoodData Central, SR Legacy 174261"
+  },
+  {
    "ref_key": "tcac_962",
    "name": "Maní tostado",
    "category": "frutos_secos",
@@ -11685,6 +16513,43 @@
     }
    ],
    "origin": "USDA FoodData Central, SR Legacy 173806"
+  },
+  {
+   "ref_key": "mani_tostado_con_sal_usda",
+   "name": "Maní tostado, con sal",
+   "category": "frutos_secos",
+   "synonyms": [
+    "maní salado"
+   ],
+   "kcal": 587.0,
+   "protein_g": 24.4,
+   "carbs_g": 21.3,
+   "fat_g": 49.7,
+   "fiber_g": 8.4,
+   "nutrients": {
+    "sugars_g": 4.9,
+    "sat_fat_g": 7.72,
+    "sodium_mg": 410.0,
+    "potassium_mg": 634.0,
+    "calcium_mg": 58.0,
+    "iron_mg": 1.58,
+    "vit_c_mg": 0.0,
+    "vit_a_ug": 0.0,
+    "vit_d_ug": 0.0,
+    "vit_b12_ug": 0.0,
+    "cholesterol_mg": 0.0
+   },
+   "portions": [
+    {
+     "label": "1 puñado",
+     "grams": 28
+    },
+    {
+     "label": "100 g",
+     "grams": 100
+    }
+   ],
+   "origin": "USDA FoodData Central, SR Legacy 174262"
   },
   {
    "ref_key": "tcac_823",
@@ -11816,6 +16681,84 @@
    "origin": "USDA FoodData Central, SR Legacy 170571"
   },
   {
+   "ref_key": "mezcla_frutos_secos_con_mani_usda",
+   "name": "Mezcla de frutos secos con maní, con sal",
+   "category": "frutos_secos",
+   "synonyms": [
+    "mixtura de nueces",
+    "maní mezclado"
+   ],
+   "kcal": 607.0,
+   "protein_g": 20.0,
+   "carbs_g": 21.1,
+   "fat_g": 54.0,
+   "fiber_g": 7.0,
+   "nutrients": {
+    "sugars_g": 4.15,
+    "sat_fat_g": 8.71,
+    "sodium_mg": 161.0,
+    "potassium_mg": 632.0,
+    "calcium_mg": 117.0,
+    "iron_mg": 2.61,
+    "vit_c_mg": 0.5,
+    "vit_a_ug": 0.0,
+    "vit_d_ug": 0.0,
+    "vit_b12_ug": 0.0,
+    "cholesterol_mg": 0.0
+   },
+   "portions": [
+    {
+     "label": "1 puñado",
+     "grams": 28
+    },
+    {
+     "label": "100 g",
+     "grams": 100
+    }
+   ],
+   "origin": "USDA FoodData Central, SR Legacy 169427"
+  },
+  {
+   "ref_key": "mezcla_de_frutos_secos_con_pasas_usda",
+   "name": "Mezcla de frutos secos con pasas",
+   "category": "frutos_secos",
+   "synonyms": [
+    "mix de frutos secos",
+    "trail mix"
+   ],
+   "kcal": 462.0,
+   "protein_g": 13.8,
+   "carbs_g": 44.9,
+   "fat_g": 29.4,
+   "fiber_g": 0.0,
+   "nutrients": {
+    "sat_fat_g": 5.55,
+    "sodium_mg": 229.0,
+    "potassium_mg": 685.0,
+    "calcium_mg": 78.0,
+    "iron_mg": 3.05,
+    "vit_c_mg": 1.4,
+    "vit_a_ug": 1.0,
+    "vit_b12_ug": 0.0,
+    "cholesterol_mg": 0.0
+   },
+   "portions": [
+    {
+     "label": "1 taza",
+     "grams": 150
+    },
+    {
+     "label": "1 puñado (1/4 de taza)",
+     "grams": 38
+    },
+    {
+     "label": "100 g",
+     "grams": 100
+    }
+   ],
+   "origin": "USDA FoodData Central, SR Legacy 167561"
+  },
+  {
    "ref_key": "nueces",
    "name": "Nueces",
    "category": "frutos_secos",
@@ -11903,6 +16846,123 @@
    "origin": "ICBF, TCAC 2015 (código 963)"
   },
   {
+   "ref_key": "nuez_pecana_usda",
+   "name": "Nuez pecana",
+   "category": "frutos_secos",
+   "synonyms": [],
+   "kcal": 691.0,
+   "protein_g": 9.2,
+   "carbs_g": 13.9,
+   "fat_g": 72.0,
+   "fiber_g": 9.6,
+   "nutrients": {
+    "sugars_g": 3.97,
+    "sat_fat_g": 6.18,
+    "sodium_mg": 0.0,
+    "potassium_mg": 410.0,
+    "calcium_mg": 70.0,
+    "iron_mg": 2.53,
+    "vit_c_mg": 1.1,
+    "vit_a_ug": 3.0,
+    "vit_d_ug": 0.0,
+    "vit_b12_ug": 0.0,
+    "cholesterol_mg": 0.0
+   },
+   "portions": [
+    {
+     "label": "1 puñado (19 mitades)",
+     "grams": 28
+    },
+    {
+     "label": "1 taza picada",
+     "grams": 109
+    },
+    {
+     "label": "100 g",
+     "grams": 100
+    }
+   ],
+   "origin": "USDA FoodData Central, SR Legacy 170182"
+  },
+  {
+   "ref_key": "pinones_usda",
+   "name": "Piñones",
+   "category": "frutos_secos",
+   "synonyms": [],
+   "kcal": 673.0,
+   "protein_g": 13.7,
+   "carbs_g": 13.1,
+   "fat_g": 68.4,
+   "fiber_g": 3.7,
+   "nutrients": {
+    "sugars_g": 3.59,
+    "sat_fat_g": 4.9,
+    "sodium_mg": 2.0,
+    "potassium_mg": 597.0,
+    "calcium_mg": 16.0,
+    "iron_mg": 5.53,
+    "vit_c_mg": 0.8,
+    "vit_a_ug": 1.0,
+    "vit_d_ug": 0.0,
+    "vit_b12_ug": 0.0,
+    "cholesterol_mg": 0.0
+   },
+   "portions": [
+    {
+     "label": "1 cucharada",
+     "grams": 8.4
+    },
+    {
+     "label": "1 taza",
+     "grams": 135
+    },
+    {
+     "label": "100 g",
+     "grams": 100
+    }
+   ],
+   "origin": "USDA FoodData Central, SR Legacy 170591"
+  },
+  {
+   "ref_key": "semillas_de_canamo_peladas_usda",
+   "name": "Semillas de cáñamo peladas",
+   "category": "frutos_secos",
+   "synonyms": [
+    "hemp"
+   ],
+   "kcal": 553.0,
+   "protein_g": 31.6,
+   "carbs_g": 8.7,
+   "fat_g": 48.8,
+   "fiber_g": 4.0,
+   "nutrients": {
+    "sugars_g": 1.5,
+    "sat_fat_g": 4.6,
+    "sodium_mg": 5.0,
+    "potassium_mg": 1200.0,
+    "calcium_mg": 70.0,
+    "iron_mg": 7.95,
+    "vit_c_mg": 0.5,
+    "vit_a_ug": 1.0,
+    "cholesterol_mg": 0.0
+   },
+   "portions": [
+    {
+     "label": "1 cucharada",
+     "grams": 10
+    },
+    {
+     "label": "3 cucharadas",
+     "grams": 30
+    },
+    {
+     "label": "100 g",
+     "grams": 100
+    }
+   ],
+   "origin": "USDA FoodData Central, SR Legacy 170148"
+  },
+  {
    "ref_key": "chia",
    "name": "Semillas de chía",
    "category": "frutos_secos",
@@ -11933,6 +16993,83 @@
     }
    ],
    "origin": "USDA FoodData Central, SR Legacy 170554"
+  },
+  {
+   "ref_key": "tahini_usda",
+   "name": "Tahini",
+   "category": "frutos_secos",
+   "synonyms": [
+    "pasta de ajonjolí",
+    "crema de ajonjolí"
+   ],
+   "kcal": 595.0,
+   "protein_g": 17.0,
+   "carbs_g": 21.2,
+   "fat_g": 53.8,
+   "fiber_g": 9.3,
+   "nutrients": {
+    "sugars_g": 0.49,
+    "sat_fat_g": 7.53,
+    "sodium_mg": 115.0,
+    "potassium_mg": 414.0,
+    "calcium_mg": 426.0,
+    "iron_mg": 8.95,
+    "vit_c_mg": 0.0,
+    "vit_a_ug": 3.0,
+    "vit_d_ug": 0.0,
+    "vit_b12_ug": 0.0,
+    "cholesterol_mg": 0.0
+   },
+   "portions": [
+    {
+     "label": "1 cucharada",
+     "grams": 15
+    },
+    {
+     "label": "100 g",
+     "grams": 100
+    }
+   ],
+   "origin": "USDA FoodData Central, SR Legacy 170189"
+  },
+  {
+   "ref_key": "aceite_de_aguacate_usda",
+   "name": "Aceite de aguacate",
+   "category": "grasas",
+   "synonyms": [
+    "palta",
+    "aceite de cocina"
+   ],
+   "kcal": 884.0,
+   "protein_g": 0.0,
+   "carbs_g": 0.0,
+   "fat_g": 100.0,
+   "fiber_g": 0.0,
+   "nutrients": {
+    "sat_fat_g": 11.56,
+    "sodium_mg": 0.0,
+    "potassium_mg": 0.0,
+    "calcium_mg": 0.0,
+    "iron_mg": 0.0,
+    "vit_c_mg": 0.0,
+    "vit_a_ug": 0.0,
+    "vit_b12_ug": 0.0
+   },
+   "portions": [
+    {
+     "label": "1 cucharada",
+     "grams": 14
+    },
+    {
+     "label": "1 cucharadita",
+     "grams": 4.5
+    },
+    {
+     "label": "100 g",
+     "grams": 100
+    }
+   ],
+   "origin": "USDA FoodData Central, SR Legacy 173573"
   },
   {
    "ref_key": "aceite_canola",
@@ -11973,6 +17110,47 @@
    "origin": "USDA FoodData Central, SR Legacy 172336"
   },
   {
+   "ref_key": "aceite_de_coco_usda",
+   "name": "Aceite de coco",
+   "category": "grasas",
+   "synonyms": [
+    "aceite de cocina"
+   ],
+   "kcal": 892.0,
+   "protein_g": 0.0,
+   "carbs_g": 0.0,
+   "fat_g": 99.1,
+   "fiber_g": 0.0,
+   "nutrients": {
+    "sugars_g": 0.0,
+    "sat_fat_g": 82.47,
+    "sodium_mg": 0.0,
+    "potassium_mg": 0.0,
+    "calcium_mg": 1.0,
+    "iron_mg": 0.05,
+    "vit_c_mg": 0.0,
+    "vit_a_ug": 0.0,
+    "vit_d_ug": 0.0,
+    "vit_b12_ug": 0.0,
+    "cholesterol_mg": 0.0
+   },
+   "portions": [
+    {
+     "label": "1 cucharada",
+     "grams": 13.6
+    },
+    {
+     "label": "1 cucharadita",
+     "grams": 4.5
+    },
+    {
+     "label": "100 g",
+     "grams": 100
+    }
+   ],
+   "origin": "USDA FoodData Central, SR Legacy 171412"
+  },
+  {
    "ref_key": "aceite_oliva_usda",
    "name": "Aceite de oliva",
    "category": "grasas",
@@ -12008,6 +17186,87 @@
     }
    ],
    "origin": "USDA FoodData Central, SR Legacy 171413"
+  },
+  {
+   "ref_key": "aceite_de_salmon_usda",
+   "name": "Aceite de salmón",
+   "category": "grasas",
+   "synonyms": [
+    "aceite de pescado",
+    "omega 3",
+    "aceite de cocina"
+   ],
+   "kcal": 902.0,
+   "protein_g": 0.0,
+   "carbs_g": 0.0,
+   "fat_g": 100.0,
+   "fiber_g": 0.0,
+   "nutrients": {
+    "sat_fat_g": 19.87,
+    "sodium_mg": 0.0,
+    "potassium_mg": 0.0,
+    "calcium_mg": 0.0,
+    "iron_mg": 0.0,
+    "vit_c_mg": 0.0,
+    "vit_a_ug": 0.0,
+    "vit_b12_ug": 0.0,
+    "cholesterol_mg": 485.0
+   },
+   "portions": [
+    {
+     "label": "1 cucharadita",
+     "grams": 4.5
+    },
+    {
+     "label": "1 cucharada",
+     "grams": 13.6
+    },
+    {
+     "label": "100 g",
+     "grams": 100
+    }
+   ],
+   "origin": "USDA FoodData Central, SR Legacy 172343"
+  },
+  {
+   "ref_key": "aceite_de_semilla_de_uva_usda",
+   "name": "Aceite de semilla de uva",
+   "category": "grasas",
+   "synonyms": [
+    "aceite de cocina"
+   ],
+   "kcal": 884.0,
+   "protein_g": 0.0,
+   "carbs_g": 0.0,
+   "fat_g": 100.0,
+   "fiber_g": 0.0,
+   "nutrients": {
+    "sugars_g": 0.0,
+    "sat_fat_g": 9.6,
+    "sodium_mg": 0.0,
+    "potassium_mg": 0.0,
+    "calcium_mg": 0.0,
+    "iron_mg": 0.0,
+    "vit_c_mg": 0.0,
+    "vit_a_ug": 0.0,
+    "vit_b12_ug": 0.0,
+    "cholesterol_mg": 0.0
+   },
+   "portions": [
+    {
+     "label": "1 cucharada",
+     "grams": 13.6
+    },
+    {
+     "label": "1 cucharadita",
+     "grams": 4.5
+    },
+    {
+     "label": "100 g",
+     "grams": 100
+    }
+   ],
+   "origin": "USDA FoodData Central, SR Legacy 171028"
   },
   {
    "ref_key": "tcac_374",
@@ -12170,6 +17429,81 @@
     }
    ],
    "origin": "ICBF, TCAC 2015 (código 378)"
+  },
+  {
+   "ref_key": "crema_de_coco_usda",
+   "name": "Crema de coco",
+   "category": "grasas",
+   "synonyms": [],
+   "kcal": 330.0,
+   "protein_g": 3.6,
+   "carbs_g": 6.7,
+   "fat_g": 34.7,
+   "fiber_g": 2.2,
+   "nutrients": {
+    "sat_fat_g": 30.75,
+    "sodium_mg": 4.0,
+    "potassium_mg": 325.0,
+    "calcium_mg": 11.0,
+    "iron_mg": 2.28,
+    "vit_c_mg": 2.8,
+    "vit_a_ug": 0.0,
+    "vit_d_ug": 0.0,
+    "vit_b12_ug": 0.0,
+    "cholesterol_mg": 0.0
+   },
+   "portions": [
+    {
+     "label": "1 cucharada",
+     "grams": 15
+    },
+    {
+     "label": "1 taza",
+     "grams": 240
+    },
+    {
+     "label": "100 g",
+     "grams": 100
+    }
+   ],
+   "origin": "USDA FoodData Central, SR Legacy 170580"
+  },
+  {
+   "ref_key": "ghee_usda",
+   "name": "Ghee",
+   "category": "grasas",
+   "synonyms": [
+    "mantequilla clarificada"
+   ],
+   "kcal": 876.0,
+   "protein_g": 0.3,
+   "carbs_g": 0.0,
+   "fat_g": 99.5,
+   "fiber_g": 0.0,
+   "nutrients": {
+    "sugars_g": 0.0,
+    "sat_fat_g": 61.92,
+    "sodium_mg": 2.0,
+    "potassium_mg": 5.0,
+    "calcium_mg": 4.0,
+    "iron_mg": 0.0,
+    "vit_c_mg": 0.0,
+    "vit_a_ug": 840.0,
+    "vit_d_ug": 0.0,
+    "vit_b12_ug": 0.01,
+    "cholesterol_mg": 256.0
+   },
+   "portions": [
+    {
+     "label": "1 cucharada",
+     "grams": 12.8
+    },
+    {
+     "label": "100 g",
+     "grams": 100
+    }
+   ],
+   "origin": "USDA FoodData Central, SR Legacy 173412"
   },
   {
    "ref_key": "tcac_383",
@@ -12424,6 +17758,47 @@
    "origin": "USDA FoodData Central, SR Legacy 172183"
   },
   {
+   "ref_key": "huevo_de_codorniz_crudo_usda",
+   "name": "Huevo de codorniz, crudo",
+   "category": "huevos",
+   "synonyms": [
+    "huevos"
+   ],
+   "kcal": 158.0,
+   "protein_g": 13.1,
+   "carbs_g": 0.4,
+   "fat_g": 11.1,
+   "fiber_g": 0.0,
+   "nutrients": {
+    "sugars_g": 0.4,
+    "sat_fat_g": 3.56,
+    "sodium_mg": 141.0,
+    "potassium_mg": 132.0,
+    "calcium_mg": 64.0,
+    "iron_mg": 3.65,
+    "vit_c_mg": 0.0,
+    "vit_a_ug": 156.0,
+    "vit_d_ug": 1.4,
+    "vit_b12_ug": 1.58,
+    "cholesterol_mg": 844.0
+   },
+   "portions": [
+    {
+     "label": "1 unidad",
+     "grams": 9
+    },
+    {
+     "label": "5 unidades",
+     "grams": 45
+    },
+    {
+     "label": "100 g",
+     "grams": 100
+    }
+   ],
+   "origin": "USDA FoodData Central, SR Legacy 172191"
+  },
+  {
    "ref_key": "huevo_cocido",
    "name": "Huevo de gallina cocido",
    "category": "huevos",
@@ -12534,6 +17909,243 @@
     }
    ],
    "origin": "ICBF, TCAC 2015 (código 684)"
+  },
+  {
+   "ref_key": "huevo_pochado_usda",
+   "name": "Huevo pochado",
+   "category": "huevos",
+   "synonyms": [
+    "huevo escalfado",
+    "huevos"
+   ],
+   "kcal": 143.0,
+   "protein_g": 12.5,
+   "carbs_g": 0.7,
+   "fat_g": 9.5,
+   "fiber_g": 0.0,
+   "nutrients": {
+    "sugars_g": 0.37,
+    "sat_fat_g": 3.11,
+    "sodium_mg": 297.0,
+    "potassium_mg": 138.0,
+    "calcium_mg": 56.0,
+    "iron_mg": 1.75,
+    "vit_c_mg": 0.0,
+    "vit_a_ug": 160.0,
+    "vit_d_ug": 2.0,
+    "vit_b12_ug": 0.71,
+    "cholesterol_mg": 370.0
+   },
+   "portions": [
+    {
+     "label": "1 unidad",
+     "grams": 50
+    },
+    {
+     "label": "100 g",
+     "grams": 100
+    }
+   ],
+   "origin": "USDA FoodData Central, SR Legacy 172186"
+  },
+  {
+   "ref_key": "huevos_revueltos_usda",
+   "name": "Huevos revueltos",
+   "category": "huevos",
+   "synonyms": [
+    "huevo revuelto"
+   ],
+   "kcal": 149.0,
+   "protein_g": 10.0,
+   "carbs_g": 1.6,
+   "fat_g": 11.0,
+   "fiber_g": 0.0,
+   "nutrients": {
+    "sugars_g": 1.39,
+    "sat_fat_g": 3.33,
+    "sodium_mg": 145.0,
+    "potassium_mg": 132.0,
+    "calcium_mg": 66.0,
+    "iron_mg": 1.31,
+    "vit_c_mg": 0.0,
+    "vit_a_ug": 161.0,
+    "vit_d_ug": 1.8,
+    "vit_b12_ug": 0.76,
+    "cholesterol_mg": 277.0
+   },
+   "portions": [
+    {
+     "label": "1 huevo",
+     "grams": 61
+    },
+    {
+     "label": "1 taza",
+     "grams": 220
+    },
+    {
+     "label": "100 g",
+     "grams": 100
+    }
+   ],
+   "origin": "USDA FoodData Central, SR Legacy 172187"
+  },
+  {
+   "ref_key": "tortilla_de_huevo_omelet_usda",
+   "name": "Tortilla de huevo",
+   "category": "huevos",
+   "synonyms": [
+    "omelet",
+    "omelette",
+    "huevos"
+   ],
+   "kcal": 154.0,
+   "protein_g": 10.6,
+   "carbs_g": 0.6,
+   "fat_g": 11.7,
+   "fiber_g": 0.0,
+   "nutrients": {
+    "sugars_g": 0.31,
+    "sat_fat_g": 3.32,
+    "sodium_mg": 155.0,
+    "potassium_mg": 117.0,
+    "calcium_mg": 48.0,
+    "iron_mg": 1.48,
+    "vit_c_mg": 0.0,
+    "vit_a_ug": 172.0,
+    "vit_d_ug": 1.7,
+    "vit_b12_ug": 0.76,
+    "cholesterol_mg": 313.0
+   },
+   "portions": [
+    {
+     "label": "1 huevo",
+     "grams": 61
+    },
+    {
+     "label": "1 cucharada",
+     "grams": 15
+    },
+    {
+     "label": "100 g",
+     "grams": 100
+    }
+   ],
+   "origin": "USDA FoodData Central, SR Legacy 172185"
+  },
+  {
+   "ref_key": "yema_de_huevo_cruda_usda",
+   "name": "Yema de huevo, cruda",
+   "category": "huevos",
+   "synonyms": [
+    "huevos"
+   ],
+   "kcal": 322.0,
+   "protein_g": 15.9,
+   "carbs_g": 3.6,
+   "fat_g": 26.5,
+   "fiber_g": 0.0,
+   "nutrients": {
+    "sugars_g": 0.56,
+    "sat_fat_g": 9.55,
+    "sodium_mg": 48.0,
+    "potassium_mg": 109.0,
+    "calcium_mg": 129.0,
+    "iron_mg": 2.73,
+    "vit_c_mg": 0.0,
+    "vit_a_ug": 381.0,
+    "vit_d_ug": 5.4,
+    "vit_b12_ug": 1.95,
+    "cholesterol_mg": 1085.0
+   },
+   "portions": [
+    {
+     "label": "1 unidad",
+     "grams": 17
+    },
+    {
+     "label": "100 g",
+     "grams": 100
+    }
+   ],
+   "origin": "USDA FoodData Central, SR Legacy 172184"
+  },
+  {
+   "ref_key": "crema_agria_usda",
+   "name": "Crema agria",
+   "category": "lacteos",
+   "synonyms": [
+    "sour cream"
+   ],
+   "kcal": 198.0,
+   "protein_g": 2.4,
+   "carbs_g": 4.6,
+   "fat_g": 19.4,
+   "fiber_g": 0.0,
+   "nutrients": {
+    "sugars_g": 3.41,
+    "sat_fat_g": 10.14,
+    "sodium_mg": 31.0,
+    "potassium_mg": 125.0,
+    "calcium_mg": 101.0,
+    "iron_mg": 0.07,
+    "vit_c_mg": 0.9,
+    "vit_a_ug": 124.0,
+    "vit_d_ug": 0.0,
+    "vit_b12_ug": 0.21,
+    "cholesterol_mg": 59.0
+   },
+   "portions": [
+    {
+     "label": "1 cucharada",
+     "grams": 12
+    },
+    {
+     "label": "1 taza",
+     "grams": 230
+    },
+    {
+     "label": "100 g",
+     "grams": 100
+    }
+   ],
+   "origin": "USDA FoodData Central, SR Legacy 171257"
+  },
+  {
+   "ref_key": "crema_agria_light_usda",
+   "name": "Crema agria light",
+   "category": "lacteos",
+   "synonyms": [
+    "crema agria baja en grasa"
+   ],
+   "kcal": 136.0,
+   "protein_g": 3.5,
+   "carbs_g": 7.1,
+   "fat_g": 10.6,
+   "fiber_g": 0.0,
+   "nutrients": {
+    "sugars_g": 0.22,
+    "sat_fat_g": 6.6,
+    "sodium_mg": 83.0,
+    "potassium_mg": 212.0,
+    "calcium_mg": 141.0,
+    "iron_mg": 0.07,
+    "vit_c_mg": 0.9,
+    "vit_a_ug": 90.0,
+    "vit_d_ug": 0.2,
+    "vit_b12_ug": 0.42,
+    "cholesterol_mg": 35.0
+   },
+   "portions": [
+    {
+     "label": "1 cucharada",
+     "grams": 12
+    },
+    {
+     "label": "100 g",
+     "grams": 100
+    }
+   ],
+   "origin": "USDA FoodData Central, SR Legacy 173443"
   },
   {
    "ref_key": "crema_leche",
@@ -13032,6 +18644,43 @@
    "origin": "ICBF, TCAC 2015 (código 635)"
   },
   {
+   "ref_key": "queso_brie_usda",
+   "name": "Queso brie",
+   "category": "lacteos",
+   "synonyms": [
+    "quesito"
+   ],
+   "kcal": 334.0,
+   "protein_g": 20.8,
+   "carbs_g": 0.5,
+   "fat_g": 27.7,
+   "fiber_g": 0.0,
+   "nutrients": {
+    "sugars_g": 0.45,
+    "sat_fat_g": 17.41,
+    "sodium_mg": 629.0,
+    "potassium_mg": 152.0,
+    "calcium_mg": 184.0,
+    "iron_mg": 0.5,
+    "vit_c_mg": 0.0,
+    "vit_a_ug": 174.0,
+    "vit_d_ug": 0.5,
+    "vit_b12_ug": 1.65,
+    "cholesterol_mg": 100.0
+   },
+   "portions": [
+    {
+     "label": "1 cubo pequeño",
+     "grams": 17
+    },
+    {
+     "label": "100 g",
+     "grams": 100
+    }
+   ],
+   "origin": "USDA FoodData Central, SR Legacy 172177"
+  },
+  {
    "ref_key": "tcac_636",
    "name": "Queso butirro",
    "category": "lacteos",
@@ -13196,6 +18845,82 @@
    "origin": "USDA FoodData Central, Foundation 2346385"
   },
   {
+   "ref_key": "queso_crema_bajo_en_grasa_usda",
+   "name": "Queso crema bajo en grasa",
+   "category": "lacteos",
+   "synonyms": [
+    "queso crema light",
+    "quesito"
+   ],
+   "kcal": 208.0,
+   "protein_g": 7.8,
+   "carbs_g": 6.7,
+   "fat_g": 16.7,
+   "fiber_g": 0.0,
+   "nutrients": {
+    "sugars_g": 3.3,
+    "sat_fat_g": 10.0,
+    "sodium_mg": 317.0,
+    "potassium_mg": 247.0,
+    "calcium_mg": 148.0,
+    "iron_mg": 0.17,
+    "vit_c_mg": 0.0,
+    "vit_a_ug": 161.0,
+    "vit_d_ug": 0.3,
+    "vit_b12_ug": 0.92,
+    "cholesterol_mg": 54.0
+   },
+   "portions": [
+    {
+     "label": "1 cucharada",
+     "grams": 15
+    },
+    {
+     "label": "100 g",
+     "grams": 100
+    }
+   ],
+   "origin": "USDA FoodData Central, SR Legacy 169079"
+  },
+  {
+   "ref_key": "queso_de_cabra_fresco_usda",
+   "name": "Queso de cabra fresco",
+   "category": "lacteos",
+   "synonyms": [
+    "queso de cabra blando",
+    "quesito"
+   ],
+   "kcal": 264.0,
+   "protein_g": 18.5,
+   "carbs_g": 0.0,
+   "fat_g": 21.1,
+   "fiber_g": 0.0,
+   "nutrients": {
+    "sugars_g": 0.0,
+    "sat_fat_g": 14.57,
+    "sodium_mg": 459.0,
+    "potassium_mg": 26.0,
+    "calcium_mg": 140.0,
+    "iron_mg": 1.9,
+    "vit_c_mg": 0.0,
+    "vit_a_ug": 288.0,
+    "vit_d_ug": 0.4,
+    "vit_b12_ug": 0.19,
+    "cholesterol_mg": 46.0
+   },
+   "portions": [
+    {
+     "label": "1 porción",
+     "grams": 28
+    },
+    {
+     "label": "100 g",
+     "grams": 100
+    }
+   ],
+   "origin": "USDA FoodData Central, SR Legacy 173435"
+  },
+  {
    "ref_key": "tcac_639",
    "name": "Queso de pasta hilada, semigraso",
    "category": "lacteos",
@@ -13221,6 +18946,47 @@
     }
    ],
    "origin": "ICBF, TCAC 2015 (código 639)"
+  },
+  {
+   "ref_key": "queso_feta_usda",
+   "name": "Queso feta",
+   "category": "lacteos",
+   "synonyms": [
+    "quesito"
+   ],
+   "kcal": 265.0,
+   "protein_g": 14.2,
+   "carbs_g": 3.9,
+   "fat_g": 21.5,
+   "fiber_g": 0.0,
+   "nutrients": {
+    "sugars_g": 0.0,
+    "sat_fat_g": 13.3,
+    "sodium_mg": 1139.0,
+    "potassium_mg": 62.0,
+    "calcium_mg": 493.0,
+    "iron_mg": 0.65,
+    "vit_c_mg": 0.0,
+    "vit_a_ug": 125.0,
+    "vit_d_ug": 0.4,
+    "vit_b12_ug": 1.69,
+    "cholesterol_mg": 89.0
+   },
+   "portions": [
+    {
+     "label": "1 taza desmenuzado",
+     "grams": 150
+    },
+    {
+     "label": "1 porción",
+     "grams": 38
+    },
+    {
+     "label": "100 g",
+     "grams": 100
+    }
+   ],
+   "origin": "USDA FoodData Central, SR Legacy 173420"
   },
   {
    "ref_key": "queso_mozzarella_semi",
@@ -13258,6 +19024,90 @@
     }
    ],
    "origin": "USDA FoodData Central, SR Legacy 170847"
+  },
+  {
+   "ref_key": "queso_provolone_usda",
+   "name": "Queso provolone",
+   "category": "lacteos",
+   "synonyms": [
+    "quesito"
+   ],
+   "kcal": 351.0,
+   "protein_g": 25.6,
+   "carbs_g": 2.1,
+   "fat_g": 26.6,
+   "fiber_g": 0.0,
+   "nutrients": {
+    "sugars_g": 0.56,
+    "sat_fat_g": 17.08,
+    "sodium_mg": 727.0,
+    "potassium_mg": 138.0,
+    "calcium_mg": 756.0,
+    "iron_mg": 0.52,
+    "vit_c_mg": 0.0,
+    "vit_a_ug": 236.0,
+    "vit_d_ug": 0.5,
+    "vit_b12_ug": 1.46,
+    "cholesterol_mg": 69.0
+   },
+   "portions": [
+    {
+     "label": "1 tajada",
+     "grams": 28
+    },
+    {
+     "label": "1 taza en cubos",
+     "grams": 132
+    },
+    {
+     "label": "100 g",
+     "grams": 100
+    }
+   ],
+   "origin": "USDA FoodData Central, SR Legacy 170850"
+  },
+  {
+   "ref_key": "queso_suizo_usda",
+   "name": "Queso suizo",
+   "category": "lacteos",
+   "synonyms": [
+    "queso tipo suizo",
+    "emmental",
+    "quesito"
+   ],
+   "kcal": 393.0,
+   "protein_g": 27.0,
+   "carbs_g": 1.4,
+   "fat_g": 31.0,
+   "fiber_g": 0.0,
+   "nutrients": {
+    "sugars_g": 0.0,
+    "sat_fat_g": 18.23,
+    "sodium_mg": 187.0,
+    "potassium_mg": 72.0,
+    "calcium_mg": 890.0,
+    "iron_mg": 0.13,
+    "vit_c_mg": 0.0,
+    "vit_a_ug": 288.0,
+    "vit_d_ug": 0.0,
+    "vit_b12_ug": 3.06,
+    "cholesterol_mg": 93.0
+   },
+   "portions": [
+    {
+     "label": "1 taza rallado",
+     "grams": 108
+    },
+    {
+     "label": "1 taza en cubos",
+     "grams": 132
+    },
+    {
+     "label": "100 g",
+     "grams": 100
+    }
+   ],
+   "origin": "USDA FoodData Central, SR Legacy 171251"
   },
   {
    "ref_key": "tcac_641",
@@ -13508,6 +19358,45 @@
    "origin": "ICBF, TCAC 2015 (código 648)"
   },
   {
+   "ref_key": "yogur_griego_de_fresa_sin_grasa_usda",
+   "name": "Yogur griego de fresa, sin grasa",
+   "category": "lacteos",
+   "synonyms": [
+    "yogurt griego de fresa",
+    "yogurt",
+    "kumis"
+   ],
+   "kcal": 82.0,
+   "protein_g": 8.1,
+   "carbs_g": 12.1,
+   "fat_g": 0.1,
+   "fiber_g": 0.6,
+   "nutrients": {
+    "sugars_g": 11.27,
+    "sat_fat_g": 0.1,
+    "sodium_mg": 33.0,
+    "potassium_mg": 132.0,
+    "calcium_mg": 97.0,
+    "iron_mg": 0.09,
+    "vit_c_mg": 0.3,
+    "vit_a_ug": 0.0,
+    "vit_d_ug": 1.0,
+    "vit_b12_ug": 0.49,
+    "cholesterol_mg": 4.0
+   },
+   "portions": [
+    {
+     "label": "1 vaso",
+     "grams": 150
+    },
+    {
+     "label": "100 g",
+     "grams": 100
+    }
+   ],
+   "origin": "USDA FoodData Central, SR Legacy 170901"
+  },
+  {
    "ref_key": "yogur_griego",
    "name": "Yogur griego natural sin grasa",
    "category": "lacteos",
@@ -13545,6 +19434,49 @@
     }
    ],
    "origin": "USDA FoodData Central, SR Legacy 170894"
+  },
+  {
+   "ref_key": "yogur_natural_descremado_usda",
+   "name": "Yogur natural descremado",
+   "category": "lacteos",
+   "synonyms": [
+    "yogurt sin grasa",
+    "yogurt",
+    "kumis"
+   ],
+   "kcal": 56.0,
+   "protein_g": 5.7,
+   "carbs_g": 7.7,
+   "fat_g": 0.2,
+   "fiber_g": 0.0,
+   "nutrients": {
+    "sugars_g": 7.68,
+    "sat_fat_g": 0.12,
+    "sodium_mg": 77.0,
+    "potassium_mg": 255.0,
+    "calcium_mg": 199.0,
+    "iron_mg": 0.09,
+    "vit_c_mg": 0.9,
+    "vit_a_ug": 2.0,
+    "vit_d_ug": 0.0,
+    "vit_b12_ug": 0.61,
+    "cholesterol_mg": 2.0
+   },
+   "portions": [
+    {
+     "label": "1 vaso",
+     "grams": 170
+    },
+    {
+     "label": "1 taza",
+     "grams": 245
+    },
+    {
+     "label": "100 g",
+     "grams": 100
+    }
+   ],
+   "origin": "USDA FoodData Central, SR Legacy 170887"
   },
   {
    "ref_key": "yogur_natural",
@@ -13585,6 +19517,127 @@
    "origin": "USDA FoodData Central, SR Legacy 171284"
   },
   {
+   "ref_key": "yogur_natural_semidescremado_usda",
+   "name": "Yogur natural semidescremado",
+   "category": "lacteos",
+   "synonyms": [
+    "yogurt natural bajo en grasa",
+    "yogurt",
+    "kumis"
+   ],
+   "kcal": 63.0,
+   "protein_g": 5.2,
+   "carbs_g": 7.0,
+   "fat_g": 1.6,
+   "fiber_g": 0.0,
+   "nutrients": {
+    "sugars_g": 7.04,
+    "sat_fat_g": 1.0,
+    "sodium_mg": 70.0,
+    "potassium_mg": 234.0,
+    "calcium_mg": 183.0,
+    "iron_mg": 0.08,
+    "vit_c_mg": 0.8,
+    "vit_a_ug": 14.0,
+    "vit_d_ug": 0.0,
+    "vit_b12_ug": 0.56,
+    "cholesterol_mg": 6.0
+   },
+   "portions": [
+    {
+     "label": "1 vaso",
+     "grams": 170
+    },
+    {
+     "label": "1 taza",
+     "grams": 245
+    },
+    {
+     "label": "100 g",
+     "grams": 100
+    }
+   ],
+   "origin": "USDA FoodData Central, SR Legacy 170886"
+  },
+  {
+   "ref_key": "arveja_seca_partida_cocida_usda",
+   "name": "Arveja seca partida, cocida",
+   "category": "leguminosas",
+   "synonyms": [
+    "arveja seca cocida",
+    "alverja",
+    "guisante"
+   ],
+   "kcal": 116.0,
+   "protein_g": 8.3,
+   "carbs_g": 20.5,
+   "fat_g": 0.4,
+   "fiber_g": 8.3,
+   "nutrients": {
+    "sugars_g": 2.9,
+    "sat_fat_g": 0.05,
+    "sodium_mg": 238.0,
+    "potassium_mg": 362.0,
+    "calcium_mg": 14.0,
+    "iron_mg": 1.29,
+    "vit_c_mg": 0.4,
+    "vit_a_ug": 0.0,
+    "vit_d_ug": 0.0,
+    "vit_b12_ug": 0.0,
+    "cholesterol_mg": 0.0
+   },
+   "portions": [
+    {
+     "label": "1 taza",
+     "grams": 196
+    },
+    {
+     "label": "100 g",
+     "grams": 100
+    }
+   ],
+   "origin": "USDA FoodData Central, SR Legacy 175257"
+  },
+  {
+   "ref_key": "arveja_seca_partida_cruda_usda",
+   "name": "Arveja seca partida, cruda",
+   "category": "leguminosas",
+   "synonyms": [
+    "arveja amarilla partida",
+    "alverja",
+    "guisante"
+   ],
+   "kcal": 364.0,
+   "protein_g": 23.1,
+   "carbs_g": 61.6,
+   "fat_g": 3.9,
+   "fiber_g": 22.2,
+   "nutrients": {
+    "sugars_g": 3.14,
+    "sat_fat_g": 0.41,
+    "sodium_mg": 5.0,
+    "potassium_mg": 852.0,
+    "calcium_mg": 46.0,
+    "iron_mg": 4.73,
+    "vit_c_mg": 1.8,
+    "vit_a_ug": 7.0,
+    "vit_d_ug": 0.0,
+    "vit_b12_ug": 0.0,
+    "cholesterol_mg": 0.0
+   },
+   "portions": [
+    {
+     "label": "1 taza",
+     "grams": 196
+    },
+    {
+     "label": "100 g",
+     "grams": 100
+    }
+   ],
+   "origin": "USDA FoodData Central, SR Legacy 172428"
+  },
+  {
    "ref_key": "tcac_936",
    "name": "Bebida de soya fermentada",
    "category": "leguminosas",
@@ -13602,6 +19655,164 @@
     }
    ],
    "origin": "ICBF, TCAC 2015 (código 936)"
+  },
+  {
+   "ref_key": "chocho_cocido_usda",
+   "name": "Chocho, cocido",
+   "category": "leguminosas",
+   "synonyms": [
+    "altramuz",
+    "tarwi",
+    "lupino"
+   ],
+   "kcal": 116.0,
+   "protein_g": 15.6,
+   "carbs_g": 9.3,
+   "fat_g": 2.9,
+   "fiber_g": 2.8,
+   "nutrients": {
+    "sat_fat_g": 0.35,
+    "sodium_mg": 240.0,
+    "potassium_mg": 245.0,
+    "calcium_mg": 51.0,
+    "iron_mg": 1.2,
+    "vit_c_mg": 1.1,
+    "vit_a_ug": 0.0,
+    "vit_d_ug": 0.0,
+    "vit_b12_ug": 0.0,
+    "cholesterol_mg": 0.0
+   },
+   "portions": [
+    {
+     "label": "1 taza",
+     "grams": 166
+    },
+    {
+     "label": "100 g",
+     "grams": 100
+    }
+   ],
+   "origin": "USDA FoodData Central, SR Legacy 173804"
+  },
+  {
+   "ref_key": "edamame_crudo_usda",
+   "name": "Edamame, crudo",
+   "category": "leguminosas",
+   "synonyms": [
+    "soya verde",
+    "frijol de soya verde"
+   ],
+   "kcal": 147.0,
+   "protein_g": 12.9,
+   "carbs_g": 11.1,
+   "fat_g": 6.8,
+   "fiber_g": 4.2,
+   "nutrients": {
+    "sat_fat_g": 0.79,
+    "sodium_mg": 15.0,
+    "potassium_mg": 620.0,
+    "calcium_mg": 197.0,
+    "iron_mg": 3.55,
+    "vit_c_mg": 29.0,
+    "vit_a_ug": 9.0,
+    "vit_d_ug": 0.0,
+    "vit_b12_ug": 0.0,
+    "cholesterol_mg": 0.0
+   },
+   "portions": [
+    {
+     "label": "1 taza",
+     "grams": 256
+    },
+    {
+     "label": "100 g",
+     "grams": 100
+    }
+   ],
+   "origin": "USDA FoodData Central, SR Legacy 169282"
+  },
+  {
+   "ref_key": "frijol_blanco_cocido_usda",
+   "name": "Fríjol blanco, cocido",
+   "category": "leguminosas",
+   "synonyms": [
+    "alubia cocida",
+    "frijoles",
+    "porotos"
+   ],
+   "kcal": 140.0,
+   "protein_g": 8.2,
+   "carbs_g": 26.1,
+   "fat_g": 0.6,
+   "fiber_g": 10.5,
+   "nutrients": {
+    "sugars_g": 0.37,
+    "sat_fat_g": 0.03,
+    "sodium_mg": 237.0,
+    "potassium_mg": 389.0,
+    "calcium_mg": 69.0,
+    "iron_mg": 2.36,
+    "vit_c_mg": 0.9,
+    "vit_a_ug": 0.0,
+    "vit_d_ug": 0.0,
+    "vit_b12_ug": 0.0,
+    "cholesterol_mg": 0.0
+   },
+   "portions": [
+    {
+     "label": "1 taza",
+     "grams": 182
+    },
+    {
+     "label": "100 g",
+     "grams": 100
+    }
+   ],
+   "origin": "USDA FoodData Central, SR Legacy 173794"
+  },
+  {
+   "ref_key": "frijol_blanco_crudo_usda",
+   "name": "Fríjol blanco, crudo",
+   "category": "leguminosas",
+   "synonyms": [
+    "alubia",
+    "fríjol blanco seco",
+    "frijoles",
+    "porotos"
+   ],
+   "kcal": 333.0,
+   "protein_g": 23.4,
+   "carbs_g": 60.3,
+   "fat_g": 0.8,
+   "fiber_g": 15.2,
+   "nutrients": {
+    "sugars_g": 2.11,
+    "sat_fat_g": 0.22,
+    "sodium_mg": 16.0,
+    "potassium_mg": 1795.0,
+    "calcium_mg": 240.0,
+    "iron_mg": 10.44,
+    "vit_c_mg": 0.0,
+    "vit_a_ug": 0.0,
+    "vit_d_ug": 0.0,
+    "vit_b12_ug": 0.0,
+    "cholesterol_mg": 0.0
+   },
+   "portions": [
+    {
+     "label": "1 taza",
+     "grams": 202
+    },
+    {
+     "label": "1 cucharada",
+     "grams": 12.6
+    },
+    {
+     "label": "100 g",
+     "grams": 100
+    }
+   ],
+   "origin": "USDA FoodData Central, SR Legacy 175202"
   },
   {
    "ref_key": "tcac_938",
@@ -13792,6 +20003,45 @@
    "origin": "ICBF, TCAC 2015 (código 945)"
   },
   {
+   "ref_key": "frijol_mungo_cocido_usda",
+   "name": "Fríjol mungo, cocido",
+   "category": "leguminosas",
+   "synonyms": [
+    "fríjol chino",
+    "frijoles",
+    "porotos"
+   ],
+   "kcal": 105.0,
+   "protein_g": 7.0,
+   "carbs_g": 19.1,
+   "fat_g": 0.4,
+   "fiber_g": 7.6,
+   "nutrients": {
+    "sugars_g": 2.0,
+    "sat_fat_g": 0.12,
+    "sodium_mg": 238.0,
+    "potassium_mg": 266.0,
+    "calcium_mg": 27.0,
+    "iron_mg": 1.4,
+    "vit_c_mg": 1.0,
+    "vit_a_ug": 1.0,
+    "vit_d_ug": 0.0,
+    "vit_b12_ug": 0.0,
+    "cholesterol_mg": 0.0
+   },
+   "portions": [
+    {
+     "label": "1 taza",
+     "grams": 202
+    },
+    {
+     "label": "100 g",
+     "grams": 100
+    }
+   ],
+   "origin": "USDA FoodData Central, SR Legacy 175255"
+  },
+  {
    "ref_key": "frijol_negro_cocido",
    "name": "Fríjol negro cocido",
    "category": "leguminosas",
@@ -13829,6 +20079,49 @@
     }
    ],
    "origin": "USDA FoodData Central, SR Legacy 173735"
+  },
+  {
+   "ref_key": "frijol_negro_crudo_usda",
+   "name": "Fríjol negro, crudo",
+   "category": "leguminosas",
+   "synonyms": [
+    "caraota negra",
+    "frijoles",
+    "porotos"
+   ],
+   "kcal": 341.0,
+   "protein_g": 21.6,
+   "carbs_g": 62.4,
+   "fat_g": 1.4,
+   "fiber_g": 15.5,
+   "nutrients": {
+    "sugars_g": 2.12,
+    "sat_fat_g": 0.37,
+    "sodium_mg": 5.0,
+    "potassium_mg": 1483.0,
+    "calcium_mg": 123.0,
+    "iron_mg": 5.02,
+    "vit_c_mg": 0.0,
+    "vit_a_ug": 0.0,
+    "vit_d_ug": 0.0,
+    "vit_b12_ug": 0.0,
+    "cholesterol_mg": 0.0
+   },
+   "portions": [
+    {
+     "label": "1 taza",
+     "grams": 194
+    },
+    {
+     "label": "1 cucharada",
+     "grams": 12
+    },
+    {
+     "label": "100 g",
+     "grams": 100
+    }
+   ],
+   "origin": "USDA FoodData Central, SR Legacy 173734"
   },
   {
    "ref_key": "tcac_946",
@@ -13970,6 +20263,45 @@
    "origin": "USDA FoodData Central, SR Legacy 175194"
   },
   {
+   "ref_key": "frijol_rosado_cocido_usda",
+   "name": "Fríjol rosado, cocido",
+   "category": "leguminosas",
+   "synonyms": [
+    "fríjol cargamanto cocido",
+    "frijoles",
+    "porotos"
+   ],
+   "kcal": 149.0,
+   "protein_g": 9.1,
+   "carbs_g": 27.9,
+   "fat_g": 0.5,
+   "fiber_g": 5.3,
+   "nutrients": {
+    "sugars_g": 0.36,
+    "sat_fat_g": 0.13,
+    "sodium_mg": 238.0,
+    "potassium_mg": 508.0,
+    "calcium_mg": 52.0,
+    "iron_mg": 2.3,
+    "vit_c_mg": 0.0,
+    "vit_a_ug": 0.0,
+    "vit_d_ug": 0.0,
+    "vit_b12_ug": 0.0,
+    "cholesterol_mg": 0.0
+   },
+   "portions": [
+    {
+     "label": "1 taza",
+     "grams": 169
+    },
+    {
+     "label": "100 g",
+     "grams": 100
+    }
+   ],
+   "origin": "USDA FoodData Central, SR Legacy 173795"
+  },
+  {
    "ref_key": "tcac_949",
    "name": "Fríjol sangretoro",
    "category": "leguminosas",
@@ -14069,6 +20401,192 @@
     }
    ],
    "origin": "USDA FoodData Central, SR Legacy 173757"
+  },
+  {
+   "ref_key": "germinado_de_lenteja_usda",
+   "name": "Germinado de lenteja, crudo",
+   "category": "leguminosas",
+   "synonyms": [
+    "brotes de lenteja",
+    "lentejas"
+   ],
+   "kcal": 106.0,
+   "protein_g": 9.0,
+   "carbs_g": 22.1,
+   "fat_g": 0.6,
+   "fiber_g": 0.0,
+   "nutrients": {
+    "sat_fat_g": 0.06,
+    "sodium_mg": 11.0,
+    "potassium_mg": 322.0,
+    "calcium_mg": 25.0,
+    "iron_mg": 3.21,
+    "vit_c_mg": 16.5,
+    "vit_a_ug": 2.0,
+    "vit_d_ug": 0.0,
+    "vit_b12_ug": 0.0,
+    "cholesterol_mg": 0.0
+   },
+   "portions": [
+    {
+     "label": "1 taza",
+     "grams": 77
+    },
+    {
+     "label": "100 g",
+     "grams": 100
+    }
+   ],
+   "origin": "USDA FoodData Central, SR Legacy 168427"
+  },
+  {
+   "ref_key": "guandul_seco_crudo_usda",
+   "name": "Guandul seco, crudo",
+   "category": "leguminosas",
+   "synonyms": [
+    "fríjol guandul"
+   ],
+   "kcal": 343.0,
+   "protein_g": 21.7,
+   "carbs_g": 62.8,
+   "fat_g": 1.5,
+   "fiber_g": 15.0,
+   "nutrients": {
+    "sat_fat_g": 0.33,
+    "sodium_mg": 17.0,
+    "potassium_mg": 1392.0,
+    "calcium_mg": 130.0,
+    "iron_mg": 5.23,
+    "vit_c_mg": 0.0,
+    "vit_a_ug": 1.0,
+    "vit_d_ug": 0.0,
+    "vit_b12_ug": 0.0,
+    "cholesterol_mg": 0.0
+   },
+   "portions": [
+    {
+     "label": "1 taza",
+     "grams": 205
+    },
+    {
+     "label": "100 g",
+     "grams": 100
+    }
+   ],
+   "origin": "USDA FoodData Central, SR Legacy 172436"
+  },
+  {
+   "ref_key": "guandul_verde_crudo_usda",
+   "name": "Guandul verde, crudo",
+   "category": "leguminosas",
+   "synonyms": [
+    "gandul",
+    "frijol guandul"
+   ],
+   "kcal": 136.0,
+   "protein_g": 7.2,
+   "carbs_g": 23.9,
+   "fat_g": 1.6,
+   "fiber_g": 5.1,
+   "nutrients": {
+    "sugars_g": 3.0,
+    "sat_fat_g": 0.35,
+    "sodium_mg": 5.0,
+    "potassium_mg": 552.0,
+    "calcium_mg": 42.0,
+    "iron_mg": 1.6,
+    "vit_c_mg": 39.0,
+    "vit_a_ug": 3.0,
+    "vit_d_ug": 0.0,
+    "vit_b12_ug": 0.0,
+    "cholesterol_mg": 0.0
+   },
+   "portions": [
+    {
+     "label": "1 taza",
+     "grams": 154
+    },
+    {
+     "label": "100 g",
+     "grams": 100
+    }
+   ],
+   "origin": "USDA FoodData Central, SR Legacy 170025"
+  },
+  {
+   "ref_key": "haba_seca_cruda_usda",
+   "name": "Haba seca, cruda",
+   "category": "leguminosas",
+   "synonyms": [],
+   "kcal": 341.0,
+   "protein_g": 26.1,
+   "carbs_g": 58.3,
+   "fat_g": 1.5,
+   "fiber_g": 25.0,
+   "nutrients": {
+    "sugars_g": 5.7,
+    "sat_fat_g": 0.25,
+    "sodium_mg": 13.0,
+    "potassium_mg": 1062.0,
+    "calcium_mg": 103.0,
+    "iron_mg": 6.7,
+    "vit_c_mg": 1.4,
+    "vit_a_ug": 3.0,
+    "vit_d_ug": 0.0,
+    "vit_b12_ug": 0.0,
+    "cholesterol_mg": 0.0
+   },
+   "portions": [
+    {
+     "label": "1 taza",
+     "grams": 150
+    },
+    {
+     "label": "1 cucharada",
+     "grams": 9.4
+    },
+    {
+     "label": "100 g",
+     "grams": 100
+    }
+   ],
+   "origin": "USDA FoodData Central, SR Legacy 175205"
+  },
+  {
+   "ref_key": "haba_verde_cruda_usda",
+   "name": "Haba verde, cruda",
+   "category": "leguminosas",
+   "synonyms": [
+    "habas"
+   ],
+   "kcal": 72.0,
+   "protein_g": 5.6,
+   "carbs_g": 11.7,
+   "fat_g": 0.6,
+   "fiber_g": 4.2,
+   "nutrients": {
+    "sat_fat_g": 0.14,
+    "sodium_mg": 50.0,
+    "potassium_mg": 250.0,
+    "calcium_mg": 22.0,
+    "iron_mg": 1.9,
+    "vit_c_mg": 33.0,
+    "vit_a_ug": 18.0,
+    "vit_d_ug": 0.0,
+    "vit_b12_ug": 0.0,
+    "cholesterol_mg": 0.0
+   },
+   "portions": [
+    {
+     "label": "1 taza",
+     "grams": 109
+    },
+    {
+     "label": "100 g",
+     "grams": 100
+    }
+   ],
+   "origin": "USDA FoodData Central, SR Legacy 170377"
   },
   {
    "ref_key": "tcac_956",
@@ -14178,6 +20696,47 @@
    "origin": "ICBF, TCAC 2015 (código 959)"
   },
   {
+   "ref_key": "lenteja_roja_cruda_usda",
+   "name": "Lenteja roja, cruda",
+   "category": "leguminosas",
+   "synonyms": [
+    "lenteja rosada",
+    "lentejas"
+   ],
+   "kcal": 358.0,
+   "protein_g": 23.9,
+   "carbs_g": 63.1,
+   "fat_g": 2.2,
+   "fiber_g": 10.8,
+   "nutrients": {
+    "sat_fat_g": 0.38,
+    "sodium_mg": 7.0,
+    "potassium_mg": 668.0,
+    "calcium_mg": 48.0,
+    "iron_mg": 7.39,
+    "vit_c_mg": 1.7,
+    "vit_a_ug": 3.0,
+    "vit_d_ug": 0.0,
+    "vit_b12_ug": 0.0,
+    "cholesterol_mg": 0.0
+   },
+   "portions": [
+    {
+     "label": "1 taza",
+     "grams": 192
+    },
+    {
+     "label": "1 cucharada",
+     "grams": 12
+    },
+    {
+     "label": "100 g",
+     "grams": 100
+    }
+   ],
+   "origin": "USDA FoodData Central, SR Legacy 174284"
+  },
+  {
    "ref_key": "lentejas_cocidas",
    "name": "Lentejas cocidas",
    "category": "leguminosas",
@@ -14211,6 +20770,81 @@
     }
    ],
    "origin": "USDA FoodData Central, SR Legacy 172421"
+  },
+  {
+   "ref_key": "soya_grano_cocida_usda",
+   "name": "Soya en grano, cocida",
+   "category": "leguminosas",
+   "synonyms": [
+    "soja cocida"
+   ],
+   "kcal": 172.0,
+   "protein_g": 18.2,
+   "carbs_g": 8.4,
+   "fat_g": 9.0,
+   "fiber_g": 6.0,
+   "nutrients": {
+    "sugars_g": 2.36,
+    "sat_fat_g": 1.3,
+    "sodium_mg": 237.0,
+    "potassium_mg": 515.0,
+    "calcium_mg": 102.0,
+    "iron_mg": 5.14,
+    "vit_c_mg": 1.7,
+    "vit_a_ug": 0.0,
+    "vit_d_ug": 0.0,
+    "vit_b12_ug": 0.0,
+    "cholesterol_mg": 0.0
+   },
+   "portions": [
+    {
+     "label": "1 taza",
+     "grams": 172
+    },
+    {
+     "label": "100 g",
+     "grams": 100
+    }
+   ],
+   "origin": "USDA FoodData Central, SR Legacy 174299"
+  },
+  {
+   "ref_key": "soya_grano_cruda_usda",
+   "name": "Soya en grano, cruda",
+   "category": "leguminosas",
+   "synonyms": [
+    "soja",
+    "fríjol soya"
+   ],
+   "kcal": 446.0,
+   "protein_g": 36.5,
+   "carbs_g": 30.2,
+   "fat_g": 19.9,
+   "fiber_g": 9.3,
+   "nutrients": {
+    "sugars_g": 7.33,
+    "sat_fat_g": 2.88,
+    "sodium_mg": 2.0,
+    "potassium_mg": 1797.0,
+    "calcium_mg": 277.0,
+    "iron_mg": 15.7,
+    "vit_c_mg": 6.0,
+    "vit_a_ug": 1.0,
+    "vit_d_ug": 0.0,
+    "vit_b12_ug": 0.0,
+    "cholesterol_mg": 0.0
+   },
+   "portions": [
+    {
+     "label": "1 taza",
+     "grams": 186
+    },
+    {
+     "label": "100 g",
+     "grams": 100
+    }
+   ],
+   "origin": "USDA FoodData Central, SR Legacy 174270"
   },
   {
    "ref_key": "tcac_965",
@@ -14249,6 +20883,37 @@
     }
    ],
    "origin": "ICBF, TCAC 2015 (código 966)"
+  },
+  {
+   "ref_key": "tempeh_cocido_usda",
+   "name": "Tempeh, cocido",
+   "category": "leguminosas",
+   "synonyms": [],
+   "kcal": 195.0,
+   "protein_g": 19.9,
+   "carbs_g": 7.6,
+   "fat_g": 11.4,
+   "fiber_g": 0.0,
+   "nutrients": {
+    "sat_fat_g": 3.4,
+    "sodium_mg": 14.0,
+    "potassium_mg": 401.0,
+    "calcium_mg": 96.0,
+    "iron_mg": 2.13,
+    "vit_d_ug": 0.0,
+    "vit_b12_ug": 0.14
+   },
+   "portions": [
+    {
+     "label": "1 porción",
+     "grams": 85
+    },
+    {
+     "label": "100 g",
+     "grams": 100
+    }
+   ],
+   "origin": "USDA FoodData Central, SR Legacy 172467"
   },
   {
    "ref_key": "tcac_967",
@@ -14439,6 +21104,86 @@
     }
    ],
    "origin": "ICBF, TCAC 2015 (código 788)"
+  },
+  {
+   "ref_key": "comino_usda",
+   "name": "Comino en semilla",
+   "category": "otros",
+   "synonyms": [],
+   "kcal": 375.0,
+   "protein_g": 17.8,
+   "carbs_g": 44.2,
+   "fat_g": 22.3,
+   "fiber_g": 10.5,
+   "nutrients": {
+    "sugars_g": 2.25,
+    "sat_fat_g": 1.53,
+    "sodium_mg": 168.0,
+    "potassium_mg": 1788.0,
+    "calcium_mg": 931.0,
+    "iron_mg": 66.36,
+    "vit_c_mg": 7.7,
+    "vit_a_ug": 64.0,
+    "vit_d_ug": 0.0,
+    "vit_b12_ug": 0.0,
+    "cholesterol_mg": 0.0
+   },
+   "portions": [
+    {
+     "label": "1 cucharadita",
+     "grams": 2.1
+    },
+    {
+     "label": "1 cucharada",
+     "grams": 6
+    },
+    {
+     "label": "100 g",
+     "grams": 100
+    }
+   ],
+   "origin": "USDA FoodData Central, SR Legacy 170923"
+  },
+  {
+   "ref_key": "esencia_de_vainilla_usda",
+   "name": "Esencia de vainilla",
+   "category": "otros",
+   "synonyms": [
+    "extracto de vainilla"
+   ],
+   "kcal": 288.0,
+   "protein_g": 0.1,
+   "carbs_g": 12.7,
+   "fat_g": 0.1,
+   "fiber_g": 0.0,
+   "nutrients": {
+    "sugars_g": 12.65,
+    "sat_fat_g": 0.01,
+    "sodium_mg": 9.0,
+    "potassium_mg": 148.0,
+    "calcium_mg": 11.0,
+    "iron_mg": 0.12,
+    "vit_c_mg": 0.0,
+    "vit_a_ug": 0.0,
+    "vit_d_ug": 0.0,
+    "vit_b12_ug": 0.0,
+    "cholesterol_mg": 0.0
+   },
+   "portions": [
+    {
+     "label": "1 cucharadita",
+     "grams": 4.2
+    },
+    {
+     "label": "1 cucharada",
+     "grams": 13
+    },
+    {
+     "label": "100 g",
+     "grams": 100
+    }
+   ],
+   "origin": "USDA FoodData Central, SR Legacy 173471"
   },
   {
    "ref_key": "tcac_804",
@@ -14962,6 +21707,47 @@
    "origin": "ICBF, TCAC 2015 (código 829)"
   },
   {
+   "ref_key": "paprika_usda",
+   "name": "Paprika",
+   "category": "otros",
+   "synonyms": [
+    "pimentón en polvo"
+   ],
+   "kcal": 282.0,
+   "protein_g": 14.1,
+   "carbs_g": 54.0,
+   "fat_g": 12.9,
+   "fiber_g": 34.9,
+   "nutrients": {
+    "sugars_g": 10.34,
+    "sat_fat_g": 2.14,
+    "sodium_mg": 68.0,
+    "potassium_mg": 2280.0,
+    "calcium_mg": 229.0,
+    "iron_mg": 21.14,
+    "vit_c_mg": 0.9,
+    "vit_a_ug": 2463.0,
+    "vit_d_ug": 0.0,
+    "vit_b12_ug": 0.0,
+    "cholesterol_mg": 0.0
+   },
+   "portions": [
+    {
+     "label": "1 cucharadita",
+     "grams": 2.3
+    },
+    {
+     "label": "1 cucharada",
+     "grams": 6.8
+    },
+    {
+     "label": "100 g",
+     "grams": 100
+    }
+   ],
+   "origin": "USDA FoodData Central, SR Legacy 171329"
+  },
+  {
    "ref_key": "tcac_832",
    "name": "Perico",
    "category": "otros",
@@ -15060,6 +21846,150 @@
     }
    ],
    "origin": "ICBF, TCAC 2015 (código 835)"
+  },
+  {
+   "ref_key": "salsa_agridulce_usda",
+   "name": "Salsa agridulce",
+   "category": "otros",
+   "synonyms": [
+    "salsa china agridulce"
+   ],
+   "kcal": 245.0,
+   "protein_g": 0.4,
+   "carbs_g": 60.7,
+   "fat_g": 0.1,
+   "fiber_g": 0.6,
+   "nutrients": {
+    "sugars_g": 30.54,
+    "sat_fat_g": 0.05,
+    "sodium_mg": 712.0,
+    "potassium_mg": 87.0,
+    "calcium_mg": 11.0,
+    "iron_mg": 0.39,
+    "vit_c_mg": 0.9,
+    "vit_a_ug": 8.0,
+    "vit_d_ug": 0.0,
+    "vit_b12_ug": 0.0,
+    "cholesterol_mg": 0.0
+   },
+   "portions": [
+    {
+     "label": "1 cucharada",
+     "grams": 16.5
+    },
+    {
+     "label": "100 g",
+     "grams": 100
+    }
+   ],
+   "origin": "USDA FoodData Central, SR Legacy 171823"
+  },
+  {
+   "ref_key": "salsa_barbacoa_usda",
+   "name": "Salsa barbacoa",
+   "category": "otros",
+   "synonyms": [
+    "salsa bbq"
+   ],
+   "kcal": 172.0,
+   "protein_g": 0.8,
+   "carbs_g": 40.8,
+   "fat_g": 0.6,
+   "fiber_g": 0.9,
+   "nutrients": {
+    "sugars_g": 33.24,
+    "sat_fat_g": 0.04,
+    "sodium_mg": 1027.0,
+    "potassium_mg": 232.0,
+    "calcium_mg": 33.0,
+    "iron_mg": 0.64,
+    "vit_c_mg": 0.6,
+    "vit_a_ug": 11.0,
+    "vit_d_ug": 0.0,
+    "vit_b12_ug": 0.0,
+    "cholesterol_mg": 0.0
+   },
+   "portions": [
+    {
+     "label": "1 cucharada",
+     "grams": 17
+    },
+    {
+     "label": "100 g",
+     "grams": 100
+    }
+   ],
+   "origin": "USDA FoodData Central, SR Legacy 174523"
+  },
+  {
+   "ref_key": "salsa_picante_sriracha_usda",
+   "name": "Salsa de ají picante tipo sriracha",
+   "category": "otros",
+   "synonyms": [
+    "salsa picante"
+   ],
+   "kcal": 93.0,
+   "protein_g": 1.9,
+   "carbs_g": 19.2,
+   "fat_g": 0.9,
+   "fiber_g": 2.2,
+   "nutrients": {
+    "sugars_g": 15.11,
+    "sodium_mg": 2124.0,
+    "potassium_mg": 321.0,
+    "calcium_mg": 18.0,
+    "iron_mg": 1.64,
+    "vit_c_mg": 26.9,
+    "vit_a_ug": 129.0
+   },
+   "portions": [
+    {
+     "label": "1 cucharadita",
+     "grams": 6.5
+    },
+    {
+     "label": "100 g",
+     "grams": 100
+    }
+   ],
+   "origin": "USDA FoodData Central, SR Legacy 171186"
+  },
+  {
+   "ref_key": "salsa_inglesa_usda",
+   "name": "Salsa inglesa",
+   "category": "otros",
+   "synonyms": [
+    "salsa worcestershire"
+   ],
+   "kcal": 77.0,
+   "protein_g": 0.0,
+   "carbs_g": 19.2,
+   "fat_g": 0.0,
+   "fiber_g": 0.0,
+   "nutrients": {
+    "sugars_g": 10.03,
+    "sat_fat_g": 0.0,
+    "sodium_mg": 1300.0,
+    "potassium_mg": 800.0,
+    "calcium_mg": 107.0,
+    "iron_mg": 5.3,
+    "vit_c_mg": 13.0,
+    "vit_a_ug": 5.0,
+    "vit_d_ug": 0.0,
+    "vit_b12_ug": 0.0,
+    "cholesterol_mg": 0.0
+   },
+   "portions": [
+    {
+     "label": "1 cucharada",
+     "grams": 17
+    },
+    {
+     "label": "100 g",
+     "grams": 100
+    }
+   ],
+   "origin": "USDA FoodData Central, SR Legacy 171610"
   },
   {
    "ref_key": "tcac_836",
@@ -15200,6 +22130,115 @@
    "origin": "ICBF, TCAC 2015 (código 745)"
   },
   {
+   "ref_key": "vinagre_balsamico_usda",
+   "name": "Vinagre balsámico",
+   "category": "otros",
+   "synonyms": [],
+   "kcal": 88.0,
+   "protein_g": 0.5,
+   "carbs_g": 17.0,
+   "fat_g": 0.0,
+   "fiber_g": 0.0,
+   "nutrients": {
+    "sugars_g": 14.95,
+    "sat_fat_g": 0.0,
+    "sodium_mg": 23.0,
+    "potassium_mg": 112.0,
+    "calcium_mg": 27.0,
+    "iron_mg": 0.72,
+    "vit_c_mg": 0.0,
+    "vit_a_ug": 0.0
+   },
+   "portions": [
+    {
+     "label": "1 cucharada",
+     "grams": 16
+    },
+    {
+     "label": "1 cucharadita",
+     "grams": 5.3
+    },
+    {
+     "label": "100 g",
+     "grams": 100
+    }
+   ],
+   "origin": "USDA FoodData Central, SR Legacy 172241"
+  },
+  {
+   "ref_key": "vinagre_de_manzana_usda",
+   "name": "Vinagre de manzana",
+   "category": "otros",
+   "synonyms": [
+    "vinagre de sidra"
+   ],
+   "kcal": 21.0,
+   "protein_g": 0.0,
+   "carbs_g": 0.9,
+   "fat_g": 0.0,
+   "fiber_g": 0.0,
+   "nutrients": {
+    "sugars_g": 0.4,
+    "sat_fat_g": 0.0,
+    "sodium_mg": 5.0,
+    "potassium_mg": 73.0,
+    "calcium_mg": 7.0,
+    "iron_mg": 0.2,
+    "vit_c_mg": 0.0,
+    "vit_a_ug": 0.0,
+    "vit_d_ug": 0.0,
+    "vit_b12_ug": 0.0,
+    "cholesterol_mg": 0.0
+   },
+   "portions": [
+    {
+     "label": "1 cucharada",
+     "grams": 15
+    },
+    {
+     "label": "1 cucharadita",
+     "grams": 5
+    },
+    {
+     "label": "100 g",
+     "grams": 100
+    }
+   ],
+   "origin": "USDA FoodData Central, SR Legacy 173469"
+  },
+  {
+   "ref_key": "vinagre_de_vino_tinto_usda",
+   "name": "Vinagre de vino tinto",
+   "category": "otros",
+   "synonyms": [],
+   "kcal": 19.0,
+   "protein_g": 0.0,
+   "carbs_g": 0.3,
+   "fat_g": 0.0,
+   "fiber_g": 0.0,
+   "nutrients": {
+    "sugars_g": 0.0,
+    "sat_fat_g": 0.0,
+    "sodium_mg": 8.0,
+    "potassium_mg": 39.0,
+    "calcium_mg": 6.0,
+    "iron_mg": 0.45,
+    "vit_c_mg": 0.5,
+    "vit_a_ug": 0.0
+   },
+   "portions": [
+    {
+     "label": "1 cucharada",
+     "grams": 15
+    },
+    {
+     "label": "100 g",
+     "grams": 100
+    }
+   ],
+   "origin": "USDA FoodData Central, SR Legacy 172240"
+  },
+  {
    "ref_key": "tcac_845",
    "name": "Wasai, fruta",
    "category": "otros",
@@ -15332,6 +22371,39 @@
     }
    ],
    "origin": "ICBF, TCAC 2015 (código 850)"
+  },
+  {
+   "ref_key": "abadejo_crudo_usda",
+   "name": "Abadejo, crudo",
+   "category": "pescados",
+   "synonyms": [
+    "pollock",
+    "filete de pescado blanco"
+   ],
+   "kcal": 76.0,
+   "protein_g": 17.2,
+   "carbs_g": 0.0,
+   "fat_g": 0.8,
+   "fiber_g": 0.0,
+   "nutrients": {
+    "sat_fat_g": 0.15,
+    "sodium_mg": 159.0,
+    "potassium_mg": 331.0,
+    "calcium_mg": 12.0,
+    "iron_mg": 0.27,
+    "cholesterol_mg": 61.0
+   },
+   "portions": [
+    {
+     "label": "1 porción",
+     "grams": 85
+    },
+    {
+     "label": "100 g",
+     "grams": 100
+    }
+   ],
+   "origin": "USDA FoodData Central, SR Legacy 173725"
   },
   {
    "ref_key": "tcac_394",
@@ -15470,6 +22542,71 @@
     }
    ],
    "origin": "ICBF, TCAC 2015 (código 397)"
+  },
+  {
+   "ref_key": "bacalao_fresco_crudo_usda",
+   "name": "Bacalao fresco, crudo",
+   "category": "pescados",
+   "synonyms": [],
+   "kcal": 82.0,
+   "protein_g": 17.8,
+   "carbs_g": 0.0,
+   "fat_g": 0.7,
+   "fiber_g": 0.0,
+   "nutrients": {
+    "sugars_g": 0.0,
+    "sat_fat_g": 0.13,
+    "sodium_mg": 54.0,
+    "potassium_mg": 413.0,
+    "calcium_mg": 16.0,
+    "iron_mg": 0.38,
+    "vit_c_mg": 1.0,
+    "vit_a_ug": 12.0,
+    "vit_d_ug": 0.9,
+    "vit_b12_ug": 0.91,
+    "cholesterol_mg": 43.0
+   },
+   "portions": [
+    {
+     "label": "1 filete",
+     "grams": 231
+    },
+    {
+     "label": "100 g",
+     "grams": 100
+    }
+   ],
+   "origin": "USDA FoodData Central, SR Legacy 171955"
+  },
+  {
+   "ref_key": "bacalao_cocido_usda",
+   "name": "Bacalao, cocido",
+   "category": "pescados",
+   "synonyms": [],
+   "kcal": 84.0,
+   "protein_g": 20.4,
+   "carbs_g": 0.0,
+   "fat_g": 0.2,
+   "fiber_g": 0.0,
+   "nutrients": {
+    "sat_fat_g": 0.05,
+    "sodium_mg": 134.0,
+    "potassium_mg": 372.0,
+    "calcium_mg": 17.0,
+    "iron_mg": 0.16,
+    "cholesterol_mg": 61.0
+   },
+   "portions": [
+    {
+     "label": "1 porción",
+     "grams": 85
+    },
+    {
+     "label": "100 g",
+     "grams": 100
+    }
+   ],
+   "origin": "USDA FoodData Central, SR Legacy 175178"
   },
   {
    "ref_key": "tcac_399",
@@ -15779,6 +22916,41 @@
    "origin": "ICBF, TCAC 2015 (código 418)"
   },
   {
+   "ref_key": "carpa_cruda_usda",
+   "name": "Carpa, cruda",
+   "category": "pescados",
+   "synonyms": [],
+   "kcal": 127.0,
+   "protein_g": 17.8,
+   "carbs_g": 0.0,
+   "fat_g": 5.6,
+   "fiber_g": 0.0,
+   "nutrients": {
+    "sugars_g": 0.0,
+    "sat_fat_g": 1.08,
+    "sodium_mg": 49.0,
+    "potassium_mg": 333.0,
+    "calcium_mg": 41.0,
+    "iron_mg": 1.24,
+    "vit_c_mg": 1.6,
+    "vit_a_ug": 9.0,
+    "vit_d_ug": 24.7,
+    "vit_b12_ug": 1.53,
+    "cholesterol_mg": 66.0
+   },
+   "portions": [
+    {
+     "label": "1 filete",
+     "grams": 218
+    },
+    {
+     "label": "100 g",
+     "grams": 100
+    }
+   ],
+   "origin": "USDA FoodData Central, SR Legacy 171952"
+  },
+  {
    "ref_key": "tcac_419",
    "name": "Corvina, desvicerado, crudo",
    "category": "pescados",
@@ -15796,6 +22968,42 @@
     }
    ],
    "origin": "ICBF, TCAC 2015 (código 419)"
+  },
+  {
+   "ref_key": "dorado_mahi_mahi_crudo_usda",
+   "name": "Dorado, crudo",
+   "category": "pescados",
+   "synonyms": [
+    "mahi mahi",
+    "dorado de mar"
+   ],
+   "kcal": 85.0,
+   "protein_g": 18.5,
+   "carbs_g": 0.0,
+   "fat_g": 0.7,
+   "fiber_g": 0.0,
+   "nutrients": {
+    "sat_fat_g": 0.19,
+    "sodium_mg": 88.0,
+    "potassium_mg": 416.0,
+    "calcium_mg": 15.0,
+    "iron_mg": 1.13,
+    "vit_c_mg": 0.0,
+    "vit_a_ug": 54.0,
+    "vit_b12_ug": 0.6,
+    "cholesterol_mg": 73.0
+   },
+   "portions": [
+    {
+     "label": "1 filete",
+     "grams": 204
+    },
+    {
+     "label": "100 g",
+     "grams": 100
+    }
+   ],
+   "origin": "USDA FoodData Central, SR Legacy 171959"
   },
   {
    "ref_key": "tcac_420",
@@ -15975,6 +23183,47 @@
    "origin": "ICBF, TCAC 2015 (código 428)"
   },
   {
+   "ref_key": "mejillon_crudo_usda",
+   "name": "Mejillón, crudo",
+   "category": "pescados",
+   "synonyms": [
+    "chorito"
+   ],
+   "kcal": 86.0,
+   "protein_g": 11.9,
+   "carbs_g": 3.7,
+   "fat_g": 2.2,
+   "fiber_g": 0.0,
+   "nutrients": {
+    "sugars_g": 0.0,
+    "sat_fat_g": 0.42,
+    "sodium_mg": 286.0,
+    "potassium_mg": 320.0,
+    "calcium_mg": 26.0,
+    "iron_mg": 3.95,
+    "vit_c_mg": 8.0,
+    "vit_a_ug": 48.0,
+    "vit_d_ug": 0.0,
+    "vit_b12_ug": 12.0,
+    "cholesterol_mg": 28.0
+   },
+   "portions": [
+    {
+     "label": "1 unidad mediana",
+     "grams": 16
+    },
+    {
+     "label": "1 taza",
+     "grams": 150
+    },
+    {
+     "label": "100 g",
+     "grams": 100
+    }
+   ],
+   "origin": "USDA FoodData Central, SR Legacy 174216"
+  },
+  {
    "ref_key": "tcac_429",
    "name": "Merluza, Filete, crudo",
    "category": "pescados",
@@ -16019,6 +23268,80 @@
     }
    ],
    "origin": "ICBF, TCAC 2015 (código 431)"
+  },
+  {
+   "ref_key": "pampano_crudo_usda",
+   "name": "Pámpano, crudo",
+   "category": "pescados",
+   "synonyms": [
+    "palometa"
+   ],
+   "kcal": 164.0,
+   "protein_g": 18.5,
+   "carbs_g": 0.0,
+   "fat_g": 9.5,
+   "fiber_g": 0.0,
+   "nutrients": {
+    "sugars_g": 0.0,
+    "sat_fat_g": 3.51,
+    "sodium_mg": 65.0,
+    "potassium_mg": 381.0,
+    "calcium_mg": 22.0,
+    "iron_mg": 0.6,
+    "vit_c_mg": 0.0,
+    "vit_a_ug": 40.0,
+    "vit_d_ug": 11.0,
+    "vit_b12_ug": 1.3,
+    "cholesterol_mg": 50.0
+   },
+   "portions": [
+    {
+     "label": "1 filete",
+     "grams": 112
+    },
+    {
+     "label": "100 g",
+     "grams": 100
+    }
+   ],
+   "origin": "USDA FoodData Central, SR Legacy 173682"
+  },
+  {
+   "ref_key": "pez_espada_crudo_usda",
+   "name": "Pez espada, crudo",
+   "category": "pescados",
+   "synonyms": [
+    "pez vela"
+   ],
+   "kcal": 144.0,
+   "protein_g": 19.7,
+   "carbs_g": 0.0,
+   "fat_g": 6.7,
+   "fiber_g": 0.0,
+   "nutrients": {
+    "sugars_g": 0.0,
+    "sat_fat_g": 1.61,
+    "sodium_mg": 81.0,
+    "potassium_mg": 418.0,
+    "calcium_mg": 5.0,
+    "iron_mg": 0.38,
+    "vit_c_mg": 0.0,
+    "vit_a_ug": 36.0,
+    "vit_d_ug": 13.9,
+    "vit_b12_ug": 1.7,
+    "cholesterol_mg": 66.0
+   },
+   "portions": [
+    {
+     "label": "1 porción",
+     "grams": 136
+    },
+    {
+     "label": "100 g",
+     "grams": 100
+    }
+   ],
+   "origin": "USDA FoodData Central, SR Legacy 173703"
   },
   {
    "ref_key": "tcac_433",
@@ -17089,6 +24412,43 @@
    "origin": "Estimado por receta: Carne de res, magra 80 g, Papa pastusa, sin cáscara, cocida 100 g, Agua 250 g"
   },
   {
+   "ref_key": "caldo_de_pescado_usda",
+   "name": "Caldo de pescado",
+   "category": "platos",
+   "synonyms": [
+    "fumet"
+   ],
+   "kcal": 16.0,
+   "protein_g": 2.0,
+   "carbs_g": 0.4,
+   "fat_g": 0.6,
+   "fiber_g": 0.0,
+   "nutrients": {
+    "sugars_g": 0.09,
+    "sat_fat_g": 0.13,
+    "sodium_mg": 200.0,
+    "potassium_mg": 86.0,
+    "calcium_mg": 30.0,
+    "iron_mg": 0.21,
+    "vit_c_mg": 0.0,
+    "vit_a_ug": 1.0,
+    "vit_d_ug": 0.0,
+    "vit_b12_ug": 0.1,
+    "cholesterol_mg": 0.0
+   },
+   "portions": [
+    {
+     "label": "1 taza",
+     "grams": 244
+    },
+    {
+     "label": "100 g",
+     "grams": 100
+    }
+   ],
+   "origin": "USDA FoodData Central, SR Legacy 171606"
+  },
+  {
    "ref_key": "plato_calentado",
    "name": "Calentado (arroz con fríjol y huevo)",
    "category": "platos",
@@ -17947,6 +25307,234 @@
    "origin": "Estimado por receta: Café negro (tinto) sin azúcar 120 g, Azúcar blanca 5 g"
   },
   {
+   "ref_key": "barra_de_cereal_con_frutos_rojos_usda",
+   "name": "Barra de cereal con frutos rojos",
+   "category": "snacks",
+   "synonyms": [
+    "barrita de frutos rojos"
+   ],
+   "kcal": 383.0,
+   "protein_g": 13.2,
+   "carbs_g": 58.8,
+   "fat_g": 10.5,
+   "fiber_g": 7.9,
+   "nutrients": {
+    "sugars_g": 26.32,
+    "sat_fat_g": 3.85,
+    "sodium_mg": 447.0,
+    "potassium_mg": 446.0,
+    "calcium_mg": 105.0,
+    "iron_mg": 1.89,
+    "vit_c_mg": 0.6,
+    "vit_a_ug": 27.0,
+    "vit_d_ug": 0.1,
+    "vit_b12_ug": 0.51,
+    "cholesterol_mg": 0.0
+   },
+   "portions": [
+    {
+     "label": "1 barra",
+     "grams": 38
+    },
+    {
+     "label": "100 g",
+     "grams": 100
+    }
+   ],
+   "origin": "USDA FoodData Central, SR Legacy 174803"
+  },
+  {
+   "ref_key": "barra_de_cereal_con_leche_usda",
+   "name": "Barra de cereal con leche",
+   "category": "snacks",
+   "synonyms": [
+    "barrita de cereal"
+   ],
+   "kcal": 413.0,
+   "protein_g": 6.5,
+   "carbs_g": 72.0,
+   "fat_g": 11.0,
+   "fiber_g": 0.4,
+   "nutrients": {
+    "sugars_g": 45.97,
+    "sat_fat_g": 9.11,
+    "sodium_mg": 319.0,
+    "potassium_mg": 254.0,
+    "calcium_mg": 410.0,
+    "iron_mg": 5.99,
+    "vit_c_mg": 15.4,
+    "vit_a_ug": 188.0,
+    "vit_d_ug": 1.7,
+    "vit_b12_ug": 2.0,
+    "cholesterol_mg": 6.0
+   },
+   "portions": [
+    {
+     "label": "1 barra",
+     "grams": 25
+    },
+    {
+     "label": "100 g",
+     "grams": 100
+    }
+   ],
+   "origin": "USDA FoodData Central, SR Legacy 174650"
+  },
+  {
+   "ref_key": "chicharron_de_cerdo_de_paquete_usda",
+   "name": "Chicharrón de cerdo, de paquete",
+   "category": "snacks",
+   "synonyms": [
+    "chicharrines",
+    "chicharrón tostado"
+   ],
+   "kcal": 544.0,
+   "protein_g": 61.3,
+   "carbs_g": 0.0,
+   "fat_g": 31.3,
+   "fiber_g": 0.0,
+   "nutrients": {
+    "sugars_g": 0.0,
+    "sat_fat_g": 11.37,
+    "sodium_mg": 1818.0,
+    "potassium_mg": 127.0,
+    "calcium_mg": 30.0,
+    "iron_mg": 0.88,
+    "vit_c_mg": 0.5,
+    "vit_a_ug": 12.0,
+    "vit_d_ug": 0.0,
+    "vit_b12_ug": 0.64,
+    "cholesterol_mg": 95.0
+   },
+   "portions": [
+    {
+     "label": "1 paquete pequeño",
+     "grams": 14
+    },
+    {
+     "label": "100 g",
+     "grams": 100
+    }
+   ],
+   "origin": "USDA FoodData Central, SR Legacy 167961"
+  },
+  {
+   "ref_key": "chips_de_banano_usda",
+   "name": "Chips de banano",
+   "category": "snacks",
+   "synonyms": [
+    "banano deshidratado frito",
+    "guineo",
+    "cambur"
+   ],
+   "kcal": 519.0,
+   "protein_g": 2.3,
+   "carbs_g": 58.4,
+   "fat_g": 33.6,
+   "fiber_g": 7.7,
+   "nutrients": {
+    "sugars_g": 35.34,
+    "sat_fat_g": 28.97,
+    "sodium_mg": 6.0,
+    "potassium_mg": 536.0,
+    "calcium_mg": 18.0,
+    "iron_mg": 1.25,
+    "vit_c_mg": 6.3,
+    "vit_a_ug": 4.0,
+    "vit_d_ug": 0.0,
+    "vit_b12_ug": 0.0,
+    "cholesterol_mg": 0.0
+   },
+   "portions": [
+    {
+     "label": "1 paquete pequeño",
+     "grams": 42
+    },
+    {
+     "label": "100 g",
+     "grams": 100
+    }
+   ],
+   "origin": "USDA FoodData Central, SR Legacy 168849"
+  },
+  {
+   "ref_key": "crispetas_con_queso_usda",
+   "name": "Crispetas con sabor a queso",
+   "category": "snacks",
+   "synonyms": [
+    "palomitas de queso",
+    "quesito"
+   ],
+   "kcal": 526.0,
+   "protein_g": 9.3,
+   "carbs_g": 51.6,
+   "fat_g": 33.2,
+   "fiber_g": 9.9,
+   "nutrients": {
+    "sugars_g": 0.79,
+    "sat_fat_g": 6.41,
+    "sodium_mg": 889.0,
+    "potassium_mg": 261.0,
+    "calcium_mg": 113.0,
+    "iron_mg": 2.24,
+    "vit_c_mg": 0.5,
+    "vit_a_ug": 8.0,
+    "vit_d_ug": 0.0,
+    "vit_b12_ug": 0.53,
+    "cholesterol_mg": 11.0
+   },
+   "portions": [
+    {
+     "label": "1 taza",
+     "grams": 11
+    },
+    {
+     "label": "100 g",
+     "grams": 100
+    }
+   ],
+   "origin": "USDA FoodData Central, SR Legacy 167960"
+  },
+  {
+   "ref_key": "crispetas_sin_aceite_usda",
+   "name": "Crispetas, sin aceite",
+   "category": "snacks",
+   "synonyms": [
+    "palomitas de maíz",
+    "maíz pira reventado",
+    "aceite de cocina"
+   ],
+   "kcal": 387.0,
+   "protein_g": 12.9,
+   "carbs_g": 77.8,
+   "fat_g": 4.5,
+   "fiber_g": 14.5,
+   "nutrients": {
+    "sugars_g": 0.87,
+    "sat_fat_g": 0.64,
+    "sodium_mg": 8.0,
+    "potassium_mg": 329.0,
+    "calcium_mg": 7.0,
+    "iron_mg": 3.19,
+    "vit_c_mg": 0.0,
+    "vit_a_ug": 10.0,
+    "vit_d_ug": 0.0,
+    "vit_b12_ug": 0.0,
+    "cholesterol_mg": 0.0
+   },
+   "portions": [
+    {
+     "label": "1 taza",
+     "grams": 8
+    },
+    {
+     "label": "100 g",
+     "grams": 100
+    }
+   ],
+   "origin": "USDA FoodData Central, SR Legacy 167959"
+  },
+  {
    "ref_key": "galletas_chips",
    "name": "Galletas con chips de chocolate",
    "category": "snacks",
@@ -17980,6 +25568,84 @@
     }
    ],
    "origin": "USDA FoodData Central, SR Legacy 172716"
+  },
+  {
+   "ref_key": "galletas_de_arroz_usda",
+   "name": "Galletas de arroz",
+   "category": "snacks",
+   "synonyms": [
+    "tortas de arroz",
+    "arroz inflado"
+   ],
+   "kcal": 416.0,
+   "protein_g": 10.0,
+   "carbs_g": 82.6,
+   "fat_g": 5.0,
+   "fiber_g": 0.0,
+   "nutrients": {
+    "sugars_g": 0.0,
+    "sat_fat_g": 0.0,
+    "sodium_mg": 233.0,
+    "potassium_mg": 243.0,
+    "calcium_mg": 0.0,
+    "iron_mg": 0.0,
+    "vit_c_mg": 0.0,
+    "vit_a_ug": 0.0,
+    "vit_d_ug": 0.0,
+    "vit_b12_ug": 0.0,
+    "cholesterol_mg": 0.0
+   },
+   "portions": [
+    {
+     "label": "1 porción",
+     "grams": 30
+    },
+    {
+     "label": "100 g",
+     "grams": 100
+    }
+   ],
+   "origin": "USDA FoodData Central, SR Legacy 173161"
+  },
+  {
+   "ref_key": "galletas_de_maiz_inflado_usda",
+   "name": "Galletas de maíz inflado",
+   "category": "snacks",
+   "synonyms": [
+    "tortas de maíz"
+   ],
+   "kcal": 387.0,
+   "protein_g": 8.1,
+   "carbs_g": 83.4,
+   "fat_g": 2.4,
+   "fiber_g": 1.9,
+   "nutrients": {
+    "sugars_g": 23.47,
+    "sat_fat_g": 0.42,
+    "sodium_mg": 488.0,
+    "potassium_mg": 157.0,
+    "calcium_mg": 19.0,
+    "iron_mg": 1.4,
+    "vit_c_mg": 0.0,
+    "vit_a_ug": 70.0,
+    "vit_b12_ug": 0.0,
+    "cholesterol_mg": 0.0
+   },
+   "portions": [
+    {
+     "label": "1 unidad",
+     "grams": 9
+    },
+    {
+     "label": "2 unidades",
+     "grams": 18
+    },
+    {
+     "label": "100 g",
+     "grams": 100
+    }
+   ],
+   "origin": "USDA FoodData Central, SR Legacy 168857"
   },
   {
    "ref_key": "galletas_soda",
@@ -18019,6 +25685,45 @@
    "origin": "USDA FoodData Central, SR Legacy 172746"
   },
   {
+   "ref_key": "papa_en_hilo_de_paquete_usda",
+   "name": "Papa en hilo, de paquete",
+   "category": "snacks",
+   "synonyms": [
+    "papa ripio",
+    "papitas en hilo",
+    "patata"
+   ],
+   "kcal": 522.0,
+   "protein_g": 6.7,
+   "carbs_g": 53.3,
+   "fat_g": 34.4,
+   "fiber_g": 3.4,
+   "nutrients": {
+    "sugars_g": 0.22,
+    "sat_fat_g": 8.88,
+    "sodium_mg": 633.0,
+    "potassium_mg": 1237.0,
+    "calcium_mg": 18.0,
+    "iron_mg": 2.27,
+    "vit_c_mg": 47.3,
+    "vit_a_ug": 0.0,
+    "vit_d_ug": 0.0,
+    "vit_b12_ug": 0.0,
+    "cholesterol_mg": 0.0
+   },
+   "portions": [
+    {
+     "label": "1/2 taza",
+     "grams": 18
+    },
+    {
+     "label": "100 g",
+     "grams": 100
+    }
+   ],
+   "origin": "USDA FoodData Central, SR Legacy 168854"
+  },
+  {
    "ref_key": "papas_fritas_paquete",
    "name": "Papas fritas de paquete",
    "category": "snacks",
@@ -18055,6 +25760,120 @@
     }
    ],
    "origin": "USDA FoodData Central, SR Legacy 169677"
+  },
+  {
+   "ref_key": "platanitos_fritos_con_sal_usda",
+   "name": "Platanitos fritos, con sal",
+   "category": "snacks",
+   "synonyms": [
+    "chips de plátano",
+    "tostones de paquete"
+   ],
+   "kcal": 531.0,
+   "protein_g": 2.3,
+   "carbs_g": 63.8,
+   "fat_g": 29.6,
+   "fiber_g": 3.5,
+   "nutrients": {
+    "sugars_g": 0.92,
+    "sat_fat_g": 8.34,
+    "sodium_mg": 202.0,
+    "potassium_mg": 786.0,
+    "calcium_mg": 9.0,
+    "iron_mg": 0.97,
+    "vit_c_mg": 32.1,
+    "vit_a_ug": 69.0,
+    "vit_d_ug": 0.0,
+    "vit_b12_ug": 0.0,
+    "cholesterol_mg": 0.0
+   },
+   "portions": [
+    {
+     "label": "1 paquete pequeño",
+     "grams": 28
+    },
+    {
+     "label": "100 g",
+     "grams": 100
+    }
+   ],
+   "origin": "USDA FoodData Central, SR Legacy 173142"
+  },
+  {
+   "ref_key": "clara_de_huevo_en_polvo_usda",
+   "name": "Clara de huevo en polvo",
+   "category": "suplementos",
+   "synonyms": [
+    "albúmina en polvo",
+    "huevos"
+   ],
+   "kcal": 382.0,
+   "protein_g": 81.1,
+   "carbs_g": 7.8,
+   "fat_g": 0.0,
+   "fiber_g": 0.0,
+   "nutrients": {
+    "sugars_g": 5.4,
+    "sat_fat_g": 0.0,
+    "sodium_mg": 1280.0,
+    "potassium_mg": 1125.0,
+    "calcium_mg": 62.0,
+    "iron_mg": 0.15,
+    "vit_c_mg": 0.0,
+    "vit_a_ug": 0.0,
+    "vit_d_ug": 0.0,
+    "vit_b12_ug": 0.18,
+    "cholesterol_mg": 0.0
+   },
+   "portions": [
+    {
+     "label": "1 porción",
+     "grams": 28
+    },
+    {
+     "label": "100 g",
+     "grams": 100
+    }
+   ],
+   "origin": "USDA FoodData Central, SR Legacy 172204"
+  },
+  {
+   "ref_key": "proteina_de_soya_en_polvo_usda",
+   "name": "Proteína de soya en polvo",
+   "category": "suplementos",
+   "synonyms": [
+    "proteína vegetal",
+    "proteína de soja"
+   ],
+   "kcal": 388.0,
+   "protein_g": 55.6,
+   "carbs_g": 28.9,
+   "fat_g": 5.6,
+   "fiber_g": 6.7,
+   "nutrients": {
+    "sugars_g": 22.22,
+    "sat_fat_g": 1.11,
+    "sodium_mg": 733.0,
+    "potassium_mg": 933.0,
+    "calcium_mg": 178.0,
+    "iron_mg": 12.0,
+    "vit_c_mg": 0.0,
+    "vit_a_ug": 0.0,
+    "vit_d_ug": 0.0,
+    "vit_b12_ug": 0.0,
+    "cholesterol_mg": 0.0
+   },
+   "portions": [
+    {
+     "label": "1 medida",
+     "grams": 45
+    },
+    {
+     "label": "100 g",
+     "grams": 100
+    }
+   ],
+   "origin": "USDA FoodData Central, SR Legacy 173181"
   },
   {
    "ref_key": "proteina_whey",
@@ -19626,6 +27445,45 @@
    "origin": "ICBF, TCAC 2015 (código 127)"
   },
   {
+   "ref_key": "aji_jalapeno_crudo_usda",
+   "name": "Ají jalapeño, crudo",
+   "category": "verduras",
+   "synonyms": [],
+   "kcal": 29.0,
+   "protein_g": 0.9,
+   "carbs_g": 6.5,
+   "fat_g": 0.4,
+   "fiber_g": 2.8,
+   "nutrients": {
+    "sugars_g": 4.12,
+    "sat_fat_g": 0.09,
+    "sodium_mg": 3.0,
+    "potassium_mg": 248.0,
+    "calcium_mg": 12.0,
+    "iron_mg": 0.25,
+    "vit_c_mg": 118.6,
+    "vit_a_ug": 54.0,
+    "vit_d_ug": 0.0,
+    "vit_b12_ug": 0.0,
+    "cholesterol_mg": 0.0
+   },
+   "portions": [
+    {
+     "label": "1 unidad",
+     "grams": 14
+    },
+    {
+     "label": "1 taza en rodajas",
+     "grams": 90
+    },
+    {
+     "label": "100 g",
+     "grams": 100
+    }
+   ],
+   "origin": "USDA FoodData Central, SR Legacy 168576"
+  },
+  {
    "ref_key": "tcac_128",
    "name": "Ají pimiento rojo",
    "category": "verduras",
@@ -19647,6 +27505,89 @@
    "origin": "ICBF, TCAC 2015 (código 128)"
   },
   {
+   "ref_key": "aji_rojo_picante_crudo_usda",
+   "name": "Ají rojo picante, crudo",
+   "category": "verduras",
+   "synonyms": [
+    "ají picante",
+    "chile rojo"
+   ],
+   "kcal": 40.0,
+   "protein_g": 1.9,
+   "carbs_g": 8.8,
+   "fat_g": 0.4,
+   "fiber_g": 1.5,
+   "nutrients": {
+    "sugars_g": 5.3,
+    "sat_fat_g": 0.04,
+    "sodium_mg": 9.0,
+    "potassium_mg": 322.0,
+    "calcium_mg": 14.0,
+    "iron_mg": 1.03,
+    "vit_c_mg": 143.7,
+    "vit_a_ug": 48.0,
+    "vit_d_ug": 0.0,
+    "vit_b12_ug": 0.0,
+    "cholesterol_mg": 0.0
+   },
+   "portions": [
+    {
+     "label": "1 unidad",
+     "grams": 45
+    },
+    {
+     "label": "1/2 taza picado",
+     "grams": 75
+    },
+    {
+     "label": "100 g",
+     "grams": 100
+    }
+   ],
+   "origin": "USDA FoodData Central, SR Legacy 170106"
+  },
+  {
+   "ref_key": "aji_verde_picante_crudo_usda",
+   "name": "Ají verde picante, crudo",
+   "category": "verduras",
+   "synonyms": [
+    "chile verde"
+   ],
+   "kcal": 40.0,
+   "protein_g": 2.0,
+   "carbs_g": 9.5,
+   "fat_g": 0.2,
+   "fiber_g": 1.5,
+   "nutrients": {
+    "sugars_g": 5.1,
+    "sat_fat_g": 0.02,
+    "sodium_mg": 7.0,
+    "potassium_mg": 340.0,
+    "calcium_mg": 18.0,
+    "iron_mg": 1.2,
+    "vit_c_mg": 242.5,
+    "vit_a_ug": 59.0,
+    "vit_d_ug": 0.0,
+    "vit_b12_ug": 0.0,
+    "cholesterol_mg": 0.0
+   },
+   "portions": [
+    {
+     "label": "1 unidad",
+     "grams": 45
+    },
+    {
+     "label": "1/2 taza picado",
+     "grams": 75
+    },
+    {
+     "label": "100 g",
+     "grams": 100
+    }
+   ],
+   "origin": "USDA FoodData Central, SR Legacy 170497"
+  },
+  {
    "ref_key": "tcac_129",
    "name": "Ajo",
    "category": "verduras",
@@ -19666,6 +27607,45 @@
     }
    ],
    "origin": "ICBF, TCAC 2015 (código 129)"
+  },
+  {
+   "ref_key": "albahaca_fresca_usda",
+   "name": "Albahaca fresca",
+   "category": "verduras",
+   "synonyms": [],
+   "kcal": 23.0,
+   "protein_g": 3.1,
+   "carbs_g": 2.6,
+   "fat_g": 0.6,
+   "fiber_g": 1.6,
+   "nutrients": {
+    "sugars_g": 0.3,
+    "sat_fat_g": 0.04,
+    "sodium_mg": 4.0,
+    "potassium_mg": 295.0,
+    "calcium_mg": 177.0,
+    "iron_mg": 3.17,
+    "vit_c_mg": 18.0,
+    "vit_a_ug": 264.0,
+    "vit_d_ug": 0.0,
+    "vit_b12_ug": 0.0,
+    "cholesterol_mg": 0.0
+   },
+   "portions": [
+    {
+     "label": "5 hojas",
+     "grams": 2.5
+    },
+    {
+     "label": "2 cucharadas picada",
+     "grams": 5.3
+    },
+    {
+     "label": "100 g",
+     "grams": 100
+    }
+   ],
+   "origin": "USDA FoodData Central, SR Legacy 172232"
   },
   {
    "ref_key": "tcac_130",
@@ -19710,6 +27690,43 @@
    "origin": "ICBF, TCAC 2015 (código 131)"
   },
   {
+   "ref_key": "alga_nori_usda",
+   "name": "Alga nori",
+   "category": "verduras",
+   "synonyms": [
+    "alga para sushi"
+   ],
+   "kcal": 35.0,
+   "protein_g": 5.8,
+   "carbs_g": 5.1,
+   "fat_g": 0.3,
+   "fiber_g": 0.3,
+   "nutrients": {
+    "sugars_g": 0.49,
+    "sat_fat_g": 0.06,
+    "sodium_mg": 48.0,
+    "potassium_mg": 356.0,
+    "calcium_mg": 70.0,
+    "iron_mg": 1.8,
+    "vit_c_mg": 39.0,
+    "vit_a_ug": 260.0,
+    "vit_d_ug": 0.0,
+    "vit_b12_ug": 0.0,
+    "cholesterol_mg": 0.0
+   },
+   "portions": [
+    {
+     "label": "10 láminas",
+     "grams": 26
+    },
+    {
+     "label": "100 g",
+     "grams": 100
+    }
+   ],
+   "origin": "USDA FoodData Central, SR Legacy 168458"
+  },
+  {
    "ref_key": "tcac_134",
    "name": "Apio, tallo, crudo",
    "category": "verduras",
@@ -19729,6 +27746,50 @@
     }
    ],
    "origin": "ICBF, TCAC 2015 (código 134)"
+  },
+  {
+   "ref_key": "arveja_china_cruda_usda",
+   "name": "Arveja china, cruda",
+   "category": "verduras",
+   "synonyms": [
+    "arveja dulce",
+    "guisante de vaina",
+    "alverja",
+    "guisante"
+   ],
+   "kcal": 42.0,
+   "protein_g": 2.8,
+   "carbs_g": 7.5,
+   "fat_g": 0.2,
+   "fiber_g": 2.6,
+   "nutrients": {
+    "sugars_g": 4.0,
+    "sat_fat_g": 0.04,
+    "sodium_mg": 4.0,
+    "potassium_mg": 200.0,
+    "calcium_mg": 43.0,
+    "iron_mg": 2.08,
+    "vit_c_mg": 60.0,
+    "vit_a_ug": 54.0,
+    "vit_d_ug": 0.0,
+    "vit_b12_ug": 0.0,
+    "cholesterol_mg": 0.0
+   },
+   "portions": [
+    {
+     "label": "1 taza",
+     "grams": 63
+    },
+    {
+     "label": "10 vainas",
+     "grams": 34
+    },
+    {
+     "label": "100 g",
+     "grams": 100
+    }
+   ],
+   "origin": "USDA FoodData Central, SR Legacy 170010"
   },
   {
    "ref_key": "tcac_138",
@@ -20151,6 +28212,44 @@
    "origin": "ICBF, TCAC 2015 (código 153)"
   },
   {
+   "ref_key": "cebolla_ocanera_cruda_usda",
+   "name": "Cebolla ocañera, cruda",
+   "category": "verduras",
+   "synonyms": [
+    "chalota",
+    "cebolla roja ocañera"
+   ],
+   "kcal": 72.0,
+   "protein_g": 2.5,
+   "carbs_g": 16.8,
+   "fat_g": 0.1,
+   "fiber_g": 3.2,
+   "nutrients": {
+    "sugars_g": 7.87,
+    "sat_fat_g": 0.02,
+    "sodium_mg": 12.0,
+    "potassium_mg": 334.0,
+    "calcium_mg": 37.0,
+    "iron_mg": 1.2,
+    "vit_c_mg": 8.0,
+    "vit_a_ug": 0.0,
+    "vit_d_ug": 0.0,
+    "vit_b12_ug": 0.0,
+    "cholesterol_mg": 0.0
+   },
+   "portions": [
+    {
+     "label": "1 cucharada picada",
+     "grams": 10
+    },
+    {
+     "label": "100 g",
+     "grams": 100
+    }
+   ],
+   "origin": "USDA FoodData Central, SR Legacy 170499"
+  },
+  {
    "ref_key": "tcac_154",
    "name": "Cebolla puerro, tallo",
    "category": "verduras",
@@ -20196,6 +28295,83 @@
     }
    ],
    "origin": "ICBF, TCAC 2015 (código 155)"
+  },
+  {
+   "ref_key": "cebollin_crudo_usda",
+   "name": "Cebollín, crudo",
+   "category": "verduras",
+   "synonyms": [
+    "cebolleta",
+    "ciboulette"
+   ],
+   "kcal": 30.0,
+   "protein_g": 3.3,
+   "carbs_g": 4.3,
+   "fat_g": 0.7,
+   "fiber_g": 2.5,
+   "nutrients": {
+    "sugars_g": 1.85,
+    "sat_fat_g": 0.15,
+    "sodium_mg": 3.0,
+    "potassium_mg": 296.0,
+    "calcium_mg": 92.0,
+    "iron_mg": 1.6,
+    "vit_c_mg": 58.1,
+    "vit_a_ug": 218.0,
+    "vit_d_ug": 0.0,
+    "vit_b12_ug": 0.0,
+    "cholesterol_mg": 0.0
+   },
+   "portions": [
+    {
+     "label": "1 cucharada picada",
+     "grams": 3
+    },
+    {
+     "label": "100 g",
+     "grams": 100
+    }
+   ],
+   "origin": "USDA FoodData Central, SR Legacy 169994"
+  },
+  {
+   "ref_key": "champinon_portobello_crudo_usda",
+   "name": "Champiñón portobello, crudo",
+   "category": "verduras",
+   "synonyms": [],
+   "kcal": 22.0,
+   "protein_g": 2.1,
+   "carbs_g": 3.9,
+   "fat_g": 0.3,
+   "fiber_g": 1.3,
+   "nutrients": {
+    "sugars_g": 2.5,
+    "sat_fat_g": 0.01,
+    "sodium_mg": 9.0,
+    "potassium_mg": 364.0,
+    "calcium_mg": 3.0,
+    "iron_mg": 0.31,
+    "vit_c_mg": 0.0,
+    "vit_a_ug": 0.0,
+    "vit_d_ug": 0.3,
+    "vit_b12_ug": 0.05,
+    "cholesterol_mg": 0.0
+   },
+   "portions": [
+    {
+     "label": "1 unidad",
+     "grams": 84
+    },
+    {
+     "label": "1 taza picado",
+     "grams": 86
+    },
+    {
+     "label": "100 g",
+     "grams": 100
+    }
+   ],
+   "origin": "USDA FoodData Central, SR Legacy 169255"
   },
   {
    "ref_key": "tcac_156",
@@ -20553,6 +28729,47 @@
    "origin": "ICBF, TCAC 2015 (código 170)"
   },
   {
+   "ref_key": "germinado_de_alfalfa_usda",
+   "name": "Germinado de alfalfa, crudo",
+   "category": "verduras",
+   "synonyms": [
+    "brotes de alfalfa"
+   ],
+   "kcal": 23.0,
+   "protein_g": 4.0,
+   "carbs_g": 2.1,
+   "fat_g": 0.7,
+   "fiber_g": 1.9,
+   "nutrients": {
+    "sugars_g": 0.2,
+    "sat_fat_g": 0.07,
+    "sodium_mg": 6.0,
+    "potassium_mg": 79.0,
+    "calcium_mg": 32.0,
+    "iron_mg": 0.96,
+    "vit_c_mg": 8.2,
+    "vit_a_ug": 8.0,
+    "vit_d_ug": 0.0,
+    "vit_b12_ug": 0.0,
+    "cholesterol_mg": 0.0
+   },
+   "portions": [
+    {
+     "label": "1 taza",
+     "grams": 33
+    },
+    {
+     "label": "1 cucharada",
+     "grams": 3
+    },
+    {
+     "label": "100 g",
+     "grams": 100
+    }
+   ],
+   "origin": "USDA FoodData Central, SR Legacy 168384"
+  },
+  {
    "ref_key": "tcac_171",
    "name": "Guascas, hojas",
    "category": "verduras",
@@ -20693,6 +28910,109 @@
    "origin": "ICBF, TCAC 2015 (código 175)"
   },
   {
+   "ref_key": "hinojo_crudo_usda",
+   "name": "Hinojo, bulbo, crudo",
+   "category": "verduras",
+   "synonyms": [],
+   "kcal": 31.0,
+   "protein_g": 1.2,
+   "carbs_g": 7.3,
+   "fat_g": 0.2,
+   "fiber_g": 3.1,
+   "nutrients": {
+    "sugars_g": 3.93,
+    "sat_fat_g": 0.09,
+    "sodium_mg": 52.0,
+    "potassium_mg": 414.0,
+    "calcium_mg": 49.0,
+    "iron_mg": 0.73,
+    "vit_c_mg": 12.0,
+    "vit_a_ug": 48.0,
+    "vit_d_ug": 0.0,
+    "vit_b12_ug": 0.0,
+    "cholesterol_mg": 0.0
+   },
+   "portions": [
+    {
+     "label": "1 taza en tajadas",
+     "grams": 87
+    },
+    {
+     "label": "1 unidad",
+     "grams": 234
+    },
+    {
+     "label": "100 g",
+     "grams": 100
+    }
+   ],
+   "origin": "USDA FoodData Central, SR Legacy 169385"
+  },
+  {
+   "ref_key": "hongo_enoki_crudo_usda",
+   "name": "Hongo enoki, crudo",
+   "category": "verduras",
+   "synonyms": [],
+   "kcal": 37.0,
+   "protein_g": 2.7,
+   "carbs_g": 7.8,
+   "fat_g": 0.3,
+   "fiber_g": 2.7,
+   "nutrients": {
+    "sugars_g": 0.22,
+    "sat_fat_g": 0.03,
+    "sodium_mg": 3.0,
+    "potassium_mg": 359.0,
+    "calcium_mg": 0.0,
+    "iron_mg": 1.15,
+    "vit_c_mg": 0.0,
+    "vit_d_ug": 0.1,
+    "vit_b12_ug": 0.0,
+    "cholesterol_mg": 0.0
+   },
+   "portions": [
+    {
+     "label": "1 taza",
+     "grams": 64
+    },
+    {
+     "label": "100 g",
+     "grams": 100
+    }
+   ],
+   "origin": "USDA FoodData Central, SR Legacy 169382"
+  },
+  {
+   "ref_key": "hongo_shiitake_crudo_usda",
+   "name": "Hongo shiitake, crudo",
+   "category": "verduras",
+   "synonyms": [],
+   "kcal": 34.0,
+   "protein_g": 2.2,
+   "carbs_g": 6.8,
+   "fat_g": 0.5,
+   "fiber_g": 2.5,
+   "nutrients": {
+    "sugars_g": 2.38,
+    "sodium_mg": 9.0,
+    "potassium_mg": 304.0,
+    "calcium_mg": 2.0,
+    "iron_mg": 0.41,
+    "vit_d_ug": 0.4
+   },
+   "portions": [
+    {
+     "label": "1 unidad",
+     "grams": 19
+    },
+    {
+     "label": "100 g",
+     "grams": 100
+    }
+   ],
+   "origin": "USDA FoodData Central, SR Legacy 169242"
+  },
+  {
    "ref_key": "tcac_176",
    "name": "Ibia crema, sin cáscara",
    "category": "verduras",
@@ -20731,6 +29051,43 @@
     }
    ],
    "origin": "ICBF, TCAC 2015 (código 178)"
+  },
+  {
+   "ref_key": "kale_crudo_usda",
+   "name": "Kale, crudo",
+   "category": "verduras",
+   "synonyms": [
+    "col rizada"
+   ],
+   "kcal": 35.0,
+   "protein_g": 2.9,
+   "carbs_g": 4.4,
+   "fat_g": 1.5,
+   "fiber_g": 4.1,
+   "nutrients": {
+    "sugars_g": 0.99,
+    "sat_fat_g": 0.18,
+    "sodium_mg": 53.0,
+    "potassium_mg": 348.0,
+    "calcium_mg": 254.0,
+    "iron_mg": 1.6,
+    "vit_c_mg": 93.4,
+    "vit_a_ug": 241.0,
+    "vit_d_ug": 0.0,
+    "vit_b12_ug": 0.0,
+    "cholesterol_mg": 0.0
+   },
+   "portions": [
+    {
+     "label": "1 taza",
+     "grams": 21
+    },
+    {
+     "label": "100 g",
+     "grams": 100
+    }
+   ],
+   "origin": "USDA FoodData Central, SR Legacy 168421"
   },
   {
    "ref_key": "lechuga",
@@ -20787,6 +29144,47 @@
     }
    ],
    "origin": "ICBF, TCAC 2015 (código 179)"
+  },
+  {
+   "ref_key": "lechuga_morada_cruda_usda",
+   "name": "Lechuga morada, cruda",
+   "category": "verduras",
+   "synonyms": [
+    "lechuga crespa morada"
+   ],
+   "kcal": 13.0,
+   "protein_g": 1.3,
+   "carbs_g": 2.3,
+   "fat_g": 0.2,
+   "fiber_g": 0.9,
+   "nutrients": {
+    "sugars_g": 0.48,
+    "sat_fat_g": 0.03,
+    "sodium_mg": 25.0,
+    "potassium_mg": 187.0,
+    "calcium_mg": 33.0,
+    "iron_mg": 1.2,
+    "vit_c_mg": 3.7,
+    "vit_a_ug": 375.0,
+    "vit_d_ug": 0.0,
+    "vit_b12_ug": 0.0,
+    "cholesterol_mg": 0.0
+   },
+   "portions": [
+    {
+     "label": "1 taza picada",
+     "grams": 28
+    },
+    {
+     "label": "1 hoja grande",
+     "grams": 17
+    },
+    {
+     "label": "100 g",
+     "grams": 100
+    }
+   ],
+   "origin": "USDA FoodData Central, SR Legacy 168431"
   },
   {
    "ref_key": "tcac_180",
@@ -20848,6 +29246,40 @@
    "origin": "USDA FoodData Central, SR Legacy 169999"
   },
   {
+   "ref_key": "menta_fresca_usda",
+   "name": "Menta fresca",
+   "category": "verduras",
+   "synonyms": [],
+   "kcal": 70.0,
+   "protein_g": 3.8,
+   "carbs_g": 14.9,
+   "fat_g": 0.9,
+   "fiber_g": 8.0,
+   "nutrients": {
+    "sat_fat_g": 0.25,
+    "sodium_mg": 31.0,
+    "potassium_mg": 569.0,
+    "calcium_mg": 243.0,
+    "iron_mg": 5.08,
+    "vit_c_mg": 31.8,
+    "vit_a_ug": 212.0,
+    "vit_d_ug": 0.0,
+    "vit_b12_ug": 0.0,
+    "cholesterol_mg": 0.0
+   },
+   "portions": [
+    {
+     "label": "2 cucharadas",
+     "grams": 3.2
+    },
+    {
+     "label": "100 g",
+     "grams": 100
+    }
+   ],
+   "origin": "USDA FoodData Central, SR Legacy 173474"
+  },
+  {
    "ref_key": "tcac_181",
    "name": "Nabo, crudo",
    "category": "verduras",
@@ -20888,6 +29320,90 @@
     }
    ],
    "origin": "ICBF, TCAC 2015 (código 182)"
+  },
+  {
+   "ref_key": "orellana_cruda_usda",
+   "name": "Orellana, cruda",
+   "category": "verduras",
+   "synonyms": [
+    "hongo ostra",
+    "gírgola"
+   ],
+   "kcal": 33.0,
+   "protein_g": 3.3,
+   "carbs_g": 6.1,
+   "fat_g": 0.4,
+   "fiber_g": 2.3,
+   "nutrients": {
+    "sugars_g": 1.11,
+    "sat_fat_g": 0.06,
+    "sodium_mg": 18.0,
+    "potassium_mg": 420.0,
+    "calcium_mg": 3.0,
+    "iron_mg": 1.33,
+    "vit_c_mg": 0.0,
+    "vit_a_ug": 2.0,
+    "vit_d_ug": 0.7,
+    "vit_b12_ug": 0.0,
+    "cholesterol_mg": 0.0
+   },
+   "portions": [
+    {
+     "label": "1 taza en tajadas",
+     "grams": 86
+    },
+    {
+     "label": "1 unidad pequeña",
+     "grams": 15
+    },
+    {
+     "label": "100 g",
+     "grams": 100
+    }
+   ],
+   "origin": "USDA FoodData Central, SR Legacy 168580"
+  },
+  {
+   "ref_key": "pak_choi_crudo_usda",
+   "name": "Pak choi, crudo",
+   "category": "verduras",
+   "synonyms": [
+    "bok choy",
+    "acelga china"
+   ],
+   "kcal": 13.0,
+   "protein_g": 1.5,
+   "carbs_g": 2.2,
+   "fat_g": 0.2,
+   "fiber_g": 1.0,
+   "nutrients": {
+    "sugars_g": 1.18,
+    "sat_fat_g": 0.03,
+    "sodium_mg": 65.0,
+    "potassium_mg": 252.0,
+    "calcium_mg": 105.0,
+    "iron_mg": 0.8,
+    "vit_c_mg": 45.0,
+    "vit_a_ug": 223.0,
+    "vit_d_ug": 0.0,
+    "vit_b12_ug": 0.0,
+    "cholesterol_mg": 0.0
+   },
+   "portions": [
+    {
+     "label": "1 taza picado",
+     "grams": 70
+    },
+    {
+     "label": "1 hoja",
+     "grams": 14
+    },
+    {
+     "label": "100 g",
+     "grams": 100
+    }
+   ],
+   "origin": "USDA FoodData Central, SR Legacy 170390"
   },
   {
    "ref_key": "tcac_189",
@@ -21066,6 +29582,46 @@
    "origin": "ICBF, TCAC 2015 (código 214)"
   },
   {
+   "ref_key": "pimenton_amarillo_crudo_usda",
+   "name": "Pimentón amarillo, crudo",
+   "category": "verduras",
+   "synonyms": [
+    "pimiento amarillo"
+   ],
+   "kcal": 27.0,
+   "protein_g": 1.0,
+   "carbs_g": 6.3,
+   "fat_g": 0.2,
+   "fiber_g": 0.9,
+   "nutrients": {
+    "sat_fat_g": 0.03,
+    "sodium_mg": 2.0,
+    "potassium_mg": 212.0,
+    "calcium_mg": 11.0,
+    "iron_mg": 0.46,
+    "vit_c_mg": 183.5,
+    "vit_a_ug": 10.0,
+    "vit_d_ug": 0.0,
+    "vit_b12_ug": 0.0,
+    "cholesterol_mg": 0.0
+   },
+   "portions": [
+    {
+     "label": "1 unidad grande",
+     "grams": 186
+    },
+    {
+     "label": "10 tiras",
+     "grams": 52
+    },
+    {
+     "label": "100 g",
+     "grams": 100
+    }
+   ],
+   "origin": "USDA FoodData Central, SR Legacy 169383"
+  },
+  {
    "ref_key": "tcac_215",
    "name": "Pimentón rojo",
    "category": "verduras",
@@ -21143,6 +29699,48 @@
     }
    ],
    "origin": "ICBF, TCAC 2015 (código 216)"
+  },
+  {
+   "ref_key": "quimbombo_crudo_usda",
+   "name": "Quimbombó, crudo",
+   "category": "verduras",
+   "synonyms": [
+    "okra",
+    "ocra"
+   ],
+   "kcal": 33.0,
+   "protein_g": 1.9,
+   "carbs_g": 7.5,
+   "fat_g": 0.2,
+   "fiber_g": 3.2,
+   "nutrients": {
+    "sugars_g": 1.48,
+    "sat_fat_g": 0.03,
+    "sodium_mg": 7.0,
+    "potassium_mg": 299.0,
+    "calcium_mg": 82.0,
+    "iron_mg": 0.62,
+    "vit_c_mg": 23.0,
+    "vit_a_ug": 36.0,
+    "vit_d_ug": 0.0,
+    "vit_b12_ug": 0.0,
+    "cholesterol_mg": 0.0
+   },
+   "portions": [
+    {
+     "label": "1 taza",
+     "grams": 100
+    },
+    {
+     "label": "8 vainas",
+     "grams": 95
+    },
+    {
+     "label": "100 g",
+     "grams": 100
+    }
+   ],
+   "origin": "USDA FoodData Central, SR Legacy 169260"
   },
   {
    "ref_key": "tcac_232",
@@ -21299,6 +29897,44 @@
    "origin": "USDA FoodData Central, SR Legacy 169975"
   },
   {
+   "ref_key": "repollo_chino_crudo_usda",
+   "name": "Repollo chino, crudo",
+   "category": "verduras",
+   "synonyms": [
+    "col china",
+    "repollo napa"
+   ],
+   "kcal": 16.0,
+   "protein_g": 1.2,
+   "carbs_g": 3.2,
+   "fat_g": 0.2,
+   "fiber_g": 1.2,
+   "nutrients": {
+    "sugars_g": 1.41,
+    "sat_fat_g": 0.04,
+    "sodium_mg": 9.0,
+    "potassium_mg": 238.0,
+    "calcium_mg": 77.0,
+    "iron_mg": 0.31,
+    "vit_c_mg": 27.0,
+    "vit_a_ug": 16.0,
+    "vit_d_ug": 0.0,
+    "vit_b12_ug": 0.0,
+    "cholesterol_mg": 0.0
+   },
+   "portions": [
+    {
+     "label": "1 taza picado",
+     "grams": 76
+    },
+    {
+     "label": "100 g",
+     "grams": 100
+    }
+   ],
+   "origin": "USDA FoodData Central, SR Legacy 169979"
+  },
+  {
    "ref_key": "tcac_236",
    "name": "Repollo morado, cocido",
    "category": "verduras",
@@ -21354,6 +29990,82 @@
     }
    ],
    "origin": "ICBF, TCAC 2015 (código 238)"
+  },
+  {
+   "ref_key": "romero_fresco_usda",
+   "name": "Romero fresco",
+   "category": "verduras",
+   "synonyms": [],
+   "kcal": 131.0,
+   "protein_g": 3.3,
+   "carbs_g": 20.7,
+   "fat_g": 5.9,
+   "fiber_g": 14.1,
+   "nutrients": {
+    "sat_fat_g": 2.84,
+    "sodium_mg": 26.0,
+    "potassium_mg": 668.0,
+    "calcium_mg": 317.0,
+    "iron_mg": 6.65,
+    "vit_c_mg": 21.8,
+    "vit_a_ug": 146.0,
+    "vit_d_ug": 0.0,
+    "vit_b12_ug": 0.0,
+    "cholesterol_mg": 0.0
+   },
+   "portions": [
+    {
+     "label": "1 cucharadita",
+     "grams": 0.7
+    },
+    {
+     "label": "1 cucharada",
+     "grams": 1.7
+    },
+    {
+     "label": "100 g",
+     "grams": 100
+    }
+   ],
+   "origin": "USDA FoodData Central, SR Legacy 173473"
+  },
+  {
+   "ref_key": "rugula_cruda_usda",
+   "name": "Rúgula, cruda",
+   "category": "verduras",
+   "synonyms": [
+    "arúgula",
+    "rúcula"
+   ],
+   "kcal": 25.0,
+   "protein_g": 2.6,
+   "carbs_g": 3.6,
+   "fat_g": 0.7,
+   "fiber_g": 1.6,
+   "nutrients": {
+    "sugars_g": 2.05,
+    "sat_fat_g": 0.09,
+    "sodium_mg": 27.0,
+    "potassium_mg": 369.0,
+    "calcium_mg": 160.0,
+    "iron_mg": 1.46,
+    "vit_c_mg": 15.0,
+    "vit_a_ug": 119.0,
+    "vit_d_ug": 0.0,
+    "vit_b12_ug": 0.0,
+    "cholesterol_mg": 0.0
+   },
+   "portions": [
+    {
+     "label": "1/2 taza",
+     "grams": 10
+    },
+    {
+     "label": "100 g",
+     "grams": 100
+    }
+   ],
+   "origin": "USDA FoodData Central, SR Legacy 169387"
   },
   {
    "ref_key": "tcac_239",
@@ -21496,6 +30208,43 @@
    "origin": "ICBF, TCAC 2015 (código 243)"
   },
   {
+   "ref_key": "tomate_rojo_cocido_usda",
+   "name": "Tomate rojo, cocido",
+   "category": "verduras",
+   "synonyms": [
+    "tomate guisado"
+   ],
+   "kcal": 18.0,
+   "protein_g": 0.9,
+   "carbs_g": 4.0,
+   "fat_g": 0.1,
+   "fiber_g": 0.7,
+   "nutrients": {
+    "sugars_g": 2.49,
+    "sat_fat_g": 0.01,
+    "sodium_mg": 11.0,
+    "potassium_mg": 218.0,
+    "calcium_mg": 11.0,
+    "iron_mg": 0.68,
+    "vit_c_mg": 22.8,
+    "vit_a_ug": 24.0,
+    "vit_d_ug": 0.0,
+    "vit_b12_ug": 0.0,
+    "cholesterol_mg": 0.0
+   },
+   "portions": [
+    {
+     "label": "1 taza",
+     "grams": 240
+    },
+    {
+     "label": "100 g",
+     "grams": 100
+    }
+   ],
+   "origin": "USDA FoodData Central, SR Legacy 170050"
+  },
+  {
    "ref_key": "tcac_244",
    "name": "Tomate, pulpa",
    "category": "verduras",
@@ -21515,6 +30264,81 @@
     }
    ],
    "origin": "ICBF, TCAC 2015 (código 244)"
+  },
+  {
+   "ref_key": "tomillo_fresco_usda",
+   "name": "Tomillo fresco",
+   "category": "verduras",
+   "synonyms": [],
+   "kcal": 101.0,
+   "protein_g": 5.6,
+   "carbs_g": 24.4,
+   "fat_g": 1.7,
+   "fiber_g": 14.0,
+   "nutrients": {
+    "sat_fat_g": 0.47,
+    "sodium_mg": 9.0,
+    "potassium_mg": 609.0,
+    "calcium_mg": 405.0,
+    "iron_mg": 17.45,
+    "vit_c_mg": 160.1,
+    "vit_a_ug": 238.0,
+    "vit_d_ug": 0.0,
+    "vit_b12_ug": 0.0,
+    "cholesterol_mg": 0.0
+   },
+   "portions": [
+    {
+     "label": "1 cucharadita",
+     "grams": 0.8
+    },
+    {
+     "label": "100 g",
+     "grams": 100
+    }
+   ],
+   "origin": "USDA FoodData Central, SR Legacy 173470"
+  },
+  {
+   "ref_key": "zanahoria_baby_cruda_usda",
+   "name": "Zanahoria baby, cruda",
+   "category": "verduras",
+   "synonyms": [
+    "zanahorita"
+   ],
+   "kcal": 35.0,
+   "protein_g": 0.6,
+   "carbs_g": 8.2,
+   "fat_g": 0.1,
+   "fiber_g": 2.9,
+   "nutrients": {
+    "sugars_g": 4.76,
+    "sat_fat_g": 0.02,
+    "sodium_mg": 78.0,
+    "potassium_mg": 237.0,
+    "calcium_mg": 32.0,
+    "iron_mg": 0.89,
+    "vit_c_mg": 2.6,
+    "vit_a_ug": 690.0,
+    "vit_d_ug": 0.0,
+    "vit_b12_ug": 0.0,
+    "cholesterol_mg": 0.0
+   },
+   "portions": [
+    {
+     "label": "1 unidad mediana",
+     "grams": 10
+    },
+    {
+     "label": "1 unidad grande",
+     "grams": 15
+    },
+    {
+     "label": "100 g",
+     "grams": 100
+    }
+   ],
+   "origin": "USDA FoodData Central, SR Legacy 168568"
   },
   {
    "ref_key": "zanahoria",
