@@ -76,6 +76,7 @@ services:
       # y `POST /auth/register` devuelve 500 ('relation "owners" does not
       # exist'); en local no se notaba porque el volumen ya traía el esquema.
       - RUN_MIGRATIONS_ON_STARTUP=true
+      - MFA_REQUIRED_ROLES=${MFA_REQUIRED_ROLES:-["owner","admin"]}
       - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY:-}
       # Almacenamiento de objetos S3-compatible: MinIO en local, S3 real en prod
       # (basta cambiar estas env vars; el código usa boto3 sin cambios).

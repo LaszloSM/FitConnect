@@ -106,7 +106,7 @@ def extract_tcac() -> list[str]:
             continue
         for href in re.findall(r'href="([^"]+\.(?:pdf|xlsx?|csv))"', html, flags=re.I):
             url = href if href.startswith("http") else "https://www.icbf.gov.co" + href
-            if url not in found:
+            if "tcac" in url.lower() and url not in found:
                 found.append(url)
     (dest / "enlaces.txt").write_text("\n".join(found) + "\n", encoding="utf-8")
     for url in found:

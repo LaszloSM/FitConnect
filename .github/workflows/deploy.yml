@@ -130,6 +130,9 @@ jobs:
           SECRET_KEY: ${{ secrets.SECRET_KEY }}
           NEXTAUTH_SECRET: ${{ secrets.NEXTAUTH_SECRET }}
           POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
+          # Las pruebas e2e entran como dueño sin pasar por el 2FA; el flujo de
+          # dos pasos tiene sus propias pruebas en el backend.
+          MFA_REQUIRED_ROLES: '[]'
       - name: Wait for services
         run: |
           for i in $(seq 1 30); do
