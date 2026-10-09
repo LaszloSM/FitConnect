@@ -93,6 +93,20 @@ test("recorrido visual del dueño", async ({ page, request }) => {
   }
 });
 
+test("la marca de «ahora» del día no desborda en móvil en los extremos", async ({ page, request }) => {
+  // La línea de la hora actual se mueve con el reloj: a las 23:50 queda pegada al borde
+  // derecho y a las 05:10 al izquierdo. Sin fijar el reloj esto solo fallaba a ciertas horas.
+  const email = await cuentaDePrueba(request);
+  await entrar(page, email);
+  await page.setViewportSize({ width: 390, height: 844 });
+  for (const [h, m] of [[4, 50], [10, 10]] as const) {
+    const t = new Date();
+    t.setUTCHours(h, m, 0, 0); // 23:50 y 05:10 en Bogotá (UTC-5)
+    await page.clock.setFixedTime(t);
+    await capturar(page, `movil-hoy-${h}${m}`, "/dashboard", true);
+  }
+});
+
 test("recorrido visual de recepción y entrenador", async ({ browser, request }) => {
   test.setTimeout(240_000);
   await cuentaDePrueba(request);

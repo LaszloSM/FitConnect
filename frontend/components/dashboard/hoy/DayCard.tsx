@@ -109,7 +109,12 @@ export function DayCard({ entries, occupancy }: { entries: TodayEntry[]; occupan
           </div>
           {nowInRange && (
             <div className="absolute inset-y-0 w-[1.5px] bg-ink" style={{ left: `${nowLeft}%` }} aria-hidden="true">
-              <span className="num absolute -top-7 left-1/2 -translate-x-1/2 whitespace-nowrap rounded-[7px] bg-ink px-2 py-0.5 text-xs text-surface">
+              <span
+                className={cn(
+                  "num absolute -top-7 whitespace-nowrap rounded-[7px] bg-ink px-2 py-0.5 text-xs text-surface",
+                  // Cerca de los bordes la etiqueta crece hacia adentro: centrada se saldría de la tarjeta.
+                  nowLeft > 80 ? "right-0" : nowLeft < 20 ? "left-0" : "left-1/2 -translate-x-1/2",
+                )}>
                 Ahora {formatDateTime(new Date(), "HH:mm")}
               </span>
             </div>
