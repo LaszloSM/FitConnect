@@ -202,9 +202,10 @@ async def delete_account(db: AsyncSession, user: AppUser) -> None:
     toca: es del gimnasio, que responde por ella ante el socio."""
     from app.db.app_db import app_session
     from app.models.app import (AppProfile, CreditEntry, Food, FoodFavorite, MealEntry, PlanJob, SavedPlan,
-                                WeightLog, Workout)
+                                WaterEntry, WeightLog, Workout)
     async with app_session() as adb:
-        for model in (Workout, MealEntry, SavedPlan, PlanJob, CreditEntry, FoodFavorite, WeightLog, AppProfile):
+        for model in (Workout, MealEntry, WaterEntry, SavedPlan, PlanJob, CreditEntry, FoodFavorite, WeightLog,
+                      AppProfile):
             await adb.execute(delete(model).where(model.app_user_id == user.id))
         await adb.execute(delete(Food).where(Food.owner_id == user.id))
         await adb.commit()

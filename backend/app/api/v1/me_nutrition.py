@@ -15,7 +15,7 @@ from app.core.rate_limit import limiter
 from app.core.timeutil import today_bogota
 from app.db.app_db import app_session
 from app.db.master_session import get_master_db
-from app.models.app import AppProfile, Food, FoodFavorite, MealEntry, WeightLog
+from app.models.app import AppProfile, Food, FoodFavorite, MealEntry, WaterEntry, WeightLog
 from app.models.master.app_user import AppUser
 from app.services import app_accounts, foods, nutrition
 
@@ -322,12 +322,37 @@ async def update_recipe(food_id: uuid.UUID, payload: RecipeIn, user: AppUser = D
 
 # ─── Registro de comidas ───
 
+QUICK_LABEL = "Registro rápido"
+
+
 class MealIn(BaseModel):
+    """Un alimento con sus gramos, o un registro rápido: solo calorías (y
+    macros si la persona los sabe), sin buscar nada."""
     id: uuid.UUID
     day: Optional[date] = None
     meal: Literal["breakfast", "lunch", "dinner", "snack"]
-    food_id: uuid.UUID
-    grams: float = Field(gt=0, le=3000)
+    food_id: Optional[uuid.UUID] = None
+    grams: Optional[float] = Field(default=None, gt=0, le=3000)
+    label: Optional[str] = Field(default=None, max_length=80)
+    kcal: Optional[float] = Field(default=None, gt=0, le=5000)
+    protein_g: Optional[float] = Field(default=None, ge=0, le=500)
+    carbs_g: Optional[float] = Field(default=None, ge=0, le=800)
+    fat_g: Optional[float] = Field(default=None, ge=0, le=400)
+
+    @model_validator(mode="after")
+    def _food_or_quick(self) -> "MealIn":
+        if self.food_id is not None:
+            if self.grams is None:
+                raise ValueError("Indica los gramos")
+            if self.kcal is not None:
+                raise ValueError("Un alimento no lleva calorías a mano: salen de su ficha")
+        elif self.kcal is None:
+            raise ValueError("Elige un alimento o escribe las calorías")
+        return self
+
+    @property
+    def quick(self) -> bool:
+        return self.food_id is None
 
 
 def _meal_out(m: MealEntry) -> dict:
@@ -361,8 +386,15 @@ async def log_meal(payload: MealIn, user: AppUser = Depends(get_app_user)):
             if existing.app_user_id != user.id:
                 raise HTTPException(status_code=409, detail="Ese registro ya existe")
             return {"status": "duplicate", "entry": _meal_out(existing)}
-        food = await _visible_food(adb, payload.food_id, user)
-        entry = _entry(user, payload.id, day, payload.meal, food, payload.grams)
+        if payload.quick:
+            entry = MealEntry(id=payload.id, app_user_id=user.id, day=day, meal=payload.meal, food_id=None,
+                              food_name=(payload.label or "").strip() or QUICK_LABEL, grams=0,
+                              kcal=round(payload.kcal, 1), protein_g=round(payload.protein_g or 0, 1),
+                              carbs_g=round(payload.carbs_g or 0, 1), fat_g=round(payload.fat_g or 0, 1),
+                              fiber_g=0, nutrients={})
+        else:
+            food = await _visible_food(adb, payload.food_id, user)
+            entry = _entry(user, payload.id, day, payload.meal, food, payload.grams)
         adb.add(entry)
         await adb.commit()
         return {"status": "created", "entry": _meal_out(entry)}
@@ -381,6 +413,8 @@ async def edit_meal(entry_id: uuid.UUID, payload: MealPatch, user: AppUser = Dep
             raise HTTPException(status_code=404, detail="Registro no encontrado")
         if payload.meal:
             m.meal = payload.meal
+        if payload.grams and not float(m.grams):
+            raise HTTPException(status_code=422, detail="Un registro rápido no tiene gramos que cambiar")
         if payload.grams and payload.grams != float(m.grams):
             # Se recalcula en proporción al registro: el alimento pudo cambiar o borrarse.
             f = payload.grams / float(m.grams)
@@ -503,3 +537,124 @@ async def weight_history(days: int = Query(120, ge=7, le=730), user: AppUser = D
                                   .order_by(WeightLog.day))).scalars().all()
     points = [{"day": r.day.isoformat(), "weight_kg": float(r.weight_kg)} for r in rows]
     return {"available": True, "points": points}
+
+
+# ─── Agua ───
+
+GLASS_ML = 250
+
+
+async def _water_goal(adb: AsyncSession, user: AppUser, master: AsyncSession) -> int:
+    p = await adb.get(AppProfile, user.id)
+    if p is not None and p.water_goal_ml:
+        return p.water_goal_ml
+    # 35 ml por kg, redondeado a vasos; el peso solo se usa con la autorización de salud.
+    if p is not None and p.weight_kg and (await app_accounts.consents(master, user.id))["health"]:
+        return max(1500, min(4000, round(float(p.weight_kg) * 35 / GLASS_ML) * GLASS_ML))
+    return 2000
+
+
+async def _water_day(adb: AsyncSession, user: AppUser, master: AsyncSession, day: date) -> dict:
+    rows = (await adb.execute(select(WaterEntry).where(WaterEntry.app_user_id == user.id, WaterEntry.day == day)
+                              .order_by(WaterEntry.created_at))).scalars().all()
+    return {"day": day.isoformat(), "total_ml": sum(r.ml for r in rows), "goal_ml": await _water_goal(adb, user, master),
+            "glass_ml": GLASS_ML, "entries": [{"id": str(r.id), "ml": r.ml} for r in rows]}
+
+
+@router.get("/water")
+async def water_today(day: Optional[date] = None, user: AppUser = Depends(get_app_user),
+                      master: AsyncSession = Depends(get_master_db)):
+    day = day or today_bogota()
+    async with app_session() as adb:
+        return await _water_day(adb, user, master, day)
+
+
+class WaterIn(BaseModel):
+    id: uuid.UUID
+    day: Optional[date] = None
+    ml: int = Field(default=GLASS_ML, gt=0, le=2000)
+
+
+@router.post("/water")
+async def add_water(payload: WaterIn, user: AppUser = Depends(get_app_user),
+                    master: AsyncSession = Depends(get_master_db)):
+    """Idempotente por id, como las comidas."""
+    day = payload.day or today_bogota()
+    _check_day(day)
+    async with app_session() as adb:
+        existing = await adb.get(WaterEntry, payload.id)
+        if existing is not None and existing.app_user_id != user.id:
+            raise HTTPException(status_code=409, detail="Ese registro ya existe")
+        if existing is None:
+            adb.add(WaterEntry(id=payload.id, app_user_id=user.id, day=day, ml=payload.ml))
+            try:
+                await adb.commit()
+            except IntegrityError:
+                # Dos reenvíos simultáneos del mismo vaso: ya quedó el primero.
+                await adb.rollback()
+        return await _water_day(adb, user, master, day)
+
+
+@router.delete("/water/{entry_id}")
+async def remove_water(entry_id: uuid.UUID, user: AppUser = Depends(get_app_user),
+                       master: AsyncSession = Depends(get_master_db)):
+    async with app_session() as adb:
+        w = await adb.get(WaterEntry, entry_id)
+        if w is None or w.app_user_id != user.id:
+            raise HTTPException(status_code=404, detail="Registro no encontrado")
+        day = w.day
+        await adb.delete(w)
+        await adb.commit()
+        return await _water_day(adb, user, master, day)
+
+
+class WaterGoalIn(BaseModel):
+    #: Vacío vuelve al cálculo automático.
+    goal_ml: Optional[int] = Field(default=None, ge=500, le=6000)
+
+
+@router.put("/water/goal")
+async def set_water_goal(payload: WaterGoalIn, user: AppUser = Depends(get_app_user),
+                         master: AsyncSession = Depends(get_master_db)):
+    async with app_session() as adb:
+        p = await adb.get(AppProfile, user.id)
+        if p is None:
+            p = AppProfile(app_user_id=user.id)
+            adb.add(p)
+        p.water_goal_ml = payload.goal_ml
+        await adb.commit()
+        return await _water_day(adb, user, master, today_bogota())
+
+
+# ─── Racha ───
+
+def streaks(days: set[date], today: date) -> dict:
+    """Racha de días seguidos con al menos una comida registrada.
+
+    Hoy todavía sin registro no rompe la racha: cuenta hasta ayer y el día
+    sigue abierto. Perder un día reinicia la actual, nunca la mejor."""
+    anchor = today if today in days else today - timedelta(days=1)
+    current = 0
+    d = anchor
+    while d in days:
+        current += 1
+        d -= timedelta(days=1)
+    best = run = 0
+    prev: Optional[date] = None
+    for d in sorted(days):
+        run = run + 1 if prev is not None and d - prev == timedelta(days=1) else 1
+        best = max(best, run)
+        prev = d
+    week = [{"day": (today - timedelta(days=i)).isoformat(), "logged": (today - timedelta(days=i)) in days}
+            for i in range(6, -1, -1)]
+    return {"current": current, "best": max(best, current), "today_logged": today in days, "week": week}
+
+
+@router.get("/streak")
+async def streak(user: AppUser = Depends(get_app_user)):
+    today = today_bogota()
+    async with app_session() as adb:
+        rows = (await adb.execute(select(MealEntry.day).where(
+            MealEntry.app_user_id == user.id, MealEntry.day >= today - timedelta(days=400),
+            MealEntry.day <= today).distinct())).scalars().all()
+    return streaks(set(rows), today)

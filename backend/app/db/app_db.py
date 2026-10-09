@@ -19,6 +19,7 @@ from app.models.app import AppBase
 #: Literalmente equivalentes a lo que generaría create_all.
 ALIGN_STATEMENTS: list[str] = [
     "ALTER TABLE app_profiles ADD COLUMN IF NOT EXISTS pace VARCHAR(20)",
+    "ALTER TABLE app_profiles ADD COLUMN IF NOT EXISTS water_goal_ml INTEGER",
     "ALTER TABLE foods ADD COLUMN IF NOT EXISTS ref_key VARCHAR(80)",
     "ALTER TABLE foods ADD COLUMN IF NOT EXISTS category VARCHAR(40)",
     "ALTER TABLE foods ADD COLUMN IF NOT EXISTS synonyms JSONB NOT NULL DEFAULT '[]'::jsonb",
