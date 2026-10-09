@@ -61,7 +61,9 @@ function Routes({ fontsLoaded }: { fontsLoaded: boolean }) {
           <Stack.Screen name="body" options={{ headerShown: true, title: "Mis medidas" }} />
           <Stack.Screen name="add-food" options={{ headerShown: true, title: "Agregar alimento" }} />
           <Stack.Screen name="scan" options={{ headerShown: true, title: "Escanear" }} />
-          <Stack.Screen name="assistant" options={{ headerShown: true, title: "Asistente" }} />
+          <Stack.Screen name="create-food" options={{ headerShown: true, title: "Crear alimento" }} />
+          <Stack.Screen name="recipe" options={{ headerShown: true, title: "Mi comida" }} />
+          <Stack.Screen name="generate" options={{ headerShown: true, title: "Generar plan" }} />
           <Stack.Screen name="plans" options={{ headerShown: true, title: "Mis planes" }} />
           <Stack.Screen name="plan/[id]" options={{ headerShown: true, title: "Plan" }} />
         </Stack.Protected>

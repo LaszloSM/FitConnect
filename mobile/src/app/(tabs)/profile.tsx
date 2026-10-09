@@ -54,7 +54,7 @@ export default function Profile() {
 
   if (!me) return null;
 
-  const setConsent = async (kind: "health" | "notifications", granted: boolean) => {
+  const setConsent = async (kind: "health" | "notifications" | "ai_plans", granted: boolean) => {
     if (!granted && kind === "health") {
       const ok = await ask("¿Retirar la autorización de salud?", "Se borran tu peso y tu talla de la app.", "Retirar");
       if (!ok) return;
@@ -117,7 +117,7 @@ export default function Profile() {
 
       <Section>Autorizaciones</Section>
       <Card style={{ gap: space.md }}>
-        {(["health", "notifications"] as const).map((kind) => (
+        {(["health", "notifications", "ai_plans"] as const).map((kind) => (
           <View key={kind} style={{ flexDirection: "row", alignItems: "center", gap: space.md }}>
             <Txt size={14} style={{ flex: 1 }}>{me.consent_labels[kind]}</Txt>
             <Switch

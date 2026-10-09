@@ -25,8 +25,8 @@ export default function Plans() {
       {list.error && !list.data ? <Notice tone="danger">{list.error}</Notice> : null}
       {!list.data ? <Loading /> : null}
       {list.data && !list.data.length ? (
-        <Empty title="Aún no tienes planes" action={<Button label="Pedirle uno al asistente" onPress={() => router.push("/assistant")} style={{ alignSelf: "stretch", marginTop: space.sm }} />}>
-          El asistente arma planes de entrenamiento y de comidas que quedan guardados aquí como agenda.
+        <Empty title="Aún no tienes planes" action={<Button label="Generar un plan" onPress={() => router.push("/generate")} style={{ alignSelf: "stretch", marginTop: space.sm }} />}>
+          Arma un plan de comidas o de entreno con tus metas. Queda guardado aquí como agenda.
         </Empty>
       ) : null}
       <View style={{ gap: space.sm }}>
@@ -35,7 +35,7 @@ export default function Plans() {
           const detail =
             p.kind === "training"
               ? plural(p.data.days.length, "día por semana", "días por semana")
-              : `${p.data.total_kcal} kcal · ${plural(p.data.meals.length, "comida", "comidas")}`;
+              : `${Math.round(p.data.totals?.kcal ?? 0).toLocaleString("es-CO")} kcal · ${plural(p.data.meals.length, "comida", "comidas")}`;
           return (
             <Card key={p.id} onPress={() => router.push({ pathname: "/plan/[id]", params: { id: p.id } })} accessibilityLabel={p.title}>
               <View style={{ flexDirection: "row", alignItems: "center", gap: space.md }}>

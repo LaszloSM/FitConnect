@@ -16,12 +16,13 @@ export interface Profile {
   weight_kg: number | null;
   goal: "lose_fat" | "gain_muscle" | "maintain" | "performance" | "health" | null;
   activity_level: string | null;
+  pace: Pace | null;
 }
 
 export interface Me {
   user: { id: string; email: string; full_name: string | null; created_at: string };
   profile: Profile;
-  consents: Record<"health" | "notifications", boolean>;
+  consents: Record<"health" | "notifications" | "ai_plans", boolean>;
   consent_labels: Record<string, string>;
   gyms: GymRef[];
 }
@@ -144,6 +145,12 @@ export interface Announcement {
   sent_at: string;
 }
 
+export type NutrientKey =
+  | "sugars_g" | "sat_fat_g" | "sodium_mg" | "potassium_mg" | "calcium_mg" | "iron_mg"
+  | "vit_c_mg" | "vit_a_ug" | "vit_d_ug" | "vit_b12_ug" | "cholesterol_mg";
+
+export type Nutrients = Partial<Record<NutrientKey, number>>;
+
 export interface Targets {
   bmr: number;
   tdee: number;
@@ -151,9 +158,17 @@ export interface Targets {
   protein_g: number;
   fat_g: number;
   carbs_g: number;
+  fiber_g: number;
   water_ml: number;
   clamped: boolean;
+  weekly_change_kg: number;
+  too_fast: boolean;
+  pace: Pace | null;
+  pace_label: string | null;
+  micro: Partial<Record<NutrientKey, { value: number; kind: "min" | "max" }>>;
 }
+
+export type Pace = "gentle" | "moderate" | "aggressive" | "lean" | "standard";
 
 export interface TargetsResponse {
   available: boolean;
@@ -164,20 +179,37 @@ export interface TargetsResponse {
   notice?: string;
   references?: string[];
   clamped_message?: string | null;
+  pace_note?: string | null;
   activity_labels: Record<string, string>;
+  pace_options: Record<"lose_fat" | "gain_muscle", Pace[]>;
+  pace_labels: Record<Pace, string>;
+  nutrient_labels: Record<NutrientKey, [string, string]>;
+}
+
+export interface Portion {
+  label: string;
+  grams: number;
 }
 
 export interface Food {
   id: string;
   name: string;
   brand: string | null;
-  source: "reference" | "openfoodfacts" | "custom";
+  source: "reference" | "openfoodfacts" | "custom" | "recipe";
   kcal: number;
   protein_g: number;
   carbs_g: number;
   fat_g: number;
   fiber_g: number;
-  portions: { label: string; grams: number }[];
+  portions: Portion[];
+  nutrients: Nutrients;
+  category: string | null;
+  category_label: string | null;
+  origin: string | null;
+  mine: boolean;
+  favorite?: boolean;
+  components: { food_id: string; name: string; grams: number }[] | null;
+  warning?: string | null;
 }
 
 export type MealKey = "breakfast" | "lunch" | "dinner" | "snack";
@@ -193,45 +225,104 @@ export interface MealEntry {
   protein_g: number;
   carbs_g: number;
   fat_g: number;
+  fiber_g: number;
+  nutrients: Nutrients;
   pending?: boolean;
+}
+
+export interface DayTotals {
+  kcal: number;
+  protein_g: number;
+  carbs_g: number;
+  fat_g: number;
+  fiber_g: number;
+  nutrients: Partial<Record<NutrientKey, { value: number; complete: boolean }>>;
 }
 
 export interface DayMeals {
   day: string;
   meals: Record<MealKey, string>;
   entries: MealEntry[];
-  totals: { kcal: number; protein_g: number; carbs_g: number; fat_g: number };
+  totals: DayTotals;
+}
+
+export interface WeekSummary {
+  start: string;
+  end: string;
+  days: { day: string; logged: boolean; kcal: number; protein_g: number; carbs_g: number; fat_g: number; fiber_g: number }[];
+  average: { kcal: number; protein_g: number; carbs_g: number; fat_g: number } | null;
+  target: Targets | null;
 }
 
 export interface TrainingPlanData {
   notes: string | null;
+  engine?: "ai" | "auto";
   days: { weekday: number; title: string; exercises: { name: string; sets: number; reps: string; rest_seconds: number; notes: string | null }[] }[];
+}
+
+export interface PlanItem {
+  food_id: string;
+  food: string;
+  grams: number;
+  portion: string | null;
+  kcal: number;
+  protein_g: number;
+  carbs_g: number;
+  fat_g: number;
+  fiber_g: number;
+}
+
+export interface MacroTotals {
+  kcal: number;
+  protein_g: number;
+  carbs_g: number;
+  fat_g: number;
+  fiber_g: number;
 }
 
 export interface MealPlanData {
   notes: string | null;
-  total_kcal: number;
-  total_protein_g: number;
-  meals: { time: string; name: string; kcal: number; items: { food: string; amount: string; kcal: number; protein_g: number | null }[] }[];
+  engine?: "ai" | "auto";
+  meals: ({ time: string; name: string; items: PlanItem[] } & MacroTotals)[];
+  totals: MacroTotals;
+  targets: { kcal: number; protein_g: number; carbs_g: number; fat_g: number } | null;
 }
 
 export type SavedPlan =
   | { id: string; kind: "training"; title: string; data: TrainingPlanData; active: boolean; created_at: string }
   | { id: string; kind: "meals"; title: string; data: MealPlanData; active: boolean; created_at: string };
 
-export interface ChatMessage {
-  id: string;
-  role: "user" | "assistant";
-  text: string;
-  plan_ids: string[];
-  created_at: string;
+export interface Credits {
+  balance: number;
+  weekly_free: number;
+  next_refill: string;
+  history: { kind: string; label: string; amount: number; at: string }[];
 }
 
-export interface AssistantState {
-  available: boolean;
-  reason?: string;
-  message?: string;
-  limit: number;
-  used_today: number;
-  messages: ChatMessage[];
+export interface PlanOptions {
+  ai_available: boolean;
+  ai_consent: boolean;
+  credits: Credits;
+  meals_blocked: string | null;
+  training_blocked: string | null;
+  restriction_labels: Record<Restriction, string>;
+  parq_flag: boolean;
+  targets: Targets | null;
+}
+
+export type Restriction = "vegetarian" | "no_dairy" | "no_pork" | "no_fish";
+
+export interface PlanJob {
+  id: string;
+  kind: "meals" | "training";
+  status: "queued" | "running" | "done" | "failed";
+  engine: "ai" | "auto" | null;
+  position: number | null;
+  message: string | null;
+  plan: SavedPlan | null;
+}
+
+export interface WeightPoint {
+  day: string;
+  weight_kg: number;
 }

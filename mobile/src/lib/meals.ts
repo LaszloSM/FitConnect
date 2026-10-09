@@ -37,6 +37,8 @@ export function entryFor(food: Food, grams: number, meal: MealKey, day = bogotaT
     protein_g: r(food.protein_g),
     carbs_g: r(food.carbs_g),
     fat_g: r(food.fat_g),
+    fiber_g: r(food.fiber_g),
+    nutrients: Object.fromEntries(Object.entries(food.nutrients ?? {}).map(([k, v]) => [k, Math.round((v ?? 0) * f * 100) / 100])),
     pending: true,
   };
 }
@@ -61,6 +63,21 @@ export function syncMeals(): Promise<MealEntry[]> {
     });
   }
   return running;
+}
+
+/** Repite los registros de un día en otro (o en la misma comida). Necesita señal. */
+export async function copyMeals(fromDay: string, count: number, opts: { toDay?: string; meal?: MealKey; toMeal?: MealKey } = {}) {
+  const ids = Array.from({ length: count }, () => Crypto.randomUUID());
+  return api<{ entries: MealEntry[] }>("/api/v1/me/meals/copy", {
+    method: "POST",
+    json: { from_day: fromDay, to_day: opts.toDay, meal: opts.meal, to_meal: opts.toMeal, ids },
+  });
+}
+
+export function addDays(iso: string, n: number): string {
+  const [y, m, d] = iso.split("-").map(Number);
+  const dt = new Date(Date.UTC(y, m - 1, d + n));
+  return dt.toISOString().slice(0, 10);
 }
 
 export async function logMeal(entry: MealEntry): Promise<"synced" | "queued"> {

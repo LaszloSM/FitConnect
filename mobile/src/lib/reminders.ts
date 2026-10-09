@@ -25,7 +25,7 @@ export async function enableMealReminders(planId: string, data: MealPlanData): P
     const [hour, minute] = m.time.split(":").map(Number);
     ids.push(
       await Notifications.scheduleNotificationAsync({
-        content: { title: `${m.name} · ${m.kcal} kcal`, body: m.items.map((i) => i.food).join(", ").slice(0, 140), data: { planId } },
+        content: { title: `${m.name} · ${Math.round(m.kcal)} kcal`, body: m.items.map((i) => i.food).join(", ").slice(0, 140), data: { planId } },
         trigger: { type: Notifications.SchedulableTriggerInputTypes.DAILY, hour, minute },
       }),
     );

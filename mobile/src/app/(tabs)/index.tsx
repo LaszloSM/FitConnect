@@ -1,13 +1,15 @@
 import { router } from "expo-router";
-import { CaretRightIcon, ChatCircleDotsIcon, CloudSlashIcon, IdentificationCardIcon, MegaphoneIcon, QrCodeIcon, UsersIcon } from "phosphor-react-native";
+import { CaretRightIcon, CloudSlashIcon, ForkKnifeIcon, IdentificationCardIcon, MegaphoneIcon, QrCodeIcon, SparkleIcon, UsersIcon } from "phosphor-react-native";
 import { Pressable, View } from "react-native";
 
+import { Meter } from "@/components/charts";
 import { Button, Card, Chip, Empty, Notice, Num, Screen, Section, Title, Txt } from "@/components/ui";
 import { formatDay, formatTime, plural, weekdayLabel } from "@/lib/format";
 import { STATUS_TONE, stripQr } from "@/lib/gym";
+import { bogotaToday } from "@/lib/meals";
 import { useSession } from "@/lib/session";
 import { space, useColors } from "@/lib/theme";
-import type { Announcement, GymSummary } from "@/lib/types";
+import type { Announcement, DayMeals, GymSummary, TargetsResponse } from "@/lib/types";
 import { useCached } from "@/lib/useCached";
 
 function timeOf(ms: number) {
@@ -23,10 +25,15 @@ export default function Home() {
   const summary = useCached<GymSummary>(usable ? `/api/v1/me/gyms/${usable.link_id}` : null, stripQr);
   const news = useCached<Announcement[]>(usable ? `/api/v1/me/gyms/${usable.link_id}/announcements` : null);
   const s = summary.data;
+  const health = Boolean(me?.consents.health);
+  const targets = useCached<TargetsResponse>(health ? "/api/v1/me/nutrition/targets" : null);
+  const today = useCached<DayMeals>(health ? `/api/v1/me/meals?day=${bogotaToday()}` : null);
+  const t = targets.data?.targets;
 
   const reload = () => {
     void summary.reload();
     void news.reload();
+    void today.reload();
   };
 
   return (
@@ -147,12 +154,29 @@ export default function Home() {
         </>
       ) : null}
 
-      <Card style={{ marginTop: space.xl }} onPress={() => router.push("/assistant")} accessibilityLabel="Abrir el asistente">
+      {t ? (
+        <>
+          <Section>Hoy en tu plato</Section>
+          <Card onPress={() => router.push("/eat")} accessibilityLabel="Ver lo que comí hoy" style={{ gap: space.md }}>
+            <View style={{ flexDirection: "row", alignItems: "center", gap: space.md }}>
+              <ForkKnifeIcon size={22} color={c.brandInk} />
+              <Txt weight="semi" style={{ flex: 1 }}>
+                {today.data?.entries.length ? `Te quedan ${Math.max(0, Math.round(t.kcal - today.data.totals.kcal)).toLocaleString("es-CO")} kcal` : "Aún no registras comidas hoy"}
+              </Txt>
+              <CaretRightIcon size={18} color={c.inkMuted} />
+            </View>
+            <Meter label="Calorías" value={today.data?.totals.kcal ?? 0} target={t.kcal} unit="kcal" />
+            <Meter label="Proteína" value={today.data?.totals.protein_g ?? 0} target={t.protein_g} unit="g" />
+          </Card>
+        </>
+      ) : null}
+
+      <Card style={{ marginTop: space.xl }} onPress={() => router.push("/generate")} accessibilityLabel="Generar un plan">
         <View style={{ flexDirection: "row", alignItems: "center", gap: space.md }}>
-          <ChatCircleDotsIcon size={26} color={c.brandInk} />
+          <SparkleIcon size={26} color={c.brandInk} />
           <View style={{ flex: 1, gap: 2 }}>
-            <Txt weight="semi">Pregúntale al asistente</Txt>
-            <Txt muted size={13}>Planes de entreno y de comidas con base en evidencia</Txt>
+            <Txt weight="semi">Generar un plan</Txt>
+            <Txt muted size={13}>De comidas o de entreno, con tus metas. El automático es gratis.</Txt>
           </View>
           <CaretRightIcon size={18} color={c.inkMuted} />
         </View>

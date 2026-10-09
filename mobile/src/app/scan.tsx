@@ -10,7 +10,7 @@ import type { Food } from "@/lib/types";
 
 /** Lee el código de barras de un empaque y busca el producto (Open Food Facts). */
 export default function Scan() {
-  const { meal } = useLocalSearchParams<{ meal?: string }>();
+  const { meal, day } = useLocalSearchParams<{ meal?: string; day?: string }>();
   const [permission, request] = useCameraPermissions();
   const [error, setError] = useState<string | null>(null);
   const busy = useRef(false);
@@ -20,10 +20,10 @@ export default function Scan() {
     busy.current = true;
     try {
       await api<Food>(`/api/v1/me/foods/barcode/${data}`);
-      router.replace({ pathname: "/add-food", params: { meal: meal ?? "snack", barcode: data } });
+      router.replace({ pathname: "/add-food", params: { meal: meal ?? "snack", day: day ?? "", barcode: data } });
     } catch (e) {
       if (e instanceof ApiError && e.status === 404) {
-        router.replace({ pathname: "/add-food", params: { meal: meal ?? "snack", barcode: data, notFound: "1" } });
+        router.replace({ pathname: "/create-food", params: { meal: meal ?? "snack", day: day ?? "", barcode: data } });
       } else {
         setError("No pudimos buscar el producto. Revisa tu conexión.");
         busy.current = false;
