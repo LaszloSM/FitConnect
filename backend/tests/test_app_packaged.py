@@ -90,7 +90,7 @@ def test_builder_drops_incoherent_and_incomplete_products():
           "serving_size": "30 g", "categories": "en:snacks,en:biscuits",
           "n": {"energy-kcal_100g": 486, "proteins_100g": 7, "carbohydrates_100g": 64, "fat_100g": 22}}
     p = build_packaged.product(ok)
-    assert p["name"] == "Galletas ducales" and p["brand"] == "noel" and p["category"] == "snacks"
+    assert p["name"] == "Galletas ducales" and p["brand"] == "Noel" and p["category"] == "snacks"
     assert p["portions"][0] == {"label": "1 porción", "grams": 30.0}
     # 900 kcal declaradas con macros que suman 300: no cuadra con Atwater.
     assert build_packaged.product({**ok, "n": {**ok["n"], "energy-kcal_100g": 900}}) is None

@@ -57,7 +57,12 @@ def clean_text(s: str) -> str:
     # Nombres en mayúsculas sostenidas («GALLETAS DUCALES») se leen mejor en oración.
     if s.isupper() and len(s) > 3:
         s = s.capitalize()
-    return s
+    return s[:1].upper() + s[1:]
+
+
+#: Tamaños de porción que OFF trae en inglés o que solo repiten los gramos: se
+#: muestran como «1 porción» (los gramos ya van en la porción).
+ENGLISH_SERVING = re.compile(r"\b(portion|serving|tablespoons?|tbsp|cups?|pieces?|slices?|bars?|packs?)\b", re.I)
 
 
 def kcal_of(n: dict):
@@ -108,7 +113,8 @@ def product(p: dict):
     sq = p.get("serving_quantity")
     if sq and 1 <= sq <= 1000:
         size = clean_text(p.get("serving_size", ""))
-        label = "1 porción" if not size or size.replace(" ", "") in (f"{sq:g}g", f"{sq:g}ml") else f"1 porción ({size})"
+        plain = not size or size.replace(" ", "").lower() in (f"{sq:g}g", f"{sq:g}ml") or ENGLISH_SERVING.search(size)
+        label = "1 porción" if plain else f"1 porción ({size})"
         portions.append({"label": label[:60], "grams": r1(sq)})
     portions.append({"label": "100 g", "grams": 100})
     return {

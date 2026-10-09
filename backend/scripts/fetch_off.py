@@ -77,7 +77,8 @@ def main() -> int:
                 kept[p["code"]] = p  # el export trae duplicados; queda el último
             if seen % 500_000 == 0:
                 print(f"  {seen:,} filas, {len(kept):,} de Colombia", flush=True)
-    if len(kept) < 1000:
+    # Open Food Facts tiene pocos productos de Colombia (~1.000 con energía en 2026).
+    if len(kept) < 300:
         print(f"Sospechoso: solo {len(kept)} productos de Colombia en {seen:,} filas", file=sys.stderr)
         return 1
     OUT.parent.mkdir(exist_ok=True)
