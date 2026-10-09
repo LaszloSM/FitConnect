@@ -322,6 +322,10 @@ Cuando cometas un error durante una sesión, agrégalo aquí antes de terminar:
 | La landing y el registro prometían 30 días de prueba y el backend daba 14 | El valor se fijó en el backend sin revisar lo que ya decía el sitio público | Un número que ve el cliente (días de prueba, precios, límites) se busca en `frontend/` y `platform/` antes de cambiarlo en el backend |
 | `priority` de `next/image` está obsoleto en Next 16 | Se reemplazó por `preload` | Usar `preload` (o `loading="eager"`/`fetchPriority`); leer `node_modules/next/dist/docs/` antes de usar una prop de memoria |
 
+| El fetch de USDA y del ICBF desde el entorno de desarrollo en la nube devolvía 403 | El proxy de salida solo deja pasar algunos dominios (GitHub sí, `fdc.nal.usda.gov` e `icbf.gov.co` no) | Las descargas de datos públicos van en un workflow de GitHub Actions (`fuentes-alimentos.yml`) que sube el extracto a la rama; el curado se hace sin red con `build_foods.py` |
+| La TCAC del ICBF en PDF: emparejar filas de las páginas de continuación por orden corría los valores (queso costeño salía con 3 g de grasa) | Una fila sin valores deja una línea en blanco y desplaza todo lo que sigue | Emparejar por posición vertical con el desplazamiento calibrado por página, y aceptar solo lo que cuadra con Atwater (±15 % o ±25 kcal). Lo que no cuadra se descarta, no se corrige |
+| `origin VARCHAR(160)` reventó la semilla de alimentos con `StringDataRightTruncation` | El origen de un plato por receta lista todos sus ingredientes | Textos descriptivos que se arman solos van en `Text`; si una columna de la base app cambia de tipo, el aligner necesita también el `ALTER COLUMN ... TYPE` porque `ADD COLUMN IF NOT EXISTS` no la toca |
+
 **Protocolo:** Al detectar un error que no estaba documentado, añade una fila a la tabla antes del commit.
 
 ---

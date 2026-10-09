@@ -22,7 +22,7 @@ from app.core.rate_limit import limiter
 from app.core.timeutil import today_bogota, utcnow_naive
 from app.db.app_db import app_session
 from app.db.master_session import get_master_db
-from app.models.app import AppProfile, Workout
+from app.models.app import AppProfile, WeightLog, Workout
 from app.models.master.app_user import AppPushToken, AppUser, MemberLink
 from app.models.master.exercise import Exercise
 from app.models.master.tenant import Tenant
@@ -94,6 +94,7 @@ class ProfileIn(BaseModel):
     weight_kg: Optional[float] = Field(default=None, ge=25, le=350)
     goal: Optional[Literal["lose_fat", "gain_muscle", "maintain", "performance", "health"]] = None
     activity_level: Optional[Literal["sedentary", "light", "moderate", "active", "very_active"]] = None
+    pace: Optional[Literal["gentle", "moderate", "aggressive", "lean", "standard"]] = None
 
     @field_validator("birth_date")
     @classmethod
@@ -110,10 +111,10 @@ class ProfileIn(BaseModel):
 def _profile_out(p: AppProfile | None) -> dict:
     if p is None:
         return {"birth_date": None, "sex": None, "height_cm": None, "weight_kg": None, "goal": None,
-                "activity_level": None}
+                "activity_level": None, "pace": None}
     return {"birth_date": p.birth_date.isoformat() if p.birth_date else None, "sex": p.sex,
             "height_cm": p.height_cm, "weight_kg": float(p.weight_kg) if p.weight_kg is not None else None,
-            "goal": p.goal, "activity_level": p.activity_level}
+            "goal": p.goal, "activity_level": p.activity_level, "pace": p.pace}
 
 
 @router.get("")
@@ -146,6 +147,14 @@ async def update_me(payload: ProfileIn, user: AppUser = Depends(get_app_user),
             adb.add(profile)
         for k, v in data.items():
             setattr(profile, k, v)
+        if data.get("weight_kg") is not None:
+            # Un punto por día en la curva de peso: el último del día gana.
+            today = today_bogota()
+            log = await adb.get(WeightLog, (user.id, today))
+            if log is None:
+                adb.add(WeightLog(app_user_id=user.id, day=today, weight_kg=data["weight_kg"]))
+            else:
+                log.weight_kg = data["weight_kg"]
         await adb.commit()
     await master.commit()
     return {"ok": True, "profile": _profile_out(profile)}
@@ -166,7 +175,8 @@ async def set_consent(payload: ConsentIn, user: AppUser = Depends(get_app_user),
             profile = await adb.get(AppProfile, user.id)
             if profile is not None:
                 profile.height_cm = profile.weight_kg = None
-                await adb.commit()
+            await adb.execute(WeightLog.__table__.delete().where(WeightLog.app_user_id == user.id))
+            await adb.commit()
     if payload.kind == "notifications" and not payload.granted:
         await master.execute(AppPushToken.__table__.delete().where(AppPushToken.app_user_id == user.id))
     await master.commit()

@@ -16,7 +16,23 @@ from app.db.tenant_session import get_tenant_engine
 from app.models.app import AppBase
 
 #: Columnas agregadas después de creada la tabla (create_all no altera tablas).
-ALIGN_STATEMENTS: list[str] = []
+#: Literalmente equivalentes a lo que generaría create_all.
+ALIGN_STATEMENTS: list[str] = [
+    "ALTER TABLE app_profiles ADD COLUMN IF NOT EXISTS pace VARCHAR(20)",
+    "ALTER TABLE foods ADD COLUMN IF NOT EXISTS ref_key VARCHAR(80)",
+    "ALTER TABLE foods ADD COLUMN IF NOT EXISTS category VARCHAR(40)",
+    "ALTER TABLE foods ADD COLUMN IF NOT EXISTS synonyms JSONB NOT NULL DEFAULT '[]'::jsonb",
+    "ALTER TABLE foods ADD COLUMN IF NOT EXISTS nutrients JSONB NOT NULL DEFAULT '{}'::jsonb",
+    "ALTER TABLE foods ADD COLUMN IF NOT EXISTS search_text TEXT",
+    "ALTER TABLE foods ADD COLUMN IF NOT EXISTS origin TEXT",
+    "ALTER TABLE foods ALTER COLUMN origin TYPE TEXT",
+    "ALTER TABLE foods ADD COLUMN IF NOT EXISTS components JSONB",
+    "ALTER TABLE foods ADD COLUMN IF NOT EXISTS data_version INTEGER NOT NULL DEFAULT 0",
+    "ALTER TABLE foods ADD COLUMN IF NOT EXISTS updated_at TIMESTAMP WITHOUT TIME ZONE",
+    "CREATE UNIQUE INDEX IF NOT EXISTS foods_ref_key_key ON foods (ref_key)",
+    "ALTER TABLE meal_entries ADD COLUMN IF NOT EXISTS fiber_g NUMERIC(6, 1) NOT NULL DEFAULT 0",
+    "ALTER TABLE meal_entries ADD COLUMN IF NOT EXISTS nutrients JSONB NOT NULL DEFAULT '{}'::jsonb",
+]
 
 _ready = False
 _lock: asyncio.Lock | None = None

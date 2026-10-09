@@ -37,19 +37,23 @@ async def test_targets_for_a_complete_profile(client):
 async def test_reference_foods_are_searchable(client):
     h = await _ready_user(client)
     found = (await client.get("/api/v1/me/foods", params={"q": "arroz"}, headers=h)).json()
-    assert any(f["name"] == "Arroz blanco cocido" and f["kcal"] == 130 for f in found)
+    rice = next(f for f in found if f["name"] == "Arroz blanco, cocido")
+    assert rice["kcal"] == 153 and rice["origin"].startswith("ICBF, TCAC 2015")
 
 
 async def test_meal_log_is_idempotent_and_adds_up(client):
     h = await _ready_user(client)
-    rice = [f for f in (await client.get("/api/v1/me/foods", params={"q": "Arroz blanco"}, headers=h)).json()][0]
+    rice = next(f for f in (await client.get("/api/v1/me/foods", params={"q": "arroz blanco cocido"}, headers=h)).json()
+                if f["name"] == "Arroz blanco, cocido")
     eid = str(uuid.uuid4())
     body = {"id": eid, "meal": "lunch", "food_id": rice["id"], "grams": 150}
     first = (await client.post("/api/v1/me/meals", json=body, headers=h)).json()
-    assert first["status"] == "created" and first["entry"]["kcal"] == 195.0
+    assert first["status"] == "created" and first["entry"]["kcal"] == 229.5
+    assert first["entry"]["nutrients"]["sodium_mg"] == 613.5
     assert (await client.post("/api/v1/me/meals", json=body, headers=h)).json()["status"] == "duplicate"
     day = (await client.get("/api/v1/me/meals", headers=h)).json()
-    assert day["totals"]["kcal"] == 195.0 and len(day["entries"]) == 1
+    assert day["totals"]["kcal"] == 229.5 and len(day["entries"]) == 1
+    assert day["totals"]["nutrients"]["sodium_mg"] == {"value": 613.5, "complete": True}
     assert (await client.delete(f"/api/v1/me/meals/{eid}", headers=h)).status_code == 200
 
 

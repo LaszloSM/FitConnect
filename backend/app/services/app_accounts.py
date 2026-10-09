@@ -40,6 +40,7 @@ _LINK_ALPHABET = "ABCDEFGHJKMNPQRSTUVWXYZ23456789"
 CONSENTS = {
     "health": "Datos de salud (peso, talla, cuestionario de salud)",
     "notifications": "Avisos en el celular",
+    "ai_plans": "Generar planes con un servicio de IA de Google usando datos anónimos (edad en rango, sexo, peso y talla aproximados, objetivo y metas)",
 }
 
 EMAIL_RE = re.compile(r"^[^@\s]+@[^@\s]+\.[^@\s]+$")
@@ -200,9 +201,10 @@ async def delete_account(db: AsyncSession, user: AppUser) -> None:
     """Borra la cuenta y todo lo que es de la app. La ficha del gimnasio no se
     toca: es del gimnasio, que responde por ella ante el socio."""
     from app.db.app_db import app_session
-    from app.models.app import AppProfile, AssistantMessage, Food, MealEntry, SavedPlan, Workout
+    from app.models.app import (AppProfile, CreditEntry, Food, FoodFavorite, MealEntry, PlanJob, SavedPlan,
+                                WeightLog, Workout)
     async with app_session() as adb:
-        for model in (Workout, MealEntry, SavedPlan, AssistantMessage, AppProfile):
+        for model in (Workout, MealEntry, SavedPlan, PlanJob, CreditEntry, FoodFavorite, WeightLog, AppProfile):
             await adb.execute(delete(model).where(model.app_user_id == user.id))
         await adb.execute(delete(Food).where(Food.owner_id == user.id))
         await adb.commit()

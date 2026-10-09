@@ -36,7 +36,6 @@ class Settings(BaseSettings):
     # TTL del token efímero del SSE de recepción (segundos).
     realtime_token_ttl_seconds: int = 120
     algorithm: str = "HS256"
-    anthropic_api_key: str = ""
     ses_from_email: str = ""
     cors_origins: list[str] = ["http://localhost:3000"]
     # URL pública del frontend, para construir links (ej. invitaciones de staff).
@@ -62,9 +61,18 @@ class Settings(BaseSettings):
     app_access_minutes: int = 30
     app_refresh_days: int = 60
     app_terms_version: str = "2026-10"
-    # Asistente (API de Claude). Sin ANTHROPIC_API_KEY la app lo muestra como no disponible.
-    assistant_model: str = "claude-sonnet-5-5"
-    assistant_daily_limit: int = 30
+    # Planes con IA (Gemini, modo estructurado: solo devuelve JSON). Sin
+    # GEMINI_API_KEY la app genera los planes automáticos, que no usan IA.
+    gemini_api_key: str = ""
+    gemini_model: str = "gemini-2.5-flash-lite"
+    gemini_base_url: str = "https://generativelanguage.googleapis.com/v1beta"
+    # Cuota que se le pide al proveedor (por debajo de la del plan gratis, que
+    # Google cambia sin aviso). Lo que no cabe espera en fila.
+    gemini_rpm: int = 8
+    gemini_rpd: int = 200
+    # Créditos de planes con IA: de bienvenida y recarga gratis cada semana.
+    plan_welcome_credits: int = 3
+    plan_free_weekly: int = 2
     # Días de prueba gratis de un gimnasio nuevo y de gracia tras vencer antes de solo lectura.
     default_trial_days: int = 30  # lo que promete la landing y el registro
     past_due_grace_days: int = 7

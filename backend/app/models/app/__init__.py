@@ -8,7 +8,7 @@ import uuid
 from datetime import date, datetime
 from typing import Optional
 
-from sqlalchemy import Boolean, Date, DateTime, Integer, Numeric, String, Text
+from sqlalchemy import Boolean, Date, DateTime, Integer, Numeric, PrimaryKeyConstraint, String, Text, UniqueConstraint
 from sqlalchemy.dialects.postgresql import JSONB, UUID
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
 
@@ -29,6 +29,8 @@ class AppProfile(AppBase):
     weight_kg: Mapped[Optional[float]] = mapped_column(Numeric(5, 1), nullable=True)
     goal: Mapped[Optional[str]] = mapped_column(String(30), nullable=True)
     activity_level: Mapped[Optional[str]] = mapped_column(String(20), nullable=True)
+    #: Ritmo del objetivo: gentle/moderate/aggressive al bajar grasa, lean/standard al ganar músculo.
+    pace: Mapped[Optional[str]] = mapped_column(String(20), nullable=True)
     updated_at: Mapped[datetime] = mapped_column(DateTime, nullable=False, default=datetime.utcnow,
                                                  onupdate=datetime.utcnow)
 
@@ -54,8 +56,15 @@ class Workout(AppBase):
 
 
 class Food(AppBase):
-    """Alimento con su aporte por 100 g. `source`: reference (tabla incluida),
-    openfoodfacts (código de barras) o custom (lo creó una persona, solo lo ve ella)."""
+    """Alimento con su aporte por 100 g.
+
+    `source`: reference (base incluida), openfoodfacts (código de barras),
+    custom (lo creó una persona) o recipe (una «mi comida» hecha de varios
+    alimentos). Los dos últimos tienen `owner_id` y solo los ve su dueño.
+
+    `nutrients`: micronutrientes por 100 g (`NUTRIENT_KEYS` de services/foods).
+    Una clave ausente o en null es «sin dato», nunca cero.
+    """
     __tablename__ = "foods"
 
     id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
@@ -70,6 +79,28 @@ class Food(AppBase):
     fat_g: Mapped[float] = mapped_column(Numeric(6, 1), nullable=False, default=0)
     fiber_g: Mapped[float] = mapped_column(Numeric(6, 1), nullable=False, default=0)
     portions: Mapped[list] = mapped_column(JSONB, nullable=False, default=list)
+    #: Clave estable de la base incluida: permite actualizarla sin duplicar.
+    ref_key: Mapped[Optional[str]] = mapped_column(String(80), nullable=True, unique=True)
+    category: Mapped[Optional[str]] = mapped_column(String(40), nullable=True)
+    synonyms: Mapped[list] = mapped_column(JSONB, nullable=False, default=list)
+    nutrients: Mapped[dict] = mapped_column(JSONB, nullable=False, default=dict)
+    #: Nombre y sinónimos en minúscula y sin tildes: la búsqueda no depende de unaccent.
+    search_text: Mapped[Optional[str]] = mapped_column(Text, nullable=True)
+    #: De dónde salen los valores («USDA SR Legacy 9040», «Estimado por receta», «Etiqueta»).
+    origin: Mapped[Optional[str]] = mapped_column(Text, nullable=True)
+    #: Ingredientes de una receta: [{food_id, name, grams}].
+    components: Mapped[Optional[list]] = mapped_column(JSONB, nullable=True)
+    data_version: Mapped[int] = mapped_column(Integer, nullable=False, default=0)
+    created_at: Mapped[datetime] = mapped_column(DateTime, nullable=False, default=datetime.utcnow)
+    updated_at: Mapped[Optional[datetime]] = mapped_column(DateTime, nullable=True, onupdate=datetime.utcnow)
+
+
+class FoodFavorite(AppBase):
+    __tablename__ = "food_favorites"
+    __table_args__ = (PrimaryKeyConstraint("app_user_id", "food_id"),)
+
+    app_user_id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), nullable=False)
+    food_id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), nullable=False)
     created_at: Mapped[datetime] = mapped_column(DateTime, nullable=False, default=datetime.utcnow)
 
 
@@ -89,6 +120,21 @@ class MealEntry(AppBase):
     protein_g: Mapped[float] = mapped_column(Numeric(6, 1), nullable=False, default=0)
     carbs_g: Mapped[float] = mapped_column(Numeric(6, 1), nullable=False, default=0)
     fat_g: Mapped[float] = mapped_column(Numeric(6, 1), nullable=False, default=0)
+    fiber_g: Mapped[float] = mapped_column(Numeric(6, 1), nullable=False, default=0)
+    #: Micronutrientes del registro (misma forma que Food.nutrients, ya multiplicados).
+    nutrients: Mapped[dict] = mapped_column(JSONB, nullable=False, default=dict)
+    created_at: Mapped[datetime] = mapped_column(DateTime, nullable=False, default=datetime.utcnow)
+
+
+class WeightLog(AppBase):
+    """Peso por día para la curva de progreso. Es dato de salud: se borra con
+    la autorización `health`."""
+    __tablename__ = "weight_logs"
+    __table_args__ = (PrimaryKeyConstraint("app_user_id", "day"),)
+
+    app_user_id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), nullable=False)
+    day: Mapped[date] = mapped_column(Date, nullable=False)
+    weight_kg: Mapped[float] = mapped_column(Numeric(5, 1), nullable=False)
     created_at: Mapped[datetime] = mapped_column(DateTime, nullable=False, default=datetime.utcnow)
 
 
@@ -107,13 +153,40 @@ class SavedPlan(AppBase):
     updated_at: Mapped[datetime] = mapped_column(DateTime, nullable=False, default=datetime.utcnow, onupdate=datetime.utcnow)
 
 
-class AssistantMessage(AppBase):
-    __tablename__ = "assistant_messages"
+class PlanJob(AppBase):
+    """Pedido de plan. Se procesa en fila para respetar la cuota del proveedor
+    de IA; si la cuota está llena o el modelo falla, sale un plan automático.
+
+    `status`: queued, running, done, failed. `engine`: ai o auto (lo que de
+    verdad lo generó). El id lo manda el celular: reintentar no cobra dos veces.
+    """
+    __tablename__ = "plan_jobs"
+
+    id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True)
+    app_user_id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), nullable=False, index=True)
+    kind: Mapped[str] = mapped_column(String(20), nullable=False)
+    status: Mapped[str] = mapped_column(String(10), nullable=False, default="queued", index=True)
+    request: Mapped[dict] = mapped_column(JSONB, nullable=False)
+    engine: Mapped[Optional[str]] = mapped_column(String(10), nullable=True)
+    plan_id: Mapped[Optional[uuid.UUID]] = mapped_column(UUID(as_uuid=True), nullable=True)
+    error: Mapped[Optional[str]] = mapped_column(String(300), nullable=True)
+    attempts: Mapped[int] = mapped_column(Integer, nullable=False, default=0)
+    created_at: Mapped[datetime] = mapped_column(DateTime, nullable=False, default=datetime.utcnow, index=True)
+    finished_at: Mapped[Optional[datetime]] = mapped_column(DateTime, nullable=True)
+
+
+class CreditEntry(AppBase):
+    """Libro de créditos para planes con IA: solo se agregan filas.
+
+    `kind`: welcome, weekly, spend, refund (y, cuando existan, ad, purchase).
+    `ref` hace idempotente cada movimiento (el id del pedido, la semana…).
+    """
+    __tablename__ = "credit_entries"
+    __table_args__ = (UniqueConstraint("app_user_id", "kind", "ref", name="uq_credit_ref"),)
 
     id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     app_user_id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), nullable=False, index=True)
-    role: Mapped[str] = mapped_column(String(10), nullable=False)
-    text: Mapped[str] = mapped_column(Text, nullable=False)
-    plan_ids: Mapped[Optional[list]] = mapped_column(JSONB, nullable=True)
-    flagged: Mapped[Optional[str]] = mapped_column(String(30), nullable=True)
-    created_at: Mapped[datetime] = mapped_column(DateTime, nullable=False, default=datetime.utcnow, index=True)
+    kind: Mapped[str] = mapped_column(String(20), nullable=False)
+    amount: Mapped[int] = mapped_column(Integer, nullable=False)
+    ref: Mapped[str] = mapped_column(String(80), nullable=False)
+    created_at: Mapped[datetime] = mapped_column(DateTime, nullable=False, default=datetime.utcnow)

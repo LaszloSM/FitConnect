@@ -28,6 +28,7 @@ _OUTBOX_LOCK_KEY = 815003
 _ML_LOCK_KEY = 815004
 _ACCESS_LOCK_KEY = 815005
 _SUBSCRIPTION_LOCK_KEY = 815006
+_PLAN_JOBS_LOCK_KEY = 815007
 
 
 async def _run_with_advisory_lock(key: int, name: str, work) -> None:
@@ -564,3 +565,13 @@ JOBS = {
     "reconcile_payments": reconcile_payments_job,
     "process_outbox": process_outbox_job,
 }
+
+
+async def process_plan_jobs_job() -> None:
+    """Pedidos de planes con IA que esperan cupo (ver services/plan_generator)."""
+    from app.services.plan_generator import process_queue
+
+    async def work():
+        await process_queue(limit=20)
+
+    await _run_with_advisory_lock(_PLAN_JOBS_LOCK_KEY, "process_plan_jobs_job", work)
