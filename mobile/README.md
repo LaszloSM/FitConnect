@@ -28,6 +28,11 @@ npm run typecheck   # tsc
 npm test            # el QR del celular coincide con el del servidor
 ```
 
+## APK sin Play Store
+
+GitHub Actions › «App Android (APK)» compila y publica el APK como Release, gratis y sin EAS.
+Variables, llave de firma e instalación: `docs/APP_MOVIL.md` › «Instalar la app sin Play Store».
+
 ## Publicar en las tiendas (EAS)
 
 1. `npx eas-cli@latest login` y `npx eas-cli@latest init` (crea el `projectId` en `app.json`).
@@ -39,8 +44,12 @@ npm test            # el QR del celular coincide con el del servidor
 
 ## Cómo está armada
 
-- `src/app/` rutas (Expo Router). `(tabs)`: Inicio, Clases, Entrenar, Perfil. Fuera de las
-  pestañas: `qr` (pantalla completa), `link`, `workout`, `gym-profile`, `payments`, `body`.
+- `src/app/` rutas (Expo Router). `(tabs)`: Inicio, Clases, Entrenar, Comer, Perfil. Fuera de
+  las pestañas: `qr` (pantalla completa), `link`, `workout`, `gym-profile`, `payments`, `body`,
+  `add-food`, `create-food`, `recipe`, `scan`, `generate`, `plans`, `plan/[id]`.
+- `src/components/` piezas del sistema «Calor»: `ui` (base), `controls` (segmentos, stepper,
+  hoja inferior, esqueletos), `charts` (anillo de calorías, barras de la semana, línea de
+  peso, medidores) y `nutrition` (tabla de nutrientes).
 - `src/lib/api.ts` cliente con renovación de sesión (token de 30 min + renovación rotativa).
 - `src/lib/storage.ts` sesión y llave del QR en Keychain/Keystore (`expo-secure-store`);
   copias para ver sin señal en AsyncStorage (sin la llave del QR).

@@ -55,7 +55,8 @@
             "image": "./assets/images/splash-icon-dark.png"
           }
         }
-      ]
+      ],
+      "./plugins/withReleaseSigning"
     ],
     "experiments": {
       "typedRoutes": true,
