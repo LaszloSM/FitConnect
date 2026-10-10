@@ -347,7 +347,27 @@ Cuando cometas un error durante una sesión, agrégalo aquí antes de terminar:
 
 | La e2e de sin conexión «esperaba» la copia de socios y cortaba la red antes de que existiera | `page.waitForFunction(() => new Promise(...))` no espera la promesa: un objeto Promise es verdadero y la espera pasa al instante | Para condiciones asíncronas en el navegador: `expect.poll(() => page.evaluate(() => new Promise(...)))`. Confirmar con una traza (estado antes y después) cuando una prueba «falla imposible» |
 
+| Archivos nuevos en `frontend/public` daban 404 con `next start` aunque existían en disco | `next start` arma la lista de archivos de `public/` al arrancar; un archivo modificado se sirve fresco, uno nuevo no | Tras agregar archivos a `public/`, reiniciar el servidor (o recompilar) antes de concluir que la ruta está mal |
+| Con «reducir movimiento» del sistema, los títulos de la landing quedaban INVISIBLES | `Reveal` devolvía otro árbol según `useReducedMotion()`: en el servidor vale `null` y sale el `motion.div` con `opacity:0`; al hidratar React no corrige el estilo | Nunca cambiar el árbol según `useReducedMotion` en componentes que se renderizan en el servidor. El mismo árbol siempre y la regla `[data-reveal]` en `@media (prefers-reduced-motion)` lo muestra quieto. Cubierto por `e2e/landing.spec.ts` |
+| Al llegar a Caja con `?member=` (botón Cobrar de la ficha), el buscador mostraba «(3866cb53...)» | `MemberSelect` solo conocía el nombre si el socio se elegía en su propia lista | Un selector que recibe el valor desde fuera resuelve el nombre por id, y el nombre va atado al id (`{id, name}`) para no mostrar el del socio anterior |
+| Capturas de la landing con una gráfica falsa: todas las entradas de hoy a las 16:58 | `seed_demo_gym.py` registra las visitas por API de golpe; y los socios de `seed_ml_history.py` no tienen `plan_id`, así que su «Cobrar» sale deshabilitado | Para capturas: repartir las entradas del día por hora en la base del gimnasio, cobrar con un socio creado por API y usar uno histórico solo para la ficha. Revisar cada captura antes de publicarla |
+| Un `click()` de Playwright se quedó esperando 4 minutos | Buscaba `getByRole("button", { name: "Agenda" })` y era un `Link`: sin `timeout` propio la acción espera el tiempo del test entero | En scripts de capturas, `click({ timeout: 5000 })` y comprobar el rol real (`link` vs `button`) en el snapshot de error |
+| Un `psql -c "UPDATE ...; UPDATE ...; UPDATE ..."` no dejó ningún cambio | Varias sentencias en un solo `-c` corren en una transacción: un error en la última deshace todas las anteriores | Separar las sentencias riesgosas o usar `-f` con `ON_ERROR_STOP` y revisar el conteo final |
+| El prefijo de recibo por defecto seguía siendo «FC» (de FitConnect) tras el renombre | El grep del renombre buscaba el nombre completo, no sus abreviaturas | Al renombrar una marca, buscar también siglas y prefijos (`"FC"`, `FC-`) y decidir uno por uno: `FC-` de las referencias de Wompi se queda porque es protocolo con pagos en curso |
+
 **Protocolo:** Al detectar un error que no estaba documentado, añade una fila a la tabla antes del commit.
+
+---
+
+## Identificadores `fitconnect` que se conservan
+
+El producto se llama **LSMFit**. Estos nombres viejos se quedan a propósito: nadie los ve y cambiarlos exige migrar producción o rompe a quien ya tiene la versión anterior.
+
+- **Infraestructura:** base `fitconnect_app`, bucket `fitconnect-media`, usuario de MinIO `fitconnect`, rutas `/opt/fitconnect`, unidades `fitconnect-backup(.service/.timer)` y `fitconnect-restore-check`, repo `LaszloSM/FitConnect`.
+- **Compatibilidad:** audiencias JWT `fitconnect-platform`/`fitconnect-app` (se aceptan junto a las `lsmfit-*` mientras vivan tokens viejos), IndexedDB `fitconnect-offline`, clave `fitconnect_kiosk_token`, config y datos viejos del agente (`fitconnect-agent.json`, `fitconnect-agent-data`), referencia de pagos `FC-{slug}-{hex}` de Wompi.
+- **Herramientas locales:** el lanzador `fitconnect-backend-host`.
+
+`grep -rIi fitconnect` solo debe devolver esto. Cualquier otro resultado es un resto del renombre.
 
 ---
 
