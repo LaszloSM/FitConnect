@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { apiClient } from "@/lib/api";
 import { parseApiError } from "@/lib/errors";
 import { formatDateTime } from "@/lib/format";
-import { CopyIcon as Copy, EnvelopeSimpleIcon as Mail, WhatsappLogoIcon as WhatsApp } from "@phosphor-icons/react";
+import { CopyIcon as Copy, EnvelopeSimpleIcon as Mail } from "@phosphor-icons/react";
 
 interface Status {
   complete: boolean;
@@ -23,9 +23,8 @@ const CHANNEL: Record<string, string> = { whatsapp: "WhatsApp", email: "correo",
  * Qué le falta a la ficha (típico de los socios importados) y el enlace para
  * que el socio la complete él mismo. Desaparece cuando la ficha está completa.
  */
-export function ProfileCompletion({ memberId, hasPhone, hasEmail, onChange }: {
+export function ProfileCompletion({ memberId, hasEmail, onChange }: {
   memberId: string;
-  hasPhone: boolean;
   hasEmail: boolean;
   onChange?: () => void;
 }) {
@@ -44,7 +43,7 @@ export function ProfileCompletion({ memberId, hasPhone, hasEmail, onChange }: {
 
   useEffect(load, [load]);
 
-  const send = async (channel: "whatsapp" | "email" | "copy") => {
+  const send = async (channel: "email" | "copy") => {
     setBusy(channel);
     try {
       const { data } = await apiClient(token).post(`/api/v1/members/${memberId}/profile-link`, { channel });
@@ -52,7 +51,7 @@ export function ProfileCompletion({ memberId, hasPhone, hasEmail, onChange }: {
         await navigator.clipboard.writeText(data.message);
         toast.success("Mensaje con el enlace copiado: pégalo donde quieras");
       } else {
-        toast.success(channel === "whatsapp" ? "Enlace enviado por WhatsApp" : "Enlace enviado por correo");
+        toast.success("Le enviamos el enlace por correo");
       }
       load();
       onChange?.();
@@ -82,16 +81,16 @@ export function ProfileCompletion({ memberId, hasPhone, hasEmail, onChange }: {
       </div>
       <p className="mt-1 text-sm text-ink-muted">Falta: {status.missing.map((k) => status.labels[k] ?? k).join(", ")}.</p>
       <div className="mt-3 flex flex-wrap gap-2">
-        <Button type="button" size="sm" variant="outline" disabled={!hasPhone || busy !== null} isLoading={busy === "whatsapp"} onClick={() => send("whatsapp")}>
-          <WhatsApp /> Enviar por WhatsApp
-        </Button>
         <Button type="button" size="sm" variant="outline" disabled={!hasEmail || busy !== null} isLoading={busy === "email"} onClick={() => send("email")}>
-          <Mail /> Por correo
+          <Mail /> Enviar por correo
         </Button>
         <Button type="button" size="sm" variant="ghost" disabled={busy !== null} isLoading={busy === "copy"} onClick={() => send("copy")}>
           <Copy /> Copiar enlace
         </Button>
       </div>
+      {!hasEmail && (
+        <p className="mt-2 text-xs text-ink-muted">Este socio no tiene correo: agrégalo en su ficha o copia el enlace y entrégaselo tú.</p>
+      )}
     </div>
   );
 }

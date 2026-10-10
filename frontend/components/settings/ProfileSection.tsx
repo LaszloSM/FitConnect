@@ -2,6 +2,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
 import { useEffect, useState } from "react";
+import Link from "next/link";
 import { rolLegible } from "@/lib/permissions";
 import { useSession } from "next-auth/react";
 import { toast } from "sonner";
@@ -25,12 +26,7 @@ interface ProfileData {
 export default function ProfileSection() {
   const { data: session } = useSession();
   const [profile, setProfile] = useState<ProfileData | null>(null);
-  const [form, setForm] = useState({
-    full_name: "",
-    email: "",
-    current_password: "",
-    new_password: "",
-  });
+  const [form, setForm] = useState({ full_name: "" });
   const [saving, setSaving] = useState(false);
 
   useEffect(() => {
@@ -38,11 +34,7 @@ export default function ProfileSection() {
     const client = apiClient(session.accessToken as string);
     client.get("/api/v1/settings/profile").then((res) => {
       setProfile(res.data);
-      setForm((f) => ({
-        ...f,
-        full_name: res.data.full_name,
-        email: res.data.email,
-      }));
+      setForm({ full_name: res.data.full_name });
     });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [session?.accessToken]);
@@ -53,16 +45,8 @@ export default function ProfileSection() {
     setSaving(true);
     try {
       const client = apiClient(session.accessToken as string);
-      const payload: Record<string, string> = {};
-      if (form.full_name !== profile?.full_name) payload.full_name = form.full_name;
-      if (form.email !== profile?.email) payload.email = form.email;
-      if (form.new_password) {
-        payload.current_password = form.current_password;
-        payload.new_password = form.new_password;
-      }
-      const res = await client.patch("/api/v1/settings/profile", payload);
+      const res = await client.patch("/api/v1/settings/profile", { full_name: form.full_name });
       setProfile(res.data);
-      setForm((f) => ({ ...f, current_password: "", new_password: "" }));
       toast.success("Perfil actualizado");
     } catch (err: any) {
       toast.error(parseApiError(err, "Error actualizando perfil"));
@@ -108,43 +92,14 @@ export default function ProfileSection() {
           </div>
           <div className="space-y-2">
             <Label className="text-[var(--text-muted)] text-sm">Email</Label>
-            <Input
-              type="email"
-              value={form.email}
-              onChange={(e) => setForm({ ...form, email: e.target.value })}
-              required
-              className={inputCls}
-            />
+            <Input type="email" value={profile?.email ?? ""} readOnly disabled className={inputCls} />
           </div>
         </div>
-
-        <div className="pt-4 border-t border-[var(--border-base)]">
-          <p className="text-[var(--text-base)] text-sm font-semibold mb-3">Cambiar contraseña</p>
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <Label className="text-[var(--text-muted)] text-sm">Contraseña actual</Label>
-              <Input
-                type="password"
-                value={form.current_password}
-                onChange={(e) => setForm({ ...form, current_password: e.target.value })}
-                placeholder="Requerida para cambiar"
-                autoComplete="current-password"
-                className={inputCls}
-              />
-            </div>
-            <div className="space-y-2">
-              <Label className="text-[var(--text-muted)] text-sm">Nueva contraseña</Label>
-              <Input
-                type="password"
-                value={form.new_password}
-                onChange={(e) => setForm({ ...form, new_password: e.target.value })}
-                placeholder="Mínimo 8 caracteres"
-                autoComplete="new-password"
-                className={inputCls}
-              />
-            </div>
-          </div>
-        </div>
+        <p className="text-sm text-ink-muted">
+          El correo y la contraseña se cambian en{" "}
+          <Link href="/settings?tab=security" className="font-medium text-primary-ink hover:underline">Seguridad</Link>,
+          con un código de verificación.
+        </p>
 
         <div className="flex justify-end pt-2">
           <Button

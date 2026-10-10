@@ -57,7 +57,7 @@ export default function TeamSection() {
   const [fullName, setFullName] = useState("");
   const [role, setRole] = useState<Exclude<Role, "owner">>("receptionist");
   const [inviting, setInviting] = useState(false);
-  const [inviteUrl, setInviteUrl] = useState<{ name: string; url: string } | null>(null);
+  const [inviteUrl, setInviteUrl] = useState<{ name: string; email: string; url: string; sent: boolean } | null>(null);
 
   const [toRemove, setToRemove] = useState<Staff | null>(null);
   const [trainersKey, setTrainersKey] = useState(0);
@@ -73,7 +73,8 @@ export default function TeamSection() {
         full_name: fullName.trim(),
         role,
       });
-      setInviteUrl({ name: data.full_name, url: data.invite_url });
+      setInviteUrl({ name: data.full_name, email: data.email, url: data.invite_url, sent: Boolean(data.email_sent) });
+      if (data.email_sent) toast.success(`Invitación enviada a ${data.email}`);
       setEmail("");
       setFullName("");
       setRole("receptionist");
@@ -177,9 +178,13 @@ export default function TeamSection() {
         </div>
 
         {inviteUrl && (
-          <div className="rounded-xl bg-[var(--signal-warn-bg)] border border-[var(--signal-warn-line)] p-4 space-y-2">
+          <div className={`rounded-xl border p-4 space-y-2 ${inviteUrl.sent
+            ? "bg-[var(--signal-ok-bg)] border-[var(--signal-ok-line)]"
+            : "bg-[var(--signal-warn-bg)] border-[var(--signal-warn-line)]"}`}>
             <p className="text-sm font-semibold text-[var(--text-base)]">
-              Invitación para {inviteUrl.name}: válida 48 horas
+              {inviteUrl.sent
+                ? `Le enviamos la invitación a ${inviteUrl.email}: válida 48 horas`
+                : `No se pudo enviar el correo a ${inviteUrl.email}. Compártele este enlace (válido 48 horas)`}
             </p>
             <div className="flex items-center gap-2">
               <code className="flex-1 min-w-0 truncate text-xs bg-white/60 dark:bg-black/20 rounded-lg px-3 py-2 text-[var(--text-base)]">
@@ -191,8 +196,8 @@ export default function TeamSection() {
               </Button>
             </div>
             <p className="text-xs text-[var(--text-base)]">
-              Compártelo por WhatsApp o correo. La persona fija su contraseña al abrirlo; el
-              usuario no existe hasta que acepta.
+              {inviteUrl.sent ? "Si no le llega (revisa spam), copia el enlace y compártelo tú. " : ""}La
+              persona crea su contraseña al abrirlo; el usuario no existe hasta que acepta.
             </p>
           </div>
         )}

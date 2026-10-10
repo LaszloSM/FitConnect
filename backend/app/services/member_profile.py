@@ -134,9 +134,7 @@ async def recently_sent(db: AsyncSession, member_ids: list[uuid.UUID]) -> set[uu
 
 async def bulk_candidates(db: AsyncSession, channel: str, limit: int) -> list[Member]:
     stmt = select(Member).where(Member.member_type == MemberType.member.value, incomplete_condition())
-    if channel == "whatsapp":
-        stmt = stmt.where(Member.phone.is_not(None))
-    elif channel == "email":
+    if channel == "email":
         stmt = stmt.where(Member.email.is_not(None))
     members = (await db.execute(stmt.order_by(Member.created_at).limit(limit * 3))).scalars().all()
     skip = await recently_sent(db, [m.id for m in members])

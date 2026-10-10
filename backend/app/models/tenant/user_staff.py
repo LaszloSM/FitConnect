@@ -29,7 +29,12 @@ class UserStaff(TenantBase, TenantTimestampMixin):
     role: Mapped[UserRole] = mapped_column(SAEnum(UserRole), default=UserRole.receptionist, nullable=False)
     is_active: Mapped[bool] = mapped_column(Boolean, default=True, nullable=False)
     email_verified: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False)
-    # Verificación en dos pasos por app autenticadora (obligatoria para dueño y administrador).
+    # Verificación en dos pasos por app autenticadora (opcional, recomendada).
     totp_secret_enc: Mapped[Optional[str]] = mapped_column(String(500), nullable=True)
     totp_enabled: Mapped[bool] = mapped_column(Boolean, default=False, server_default="false", nullable=False)
     backup_codes: Mapped[Optional[list]] = mapped_column(JSONB, nullable=True)
+    # Otros métodos del segundo paso (todos opcionales): código al correo y llaves
+    # de acceso (ver staff_passkeys). `mfa_preferred` es el que se pide primero.
+    mfa_email_enabled: Mapped[bool] = mapped_column(Boolean, default=False, server_default="false", nullable=False)
+    mfa_passkey_enabled: Mapped[bool] = mapped_column(Boolean, default=False, server_default="false", nullable=False)
+    mfa_preferred: Mapped[Optional[str]] = mapped_column(String(20), nullable=True)

@@ -1,7 +1,8 @@
 import json
 import uuid
 from typing import Literal
-from fastapi import APIRouter, Depends, File, Form, HTTPException, Query, Request, UploadFile
+from types import SimpleNamespace
+from fastapi import APIRouter, BackgroundTasks, Depends, File, Form, HTTPException, Query, Request, UploadFile
 from fastapi.responses import Response
 from pydantic import BaseModel
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -28,7 +29,7 @@ from sqlalchemy.exc import IntegrityError
 from app.core.timeutil import today_bogota
 from app.services.gym_settings import get_gym_settings
 from app.services.membership_status import effective_status
-from app.services import member_import, member_profile
+from app.services import emails, mailer, member_app_invite, member_import, member_profile
 from app.services.audit import audit
 from app.services.idempotency import Idempotent
 from app.services.storage import resolve_media_url, delete_object, scoped_key
@@ -158,6 +159,7 @@ async def list_members(
 async def create_member(
     payload: MemberCreate,
     request: Request,
+    background: BackgroundTasks,
     db: AsyncSession = Depends(get_tenant_db_from_token),
     slug: str = Depends(get_tenant_slug),
     tenant: Tenant = Depends(get_tenant_from_claims),
@@ -221,12 +223,13 @@ async def create_member(
     from app.services.gym_settings import get_gym_settings
 
     gym = await get_gym_settings(db)
+    gym_name = getattr(gym, "legal_name", None) or tenant.name
     await try_emit_occasion(
         db, "welcome",
         idempotency_key=f"welcome:{member.id}",
         values={
             "nombre": member.full_name.split(" ")[0],
-            "gym": getattr(gym, "legal_name", None) or tenant.name,
+            "gym": gym_name,
         },
         member_id=member.id, phone=member.phone,
     )
@@ -234,9 +237,17 @@ async def create_member(
     await db.flush()
     await db.refresh(member)
     response = MemberResponse.model_validate(member).model_dump(mode="json")
+    snapshot = SimpleNamespace(id=member.id, email=member.email, full_name=member.full_name,
+                               id_number=member.id_number)
     guard.remember(response, 201)
     won = await guard.commit()
-    return won if won is not None else response
+    if won is not None:
+        return won
+    # Si el plan del gimnasio incluye la app, el socio recibe su invitación por
+    # correo. Va después de responder: un correo que falla no frena el alta.
+    if getattr(member.member_type, "value", member.member_type) == "member":
+        background.add_task(member_app_invite.send_quietly, tenant, snapshot, gym_name)
+    return response
 
 
 @router.post("/{member_id}/convert-to-member", response_model=MemberResponse, dependencies=[Depends(require_perm(perm.MEMBERS_WRITE))])
@@ -433,6 +444,39 @@ async def undo_import_batch(
     audit(db, staff, "member_import.undo", "import_batch", batch.id, result)
     await db.commit()
     return result
+
+
+@router.post("/import/batches/{batch_id}/app-invites", dependencies=[Depends(require_perm(perm.MEMBERS_WRITE))])
+async def invite_import_batch_to_app(
+    batch_id: uuid.UUID,
+    background: BackgroundTasks,
+    db: AsyncSession = Depends(get_tenant_db_from_token),
+    current_user: UserStaff = Depends(get_current_staff),
+    tenant: Tenant = Depends(get_tenant_from_claims),
+):
+    """Invita por correo a la app a los socios que creó una importación."""
+    from app.services import subscription
+    if "member_app" not in subscription.effective(tenant)["modules"]:
+        raise HTTPException(status_code=403, detail="La app para socios no está activa en tu plan.")
+    batch = await db.get(ImportBatch, batch_id)
+    if not batch or batch.status != "applied":
+        raise HTTPException(status_code=404, detail="Importación no encontrada")
+    ids = [uuid.UUID(c["member_id"]) for c in (batch.changes or []) if c.get("created")]
+    members = (await db.execute(select(Member).where(Member.id.in_(ids)))).scalars().all() if ids else []
+    ready = [m for m in members if m.email and m.id_number]
+    gym = await get_gym_settings(db)
+    gym_name = getattr(gym, "legal_name", None) or tenant.name
+    snapshots = [SimpleNamespace(id=m.id, email=m.email, full_name=m.full_name, id_number=m.id_number) for m in ready]
+    staff_id = current_user.id
+    audit(db, current_user, "member.app_invites_bulk", "import_batch", batch_id, {"queued": len(snapshots)})
+    await db.commit()
+
+    async def _send_all():
+        for m in snapshots:
+            await member_app_invite.send_quietly(tenant, m, gym_name, staff_id)
+
+    background.add_task(_send_all)
+    return {"queued": len(snapshots), "without_email": len(members) - len(ready)}
 
 
 @router.get("/{member_id}/billing-summary", dependencies=[
@@ -860,36 +904,37 @@ async def delete_member(
     return None
 
 
-# ─── Completar la ficha por enlace (WhatsApp, correo, app) ──────────────────
+# ─── Completar la ficha por enlace (correo, o copiarlo) ─────────────────────
+# Solo correo: es gratis y no depende de las plantillas aprobadas de Meta. Antes
+# había un canal "whatsapp" que nunca enviaba nada (el aviso no tenía plantilla)
+# y aun así la pantalla decía "enviado".
 
 class ProfileLinkRequest(BaseModel):
-    channel: Literal["whatsapp", "email", "copy"]
+    channel: Literal["email", "copy"]
 
 
 class BulkProfileLinksRequest(BaseModel):
-    channel: Literal["whatsapp", "email"]
+    channel: Literal["email"] = "email"
     limit: int = 100
 
 
-async def _send_profile_link(db, member: Member, channel: str, url: str, gym_name: str) -> tuple[bool, str | None]:
-    """Encola o envía el enlace. Devuelve (enviado, motivo si no)."""
-    text = member_profile.message_text(member, gym_name, url)
-    if channel == "whatsapp":
-        if not member.phone:
-            return False, "El socio no tiene celular registrado"
-        from app.services.events import emit_announcement
-        await emit_announcement(
-            db, idempotency_key=f"profile-link:{uuid.uuid4().hex}", title="Completa tus datos",
-            message=text, member_id=member.id, phone=member.phone,
-        )
-        return True, None
-    if channel == "email":
-        if not member.email:
-            return False, "El socio no tiene correo registrado"
-        from app.services import mailer
-        await mailer.send(member.email, f"{gym_name}: completa tus datos", text)
-        return True, None
-    return False, None
+async def _send_profile_link(member, url: str, gym_name: str) -> tuple[bool, str | None]:
+    """Envía el enlace por correo. Devuelve (enviado, motivo si no)."""
+    if not member.email:
+        return False, "El socio no tiene correo registrado"
+    email = emails.profile_link(member.full_name, gym_name, url, member_profile.LINK_DAYS)
+    if not await mailer.send_email(member.email, email):
+        return False, "No se pudo enviar el correo. Intenta de nuevo en unos minutos."
+    return True, None
+
+
+async def _send_profile_links_quietly(items: list[tuple[str, str | None, str]], gym_name: str) -> None:
+    for email, full_name, url in items:
+        try:
+            await mailer.send_email(email, emails.profile_link(full_name, gym_name, url, member_profile.LINK_DAYS))
+        except Exception:  # noqa: BLE001 — un correo malo no frena el resto
+            import logging
+            logging.getLogger(__name__).exception("No se pudo enviar el enlace de ficha a %s", email)
 
 
 @router.get("/{member_id}/profile-status", dependencies=[Depends(ensure_member_visible)])
@@ -929,11 +974,16 @@ async def send_profile_link(
         raise HTTPException(status_code=429, detail="Ya se le envió un enlace hace menos de 10 minutos.")
     gym = await get_gym_settings(db)
     gym_name = getattr(gym, "legal_name", None) or tenant.name
+    if payload.channel == "email" and not member.email:
+        raise HTTPException(status_code=409, detail="El socio no tiene correo registrado")
     link, token = await member_profile.create_link(db, member, channel=payload.channel, created_by=current_user.id)
     url = member_profile.link_url(tenant.slug, token)
-    sent, reason = await _send_profile_link(db, member, payload.channel, url, gym_name)
-    if payload.channel != "copy" and not sent:
-        raise HTTPException(status_code=409, detail=reason)
+    sent = False
+    if payload.channel == "email":
+        sent, reason = await _send_profile_link(member, url, gym_name)
+        if not sent:
+            await db.rollback()
+            raise HTTPException(status_code=502, detail=reason)
     audit(db, current_user, "member.profile_link", "member", member.id, {"channel": payload.channel})
     await db.commit()
     return {"url": url, "expires_at": link.expires_at.isoformat(), "sent": sent,
@@ -943,6 +993,7 @@ async def send_profile_link(
 @router.post("/profile-links/bulk", dependencies=[Depends(require_perm(perm.MEMBERS_WRITE))])
 async def send_profile_links_bulk(
     payload: BulkProfileLinksRequest,
+    background: BackgroundTasks,
     db: AsyncSession = Depends(get_tenant_db_from_token),
     current_user: UserStaff = Depends(get_current_staff),
     tenant: Tenant = Depends(get_tenant_from_claims),
@@ -953,18 +1004,24 @@ async def send_profile_links_bulk(
     gym = await get_gym_settings(db)
     gym_name = getattr(gym, "legal_name", None) or tenant.name
     members = await member_profile.bulk_candidates(db, payload.channel, limit)
-    sent = 0
+    items = []
     for member in members:
         _, token = await member_profile.create_link(db, member, channel=payload.channel, created_by=current_user.id)
-        ok, _ = await _send_profile_link(db, member, payload.channel, member_profile.link_url(tenant.slug, token), gym_name)
-        sent += int(ok)
+        items.append((member.email, member.full_name, member_profile.link_url(tenant.slug, token)))
+    sent = len(items)
     remaining = (await db.execute(
         select(func.count()).select_from(Member).where(
             Member.member_type == "member", member_profile.incomplete_condition())
     )).scalar_one()
+    without_email = (await db.execute(
+        select(func.count()).select_from(Member).where(
+            Member.member_type == "member", member_profile.incomplete_condition(), Member.email.is_(None))
+    )).scalar_one()
     audit(db, current_user, "member.profile_links_bulk", "member", None, {"channel": payload.channel, "sent": sent})
     await db.commit()
-    return {"sent": sent, "incomplete_total": remaining}
+    # Los correos salen después de responder: 300 envíos no caben en una petición.
+    background.add_task(_send_profile_links_quietly, items, gym_name)
+    return {"sent": sent, "incomplete_total": remaining, "without_email": without_email}
 
 
 # ─── App para socios ───
@@ -989,9 +1046,15 @@ async def member_app_status(
             "linked": link is not None, "linked_at": link.created_at.isoformat() if link else None}
 
 
+class AppCodeRequest(BaseModel):
+    # True = además de devolver el código, se lo manda al socio por correo con los pasos.
+    send_email: bool = False
+
+
 @router.post("/{member_id}/app-code", dependencies=[Depends(require_perm(perm.MEMBERS_WRITE))])
 async def create_app_code(
     member_id: uuid.UUID,
+    payload: AppCodeRequest | None = None,
     db: AsyncSession = Depends(get_tenant_db_from_token),
     current_user: UserStaff = Depends(get_current_staff),
     tenant: Tenant = Depends(get_tenant_from_claims),
@@ -1007,8 +1070,19 @@ async def create_app_code(
         raise HTTPException(status_code=404, detail="Miembro no encontrado")
     if not member.id_number:
         raise HTTPException(status_code=409, detail="El socio necesita un documento registrado para vincular la app.")
+    send_email = bool(payload and payload.send_email)
+    if send_email and not member.email:
+        raise HTTPException(status_code=409, detail="El socio no tiene correo registrado.")
     async with MasterSessionLocal() as master:
         code, expires = await app_accounts.create_link_code(master, tenant, member.id, created_by=current_user.id)
-    audit(db, current_user, "member.app_code", "member", member.id, {})
+    sent = False
+    if send_email:
+        gym = await get_gym_settings(db)
+        gym_name = getattr(gym, "legal_name", None) or tenant.name
+        sent = await mailer.send_email(member.email, emails.member_app_welcome(
+            member.full_name, gym_name, member.email, code, app_accounts.LINK_CODE_HOURS))
+        if not sent:
+            raise HTTPException(status_code=502, detail="No se pudo enviar el correo. Copia las instrucciones y envíalas tú.")
+    audit(db, current_user, "member.app_code", "member", member.id, {"email": sent})
     await db.commit()
-    return {"code": code, "expires_at": expires.isoformat(), "gym_slug": tenant.slug}
+    return {"code": code, "expires_at": expires.isoformat(), "gym_slug": tenant.slug, "sent": sent}

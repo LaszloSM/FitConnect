@@ -602,9 +602,9 @@ export default function MemberDetailClient({ memberId }: { memberId: string }) {
           {tab === "info" && (
             <div className="space-y-5">
               {can(P.MEMBERS_WRITE) && (
-                <ProfileCompletion memberId={memberId} hasPhone={Boolean(member.phone)} hasEmail={Boolean(member.email)} />
+                <ProfileCompletion memberId={memberId} hasEmail={Boolean(member.email)} />
               )}
-              {can(P.MEMBERS_WRITE) && <MemberAppAccess memberId={memberId} hasDocument={Boolean(member.id_number)} />}
+              {can(P.MEMBERS_WRITE) && <MemberAppAccess memberId={memberId} hasDocument={Boolean(member.id_number)} hasEmail={Boolean(member.email)} />}
               <dl className="grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-4">
                 {([
                   { label: "Correo", value: member.email, icon: <Mail className="h-3.5 w-3.5" /> },

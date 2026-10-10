@@ -11,6 +11,7 @@ import { PageHeader } from "@/components/common/PageHeader";
 import { buttonVariants } from "@/components/ui/button";
 import { OnboardingChecklist } from "@/components/dashboard/OnboardingChecklist";
 import { OnboardingTour } from "@/components/dashboard/OnboardingTour";
+import { SecurityNudge } from "@/components/security/SecurityNudge";
 import { useLiveEntries } from "@/components/dashboard/LiveNowStrip";
 import { DayCard } from "@/components/dashboard/hoy/DayCard";
 import { MoneyStrip } from "@/components/dashboard/hoy/MoneyStrip";
@@ -154,6 +155,7 @@ export default function DashboardPage() {
       />
 
       <OnboardingTour />
+      <SecurityNudge />
       <div data-tour="checklist">
         <OnboardingChecklist />
       </div>

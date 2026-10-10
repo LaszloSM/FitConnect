@@ -257,12 +257,31 @@ En el primer ingreso muestra un QR para la app autenticadora (obligatoria) y 8
 códigos de respaldo. Celular perdido: `--reset-2fa`. Sin dominio, el panel no se
 publica: `ssh -L 9100:localhost:9100 ec2-user@<ip>` y abrir http://localhost:9100.
 
-## Correo (recuperar contraseña)
+## Correo
 
-Sin `SES_FROM_EMAIL` el enlace de recuperación solo queda en el log del backend.
-Para enviarlo: verificar el dominio en Amazon SES, salir del sandbox de SES y
-poner `SES_FROM_EMAIL=no-responder@<dominio>` en `.env`. El permiso
-`ses:SendEmail` ya está en el rol de la instancia.
+LSMFit envía por correo: recuperar contraseña, invitaciones al equipo, el enlace
+para que el socio complete su ficha, la invitación a la app de socios, códigos
+de verificación en dos pasos y avisos de seguridad.
+
+Sin `SES_FROM_EMAIL` **no sale ningún correo** (quedan en el log y `/health` lo
+marca). Para enviarlos:
+
+1. En Amazon SES (región `us-east-1`), verificar el dominio (registros DKIM en el
+   DNS) y agregar SPF y DMARC. Mientras no haya dominio se puede verificar una
+   sola dirección, pero los correos "desde" una cuenta @gmail.com suelen caer
+   en spam: para clientes reales hace falta dominio propio.
+2. Pedir la salida del sandbox de SES (en sandbox solo llega a direcciones
+   verificadas).
+3. En `.env`: `SES_FROM_EMAIL=no-responder@<dominio>` (y `SES_REGION` si no es
+   `us-east-1`). El permiso `ses:SendEmail` ya está en el rol de la instancia.
+4. Probar: `docker compose exec backend python scripts/probar_correos.py --to tu@correo.com`
+   envía una muestra de cada correo y dice cuál falló.
+
+Enlaces de descarga de la app de socios para el correo de bienvenida:
+`MEMBER_APP_ANDROID_URL` y `MEMBER_APP_IOS_URL` (vacíos = el correo dice
+"descarga la app LSMFit" sin enlace).
+
+En desarrollo los correos van a Mailpit: http://localhost:8025.
 
 ## Verificación en dos pasos
 

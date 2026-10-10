@@ -101,7 +101,9 @@ async def test_owner_must_configure_two_step_before_using_the_system(client, mfa
     twice = await client.post("/api/v1/auth/mfa/verify", json={"challenge_token": challenge, "code": backup})
     assert twice.status_code == 401
     status = await client.get("/api/v1/auth/mfa/status", headers=_h(used.json()["access_token"]))
-    assert status.json() == {"enabled": True, "required": True, "backup_codes_left": 7}
+    body = status.json()
+    assert (body["enabled"], body["required"], body["backup_codes_left"]) == (True, True, 7)
+    assert body["methods"]["totp"] is True
 
     # Dueño: no puede apagarla.
     off = await client.post("/api/v1/auth/mfa/disable", json={"password": PASSWORD, "code": totp.code_at(secret)},

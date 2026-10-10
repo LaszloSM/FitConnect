@@ -50,6 +50,11 @@ def main():
     png(iso_svg(512, 400, L.ORANGE), 512).save(MOBILE / "splash-icon-dark.png")
     png(iso_svg(48, 44, L.ORANGE), 48).save(MOBILE / "favicon.png")
 
+    # Logo de los correos: PNG (Gmail y Outlook no muestran SVG), a 2x de 132 px.
+    lockup = (FRONT / "public" / "lsmfit-lockup.svg").read_text()
+    (FRONT / "public" / "email").mkdir(exist_ok=True)
+    png(lockup, 264).save(FRONT / "public" / "email" / "lsmfit-logo.png")
+
 
 if __name__ == "__main__":
     main()

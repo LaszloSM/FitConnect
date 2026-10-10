@@ -1,6 +1,6 @@
 from fastapi import APIRouter
 from app.api.v1 import (
-    auth, members, payments, checkins, dashboard, classes, machines,
+    auth, auth_security, members, payments, checkins, dashboard, classes, machines,
     notifications, reports, member_plans, memberships, settings, users,
     locations, promo_codes, audit, admin, cash, webhooks, class_sessions,
     products, kiosk, realtime, instructors, onboarding, messages, day_passes, public, insights, routines, access, access_devices, trainer, offline, app_auth, me, me_nutrition, me_plans,
@@ -8,6 +8,7 @@ from app.api.v1 import (
 
 router = APIRouter(prefix="/api/v1")
 router.include_router(auth.router)
+router.include_router(auth_security.router)
 router.include_router(members.router)
 router.include_router(payments.router)
 router.include_router(checkins.router)

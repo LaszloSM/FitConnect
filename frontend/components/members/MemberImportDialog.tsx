@@ -14,6 +14,7 @@ import {
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { StatusBadge, type StatusTone } from "@/components/ui/status-badge";
+import { ImportFollowUp } from "@/components/members/ImportFollowUp";
 import { apiClient } from "@/lib/api";
 import { parseApiError } from "@/lib/errors";
 import { formatDate, formatDateTime } from "@/lib/format";
@@ -554,9 +555,9 @@ export function MemberImportDialog({ onImported }: { onImported: () => void }) {
                 ))}
               </ul>
             )}
+            <ImportFollowUp token={token} batchId={result.batch_id} />
             <p className="text-[13px] text-[var(--text-muted)]">
-              Los datos que falten (contacto de emergencia, PAR-Q, foto, huella) se pueden completar después desde la
-              ficha de cada socio o enviándoles el enlace para que los llenen ellos mismos.
+              Lo que falte (foto, huella) se completa después desde la ficha de cada socio.
             </p>
           </div>
         )}

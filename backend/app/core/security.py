@@ -56,6 +56,9 @@ def create_access_token(
         "exp": expire,
         "jti": str(uuid.uuid4()),
         "iat": int(datetime.now(timezone.utc).timestamp()),
+        # Milisegundos: "cerrar las demás sesiones" no puede depender de que el
+        # token nuevo y los viejos hayan nacido en segundos distintos.
+        "iat_ms": int(datetime.now(timezone.utc).timestamp() * 1000),
         **extra,
     }
     return jwt.encode(payload, settings.secret_key, algorithm=settings.algorithm)
@@ -72,6 +75,9 @@ def create_staff_token(staff_id: str, db_name: str, role: str, **extra) -> str:
         "exp": expire,
         "jti": str(uuid.uuid4()),
         "iat": int(datetime.now(timezone.utc).timestamp()),
+        # Milisegundos: "cerrar las demás sesiones" no puede depender de que el
+        # token nuevo y los viejos hayan nacido en segundos distintos.
+        "iat_ms": int(datetime.now(timezone.utc).timestamp() * 1000),
         **extra,
     }
     return jwt.encode(payload, settings.secret_key, algorithm=settings.algorithm)

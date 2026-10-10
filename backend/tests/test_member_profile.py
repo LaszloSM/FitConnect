@@ -1,4 +1,4 @@
-"""Completar la ficha del socio por enlace: qué falta, envío por WhatsApp/correo,
+"""Completar la ficha del socio por enlace: qué falta, envío por correo,
 página pública que solo llena vacíos, un solo uso y envío masivo."""
 import re
 import uuid
@@ -39,14 +39,19 @@ async def test_status_lists_what_is_missing_and_filter_finds_it(client):
     assert mid in ids
 
 
-async def test_whatsapp_link_fills_only_empty_fields_and_is_single_use(client):
+async def test_email_link_fills_only_empty_fields_and_is_single_use(client):
     token = await create_owner_token(client)
     vieja = f"ana.vieja.{uuid.uuid4().hex[:6]}@correo.com"
     mid = await _imported_member(client, token, phone="3001234567", email=vieja)
-    r = await client.post(f"/api/v1/members/{mid}/profile-link", json={"channel": "whatsapp"}, headers=_h(token))
+    mailer.OUTBOX.clear()
+    r = await client.post(f"/api/v1/members/{mid}/profile-link", json={"channel": "email"}, headers=_h(token))
     assert r.status_code == 200, r.text
     assert r.json()["sent"] is True
     url = r.json()["url"]
+    # El correo que sale lleva el mismo enlace, en HTML (botón) y en texto plano.
+    mail = [m for m in mailer.OUTBOX if m.to == vieja][-1]
+    assert url in mail.text and url in mail.html and "Completar mis datos" in mail.html
+    assert "vía LSMFit" in mail.from_name
     slug, link_token = re.search(r"/completar/([^/]+)/([\w-]+)$", url).groups()
 
     page = await client.get(f"/api/v1/public/profile/{slug}/{link_token}")
@@ -186,12 +191,20 @@ async def test_profile_summary_counts_incomplete(client):
     assert body["incomplete"] >= 1 and body["with_phone"] >= 1
 
 
-async def test_same_member_cannot_be_spammed_with_links(client):
+async def test_whatsapp_is_no_longer_a_channel(client):
+    """El canal WhatsApp nunca enviaba nada y se quitó: el enlace sale por correo."""
     token = await create_owner_token(client)
     mid = await _imported_member(client, token, phone="3007654321")
-    first = await client.post(f"/api/v1/members/{mid}/profile-link", json={"channel": "whatsapp"}, headers=_h(token))
+    r = await client.post(f"/api/v1/members/{mid}/profile-link", json={"channel": "whatsapp"}, headers=_h(token))
+    assert r.status_code == 422
+
+
+async def test_same_member_cannot_be_spammed_with_links(client):
+    token = await create_owner_token(client)
+    mid = await _imported_member(client, token, email=f"spam-{uuid.uuid4().hex[:6]}@correo.com")
+    first = await client.post(f"/api/v1/members/{mid}/profile-link", json={"channel": "email"}, headers=_h(token))
     assert first.status_code == 200, first.text
-    again = await client.post(f"/api/v1/members/{mid}/profile-link", json={"channel": "whatsapp"}, headers=_h(token))
+    again = await client.post(f"/api/v1/members/{mid}/profile-link", json={"channel": "email"}, headers=_h(token))
     assert again.status_code == 429
     copy = await client.post(f"/api/v1/members/{mid}/profile-link", json={"channel": "copy"}, headers=_h(token))
     assert copy.status_code == 200

@@ -458,4 +458,30 @@ L3_PERFIL: list[str] = [
     "CREATE INDEX IF NOT EXISTS ix_profile_links_member_id ON profile_links (member_id)",
 ]
 
-ALIGN_STATEMENTS: list[str] = [*J1_INGRESOS_PASE_TRANSFERENCIAS, *J2_INVENTARIO, *J4_CONSENTIMIENTOS, *J6_ACCESO, *J7_VIDEO_EJERCICIOS, *J8_GYM_SETTINGS_FLAGS, *K1_LIBRO_MOVIMIENTOS, *K2_MENSAJERIA, *K3_ENTRENADORES, *K4_MAQUINAS, *K5_STAFF_SOCIO, *K6_CAJA, *K7_MANTENIMIENTO, *K8_MODELOS, *K9_IMPORTACION, *K10_TORNIQUETE, *L2_DOS_PASOS, *L3_PERFIL]
+L4_SEGURIDAD: list[str] = [
+    # l4d5e6f7a8b9_seguridad_de_la_cuenta.py
+    # Más métodos para el segundo paso: código al correo y llaves de acceso.
+    "ALTER TABLE users ADD COLUMN IF NOT EXISTS mfa_email_enabled BOOLEAN NOT NULL DEFAULT false",
+    "ALTER TABLE users ADD COLUMN IF NOT EXISTS mfa_passkey_enabled BOOLEAN NOT NULL DEFAULT false",
+    "ALTER TABLE users ADD COLUMN IF NOT EXISTS mfa_preferred VARCHAR(20) NULL",
+    """CREATE TABLE IF NOT EXISTS staff_passkeys (
+        id UUID PRIMARY KEY,
+        staff_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+        credential_id VARCHAR(512) NOT NULL,
+        public_key TEXT NOT NULL,
+        sign_count INTEGER NOT NULL,
+        name VARCHAR(100) NOT NULL,
+        transports JSONB NULL,
+        last_used_at TIMESTAMP NULL,
+        created_at TIMESTAMP NOT NULL DEFAULT now(),
+        updated_at TIMESTAMP NOT NULL DEFAULT now()
+    )""",
+    """DO $$ BEGIN
+        IF NOT EXISTS (SELECT 1 FROM pg_constraint WHERE conname = 'staff_passkeys_credential_id_key') THEN
+            ALTER TABLE staff_passkeys ADD CONSTRAINT staff_passkeys_credential_id_key UNIQUE (credential_id);
+        END IF;
+    END $$""",
+    "CREATE INDEX IF NOT EXISTS ix_staff_passkeys_staff_id ON staff_passkeys (staff_id)",
+]
+
+ALIGN_STATEMENTS: list[str] = [*J1_INGRESOS_PASE_TRANSFERENCIAS, *J2_INVENTARIO, *J4_CONSENTIMIENTOS, *J6_ACCESO, *J7_VIDEO_EJERCICIOS, *J8_GYM_SETTINGS_FLAGS, *K1_LIBRO_MOVIMIENTOS, *K2_MENSAJERIA, *K3_ENTRENADORES, *K4_MAQUINAS, *K5_STAFF_SOCIO, *K6_CAJA, *K7_MANTENIMIENTO, *K8_MODELOS, *K9_IMPORTACION, *K10_TORNIQUETE, *L2_DOS_PASOS, *L3_PERFIL, *L4_SEGURIDAD]

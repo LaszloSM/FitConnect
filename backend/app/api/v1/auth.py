@@ -2,6 +2,7 @@ from datetime import datetime, timedelta, timezone
 
 from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException, Request
 from fastapi.security import HTTPAuthorizationCredentials
+from pydantic import BaseModel
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import func, select
 
@@ -31,16 +32,15 @@ from app.models.master.staff_invitation import StaffInvitation
 from app.models.tenant.user_staff import UserStaff, UserRole
 from app.schemas.auth import (
     RegisterRequest, LoginRequest, TokenResponse, AcceptInviteRequest, MfaChallenge, MfaVerifyRequest,
-    MfaCodeRequest, MfaDisableRequest, ForgotPasswordRequest, ResetPasswordRequest,
+    ForgotPasswordRequest, ResetPasswordRequest,
 )
 from app.models.master.platform import PasswordReset
-from app.services import mailer
+from app.services import emails, mailer, mfa, passkeys
 from app.core import totp
-from app.core.crypto import decrypt_secret, encrypt_secret
+from app.core.crypto import decrypt_secret
 from app.models.master.tenant import TenantStatus
 from app.services import account_security
 from app.services.audit import audit
-from app.api.deps import get_tenant_db_from_token
 from app.services.tenant_service import create_tenant
 
 
@@ -79,7 +79,7 @@ def _tokens_for(staff: UserStaff, *, kind: str, db_name: str, tenant_id: str | N
     """Emite el token de sesión. Si el rol exige verificación en dos pasos y aún
     no la configuró, el token solo sirve para configurarla."""
     role = staff.role.value if hasattr(staff.role, "value") else str(staff.role)
-    needs_setup = (not staff.totp_enabled) and role in settings.mfa_required_roles
+    needs_setup = (not mfa.is_on(staff)) and role in settings.mfa_required_roles
     extra = {"mfa": "setup_required"} if needs_setup else {}
     if kind == "owner":
         token = create_access_token(owner_id=owner_id, tenant_id=tenant_id, db_name=db_name, role="owner",
@@ -110,11 +110,16 @@ async def _tenant_allows_login(db: AsyncSession, tenant_id) -> Tenant:
 
 
 def _challenge_or_tokens(staff: UserStaff, **ctx) -> TokenResponse | MfaChallenge:
-    if staff.totp_enabled:
-        return MfaChallenge(challenge_token=create_challenge_token(
-            "login", staff_id=str(staff.id), db_name=ctx["db_name"], kind=ctx["kind"],
-            tenant_id=ctx.get("tenant_id"), owner_id=ctx.get("owner_id"),
-        ))
+    if mfa.is_on(staff):
+        methods = mfa.methods(staff) + (["backup"] if staff.backup_codes else [])
+        return MfaChallenge(
+            challenge_token=create_challenge_token(
+                "login", staff_id=str(staff.id), db_name=ctx["db_name"], kind=ctx["kind"],
+                tenant_id=ctx.get("tenant_id"), owner_id=ctx.get("owner_id"),
+            ),
+            methods=methods, preferred=mfa.preferred(staff),
+            email_hint=mfa.mask_email(staff.email) if "email" in methods else None,
+        )
     return _tokens_for(staff, **ctx)
 
 
@@ -168,33 +173,98 @@ async def staff_login(request: Request, payload: LoginRequest, db: AsyncSession 
     return _challenge_or_tokens(staff, kind="staff", db_name=entry.db_name, tenant_id=str(entry.tenant_id))
 
 
+def _challenge_claims(challenge_token: str) -> dict:
+    try:
+        claims = decode_token(challenge_token)
+    except HTTPException as exc:
+        raise HTTPException(status_code=401, detail="El paso de verificación venció. Vuelve a entrar.") from exc
+    if claims.get("scope") != "mfa_login":
+        raise HTTPException(status_code=401, detail="El paso de verificación venció. Vuelve a entrar.")
+    return claims
+
+
+def _tenant_session(db_name: str):
+    engine = get_tenant_engine(settings.tenant_database_url_template.replace("{db_name}", db_name))
+    return async_sessionmaker(engine, expire_on_commit=False)()
+
+
+class ChallengeRequest(BaseModel):
+    challenge_token: str
+
+
+@router.post("/mfa/challenge/email")
+@limiter.limit("5/minute")
+async def mfa_challenge_email(request: Request, payload: ChallengeRequest):
+    """Envía el código del segundo paso al correo (solo si la persona activó ese método)."""
+    claims = _challenge_claims(payload.challenge_token)
+    async with _tenant_session(claims["db_name"]) as ts:
+        staff = await ts.get(UserStaff, claims["staff_id"])
+        if not staff or not staff.is_active or not staff.mfa_email_enabled:
+            raise HTTPException(status_code=400, detail="Este método no está activo en tu cuenta.")
+        await mfa.send_code(staff, "login")
+    return {"sent": True, "email_hint": mfa.mask_email(staff.email), "expires_in": mfa.CODE_MINUTES * 60}
+
+
+@router.post("/mfa/challenge/passkey")
+@limiter.limit("10/minute")
+async def mfa_challenge_passkey(request: Request, payload: ChallengeRequest):
+    """Opciones para que el navegador firme con una llave de acceso registrada."""
+    from app.models.tenant.staff_passkey import StaffPasskey
+    claims = _challenge_claims(payload.challenge_token)
+    async with _tenant_session(claims["db_name"]) as ts:
+        keys = (await ts.execute(select(StaffPasskey).where(StaffPasskey.staff_id == claims["staff_id"]))).scalars().all()
+    if not keys:
+        raise HTTPException(status_code=400, detail="No tienes llaves de acceso registradas.")
+    return await passkeys.authentication_options(claims["staff_id"], [(k.credential_id, k.transports) for k in keys])
+
+
+async def _verify_passkey(ts, staff_id, credential: dict | None) -> bool:
+    from app.models.tenant.staff_passkey import StaffPasskey
+    if not credential or not credential.get("id"):
+        return False
+    key = (await ts.execute(select(StaffPasskey).where(
+        StaffPasskey.staff_id == staff_id, StaffPasskey.credential_id == credential["id"],
+    ))).scalar_one_or_none()
+    if key is None:
+        return False
+    key.sign_count = await passkeys.verify_authentication(staff_id, credential, key.public_key, key.sign_count)
+    key.last_used_at = datetime.utcnow()
+    await ts.commit()
+    return True
+
+
 @router.post("/mfa/verify", response_model=TokenResponse)
 @limiter.limit("10/minute")
 async def mfa_verify(request: Request, payload: MfaVerifyRequest, db: AsyncSession = Depends(get_master_db)):
-    """Segundo paso del login: código de la app autenticadora o un código de respaldo."""
-    claims = decode_token(payload.challenge_token)
-    if claims.get("scope") != "mfa_login":
-        raise HTTPException(status_code=401, detail="El paso de verificación venció. Vuelve a entrar.")
+    """Segundo paso del login: app autenticadora, código por correo, llave de acceso
+    o código de respaldo."""
+    claims = _challenge_claims(payload.challenge_token)
     if await account_security.too_many_failures(f"mfa:{claims['staff_id']}"):
         raise HTTPException(status_code=429, detail="Demasiados códigos incorrectos. Espera 15 minutos.")
-    engine = get_tenant_engine(settings.tenant_database_url_template.replace("{db_name}", claims["db_name"]))
-    async with async_sessionmaker(engine, expire_on_commit=False)() as ts:
+    async with _tenant_session(claims["db_name"]) as ts:
         staff = (await ts.execute(
             select(UserStaff).where(UserStaff.id == claims["staff_id"]).with_for_update()
         )).scalar_one_or_none()
-        if not staff or not staff.is_active or not staff.totp_enabled:
+        if not staff or not staff.is_active or not mfa.is_on(staff):
             raise HTTPException(status_code=401, detail="Credenciales incorrectas")
-        ok = totp.verify(decrypt_secret(staff.totp_secret_enc) or "", payload.code) \
-            and await account_security.claim_code(f"staff:{staff.id}", payload.code)
-        if not ok:
-            remaining = totp.consume_backup_code(staff.backup_codes, payload.code)
+        method, code, ok = payload.method, payload.code, False
+        if method == "passkey":
+            ok = staff.mfa_passkey_enabled and await _verify_passkey(ts, staff.id, payload.credential)
+        if not ok and method in (None, "totp") and staff.totp_enabled:
+            ok = totp.verify(decrypt_secret(staff.totp_secret_enc) or "", code) \
+                and await account_security.claim_code(f"staff:{staff.id}", code)
+        if not ok and method in (None, "email") and staff.mfa_email_enabled:
+            ok = await mfa.check_code(staff.id, "login", code)
+        if not ok and method in (None, "backup"):
+            remaining = totp.consume_backup_code(staff.backup_codes, code)
             if remaining is not None:
                 staff.backup_codes = remaining
                 await ts.commit()
                 ok = True
         if not ok:
             await account_security.register_failure(f"mfa:{claims['staff_id']}")
-            raise HTTPException(status_code=401, detail="Código incorrecto")
+            raise HTTPException(status_code=401, detail="No pudimos verificarte. Revisa el código e intenta de nuevo."
+                                if method != "passkey" else "La llave de acceso no se pudo verificar.")
     await account_security.clear_failures(f"mfa:{claims['staff_id']}")
     await _tenant_allows_login(db, claims["tenant_id"]) if claims.get("tenant_id") else None
     return _tokens_for(staff, kind=claims["kind"], db_name=claims["db_name"], tenant_id=claims.get("tenant_id"),
@@ -300,97 +370,6 @@ async def logout(credentials: HTTPAuthorizationCredentials = Depends(security)):
     return {"ok": True}
 
 
-# ─── Verificación en dos pasos (cuenta propia) ──────────────────────────────
-
-@router.get("/mfa/status")
-async def mfa_status(staff: UserStaff = Depends(get_current_staff)):
-    role = staff.role.value if hasattr(staff.role, "value") else str(staff.role)
-    return {
-        "enabled": staff.totp_enabled,
-        "required": role in settings.mfa_required_roles,
-        "backup_codes_left": len(staff.backup_codes or []),
-    }
-
-
-@router.post("/mfa/setup")
-async def mfa_setup(
-    staff: UserStaff = Depends(get_current_staff),
-    db: AsyncSession = Depends(get_tenant_db_from_token),
-):
-    """Genera el secreto y el QR para la app autenticadora. Queda pendiente hasta
-    confirmar un código válido."""
-    if staff.totp_enabled:
-        raise HTTPException(status_code=409, detail="La verificación en dos pasos ya está activa")
-    secret = totp.new_secret()
-    row = await db.get(UserStaff, staff.id)
-    row.totp_secret_enc = encrypt_secret(secret)
-    await db.commit()
-    return {"secret": secret, "otpauth_uri": totp.provisioning_uri(secret, staff.email)}
-
-
-@router.post("/mfa/enable")
-async def mfa_enable(
-    payload: MfaCodeRequest,
-    credentials: HTTPAuthorizationCredentials = Depends(security),
-    staff: UserStaff = Depends(get_current_staff),
-    db: AsyncSession = Depends(get_tenant_db_from_token),
-):
-    row = await db.get(UserStaff, staff.id)
-    secret = decrypt_secret(row.totp_secret_enc) if row.totp_secret_enc else None
-    if not secret or not totp.verify(secret, payload.code):
-        raise HTTPException(status_code=400, detail="Código incorrecto. Revisa la hora del celular y escribe el código actual.")
-    await account_security.claim_code(f"staff:{row.id}", payload.code)
-    codes = totp.new_backup_codes()
-    row.totp_enabled = True
-    row.backup_codes = [totp.hash_backup_code(c) for c in codes]
-    audit(db, row, "security.mfa_enable", "user", row.id, {})
-    await db.commit()
-    claims = decode_token(credentials.credentials)
-    await account_security.revoke_jti(claims.get("jti"), claims.get("exp"))
-    kind = "owner" if claims.get("role") == "owner" and claims.get("tenant_id") else "staff"
-    session = _tokens_for(row, kind=kind, db_name=claims["db_name"], tenant_id=claims.get("tenant_id"),
-                          owner_id=claims.get("sub"))
-    return {"backup_codes": codes, "session": session}
-
-
-@router.post("/mfa/backup-codes")
-async def mfa_new_backup_codes(
-    payload: MfaCodeRequest,
-    staff: UserStaff = Depends(get_current_staff),
-    db: AsyncSession = Depends(get_tenant_db_from_token),
-):
-    row = await db.get(UserStaff, staff.id)
-    if not row.totp_enabled or not totp.verify(decrypt_secret(row.totp_secret_enc) or "", payload.code):
-        raise HTTPException(status_code=400, detail="Código incorrecto")
-    codes = totp.new_backup_codes()
-    row.backup_codes = [totp.hash_backup_code(c) for c in codes]
-    audit(db, row, "security.mfa_backup_codes", "user", row.id, {})
-    await db.commit()
-    return {"backup_codes": codes}
-
-
-@router.post("/mfa/disable")
-async def mfa_disable(
-    payload: MfaDisableRequest,
-    staff: UserStaff = Depends(get_current_staff),
-    db: AsyncSession = Depends(get_tenant_db_from_token),
-):
-    role = staff.role.value if hasattr(staff.role, "value") else str(staff.role)
-    if role in settings.mfa_required_roles:
-        raise HTTPException(status_code=409, detail="Para dueño y administrador la verificación en dos pasos es obligatoria")
-    row = await db.get(UserStaff, staff.id)
-    if not verify_password(payload.password, row.hashed_password) or not totp.verify(
-        decrypt_secret(row.totp_secret_enc) or "", payload.code
-    ):
-        raise HTTPException(status_code=400, detail="Contraseña o código incorrecto")
-    row.totp_enabled = False
-    row.totp_secret_enc = None
-    row.backup_codes = None
-    audit(db, row, "security.mfa_disable", "user", row.id, {})
-    await db.commit()
-    return {"enabled": False}
-
-
 # ─── Recuperar contraseña ────────────────────────────────────────────────────
 
 RESET_TTL_MINUTES = 60
@@ -413,10 +392,8 @@ async def forgot_password(request: Request, payload: ForgotPasswordRequest, back
         ))
         await db.commit()
         link = f"{settings.frontend_url.rstrip('/')}/restablecer?token={token}"
-        background.add_task(mailer.send, email, "Recupera tu contraseña de LSMFit", (
-            "Hola,\n\nPediste cambiar tu contraseña de LSMFit. Entra a este enlace (vence en una hora):\n\n"
-            f"{link}\n\nSi no fuiste tú, ignora este correo: tu contraseña sigue igual."
-        ))
+        name = owner.full_name if owner else None
+        background.add_task(mailer.send_email, email, emails.password_reset(link, RESET_TTL_MINUTES, name))
     return {"ok": True}
 
 
@@ -454,4 +431,5 @@ async def reset_password(request: Request, payload: ResetPasswordRequest, db: As
     row.used_at = datetime.utcnow()
     await db.commit()
     await account_security.clear_failures(row.email)
+    await mailer.send_email(row.email, emails.security_notice("password_reset", owner.full_name if owner else None))
     return {"ok": True}

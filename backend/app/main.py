@@ -185,10 +185,14 @@ async def health():
     except Exception:
         deps["redis"] = "error"
 
+    from app.services import mailer
     from app.services.scheduler import scheduler
     healthy = all(v == "ok" for v in deps.values())
     return {
         "status": "ok" if healthy else "degraded",
         "dependencies": deps,
         "scheduler_running": scheduler.running,
+        # No cuenta para "status": sin correo la app funciona, pero no salen
+        # invitaciones ni recuperaciones de contraseña.
+        "email_configured": mailer.configured(),
     }
