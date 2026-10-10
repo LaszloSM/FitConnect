@@ -1,4 +1,4 @@
-# Reglas del proyecto — FitConnect
+# Reglas del proyecto — LSMFit
 
 ## Idioma de los commits
 

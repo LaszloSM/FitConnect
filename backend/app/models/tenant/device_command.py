@@ -16,7 +16,7 @@ device_command_seq = Sequence("device_command_seq", start=1, metadata=TenantBase
 class DeviceCommand(TenantBase, TenantTimestampMixin):
     """Cola de órdenes para un equipo de acceso (torniquete, lector).
 
-    El comando se guarda en términos de FitConnect (`kind` + `payload`); cada
+    El comando se guarda en términos de LSMFit (`kind` + `payload`); cada
     protocolo lo traduce al formato del equipo al entregarlo: ZKTeco ADMS lo
     convierte en texto en `/iclock/getrequest`, el agente local lo traduce a
     ISAPI de Hikvision o al protocolo TCP de ZKTeco.

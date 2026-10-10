@@ -441,6 +441,6 @@ async def get_subscription(
     tenant: Tenant = Depends(get_tenant_from_claims),
     _staff=Depends(get_current_staff),
 ):
-    """Estado de la suscripción a FitConnect, para el aviso de la barra superior."""
+    """Estado de la suscripción a LSMFit, para el aviso de la barra superior."""
     from app.services.subscription import effective
     return effective(tenant)

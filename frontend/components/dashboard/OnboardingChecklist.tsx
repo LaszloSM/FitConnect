@@ -54,7 +54,7 @@ export function OnboardingChecklist() {
         </div>
         <button
           type="button"
-          onClick={() => window.dispatchEvent(new Event("fitconnect:start-tour"))}
+          onClick={() => window.dispatchEvent(new Event("lsmfit:start-tour"))}
           className="text-sm font-medium text-primary-ink hover:underline"
         >
           Ver recorrido

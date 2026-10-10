@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Política de Tratamiento de Datos: FitConnect",
+  title: "Política de Tratamiento de Datos: LSMFit",
   description: "Política de tratamiento de datos personales conforme a la Ley 1581 de 2012.",
 };
 
@@ -16,14 +16,14 @@ export default function TratamientoDatosPage() {
       <p>
         En cumplimiento de la Ley 1581 de 2012 y el Decreto 1377 de 2013, <strong>[RAZÓN SOCIAL]</strong>{" "}
         (NIT <strong>[NIT]</strong>), con domicilio en <strong>[ciudad]</strong>, Colombia, adopta la
-        presente Política aplicable a los datos personales tratados a través de FitConnect.
+        presente Política aplicable a los datos personales tratados a través de LSMFit.
       </p>
 
       <h2>1. Responsable y encargado</h2>
       <p>
         Respecto de los datos de los miembros, el gimnasio cliente es el <strong>Responsable</strong> y
-        FitConnect actúa como <strong>Encargado</strong>. Respecto de los datos de la cuenta del
-        gimnasio y su personal, FitConnect es el Responsable.
+        LSMFit actúa como <strong>Encargado</strong>. Respecto de los datos de la cuenta del
+        gimnasio y su personal, LSMFit es el Responsable.
       </p>
 
       <h2>2. Finalidades del tratamiento</h2>
@@ -50,11 +50,11 @@ export default function TratamientoDatosPage() {
         fecha, versión de este texto y persona que la tomó.
       </p>
       <ul>
-        <li>La plantilla biométrica se almacena únicamente en el equipo lector del gimnasio; FitConnect guarda
+        <li>La plantilla biométrica se almacena únicamente en el equipo lector del gimnasio; LSMFit guarda
           solo el identificador interno que ese equipo asigna al titular y el registro del consentimiento.</li>
         <li>Finalidad exclusiva: verificar la identidad del titular para controlar su ingreso a las instalaciones.</li>
         <li>El titular puede revocar la autorización en cualquier momento en recepción. La revocación elimina el
-          vínculo en FitConnect y obliga al gimnasio a borrar al titular del equipo lector.</li>
+          vínculo en LSMFit y obliga al gimnasio a borrar al titular del equipo lector.</li>
         <li>No se comparten con terceros ni se usan para perfilamiento.</li>
       </ul>
 

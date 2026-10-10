@@ -11,5 +11,5 @@
   },
   "poll_seconds": 3,
   "events_seconds": 5,
-  "data_dir": "C:/FitConnect/agente-datos"
+  "data_dir": "C:/LSMFit/agente-datos"
 }

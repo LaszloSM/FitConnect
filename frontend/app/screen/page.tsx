@@ -5,7 +5,7 @@ import ScreenClient from "./ScreenClient";
 export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
-  title: "Rutinas: FitConnect",
+  title: "Rutinas: LSMFit",
   robots: { index: false },
 };
 

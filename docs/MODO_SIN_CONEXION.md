@@ -29,17 +29,17 @@ El gimnasio sigue operando en un corte y, al volver la red, todo cuadra sin dupl
 
 ## ¿Y si no hay internet al abrir la página? (el "dinosaurio")
 
-No sale el dinosaurio si ese computador ya abrió FitConnect con internet: el
+No sale el dinosaurio si ese computador ya abrió LSMFit con internet: el
 service worker (`frontend/public/sw.js`) guarda el Mostrador y lo sirve sin red,
 aunque se haya cerrado el navegador o apagado el PC. Probado: con la red cortada
 se recarga la página y abre completa, con la sesión y la copia de socios.
 
-Para que sea a prueba de errores, en el PC de recepción **instala FitConnect como
+Para que sea a prueba de errores, en el PC de recepción **instala LSMFit como
 app** (Chrome o Edge › ícono "Instalar" en la barra de direcciones). Queda un
 ícono en el escritorio que abre directo el Mostrador, con o sin internet.
 
 Cuándo SÍ sale el dinosaurio, y qué hacer:
-- Un equipo que nunca abrió FitConnect, o al que le borraron los datos del
+- Un equipo que nunca abrió LSMFit, o al que le borraron los datos del
   navegador: no hay nada guardado. Usar otro equipo de recepción o esperar la red.
 - Sin sesión abierta: sin red no se puede iniciar sesión. Dejar la sesión de
   recepción abierta durante la jornada.

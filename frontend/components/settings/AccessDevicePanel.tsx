@@ -27,13 +27,13 @@ export const PROTOCOLS: { value: AccessProtocol; label: string; hint: string; ve
   {
     value: "zk_adms",
     label: "ZKTeco con servidor en la nube (ADMS)",
-    hint: "SpeedFace, ProFace, MB, iFace… El equipo llama solo a FitConnect: no necesita PC.",
+    hint: "SpeedFace, ProFace, MB, iFace… El equipo llama solo a LSMFit: no necesita PC.",
     vendor: "zkteco",
   },
   {
     value: "hik_isapi",
     label: "Hikvision (MinMoe)",
-    hint: "Se conecta con el agente de FitConnect instalado en el PC de recepción.",
+    hint: "Se conecta con el agente de LSMFit instalado en el PC de recepción.",
     vendor: "hikvision",
   },
   {
@@ -45,7 +45,7 @@ export const PROTOCOLS: { value: AccessProtocol; label: string; hint: string; ve
   {
     value: "generic",
     label: "Otra marca",
-    hint: "Un agente o integrador consulta a FitConnect si el socio puede pasar.",
+    hint: "Un agente o integrador consulta a LSMFit si el socio puede pasar.",
     vendor: "",
   },
 ];
@@ -134,13 +134,13 @@ export function SetupSteps({ protocol, serial, token }: { protocol: AccessProtoc
   }
   return (
     <ol className="list-decimal space-y-1 pl-5 text-sm text-[var(--text-base)]">
-      <li>Instala el agente de FitConnect en el PC de recepción (misma red del torniquete).</li>
+      <li>Instala el agente de LSMFit en el PC de recepción (misma red del torniquete).</li>
       <li>
-        En su archivo de configuración pon la URL de FitConnect, este token
+        En su archivo de configuración pon la URL de LSMFit, este token
         {token ? " (cópialo arriba)" : ""}, la IP del equipo y su usuario y clave
         {protocol === "hik_isapi" ? " de administrador" : " (o la clave de comunicación)"}.
       </li>
-      <li>Ejecuta <code>fitconnect-agent --check</code> y luego déjalo como servicio. Guía: <code>agent/README.md</code>.</li>
+      <li>Ejecuta <code>lsmfit-agent --check</code> y luego déjalo como servicio. Guía: <code>agent/README.md</code>.</li>
     </ol>
   );
 }
@@ -229,7 +229,7 @@ export function AccessDevicePanel({
   if (!protocol) {
     return (
       <p className="text-sm text-[var(--text-muted)]">
-        Elige cómo se conecta este equipo en «Ajustes avanzados» para que FitConnect lo controle.
+        Elige cómo se conecta este equipo en «Ajustes avanzados» para que LSMFit lo controle.
       </p>
     );
   }

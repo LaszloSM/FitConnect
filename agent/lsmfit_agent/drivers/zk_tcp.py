@@ -12,7 +12,7 @@ import asyncio
 import base64
 from datetime import datetime
 
-from fitconnect_agent.config import DeviceConfig
+from lsmfit_agent.config import DeviceConfig
 
 
 class ZkTcpError(Exception):

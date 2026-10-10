@@ -50,7 +50,7 @@ class Membership(TenantBase, TenantTimestampMixin):
     )
     trainer_sessions_per_month: Mapped[Optional[int]] = mapped_column(Integer, nullable=True)
     notes: Mapped[Optional[str]] = mapped_column(String(500), nullable=True)
-    #: sale = vendida en FitConnect; import = traída del software anterior (ya
+    #: sale = vendida en LSMFit; import = traída del software anterior (ya
     #: se cobró allá, por eso no tiene pago); courtesy = regalada por el gym.
     source: Mapped[str] = mapped_column(String(20), default="sale", server_default="sale", nullable=False)
     import_batch_id: Mapped[Optional[uuid.UUID]] = mapped_column(

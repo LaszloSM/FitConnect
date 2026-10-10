@@ -1,4 +1,4 @@
-"""API del panel de plataforma (admin.<dominio>): quien administra FitConnect.
+"""API del panel de plataforma (admin.<dominio>): quien administra LSMFit.
 
 Separada de la API de los gimnasios: otro prefijo, otra llave de tokens, 2FA
 obligatorio y lista de IPs. Nunca expone datos de socios: solo metadatos y

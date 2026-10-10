@@ -6,7 +6,7 @@ import { entrar } from "./helpers";
  * Regenera las capturas del producto que usa la landing (`public/landing`).
  * Solo corre a pedido y con un gym con historia (`scripts/seed_demo_gym.py` +
  * `backend/scripts/seed_ml_history.py`):
- *   CAPTURAR_LANDING=demo-xxxx@fitconnect.co npx playwright test capturas-landing
+ *   CAPTURAR_LANDING=demo-xxxx@demo.example.com npx playwright test capturas-landing
  * Los nombres del gym y del dueño demo se cambian en pantalla por unos creíbles;
  * todo lo demás es la interfaz real con esos datos.
  */

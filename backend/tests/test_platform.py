@@ -14,7 +14,7 @@ PASSWORD = "ClaveDelPanel2026!"
 
 
 async def _admin() -> str:
-    email = f"plat-{uuid.uuid4().hex[:8]}@fitconnect.co"
+    email = f"plat-{uuid.uuid4().hex[:8]}@demo.example.com"
     async with MasterSessionLocal() as db:
         db.add(PlatformAdmin(email=email, full_name="Operador", hashed_password=hash_password(PASSWORD)))
         await db.commit()

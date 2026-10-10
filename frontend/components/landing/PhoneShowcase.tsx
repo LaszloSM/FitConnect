@@ -57,7 +57,7 @@ export function PhoneShowcase() {
               exit={reduce ? undefined : { opacity: 0 }}
               transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
             >
-              <Image src={s.src} alt={`App de FitConnect: ${s.title.toLowerCase()}`} fill className="object-cover object-top" sizes="270px" />
+              <Image src={s.src} alt={`App de LSMFit: ${s.title.toLowerCase()}`} fill className="object-cover object-top" sizes="270px" />
             </motion.div>
           </AnimatePresence>
         </div>

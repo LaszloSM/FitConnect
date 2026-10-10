@@ -4,7 +4,7 @@ import ReportFaultClient from "./ReportFaultClient";
 export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
-  title: "Reportar una máquina: FitConnect",
+  title: "Reportar una máquina: LSMFit",
   robots: { index: false },
 };
 

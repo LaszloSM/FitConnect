@@ -55,7 +55,7 @@ const STEP_TEXT: Record<EnrollKind, string> = {
 };
 
 /**
- * Registrar rostro y huella en el torniquete desde FitConnect, igual que el
+ * Registrar rostro y huella en el torniquete desde LSMFit, igual que el
  * "Registrar Rostro / Registrar Huella" del programa anterior. Pide el
  * consentimiento primero y sigue el progreso del equipo en vivo.
  */
@@ -284,7 +284,7 @@ export function EnrollPanel({
                 <p>{running.command.error || "El torniquete no pudo registrarlo."}</p>
                 <p className="text-[13px] text-[var(--text-muted)]">
                   Si el equipo no acepta el registro remoto, hazlo desde su menú (Usuarios › Nuevo) con el ID{" "}
-                  <span className="num font-semibold text-[var(--text-base)]">{running.command.pin}</span>: FitConnect lo
+                  <span className="num font-semibold text-[var(--text-base)]">{running.command.pin}</span>: LSMFit lo
                   detecta solo.
                 </p>
               </>

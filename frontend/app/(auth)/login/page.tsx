@@ -97,7 +97,7 @@ export default function LoginPage() {
       <div>
         <AuthCardHeader
           title="Verificación en dos pasos"
-          subtitle="Abre tu app autenticadora (Google Authenticator, Microsoft Authenticator, Authy) y escribe el código de FitConnect."
+          subtitle="Abre tu app autenticadora (Google Authenticator, Microsoft Authenticator, Authy) y escribe el código de LSMFit."
         />
         <form onSubmit={handleCode} className="space-y-5">
           <div className="space-y-1.5">
@@ -157,7 +157,7 @@ export default function LoginPage() {
         </Button>
       </form>
       <p className="mt-8 text-sm text-ink-muted">
-        ¿Tu gimnasio aún no usa FitConnect?{" "}
+        ¿Tu gimnasio aún no usa LSMFit?{" "}
         <Link href="/register" className="font-medium text-primary-ink hover:underline">
           Crea una cuenta gratis
         </Link>

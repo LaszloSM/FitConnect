@@ -76,7 +76,7 @@ export default function Login() {
     <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === "ios" ? "padding" : undefined}>
       <Screen edges={["top", "bottom"]}>
         <View style={{ marginTop: space.xxl, marginBottom: space.xl, gap: space.sm }}>
-          <Text style={{ fontFamily: fonts.display, fontSize: 22, color: c.brandInk }}>FitConnect</Text>
+          <Text style={{ fontFamily: fonts.display, fontSize: 22, color: c.brandInk }}>LSMFit</Text>
           <Text accessibilityRole="header" style={{ fontFamily: fonts.display, fontSize: 34, lineHeight: 38, color: c.ink }}>
             {step === "email" ? "Entra con tu correo" : step === "code" ? "Revisa tu correo" : "Crea tu cuenta"}
           </Text>

@@ -1,4 +1,4 @@
-"""Cliente de la nube de FitConnect (solo conexiones salientes por HTTPS)."""
+"""Cliente de la nube de LSMFit (solo conexiones salientes por HTTPS)."""
 from __future__ import annotations
 
 from typing import Any, Optional
@@ -10,7 +10,7 @@ class Cloud:
     def __init__(self, base_url: str, token: str, transport: Optional[httpx.AsyncBaseTransport] = None):
         self.http = httpx.AsyncClient(
             base_url=base_url.rstrip("/"), timeout=20, transport=transport,
-            headers={"Authorization": f"Bearer {token}", "User-Agent": "fitconnect-agent/0.1"},
+            headers={"Authorization": f"Bearer {token}", "User-Agent": "lsmfit-agent/0.1"},
         )
 
     async def close(self) -> None:

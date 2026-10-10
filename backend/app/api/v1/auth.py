@@ -105,7 +105,7 @@ async def _tenant_allows_login(db: AsyncSession, tenant_id) -> Tenant:
     if not tenant:
         raise HTTPException(status_code=404, detail="Gym no encontrado")
     if tenant.status == TenantStatus.suspended:
-        raise HTTPException(status_code=403, detail="La cuenta de este gimnasio está suspendida. Escribe a soporte de FitConnect.")
+        raise HTTPException(status_code=403, detail="La cuenta de este gimnasio está suspendida. Escribe a soporte de LSMFit.")
     return tenant
 
 
@@ -413,8 +413,8 @@ async def forgot_password(request: Request, payload: ForgotPasswordRequest, back
         ))
         await db.commit()
         link = f"{settings.frontend_url.rstrip('/')}/restablecer?token={token}"
-        background.add_task(mailer.send, email, "Recupera tu contraseña de FitConnect", (
-            "Hola,\n\nPediste cambiar tu contraseña de FitConnect. Entra a este enlace (vence en una hora):\n\n"
+        background.add_task(mailer.send, email, "Recupera tu contraseña de LSMFit", (
+            "Hola,\n\nPediste cambiar tu contraseña de LSMFit. Entra a este enlace (vence en una hora):\n\n"
             f"{link}\n\nSi no fuiste tú, ignora este correo: tu contraseña sigue igual."
         ))
     return {"ok": True}

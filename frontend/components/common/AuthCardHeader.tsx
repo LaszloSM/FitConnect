@@ -6,7 +6,7 @@ export function AuthCardHeader({ title, subtitle }: { title: string; subtitle: s
     <div className="mb-8">
       <div className="mb-10 flex items-center justify-between lg:mb-6">
         {/* En escritorio la marca ya está en el panel lateral. */}
-        <Link href="/" className="flex items-center gap-2.5 lg:hidden" aria-label="FitConnect, ir al inicio">
+        <Link href="/" className="flex items-center gap-2.5 lg:hidden" aria-label="LSMFit, ir al inicio">
           <BrandLockup height={20} />
         </Link>
         <Link href="/" className="ml-auto text-sm text-ink-muted transition-colors hover:text-ink">

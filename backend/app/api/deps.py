@@ -35,7 +35,7 @@ async def _person_session(payload: dict, request: Request) -> None:
     if db_name and (await subscription.access_state(db_name))["suspended"]:
         # 401 y no 403: el panel cierra la sesión y el login explica la suspensión.
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED,
-                            detail="La cuenta de este gimnasio está suspendida. Escribe a soporte de FitConnect.")
+                            detail="La cuenta de este gimnasio está suspendida. Escribe a soporte de LSMFit.")
 
 
 async def get_current_owner(

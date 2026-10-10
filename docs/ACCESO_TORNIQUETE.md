@@ -2,12 +2,12 @@
 
 ## Cómo funciona (en una frase)
 
-El torniquete reconoce el rostro o la huella **por sí mismo** y decide en el momento; FitConnect le
+El torniquete reconoce el rostro o la huella **por sí mismo** y decide en el momento; LSMFit le
 dice **quién está al día y hasta cuándo**, recibe cada entrada como asistencia y registra rostros y
 huellas desde la ficha del socio. Por eso sigue funcionando aunque se vaya el internet.
 
 ```
- Socio ─► Torniquete (rostro/huella, decide solo) ─► marcación ─► FitConnect (check-in, alertas)
+ Socio ─► Torniquete (rostro/huella, decide solo) ─► marcación ─► LSMFit (check-in, alertas)
                  ▲                                                       │
                  └──── quién está habilitado y hasta cuándo ◄────────────┘
 ```
@@ -17,8 +17,8 @@ huellas desde la ficha del socio. Por eso sigue funcionando aunque se vaya el in
 | Equipo | Conexión | ¿PC en el gym? | Dónde está el código |
 |---|---|---|---|
 | ZKTeco con "Servidor en la nube" / ADMS (SpeedFace, ProFace, MB, iFace…) | El equipo llama solo a `https://<dominio>/iclock/*` | No | `backend/app/api/v1/iclock.py`, `services/access_drivers/zk_adms.py` |
-| Hikvision MinMoe (DS-K1T…) | Agente local por ISAPI | Sí (recepción) | `agent/fitconnect_agent/drivers/hikvision.py` |
-| ZKTeco antiguo sin ADMS (puerto 4370) | Agente local por TCP (pyzk) | Sí | `agent/fitconnect_agent/drivers/zk_tcp.py` |
+| Hikvision MinMoe (DS-K1T…) | Agente local por ISAPI | Sí (recepción) | `agent/lsmfit_agent/drivers/hikvision.py` |
+| ZKTeco antiguo sin ADMS (puerto 4370) | Agente local por TCP (pyzk) | Sí | `agent/lsmfit_agent/drivers/zk_tcp.py` |
 | Otra marca | Agente o integrador que llama `POST /api/v1/access/verify` | Depende | `backend/app/api/v1/access.py` |
 
 **¿Cuál es el equipo del gimnasio?** Etiqueta detrás de la pantalla o Menú › Sistema › Información.
@@ -26,14 +26,14 @@ Si el menú tiene "Comunicación › Servidor en la nube / ADMS / Cloud Server",
 
 ## Puesta en marcha (gimnasio piloto)
 
-1. **FitConnect**: Ajustes › Dispositivos › Torniquete. Marca y conexión; para ZKTeco ADMS el
+1. **LSMFit**: Ajustes › Dispositivos › Torniquete. Marca y conexión; para ZKTeco ADMS el
    **número de serie** (Menú › Sistema › Información). Se muestran los pasos exactos.
 2. **Equipo ZKTeco ADMS**: Menú › Comunicación › Servidor en la nube → dirección = dominio de
-   FitConnect, puerto 443, HTTPS activado, proxy desactivado. En un minuto aparece «Conectado».
+   LSMFit, puerto 443, HTTPS activado, proxy desactivado. En un minuto aparece «Conectado».
    Requiere **HTTPS con certificado válido** (algunos firmwares rechazan certificados propios).
 3. **Equipo por agente**: instalar el agente en el PC de recepción (`agent/README.md`), pegar el
    token del dispositivo, IP, usuario y clave del equipo, `--check`, y dejarlo como servicio.
-4. **Toma de control**: «Sincronizar ahora». FitConnect lee los usuarios que ya tiene el equipo
+4. **Toma de control**: «Sincronizar ahora». LSMFit lee los usuarios que ya tiene el equipo
    (los que registró el programa anterior), los enlaza por cédula y les envía su estado. Quien
    está vencido queda bloqueado **sin borrarle el rostro ni la huella**. Los que no coinciden se
    ven en «Ver cuáles» y se enlazan desde la ficha › Acceso › Asignar un ID manualmente.
@@ -42,7 +42,7 @@ Si el menú tiene "Comunicación › Servidor en la nube / ADMS / Cloud Server",
 
 ## Qué pasa en cada situación
 
-| Situación | Qué hace FitConnect |
+| Situación | Qué hace LSMFit |
 |---|---|
 | Se vende, renueva, congela, reactiva o cancela una membresía, o se da una cortesía | Encola el nuevo estado del socio en cada equipo, en la misma transacción |
 | Se vence a medianoche | El job `sync_access_devices` (cada 5 min) lo bloquea. En Hikvision la fecha de vigencia ya está en el equipo |
@@ -70,7 +70,7 @@ Lo que cambia entre firmwares queda configurable en Ajustes › Dispositivos ›
 - **IPs permitidas** (`config.allowed_ips`): solo aceptar marcaciones desde la IP pública del gym.
 
 Si el firmware no acepta registrar rostro o huella desde la nube, la ficha lo dice y muestra el ID
-para registrarlo en el menú del equipo; FitConnect detecta solo cuando el equipo reporta la nueva
+para registrarlo en el menú del equipo; LSMFit detecta solo cuando el equipo reporta la nueva
 plantilla y crea la credencial.
 
 ## Checklist de instalación (30 minutos)
@@ -118,7 +118,7 @@ comandos pendientes: nombre y cédula de los socios que se están sincronizando.
 
 - Los datos biométricos son **sensibles**: autorización previa, expresa e informada, opcional. El
   panel de registro no avanza sin ella y guarda versión, fecha y quién la tomó.
-- Las **plantillas no se guardan en FitConnect**: viven en el equipo. Lo único que viaja es la foto de
+- Las **plantillas no se guardan en LSMFit**: viven en el equipo. Lo único que viaja es la foto de
   la ficha cuando se usa como rostro (con autorización de imagen), y se borra de la cola apenas el
   equipo la recibe.
 - ZKTeco por TCP: al bloquear, las huellas se guardan temporalmente en el PC del gimnasio (no en la

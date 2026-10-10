@@ -4,7 +4,7 @@ Foto del producto en Tiza antes de tocar nada. Sirve para medir en F11 si Marcad
 
 ## Capturas de referencia
 
-Tiza real a 1440 px, gym demo, rol dueño: `frontend/public/landing/panel.png`, `socios.png`, `cobro.png`, `asistencia.png`, `inteligencia.png`. Las capturas en oscuro y a 375 px se toman en la primera sesión con navegador autenticado y se guardan en `~/.gstack/projects/LaszloSM-FitConnect/designs/marcador-antes/`.
+Tiza real a 1440 px, gym demo, rol dueño: `frontend/public/landing/panel.png`, `socios.png`, `cobro.png`, `asistencia.png`, `inteligencia.png`. Las capturas en oscuro y a 375 px se toman en la primera sesión con navegador autenticado y se guardan en `~/.gstack/projects/LaszloSM-LSMFit/designs/marcador-antes/`.
 
 ## Detector de impeccable
 
@@ -32,7 +32,7 @@ Salida completa en `docs/design/baseline/impeccable-detect*.json`. El detector e
 | Archivos con `recharts` | 5 | solo donde la forma lo pida |
 | Archivos TSX | 138 | |
 
-`metadata.title` en `app/layout.tsx`: "FitConnect — Conecta tu gimnasio. Potencia tu negocio." (raya y verbo vacío).
+`metadata.title` en `app/layout.tsx`: "LSMFit — Conecta tu gimnasio. Potencia tu negocio." (raya y verbo vacío).
 
 ## Tipografía candidata verificada
 

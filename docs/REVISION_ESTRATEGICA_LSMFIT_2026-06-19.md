@@ -1,4 +1,4 @@
-# Revision estrategica de FitConnect
+# Revision estrategica de LSMFit
 
 Fecha: 2026-06-19  
 Autor: Codex  
@@ -6,7 +6,7 @@ Alcance: revision de producto, arquitectura, seguridad, frontend, backend, infra
 
 ## Resumen ejecutivo
 
-Mi opinion sincera: FitConnect ya no se siente como un MVP improvisado. Tiene una base de producto bastante seria para gimnasios en Colombia: multi-tenant real por base de datos, flujo de caja/POS, membresias, kiosko, check-ins, clases, Wompi, WhatsApp, auditoria y un frontend que compila en Next.js 16. Hay mucho trabajo acumulado y varias decisiones muestran aprendizaje de errores reales, no arquitectura de pizarra.
+Mi opinion sincera: LSMFit ya no se siente como un MVP improvisado. Tiene una base de producto bastante seria para gimnasios en Colombia: multi-tenant real por base de datos, flujo de caja/POS, membresias, kiosko, check-ins, clases, Wompi, WhatsApp, auditoria y un frontend que compila en Next.js 16. Hay mucho trabajo acumulado y varias decisiones muestran aprendizaje de errores reales, no arquitectura de pizarra.
 
 Pero todavia no lo consideraria listo para produccion comercial con clientes pagando sin una fase de endurecimiento. El mayor riesgo no es que "falten pantallas"; el mayor riesgo es operacional: CI permisivo, migraciones tenant con historia de drift, secretos y TLS incompletos en infraestructura, pruebas que existen pero no estan integradas como gate confiable, y algunas superficies de seguridad que necesitan pulirse antes de operar datos reales de miembros y pagos.
 
@@ -16,7 +16,7 @@ La direccion correcta seria: congelar el scope por 2-3 semanas, hacer hardening 
 
 Revise:
 
-- `CLAUDE.md`, `AGENTS.md`, `README.md`, `PRODUCT.md`, `DESIGN.md`, `FITCONNECT_DESIGN_SYSTEM.md`.
+- `CLAUDE.md`, `AGENTS.md`, `README.md`, `PRODUCT.md`, `DESIGN.md`, `LSMFIT_DESIGN_SYSTEM.md`.
 - `frontend/AGENTS.md`, `frontend/auth.ts`, `frontend/middleware.ts`, landing, dashboard, layout, componentes y configuracion.
 - Backend FastAPI: auth, deps, tenants, pagos, webhooks, scheduler, settings, usuarios, auditoria, modelos tenant/master.
 - Infra: Docker Compose, Terraform ECS/RDS/ALB/S3/Redis, GitHub Actions.
@@ -120,7 +120,7 @@ ALB permite 80 y 443, pero no vi una configuracion completa de ACM, redirect 80-
 
 Recomendacion:
 
-- Dominio real `app.fitconnect...` y `api` si aplica.
+- Dominio real `app.lsmfit...` y `api` si aplica.
 - ACM certificate + listener 443.
 - Redirect HTTP a HTTPS.
 - HSTS.
@@ -457,7 +457,7 @@ Objetivo: que un dueño de gimnasio colombiano entienda en 10 segundos: "esto re
 Estructura sugerida:
 
 1. Hero con producto real
-   - H1 directo: "FitConnect" o "Software operativo para gimnasios en Colombia".
+   - H1 directo: "LSMFit" o "Software operativo para gimnasios en Colombia".
    - Subcopy: check-in con cedula, caja/POS, membresias, Wompi y WhatsApp.
    - CTA principal: "Probar gratis".
    - CTA secundaria: "Ver demo".
@@ -528,7 +528,7 @@ Flujo recomendado por tipo de trabajo:
 - Post-deploy: `/canary`.
 - Memoria del repo: `/learn` para registrar patrones reales.
 
-Aplicacion concreta para FitConnect:
+Aplicacion concreta para LSMFit:
 
 1. Ejecutar `/cso` sobre el repo antes de tocar mas features.
 2. Ejecutar `/qa-only http://localhost:3000` con datos seed.
@@ -622,8 +622,8 @@ Prioridad media:
 
 ## Veredicto honesto
 
-FitConnect esta en un punto muy interesante: tiene mas sustancia que muchos MVPs y ataca un mercado concreto con workflows reales. La base tecnica no es perfecta, pero si es recuperable y tiene buenas decisiones.
+LSMFit esta en un punto muy interesante: tiene mas sustancia que muchos MVPs y ataca un mercado concreto con workflows reales. La base tecnica no es perfecta, pero si es recuperable y tiene buenas decisiones.
 
 No intentaria agregar mas features grandes ahora. Seria un error. El siguiente salto de valor no viene de "otro modulo"; viene de confianza: seguridad, deploy, migraciones, QA, observabilidad y una landing que venda con evidencia real.
 
-Mi recomendacion profesional: tratar las proximas semanas como una fase de "production readiness". Si se hace bien, FitConnect puede convertirse en una SaaS seria. Si se sigue agregando funcionalidad sin cerrar estos riesgos, el proyecto se va a sentir potente en demo pero fragil cuando entre el primer cliente real con datos, pagos y staff usando el sistema todos los dias.
+Mi recomendacion profesional: tratar las proximas semanas como una fase de "production readiness". Si se hace bien, LSMFit puede convertirse en una SaaS seria. Si se sigue agregando funcionalidad sin cerrar estos riesgos, el proyecto se va a sentir potente en demo pero fragil cuando entre el primer cliente real con datos, pagos y staff usando el sistema todos los dias.

@@ -1,8 +1,8 @@
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Términos y Condiciones: FitConnect",
-  description: "Términos de uso del servicio FitConnect.",
+  title: "Términos y Condiciones: LSMFit",
+  description: "Términos de uso del servicio LSMFit.",
 };
 
 export default function TerminosPage() {
@@ -14,14 +14,14 @@ export default function TerminosPage() {
       </header>
 
       <p>
-        Estos Términos rigen el uso de la plataforma FitConnect, operada por{" "}
+        Estos Términos rigen el uso de la plataforma LSMFit, operada por{" "}
         <strong>[RAZÓN SOCIAL]</strong> (NIT <strong>[NIT]</strong>). Al crear una cuenta o usar el
         servicio, el gimnasio cliente acepta estos Términos.
       </p>
 
       <h2>1. El servicio</h2>
       <p>
-        FitConnect es un software de gestión para gimnasios: control de acceso, miembros y
+        LSMFit es un software de gestión para gimnasios: control de acceso, miembros y
         membresías, caja y pagos, clases, reportes e integraciones. El servicio se presta &ldquo;tal
         cual&rdquo; y puede evolucionar con nuevas funcionalidades.
       </p>
@@ -44,7 +44,7 @@ export default function TerminosPage() {
       <h2>4. Pagos e integraciones</h2>
       <p>
         Los cobros a los miembros se procesan mediante pasarelas de terceros (p. ej. Wompi) sujetas a
-        sus propios términos. FitConnect no almacena datos sensibles de tarjetas. Durante la etapa de
+        sus propios términos. LSMFit no almacena datos sensibles de tarjetas. Durante la etapa de
         prelanzamiento, el uso de la plataforma puede ofrecerse en período de prueba sin costo.
       </p>
 
@@ -56,7 +56,7 @@ export default function TerminosPage() {
 
       <h2>6. Limitación de responsabilidad</h2>
       <p>
-        En la máxima medida permitida por la ley, FitConnect no será responsable por daños indirectos
+        En la máxima medida permitida por la ley, LSMFit no será responsable por daños indirectos
         o lucro cesante derivados del uso o imposibilidad de uso del servicio.
       </p>
 

@@ -1,4 +1,4 @@
-# Matriz RBAC — FitConnect
+# Matriz RBAC — LSMFit
 
 Roles (en `UserStaff.role`): `owner`, `admin`, `receptionist`.
 

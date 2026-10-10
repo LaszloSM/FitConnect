@@ -52,7 +52,7 @@ export function MemberAppAccess({ memberId, hasDocument }: { memberId: string; h
   const copy = async () => {
     if (!code) return;
     await navigator.clipboard.writeText(
-      `Descarga la app FitConnect, entra con tu correo y en "Vincular mi gimnasio" escribe el código ${code.code} y tu número de documento. Vence el ${formatDateTime(code.expires_at)}.`,
+      `Descarga la app LSMFit, entra con tu correo y en "Vincular mi gimnasio" escribe el código ${code.code} y tu número de documento. Vence el ${formatDateTime(code.expires_at)}.`,
     );
     toast.success("Instrucciones copiadas");
   };

@@ -101,15 +101,15 @@ jobs:
         run: |
           VERSION=$(node -p "require('./app.json').expo.version")
           echo "VERSION=$VERSION" >> "$GITHUB_ENV"
-          cp android/app/build/outputs/apk/release/app-release.apk "fitconnect-$VERSION.apk"
-          sha256sum "fitconnect-$VERSION.apk" | tee "fitconnect-$VERSION.apk.sha256"
+          cp android/app/build/outputs/apk/release/app-release.apk "lsmfit-$VERSION.apk"
+          sha256sum "lsmfit-$VERSION.apk" | tee "lsmfit-$VERSION.apk.sha256"
 
       - uses: actions/upload-artifact@v4
         with:
-          name: fitconnect-apk
+          name: lsmfit-apk
           path: |
-            mobile/fitconnect-*.apk
-            mobile/fitconnect-*.apk.sha256
+            mobile/lsmfit-*.apk
+            mobile/lsmfit-*.apk.sha256
           retention-days: 30
 
       - name: Publicar Release
@@ -118,15 +118,15 @@ jobs:
         with:
           tag_name: ${{ startsWith(github.ref, 'refs/tags/') && github.ref_name || format('app-v{0}-{1}', env.VERSION, github.run_number) }}
           target_commitish: ${{ github.sha }}
-          name: FitConnect ${{ env.VERSION }} (Android)${{ env.SIGNED == '1' && '' || ' · prueba' }}
+          name: LSMFit ${{ env.VERSION }} (Android)${{ env.SIGNED == '1' && '' || ' · prueba' }}
           prerelease: ${{ env.SIGNED != '1' }}
           files: |
-            mobile/fitconnect-*.apk
-            mobile/fitconnect-*.apk.sha256
+            mobile/lsmfit-*.apk
+            mobile/lsmfit-*.apk.sha256
           body: |
-            APK para instalar FitConnect en Android sin Play Store.
+            APK para instalar LSMFit en Android sin Play Store.
 
-            1. Abre este enlace desde el celular y descarga `fitconnect-${{ env.VERSION }}.apk`.
+            1. Abre este enlace desde el celular y descarga `lsmfit-${{ env.VERSION }}.apk`.
             2. Android pedirá permiso para instalar apps de esta fuente: acéptalo solo para el navegador que usaste.
             3. Si Play Protect avisa que la app es desconocida, toca «Más detalles › Instalar de todas formas».
 

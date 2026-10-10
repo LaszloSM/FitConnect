@@ -22,6 +22,10 @@ class DeviceConfig:
     comm_key: int = 0
 
 
+LEGACY_DATA_DIR = "fitconnect-agent-data"
+LEGACY_CONFIG = "fitconnect-agent.json"
+
+
 @dataclass
 class AgentConfig:
     cloud_url: str
@@ -29,7 +33,7 @@ class AgentConfig:
     device: DeviceConfig
     poll_seconds: float = 3.0
     events_seconds: float = 5.0
-    data_dir: str = "fitconnect-agent-data"
+    data_dir: str = "lsmfit-agent-data"
     extra: dict = field(default_factory=dict)
 
     @classmethod
@@ -37,4 +41,8 @@ class AgentConfig:
         raw = json.loads(Path(path).read_text(encoding="utf-8"))
         device = DeviceConfig(**raw.pop("device"))
         known = {k: raw.pop(k) for k in list(raw) if k in cls.__dataclass_fields__}
+        # Instalaciones de antes del cambio de nombre: sus marcaciones pendientes
+        # siguen en la carpeta vieja y no se pueden perder.
+        if "data_dir" not in known and Path(LEGACY_DATA_DIR).exists() and not Path(cls.data_dir).exists():
+            known["data_dir"] = LEGACY_DATA_DIR
         return cls(device=device, extra=raw, **known)

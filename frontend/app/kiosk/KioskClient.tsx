@@ -155,7 +155,7 @@ export default function KioskClient() {
       <header className="flex items-center justify-between">
         <div className="flex items-center gap-3">
           <KioskMark />
-          <span className="text-lg font-semibold text-white">FitConnect</span>
+          <span className="text-lg font-semibold text-white">LSMFit</span>
         </div>
         {deviceName && <span className="text-sm text-white/60">{deviceName}</span>}
       </header>

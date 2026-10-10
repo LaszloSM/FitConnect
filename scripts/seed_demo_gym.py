@@ -48,7 +48,7 @@ def main():
     a = ap.parse_args()
     api = Api(a.api)
     suffix = uuid.uuid4().hex[:6]
-    email = f"demo-{suffix}@fitconnect.co"
+    email = f"demo-{suffix}@demo.example.com"
 
     print("Creando gym...")
     api("POST", "/auth/register", {

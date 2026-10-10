@@ -1,4 +1,4 @@
-# Infraestructura (Terraform) — FitConnect
+# Infraestructura (Terraform) — LSMFit
 
 ECS Fargate + RDS Postgres + ElastiCache Redis + ALB + S3, en una VPC con subnets
 privadas. **Este código está endurecido pero NO se ha aplicado todavía** (la cuenta

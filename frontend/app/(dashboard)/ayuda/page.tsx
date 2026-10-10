@@ -177,10 +177,10 @@ export default function AyudaPage() {
           </p>
         </div>
         <a
-          href="mailto:soporte@fitconnect.co"
+          href="mailto:lsmfit.business@gmail.com"
           className="rounded-lg bg-[var(--color-primary)] text-[var(--color-primary-contrast)] px-4 py-2 text-sm font-medium hover:bg-[var(--color-primary-hover)] transition-colors"
         >
-          soporte@fitconnect.co
+          lsmfit.business@gmail.com
         </a>
       </GlassCard>
     </motion.div>

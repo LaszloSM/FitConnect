@@ -45,7 +45,7 @@ class Tenant(MasterBase, MasterTimestampMixin):
     city: Mapped[str | None] = mapped_column(String(100), nullable=True)
     country: Mapped[str | None] = mapped_column(String(2), nullable=True, default="CO")
     operating_hours: Mapped[Optional[dict]] = mapped_column(JSONB, nullable=True, default=None)
-    # ─── Suscripción a FitConnect (lo gestiona el panel de plataforma) ───
+    # ─── Suscripción a LSMFit (lo gestiona el panel de plataforma) ───
     trial_ends_at: Mapped[Optional[date]] = mapped_column(Date, nullable=True)
     #: Cortesía: acceso completo sin cobro hasta esta fecha (pilotos, aliados).
     comp_until: Mapped[Optional[date]] = mapped_column(Date, nullable=True)

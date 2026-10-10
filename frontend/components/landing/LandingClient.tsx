@@ -20,7 +20,6 @@ function Screenshot({ src, alt, path }: { src: string; alt: string; path: string
         <span className="size-2.5 rounded-full bg-[var(--border-base)]" />
         <span className="size-2.5 rounded-full bg-[var(--border-base)]" />
         <span className="size-2.5 rounded-full bg-[var(--border-base)]" />
-        <span className="num ml-3 truncate text-xs text-ink-subtle">app.fitconnect.co{path}</span>
       </div>
       <Image src={src} alt={alt} width={1440} height={900} className="block h-auto w-full" sizes="(min-width: 1024px) 1100px, 100vw" />
     </figure>
@@ -113,13 +112,13 @@ const PRICING: { name: string; price: string; tagline: string; highlight: boolea
 ];
 
 const FAQS = [
-  { q: "¿Necesito comprar hardware para la entrada?", a: "No. El kiosko es una página web: cualquier tablet o celular viejo en la entrada funciona. Si ya tienes torniquete con cara o huella (ZKTeco o Hikvision), FitConnect lo controla y registras a los socios desde su ficha." },
+  { q: "¿Necesito comprar hardware para la entrada?", a: "No. El kiosko es una página web: cualquier tablet o celular viejo en la entrada funciona. Si ya tienes torniquete con cara o huella (ZKTeco o Hikvision), LSMFit lo controla y registras a los socios desde su ficha." },
   { q: "¿Qué pasa si se va el internet?", a: "El torniquete sigue decidiendo con la lista que ya tiene y guarda las marcaciones. La recepción sigue funcionando en el navegador: entradas, altas y cobros en efectivo se guardan en el equipo y suben solos cuando vuelve la red, sin duplicados." },
   { q: "¿Qué pasa si un socio vencido intenta entrar?", a: "El kiosko lo manda a recepción y en el mostrador salta su ficha con cuánto debe y un botón para autorizarlo si decides dejarlo pasar. Esa autorización queda en la auditoría." },
   { q: "¿La inteligencia funciona si mi gimnasio es nuevo?", a: "Los modelos se entrenan con tu propio historial. Mientras no haya suficiente, la pantalla usa reglas simples y te dice cuántos datos faltan. A medida que el gimnasio opera, se entrenan solos cada noche." },
   { q: "¿Mis recepcionistas van a ver cuánto gana el gimnasio?", a: "No. Cada rol ve solo lo suyo: recepción opera la entrada, el cobro y la caja, sin ingresos del mes, reportes ni auditoría. Lo que no le corresponde ni siquiera aparece en su menú." },
   { q: "Hoy llevo todo en Excel o en un cuaderno, ¿cómo migro?", a: "Descargas la plantilla, pegas tus socios y los importas en un clic. Quedan listos para entrar por el kiosko y para asignarles membresía." },
-  { q: "¿Cómo manejan los datos personales de mis socios?", a: "Cumplimos la Ley 1581 de 2012: tú eres el responsable del tratamiento y FitConnect el encargado. Los datos de salud se tratan como sensibles." },
+  { q: "¿Cómo manejan los datos personales de mis socios?", a: "Cumplimos la Ley 1581 de 2012: tú eres el responsable del tratamiento y LSMFit el encargado. Los datos de salud se tratan como sensibles." },
   { q: "¿Qué incluye la prueba de 30 días?", a: "Todo el plan que elijas, sin tarjeta. Si no te convence, exportas tus datos y no se te cobra nada." },
   { q: "¿Puedo cancelar cuando quiera?", a: "Sí. No hay permanencia: cancelas desde la configuración y te llevas tus datos." },
 ];
@@ -202,7 +201,7 @@ export default function LandingClient() {
           <div className="mx-auto max-w-6xl">
             <Reveal className="mb-14 max-w-2xl space-y-3">
               <h2 className="text-3xl font-semibold tracking-[-0.02em] sm:text-4xl [text-wrap:balance]">Un día en tu gimnasio, de la primera entrada al cierre</h2>
-              <p className="text-ink-muted">Así se ve FitConnect en los momentos donde un gimnasio gana o pierde plata. Son pantallas del producto, no ilustraciones.</p>
+              <p className="text-ink-muted">Así se ve LSMFit en los momentos donde un gimnasio gana o pierde plata. Son pantallas del producto, no ilustraciones.</p>
             </Reveal>
             <ol className="space-y-20">
               {MOMENTOS.map((m, i) => (
@@ -249,9 +248,9 @@ export default function LandingClient() {
         <section id="acceso" className="scroll-mt-16 border-t border-line px-5 py-20">
           <div className="mx-auto grid max-w-6xl gap-12 lg:grid-cols-[0.9fr_1.1fr]">
             <Reveal className="space-y-4">
-              <h2 className="text-3xl font-semibold tracking-[-0.02em] sm:text-4xl [text-wrap:balance]">El torniquete obedece a FitConnect, aunque se caiga el internet</h2>
+              <h2 className="text-3xl font-semibold tracking-[-0.02em] sm:text-4xl [text-wrap:balance]">El torniquete obedece a LSMFit, aunque se caiga el internet</h2>
               <p className="leading-relaxed text-ink-muted">
-                Conectas tu terminal ZKTeco o Hikvision y FitConnect le dice quién está al día. La cara y la huella se registran desde la ficha del socio, como en el software de siempre, y el equipo decide solo si se va la red.
+                Conectas tu terminal ZKTeco o Hikvision y LSMFit le dice quién está al día. La cara y la huella se registran desde la ficha del socio, como en el software de siempre, y el equipo decide solo si se va la red.
               </p>
               <p className="leading-relaxed text-ink-muted">
                 Si el internet se cae en recepción, la página sigue abriendo: registras entradas, altas y cobros en efectivo, y todo sube solo y sin duplicados cuando vuelve.
@@ -422,7 +421,7 @@ export default function LandingClient() {
         <div className="mx-auto flex max-w-6xl flex-col items-center justify-between gap-4 text-sm text-ink-muted sm:flex-row">
           <div className="flex items-center gap-2">
             <BrandMark className="h-6 w-6" />
-            <span>© {new Date().getFullYear()} FitConnect</span>
+            <span>© {new Date().getFullYear()} LSMFit</span>
           </div>
           <nav aria-label="Legal" className="flex flex-wrap items-center justify-center gap-x-6 gap-y-2">
             <Link href="/privacidad" className="hover:text-ink">Privacidad</Link>

@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { api, clearSession, getSession, type PlatformSession } from "@/lib/api";
+import { BrandMark } from "@/components/BrandMark";
 
 const NAV = [
   { href: "/", label: "Gimnasios" },
@@ -37,7 +38,10 @@ export function Shell({ children }: { children: React.ReactNode }) {
     <div className="min-h-dvh">
       <header className="sticky top-0 z-10 border-b border-line bg-sidebar/95 backdrop-blur">
         <div className="mx-auto flex h-14 max-w-[1200px] items-center gap-6 px-4 md:px-6">
-          <span className="font-display text-[15px] font-bold">FitConnect · Plataforma</span>
+          <span className="flex items-center gap-2 font-display text-[15px] font-bold">
+            <BrandMark size={26} />
+            LSMFit · Plataforma
+          </span>
           <nav className="flex gap-1">
             {NAV.map((n) => {
               const active = n.href === "/" ? pathname === "/" || pathname.startsWith("/gimnasios") : pathname.startsWith(n.href);

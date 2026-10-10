@@ -48,7 +48,7 @@ def verify(secret: str, code: str, at: float | None = None, window: int = 1) -> 
     return any(hmac.compare_digest(_code(secret, counter + d), code) for d in range(-window, window + 1))
 
 
-def provisioning_uri(secret: str, account: str, issuer: str = "FitConnect") -> str:
+def provisioning_uri(secret: str, account: str, issuer: str = "LSMFit") -> str:
     return (f"otpauth://totp/{quote(issuer)}:{quote(account)}"
             f"?secret={secret}&issuer={quote(issuer)}&algorithm=SHA1&digits={DIGITS}&period={PERIOD}")
 

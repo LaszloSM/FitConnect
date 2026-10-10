@@ -126,7 +126,7 @@ SAMPLE_VALUES = {
     "nombre": "María",
     "plan": "Mensual",
     "fecha": "30/06/2026",
-    "link": "https://pago.fitconnect.co/abc",
+    "link": "https://pago.ejemplo.co/abc",
     "gym": "Tu Gimnasio",
     "maquina": "Trotadora 3",
     "cuando": "vencido hace 12 días",

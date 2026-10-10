@@ -34,7 +34,7 @@ export default function ForgotPasswordPage() {
       <AuthCardHeader title="Recupera tu contraseña" subtitle="Te enviamos un enlace al correo para elegir una nueva." />
       {sent ? (
         <AuthNotice tone="ok">
-          Si ese correo tiene una cuenta en FitConnect, en unos minutos te llega el enlace. Vence en una hora. Revisa
+          Si ese correo tiene una cuenta en LSMFit, en unos minutos te llega el enlace. Vence en una hora. Revisa
           también la carpeta de spam.
         </AuthNotice>
       ) : (

@@ -1,14 +1,14 @@
 {
   "expo": {
-    "name": "FitConnect",
-    "slug": "fitconnect",
+    "name": "LSMFit",
+    "slug": "lsmfit",
     "version": "0.1.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
-    "scheme": "fitconnect",
+    "scheme": "lsmfit",
     "userInterfaceStyle": "automatic",
     "ios": {
-      "bundleIdentifier": "co.fitconnect.app",
+      "bundleIdentifier": "co.lsmfit.app",
       "supportsTablet": false,
       "icon": "./assets/images/icon.png",
       "infoPlist": {
@@ -16,7 +16,7 @@
       }
     },
     "android": {
-      "package": "co.fitconnect.app",
+      "package": "co.lsmfit.app",
       "adaptiveIcon": {
         "backgroundColor": "#FAF5F0",
         "foregroundImage": "./assets/images/android-icon-foreground.png",
@@ -34,7 +34,7 @@
       [
         "expo-camera",
         {
-          "cameraPermission": "FitConnect usa la cámara para leer el código de barras de los alimentos.",
+          "cameraPermission": "LSMFit usa la cámara para leer el código de barras de los alimentos.",
           "recordAudioAndroid": false
         }
       ],

@@ -279,7 +279,7 @@ export function MemberImportDialog({ onImported }: { onImported: () => void }) {
           <DialogTitle className="text-[var(--text-base)] font-display">Importar socios</DialogTitle>
           <DialogDescription>
             {step === "file" &&
-              "Sube la exportación de tu programa anterior tal como sale (Excel o CSV) o la plantilla de FitConnect. Antes de guardar verás qué pasará con cada persona."}
+              "Sube la exportación de tu programa anterior tal como sale (Excel o CSV) o la plantilla de LSMFit. Antes de guardar verás qué pasará con cada persona."}
             {step === "review" &&
               "Revisa cómo se leyó el archivo. Nada se guarda hasta que confirmes. Si la cédula ya existe, solo se llenan los datos que falten."}
             {step === "done" && "Listo. Si algo no quedó bien, puedes deshacer esta importación completa."}
@@ -308,7 +308,7 @@ export function MemberImportDialog({ onImported }: { onImported: () => void }) {
             </div>
             <Button type="button" variant="ghost" onClick={downloadTemplate} className="px-0 text-[var(--brand-ink)]">
               <Download className="h-4 w-4 mr-2" />
-              Descargar plantilla de FitConnect
+              Descargar plantilla de LSMFit
             </Button>
 
             {batches.length > 0 && (
@@ -402,7 +402,7 @@ export function MemberImportDialog({ onImported }: { onImported: () => void }) {
 
             {preview.unmatched_plans.length > 0 && (
               <section className="space-y-2">
-                <h3 className="text-base font-semibold">Planes que no existen en FitConnect</h3>
+                <h3 className="text-base font-semibold">Planes que no existen en LSMFit</h3>
                 <p className="text-[13px] text-[var(--text-muted)]">
                   Elige a qué plan equivale cada uno. Si lo dejas como está, la membresía se guarda con ese nombre y
                   su fecha de vencimiento.
@@ -435,7 +435,7 @@ export function MemberImportDialog({ onImported }: { onImported: () => void }) {
 
             {preview.unmatched_trainers.length > 0 && (
               <section className="space-y-2">
-                <h3 className="text-base font-semibold">Entrenadores que no existen en FitConnect</h3>
+                <h3 className="text-base font-semibold">Entrenadores que no existen en LSMFit</h3>
                 {preview.unmatched_trainers.map((t) => (
                   <label key={t.name} className="grid items-center gap-2 sm:grid-cols-[1fr_1.2fr]">
                     <span className="text-sm">
@@ -464,14 +464,14 @@ export function MemberImportDialog({ onImported }: { onImported: () => void }) {
 
             {preview.summary.conflicts > 0 && (
               <section className="space-y-2">
-                <h3 className="text-base font-semibold">Datos distintos a los de FitConnect</h3>
+                <h3 className="text-base font-semibold">Datos distintos a los de LSMFit</h3>
                 <p className="text-[13px] text-[var(--text-muted)]">
                   {preview.summary.conflicts} dato(s) del archivo no coinciden con lo que ya está guardado.
                 </p>
                 <div className="space-y-1.5 text-sm">
                   <label className="flex items-center gap-2">
                     <input type="radio" name="conflict" checked={onConflict === "keep"} onChange={() => { setOnConflict("keep"); runPreview({ on_conflict: "keep" }); }} />
-                    Conservar lo que ya está en FitConnect (recomendado)
+                    Conservar lo que ya está en LSMFit (recomendado)
                   </label>
                   <label className="flex items-center gap-2">
                     <input type="radio" name="conflict" checked={onConflict === "file"} onChange={() => { setOnConflict("file"); runPreview({ on_conflict: "file" }); }} />
@@ -509,7 +509,7 @@ export function MemberImportDialog({ onImported }: { onImported: () => void }) {
                     )}
                     {r.conflicts.map((c) => (
                       <p key={c.field} className="text-[13px] text-[var(--text-muted)]">
-                        {c.label}: FitConnect tiene «{c.current}», el archivo dice «{c.incoming}»
+                        {c.label}: LSMFit tiene «{c.current}», el archivo dice «{c.incoming}»
                       </p>
                     ))}
                     {r.errors.map((e, i) => (

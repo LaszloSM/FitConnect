@@ -231,10 +231,10 @@ Los snapshots EBS siguen siendo un buen complemento (Data Lifecycle Manager).
 2. En `/opt/fitconnect/.env`:
 
 ```
-SITE_ADDRESS=fitconnect.co
-PUBLIC_URL=https://fitconnect.co
-PLATFORM_ADDRESS=admin.fitconnect.co
-PLATFORM_URL=https://admin.fitconnect.co
+SITE_ADDRESS=tudominio.co
+PUBLIC_URL=https://tudominio.co
+PLATFORM_ADDRESS=admin.tudominio.co
+PLATFORM_URL=https://admin.tudominio.co
 PLATFORM_ALLOWED_IPS=<tu IP>/32 <IP de la oficina>/32
 ```
 
@@ -242,7 +242,7 @@ PLATFORM_ALLOWED_IPS=<tu IP>/32 <IP de la oficina>/32
    Caddy saca y renueva los certificados de Let's Encrypt solo.
 
 Los torniquetes ZKTeco se configuran con el dominio, puerto 443 y HTTPS. Si un
-modelo viejo no soporta HTTPS: `ICLOCK_HTTP_ADDRESS=http://fitconnect.co` y abrir
+modelo viejo no soporta HTTPS: `ICLOCK_HTTP_ADDRESS=http://tudominio.co` y abrir
 solo `/iclock/*` por HTTP (no transporta datos de socios).
 
 ## Panel de plataforma

@@ -58,7 +58,7 @@ export default function Home() {
 
       {!gym ? (
         <Empty
-          title="¿Entrenas en un gimnasio con FitConnect?"
+          title="¿Entrenas en un gimnasio con LSMFit?"
           action={<Button label="Vincular mi gimnasio" onPress={() => router.push("/link")} style={{ marginTop: space.sm, alignSelf: "stretch" }} />}>
           Pide en recepción tu código para la app. Con él y tu documento ves tu membresía, entras con QR y reservas clases.
         </Empty>

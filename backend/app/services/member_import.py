@@ -1,6 +1,6 @@
 """Importación de socios desde el software anterior del gimnasio.
 
-Un gimnasio que llega a FitConnect trae su base en la exportación de otro
+Un gimnasio que llega a LSMFit trae su base en la exportación de otro
 programa: encabezados propios ("Cédula", "Sexo", "Fecha Nac", "RH"...), fechas
 dd/mm/aaaa, cédulas con puntos, nombres en mayúsculas, correos compartidos por
 familias. La importación tiene que absorber todo eso sin crear duplicados ni
@@ -171,7 +171,7 @@ for _f in FIELDS:
     _ALIAS[_f.key.replace("_", " ")] = _f.key
     for _a in _f.aliases:
         _ALIAS[_norm(_a)] = _f.key
-# Encabezados de la plantilla anterior de FitConnect (siguen funcionando).
+# Encabezados de la plantilla anterior de LSMFit (siguen funcionando).
 _ALIAS.update({
     "numero de documento": "id_number", "genero": "gender", "correo": "email",
     "tipo de sangre": "blood_type", "objetivo": "expectation", "pais 2 letras": "country",
@@ -894,7 +894,7 @@ def build_plans(sheet: Sheet, opts: Options, cat: _Catalog) -> tuple[list[Plan],
         trainer, resolved = cat.match_trainer(p.trainer_name, opts)
         if not resolved:
             unmatched_trainers[p.trainer_name] = unmatched_trainers.get(p.trainer_name, 0) + 1
-            p.warnings.append(f"Entrenador «{p.trainer_name}» no existe en FitConnect: se dejó sin entrenador")
+            p.warnings.append(f"Entrenador «{p.trainer_name}» no existe en LSMFit: se dejó sin entrenador")
         if trainer:
             p.fields["trainer_id"] = trainer.id
 
@@ -939,7 +939,7 @@ def build_plans(sheet: Sheet, opts: Options, cat: _Catalog) -> tuple[list[Plan],
             if any(m.end_date == ms["end"] and m.status != MembershipStatus.cancelled.value for m in current_ms):
                 ms = None  # ya importada (o ya registrada igual): no se duplica
             elif any(m.end_date >= ms["end"] and m.status != MembershipStatus.cancelled.value for m in current_ms):
-                p.warnings.append("Ya tiene en FitConnect una membresía que vence igual o después: no se agregó la del archivo")
+                p.warnings.append("Ya tiene en LSMFit una membresía que vence igual o después: no se agregó la del archivo")
                 ms = None
         plan.membership = ms
         if not plan.fill and not ms and not plan.make_member_type and not (plan.conflicts and opts.on_conflict == "file"):
@@ -1258,7 +1258,7 @@ def build_template() -> bytes:
         ["Teléfono", "Con o sin +57, espacios o guiones."],
         ["RH", "O+, A-, AB+... o 'O positivo'."],
         ["Ingreso por DNI", "Sí/No: puede entrar digitando la cédula."],
-        ["Entrenador", "Nombre del entrenador como está en FitConnect."],
+        ["Entrenador", "Nombre del entrenador como está en LSMFit."],
         ["Plan y fechas", "Para que el socio pueda entrar desde el primer día: nombre del plan y fecha de vencimiento."],
         ["Entradas restantes", "Solo para ticketeras: entradas que le quedan."],
         ["Otros encabezados", "También se reconocen los del programa anterior (Nombres, Apellidos, Celular, Vence...)."],

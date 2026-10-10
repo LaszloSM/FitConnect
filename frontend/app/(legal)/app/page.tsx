@@ -1,8 +1,8 @@
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Términos y privacidad de la app: FitConnect",
-  description: "Condiciones de uso de la app FitConnect y cómo se tratan los datos de quien la usa.",
+  title: "Términos y privacidad de la app: LSMFit",
+  description: "Condiciones de uso de la app LSMFit y cómo se tratan los datos de quien la usa.",
 };
 
 export default function AppLegalPage() {
@@ -14,8 +14,8 @@ export default function AppLegalPage() {
       </header>
 
       <p>
-        La app FitConnect es de <strong>[RAZÓN SOCIAL]</strong> (NIT <strong>[NIT]</strong>). Sirve para
-        llevar tus entrenos y, si tu gimnasio usa FitConnect, para ver tu membresía, entrar con un QR,
+        La app LSMFit es de <strong>[RAZÓN SOCIAL]</strong> (NIT <strong>[NIT]</strong>). Sirve para
+        llevar tus entrenos y, si tu gimnasio usa LSMFit, para ver tu membresía, entrar con un QR,
         reservar clases y pagar. Cumplimos la Ley 1581 de 2012 y el Decreto 1377 de 2013.
       </p>
 
@@ -23,7 +23,7 @@ export default function AppLegalPage() {
       <ul>
         <li>
           <strong>Lo que registras en la app para ti</strong> (medidas, entrenos, preferencias): el
-          responsable es FitConnect. Se guarda en una base propia que ningún gimnasio consulta.
+          responsable es LSMFit. Se guarda en una base propia que ningún gimnasio consulta.
         </li>
         <li>
           <strong>Tu ficha en el gimnasio</strong> (documento, membresía, pagos, asistencia): el

@@ -49,7 +49,7 @@ export default function AppearanceSection() {
     <GlassCard className="p-6">
       <p className="text-[var(--text-base)] font-semibold mb-1">Apariencia</p>
       <p className="text-[var(--text-muted)] text-sm mb-5">
-        Elige cómo se ve FitConnect en tu dispositivo.
+        Elige cómo se ve LSMFit en tu dispositivo.
       </p>
 
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">

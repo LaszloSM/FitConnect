@@ -1,7 +1,7 @@
-# FitConnect — Product Context
+# LSMFit — Product Context
 
 ## Product Purpose
-FitConnect is a multi-tenant SaaS platform for gym management. It enables gym owners and staff to manage members, payments, check-ins, classes, equipment, and reports from a single dashboard.
+LSMFit is a multi-tenant SaaS platform for gym management. It enables gym owners and staff to manage members, payments, check-ins, classes, equipment, and reports from a single dashboard.
 
 ## Register
 product

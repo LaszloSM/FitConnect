@@ -1,13 +1,13 @@
 import type { MetadataRoute } from "next";
 
 /**
- * FitConnect instalable en el PC de recepción: ícono en el escritorio que abre
+ * LSMFit instalable en el PC de recepción: ícono en el escritorio que abre
  * el Mostrador directo, también sin internet (ver public/sw.js).
  */
 export default function manifest(): MetadataRoute.Manifest {
   return {
-    name: "FitConnect",
-    short_name: "FitConnect",
+    name: "LSMFit",
+    short_name: "LSMFit",
     description: "Recepción, caja y socios de tu gimnasio",
     start_url: "/checkins",
     scope: "/",
@@ -17,7 +17,7 @@ export default function manifest(): MetadataRoute.Manifest {
     lang: "es-CO",
     icons: [
       { src: "/app-icon-512.png", sizes: "512x512", type: "image/png", purpose: "any" },
-      { src: "/fitconnect-icon.svg", sizes: "any", type: "image/svg+xml" },
+      { src: "/lsmfit-icon.svg", sizes: "any", type: "image/svg+xml" },
     ],
   };
 }

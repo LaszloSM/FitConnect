@@ -139,7 +139,7 @@ export function Header() {
       </span>
 
       <div className="flex min-w-0 flex-1 items-baseline gap-3">
-        <span className="truncate text-[15px] font-semibold text-ink">{gymName ?? "FitConnect"}</span>
+        <span className="truncate text-[15px] font-semibold text-ink">{gymName ?? "LSMFit"}</span>
       </div>
 
       <span className="hidden whitespace-nowrap pr-2 text-sm text-ink-muted sm:inline">

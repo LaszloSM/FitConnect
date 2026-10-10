@@ -1,8 +1,8 @@
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Política de Privacidad: FitConnect",
-  description: "Cómo FitConnect recolecta, usa y protege los datos personales.",
+  title: "Política de Privacidad: LSMFit",
+  description: "Cómo LSMFit recolecta, usa y protege los datos personales.",
 };
 
 export default function PrivacidadPage() {
@@ -15,7 +15,7 @@ export default function PrivacidadPage() {
 
       <p>
         Esta Política describe cómo <strong>[RAZÓN SOCIAL]</strong> (NIT <strong>[NIT]</strong>),
-        responsable de la plataforma FitConnect, trata los datos personales de los gimnasios
+        responsable de la plataforma LSMFit, trata los datos personales de los gimnasios
         clientes y de las personas cuyos datos estos registran en el sistema. Cumplimos la Ley
         1581 de 2012, el Decreto 1377 de 2013 y demás normas colombianas de protección de datos.
       </p>
@@ -39,7 +39,7 @@ export default function PrivacidadPage() {
       <h2>3. Roles: responsable y encargado</h2>
       <p>
         Respecto de los datos de sus miembros, el <strong>gimnasio cliente es el Responsable</strong>
-        del tratamiento y FitConnect actúa como <strong>Encargado</strong>, tratando los datos
+        del tratamiento y LSMFit actúa como <strong>Encargado</strong>, tratando los datos
         únicamente según las instrucciones del gimnasio y esta Política.
       </p>
 

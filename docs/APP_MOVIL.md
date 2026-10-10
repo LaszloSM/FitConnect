@@ -1,6 +1,6 @@
-# App móvil de FitConnect
+# App móvil de LSMFit
 
-Para socios de un gimnasio con FitConnect y para personas que entrenan solas.
+Para socios de un gimnasio con LSMFit y para personas que entrenan solas.
 El código está en `mobile/` (cómo correrla y publicarla: `mobile/README.md`).
 
 ## Qué puede hacer la persona
@@ -147,12 +147,12 @@ EAS) y lo publica como Release del repo.
 2. Crea la llave de firma una sola vez y guárdala en un lugar seguro (si se pierde, los
    usuarios tendrán que desinstalar para actualizar):
    ```bash
-   keytool -genkeypair -v -keystore fitconnect.keystore -alias fitconnect \
+   keytool -genkeypair -v -keystore lsmfit.keystore -alias lsmfit \
      -keyalg RSA -keysize 2048 -validity 10000
-   base64 -w0 fitconnect.keystore   # copia la salida
+   base64 -w0 lsmfit.keystore   # copia la salida
    ```
    Secrets: `ANDROID_KEYSTORE_BASE64` (la salida), `ANDROID_KEYSTORE_PASSWORD`,
-   `ANDROID_KEY_ALIAS` (`fitconnect`) y `ANDROID_KEY_PASSWORD`. Sin ellos el APK sale firmado
+   `ANDROID_KEY_ALIAS` (`lsmfit`) y `ANDROID_KEY_PASSWORD`. Sin ellos el APK sale firmado
    con la llave de depuración y el Release queda marcado «prueba». La firma la aplica
    `mobile/plugins/withReleaseSigning.js`.
 3. Actions › App Android (APK) › Run workflow, o sube un tag `app-v0.1.0`. Tarda unos 20 min.
@@ -162,7 +162,7 @@ EAS) y lo publica como Release del repo.
    30 de septiembre de 2026 rige solo en Brasil, Indonesia, Singapur y Tailandia; Google planea
    extenderla al resto del mundo en 2027. En Colombia hoy el APK se instala sin registro. Antes
    de 2027 hay que registrarse en la Android Developer Console y asociar el paquete
-   `co.fitconnect.app` con la llave de firma: la cuenta de distribución completa cuesta USD 25
+   `co.lsmfit.app` con la llave de firma: la cuenta de distribución completa cuesta USD 25
    una sola vez (como empresa pide un número D-U-N-S, que es gratis); la de distribución
    limitada es gratis pero solo sirve para 20 dispositivos. Fuente:
    https://developer.android.com/developer-verification

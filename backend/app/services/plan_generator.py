@@ -152,7 +152,7 @@ TRAINING_SCHEMA = {
     "required": ["notes", "days"],
 }
 
-SYSTEM = """Eres el motor de planes de FitConnect, una app de gimnasios en Colombia. No conversas: devuelves
+SYSTEM = """Eres el motor de planes de LSMFit, una app de gimnasios en Colombia. No conversas: devuelves
 SOLO el JSON del esquema. Escribe nombres y notas en español de Colombia, claros y breves.
 
 Reglas:

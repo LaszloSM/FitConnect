@@ -1,4 +1,4 @@
-# FitConnect: sistema de diseño "Calor"
+# LSMFit: sistema de diseño "Calor"
 
 Dirección elegida el 2026-09-14, después de descartar Tiza (plano, minimal genérico) y Marcador (cobalto,
 banda). Se escogió entre tres direcciones en alta fidelidad (Pesas, Calor, Pase) y tres composiciones del
@@ -120,8 +120,11 @@ Tokens: `--ease-out`, `--ease-in-out`, `--ease-drawer`, `--duration-fast|base|sl
 
 ## 8. Marca
 
-El logo está en rediseño por parte del dueño. Mientras tanto: wordmark "FitConnect" en Bricolage 700 y el
-monograma neutro.
+Isotipo: dos "C" cortadas en diagonal, simétricas por rotación, con un nodo al centro. Logotipo:
+"LSMFit" en Bricolage Grotesque ExtraBold con esquinas suavizadas y el punto de la i redondo.
+Componentes `BrandMark` y `BrandLockup` (color `text-logo` = `--brand-logo`, el naranja exacto del
+logo `#D8421A`). El naranja del logo es más claro que `--brand`: se usa solo en la marca, nunca como
+fondo de un botón con texto blanco. Detalle y generador en `docs/brand/`.
 
 ## 9. Cómo se hace cumplir
 

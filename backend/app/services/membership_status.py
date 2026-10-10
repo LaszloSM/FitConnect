@@ -115,7 +115,7 @@ async def recompute_member_chain(
 
 
 def charged_here(membership: Membership) -> bool:
-    """La membresía se vendió en FitConnect. Las importadas (ya cobradas en el
+    """La membresía se vendió en LSMFit. Las importadas (ya cobradas en el
     software anterior) y las de cortesía tienen precio 0: ese precio no sirve
     como monto de renovación ni de deuda."""
     return getattr(membership, "source", "sale") == "sale"

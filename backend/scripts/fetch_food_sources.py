@@ -22,7 +22,7 @@ import zipfile
 from pathlib import Path
 
 OUT = Path(__file__).resolve().parent.parent / "data_sources"
-UA = {"User-Agent": "FitConnect/1.0 (datos de nutricion; contacto en fitconnect.co)"}
+UA = {"User-Agent": "LSMFit/1.0 (datos de nutricion; contacto lsmfit.business@gmail.com)"}
 
 USDA = {
     "sr_legacy": "https://fdc.nal.usda.gov/fdc-datasets/FoodData_Central_sr_legacy_food_csv_2018-04.zip",

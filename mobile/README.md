@@ -1,6 +1,6 @@
-# FitConnect — app móvil (Expo)
+# LSMFit — app móvil (Expo)
 
-App para socios de gimnasios FitConnect y para personas que entrenan por su cuenta.
+App para socios de gimnasios LSMFit y para personas que entrenan por su cuenta.
 Expo SDK 57 + Expo Router + TypeScript. Diseño "Calor" (`../DESIGN.md`).
 
 ## Correr en desarrollo

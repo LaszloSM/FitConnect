@@ -24,7 +24,7 @@ from typing import Any, Optional
 
 import httpx
 
-from fitconnect_agent.config import DeviceConfig
+from lsmfit_agent.config import DeviceConfig
 
 NS = 'version="2.0" xmlns="http://www.isapi.org/ver20/XMLSchema"'
 # Minor de eventos de acceso (major 5) que significan "dejó pasar".
@@ -68,7 +68,7 @@ class HikvisionDriver:
         r.raise_for_status()
         return r.text
 
-    # ─── comandos de FitConnect ───
+    # ─── comandos de LSMFit ───
     async def execute(self, kind: str, payload: dict, config: dict) -> dict:
         handler = getattr(self, f"_cmd_{kind}", None)
         if handler is None:

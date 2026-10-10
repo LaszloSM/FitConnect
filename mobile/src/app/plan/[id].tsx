@@ -63,7 +63,7 @@ export default function PlanDetail() {
     }
     const r = await enableMealReminders(id, p.data);
     if (r === "ok") setReminders(true);
-    else setNotice(r === "denied" ? "Activa las notificaciones de FitConnect en los ajustes del celular." : "Los recordatorios funcionan en la app instalada en el celular.");
+    else setNotice(r === "denied" ? "Activa las notificaciones de LSMFit en los ajustes del celular." : "Los recordatorios funcionan en la app instalada en el celular.");
   };
 
   const logPlanMeal = async (index: number) => {

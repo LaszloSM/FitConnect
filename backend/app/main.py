@@ -120,7 +120,7 @@ async def read_only_middleware(request: Request, call_next):
                 from app.services.subscription import can_write
                 if not await can_write(db_name):
                     return JSONResponse(status_code=402, content={
-                        "detail": "Tu cuenta de FitConnect está en solo lectura. Escríbenos para reactivarla.",
+                        "detail": "Tu cuenta de LSMFit está en solo lectura. Escríbenos para reactivarla.",
                         "code": "read_only",
                     })
     return await call_next(request)

@@ -4,7 +4,7 @@ import CompleteProfileClient from "./CompleteProfileClient";
 export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
-  title: "Completa tus datos: FitConnect",
+  title: "Completa tus datos: LSMFit",
   robots: { index: false },
   referrer: "no-referrer",
 };

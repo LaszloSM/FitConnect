@@ -25,7 +25,7 @@ logger = logging.getLogger(__name__)
 REFERENCE = Path(__file__).resolve().parent.parent / "data" / "foods_reference.json"
 OFF_URL = "https://world.openfoodfacts.org/api/v2/product/{code}.json"
 OFF_FIELDS = "product_name,product_name_es,brands,nutriments,serving_quantity"
-USER_AGENT = "FitConnect/0.1 (app de entrenamiento; contacto en fitconnect.co)"
+USER_AGENT = "LSMFit/0.1 (app de entrenamiento; contacto lsmfit.business@gmail.com)"
 
 MACROS = ("kcal", "protein_g", "carbs_g", "fat_g", "fiber_g")
 #: Micronutrientes por 100 g. El orden es el de la tabla de la app.
@@ -83,7 +83,7 @@ async def seed_reference(db: AsyncSession) -> int:
     existiera la clave) en vez de borrar: los registros de comidas apuntan a
     esos ids. El candado evita que dos procesos que arrancan a la vez la
     carguen dos veces."""
-    await db.execute(text("SELECT pg_advisory_xact_lock(hashtext('fitconnect_foods_seed'))"))
+    await db.execute(text("SELECT pg_advisory_xact_lock(hashtext('lsmfit_foods_seed'))"))
     data = reference_data()
     version = int(data.get("version", 1))
     current = (await db.execute(select(func.max(Food.data_version)).where(Food.source == "reference"))).scalar() or 0

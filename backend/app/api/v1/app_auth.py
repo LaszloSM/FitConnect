@@ -45,8 +45,8 @@ async def request_code(request: Request, payload: CodeRequest, background: Backg
         if settings.environment == "development":
             logger.info("Código de la app para %s: %s", email, code)
         background.add_task(
-            mailer.send, email, f"Tu código de FitConnect: {code}",
-            f"Tu código para entrar a FitConnect es {code}.\n"
+            mailer.send, email, f"Tu código de LSMFit: {code}",
+            f"Tu código para entrar a LSMFit es {code}.\n"
             f"Vence en {app_accounts.CODE_MINUTES} minutos. Si no lo pediste, ignora este correo.",
         )
     return {"ok": True, "expires_in": app_accounts.CODE_MINUTES * 60}

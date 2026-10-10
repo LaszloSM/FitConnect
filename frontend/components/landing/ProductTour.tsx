@@ -63,7 +63,6 @@ export function ProductTour() {
           <span className="size-2.5 rounded-full bg-[var(--border-base)]" />
           <span className="size-2.5 rounded-full bg-[var(--border-base)]" />
           <span className="size-2.5 rounded-full bg-[var(--border-base)]" />
-          <span className="num ml-3 truncate text-xs text-ink-subtle">app.fitconnect.co{slide.path}</span>
         </div>
         <div className="relative aspect-[1440/900]">
           <AnimatePresence initial={false} mode="popLayout">

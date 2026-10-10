@@ -16,12 +16,12 @@ from typing import Optional
 
 import httpx
 
-from fitconnect_agent.cloud import Cloud
-from fitconnect_agent.config import AgentConfig
-from fitconnect_agent.drivers import make_driver
-from fitconnect_agent.store import Store
+from lsmfit_agent.cloud import Cloud
+from lsmfit_agent.config import LEGACY_CONFIG, AgentConfig
+from lsmfit_agent.drivers import make_driver
+from lsmfit_agent.store import Store
 
-log = logging.getLogger("fitconnect_agent")
+log = logging.getLogger("lsmfit_agent")
 
 
 class Agent:
@@ -98,7 +98,7 @@ class Agent:
 
     def _offline(self, exc: Exception) -> None:
         if self.online:
-            log.warning("Sin conexión con FitConnect (%s): el equipo sigue funcionando y las marcaciones se guardan", exc)
+            log.warning("Sin conexión con LSMFit (%s): el equipo sigue funcionando y las marcaciones se guardan", exc)
         self.online = False
 
     async def run_forever(self) -> None:
@@ -118,12 +118,14 @@ class Agent:
 
 
 def cli() -> None:
-    ap = argparse.ArgumentParser(description="Agente local de FitConnect para torniquetes")
-    ap.add_argument("--config", default="fitconnect-agent.json")
+    ap = argparse.ArgumentParser(description="Agente local de LSMFit para torniquetes")
+    ap.add_argument("--config", default="lsmfit-agent.json")
     ap.add_argument("--check", action="store_true", help="Probar conexión con el equipo y la nube y salir")
     args = ap.parse_args()
     logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(message)s")
     path = Path(args.config)
+    if args.config == "lsmfit-agent.json" and not path.exists() and Path(LEGACY_CONFIG).exists():
+        path = Path(LEGACY_CONFIG)
     cfg = AgentConfig.load(path)
     store = Store(cfg.data_dir)
     agent = Agent(cfg, Cloud(cfg.cloud_url, cfg.device_token), make_driver(cfg.device, store), store, path)

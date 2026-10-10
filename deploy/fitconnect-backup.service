@@ -1,5 +1,5 @@
 [Unit]
-Description=Respaldo cifrado de FitConnect a S3
+Description=Respaldo cifrado de LSMFit a S3
 After=docker.service
 Requires=docker.service
 
