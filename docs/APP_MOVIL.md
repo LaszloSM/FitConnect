@@ -72,23 +72,43 @@ El código está en `mobile/` (cómo correrla y publicarla: `mobile/README.md`).
   referencia por sexo y edad (IOM/OMS): mínimos (calcio, hierro, potasio, vitaminas) y límites
   (sodio, azúcares, grasa saturada). Solo mayores de 18 y con autorización de datos de salud.
   Código: `backend/app/services/nutrition.py`.
-- **Alimentos** (828, `backend/app/data/foods_reference.json`, se regenera con
+- **Alimentos genéricos** (1.059, `backend/app/data/foods_reference.json`, se regenera con
   `backend/scripts/build_foods.py`):
-  - 712 de la **Tabla de Composición de Alimentos Colombianos (ICBF, 2015)**, extraídos del PDF
+  - 692 de la **Tabla de Composición de Alimentos Colombianos (ICBF, 2015)**, extraídos del PDF
     oficial; solo se aceptan filas cuyas calorías cuadran con sus macros (Atwater).
-  - 103 de **USDA FoodData Central** (dominio público) para lo que la TCAC no trae.
-  - 43 platos colombianos calculados por receta (ajiaco, bandeja paisa, calentado…), marcados
+  - 332 de **USDA FoodData Central** (dominio público) para lo que la TCAC no trae: 101 curados a
+    mano en `foods_curated.py` y 231 en `scripts/foods_usda_es.json` (nombre en español de
+    Colombia, sinónimos y porciones caseras).
+  - 35 platos colombianos calculados por receta (ajiaco, bandeja paisa, calentado…), marcados
     «estimado por receta».
   - Once nutrientes además de los macros. Un dato que la fuente no trae se muestra «sin dato»,
     nunca cero.
-  - Búsqueda sin tildes, por sinónimos (guineo/banano, ahuyama/zapallo) y con lo que la persona
-    más come primero; categorías, recientes y favoritos.
-  - Código de barras con Open Food Facts (el producto se guarda la primera vez).
-  - Alimentos propios con la etiqueta por porción o por 100 g (la app convierte) y aviso si las
-    calorías no cuadran con los macros. «Mi comida»: varios alimentos guardados como uno.
+- **Productos empacados** (962, `backend/app/data/foods_packaged.json.gz`): los productos de
+  Colombia de **Open Food Facts** (licencia ODbL, © colaboradores de Open Food Facts) con código
+  de barras y calorías que cuadran con los macros. El export lo baja el workflow
+  `fuentes-alimentos.yml` (`fetch_off.py`) y `build_packaged.py` lo cura. Se siembra al arrancar
+  (upsert por código de barras). Open Food Facts trae pocos productos colombianos: lo que no está
+  se consulta en vivo y se guarda la primera vez.
+- **Búsqueda**: sin tildes, por sinónimos (guineo/banano, ahuyama/zapallo), con índice de
+  trigramas (`pg_trgm`), lo que la persona más come primero y los genéricos antes que las marcas
+  salvo que se escriba la marca; categorías, recientes y favoritos.
+- **Escáner** (`mobile/src/app/scan.tsx`): lee EAN y UPC (acepta las dos variantes del mismo
+  código), linterna, código a mano si la cámara no lee, y una hoja con porción y comida para
+  agregar sin salir del visor; se escanean varios seguidos. Si el producto no existe, se crea con
+  la etiqueta y el código ya puesto.
+- Alimentos propios con la etiqueta por porción o por 100 g (la app convierte) y aviso si las
+  calorías no cuadran con los macros. «Mi comida»: varios alimentos guardados como uno.
 - **Registro**: por comida del día, también sin señal (se sube después sin duplicar). Se
   cambia la cantidad o se borra desde la misma lista, se repite lo del día anterior, y la vista
   de la semana compara cada día con la meta.
+- **Registro rápido**: calorías (y macros si se saben) sin buscar el alimento
+  (`POST /me/meals` sin `food_id`); queda como «Registro rápido» y se borra, no se le cambian
+  los gramos.
+- **Agua**: vasos de 250 ml desde Inicio y Comer, también sin señal (cola `q:water`, id del
+  cliente). Meta de 35 ml/kg con la autorización de datos de salud, 2.000 ml sin ella, entre
+  1.500 y 4.000 (`/me/water`, `/me/water/goal`).
+- **Racha**: días seguidos con al menos un registro de comida, en hora de Bogotá; un día sin
+  registrar no borra la mejor racha (`GET /me/streak`).
 
 ## Planes (comidas y entreno)
 
