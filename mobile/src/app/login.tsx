@@ -1,10 +1,11 @@
 import * as Device from "expo-device";
 import * as WebBrowser from "expo-web-browser";
-import { CheckIcon } from "phosphor-react-native";
+import { EnvelopeSimpleIcon, PasswordIcon, UserPlusIcon, WarningCircleIcon } from "phosphor-react-native";
 import { useRef, useState } from "react";
-import { KeyboardAvoidingView, Platform, Pressable, Text, TextInput, View } from "react-native";
+import { KeyboardAvoidingView, Platform, Text, TextInput, View } from "react-native";
 
-import { Button, Field, Notice, Screen, Txt } from "@/components/ui";
+import { Check } from "@/components/controls";
+import { Button, Field, IconTile, Notice, Rise, Screen, Txt } from "@/components/ui";
 import { api, ApiError, OfflineError } from "@/lib/api";
 import { LEGAL_URL } from "@/lib/config";
 import { useSession } from "@/lib/session";
@@ -72,27 +73,36 @@ export default function Login() {
     }
   };
 
+  const stepIcon = step === "email" ? EnvelopeSimpleIcon : step === "code" ? PasswordIcon : UserPlusIcon;
+
   return (
     <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === "ios" ? "padding" : undefined}>
       <Screen edges={["top", "bottom"]}>
-        <View style={{ marginTop: space.xxl, marginBottom: space.xl, gap: space.sm }}>
-          <Text style={{ fontFamily: fonts.display, fontSize: 22, color: c.brandInk }}>FitConnect</Text>
-          <Text accessibilityRole="header" style={{ fontFamily: fonts.display, fontSize: 34, lineHeight: 38, color: c.ink }}>
+        <View style={{ flexDirection: "row", alignItems: "center", gap: 8, marginTop: space.sm }} accessible accessibilityLabel="FitConnect">
+          <View style={{ width: 32, height: 32, borderRadius: 9, backgroundColor: c.brand, alignItems: "center", justifyContent: "center" }}>
+            <Text style={{ fontFamily: fonts.displayHeavy, fontSize: 18, color: c.brandContrast, marginTop: -1 }}>F</Text>
+          </View>
+          <Text style={{ fontFamily: fonts.display, fontSize: 20, letterSpacing: -0.3, color: c.ink }}>FitConnect</Text>
+        </View>
+
+        <Rise key={step} style={{ marginTop: space.xxl + space.lg, marginBottom: space.xl, gap: space.md }}>
+          <IconTile icon={stepIcon} tone="wash" size={48} />
+          <Text accessibilityRole="header" style={{ fontFamily: fonts.display, fontSize: 32, lineHeight: 37, letterSpacing: -0.7, color: c.ink }}>
             {step === "email" ? "Entra con tu correo" : step === "code" ? "Revisa tu correo" : "Crea tu cuenta"}
           </Text>
-          <Txt muted>
+          <Txt muted size={15.5}>
             {step === "email"
               ? "Te enviamos un código de 6 números. Sin contraseñas que olvidar."
               : step === "code"
                 ? `Escribe el código que enviamos a ${email.trim()}. Vence en 10 minutos.`
                 : "Es tu primera vez aquí. Solo falta esto."}
           </Txt>
-        </View>
+        </Rise>
 
-        {error ? <Notice tone="danger">{error}</Notice> : null}
+        {error ? <Notice tone="danger" icon={WarningCircleIcon}>{error}</Notice> : null}
 
         {step === "email" ? (
-          <>
+          <Rise delay={50}>
             <Field
               label="Correo"
               value={email}
@@ -105,12 +115,12 @@ export default function Login() {
               returnKeyType="send"
               onSubmitEditing={sendCode}
             />
-            <Button label="Enviarme el código" onPress={sendCode} loading={busy} disabled={!email.includes("@")} />
-          </>
+            <Button label="Enviarme el código" size="lg" onPress={sendCode} loading={busy} disabled={!email.includes("@")} style={{ marginTop: space.xs }} />
+          </Rise>
         ) : null}
 
         {step === "code" ? (
-          <>
+          <Rise delay={50}>
             <Field
               ref={codeRef}
               label="Código"
@@ -120,46 +130,28 @@ export default function Login() {
               autoComplete="one-time-code"
               textContentType="oneTimeCode"
               placeholder="000000"
-              style={{ fontFamily: fonts.display, fontSize: 26, letterSpacing: 8 }}
+              style={{ fontFamily: fonts.display, fontSize: 26, letterSpacing: 8, minHeight: 58, textAlign: "center", fontVariant: ["tabular-nums"] }}
               onSubmitEditing={() => verify(false)}
             />
-            <Button label="Entrar" onPress={() => verify(false)} loading={busy} disabled={code.length !== 6} />
+            <Button label="Entrar" size="lg" onPress={() => verify(false)} loading={busy} disabled={code.length !== 6} style={{ marginTop: space.xs }} />
             <Button label="Usar otro correo" variant="ghost" onPress={() => { setStep("email"); setCode(""); }} style={{ marginTop: space.sm }} />
-          </>
+          </Rise>
         ) : null}
 
         {step === "terms" ? (
-          <>
+          <Rise delay={50}>
             <Field label="Tu nombre" value={name} onChangeText={setName} autoComplete="name" textContentType="name" placeholder="Como quieres que te llamemos" />
-            <Pressable
-              accessibilityRole="checkbox"
-              accessibilityState={{ checked: accepted }}
-              onPress={() => setAccepted((v) => !v)}
-              style={{ flexDirection: "row", gap: 12, alignItems: "flex-start", paddingVertical: space.sm, marginBottom: space.lg }}>
-              <View
-                style={{
-                  width: 24,
-                  height: 24,
-                  borderRadius: radius.sm - 2,
-                  borderWidth: 1.5,
-                  borderColor: accepted ? c.brand : c.line,
-                  backgroundColor: accepted ? c.brand : c.field,
-                  alignItems: "center",
-                  justifyContent: "center",
-                  marginTop: 1,
-                }}>
-                {accepted ? <CheckIcon size={16} color={c.brandContrast} weight="bold" /> : null}
-              </View>
-              <Txt size={14} style={{ flex: 1 }}>
+            <View style={{ backgroundColor: c.muted, borderRadius: radius.row, paddingHorizontal: space.md, paddingVertical: space.xs, marginBottom: space.lg }}>
+              <Check checked={accepted} onChange={setAccepted}>
                 Tengo 14 años o más y acepto los{" "}
                 <Text style={{ color: c.brandInk, fontFamily: fonts.bodySemi }} onPress={() => void WebBrowser.openBrowserAsync(LEGAL_URL)}>
                   términos y la política de datos
                 </Text>{" "}
                 de la app.
-              </Txt>
-            </Pressable>
-            <Button label="Crear mi cuenta" onPress={() => verify(true)} loading={busy} disabled={!accepted} />
-          </>
+              </Check>
+            </View>
+            <Button label="Crear mi cuenta" size="lg" onPress={() => verify(true)} loading={busy} disabled={!accepted} />
+          </Rise>
         ) : null}
       </Screen>
     </KeyboardAvoidingView>

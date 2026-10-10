@@ -173,7 +173,7 @@ export function Check({ checked, onChange, children }: { checked: boolean; onCha
           marginTop: 1,
           borderRadius: 7,
           borderWidth: checked ? 0 : 1.5,
-          borderColor: c.line,
+          borderColor: c.lineStrong,
           backgroundColor: checked ? c.brand : c.field,
           alignItems: "center",
           justifyContent: "center",
