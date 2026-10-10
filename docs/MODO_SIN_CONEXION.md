@@ -53,8 +53,7 @@ Cuándo SÍ sale el dinosaurio, y qué hacer:
 ## Seguridad de la copia
 
 - Solo lo necesario para decidir una entrada: nombre, cédula, estado, plan,
-  vencimiento y entradas. El QR del carné solo como huella (SHA-256): el código
-  que abre la puerta no queda en el equipo. Nada de teléfonos, correos ni salud.
+  vencimiento y entradas. Nada de teléfonos, correos ni salud.
 - Cifrada con AES-GCM con una llave no extraíble. Ojo: la llave vive en el mismo
   navegador, así que quien copie el perfil entero del navegador se la lleva. La
   protección real del PC de recepción es su usuario de Windows con contraseña y el

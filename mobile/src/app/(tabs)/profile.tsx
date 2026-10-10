@@ -78,7 +78,7 @@ export default function Profile() {
 
   const unlink = async () => {
     if (!gym) return;
-    const ok = await ask(`¿Desvincular ${gym.gym_name}?`, "Tu QR deja de servir en este celular. Tu ficha en el gimnasio no cambia.", "Desvincular");
+    const ok = await ask(`¿Desvincular ${gym.gym_name}?`, "Dejarás de ver tu membresía y tus clases en este celular. Tu ficha en el gimnasio no cambia.", "Desvincular");
     if (!ok) return;
     await api(`/api/v1/me/links/${gym.link_id}`, { method: "DELETE" }).catch((e) => setNotice({ tone: "danger", text: (e as Error).message }));
     await refresh();

@@ -8,7 +8,7 @@
  * con otra herramienta, pero quien copie el perfil completo del navegador se lleva
  * también la llave. La protección de verdad del PC de recepción es su usuario de
  * Windows con contraseña y el disco cifrado (BitLocker). Por eso la copia solo
- * tiene lo mínimo (sin teléfonos, correos, salud ni el código QR) y se borra al
+ * tiene lo mínimo (sin teléfonos, correos ni salud) y se borra al
  * cerrar sesión.
  */
 
@@ -19,8 +19,6 @@ export interface SnapshotMember {
   id: string;
   name: string;
   id_number: string | null;
-  /** SHA-256 del QR del carné: el código que abre la puerta no se guarda aquí. */
-  qr_hash: string | null;
   type: string;
   status: "ok" | "in_grace" | "scheduled" | "expired" | "frozen" | "no_entries" | "no_membership";
   plan: string | null;
@@ -42,8 +40,6 @@ export interface Snapshot {
   grace_days: number;
   members: SnapshotMember[];
   plans: SnapshotPlan[];
-  /** QR de la app por vínculo: socio y llaves de hoy y mañana. */
-  app_qr?: Record<string, { member_id: string; keys: Record<string, string> }>;
 }
 
 export type QueueStatus = "pending" | "review" | "done";

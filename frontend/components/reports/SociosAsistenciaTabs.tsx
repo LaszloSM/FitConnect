@@ -105,7 +105,7 @@ interface Attendance {
   peak: { cells: { weekday: number; weekday_label: string; hour: number; count: number }[]; by_hour: { hour: number; count: number }[]; by_weekday: { weekday: number; label: string; count: number }[]; busiest_hour: number | null; busiest_weekday: number | null; top: any[] };
 }
 
-const SOURCE_LABEL: Record<string, string> = { kiosk: "Kiosko", reception: "Recepción", qr: "QR", turnstile: "Torniquete", biometric: "Biometría" };
+const SOURCE_LABEL: Record<string, string> = { kiosk: "Kiosko", reception: "Recepción", qr: "QR (antes)", turnstile: "Torniquete", biometric: "Biometría" };
 
 export function Heatmap({ cells, compactHours = true }: { cells: Attendance["peak"]["cells"]; compactHours?: boolean }) {
   const max = Math.max(1, ...cells.map((c) => c.count));

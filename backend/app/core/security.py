@@ -198,6 +198,7 @@ def decode_app_token(token: str) -> dict[str, Any]:
     return payload
 
 
+
 def app_derived_key(purpose: str) -> bytes:
-    """Llaves de la app para otros usos (QR rotativo), sin reutilizar la de los tokens."""
+    """Llaves de la app para otros usos (hash de los códigos de ingreso), sin reutilizar la de los tokens."""
     return hashlib.sha256(f"app-{purpose}::{settings.secret_key}".encode()).digest()

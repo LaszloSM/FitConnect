@@ -51,7 +51,7 @@ const DECISION_LABEL: Record<string, { label: string; tone: string }> = {
   denied: { label: "Denegado", tone: "text-[var(--signal-danger)]" },
   not_found: { label: "No reconocido", tone: "text-[var(--signal-warn)]" },
 };
-const CRED_LABEL: Record<string, string> = { id_number: "Cédula", qr: "Carné QR", fingerprint: "Huella", face: "Rostro", card: "Tarjeta", pin: "PIN" };
+const CRED_LABEL: Record<string, string> = { id_number: "Cédula", qr: "QR (antes)", fingerprint: "Huella", face: "Rostro", card: "Tarjeta", pin: "PIN" };
 
 export default function KioskSection() {
   const { data: session } = useSession();

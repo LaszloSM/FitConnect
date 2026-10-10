@@ -6,9 +6,8 @@ import { useSearchParams } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import axios from "axios";
 import { NumericKeypad } from "@/components/kiosk/NumericKeypad";
-import { QrScanner } from "@/components/common/QrScanner";
 import { BrandMark } from "@/components/common/BrandMark";
-import { CalendarDotsIcon as CalendarClock, CheckCircleIcon as CheckCircle2, SpinnerGapIcon as Loader2, QrCodeIcon as QrCode, XCircleIcon as XCircle, WarningIcon as AlertTriangle, KeyboardIcon as Keyboard } from "@phosphor-icons/react";
+import { CalendarDotsIcon as CalendarClock, CheckCircleIcon as CheckCircle2, SpinnerGapIcon as Loader2, XCircleIcon as XCircle, WarningIcon as AlertTriangle } from "@phosphor-icons/react";
 
 const TOKEN_KEY = "fitconnect_kiosk_token";
 const RESET_MS = 6000;
@@ -22,7 +21,6 @@ interface KioskResult {
   message: string;
 }
 
-type Mode = "keypad" | "qr";
 
 function resultTone(r: KioskResult): "ok" | "warn" | "danger" {
   if (r.decision === "allowed") return r.membership_status === "in_grace" ? "warn" : "ok";
@@ -39,7 +37,6 @@ export default function KioskClient() {
   const searchParams = useSearchParams();
   const [token, setToken] = useState<string | null>(null);
   const [cedula, setCedula] = useState("");
-  const [mode, setMode] = useState<Mode>("keypad");
   const [submitting, setSubmitting] = useState(false);
   const [result, setResult] = useState<KioskResult | null>(null);
   const [deviceName, setDeviceName] = useState<string | null>(null);
@@ -92,7 +89,7 @@ export default function KioskClient() {
   }, []);
 
   const submit = useCallback(
-    async (payload: { id_number?: string; qr_code?: string }) => {
+    async (payload: { id_number: string }) => {
       if (!token || submitting) return;
       setSubmitting(true);
       try {
@@ -124,7 +121,7 @@ export default function KioskClient() {
   // Teclado físico USB: dígitos + Enter en cualquier parte de la página
   useEffect(() => {
     const handler = (e: KeyboardEvent) => {
-      if (mode !== "keypad" || result) return;
+      if (result) return;
       if (/^\d$/.test(e.key)) setCedula((c) => (c.length < 15 ? c + e.key : c));
       else if (e.key === "Backspace") setCedula((c) => c.slice(0, -1));
       else if (e.key === "Enter" && cedula.length >= 3) void submit({ id_number: cedula });
@@ -132,7 +129,7 @@ export default function KioskClient() {
     };
     window.addEventListener("keydown", handler);
     return () => window.removeEventListener("keydown", handler);
-  }, [mode, cedula, result, submit]);
+  }, [cedula, result, submit]);
 
   if (!token || invalidDevice) {
     return (
@@ -175,15 +172,14 @@ export default function KioskClient() {
             >
               <div className="space-y-1 text-center">
                 <h1 className="text-3xl font-semibold tracking-tight text-white sm:text-4xl">
-                  {mode === "keypad" ? "Digita tu cédula" : "Escanea tu carné"}
+                  Digita tu cédula
                 </h1>
                 <p className="text-lg text-white/70">
-                  {mode === "keypad" ? "y presiona Entrar" : "Acerca el código QR a la cámara"}
+                  y presiona Entrar
                 </p>
               </div>
 
-              {mode === "keypad" ? (
-                <>
+              <>
                   <div
                     className="flex h-16 w-full max-w-sm items-center justify-center rounded-[var(--radius-xl)] border border-white/20 bg-white/5"
                     aria-live="polite"
@@ -207,21 +203,7 @@ export default function KioskClient() {
                   >
                     {submitting ? <Loader2 className="size-7 animate-spin" /> : "Entrar"}
                   </button>
-                </>
-              ) : (
-                <div className="w-full max-w-sm overflow-hidden rounded-[var(--radius-xl)] border border-white/20">
-                  <QrScanner onDecode={(code) => void submit({ qr_code: code })} paused={submitting} />
-                </div>
-              )}
-
-              <button
-                type="button"
-                onClick={() => setMode(mode === "keypad" ? "qr" : "keypad")}
-                className="flex h-11 items-center gap-2 rounded-[var(--radius-md)] px-4 text-base text-white/70 transition-colors hover:bg-white/10 hover:text-white"
-              >
-                {mode === "keypad" ? <QrCode className="size-5" /> : <Keyboard className="size-5" />}
-                {mode === "keypad" ? "Usar carné QR" : "Usar cédula"}
-              </button>
+              </>
             </motion.div>
           )}
         </AnimatePresence>

@@ -11,14 +11,13 @@ import { GlassCard } from "@/components/common/GlassCard";
 import { Button } from "@/components/ui/button";
 import { StatusBadge } from "@/components/ui/status-badge";
 import { Avatar } from "@/components/dashboard/hoy/parts";
-import { ArrowLeftIcon as ArrowLeft, UserIcon as User, PhoneIcon as Phone, EnvelopeSimpleIcon as Mail, IdentificationCardIcon as IdCard, CalendarBlankIcon as Calendar, CreditCardIcon as CreditCard, ActivityIcon as Activity, TagIcon as Tag, XCircleIcon as BadgeX, SpinnerGapIcon as Loader2, QrCodeIcon as QrCode, PencilSimpleIcon as Pencil, SnowflakeIcon as Snowflake, PlayIcon as Play, HeartbeatIcon as HeartPulse, UserPlusIcon as UserPlus, TicketIcon as Ticket, BarbellIcon as Dumbbell, FingerprintIcon as Fingerprint, ChatTextIcon as MessageSquare, PaperPlaneTiltIcon as Send, UsersIcon as Users } from "@phosphor-icons/react";
+import { ArrowLeftIcon as ArrowLeft, UserIcon as User, PhoneIcon as Phone, EnvelopeSimpleIcon as Mail, IdentificationCardIcon as IdCard, CalendarBlankIcon as Calendar, CreditCardIcon as CreditCard, ActivityIcon as Activity, TagIcon as Tag, XCircleIcon as BadgeX, SpinnerGapIcon as Loader2, PencilSimpleIcon as Pencil, SnowflakeIcon as Snowflake, PlayIcon as Play, HeartbeatIcon as HeartPulse, UserPlusIcon as UserPlus, TicketIcon as Ticket, BarbellIcon as Dumbbell, FingerprintIcon as Fingerprint, ChatTextIcon as MessageSquare, PaperPlaneTiltIcon as Send, UsersIcon as Users } from "@phosphor-icons/react";
 import { MemberRoutineTab } from "@/components/routines/MemberRoutineTab";
 import { MemberAccessTab } from "@/components/access/MemberAccessTab";
 import { CourtesyDialog } from "@/components/members/CourtesyDialog";
 import { P, useCan } from "@/lib/permissions";
 import { ProfileCompletion } from "@/components/members/ProfileCompletion";
 import { MemberAppAccess } from "@/components/members/MemberAppAccess";
-import { QRCodeDisplay } from "@/components/common/QRCodeDisplay";
 import {
   Dialog,
   DialogContent,
@@ -31,7 +30,7 @@ import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
 import { parseApiError } from "@/lib/errors";
 
-type Tab = "info" | "timeline" | "memberships" | "payments" | "checkins" | "routine" | "access" | "qr";
+type Tab = "info" | "timeline" | "memberships" | "payments" | "checkins" | "routine" | "access";
 
 const TAB_CONFIG: { key: Tab; label: string; icon: React.ReactNode }[] = [
   { key: "info",        label: "Perfil",       icon: <User className="h-3.5 w-3.5" /> },
@@ -41,7 +40,6 @@ const TAB_CONFIG: { key: Tab; label: string; icon: React.ReactNode }[] = [
   { key: "checkins",    label: "Check-ins",     icon: <Activity className="h-3.5 w-3.5" /> },
   { key: "routine",     label: "Rutina",        icon: <Dumbbell className="h-3.5 w-3.5" /> },
   { key: "access",      label: "Acceso",        icon: <Fingerprint className="h-3.5 w-3.5" /> },
-  { key: "qr",          label: "Carné QR",      icon: <QrCode className="h-3.5 w-3.5" /> },
 ];
 
 // Un entrenador entra a la ficha de SUS socios, pero el dinero, la membresía
@@ -942,24 +940,6 @@ export default function MemberDetailClient({ memberId }: { memberId: string }) {
           {tab === "routine" && <MemberRoutineTab memberId={memberId} />}
           {tab === "access" && <MemberAccessTab memberId={memberId} idNumber={member.id_number} hasPhoto={Boolean(member.photo_url && member.consent_image_at)} />}
 
-          {/* QR CARNÉ */}
-          {tab === "qr" && (
-            <div className="flex flex-col items-center gap-4 py-4">
-              {member.qr_code ? (
-                <QRCodeDisplay qrCode={member.qr_code} memberName={member.full_name} />
-              ) : (
-                <div className="text-center py-8 space-y-2">
-                  <QrCode className="h-10 w-10 text-[var(--text-muted)] mx-auto" />
-                  <p className="text-[var(--text-muted)] text-sm">
-                    Este miembro no tiene código QR asignado.
-                  </p>
-                  <p className="text-[var(--text-muted)] text-xs">
-                    El QR se genera automáticamente para nuevos miembros.
-                  </p>
-                </div>
-              )}
-            </div>
-          )}
 
           {/* ACTIVIDAD — timeline unificado */}
           {tab === "timeline" && (
@@ -995,7 +975,7 @@ export default function MemberDetailClient({ memberId }: { memberId: string }) {
                           : ev.decision === "override"
                           ? "Entrada autorizada por recepción"
                           : "Entró al gym";
-                      detail = ev.source === "kiosk" ? "Kiosko" : ev.source === "qr" ? "QR" : "Recepción";
+                      detail = ev.source === "kiosk" ? "Kiosko" : ev.source === "qr" || ev.source === "app_qr" ? "QR (antes)" : "Recepción";
                     } else if (ev.type === "payment") {
                       title = `${ev.concept}, ${formatCOP(ev.amount)}`;
                       detail = ev.status === "paid" ? "Pagado" : ev.status === "pending" ? "Pendiente" : ev.status;

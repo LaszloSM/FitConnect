@@ -1,6 +1,6 @@
 /**
  * Dos cajones:
- * - `secure`: sesión y llaves del QR. En el celular, Keychain / Keystore
+ * - `secure`: sesión. En el celular, Keychain / Keystore
  *   (expo-secure-store). En web (solo para revisar la interfaz) cae al
  *   almacenamiento del navegador.
  * - `cache`: copias de lo último que se vio, para mostrar algo sin señal.

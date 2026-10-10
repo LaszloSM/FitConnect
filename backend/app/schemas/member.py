@@ -146,7 +146,6 @@ class MemberUpdate(BaseModel):
 
 class MemberResponse(MemberBase):
     id: uuid.UUID
-    qr_code: Optional[str] = None
     member_type: str = "member"
     consent_data_at: Optional[datetime] = None
     consent_image_at: Optional[datetime] = None

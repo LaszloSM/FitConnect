@@ -12,7 +12,6 @@ El código está en `mobile/` (cómo correrla y publicarla: `mobile/README.md`).
 | Ver su progreso por ejercicio | ✓ | ✓ |
 | Medidas y objetivo (peso y talla solo con autorización de salud) | ✓ | ✓ |
 | Membresía, días que le quedan y entradas de su ticketera | ✓ | |
-| QR de entrada que cambia cada 30 s y funciona sin internet | ✓ | |
 | Reservar y cancelar clases, lista de espera | ✓ | |
 | Rutina asignada por su entrenador, para registrarla serie a serie | ✓ | |
 | Pagos y renovación en línea (Wompi del gimnasio) | ✓ | |
@@ -32,15 +31,6 @@ El código está en `mobile/` (cómo correrla y publicarla: `mobile/README.md`).
    número de documento. Las dos cosas tienen que coincidir; 5 intentos fallidos inutilizan el código.
 4. Si cambia de celular o de correo, recepción genera un código nuevo: al usarlo, la cuenta
    anterior pierde el acceso a esa ficha.
-
-## QR de entrada
-
-- El celular calcula el código sin internet: TOTP de 30 segundos con una llave por día derivada
-  de la llave del vínculo (`HMAC-SHA1(llave, "AAAA-MM-DD" de Bogotá)`).
-- Lo aceptan el mostrador (lector de QR), el kiosko y el torniquete (`/access/verify`).
-- Recepción sin internet lo verifica con la copia local, que solo trae las llaves de hoy y
-  mañana: un PC robado no sirve para fabricar QR la semana siguiente.
-- Una captura de pantalla deja de servir en minuto y medio. Al desvincular la app, el QR muere.
 
 ## Dónde viven los datos
 
@@ -183,7 +173,5 @@ Otras opciones:
   revisarlo con un abogado.
 - Probar los planes con IA con la llave real (hoy probados con Gemini simulado) y revisar
   planes de ejemplo con un nutricionista.
-- QR de la app en el agente local del torniquete sin internet: hoy el torniquete lo valida en
-  línea; sin red, el socio entra con cara, huella o documento.
 - Recarga de créditos por anuncio (AdMob) o compra, y la suscripción freemium.
 - Publicar en las tiendas (cuenta de Google Play y Apple Developer).

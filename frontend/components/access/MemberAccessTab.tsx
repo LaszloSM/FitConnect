@@ -91,7 +91,7 @@ export function MemberAccessTab({ memberId, idNumber, hasPhoto = false }: { memb
       )}
       <div className="rounded-xl border border-[var(--border-base)] bg-[var(--bg-base)] p-4 space-y-3">
         <p className="text-sm font-semibold text-[var(--text-base)]">Credenciales de acceso</p>
-        <p className="text-sm text-[var(--text-muted)]">Por defecto el socio entra con su cédula ({idNumber}) o su carné QR en cualquier dispositivo. Aquí se registran huella, rostro, tarjeta o PIN cuando el gym tiene torniquete o lector. La huella nunca se guarda en LSMFit: solo el ID con que la registró el lector.</p>
+        <p className="text-sm text-[var(--text-muted)]">Por defecto el socio entra con su cédula ({idNumber}) en cualquier dispositivo. Aquí se registran huella, rostro, tarjeta o PIN cuando el gym tiene torniquete o lector. La huella nunca se guarda en LSMFit: solo el ID con que la registró el lector.</p>
         {activeCreds.length === 0 ? (
           <p className="text-sm text-[var(--text-muted)]">Sin credenciales adicionales.</p>
         ) : activeCreds.map((c) => (

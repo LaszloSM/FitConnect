@@ -1,11 +1,11 @@
 import { router } from "expo-router";
-import { CaretRightIcon, CloudSlashIcon, ForkKnifeIcon, IdentificationCardIcon, MegaphoneIcon, QrCodeIcon, SparkleIcon, UsersIcon } from "phosphor-react-native";
+import { CaretRightIcon, CloudSlashIcon, ForkKnifeIcon, IdentificationCardIcon, MegaphoneIcon, SparkleIcon, UsersIcon } from "phosphor-react-native";
 import { Pressable, View } from "react-native";
 
 import { Meter } from "@/components/charts";
 import { Button, Card, Chip, Empty, Notice, Num, Screen, Section, Title, Txt } from "@/components/ui";
 import { formatDay, formatTime, plural, weekdayLabel } from "@/lib/format";
-import { STATUS_TONE, stripQr } from "@/lib/gym";
+import { STATUS_TONE } from "@/lib/gym";
 import { bogotaToday } from "@/lib/meals";
 import { useSession } from "@/lib/session";
 import { space, useColors } from "@/lib/theme";
@@ -22,7 +22,7 @@ export default function Home() {
   const c = useColors();
   const first = (me?.user.full_name ?? "").split(" ")[0];
   const usable = gym?.app_enabled ? gym : null;
-  const summary = useCached<GymSummary>(usable ? `/api/v1/me/gyms/${usable.link_id}` : null, stripQr);
+  const summary = useCached<GymSummary>(usable ? `/api/v1/me/gyms/${usable.link_id}` : null);
   const news = useCached<Announcement[]>(usable ? `/api/v1/me/gyms/${usable.link_id}/announcements` : null);
   const s = summary.data;
   const health = Boolean(me?.consents.health);
@@ -52,7 +52,7 @@ export default function Home() {
 
       {summary.stale ? (
         <Notice tone="info" icon={CloudSlashIcon}>
-          Sin conexión. Datos de las {timeOf(summary.stale)}. Tu QR funciona igual.
+          Sin conexión. Datos de las {timeOf(summary.stale)}.
         </Notice>
       ) : null}
 
@@ -60,7 +60,7 @@ export default function Home() {
         <Empty
           title="¿Entrenas en un gimnasio con LSMFit?"
           action={<Button label="Vincular mi gimnasio" onPress={() => router.push("/link")} style={{ marginTop: space.sm, alignSelf: "stretch" }} />}>
-          Pide en recepción tu código para la app. Con él y tu documento ves tu membresía, entras con QR y reservas clases.
+          Pide en recepción tu código para la app. Con él y tu documento ves tu membresía y reservas clases.
         </Empty>
       ) : !gym.app_enabled ? (
         <Notice tone="warn">{gym.gym_name} todavía no tiene activa la app para socios. Tus entrenos sí quedan guardados aquí.</Notice>
@@ -88,7 +88,6 @@ export default function Home() {
             ) : (
               <Txt muted size={14}>No tienes una membresía vigente. Puedes renovar desde Pagos o en recepción.</Txt>
             )}
-            <Button label="Mostrar mi QR de entrada" icon={QrCodeIcon} onPress={() => router.push("/qr")} />
             {!s.membership.can_enter ? (
               <Button label="Renovar" variant="secondary" onPress={() => router.push("/payments")} />
             ) : null}

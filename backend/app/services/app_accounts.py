@@ -3,22 +3,18 @@ dispositivo, vínculo con la ficha del gimnasio y QR de entrada rotativo.
 """
 from __future__ import annotations
 
-import base64
 import hashlib
 import hmac
 import logging
 import re
 import secrets
-import time
-import uuid
-from datetime import date, datetime, timedelta
+from datetime import datetime, timedelta
 from typing import Optional
 
 from fastapi import HTTPException
 from sqlalchemy import delete, select, update
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.core import totp
 from app.core.config import settings
 from app.core.security import app_derived_key, create_app_token
 from app.models.master.app_user import (
@@ -213,84 +209,3 @@ async def delete_account(db: AsyncSession, user: AppUser) -> None:
     await db.execute(delete(AppLoginCode).where(AppLoginCode.email == user.email))
     await db.delete(user)
     await db.commit()
-
-
-# ─── QR de entrada rotativo ───
-#
-# El celular genera un código nuevo cada 30 segundos sin internet (TOTP). La
-# llave de cada día se deriva de la llave del vínculo y la fecha de Bogotá: la
-# copia sin conexión de recepción solo lleva las de hoy y mañana, así que un PC
-# robado no sirve para fabricar QR la semana siguiente. Al desvincular la app,
-# la llave muere con el vínculo.
-
-QR_PREFIX = "FC2."
-_BOGOTA_OFFSET = timedelta(hours=-5)  # Colombia no cambia de hora
-
-
-def qr_secret(link_id: uuid.UUID) -> str:
-    digest = hmac.new(app_derived_key("qr"), link_id.bytes, hashlib.sha1).digest()
-    return base64.b32encode(digest).decode().rstrip("=")
-
-
-def day_key_from_secret(secret: str, day: date) -> str:
-    base = base64.b32decode(secret + "=" * (-len(secret) % 8))
-    digest = hmac.new(base, day.isoformat().encode(), hashlib.sha1).digest()
-    return base64.b32encode(digest).decode().rstrip("=")
-
-
-def qr_day_key(link_id: uuid.UUID, day: date) -> str:
-    return day_key_from_secret(qr_secret(link_id), day)
-
-
-def code_for_secret(secret: str, at: float) -> str:
-    """El código de 6 dígitos que muestra el celular en el instante `at`."""
-    return totp.code_at(day_key_from_secret(secret, _bogota_day(at)), at)
-
-
-def _bogota_day(ts: float) -> date:
-    return (datetime.utcfromtimestamp(ts) + _BOGOTA_OFFSET).date()
-
-
-def qr_payload(link_id: uuid.UUID, at: float | None = None) -> str:
-    at = time.time() if at is None else at
-    return f"{QR_PREFIX}{link_id.hex}.{code_for_secret(qr_secret(link_id), at)}"
-
-
-def is_rotating_qr(raw: str | None) -> bool:
-    return bool(raw) and raw.strip().upper().startswith(QR_PREFIX)
-
-
-def verify_qr_code(link_id: uuid.UUID, code: str, at: float | None = None) -> bool:
-    at = time.time() if at is None else at
-    days = {_bogota_day(at - totp.PERIOD), _bogota_day(at + totp.PERIOD)}
-    return any(totp.verify(qr_day_key(link_id, d), code, at=at, window=1) for d in days)
-
-
-async def resolve_rotating_qr(db_name: str, raw: str, at: float | None = None) -> Optional[uuid.UUID]:
-    """→ member_id si el código es de un vínculo vigente de ESTE gimnasio y está al día."""
-    m = re.fullmatch(r"FC2\.([0-9a-f]{32})\.(\d{6})", (raw or "").strip(), re.I)
-    if not m:
-        return None
-    link_id = uuid.UUID(m.group(1))
-    if not verify_qr_code(link_id, m.group(2), at=at):
-        return None
-    from app.db.master_session import MasterSessionLocal
-    async with MasterSessionLocal() as master:
-        link = (await master.execute(
-            select(MemberLink).where(MemberLink.id == link_id, MemberLink.db_name == db_name,
-                                     MemberLink.revoked_at.is_(None))
-        )).scalar_one_or_none()
-    return link.member_id if link else None
-
-
-async def offline_qr_keys(db_name: str, today: date) -> dict[str, dict]:
-    """Para la copia sin conexión de recepción: llaves de hoy y mañana por vínculo."""
-    from app.db.master_session import MasterSessionLocal
-    async with MasterSessionLocal() as master:
-        links = (await master.execute(
-            select(MemberLink.id, MemberLink.member_id).where(MemberLink.db_name == db_name,
-                                                              MemberLink.revoked_at.is_(None))
-        )).all()
-    days = (today, today + timedelta(days=1))
-    return {lid.hex: {"member_id": str(mid), "keys": {d.isoformat(): qr_day_key(lid, d) for d in days}}
-            for lid, mid in links}

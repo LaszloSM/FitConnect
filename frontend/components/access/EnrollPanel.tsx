@@ -43,9 +43,9 @@ const FINGERS = [
 
 const CONSENT_TEXT: Record<Biometric, string> = {
   face:
-    "El socio autoriza de forma previa, expresa e informada el uso de su rostro para controlar su ingreso. Es un dato sensible (Ley 1581 de 2012), es opcional y puede entrar con cédula o QR. Se guarda solo en el torniquete y puede retirarlo cuando quiera.",
+    "El socio autoriza de forma previa, expresa e informada el uso de su rostro para controlar su ingreso. Es un dato sensible (Ley 1581 de 2012), es opcional y puede entrar con su cédula. Se guarda solo en el torniquete y puede retirarlo cuando quiera.",
   fingerprint:
-    "El socio autoriza de forma previa, expresa e informada el uso de su huella para controlar su ingreso. Es un dato sensible (Ley 1581 de 2012), es opcional y puede entrar con cédula o QR. Se guarda solo en el torniquete y puede retirarla cuando quiera.",
+    "El socio autoriza de forma previa, expresa e informada el uso de su huella para controlar su ingreso. Es un dato sensible (Ley 1581 de 2012), es opcional y puede entrar con su cédula. Se guarda solo en el torniquete y puede retirarla cuando quiera.",
 };
 
 const STEP_TEXT: Record<EnrollKind, string> = {
@@ -165,7 +165,7 @@ export function EnrollPanel({
     return (
       <p className="rounded-[var(--radius-md)] bg-[var(--bg-muted)] px-3 py-3 text-sm text-[var(--text-muted)]">
         Aún no hay un torniquete conectado. Conéctalo en Ajustes › Dispositivos; mientras tanto el socio entra con su
-        cédula o su QR.
+        cédula.
       </p>
     );
   }

@@ -15,7 +15,7 @@ export default function AppLegalPage() {
 
       <p>
         La app LSMFit es de <strong>[RAZÓN SOCIAL]</strong> (NIT <strong>[NIT]</strong>). Sirve para
-        llevar tus entrenos y, si tu gimnasio usa LSMFit, para ver tu membresía, entrar con un QR,
+        llevar tus entrenos y, si tu gimnasio usa LSMFit, para ver tu membresía,
         reservar clases y pagar. Cumplimos la Ley 1581 de 2012 y el Decreto 1377 de 2013.
       </p>
 
@@ -35,7 +35,6 @@ export default function AppLegalPage() {
       <ul>
         <li>Darte acceso a tu cuenta con un código enviado a tu correo.</li>
         <li>Mostrarte tu progreso y tus entrenos.</li>
-        <li>Generar tu QR de entrada, que cambia cada 30 segundos y no sirve si lo reenvías.</li>
         <li>Enviarte avisos de tu gimnasio, solo si los autorizas.</li>
       </ul>
 

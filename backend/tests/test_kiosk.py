@@ -212,3 +212,10 @@ async def test_device_regenerate_link_rotates_token(client):
     assert old.status_code == 401
     new = await client.get("/api/v1/kiosk/ping", headers=_auth(new_token))
     assert new.status_code == 200, new.text
+
+
+async def test_entry_qr_is_gone_everywhere(client):
+    """El QR de entrada se quitó: ni el carné ni el de la app abren la puerta."""
+    from app.main import app
+    paths = {getattr(r, "path", "") for r in app.routes}
+    assert "/api/v1/checkins/qr/{qr_code}" not in paths

@@ -29,14 +29,6 @@ export interface Me {
 
 export type MembershipStatus = "ok" | "in_grace" | "scheduled" | "expired" | "frozen" | "no_entries" | "no_membership";
 
-export interface QrInfo {
-  secret: string;
-  prefix: string;
-  ref: string;
-  period: number;
-  digits: number;
-}
-
 export interface GymSummary {
   gym: GymRef & { address: string | null; phone: string | null };
   member: { first_name: string; full_name: string };
@@ -52,7 +44,6 @@ export interface GymSummary {
   occupancy: { recent_entries: number; window_minutes: number };
   profile: { complete: boolean; percent: number; missing: string[] };
   next_bookings: { booking_id: string; session_id: string; class_name: string; status: string; session_date: string; start_time: string }[];
-  qr: QrInfo;
 }
 
 export interface ClassItem {

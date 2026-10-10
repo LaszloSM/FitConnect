@@ -11,7 +11,6 @@ import { PageHeader } from "@/components/common/PageHeader";
 import { StatusBadge } from "@/components/ui/status-badge";
 import { MemberImportDialog } from "@/components/members/MemberImportDialog";
 import { EmptyState } from "@/components/common/EmptyState";
-import { QRCodeDisplay } from "@/components/common/QRCodeDisplay";
 import { PARQForm, PARQ_KEYS } from "@/components/common/PARQForm";
 import { apiClient } from "@/lib/api";
 import { parseApiError } from "@/lib/errors";
@@ -40,7 +39,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { FingerprintIcon as Fingerprint, PlusIcon as Plus, MagnifyingGlassIcon as Search, PencilSimpleIcon as Pencil, TrashIcon as Trash2, WarningCircleIcon as AlertCircle, QrCodeIcon as QrCode, XIcon as X, TagIcon as Tag, ClockIcon as Clock, CheckCircleIcon as CheckCircle2, DownloadSimpleIcon as Download, CheckIcon as Check, UserIcon as User, HeartbeatIcon as HeartPulse, CreditCardIcon as CreditCard } from "@phosphor-icons/react";
+import { FingerprintIcon as Fingerprint, PlusIcon as Plus, MagnifyingGlassIcon as Search, PencilSimpleIcon as Pencil, TrashIcon as Trash2, WarningCircleIcon as AlertCircle, XIcon as X, TagIcon as Tag, ClockIcon as Clock, CheckCircleIcon as CheckCircle2, DownloadSimpleIcon as Download, CheckIcon as Check, UserIcon as User, HeartbeatIcon as HeartPulse, CreditCardIcon as CreditCard } from "@phosphor-icons/react";
 import { MembershipStatusBadge } from "@/components/common/MembershipStatusBadge";
 import type { TrainingGoal } from "@/lib/types";
 import { P, useCan } from "@/lib/permissions";
@@ -103,7 +102,6 @@ interface Member {
   photo_url: string | null;
   parq_answers: Record<string, boolean> | null;
   parq_completed_at: string | null;
-  qr_code: string | null;
   eps: string | null;
   expectation: string | null;
   access_by_document: boolean;
@@ -208,7 +206,6 @@ export default function MembersClient() {
   const [consentData, setConsentData] = useState(false);
   const [consentImage, setConsentImage] = useState(false);
   const [deleteId, setDeleteId] = useState<string | null>(null);
-  const [qrMember, setQrMember] = useState<Member | null>(null);
   // Visitante del pase del día que se está convirtiendo en socio (wizard precargado)
   const [converting, setConverting] = useState<Member | null>(null);
   const searchParams = useSearchParams();
@@ -1103,7 +1100,6 @@ export default function MembersClient() {
                 <TableHead className="text-[var(--text-muted)]">Documento</TableHead>
                 <TableHead className="text-[var(--text-muted)]">Membresía</TableHead>
                 <TableHead className="text-[var(--text-muted)]">Registro</TableHead>
-                <TableHead className="text-[var(--text-muted)]">QR</TableHead>
                 <TableHead className="text-[var(--text-muted)] text-right">Acciones</TableHead>
               </TableRow>
             </TableHeader>
@@ -1217,21 +1213,6 @@ export default function MembersClient() {
                     <TableCell className="text-[var(--text-muted)] text-sm">
                       {formatDate(m.created_at, "dd/MM/yyyy")}
                     </TableCell>
-                    <TableCell>
-                      {m.qr_code ? (
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          className="text-[var(--text-muted)] hover:text-[var(--color-primary-ink)]"
-                          onClick={(e) => { e.stopPropagation(); setQrMember(m); }}
-                          title="Ver QR"
-                        >
-                          <QrCode className="h-4 w-4" />
-                        </Button>
-                      ) : (
-                        <span className="text-[var(--text-muted)] text-xs">-</span>
-                      )}
-                    </TableCell>
                     <TableCell className="text-right">
                       <div className="flex items-center justify-end gap-1 transition-opacity duration-150 md:opacity-0 md:group-hover:opacity-100 md:group-focus-within:opacity-100">
                         <Button
@@ -1288,23 +1269,6 @@ export default function MembersClient() {
           </div>
         )}
       </GlassCard>
-
-      {/* QR Popover */}
-      {qrMember && qrMember.qr_code && (
-        <div className="fixed inset-0 bg-ink/40 flex items-center justify-center z-50 p-4" onClick={() => setQrMember(null)}>
-          <div className="relative" onClick={(e) => e.stopPropagation()}>
-            <Button
-              variant="ghost"
-              size="icon"
-              className="absolute -top-3 -right-3 z-10 bg-[var(--bg-card)] border border-[var(--border-base)] rounded-full h-7 w-7 text-[var(--text-muted)] hover:text-[var(--text-base)] shadow-md"
-              onClick={() => setQrMember(null)}
-            >
-              <X className="h-3.5 w-3.5" />
-            </Button>
-            <QRCodeDisplay qrCode={qrMember.qr_code} memberName={qrMember.full_name} />
-          </div>
-        </div>
-      )}
 
       {deleteId && (
         <div className="fixed inset-0 bg-ink/40 flex items-center justify-center z-50 p-4" onClick={() => setDeleteId(null)}>

@@ -343,6 +343,8 @@ Cuando cometas un error durante una sesión, agrégalo aquí antes de terminar:
 | `npm install @simplewebauthn/browser@13` falló con ERESOLVE | `@auth/core` (NextAuth v5) declara peer opcional `@simplewebauthn/browser@^9` | Usar la v9 (`startRegistration(opts)` / `startAuthentication(opts)` posicionales); no forzar con `--legacy-peer-deps` |
 | Dos botones «Activar» a la vez en Ajustes › Seguridad y la prueba e2e no sabía cuál pulsar | El botón de la cabecera del método seguía visible mientras se abría su propio paso de confirmación | Mientras un flujo de un método está abierto, la acción de la cabecera de ESE método se oculta. Una ambigüedad de Playwright (`strict mode violation`) suele ser un problema real de UX, no del selector |
 
+| Al quitar el QR rotativo borré `app_derived_key` y 39 pruebas de la app cayeron con `NameError` | El helper nació para el QR pero también deriva la llave de los códigos de ingreso de la app (`_code_hash`); `ruff --fix` quitó el import "sin uso" y escondió la referencia real | Antes de borrar un helper, `grep -rn` de su nombre en TODO `app/`, no solo en la sección que se elimina; `ruff check` sin `--fix` primero, para ver los F821 antes de que el autofix los tape |
+
 **Protocolo:** Al detectar un error que no estaba documentado, añade una fila a la tabla antes del commit.
 
 ---

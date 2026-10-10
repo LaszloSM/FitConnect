@@ -25,7 +25,6 @@ del backend, `"Código de la app para <correo>: 123456"`.
 
 ```bash
 npm run typecheck   # tsc
-npm test            # el QR del celular coincide con el del servidor
 ```
 
 ## APK sin Play Store
@@ -45,15 +44,14 @@ Variables, llave de firma e instalación: `docs/APP_MOVIL.md` › «Instalar la 
 ## Cómo está armada
 
 - `src/app/` rutas (Expo Router). `(tabs)`: Inicio, Clases, Entrenar, Comer, Perfil. Fuera de
-  las pestañas: `qr` (pantalla completa), `link`, `workout`, `gym-profile`, `payments`, `body`,
+  las pestañas: `link`, `workout`, `gym-profile`, `payments`, `body`,
   `add-food`, `create-food`, `recipe`, `scan`, `generate`, `plans`, `plan/[id]`.
 - `src/components/` piezas del sistema «Calor»: `ui` (base), `controls` (segmentos, stepper,
   hoja inferior, esqueletos), `charts` (anillo de calorías, barras de la semana, línea de
   peso, medidores) y `nutrition` (tabla de nutrientes).
 - `src/lib/api.ts` cliente con renovación de sesión (token de 30 min + renovación rotativa).
-- `src/lib/storage.ts` sesión y llave del QR en Keychain/Keystore (`expo-secure-store`);
-  copias para ver sin señal en AsyncStorage (sin la llave del QR).
-- `src/lib/qr.ts` QR rotativo, mismo algoritmo que `backend/app/services/app_accounts.py`.
+- `src/lib/storage.ts` sesión en Keychain/Keystore (`expo-secure-store`);
+  copias para ver sin señal en AsyncStorage.
 - `src/lib/workouts.ts` entrenos que se guardan sin señal y se suben solos.
 
 Las dependencias con código nativo se instalan con la versión que fija

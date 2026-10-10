@@ -53,7 +53,6 @@ function Routes({ fontsLoaded }: { fontsLoaded: boolean }) {
         }}>
         <Stack.Protected guard={signedIn}>
           <Stack.Screen name="(tabs)" />
-          <Stack.Screen name="qr" options={{ presentation: "fullScreenModal", animation: "fade" }} />
           <Stack.Screen name="link" options={{ headerShown: true, title: "Vincular mi gimnasio" }} />
           <Stack.Screen name="workout" options={{ headerShown: true, title: "Entreno", gestureEnabled: false }} />
           <Stack.Screen name="gym-profile" options={{ headerShown: true, title: "Mis datos en el gimnasio" }} />
