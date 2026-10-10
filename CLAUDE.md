@@ -345,6 +345,8 @@ Cuando cometas un error durante una sesión, agrégalo aquí antes de terminar:
 
 | Al quitar el QR rotativo borré `app_derived_key` y 39 pruebas de la app cayeron con `NameError` | El helper nació para el QR pero también deriva la llave de los códigos de ingreso de la app (`_code_hash`); `ruff --fix` quitó el import "sin uso" y escondió la referencia real | Antes de borrar un helper, `grep -rn` de su nombre en TODO `app/`, no solo en la sección que se elimina; `ruff check` sin `--fix` primero, para ver los F821 antes de que el autofix los tape |
 
+| La e2e de sin conexión «esperaba» la copia de socios y cortaba la red antes de que existiera | `page.waitForFunction(() => new Promise(...))` no espera la promesa: un objeto Promise es verdadero y la espera pasa al instante | Para condiciones asíncronas en el navegador: `expect.poll(() => page.evaluate(() => new Promise(...)))`. Confirmar con una traza (estado antes y después) cuando una prueba «falla imposible» |
+
 **Protocolo:** Al detectar un error que no estaba documentado, añade una fila a la tabla antes del commit.
 
 ---

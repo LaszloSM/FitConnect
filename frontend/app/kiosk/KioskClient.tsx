@@ -41,7 +41,20 @@ export default function KioskClient() {
   const [result, setResult] = useState<KioskResult | null>(null);
   const [deviceName, setDeviceName] = useState<string | null>(null);
   const [invalidDevice, setInvalidDevice] = useState(false);
+  const [offline, setOffline] = useState(false);
   const resetTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  // Sin internet el kiosko no puede validar: lo dice antes de que alguien digite.
+  useEffect(() => {
+    const update = () => setOffline(!navigator.onLine);
+    update();
+    window.addEventListener("online", update);
+    window.addEventListener("offline", update);
+    return () => {
+      window.removeEventListener("online", update);
+      window.removeEventListener("offline", update);
+    };
+  }, []);
 
   // Token: ?device=<jwt> la primera vez → localStorage para siempre
   useEffect(() => {
@@ -107,7 +120,9 @@ export default function KioskClient() {
         } else {
           setResult({
             decision: "not_found",
-            message: "No pudimos validar tu entrada. Acércate a recepción.",
+            message: err.response
+              ? "No pudimos validar tu entrada. Acércate a recepción."
+              : "Sin conexión a internet. Acércate a recepción: allá registran tu entrada.",
           });
           scheduleReset();
         }
@@ -158,6 +173,11 @@ export default function KioskClient() {
       </header>
 
       <main className="relative flex flex-1 flex-col items-center justify-center gap-6">
+        {offline && (
+          <div role="status" className="w-full max-w-md rounded-[var(--radius-lg)] border border-white/25 bg-white/10 px-4 py-3 text-center text-lg text-white">
+            Sin conexión a internet. Acércate a recepción para registrar tu entrada.
+          </div>
+        )}
         <AnimatePresence mode="wait">
           {result ? (
             <ResultScreen key="result" result={result} onDismiss={() => setResult(null)} />

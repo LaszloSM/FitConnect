@@ -35,8 +35,22 @@ aunque se haya cerrado el navegador o apagado el PC. Probado: con la red cortada
 se recarga la página y abre completa, con la sesión y la copia de socios.
 
 Para que sea a prueba de errores, en el PC de recepción **instala LSMFit como
-app** (Chrome o Edge › ícono "Instalar" en la barra de direcciones). Queda un
-ícono en el escritorio que abre directo el Mostrador, con o sin internet.
+app**: botón «Instalar LSMFit en este computador» en Ajustes › Dispositivos (o
+Chrome/Edge › ícono "Instalar" en la barra de direcciones). Queda un ícono en el
+escritorio que abre directo el Mostrador, con o sin internet. No hay instalador
+.exe que mantener: es la misma app, guardada por el navegador.
+
+**¿Está listo este equipo?** Ajustes › Dispositivos › «Este computador sin
+internet» revisa lo que hace falta de verdad: navegador que guarda el Mostrador,
+copia de socios reciente, sesión abierta y app instalada, y dice qué hacer si
+algo falta. En el Mostrador aparece un aviso solo cuando falta algo.
+
+**Kiosko:** sin internet muestra «Sin conexión, acércate a recepción» en vez de
+un error. El kiosko no guarda copia de socios.
+
+**Prueba automática:** `frontend/e2e/sin-conexion.spec.ts` corta la red, recarga
+el Mostrador, registra una entrada y comprueba que al volver la red sube una sola
+vez (requiere `next build && next start`).
 
 Cuándo SÍ sale el dinosaurio, y qué hacer:
 - Un equipo que nunca abrió LSMFit, o al que le borraron los datos del

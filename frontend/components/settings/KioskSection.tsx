@@ -13,6 +13,7 @@ import { apiClient } from "@/lib/api";
 import { parseApiError } from "@/lib/errors";
 import { formatTimeAgo } from "@/lib/format";
 import { useApiResource } from "@/hooks/useApiResource";
+import { OfflineReadiness } from "@/components/offline/OfflineReadiness";
 import { AccessDevicePanel, PROTOCOLS, SetupSteps, type AccessConfig, type AccessProtocol } from "@/components/settings/AccessDevicePanel";
 import { CheckIcon as Check, CopyIcon as Copy, DoorOpenIcon as DoorOpen, FingerprintIcon as Fingerprint, LinkIcon as Link2, SpinnerGapIcon as Loader2, MonitorPlayIcon as MonitorPlay, DevicesIcon as MonitorSmartphone, PencilSimpleIcon as Pencil, PlusIcon as Plus, ShieldSlashIcon as ShieldOff, XIcon as X, WifiSlashIcon as WifiOff, ScrollIcon as ScrollText } from "@phosphor-icons/react";
 
@@ -167,6 +168,15 @@ export default function KioskSection() {
 
   return (
     <div className="space-y-4">
+      <GlassCard className="p-5 space-y-3">
+        <div>
+          <h3 className="text-base font-semibold text-[var(--text-base)]">Este computador sin internet</h3>
+          <p className="text-sm text-[var(--text-muted)]">
+            Revisa que la recepción pueda seguir trabajando si se cae el internet.
+          </p>
+        </div>
+        <OfflineReadiness />
+      </GlassCard>
       <GlassCard className="p-5 space-y-4">
         <div>
           <h3 className="text-base font-semibold text-[var(--text-base)] flex items-center gap-2">

@@ -4,6 +4,8 @@ import { useEffect, useSyncExternalStore } from "react";
 import { useSession } from "next-auth/react";
 import { useCan, P } from "@/lib/permissions";
 import { clearSnapshot } from "@/lib/offline/store";
+// Se importa aquí para escuchar el aviso de instalación desde que carga la página.
+import "@/lib/offline/install";
 import { checkConnection, flush, getState, onState, refreshCounts, refreshSnapshot, type OfflineState } from "@/lib/offline/sync";
 
 const SNAPSHOT_EVERY_MS = 5 * 60_000;

@@ -33,7 +33,7 @@ test("la pantalla de Configuración pinta su contenido, no solo el menú", async
 
   // El contenido de la sección, no solo la navegación lateral.
   await expect(page.getByRole("heading", { name: "Ajustes" })).toBeVisible();
-  await expect(page.getByText("Cambiar contraseña")).toBeVisible({ timeout: 20_000 });
+  await expect(page.getByText("Nombre completo")).toBeVisible({ timeout: 20_000 });
   await expect(page.locator("form input").first()).toBeVisible();
 
   // Cambiar de pestaña también debe pintar contenido.
