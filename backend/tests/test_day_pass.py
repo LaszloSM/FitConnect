@@ -1,5 +1,6 @@
 """Pase del día: registro exprés, venta por método, acceso por check-in y
 conversión a socio."""
+import re
 import uuid
 from datetime import timedelta
 
@@ -178,7 +179,8 @@ async def test_sell_transfer_pending_until_confirmed(client):
     body = r.json()
     assert body["payment_status"] == "pending"
     assert body["day_pass"]["status"] == "pending"
-    assert body["transfer_reference"] and body["transfer_reference"].startswith("FC-")
+    # El prefijo es el de recibo de cada gimnasio (configurable), no uno fijo.
+    assert re.fullmatch(r"[A-Z]+-\d{4,}", body["transfer_reference"] or ""), body["transfer_reference"]
     assert body["destination_account"]["breb_key"] == "@gymnequi"
     assert body["receipt_number"] is None
 
