@@ -20,7 +20,8 @@ export default function MemberSelect({ value, onChange }: Props) {
   const [query, setQuery] = useState("");
   const [members, setMembers] = useState<Member[]>([]);
   const [open, setOpen] = useState(false);
-  const [selectedName, setSelectedName] = useState("");
+  // El nombre va atado al id: si el socio cambia desde fuera, no queda el nombre del anterior.
+  const [selected, setSelected] = useState<{ id: string; name: string } | null>(null);
 
   useEffect(() => {
     if (!session?.accessToken || query.length < 1) {
@@ -41,14 +42,27 @@ export default function MemberSelect({ value, onChange }: Props) {
     return () => clearTimeout(t);
   }, [query, session?.accessToken]);
 
+  // Llega elegido desde fuera (p. ej. «Cobrar» en la ficha): se muestra su nombre, no el id.
+  useEffect(() => {
+    if (!session?.accessToken || !value || selected?.id === value) return;
+    let alive = true;
+    apiClient(session.accessToken as string)
+      .get<Member>(`/api/v1/members/${value}`)
+      .then((res) => alive && setSelected({ id: value, name: res.data.full_name }))
+      .catch(() => alive && setSelected({ id: value, name: "Socio elegido" }));
+    return () => {
+      alive = false;
+    };
+  }, [value, selected?.id, session?.accessToken]);
+
   const handleSelect = (member: Member) => {
     onChange(member.id);
-    setSelectedName(member.full_name);
+    setSelected({ id: member.id, name: member.full_name });
     setOpen(false);
     setQuery("");
   };
 
-  const displayValue = selectedName || (value ? `(${value.slice(0, 8)}...)` : "");
+  const displayValue = value ? (selected?.id === value ? selected.name : "Cargando socio…") : "";
 
   return (
     <div className="relative">
@@ -56,7 +70,7 @@ export default function MemberSelect({ value, onChange }: Props) {
         value={open ? query : displayValue}
         onChange={(e) => {
           setQuery(e.target.value);
-          setSelectedName("");
+          setSelected(null);
           onChange("");
           setOpen(true);
         }}

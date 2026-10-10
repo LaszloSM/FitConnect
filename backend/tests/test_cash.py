@@ -1,4 +1,5 @@
 import asyncio
+import re
 
 from tests.helpers import create_member_without_membership
 
@@ -99,7 +100,7 @@ async def test_paid_payment_generates_receipt(client):
     payment_id = pay.json()["id"]
     r = await client.get(f"/api/v1/payments/{payment_id}/receipt", headers=_auth(token))
     assert r.status_code == 200, r.text
-    assert r.json()["number"].startswith("FC-")
+    assert re.match(r"^[A-Z]+-\d+", r.json()["number"]), r.json()["number"]
     assert float(r.json()["amount"]) == 50000.0
 
 

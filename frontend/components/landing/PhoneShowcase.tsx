@@ -5,11 +5,11 @@ import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import { useEffect, useState } from "react";
 
 const SCREENS = [
-  { id: "inicio", title: "Su membresía, de un vistazo", text: "Días que le quedan, entradas de la ticketera, avisos del gimnasio y cuánta gente entró hace poco.", src: "/landing/app-inicio.webp" },
-  { id: "qr", title: "QR que cambia cada 30 segundos", text: "Entra por el lector o el torniquete. El celular lo genera aunque no tenga datos, y una captura de pantalla no sirve para prestarlo.", src: "/landing/app-qr.webp" },
+  { id: "inicio", title: "Su membresía, de un vistazo", text: "Días que le quedan, avisos del gimnasio y cuánta gente entró hace poco, para elegir cuándo ir.", src: "/landing/app-inicio.webp" },
   { id: "clases", title: "Reserva su cupo", text: "Ve las clases de la semana, reserva o queda en lista de espera, y sube solo cuando alguien cancela.", src: "/landing/app-clases.webp" },
-  { id: "comer", title: "Entreno y comidas", text: "Registra series, pesos y comidas, también sin señal. Sus datos personales no los ve el gimnasio.", src: "/landing/app-comer.webp" },
-  { id: "plan", title: "Asistente con base científica", text: "Arma planes de entreno y de comidas que quedan como agenda. Orientación general, con guardas de salud.", src: "/landing/app-plan.webp" },
+  { id: "entrenar", title: "Su rutina y su progreso", text: "La rutina que le asignó su entrenador, sus entrenos recientes y cuánto ha subido en cada ejercicio. Se guarda aunque no tenga señal.", src: "/landing/app-entrenar.webp" },
+  { id: "comer", title: "Sus comidas del día", text: "Registra lo que come con alimentos colombianos y ve cuánto le falta. Esto es suyo: el gimnasio no lo ve.", src: "/landing/app-comer.webp" },
+  { id: "plan", title: "Un plan armado para él", text: "Planes de entreno y de comidas según su objetivo, con guardas de salud. Orientación general, no consulta médica.", src: "/landing/app-plan.webp" },
 ];
 
 /** La app del socio en un celular, con pantallas reales que se recorren solas. */

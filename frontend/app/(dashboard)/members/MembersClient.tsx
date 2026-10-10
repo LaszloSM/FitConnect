@@ -1142,7 +1142,7 @@ export default function MembersClient() {
                     ) : (
                       <EmptyState
                         title="Sin socios todavía"
-                        description="Registra al primero y podrás cobrarle, darle su carné y controlar su entrada."
+                        description="Registra al primero y podrás cobrarle y controlar su entrada."
                         action={
                           <Button onClick={openCreate}>
                             <Plus className="h-4 w-4 mr-2" />

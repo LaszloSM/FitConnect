@@ -243,6 +243,12 @@
       transition-duration: 0.01ms !important;
       scroll-behavior: auto !important;
     }
+    /* Lo que aparece al hacer scroll llega del servidor con opacidad 0: con
+       movimiento reducido se muestra quieto, sin esperar a JavaScript. */
+    [data-reveal] {
+      opacity: 1 !important;
+      transform: none !important;
+    }
   }
 }
 

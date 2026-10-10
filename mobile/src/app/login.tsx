@@ -4,6 +4,7 @@ import { CheckIcon } from "phosphor-react-native";
 import { useRef, useState } from "react";
 import { KeyboardAvoidingView, Platform, Pressable, Text, TextInput, View } from "react-native";
 
+import { BrandMark } from "@/components/BrandMark";
 import { Button, Field, Notice, Screen, Txt } from "@/components/ui";
 import { api, ApiError, OfflineError } from "@/lib/api";
 import { LEGAL_URL } from "@/lib/config";
@@ -76,7 +77,10 @@ export default function Login() {
     <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === "ios" ? "padding" : undefined}>
       <Screen edges={["top", "bottom"]}>
         <View style={{ marginTop: space.xxl, marginBottom: space.xl, gap: space.sm }}>
-          <Text style={{ fontFamily: fonts.display, fontSize: 22, color: c.brandInk }}>LSMFit</Text>
+          <View style={{ flexDirection: "row", alignItems: "center", gap: 8, marginBottom: space.sm }} accessible accessibilityLabel="LSMFit">
+            <BrandMark size={34} />
+            <Text style={{ fontFamily: fonts.display, fontSize: 24, letterSpacing: -0.5, color: c.ink }}>LSMFit</Text>
+          </View>
           <Text accessibilityRole="header" style={{ fontFamily: fonts.display, fontSize: 34, lineHeight: 38, color: c.ink }}>
             {step === "email" ? "Entra con tu correo" : step === "code" ? "Revisa tu correo" : "Crea tu cuenta"}
           </Text>

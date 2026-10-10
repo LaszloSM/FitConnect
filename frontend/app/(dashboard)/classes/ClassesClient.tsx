@@ -627,7 +627,9 @@ export default function ClassesClient() {
                         )}
                       </TableCell>
                       <TableCell className="text-[var(--text-muted)] text-xs">
-                        {cls.schedule || "-"}
+                        {cls.schedule ||
+                          buildSchedulePreview(cls.weekdays ?? [], cls.start_time?.slice(0, 5) ?? "", String(cls.duration_minutes)) ||
+                          "-"}
                       </TableCell>
                       <TableCell className="text-[var(--text-base)]">
                         <span className="inline-flex items-center gap-1">

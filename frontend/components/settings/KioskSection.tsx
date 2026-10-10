@@ -40,7 +40,7 @@ interface AccessEvent {
 }
 
 const KINDS: { key: DeviceKind; label: string; hint: string; icon: React.ReactNode; path: string }[] = [
-  { key: "kiosk", label: "Kiosko", hint: "Tablet en la entrada: el socio digita su cédula o escanea el carné", icon: <MonitorSmartphone className="h-4 w-4" />, path: "/kiosk" },
+  { key: "kiosk", label: "Kiosko", hint: "Tablet en la entrada: el socio digita su cédula", icon: <MonitorSmartphone className="h-4 w-4" />, path: "/kiosk" },
   { key: "turnstile", label: "Torniquete", hint: "Con reconocimiento de rostro, huella o tarjeta. LSMFit le dice quién está al día", icon: <DoorOpen className="h-4 w-4" />, path: "" },
   { key: "reader", label: "Lector", hint: "Lector de huella o tarjeta sin torniquete (solo registra la entrada)", icon: <Fingerprint className="h-4 w-4" />, path: "" },
   { key: "screen", label: "Pantalla", hint: "TV o tablet del salón para mostrar las rutinas", icon: <MonitorPlay className="h-4 w-4" />, path: "/screen" },

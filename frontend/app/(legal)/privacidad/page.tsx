@@ -1,81 +1,106 @@
 import type { Metadata } from "next";
+import { LegalDoc, LegalLink, Mail, type LegalSection } from "@/components/legal/LegalDoc";
+import { legalHolder } from "@/lib/legal";
 
 export const metadata: Metadata = {
-  title: "Política de Privacidad: LSMFit",
-  description: "Cómo LSMFit recolecta, usa y protege los datos personales.",
+  title: "Política de privacidad · LSMFit",
+  description: "Resumen claro de qué datos usa LSMFit, para qué y cuáles son tus derechos.",
 };
+
+const SECTIONS: LegalSection[] = [
+  {
+    id: "resumen",
+    title: "En pocas palabras",
+    body: (
+      <ul>
+        <li>Usamos los datos para prestar el servicio, no para venderlos ni para publicidad de terceros.</li>
+        <li>Los datos de los socios son del gimnasio: nosotros los tratamos por su cuenta y siguiendo sus instrucciones.</li>
+        <li>Lo que registras para ti en la app (entrenos, medidas, comidas) no lo ve tu gimnasio.</li>
+        <li>Puedes pedir en cualquier momento ver, corregir o borrar tus datos.</li>
+      </ul>
+    ),
+  },
+  {
+    id: "quien",
+    title: "Quién trata tus datos",
+    body: (
+      <p>
+        {legalHolder()}, que opera LSMFit. El detalle de los papeles de responsable y encargado, los datos que tratamos y
+        los plazos de respuesta está en la <LegalLink href="/tratamiento-datos">política de tratamiento de datos</LegalLink>,
+        que es el documento completo. Esta página es su resumen.
+      </p>
+    ),
+  },
+  {
+    id: "que",
+    title: "Qué datos y para qué",
+    body: (
+      <ul>
+        <li><strong>Cuenta del gimnasio y su equipo:</strong> para darles acceso, proteger la cuenta y facturar la suscripción.</li>
+        <li><strong>Socios:</strong> para que el gimnasio controle la entrada, cobre, organice clases y se comunique con ellos.</li>
+        <li><strong>App:</strong> para mostrarte tu membresía, tus clases y tu progreso, y guardar lo que registras.</li>
+        <li><strong>Datos técnicos:</strong> para mantener el servicio seguro y resolver fallas.</li>
+      </ul>
+    ),
+  },
+  {
+    id: "cookies",
+    title: "Cookies y almacenamiento en el equipo",
+    body: (
+      <>
+        <p>
+          LSMFit usa solo lo necesario para funcionar: una cookie de sesión para saber que entraste y preferencias del
+          equipo como el tema claro u oscuro. No usamos cookies de publicidad ni de seguimiento de terceros.
+        </p>
+        <p>
+          El computador de recepción guarda una copia cifrada con lo mínimo para seguir trabajando si se cae el internet.
+          Esa copia se actualiza sola y se borra al cerrar sesión.
+        </p>
+      </>
+    ),
+  },
+  {
+    id: "compartir",
+    title: "Con quién compartimos datos",
+    body: (
+      <p>
+        Solo con los proveedores que hacen posible el servicio (servidores y correo en Amazon Web Services, y, si el
+        gimnasio los activa, Wompi para pagos y WhatsApp para mensajes) y, con autorización aparte, Google para los planes
+        de la app, al que no se envía nombre, correo ni documento. Algunos de estos servidores están en Estados Unidos.
+      </p>
+    ),
+  },
+  {
+    id: "seguridad",
+    title: "Seguridad",
+    body: (
+      <p>
+        Cada gimnasio tiene su propia base de datos, los archivos privados se sirven con enlaces que vencen, los permisos
+        dependen del rol y las acciones sensibles quedan registradas. Ninguna medida es infalible; si ocurre un incidente
+        que afecte tus datos, te avisaremos y lo informaremos a la autoridad como exige la ley.
+      </p>
+    ),
+  },
+  {
+    id: "derechos",
+    title: "Tus derechos",
+    body: (
+      <p>
+        Puedes conocer, actualizar, corregir y pedir que se borren tus datos, y revocar las autorizaciones que diste. Si
+        eres socio de un gimnasio, pídeselo primero a tu gimnasio; para lo demás escríbenos a <Mail />. Respondemos las
+        consultas en máximo 10 días hábiles y los reclamos en máximo 15. También puedes acudir a la Superintendencia de
+        Industria y Comercio.
+      </p>
+    ),
+  },
+];
 
 export default function PrivacidadPage() {
   return (
-    <article className="space-y-6 [&_h2]:text-xl [&_h2]:font-semibold [&_h2]:font-display [&_h2]:mt-8 [&_h2]:mb-2 [&_p]:text-[var(--text-muted)] [&_p]:leading-relaxed [&_li]:text-[var(--text-muted)] [&_ul]:list-disc [&_ul]:pl-5 [&_ul]:space-y-1">
-      <header className="space-y-1">
-        <h1 className="text-3xl font-bold font-display">Política de Privacidad</h1>
-        <p className="text-sm">Última actualización: 21 de junio de 2026</p>
-      </header>
-
-      <p>
-        Esta Política describe cómo <strong>[RAZÓN SOCIAL]</strong> (NIT <strong>[NIT]</strong>),
-        responsable de la plataforma LSMFit, trata los datos personales de los gimnasios
-        clientes y de las personas cuyos datos estos registran en el sistema. Cumplimos la Ley
-        1581 de 2012, el Decreto 1377 de 2013 y demás normas colombianas de protección de datos.
-      </p>
-
-      <h2>1. Qué datos recolectamos</h2>
-      <ul>
-        <li>Datos de la cuenta del gimnasio: nombre del negocio, NIT, ciudad, datos de contacto del personal.</li>
-        <li>Datos de miembros que el gimnasio registra: nombre, documento de identidad, teléfono, correo, fecha de nacimiento, contacto de emergencia y respuestas del cuestionario PAR-Q (datos de salud).</li>
-        <li>Datos operativos: asistencia (check-ins), membresías, pagos y recibos.</li>
-        <li>Datos técnicos: registros de acceso, dirección IP y eventos de auditoría.</li>
-      </ul>
-
-      <h2>2. Para qué los usamos</h2>
-      <ul>
-        <li>Prestar el servicio de gestión del gimnasio (acceso, cobros, clases, reportes).</li>
-        <li>Procesar pagos a través de pasarelas autorizadas (p. ej. Wompi).</li>
-        <li>Enviar notificaciones operativas y recordatorios por los canales que el gimnasio configure (p. ej. WhatsApp).</li>
-        <li>Garantizar la seguridad, prevenir el fraude y cumplir obligaciones legales.</li>
-      </ul>
-
-      <h2>3. Roles: responsable y encargado</h2>
-      <p>
-        Respecto de los datos de sus miembros, el <strong>gimnasio cliente es el Responsable</strong>
-        del tratamiento y LSMFit actúa como <strong>Encargado</strong>, tratando los datos
-        únicamente según las instrucciones del gimnasio y esta Política.
-      </p>
-
-      <h2>4. Datos sensibles (salud)</h2>
-      <p>
-        El cuestionario PAR-Q contiene datos sensibles de salud. Su registro es opcional y requiere
-        autorización previa, expresa e informada del titular. El gimnasio es responsable de obtener
-        dicha autorización antes de ingresarlos.
-      </p>
-
-      <h2>5. Seguridad</h2>
-      <p>
-        Aislamos los datos de cada gimnasio en su propia base de datos, ciframos los secretos de
-        integraciones, controlamos el acceso por roles y mantenemos auditoría de las acciones
-        sensibles. Ninguna medida es infalible, pero aplicamos estándares razonables de la industria.
-      </p>
-
-      <h2>6. Conservación</h2>
-      <p>
-        Conservamos los datos mientras la cuenta esté activa y por el tiempo que exijan las
-        obligaciones legales y contables. Al terminar la relación, los datos se eliminan o anonimizan
-        salvo obligación legal de conservarlos.
-      </p>
-
-      <h2>7. Derechos del titular</h2>
-      <p>
-        Todo titular puede conocer, actualizar, rectificar y suprimir sus datos, así como revocar la
-        autorización, conforme a la Ley 1581 de 2012. Las solicitudes sobre datos de miembros se
-        dirigen al gimnasio responsable; las relativas a la plataforma, a{" "}
-        <strong>[correo de contacto]</strong>.
-      </p>
-
-      <h2>8. Contacto</h2>
-      <p>
-        <strong>[RAZÓN SOCIAL]</strong>: <strong>[correo de contacto]</strong>: <strong>[ciudad]</strong>, Colombia.
-      </p>
-    </article>
+    <LegalDoc
+      title="Política de privacidad"
+      intro={<p>Cómo usamos los datos personales en LSMFit, dicho en corto. Para el detalle completo, la política de tratamiento de datos manda.</p>}
+      sections={SECTIONS}
+    />
   );
 }

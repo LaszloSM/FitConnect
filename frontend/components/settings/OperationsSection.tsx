@@ -20,7 +20,7 @@ const inputCls =
 export default function OperationsSection() {
   const { data: session } = useSession();
   const [graceDays, setGraceDays] = useState<number>(3);
-  const [receiptPrefix, setReceiptPrefix] = useState("FC");
+  const [receiptPrefix, setReceiptPrefix] = useState("REC");
   const [cashShiftsEnabled, setCashShiftsEnabled] = useState(true);
   const [savingOps, setSavingOps] = useState(false);
   const [locations, setLocations] = useState<Location[]>([]);

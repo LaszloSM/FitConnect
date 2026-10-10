@@ -129,7 +129,7 @@ export function MemberAccessTab({ memberId, idNumber, hasPhoto = false }: { memb
           ) : (
             <label className="flex items-start gap-2 text-xs text-[var(--text-base)] rounded-lg border border-[var(--signal-warn-line)] bg-[var(--signal-warn-bg)] p-3">
               <input type="checkbox" checked={consentChecked} onChange={(e) => setConsentChecked(e.target.checked)} className="mt-0.5 accent-[var(--color-primary)]" />
-              <span>El socio autoriza de forma libre, expresa e informada el tratamiento de su dato biométrico ({kind === "face" ? "rostro" : "huella"}) únicamente para controlar su ingreso, sabe que es opcional (puede seguir entrando con cédula o carné) y que puede revocarlo cuando quiera. Leyó la <Link href="/tratamiento-datos#biometricos" target="_blank" className="underline">política de tratamiento de datos</Link>. Versión {data.consent_text_version}.</span>
+              <span>El socio autoriza de forma libre, expresa e informada el tratamiento de su dato biométrico ({kind === "face" ? "rostro" : "huella"}) únicamente para controlar su ingreso, sabe que es opcional (puede seguir entrando con su cédula) y que puede revocarlo cuando quiera. Leyó la <Link href="/tratamiento-datos#biometricos" target="_blank" className="underline">política de tratamiento de datos</Link>. Versión {data.consent_text_version}.</span>
             </label>
           )
         )}
