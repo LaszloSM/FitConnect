@@ -184,3 +184,53 @@ async def test_reset_owner_two_step_from_panel(client, monkeypatch):
     monkeypatch.setattr(settings, "mfa_required_roles", ["owner", "admin"])
     login = (await client.post("/api/v1/auth/login", json={"email": gym_email, "password": "SecurePass123!"})).json()
     assert login["mfa_setup_required"] is True
+
+
+async def test_comp_by_months_notifies_the_owner_by_email(client):
+    from app.services import mailer
+    _, _, session = await _session(client)
+    h = _h(session["access_token"])
+    gym_email, tenant_id = await _gym(client)
+    r = await client.post(f"/api/platform/tenants/{tenant_id}/comp",
+                          json={"months": 3, "reason": "Gimnasio piloto"}, headers=h)
+    assert r.status_code == 200, r.text
+    body = r.json()
+    assert body["subscription"]["status"] == "comp" and body["notified"] is True
+    assert 88 <= body["subscription"]["days_left"] <= 93
+    mail = [m for m in mailer.OUTBOX if m.to == gym_email][-1]
+    assert "cortesía" in mail.subject and "Gimnasio piloto" in mail.text
+    r = await client.post(f"/api/platform/tenants/{tenant_id}/trial", json={"days": 15, "notify": False}, headers=h)
+    assert r.json()["notified"] is False
+
+
+async def test_system_health_for_the_panel(client):
+    _, _, session = await _session(client)
+    r = await client.get("/api/platform/tenants/-/system", headers=_h(session["access_token"]))
+    assert r.status_code == 200, r.text
+    body = r.json()
+    assert body["dependencies"]["database"] == "ok" and "email_configured" in body and isinstance(body["jobs"], list)
+    assert (await client.get("/api/platform/tenants/-/system")).status_code in (401, 403)
+
+
+async def test_no_platform_response_carries_member_data(client):
+    """El panel ve gimnasios y conteos, nunca personas: se crea un socio con datos
+    reconocibles y ninguna respuesta del panel puede contenerlos."""
+    from tests.helpers import create_member
+    _, _, session = await _session(client)
+    h = _h(session["access_token"])
+    gym_email, tenant_id = await _gym(client)
+    owner = (await client.post("/api/v1/auth/login", json={"email": gym_email, "password": "SecurePass123!"})).json()
+    marker = uuid.uuid4().hex[:8]
+    member = await create_member(client, _h(owner["access_token"]), full_name=f"Socia Privada {marker}",
+                                 email=f"privada-{marker}@correo.com", phone="3157654321")
+    responses = [
+        await client.get("/api/platform/tenants/overview", headers=h),
+        await client.get("/api/platform/tenants", params={"q": gym_email}, headers=h),
+        await client.get(f"/api/platform/tenants/{tenant_id}", headers=h),
+        await client.get("/api/platform/tenants/-/audit", headers=h),
+        await client.get("/api/platform/tenants/-/system", headers=h),
+    ]
+    for r in responses:
+        assert r.status_code == 200, r.text
+        for secret in (marker, member["id_number"], "3157654321", member["id"]):
+            assert secret not in r.text, f"{r.request.url} expone datos de un socio"

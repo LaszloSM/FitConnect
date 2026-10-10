@@ -19,7 +19,7 @@ from app.core.timeutil import today_bogota
 from app.models.master.owner import Owner
 from app.models.master.platform import PlatformAdmin, PlatformAuditLog
 from app.models.master.tenant import SubscriptionPlan, Tenant, TenantStatus
-from app.services import device_directory, subscription
+from app.services import device_directory, emails, mailer, subscription
 
 logger = logging.getLogger(__name__)
 router = APIRouter(prefix="/tenants", tags=["platform"])
@@ -155,6 +155,26 @@ async def tenant_detail(tenant_id: uuid.UUID, db: AsyncSession = Depends(master_
 
 class TrialIn(BaseModel):
     days: int = Field(ge=1, le=365)
+    #: Avisar al dueño del gimnasio por correo.
+    notify: bool = True
+
+
+async def _notify_owner(owner: Optional[Owner], t: Tenant, until: date, kind: str, reason: Optional[str]) -> bool:
+    if not owner or not owner.email:
+        return False
+    return await mailer.send_email(owner.email, emails.subscription_extended(
+        owner.full_name, t.name, until.strftime("%d/%m/%Y"), kind, reason))
+
+
+def _add_months(day: date, months: int) -> date:
+    month = day.month - 1 + months
+    year, month = day.year + month // 12, month % 12 + 1
+    for d in (day.day, 30, 29, 28):
+        try:
+            return date(year, month, d)
+        except ValueError:
+            continue
+    return day
 
 
 @router.post("/{tenant_id}/trial")
@@ -168,12 +188,16 @@ async def set_trial(tenant_id: uuid.UUID, payload: TrialIn, request: Request,
     log(db, request, admin, "tenant.trial", t.id, {"days": payload.days, "until": t.trial_ends_at.isoformat()})
     await db.commit()
     subscription.forget(t.db_name)
-    return _out(t, owner)
+    notified = await _notify_owner(owner, t, t.trial_ends_at, "trial", None) if payload.notify else False
+    return {**_out(t, owner), "notified": notified}
 
 
 class CompIn(BaseModel):
     until: Optional[date] = None
+    #: Atajo: N meses desde hoy (o desde el fin de la cortesía vigente). Gana sobre `until`.
+    months: Optional[int] = Field(default=None, ge=1, le=24)
     reason: str = Field(default="", max_length=255)
+    notify: bool = True
 
 
 @router.post("/{tenant_id}/comp")
@@ -181,6 +205,9 @@ async def set_comp(tenant_id: uuid.UUID, payload: CompIn, request: Request,
                    db: AsyncSession = Depends(master_db), admin: PlatformAdmin = Depends(current_admin)):
     """Cortesía: acceso completo sin cobro hasta una fecha (until=null la quita)."""
     t, owner = await _tenant(db, tenant_id)
+    if payload.months:
+        base = max(today_bogota(), t.comp_until or today_bogota())
+        payload.until = _add_months(base, payload.months)
     if payload.until and payload.until < today_bogota():
         raise HTTPException(status_code=422, detail="La fecha de la cortesía ya pasó")
     if payload.until and len(payload.reason.strip()) < 3:
@@ -193,7 +220,10 @@ async def set_comp(tenant_id: uuid.UUID, payload: CompIn, request: Request,
         {"until": payload.until.isoformat() if payload.until else None, "reason": payload.reason})
     await db.commit()
     subscription.forget(t.db_name)
-    return _out(t, owner)
+    notified = False
+    if payload.until and payload.notify:
+        notified = await _notify_owner(owner, t, payload.until, "comp", t.comp_reason)
+    return {**_out(t, owner), "notified": notified}
 
 
 class TenantPatch(BaseModel):
@@ -251,6 +281,18 @@ async def reactivate(tenant_id: uuid.UUID, request: Request,
     await db.commit()
     subscription.forget(t.db_name)
     return _out(t, owner)
+
+
+@router.get("/-/system")
+async def system_health(_admin: PlatformAdmin = Depends(current_admin)):
+    """Salud del sistema para el panel: dependencias, tareas programadas y correo.
+    Solo estados y horas: ningún dato de gimnasios ni de socios."""
+    from app.main import health
+    from app.services.job_monitor import snapshot
+    base = await health()
+    # Sin `detail`: es el texto de la excepción y puede arrastrar datos de un gimnasio.
+    jobs = [{k: j[k] for k in ("name", "status", "started_at", "finished_at", "duration_s")} for j in snapshot()]
+    return {**base, "jobs": jobs, "mail_backend": mailer.backend()}
 
 
 @router.get("/-/audit")

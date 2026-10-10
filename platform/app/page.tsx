@@ -6,7 +6,7 @@ import { Shell } from "@/components/Shell";
 import { Notice, StatusPill } from "@/components/StatusPill";
 import { api } from "@/lib/api";
 import { money, moment, STATUS_LABEL } from "@/lib/format";
-import type { Overview, TenantRow } from "@/lib/types";
+import type { Overview, SystemHealth, TenantRow } from "@/lib/types";
 
 const FILTERS = ["", "trialing", "active", "comp", "past_due", "read_only", "suspended"];
 
@@ -17,6 +17,108 @@ function Stat({ label, value, hint }: { label: string; value: string | number; h
       <p className="num mt-1 break-words text-[22px] font-bold leading-none md:text-[28px]">{value}</p>
       {hint && <p className="mt-1 text-xs text-ink-muted">{hint}</p>}
     </div>
+  );
+}
+
+const JOB_LABEL: Record<string, string> = {
+  expire_memberships_job: "Vencimientos y avisos del día",
+  reconcile_payments_job: "Conciliación de pagos en línea",
+  process_outbox_job: "Envío de mensajes",
+  train_models_job: "Modelos de Inteligencia",
+  advance_subscriptions_job: "Suscripciones de los gimnasios",
+  sync_access_devices_job: "Sincronización de torniquetes",
+  process_plan_jobs_job: "Planes con IA de la app",
+};
+
+const JOB_STATUS: Record<string, { label: string; tone: string }> = {
+  ok: { label: "Bien", tone: "text-[var(--signal-ok)]" },
+  skipped: { label: "Lo corrió otra réplica", tone: "text-ink-muted" },
+  running: { label: "Corriendo", tone: "text-ink-muted" },
+  error: { label: "Falló", tone: "text-[var(--signal-danger)]" },
+};
+
+const MAIL_LABEL: Record<string, string> = { ses: "Amazon SES", smtp: "SMTP", log: "Solo registro (no envía)" };
+
+function Check({ ok, label, hint }: { ok: boolean; label: string; hint?: string }) {
+  return (
+    <li className="flex items-start gap-2 text-sm">
+      <span
+        aria-hidden
+        className={`mt-1.5 size-2 shrink-0 rounded-full ${ok ? "bg-[var(--signal-ok)]" : "bg-[var(--signal-danger)]"}`}
+      />
+      <span>
+        {label}
+        {hint && <span className="block text-xs text-ink-muted">{hint}</span>}
+      </span>
+    </li>
+  );
+}
+
+function SystemCard() {
+  const [health, setHealth] = useState<SystemHealth | null>(null);
+  const [failed, setFailed] = useState(false);
+
+  useEffect(() => {
+    const load = () =>
+      api<SystemHealth>("/tenants/-/system")
+        .then((h) => {
+          setHealth(h);
+          setFailed(false);
+        })
+        .catch(() => setFailed(true));
+    load();
+    const t = setInterval(load, 60_000);
+    return () => clearInterval(t);
+  }, []);
+
+  if (failed && !health) {
+    return <section className="card mt-4 px-5 py-4 text-sm text-[var(--signal-danger)]">No se pudo leer la salud del sistema.</section>;
+  }
+  if (!health) return <section className="card mt-4 h-[120px] animate-pulse" aria-busy="true" />;
+
+  const deps = health.dependencies;
+  const jobs = [...health.jobs].sort((a, b) => (JOB_LABEL[a.name] ?? a.name).localeCompare(JOB_LABEL[b.name] ?? b.name));
+  return (
+    <section className="card mt-4 grid gap-6 px-5 py-4 md:grid-cols-[minmax(0,1fr)_minmax(0,2fr)]">
+      <div>
+        <h2 className="text-sm font-semibold">
+          Salud del sistema{" "}
+          <span className={health.status === "ok" ? "text-[var(--signal-ok)]" : "text-[var(--signal-danger)]"}>
+            · {health.status === "ok" ? "todo en orden" : "con fallas"}
+          </span>
+        </h2>
+        <ul className="mt-3 space-y-2">
+          <Check ok={deps.database === "ok"} label="Base de datos principal" />
+          <Check ok={deps.redis === "ok"} label="Redis (sesiones y límites)" />
+          <Check ok={health.scheduler_running} label="Tareas programadas" />
+          <Check
+            ok={health.email_configured}
+            label={`Correo: ${MAIL_LABEL[health.mail_backend] ?? health.mail_backend}`}
+            hint={health.email_configured ? undefined : "No salen invitaciones, códigos ni recuperaciones de contraseña."}
+          />
+        </ul>
+      </div>
+      <div>
+        <h2 className="text-sm font-semibold">Última corrida de cada tarea</h2>
+        {jobs.length === 0 ? (
+          <p className="mt-3 text-sm text-ink-muted">Ninguna tarea ha corrido desde que arrancó el servidor.</p>
+        ) : (
+          <ul className="mt-3 divide-y divide-line text-sm">
+            {jobs.map((j) => {
+              const st = JOB_STATUS[j.status] ?? { label: j.status, tone: "text-ink-muted" };
+              return (
+                <li key={j.name} className="flex flex-wrap items-baseline justify-between gap-x-3 py-1.5">
+                  <span>{JOB_LABEL[j.name] ?? j.name}</span>
+                  <span className="text-xs text-ink-muted">
+                    <span className={`font-medium ${st.tone}`}>{st.label}</span> · {moment(j.finished_at ?? j.started_at)}
+                  </span>
+                </li>
+              );
+            })}
+          </ul>
+        )}
+      </div>
+    </section>
   );
 }
 
@@ -80,6 +182,8 @@ export default function HomePage() {
         <Stat label="En prueba o cortesía" value={(overview?.by_status.trialing ?? 0) + (overview?.by_status.comp ?? 0)} />
         <Stat label="Ingreso mensual estimado" value={overview ? money(overview.mrr_cop) : "—"} hint="Solo gimnasios activos" />
       </section>
+
+      <SystemCard />
 
       {overview && overview.ending_soon.length > 0 && (
         <section className="mt-4 rounded-[var(--radius-lg)] border border-[var(--signal-warn-line)] bg-[var(--signal-warn-bg)] px-5 py-4">
