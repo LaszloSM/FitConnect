@@ -5,10 +5,10 @@ import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import { useEffect, useState } from "react";
 
 const SCREENS = [
-  { id: "inicio", title: "Su membresía, de un vistazo", text: "Días que le quedan, avisos del gimnasio y cuánta gente entró hace poco, para elegir cuándo ir.", src: "/landing/app-inicio.webp" },
+  { id: "inicio", title: "Su membresía, de un vistazo", text: "Días que le quedan, lo que lleva comido hoy, el agua y su racha, y los avisos del gimnasio.", src: "/landing/app-inicio.webp" },
   { id: "clases", title: "Reserva su cupo", text: "Ve las clases de la semana, reserva o queda en lista de espera, y sube solo cuando alguien cancela.", src: "/landing/app-clases.webp" },
   { id: "entrenar", title: "Su rutina y su progreso", text: "La rutina que le asignó su entrenador, sus entrenos recientes y cuánto ha subido en cada ejercicio. Se guarda aunque no tenga señal.", src: "/landing/app-entrenar.webp" },
-  { id: "comer", title: "Sus comidas del día", text: "Registra lo que come con alimentos colombianos y ve cuánto le falta. Esto es suyo: el gimnasio no lo ve.", src: "/landing/app-comer.webp" },
+  { id: "comer", title: "Sus comidas del día", text: "Registra lo que come buscando alimentos colombianos o escaneando el código de barras, y ve cuánto le falta. Esto es suyo: el gimnasio no lo ve.", src: "/landing/app-comer.webp" },
   { id: "plan", title: "Un plan armado para él", text: "Planes de entreno y de comidas según su objetivo, con guardas de salud. Orientación general, no consulta médica.", src: "/landing/app-plan.webp" },
 ];
 
