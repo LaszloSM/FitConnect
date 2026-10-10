@@ -1,4 +1,4 @@
-import { BricolageGrotesque_600SemiBold, BricolageGrotesque_700Bold } from "@expo-google-fonts/bricolage-grotesque";
+import { BricolageGrotesque_600SemiBold, BricolageGrotesque_700Bold, BricolageGrotesque_800ExtraBold } from "@expo-google-fonts/bricolage-grotesque";
 import { Figtree_400Regular, Figtree_500Medium, Figtree_600SemiBold, useFonts } from "@expo-google-fonts/figtree";
 import { Stack } from "expo-router";
 import * as SplashScreen from "expo-splash-screen";
@@ -15,6 +15,7 @@ export default function RootLayout() {
   const [loaded] = useFonts({
     BricolageGrotesque_600SemiBold,
     BricolageGrotesque_700Bold,
+    BricolageGrotesque_800ExtraBold,
     Figtree_400Regular,
     Figtree_500Medium,
     Figtree_600SemiBold,
@@ -48,7 +49,7 @@ function Routes({ fontsLoaded }: { fontsLoaded: boolean }) {
           headerStyle: { backgroundColor: c.bg },
           headerShadowVisible: false,
           headerTintColor: c.ink,
-          headerTitleStyle: { fontFamily: fonts.bodySemi, fontSize: 17 },
+          headerTitleStyle: { fontFamily: fonts.display, fontSize: 18 },
           headerBackButtonDisplayMode: "minimal",
         }}>
         <Stack.Protected guard={signedIn}>
@@ -59,7 +60,7 @@ function Routes({ fontsLoaded }: { fontsLoaded: boolean }) {
           <Stack.Screen name="payments" options={{ headerShown: true, title: "Pagos y renovación" }} />
           <Stack.Screen name="body" options={{ headerShown: true, title: "Mis medidas" }} />
           <Stack.Screen name="add-food" options={{ headerShown: true, title: "Agregar alimento" }} />
-          <Stack.Screen name="scan" options={{ headerShown: true, title: "Escanear" }} />
+          <Stack.Screen name="scan" options={{ headerShown: false, animation: "fade_from_bottom" }} />
           <Stack.Screen name="create-food" options={{ headerShown: true, title: "Crear alimento" }} />
           <Stack.Screen name="recipe" options={{ headerShown: true, title: "Mi comida" }} />
           <Stack.Screen name="generate" options={{ headerShown: true, title: "Generar plan" }} />

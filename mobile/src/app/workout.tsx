@@ -1,12 +1,14 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import * as Crypto from "expo-crypto";
+import * as Haptics from "expo-haptics";
 import { router, useLocalSearchParams } from "expo-router";
-import { CheckIcon, MagnifyingGlassIcon, PlusIcon, TrashIcon } from "phosphor-react-native";
+import { BarbellIcon, CheckIcon, PlusIcon, TrashIcon } from "phosphor-react-native";
 import { useEffect, useRef, useState } from "react";
-import { Pressable, TextInput, View } from "react-native";
+import { Platform, TextInput, View } from "react-native";
 
-import { Button, Card, Field, Notice, Screen, Txt } from "@/components/ui";
+import { Button, Card, Field, IconButton, ListRow, Notice, Num, Press, Rise, Screen, Txt } from "@/components/ui";
 import { api } from "@/lib/api";
+import { plural } from "@/lib/format";
 import { useSession } from "@/lib/session";
 import { cache } from "@/lib/storage";
 import { fonts, radius, space, useColors } from "@/lib/theme";
@@ -25,35 +27,58 @@ function emptySets(n: number, reps: string): WorkoutEntry["sets"] {
   return Array.from({ length: Math.max(1, n) }, () => ({ reps: Number.isFinite(r) ? r : null, weight_kg: null, done: false }));
 }
 
-function NumInput({ value, onChange, label, suffix }: { value: number | null; onChange: (v: number | null) => void; label: string; suffix: string }) {
+function NumInput({ value, onChange, label }: { value: number | null; onChange: (v: number | null) => void; label: string }) {
   const c = useColors();
+  const [focus, setFocus] = useState(false);
   return (
-    <View style={{ flexDirection: "row", alignItems: "center", gap: 4 }}>
-      <TextInput
-        accessibilityLabel={label}
-        value={value === null ? "" : String(value)}
-        onChangeText={(t) => {
-          const v = t.replace(",", ".").replace(/[^\d.]/g, "");
-          onChange(v === "" ? null : Number(v));
-        }}
-        keyboardType="decimal-pad"
-        style={{
-          width: 64,
-          height: 44,
-          borderRadius: radius.md,
-          borderWidth: 1,
-          borderColor: c.line,
-          backgroundColor: c.field,
-          textAlign: "center",
-          fontFamily: fonts.display,
-          fontSize: 18,
-          color: c.ink,
-        }}
-      />
-      <Txt muted size={13}>{suffix}</Txt>
-    </View>
+    <TextInput
+      accessibilityLabel={label}
+      value={value === null ? "" : String(value)}
+      onChangeText={(t) => {
+        const v = t.replace(",", ".").replace(/[^\d.]/g, "");
+        onChange(v === "" ? null : Number(v));
+      }}
+      onFocus={() => setFocus(true)}
+      onBlur={() => setFocus(false)}
+      keyboardType="decimal-pad"
+      selectTextOnFocus
+      placeholder="0"
+      placeholderTextColor={c.inkFaint}
+      style={{
+        flex: 1,
+        minWidth: 0,
+        height: 48,
+        borderRadius: radius.md,
+        borderWidth: focus ? 1.5 : 1,
+        borderColor: focus ? c.brand : c.lineStrong,
+        backgroundColor: c.field,
+        textAlign: "center",
+        fontFamily: fonts.display,
+        fontSize: 20,
+        color: c.ink,
+        fontVariant: ["tabular-nums"],
+        padding: 0,
+      }}
+    />
   );
 }
+
+/** Tiempo desde que empezó el entreno; se cuenta en su propio componente para no redibujar los campos cada segundo. */
+function Elapsed({ since }: { since: string }) {
+  const [now, setNow] = useState(Date.now());
+  useEffect(() => {
+    const t = setInterval(() => setNow(Date.now()), 1000);
+    return () => clearInterval(t);
+  }, []);
+  const total = Math.max(0, Math.floor((now - new Date(since).getTime()) / 1000));
+  const h = Math.floor(total / 3600);
+  const m = Math.floor((total % 3600) / 60);
+  const s = total % 60;
+  const pad = (n: number) => String(n).padStart(2, "0");
+  return <Num size={30}>{h ? `${h}:${pad(m)}:${pad(s)}` : `${pad(m)}:${pad(s)}`}</Num>;
+}
+
+const COLS = { num: 32, check: 52 };
 
 export default function WorkoutScreen() {
   const { day, planId, weekday } = useLocalSearchParams<{ day?: string; planId?: string; weekday?: string }>();
@@ -160,72 +185,145 @@ export default function WorkoutScreen() {
     router.back();
   };
 
+  const totalSets = workout.entries.reduce((a, e) => a + e.sets.length, 0);
+  const doneSets = workout.entries.reduce((a, e) => a + e.sets.filter((s) => s.done).length, 0);
+
   return (
-    <Screen edges={["bottom"]}>
-      <Txt weight="semi" size={18} style={{ marginBottom: space.md }}>{workout.title}</Txt>
+    <Screen
+      edges={["bottom"]}
+      footer={
+        <>
+          <Button label="Descartar" variant="ghost" onPress={discard} size="lg" style={{ paddingHorizontal: space.md }} />
+          <Button label="Terminar y guardar" icon={CheckIcon} onPress={finish} loading={saving} size="lg" style={{ flex: 1 }} />
+        </>
+      }>
+      <Rise>
+        <Txt size={22} style={{ fontFamily: fonts.display, lineHeight: 27, letterSpacing: -0.3, marginBottom: space.md }}>{workout.title}</Txt>
+        <Card tone="muted" style={{ flexDirection: "row", gap: space.lg, marginBottom: space.lg }}>
+          <View style={{ flex: 1, gap: 2 }} accessible accessibilityLabel="Tiempo de entreno">
+            <Txt muted size={13} weight="medium">Tiempo</Txt>
+            <Elapsed since={workout.started_at} />
+          </View>
+          <View style={{ width: 1, backgroundColor: c.line }} />
+          <View style={{ flex: 1, gap: 2 }} accessible accessibilityLabel={`${doneSets} de ${totalSets} series hechas`}>
+            <Txt muted size={13} weight="medium">Series hechas</Txt>
+            <View style={{ flexDirection: "row", alignItems: "baseline", gap: 4 }}>
+              <Num size={30} style={{ color: doneSets ? c.brandInk : c.ink }}>{doneSets}</Num>
+              <Txt muted size={15} style={{ fontVariant: ["tabular-nums"] }}>de {totalSets}</Txt>
+            </View>
+          </View>
+        </Card>
+      </Rise>
+
       {error ? <Notice tone="warn">{error}</Notice> : null}
 
       <View style={{ gap: space.md }}>
-        {workout.entries.map((e, ei) => (
-          <Card key={`${e.exercise_name}-${ei}`} style={{ gap: space.sm }}>
-            <View style={{ flexDirection: "row", alignItems: "center", justifyContent: "space-between" }}>
-              <Txt weight="semi" style={{ flex: 1 }}>{e.exercise_name}</Txt>
-              <Pressable accessibilityRole="button" accessibilityLabel={`Quitar ${e.exercise_name}`} hitSlop={10} onPress={() => update((es) => es.filter((_, i) => i !== ei))}>
-                <TrashIcon size={20} color={c.inkMuted} />
-              </Pressable>
-            </View>
-            {e.sets.map((s, si) => (
-              <View key={si} style={{ flexDirection: "row", alignItems: "center", gap: space.md }}>
-                <Txt muted size={14} style={{ width: 22 }}>{si + 1}</Txt>
-                <NumInput label={`Repeticiones serie ${si + 1}`} value={s.reps} onChange={(v) => setSet(ei, si, { reps: v === null ? null : Math.round(v) })} suffix="rep" />
-                <NumInput label={`Peso serie ${si + 1}`} value={s.weight_kg} onChange={(v) => setSet(ei, si, { weight_kg: v })} suffix="kg" />
-                <Pressable
-                  accessibilityRole="checkbox"
-                  accessibilityState={{ checked: s.done }}
-                  accessibilityLabel={`Serie ${si + 1} hecha`}
-                  onPress={() => setSet(ei, si, { done: !s.done })}
-                  style={{
-                    marginLeft: "auto",
-                    width: 44,
-                    height: 44,
-                    borderRadius: radius.md,
-                    alignItems: "center",
-                    justifyContent: "center",
-                    backgroundColor: s.done ? c.okBg : c.muted,
-                  }}>
-                  <CheckIcon size={20} color={s.done ? c.ok : c.inkMuted} weight="bold" />
-                </Pressable>
-              </View>
-            ))}
-            <Pressable
-              accessibilityRole="button"
-              onPress={() => update((es) => es.map((x, i) => (i === ei ? { ...x, sets: [...x.sets, { ...(x.sets.at(-1) ?? { reps: null, weight_kg: null }), done: false }] } : x)))}
-              style={{ flexDirection: "row", alignItems: "center", gap: 6, paddingVertical: 8 }}>
-              <PlusIcon size={16} color={c.brandInk} weight="bold" />
-              <Txt size={14} weight="semi" style={{ color: c.brandInk }}>Agregar serie</Txt>
-            </Pressable>
+        {workout.entries.length ? null : (
+          <Card style={{ gap: 4 }}>
+            <Txt weight="semi" size={16}>Agrega tu primer ejercicio</Txt>
+            <Txt muted size={14}>Búscalo abajo y anota repeticiones y peso de cada serie.</Txt>
           </Card>
-        ))}
+        )}
+        {workout.entries.map((e, ei) => {
+          const done = e.sets.filter((s) => s.done).length;
+          return (
+            <Rise key={`${e.exercise_name}-${ei}`} delay={Math.min(ei, 4) * 50}>
+              <Card style={{ gap: space.sm }}>
+                <View style={{ flexDirection: "row", alignItems: "center", gap: space.sm }}>
+                  <View style={{ flex: 1, gap: 2 }}>
+                    <Txt weight="semi" size={17}>{e.exercise_name}</Txt>
+                    <Txt muted size={13} style={{ fontVariant: ["tabular-nums"] }}>{done} de {plural(e.sets.length, "serie", "series")}</Txt>
+                  </View>
+                  <IconButton icon={TrashIcon} tone="plain" label={`Quitar ${e.exercise_name}`} onPress={() => update((es) => es.filter((_, i) => i !== ei))} />
+                </View>
+
+                <View style={{ flexDirection: "row", alignItems: "center", gap: space.sm, paddingHorizontal: space.sm }} accessibilityElementsHidden importantForAccessibility="no-hide-descendants">
+                  <Txt faint size={12} weight="medium" style={{ width: COLS.num, textAlign: "center" }}>Serie</Txt>
+                  <Txt faint size={12} weight="medium" style={{ flex: 1, textAlign: "center" }}>Reps</Txt>
+                  <Txt faint size={12} weight="medium" style={{ flex: 1, textAlign: "center" }}>Kg</Txt>
+                  <View style={{ width: COLS.check }} />
+                </View>
+
+                {e.sets.map((s, si) => (
+                  <View
+                    key={si}
+                    style={{
+                      flexDirection: "row",
+                      alignItems: "center",
+                      gap: space.sm,
+                      backgroundColor: s.done ? c.okBg : c.muted,
+                      borderRadius: radius.row,
+                      padding: space.sm,
+                    }}>
+                    <View style={{ width: COLS.num, alignItems: "center" }}>
+                      <Num size={18} style={{ color: s.done ? c.ok : c.inkMuted }}>{si + 1}</Num>
+                    </View>
+                    <NumInput label={`Repeticiones serie ${si + 1}`} value={s.reps} onChange={(v) => setSet(ei, si, { reps: v === null ? null : Math.round(v) })} />
+                    <NumInput label={`Peso serie ${si + 1}`} value={s.weight_kg} onChange={(v) => setSet(ei, si, { weight_kg: v })} />
+                    <Press
+                      accessibilityRole="checkbox"
+                      accessibilityState={{ checked: s.done }}
+                      accessibilityLabel={`Serie ${si + 1} hecha`}
+                      onPress={() => {
+                        if (!s.done && Platform.OS !== "web") void Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light).catch(() => undefined);
+                        setSet(ei, si, { done: !s.done });
+                      }}
+                      scaleTo={0.92}
+                      hitSlop={4}
+                      style={{
+                        width: COLS.check,
+                        height: 48,
+                        borderRadius: radius.md,
+                        alignItems: "center",
+                        justifyContent: "center",
+                        backgroundColor: s.done ? c.ok : c.card,
+                        borderWidth: s.done ? 0 : 1,
+                        borderColor: c.lineStrong,
+                      }}>
+                      <CheckIcon size={22} color={s.done ? c.card : c.inkFaint} weight="bold" />
+                    </Press>
+                  </View>
+                ))}
+
+                <Press
+                  accessibilityRole="button"
+                  accessibilityLabel={`Agregar serie a ${e.exercise_name}`}
+                  onPress={() => update((es) => es.map((x, i) => (i === ei ? { ...x, sets: [...x.sets, { ...(x.sets.at(-1) ?? { reps: null, weight_kg: null }), done: false }] } : x)))}
+                  style={{ flexDirection: "row", alignItems: "center", gap: 6, minHeight: 44, alignSelf: "flex-start" }}>
+                  <PlusIcon size={16} color={c.brandInk} weight="bold" />
+                  <Txt size={14} weight="semi" style={{ color: c.brandInk }}>Agregar serie</Txt>
+                </Press>
+              </Card>
+            </Rise>
+          );
+        })}
       </View>
 
       <View style={{ marginTop: space.xl }}>
         <Field label="Agregar ejercicio" value={query} onChangeText={setQuery} placeholder="Busca: sentadilla, press, remo…" />
-        {results.map((r) => (
-          <Pressable key={r.id} accessibilityRole="button" onPress={() => add(r.name_es, r.id)} style={{ paddingVertical: 12, flexDirection: "row", gap: 8, alignItems: "center" }}>
-            <MagnifyingGlassIcon size={16} color={c.inkMuted} />
-            <Txt>{r.name_es}</Txt>
-          </Pressable>
-        ))}
-        {query.trim().length >= 2 ? (
-          <Pressable accessibilityRole="button" onPress={() => add(query.trim(), null)} style={{ paddingVertical: 12 }}>
-            <Txt weight="semi" style={{ color: c.brandInk }}>Agregar «{query.trim()}» como ejercicio propio</Txt>
-          </Pressable>
+        {results.length || query.trim().length >= 2 ? (
+          <Card style={{ paddingVertical: space.xs }}>
+            {results.map((r, i) => (
+              <ListRow
+                key={r.id}
+                icon={BarbellIcon}
+                title={r.name_es}
+                accessibilityLabel={`Agregar ${r.name_es}`}
+                onPress={() => add(r.name_es, r.id)}
+                right={<PlusIcon size={18} color={c.brandInk} weight="bold" />}
+                last={i === results.length - 1 && query.trim().length < 2}
+              />
+            ))}
+            {query.trim().length >= 2 ? (
+              <ListRow
+                icon={PlusIcon}
+                title={`Agregar «${query.trim()}» como ejercicio propio`}
+                onPress={() => add(query.trim(), null)}
+                last
+              />
+            ) : null}
+          </Card>
         ) : null}
-      </View>
-
-      <View style={{ gap: space.sm, marginTop: space.xl }}>
-        <Button label="Terminar y guardar" onPress={finish} loading={saving} />
-        <Button label="Descartar entreno" variant="ghost" onPress={discard} />
       </View>
     </Screen>
   );

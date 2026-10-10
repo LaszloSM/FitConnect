@@ -44,6 +44,13 @@ TCAC_PAGES = [
 ]
 
 
+def write_gz(path: Path, data: bytes) -> None:
+    """gzip con fecha fija: el mismo contenido da el mismo archivo y el robot
+    no sube commits vacíos en cada corrida."""
+    with open(path, "wb") as raw, gzip.GzipFile(fileobj=raw, mode="wb", compresslevel=9, mtime=0) as gz:
+        gz.write(data)
+
+
 def fetch(url: str) -> bytes:
     req = urllib.request.Request(url, headers=UA)
     with urllib.request.urlopen(req, timeout=300) as r:
@@ -88,8 +95,7 @@ def extract_usda(kind: str, url: str) -> int:
                                      r.get("portion_description", "")) if x).strip()
         f["portions"].append([label, round(float(r["gram_weight"]), 1)])
     rows = sorted(foods.values(), key=lambda x: x["fdc_id"])
-    with gzip.open(OUT / f"usda_{kind}.json.gz", "wt", encoding="utf-8") as fh:
-        json.dump(rows, fh, ensure_ascii=False, separators=(",", ":"))
+    write_gz(OUT / f"usda_{kind}.json.gz", json.dumps(rows, ensure_ascii=False, separators=(",", ":")).encode("utf-8"))
     return len(rows)
 
 
@@ -122,7 +128,7 @@ def extract_tcac() -> list[str]:
             txt = dest / (name[:-4] + ".txt")
             subprocess.run(["pdftotext", "-layout", str(pdf), str(txt)], check=False)
             if txt.exists() and txt.stat().st_size > 2_000_000:
-                with open(txt, "rb") as src, gzip.open(str(txt) + ".gz", "wb") as dst:
+                with open(txt, "rb") as src, open(str(txt) + ".gz", "wb") as raw, gzip.GzipFile(fileobj=raw, mode="wb", mtime=0) as dst:
                     dst.write(src.read())
                 txt.unlink()
         else:

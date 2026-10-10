@@ -31,6 +31,8 @@ class AppProfile(AppBase):
     activity_level: Mapped[Optional[str]] = mapped_column(String(20), nullable=True)
     #: Ritmo del objetivo: gentle/moderate/aggressive al bajar grasa, lean/standard al ganar músculo.
     pace: Mapped[Optional[str]] = mapped_column(String(20), nullable=True)
+    #: Meta de agua que fijó la persona. Vacía = 35 ml por kg (o 2.000 ml sin peso).
+    water_goal_ml: Mapped[Optional[int]] = mapped_column(Integer, nullable=True)
     updated_at: Mapped[datetime] = mapped_column(DateTime, nullable=False, default=datetime.utcnow,
                                                  onupdate=datetime.utcnow)
 
@@ -123,6 +125,18 @@ class MealEntry(AppBase):
     fiber_g: Mapped[float] = mapped_column(Numeric(6, 1), nullable=False, default=0)
     #: Micronutrientes del registro (misma forma que Food.nutrients, ya multiplicados).
     nutrients: Mapped[dict] = mapped_column(JSONB, nullable=False, default=dict)
+    created_at: Mapped[datetime] = mapped_column(DateTime, nullable=False, default=datetime.utcnow)
+
+
+class WaterEntry(AppBase):
+    """Un vaso (o lo que sea) de agua. El id lo genera el celular: tocar dos
+    veces sin señal no suma dos veces al reenviar."""
+    __tablename__ = "water_entries"
+
+    id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True)
+    app_user_id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), nullable=False, index=True)
+    day: Mapped[date] = mapped_column(Date, nullable=False, index=True)
+    ml: Mapped[int] = mapped_column(Integer, nullable=False)
     created_at: Mapped[datetime] = mapped_column(DateTime, nullable=False, default=datetime.utcnow)
 
 

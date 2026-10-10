@@ -1,10 +1,11 @@
 import { router, useLocalSearchParams } from "expo-router";
-import { MinusIcon, PlusIcon, XIcon } from "phosphor-react-native";
+import { BowlFoodIcon, MinusIcon, PlusIcon, WarningCircleIcon, XIcon } from "phosphor-react-native";
 import { useEffect, useState } from "react";
-import { Pressable, Text, TextInput, View } from "react-native";
+import { Text, TextInput, View } from "react-native";
 
 import { MacroLine } from "@/components/nutrition";
-import { Button, Card, Field, Notice, Screen, Section, Txt } from "@/components/ui";
+import { foodIcon } from "@/components/today";
+import { Button, Card, Field, IconTile, Notice, Press, Rise, Screen, Section, Txt } from "@/components/ui";
 import { api, OfflineError } from "@/lib/api";
 import { fonts, radius, space, useColors } from "@/lib/theme";
 import type { Food } from "@/lib/types";
@@ -67,78 +68,105 @@ export default function Recipe() {
   const per = (v: number) => v / servings;
 
   return (
-    <Screen edges={["bottom"]}>
-      <Txt muted style={{ marginBottom: space.lg }}>
-        Junta lo que sueles comer junto (tu desayuno de siempre, una receta de la casa) y la próxima vez lo registras de un toque.
-      </Txt>
-      {error ? <Notice tone="danger">{error}</Notice> : null}
-      <Field label="Nombre" value={name} onChangeText={setName} placeholder="Ej.: desayuno con arepa y huevo" />
+    <Screen edges={["bottom"]} footer={<Button label="Guardar mi comida" size="lg" onPress={save} loading={busy} disabled={!ready} style={{ flex: 1 }} />}>
+      {error ? <Notice tone="danger" icon={WarningCircleIcon}>{error}</Notice> : null}
+      <Rise>
+        <Card style={{ gap: space.md }}>
+          <View style={{ flexDirection: "row", gap: space.md, alignItems: "flex-start" }}>
+            <IconTile icon={BowlFoodIcon} tone="wash" />
+            <Txt muted size={14} style={{ flex: 1 }}>
+              Junta lo que sueles comer junto (tu desayuno de siempre, una receta de la casa) y la próxima vez lo registras de un toque.
+            </Txt>
+          </View>
+          <View style={{ marginBottom: -space.md }}>
+            <Field label="Nombre" value={name} onChangeText={setName} placeholder="Ej.: desayuno con arepa y huevo" />
+          </View>
+        </Card>
+      </Rise>
 
-      <Section>Ingredientes</Section>
-      {items.length ? (
-        <Card style={{ paddingVertical: space.xs, marginBottom: space.md }}>
-          {items.map((it, i) => (
-            <View key={`${it.food.id}-${i}`} style={{ flexDirection: "row", alignItems: "center", gap: space.sm, minHeight: 56, borderBottomWidth: i === items.length - 1 ? 0 : 1, borderBottomColor: c.muted }}>
-              <View style={{ flex: 1 }}>
-                <Txt size={14.5} weight="medium" numberOfLines={2}>{it.food.name}</Txt>
-                <Txt size={12.5} muted>{Math.round((it.food.kcal * grams(it)) / 100)} kcal</Txt>
+      <Rise delay={50}>
+        <Section>Ingredientes</Section>
+        <Card style={{ gap: space.sm }}>
+          {items.map((it, i) => {
+            const FoodIcon = foodIcon(it.food.name);
+            return (
+              <View key={`${it.food.id}-${i}`} style={{ flexDirection: "row", alignItems: "center", gap: space.sm, minHeight: 60, backgroundColor: c.muted, borderRadius: radius.row, paddingLeft: 10, paddingRight: 4 }}>
+                <View style={{ width: 34, height: 34, borderRadius: radius.md, backgroundColor: c.card, alignItems: "center", justifyContent: "center" }}>
+                  <FoodIcon size={18} color={c.inkMuted} />
+                </View>
+                <View style={{ flex: 1 }}>
+                  <Txt size={14.5} weight="medium" numberOfLines={2}>{it.food.name}</Txt>
+                  <Txt size={12.5} muted style={{ fontVariant: ["tabular-nums"] }}>{Math.round((it.food.kcal * grams(it)) / 100)} kcal</Txt>
+                </View>
+                <TextInput
+                  accessibilityLabel={`Gramos de ${it.food.name}`}
+                  value={it.grams}
+                  onChangeText={(v) => setItems(items.map((x, j) => (j === i ? { ...x, grams: v } : x)))}
+                  keyboardType="decimal-pad"
+                  style={{ width: 68, minHeight: 40, textAlign: "right", paddingHorizontal: 10, borderRadius: radius.md, borderWidth: 1, borderColor: grams(it) > 0 ? c.lineStrong : c.danger, backgroundColor: c.field, fontFamily: fonts.bodySemi, fontSize: 15, color: c.ink, fontVariant: ["tabular-nums"] }}
+                />
+                <Txt size={14} muted>g</Txt>
+                <Press
+                  accessibilityRole="button"
+                  accessibilityLabel={`Quitar ${it.food.name}`}
+                  onPress={() => setItems(items.filter((_, j) => j !== i))}
+                  hitSlop={6}
+                  scaleTo={0.9}
+                  style={{ width: 40, height: 40, alignItems: "center", justifyContent: "center" }}>
+                  <XIcon size={18} color={c.inkMuted} />
+                </Press>
               </View>
-              <TextInput
-                accessibilityLabel={`Gramos de ${it.food.name}`}
-                value={it.grams}
-                onChangeText={(v) => setItems(items.map((x, j) => (j === i ? { ...x, grams: v } : x)))}
-                keyboardType="decimal-pad"
-                style={{ width: 72, minHeight: 40, textAlign: "right", paddingHorizontal: 10, borderRadius: radius.sm, borderWidth: 1, borderColor: grams(it) > 0 ? c.line : c.danger, backgroundColor: c.field, fontFamily: fonts.bodySemi, fontSize: 15, color: c.ink, fontVariant: ["tabular-nums"] }}
-              />
-              <Txt size={14} muted>g</Txt>
-              <Pressable
-                accessibilityRole="button"
-                accessibilityLabel={`Quitar ${it.food.name}`}
-                onPress={() => setItems(items.filter((_, j) => j !== i))}
-                hitSlop={6}
-                style={{ width: 40, height: 40, alignItems: "center", justifyContent: "center" }}>
-                <XIcon size={18} color={c.inkMuted} />
-              </Pressable>
+            );
+          })}
+          <View style={{ marginBottom: results.length ? 0 : -space.md, marginTop: items.length ? space.sm : 0 }}>
+            <Field label={items.length ? "Agregar otro ingrediente" : "Busca el primer ingrediente"} value={q} onChangeText={setQ} placeholder="huevo, arepa, queso…" />
+          </View>
+          {results.length ? (
+            <View style={{ marginTop: -space.sm }}>
+              {results.map((f, i) => {
+                const FoodIcon = foodIcon(f.name);
+                return (
+                  <Press
+                    key={f.id}
+                    accessibilityRole="button"
+                    accessibilityLabel={`Agregar ${f.name}`}
+                    onPress={() => add(f)}
+                    scaleTo={0.985}
+                    style={{ flexDirection: "row", alignItems: "center", gap: space.md, minHeight: 52, borderBottomWidth: i === results.length - 1 ? 0 : 1, borderBottomColor: c.line }}>
+                    <FoodIcon size={18} color={c.inkFaint} />
+                    <Txt size={14.5} style={{ flex: 1 }} numberOfLines={2}>{f.name}</Txt>
+                    <View style={{ width: 32, height: 32, borderRadius: 16, backgroundColor: c.brandMuted, alignItems: "center", justifyContent: "center" }}>
+                      <PlusIcon size={16} color={c.brandInk} weight="bold" />
+                    </View>
+                  </Press>
+                );
+              })}
             </View>
-          ))}
+          ) : null}
         </Card>
-      ) : null}
-      <Field label={items.length ? "Agregar otro ingrediente" : "Busca el primer ingrediente"} value={q} onChangeText={setQ} placeholder="huevo, arepa, queso…" />
-      {results.length ? (
-        <Card style={{ paddingVertical: space.xs, marginTop: -space.sm }}>
-          {results.map((f, i) => (
-            <Pressable
-              key={f.id}
-              accessibilityRole="button"
-              accessibilityLabel={`Agregar ${f.name}`}
-              onPress={() => add(f)}
-              style={({ pressed }) => [{ flexDirection: "row", alignItems: "center", gap: space.md, minHeight: 52, borderBottomWidth: i === results.length - 1 ? 0 : 1, borderBottomColor: c.muted }, pressed && { opacity: 0.7 }]}>
-              <Txt size={14.5} style={{ flex: 1 }} numberOfLines={2}>{f.name}</Txt>
-              <PlusIcon size={18} color={c.brandInk} weight="bold" />
-            </Pressable>
-          ))}
-        </Card>
-      ) : null}
+      </Rise>
 
-      <Section>Porciones</Section>
-      <View style={{ flexDirection: "row", alignItems: "center", gap: space.md }}>
-        <Counter icon={<MinusIcon size={20} color={c.ink} weight="bold" />} label="Una porción menos" disabled={servings <= 1} onPress={() => setServings(servings - 1)} />
-        <Text accessibilityLiveRegion="polite" style={{ minWidth: 120, textAlign: "center", fontFamily: fonts.display, fontSize: 24, color: c.ink, fontVariant: ["tabular-nums"] }}>
-          {servings} {servings === 1 ? "porción" : "porciones"}
-        </Text>
-        <Counter icon={<PlusIcon size={20} color={c.ink} weight="bold" />} label="Una porción más" disabled={servings >= 20} onPress={() => setServings(servings + 1)} />
-      </View>
+      <Rise delay={100}>
+        <Section>Porciones</Section>
+        <Card style={{ flexDirection: "row", alignItems: "center", justifyContent: "space-between", gap: space.md }}>
+          <Counter icon={<MinusIcon size={20} color={c.ink} weight="bold" />} label="Una porción menos" disabled={servings <= 1} onPress={() => setServings(servings - 1)} />
+          <Text accessibilityLiveRegion="polite" style={{ flex: 1, textAlign: "center", fontFamily: fonts.display, fontSize: 24, color: c.ink, fontVariant: ["tabular-nums"] }}>
+            {servings} {servings === 1 ? "porción" : "porciones"}
+          </Text>
+          <Counter icon={<PlusIcon size={20} color={c.ink} weight="bold" />} label="Una porción más" disabled={servings >= 20} onPress={() => setServings(servings + 1)} />
+        </Card>
+      </Rise>
 
       {items.length ? (
-        <Card style={{ marginTop: space.lg, gap: space.md }}>
-          <Txt muted size={13}>
-            {servings > 1 ? `Cada porción (${Math.round(totalGrams / servings)} g)` : `Toda la comida (${Math.round(totalGrams)} g)`}
-          </Txt>
-          <MacroLine kcal={per(total.kcal)} protein={per(total.protein)} carbs={per(total.carbs)} fat={per(total.fat)} />
-        </Card>
+        <Rise>
+          <Card tone="muted" style={{ marginTop: space.md, gap: space.md }}>
+            <Txt muted size={13}>
+              {servings > 1 ? `Cada porción (${Math.round(totalGrams / servings)} g)` : `Toda la comida (${Math.round(totalGrams)} g)`}
+            </Txt>
+            <MacroLine kcal={per(total.kcal)} protein={per(total.protein)} carbs={per(total.carbs)} fat={per(total.fat)} />
+          </Card>
+        </Rise>
       ) : null}
-
-      <Button label="Guardar mi comida" onPress={save} loading={busy} disabled={!ready} style={{ marginTop: space.xl }} />
     </Screen>
   );
 }
@@ -146,14 +174,15 @@ export default function Recipe() {
 function Counter({ icon, label, onPress, disabled }: { icon: React.ReactNode; label: string; onPress: () => void; disabled?: boolean }) {
   const c = useColors();
   return (
-    <Pressable
+    <Press
       accessibilityRole="button"
       accessibilityLabel={label}
       accessibilityState={{ disabled }}
       disabled={disabled}
       onPress={onPress}
-      style={({ pressed }) => [{ width: 48, height: 48, borderRadius: radius.md, backgroundColor: c.muted, alignItems: "center", justifyContent: "center", opacity: disabled ? 0.4 : 1 }, pressed && { transform: [{ scale: 0.95 }] }]}>
+      scaleTo={0.94}
+      style={{ width: 48, height: 48, borderRadius: radius.pill, backgroundColor: c.muted, alignItems: "center", justifyContent: "center", opacity: disabled ? 0.4 : 1 }}>
       {icon}
-    </Pressable>
+    </Press>
   );
 }

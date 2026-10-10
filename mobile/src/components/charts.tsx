@@ -9,10 +9,11 @@
  *   escrita al lado: el color nunca es el único canal.
  */
 import { useEffect, useMemo, useRef, useState } from "react";
-import { AccessibilityInfo, Animated, Easing, Pressable, Text, View } from "react-native";
+import { AccessibilityInfo, Animated, Pressable, Text, View } from "react-native";
 import Svg, { Circle, Line, Path, Rect } from "react-native-svg";
 
-import { fonts, space, useColors } from "@/lib/theme";
+import { Ticker } from "@/components/ui";
+import { fonts, motion, space, useColors } from "@/lib/theme";
 
 const AnimatedCircle = Animated.createAnimatedComponent(Circle);
 
@@ -27,27 +28,38 @@ function useReducedMotion() {
 }
 
 /**
- * Anillo de calorías: lo consumido sobre la meta. Pasado el 100 % el arco se
- * completa y cambia a ámbar; la cifra de adentro dice cuánto queda o cuánto
- * sobra, que es lo que la persona quiere saber.
+ * Anillo de calorías: lo consumido sobre la meta. Se llena desde cero al
+ * entrar (900 ms, ease-out) y cuando cambia el dato. Pasado el 105 % el arco
+ * cambia a ámbar. Adentro va lo que la persona quiere saber: cuánto queda
+ * (`show="left"`) o cuánto lleva (`show="consumed"`).
  */
-export function CalorieRing({ value, target, size = 148 }: { value: number; target?: number; size?: number }) {
+export function CalorieRing({
+  value,
+  target,
+  size = 148,
+  stroke = 14,
+  show = "left",
+}: {
+  value: number;
+  target?: number;
+  size?: number;
+  stroke?: number;
+  show?: "left" | "consumed";
+}) {
   const c = useColors();
   const reduce = useReducedMotion();
-  const stroke = 12;
   const r = (size - stroke) / 2;
   const circ = 2 * Math.PI * r;
   const ratio = target ? Math.min(value / target, 1) : 0;
   const over = Boolean(target && value > target * 1.05);
-  const progress = useRef(new Animated.Value(ratio)).current;
+  const progress = useRef(new Animated.Value(reduce ? ratio : 0)).current;
 
   useEffect(() => {
     if (reduce) {
       progress.setValue(ratio);
       return;
     }
-    // Se anima porque el dato cambió de verdad (se registró una comida), no al navegar.
-    Animated.timing(progress, { toValue: ratio, duration: 520, easing: Easing.bezier(0.23, 1, 0.32, 1), useNativeDriver: false }).start();
+    Animated.timing(progress, { toValue: ratio, duration: motion.fill, easing: motion.out, useNativeDriver: false }).start();
   }, [ratio, reduce, progress]);
 
   const offset = progress.interpolate({ inputRange: [0, 1], outputRange: [circ, 0] });
@@ -57,7 +69,10 @@ export function CalorieRing({ value, target, size = 148 }: { value: number; targ
       ? `${Math.round(value)} de ${target} kilocalorías; quedan ${left}`
       : `${Math.round(value)} de ${target} kilocalorías; te pasaste por ${-left!}`
     : `${Math.round(value)} kilocalorías`;
-
+  const big = size >= 140;
+  const centerValue = show === "consumed" || left === null ? value : Math.abs(left);
+  const centerLabel =
+    show === "consumed" ? (target ? `de ${target.toLocaleString("es-CO")} kcal` : "kcal hoy") : left === null ? "kcal hoy" : left >= 0 ? "kcal quedan" : "kcal de más";
   return (
     <View accessible accessibilityRole="image" accessibilityLabel={label} style={{ width: size, height: size }}>
       <Svg width={size} height={size}>
@@ -77,25 +92,52 @@ export function CalorieRing({ value, target, size = 148 }: { value: number; targ
           />
         ) : null}
       </Svg>
-      <View style={{ position: "absolute", inset: 0, alignItems: "center", justifyContent: "center" }}>
-        <Text style={{ fontFamily: fonts.display, fontSize: 30, lineHeight: 34, color: c.ink }}>
-          {left === null ? Math.round(value) : Math.abs(left)}
-        </Text>
-        <Text style={{ fontFamily: fonts.bodyMedium, fontSize: 12.5, color: c.inkMuted }}>
-          {left === null ? "kcal hoy" : left >= 0 ? "kcal quedan" : "kcal de más"}
+      <View style={{ position: "absolute", top: 0, left: 0, right: 0, bottom: 0, alignItems: "center", justifyContent: "center", paddingHorizontal: stroke + 4 }}>
+        {show === "consumed" ? <Text style={{ fontFamily: fonts.bodyMedium, fontSize: 12, color: c.inkMuted }}>Consumidas</Text> : null}
+        <Ticker value={centerValue} size={big ? 34 : 24} />
+        <Text numberOfLines={1} style={{ fontFamily: fonts.bodyMedium, fontSize: big ? 12.5 : 11, color: c.inkMuted }}>
+          {centerLabel}
         </Text>
       </View>
     </View>
   );
 }
 
-/** Medidor horizontal: valor contra meta con la cifra escrita. */
+/**
+ * Barra que crece desde cero al entrar. `preview` pinta encima, en un tono
+ * más claro, lo que sumaría una porción que todavía no se registró.
+ */
+export function Bar({ ratio, color, preview = 0, height = 10 }: { ratio: number; color: string; preview?: number; height?: number }) {
+  const c = useColors();
+  const reduce = useReducedMotion();
+  const clamp = (n: number) => Math.max(0, Math.min(n, 1));
+  const t = useRef(new Animated.Value(reduce ? clamp(ratio) : 0)).current;
+  const p = useRef(new Animated.Value(clamp(preview))).current;
+  useEffect(() => {
+    Animated.timing(t, { toValue: clamp(ratio), duration: reduce ? 0 : motion.fill, easing: motion.out, useNativeDriver: false }).start();
+  }, [ratio, reduce, t]);
+  useEffect(() => {
+    Animated.timing(p, { toValue: clamp(preview), duration: reduce ? 0 : motion.fast, easing: motion.out, useNativeDriver: false }).start();
+  }, [preview, reduce, p]);
+  const pct = (v: Animated.Value) => v.interpolate({ inputRange: [0, 1], outputRange: ["0%", "100%"] });
+  return (
+    <View style={{ height, borderRadius: height / 2, backgroundColor: c.muted, overflow: "hidden", flexDirection: "row" }}>
+      <Animated.View style={{ height, width: pct(t), borderRadius: height / 2, backgroundColor: color }} />
+      {preview > 0 ? <Animated.View style={{ height, width: pct(p), borderTopRightRadius: height / 2, borderBottomRightRadius: height / 2, backgroundColor: color, opacity: 0.38 }} /> : null}
+    </View>
+  );
+}
+
+/** Medidor horizontal: valor contra meta con la cifra escrita y su porcentaje. */
 export function Meter({
   label,
   value,
   target,
   unit,
   kind = "min",
+  color,
+  preview = 0,
+  showPct = true,
 }: {
   label: string;
   value: number;
@@ -103,26 +145,29 @@ export function Meter({
   unit: string;
   /** min: hay que llegar (proteína, fibra); max: no pasarse (sodio, azúcares). */
   kind?: "min" | "max";
+  color?: string;
+  /** Lo que sumaría la porción que se está mirando (misma unidad que value). */
+  preview?: number;
+  showPct?: boolean;
 }) {
   const c = useColors();
-  const pct = target ? Math.min(value / target, 1) : 0;
   const over = Boolean(target && kind === "max" && value > target);
   const fmt = (n: number) => (n >= 100 ? Math.round(n).toLocaleString("es-CO") : String(Math.round(n * 10) / 10).replace(".", ","));
+  const pct = target ? Math.round((value / target) * 100) : null;
   return (
     <View
       accessible
       accessibilityLabel={`${label}: ${fmt(value)} ${unit}${target ? ` de ${fmt(target)}` : ""}${over ? ", por encima del límite" : ""}`}
-      style={{ gap: 6 }}>
-      <View style={{ flexDirection: "row", justifyContent: "space-between", alignItems: "baseline" }}>
-        <Text style={{ fontFamily: fonts.bodyMedium, fontSize: 13.5, color: c.inkMuted }}>{label}</Text>
+      style={{ gap: 7 }}>
+      <View style={{ flexDirection: "row", justifyContent: "space-between", alignItems: "baseline", gap: 8 }}>
+        <Text style={{ fontFamily: fonts.bodySemi, fontSize: 14, color: c.ink }}>{label}</Text>
         <Text style={{ fontFamily: fonts.bodySemi, fontSize: 13.5, color: c.ink, fontVariant: ["tabular-nums"] }}>
-          {fmt(value)}
+          {fmt(value + preview)}
           <Text style={{ fontFamily: fonts.body, color: c.inkMuted }}>{target ? ` / ${fmt(target)}` : ""} {unit}</Text>
+          {showPct && pct !== null ? <Text style={{ fontFamily: fonts.bodySemi, color: over ? c.warn : c.inkMuted }}>{`  ${Math.round(((value + preview) / target!) * 100)} %`}</Text> : null}
         </Text>
       </View>
-      <View style={{ height: 8, borderRadius: 4, backgroundColor: c.muted, overflow: "hidden" }}>
-        <View style={{ height: 8, width: `${pct * 100}%`, borderRadius: 4, backgroundColor: over ? c.warn : c.brand }} />
-      </View>
+      <Bar ratio={target ? value / target : 0} preview={target ? preview / target : 0} color={over ? c.warn : color ?? c.brand} />
     </View>
   );
 }

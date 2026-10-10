@@ -1,8 +1,10 @@
-"""Alimentos: la base de referencia incluida (USDA + platos colombianos), lo que
-traen los códigos de barras (Open Food Facts), los alimentos propios de cada
-persona y sus recetas («mi comida»)."""
+"""Alimentos: la base de referencia incluida (TCAC del ICBF, USDA y platos
+colombianos), los productos empacados de Colombia y lo que traen los códigos de
+barras (Open Food Facts), los alimentos propios de cada persona y sus recetas
+(«mi comida»)."""
 from __future__ import annotations
 
+import gzip
 import json
 import logging
 import re
@@ -14,7 +16,8 @@ from pathlib import Path
 from typing import Iterable, Optional
 
 import httpx
-from sqlalchemy import func, or_, select, text
+from sqlalchemy import case, func, or_, select, text
+from sqlalchemy.dialects.postgresql import insert as pg_insert
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -23,6 +26,9 @@ from app.models.app import Food, MealEntry
 
 logger = logging.getLogger(__name__)
 REFERENCE = Path(__file__).resolve().parent.parent / "data" / "foods_reference.json"
+#: Productos empacados de Colombia (Open Food Facts), para que el escáner los
+#: encuentre sin salir a internet. Lo arma `scripts/build_packaged.py`.
+PACKAGED = Path(__file__).resolve().parent.parent / "data" / "foods_packaged.json.gz"
 OFF_URL = "https://world.openfoodfacts.org/api/v2/product/{code}.json"
 OFF_FIELDS = "product_name,product_name_es,brands,nutriments,serving_quantity"
 USER_AGENT = "LSMFit/0.1 (app de entrenamiento; contacto lsmfit.business@gmail.com)"
@@ -111,6 +117,53 @@ async def seed_reference(db: AsyncSession) -> int:
     return len(data["foods"])
 
 
+def packaged_data() -> Optional[dict]:
+    if not PACKAGED.exists():
+        return None
+    with gzip.open(PACKAGED, "rt", encoding="utf-8") as fh:
+        return json.load(fh)
+
+
+async def seed_packaged(db: AsyncSession) -> int:
+    """Carga los productos empacados cuando sube su versión. Hace upsert por
+    código de barras y solo sobre filas de Open Food Facts: lo que la persona
+    creó a mano nunca se pisa."""
+    await db.execute(text("SELECT pg_advisory_xact_lock(hashtext('lsmfit_packaged_seed'))"))
+    data = packaged_data()
+    if data is None:
+        await db.commit()
+        return 0
+    version = int(data.get("version", 1))
+    current = (await db.execute(select(func.max(Food.data_version)).where(
+        Food.source == "openfoodfacts", Food.owner_id.is_(None)))).scalar() or 0
+    if current >= version:
+        await db.commit()
+        return 0
+    n = await upsert_packaged(db, data["products"], version)
+    await db.commit()
+    return n
+
+
+async def upsert_packaged(db: AsyncSession, products: list[dict], version: int) -> int:
+    rows = [{
+        "id": uuid.uuid4(), "name": p["name"], "brand": p.get("brand"), "barcode": p["barcode"],
+        "source": "openfoodfacts", "kcal": p["kcal"], "protein_g": p["protein_g"], "carbs_g": p["carbs_g"],
+        "fat_g": p["fat_g"], "fiber_g": p.get("fiber_g") or 0, "portions": p.get("portions", []),
+        "nutrients": p.get("nutrients", {}), "category": p.get("category"), "synonyms": [],
+        "origin": "Open Food Facts (ODbL)", "search_text": search_text_for(p["name"], (), p.get("brand")),
+        "data_version": version,
+    } for p in products]
+    updatable = ("name", "brand", "kcal", "protein_g", "carbs_g", "fat_g", "fiber_g", "portions", "nutrients",
+                 "category", "origin", "search_text", "data_version")
+    for i in range(0, len(rows), 1000):
+        stmt = pg_insert(Food).values(rows[i:i + 1000])
+        stmt = stmt.on_conflict_do_update(
+            index_elements=[Food.barcode], set_={k: stmt.excluded[k] for k in updatable},
+            where=(Food.source == "openfoodfacts") & Food.owner_id.is_(None))
+        await db.execute(stmt)
+    return len(rows)
+
+
 def out(f: Food) -> dict:
     return {
         "id": str(f.id), "name": f.name, "brand": f.brand, "source": f.source, "barcode": f.barcode,
@@ -157,13 +210,19 @@ async def search(db: AsyncSession, user_id: uuid.UUID, q: str, limit: int = 25,
         return sorted(rows, key=lambda f: (-used.get(f.id, 0), rank.get(f.ref_key, len(COMMON))))[:limit]
     for t in tokens[:5]:
         stmt = stmt.where(Food.search_text.contains(t))
-    rows = list((await db.execute(stmt.order_by(Food.name).limit(300))).scalars().all())
+    # Con miles de productos empacados, «arroz» trae cientos de marcas: el
+    # corte de 300 se hace con los genéricos y lo propio por delante.
+    packaged = case((Food.source == "openfoodfacts", 1), else_=0)
+    rows = list((await db.execute(stmt.order_by(packaged, func.length(Food.name)).limit(300))).scalars().all())
     used = await usage_counts(db, user_id)
     nq = normalize(q)
 
     def score(f: Food) -> tuple:
         n = normalize(f.name)
-        return (-used.get(f.id, 0), not (nq and n.startswith(nq)), f.owner_id is None, len(n))
+        # Una marca solo sube si la persona la escribió.
+        by_brand = bool(f.brand) and any(t in normalize(f.brand) for t in tokens)
+        is_packaged = f.source == "openfoodfacts" and not by_brand
+        return (-used.get(f.id, 0), not (nq and n.startswith(nq)), f.owner_id is None, is_packaged, len(n))
 
     return sorted(rows, key=score)[:limit]
 
@@ -256,10 +315,22 @@ async def fetch_off(code: str) -> Optional[dict]:
         return None
 
 
+def barcode_variants(code: str) -> list[str]:
+    """El mismo producto se lee como UPC-A (12 dígitos) o como EAN-13 con un
+    cero adelante, y Open Food Facts lo guarda de cualquiera de las dos formas."""
+    out = [code]
+    if len(code) == 12:
+        out.append("0" + code)
+    if len(code) == 13 and code.startswith("0"):
+        out.append(code[1:])
+    return out
+
+
 async def by_barcode(db: AsyncSession, code: str) -> Optional[Food]:
     if not re.fullmatch(r"\d{8,14}", code):
         return None
-    found = (await db.execute(select(Food).where(Food.barcode == code, Food.owner_id.is_(None)))).scalar_one_or_none()
+    found = (await db.execute(select(Food).where(Food.barcode.in_(barcode_variants(code)), Food.owner_id.is_(None))
+                              .limit(1))).scalar_one_or_none()
     if found:
         return found
     data = await fetch_off(code)

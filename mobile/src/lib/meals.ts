@@ -43,6 +43,41 @@ export function entryFor(food: Food, grams: number, meal: MealKey, day = bogotaT
   };
 }
 
+export const QUICK_LABEL = "Registro rápido";
+
+/** Registro rápido: solo calorías (y macros si se saben), sin alimento ni gramos. */
+export function quickEntry(
+  v: { label?: string; kcal: number; protein_g?: number; carbs_g?: number; fat_g?: number },
+  meal: MealKey,
+  day = bogotaToday(),
+): MealEntry {
+  const r = (n?: number) => Math.round((n ?? 0) * 10) / 10;
+  return {
+    id: Crypto.randomUUID(),
+    day,
+    meal,
+    food_id: null,
+    food_name: v.label?.trim() || QUICK_LABEL,
+    grams: 0,
+    kcal: r(v.kcal),
+    protein_g: r(v.protein_g),
+    carbs_g: r(v.carbs_g),
+    fat_g: r(v.fat_g),
+    fiber_g: 0,
+    nutrients: {},
+    pending: true,
+  };
+}
+
+/** La comida que toca según la hora de Bogotá. */
+export function mealNow(now = Date.now()): MealKey {
+  const h = new Date(now - 5 * 3600_000).getUTCHours();
+  if (h < 10) return "breakfast";
+  if (h < 15) return "lunch";
+  if (h < 18) return "snack";
+  return "dinner";
+}
+
 let running: Promise<MealEntry[]> | null = null;
 
 export function syncMeals(): Promise<MealEntry[]> {
@@ -51,7 +86,10 @@ export function syncMeals(): Promise<MealEntry[]> {
       const left: MealEntry[] = [];
       for (const m of await pendingMeals()) {
         try {
-          await api("/api/v1/me/meals", { method: "POST", json: { id: m.id, day: m.day, meal: m.meal, food_id: m.food_id, grams: m.grams } });
+          const json = m.food_id
+            ? { id: m.id, day: m.day, meal: m.meal, food_id: m.food_id, grams: m.grams }
+            : { id: m.id, day: m.day, meal: m.meal, label: m.food_name, kcal: m.kcal, protein_g: m.protein_g, carbs_g: m.carbs_g, fat_g: m.fat_g };
+          await api("/api/v1/me/meals", { method: "POST", json });
         } catch (e) {
           if (e instanceof OfflineError || (e instanceof ApiError && e.status >= 500)) left.push(m);
         }
