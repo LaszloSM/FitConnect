@@ -6,7 +6,7 @@ import { driver, type Driver } from "driver.js";
 import "driver.js/dist/driver.css";
 import { apiClient } from "@/lib/api";
 
-export const TOUR_START_EVENT = "fitconnect:start-tour";
+export const TOUR_START_EVENT = "lsmfit:start-tour";
 
 /** Tour de bienvenida con spotlight sobre el panel real. Se dispara solo la
  * primera vez (tour_completed en /onboarding/status) y se puede retomar desde
@@ -36,7 +36,7 @@ export function OnboardingTour() {
         steps: [
           {
             popover: {
-              title: "Tu gimnasio ya está en FitConnect",
+              title: "Tu gimnasio ya está en LSMFit",
               description:
                 "En un minuto te mostramos dónde está cada cosa. Puedes salir del recorrido cuando quieras con Esc y retomarlo desde la lista de primeros pasos.",
             },

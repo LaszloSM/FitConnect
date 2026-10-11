@@ -1,7 +1,7 @@
 """El personal del gimnasio tambien entrena aqui.
 
 Antes no habia ningun vinculo entre el equipo y `members`: un entrenador o un
-recepcionista trabajaba en el gimnasio pero su huella, su QR y el torniquete no
+recepcionista trabajaba en el gimnasio pero su huella y el torniquete no
 lo reconocian. Ahora cada persona del equipo nace con su ficha de socio y una
 membresia de cortesia, y entra por los mismos caminos que cualquiera.
 
@@ -59,7 +59,6 @@ async def test_el_dueno_nace_con_su_ficha_de_socio(client):
     ficha = await _find_member(client, token, "Dueña Staff")
     assert ficha is not None, "el dueño no tiene ficha de socio"
     assert ficha["member_type"] == "staff"
-    assert ficha["qr_code"], "sin QR no puede entrar por el kiosko"
 
 
 async def test_el_invitado_entra_al_gimnasio_al_aceptar(client):

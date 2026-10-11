@@ -27,7 +27,7 @@ params=$(jq -n --arg s "$script" '{commands: [$s], executionTimeout: ["1800"]}')
 cmd_id=$(aws ssm send-command --region "$region" \
   --instance-ids "$instance" \
   --document-name AWS-RunShellScript \
-  --comment "fitconnect deploy-lite: ${phase_args%% *}" \
+  --comment "lsmfit deploy-lite: ${phase_args%% *}" \
   --parameters "$params" \
   --query Command.CommandId --output text)
 echo "SSM $cmd_id (${phase_args})"

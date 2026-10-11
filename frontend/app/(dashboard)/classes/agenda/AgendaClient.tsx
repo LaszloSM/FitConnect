@@ -206,6 +206,8 @@ export default function AgendaClient() {
         <div className="flex items-center justify-between gap-3 flex-wrap">
           <div className="flex items-center gap-1.5">
             <button
+              type="button"
+              aria-label="Semana anterior"
               onClick={() => setWeekStart((w) => addDays(w, -7))}
               className="h-8 w-8 rounded-lg border border-[var(--border-base)] flex items-center justify-center text-[var(--text-muted)] hover:text-[var(--text-base)] transition-colors"
             >
@@ -218,6 +220,8 @@ export default function AgendaClient() {
               Hoy
             </button>
             <button
+              type="button"
+              aria-label="Semana siguiente"
               onClick={() => setWeekStart((w) => addDays(w, 7))}
               className="h-8 w-8 rounded-lg border border-[var(--border-base)] flex items-center justify-center text-[var(--text-muted)] hover:text-[var(--text-base)] transition-colors"
             >

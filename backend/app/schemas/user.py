@@ -18,6 +18,8 @@ class InviteResponse(BaseModel):
     role: UserRole
     invite_url: str
     expires_at: datetime
+    # True si el correo con la invitación salió. Si no, el dueño comparte el enlace a mano.
+    email_sent: bool = False
 
 
 class UserResponse(BaseModel):

@@ -13,6 +13,7 @@ import { apiClient } from "@/lib/api";
 import { parseApiError } from "@/lib/errors";
 import { formatTimeAgo } from "@/lib/format";
 import { useApiResource } from "@/hooks/useApiResource";
+import { OfflineReadiness } from "@/components/offline/OfflineReadiness";
 import { AccessDevicePanel, PROTOCOLS, SetupSteps, type AccessConfig, type AccessProtocol } from "@/components/settings/AccessDevicePanel";
 import { CheckIcon as Check, CopyIcon as Copy, DoorOpenIcon as DoorOpen, FingerprintIcon as Fingerprint, LinkIcon as Link2, SpinnerGapIcon as Loader2, MonitorPlayIcon as MonitorPlay, DevicesIcon as MonitorSmartphone, PencilSimpleIcon as Pencil, PlusIcon as Plus, ShieldSlashIcon as ShieldOff, XIcon as X, WifiSlashIcon as WifiOff, ScrollIcon as ScrollText } from "@phosphor-icons/react";
 
@@ -39,8 +40,8 @@ interface AccessEvent {
 }
 
 const KINDS: { key: DeviceKind; label: string; hint: string; icon: React.ReactNode; path: string }[] = [
-  { key: "kiosk", label: "Kiosko", hint: "Tablet en la entrada: el socio digita su cédula o escanea el carné", icon: <MonitorSmartphone className="h-4 w-4" />, path: "/kiosk" },
-  { key: "turnstile", label: "Torniquete", hint: "Con reconocimiento de rostro, huella o tarjeta. FitConnect le dice quién está al día", icon: <DoorOpen className="h-4 w-4" />, path: "" },
+  { key: "kiosk", label: "Kiosko", hint: "Tablet en la entrada: el socio digita su cédula", icon: <MonitorSmartphone className="h-4 w-4" />, path: "/kiosk" },
+  { key: "turnstile", label: "Torniquete", hint: "Con reconocimiento de rostro, huella o tarjeta. LSMFit le dice quién está al día", icon: <DoorOpen className="h-4 w-4" />, path: "" },
   { key: "reader", label: "Lector", hint: "Lector de huella o tarjeta sin torniquete (solo registra la entrada)", icon: <Fingerprint className="h-4 w-4" />, path: "" },
   { key: "screen", label: "Pantalla", hint: "TV o tablet del salón para mostrar las rutinas", icon: <MonitorPlay className="h-4 w-4" />, path: "/screen" },
 ];
@@ -51,7 +52,7 @@ const DECISION_LABEL: Record<string, { label: string; tone: string }> = {
   denied: { label: "Denegado", tone: "text-[var(--signal-danger)]" },
   not_found: { label: "No reconocido", tone: "text-[var(--signal-warn)]" },
 };
-const CRED_LABEL: Record<string, string> = { id_number: "Cédula", qr: "Carné QR", fingerprint: "Huella", face: "Rostro", card: "Tarjeta", pin: "PIN" };
+const CRED_LABEL: Record<string, string> = { id_number: "Cédula", qr: "QR (antes)", fingerprint: "Huella", face: "Rostro", card: "Tarjeta", pin: "PIN" };
 
 export default function KioskSection() {
   const { data: session } = useSession();
@@ -167,6 +168,15 @@ export default function KioskSection() {
 
   return (
     <div className="space-y-4">
+      <GlassCard className="p-5 space-y-3">
+        <div>
+          <h3 className="text-base font-semibold text-[var(--text-base)]">Este computador sin internet</h3>
+          <p className="text-sm text-[var(--text-muted)]">
+            Revisa que la recepción pueda seguir trabajando si se cae el internet.
+          </p>
+        </div>
+        <OfflineReadiness />
+      </GlassCard>
       <GlassCard className="p-5 space-y-4">
         <div>
           <h3 className="text-base font-semibold text-[var(--text-base)] flex items-center gap-2">
@@ -175,7 +185,7 @@ export default function KioskSection() {
           </h3>
           <p className="text-sm text-[var(--text-muted)] mt-1">
             Cada equipo tiene su propio token, revocable. Kiosko y pantalla abren un enlace. El torniquete reconoce rostro o
-            huella por sí mismo y FitConnect le dice quién está al día y hasta cuándo, así funciona aunque se vaya el internet.
+            huella por sí mismo y LSMFit le dice quién está al día y hasta cuándo, así funciona aunque se vaya el internet.
           </p>
         </div>
 

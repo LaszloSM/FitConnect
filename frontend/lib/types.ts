@@ -30,7 +30,6 @@ export interface Member {
   parq_answers: Record<string, boolean> | null;
   parq_completed_at: string | null;
   training_goal: TrainingGoal | null;
-  qr_code: string | null;
   status: MemberStatus;
   notes: string | null;
   trainer_id: string | null;

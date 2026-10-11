@@ -1,6 +1,6 @@
-# App móvil de FitConnect
+# App móvil de LSMFit
 
-Para socios de un gimnasio con FitConnect y para personas que entrenan solas.
+Para socios de un gimnasio con LSMFit y para personas que entrenan solas.
 El código está en `mobile/` (cómo correrla y publicarla: `mobile/README.md`).
 
 ## Qué puede hacer la persona
@@ -12,7 +12,6 @@ El código está en `mobile/` (cómo correrla y publicarla: `mobile/README.md`).
 | Ver su progreso por ejercicio | ✓ | ✓ |
 | Medidas y objetivo (peso y talla solo con autorización de salud) | ✓ | ✓ |
 | Membresía, días que le quedan y entradas de su ticketera | ✓ | |
-| QR de entrada que cambia cada 30 s y funciona sin internet | ✓ | |
 | Reservar y cancelar clases, lista de espera | ✓ | |
 | Rutina asignada por su entrenador, para registrarla serie a serie | ✓ | |
 | Pagos y renovación en línea (Wompi del gimnasio) | ✓ | |
@@ -32,15 +31,6 @@ El código está en `mobile/` (cómo correrla y publicarla: `mobile/README.md`).
    número de documento. Las dos cosas tienen que coincidir; 5 intentos fallidos inutilizan el código.
 4. Si cambia de celular o de correo, recepción genera un código nuevo: al usarlo, la cuenta
    anterior pierde el acceso a esa ficha.
-
-## QR de entrada
-
-- El celular calcula el código sin internet: TOTP de 30 segundos con una llave por día derivada
-  de la llave del vínculo (`HMAC-SHA1(llave, "AAAA-MM-DD" de Bogotá)`).
-- Lo aceptan el mostrador (lector de QR), el kiosko y el torniquete (`/access/verify`).
-- Recepción sin internet lo verifica con la copia local, que solo trae las llaves de hoy y
-  mañana: un PC robado no sirve para fabricar QR la semana siguiente.
-- Una captura de pantalla deja de servir en minuto y medio. Al desvincular la app, el QR muere.
 
 ## Dónde viven los datos
 
@@ -72,23 +62,43 @@ El código está en `mobile/` (cómo correrla y publicarla: `mobile/README.md`).
   referencia por sexo y edad (IOM/OMS): mínimos (calcio, hierro, potasio, vitaminas) y límites
   (sodio, azúcares, grasa saturada). Solo mayores de 18 y con autorización de datos de salud.
   Código: `backend/app/services/nutrition.py`.
-- **Alimentos** (828, `backend/app/data/foods_reference.json`, se regenera con
+- **Alimentos genéricos** (1.059, `backend/app/data/foods_reference.json`, se regenera con
   `backend/scripts/build_foods.py`):
-  - 712 de la **Tabla de Composición de Alimentos Colombianos (ICBF, 2015)**, extraídos del PDF
+  - 692 de la **Tabla de Composición de Alimentos Colombianos (ICBF, 2015)**, extraídos del PDF
     oficial; solo se aceptan filas cuyas calorías cuadran con sus macros (Atwater).
-  - 103 de **USDA FoodData Central** (dominio público) para lo que la TCAC no trae.
-  - 43 platos colombianos calculados por receta (ajiaco, bandeja paisa, calentado…), marcados
+  - 332 de **USDA FoodData Central** (dominio público) para lo que la TCAC no trae: 101 curados a
+    mano en `foods_curated.py` y 231 en `scripts/foods_usda_es.json` (nombre en español de
+    Colombia, sinónimos y porciones caseras).
+  - 35 platos colombianos calculados por receta (ajiaco, bandeja paisa, calentado…), marcados
     «estimado por receta».
   - Once nutrientes además de los macros. Un dato que la fuente no trae se muestra «sin dato»,
     nunca cero.
-  - Búsqueda sin tildes, por sinónimos (guineo/banano, ahuyama/zapallo) y con lo que la persona
-    más come primero; categorías, recientes y favoritos.
-  - Código de barras con Open Food Facts (el producto se guarda la primera vez).
-  - Alimentos propios con la etiqueta por porción o por 100 g (la app convierte) y aviso si las
-    calorías no cuadran con los macros. «Mi comida»: varios alimentos guardados como uno.
+- **Productos empacados** (962, `backend/app/data/foods_packaged.json.gz`): los productos de
+  Colombia de **Open Food Facts** (licencia ODbL, © colaboradores de Open Food Facts) con código
+  de barras y calorías que cuadran con los macros. El export lo baja el workflow
+  `fuentes-alimentos.yml` (`fetch_off.py`) y `build_packaged.py` lo cura. Se siembra al arrancar
+  (upsert por código de barras). Open Food Facts trae pocos productos colombianos: lo que no está
+  se consulta en vivo y se guarda la primera vez.
+- **Búsqueda**: sin tildes, por sinónimos (guineo/banano, ahuyama/zapallo), con índice de
+  trigramas (`pg_trgm`), lo que la persona más come primero y los genéricos antes que las marcas
+  salvo que se escriba la marca; categorías, recientes y favoritos.
+- **Escáner** (`mobile/src/app/scan.tsx`): lee EAN y UPC (acepta las dos variantes del mismo
+  código), linterna, código a mano si la cámara no lee, y una hoja con porción y comida para
+  agregar sin salir del visor; se escanean varios seguidos. Si el producto no existe, se crea con
+  la etiqueta y el código ya puesto.
+- Alimentos propios con la etiqueta por porción o por 100 g (la app convierte) y aviso si las
+  calorías no cuadran con los macros. «Mi comida»: varios alimentos guardados como uno.
 - **Registro**: por comida del día, también sin señal (se sube después sin duplicar). Se
   cambia la cantidad o se borra desde la misma lista, se repite lo del día anterior, y la vista
   de la semana compara cada día con la meta.
+- **Registro rápido**: calorías (y macros si se saben) sin buscar el alimento
+  (`POST /me/meals` sin `food_id`); queda como «Registro rápido» y se borra, no se le cambian
+  los gramos.
+- **Agua**: vasos de 250 ml desde Inicio y Comer, también sin señal (cola `q:water`, id del
+  cliente). Meta de 35 ml/kg con la autorización de datos de salud, 2.000 ml sin ella, entre
+  1.500 y 4.000 (`/me/water`, `/me/water/goal`).
+- **Racha**: días seguidos con al menos un registro de comida, en hora de Bogotá; un día sin
+  registrar no borra la mejor racha (`GET /me/streak`).
 
 ## Planes (comidas y entreno)
 
@@ -147,12 +157,12 @@ EAS) y lo publica como Release del repo.
 2. Crea la llave de firma una sola vez y guárdala en un lugar seguro (si se pierde, los
    usuarios tendrán que desinstalar para actualizar):
    ```bash
-   keytool -genkeypair -v -keystore fitconnect.keystore -alias fitconnect \
+   keytool -genkeypair -v -keystore lsmfit.keystore -alias lsmfit \
      -keyalg RSA -keysize 2048 -validity 10000
-   base64 -w0 fitconnect.keystore   # copia la salida
+   base64 -w0 lsmfit.keystore   # copia la salida
    ```
    Secrets: `ANDROID_KEYSTORE_BASE64` (la salida), `ANDROID_KEYSTORE_PASSWORD`,
-   `ANDROID_KEY_ALIAS` (`fitconnect`) y `ANDROID_KEY_PASSWORD`. Sin ellos el APK sale firmado
+   `ANDROID_KEY_ALIAS` (`lsmfit`) y `ANDROID_KEY_PASSWORD`. Sin ellos el APK sale firmado
    con la llave de depuración y el Release queda marcado «prueba». La firma la aplica
    `mobile/plugins/withReleaseSigning.js`.
 3. Actions › App Android (APK) › Run workflow, o sube un tag `app-v0.1.0`. Tarda unos 20 min.
@@ -162,7 +172,7 @@ EAS) y lo publica como Release del repo.
    30 de septiembre de 2026 rige solo en Brasil, Indonesia, Singapur y Tailandia; Google planea
    extenderla al resto del mundo en 2027. En Colombia hoy el APK se instala sin registro. Antes
    de 2027 hay que registrarse en la Android Developer Console y asociar el paquete
-   `co.fitconnect.app` con la llave de firma: la cuenta de distribución completa cuesta USD 25
+   `co.lsmfit.app` con la llave de firma: la cuenta de distribución completa cuesta USD 25
    una sola vez (como empresa pide un número D-U-N-S, que es gratis); la de distribución
    limitada es gratis pero solo sirve para 20 dispositivos. Fuente:
    https://developer.android.com/developer-verification
@@ -183,7 +193,5 @@ Otras opciones:
   revisarlo con un abogado.
 - Probar los planes con IA con la llave real (hoy probados con Gemini simulado) y revisar
   planes de ejemplo con un nutricionista.
-- QR de la app en el agente local del torniquete sin internet: hoy el torniquete lo valida en
-  línea; sin red, el socio entra con cara, huella o documento.
 - Recarga de créditos por anuncio (AdMob) o compra, y la suscripción freemium.
 - Publicar en las tiendas (cuenta de Google Play y Apple Developer).

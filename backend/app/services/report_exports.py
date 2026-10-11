@@ -262,7 +262,7 @@ def build_pdf(spec: ReportSpec, *, gym_name: str, logo_png: bytes | None, nit: s
     buf = io.BytesIO()
     margin = 16 * mm
     doc = SimpleDocTemplate(buf, pagesize=A4, topMargin=18 * mm, bottomMargin=22 * mm, leftMargin=margin, rightMargin=margin,
-                            title=f"{spec.title} · {gym_name}", author=gym_name, creator="FitConnect")
+                            title=f"{spec.title} · {gym_name}", author=gym_name, creator="LSMFit")
     avail = A4[0] - 2 * margin
     styles = getSampleStyleSheet()
     ink = colors.HexColor("#" + _INK)
@@ -281,7 +281,7 @@ def build_pdf(spec: ReportSpec, *, gym_name: str, logo_png: bytes | None, nit: s
         canvas.rect(0, 0, 9 * mm, A4[1], stroke=0, fill=1)
         canvas.setFont("Helvetica", 8)
         canvas.setFillColor(muted)
-        canvas.drawString(margin + 6 * mm, 14 * mm, f"Generado el {generated} con FitConnect")
+        canvas.drawString(margin + 6 * mm, 14 * mm, f"Generado el {generated} con LSMFit")
         canvas.restoreState()
 
     def _page(canvas, _doc):
@@ -456,7 +456,7 @@ def build_xlsx(spec: ReportSpec, *, gym_name: str, logo_png: bytes | None) -> by
     ws.cell(row=row + 2, column=2, value=spec.subtitle).font = Font(size=10, color=_MUTED)
     if spec.comparison_label:
         ws.cell(row=row + 3, column=2, value=f"Comparado con {spec.comparison_label}").font = Font(size=10, color=_MUTED)
-    ws.cell(row=row + 4, column=2, value=f"Generado el {today_bogota().strftime('%d/%m/%Y')} · FitConnect").font = Font(size=9, color="A8A29E")
+    ws.cell(row=row + 4, column=2, value=f"Generado el {today_bogota().strftime('%d/%m/%Y')} · LSMFit").font = Font(size=9, color="A8A29E")
 
     r = row + 6
     if spec.tiles:

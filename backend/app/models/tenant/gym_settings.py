@@ -18,7 +18,7 @@ class GymSettings(TenantBase, TenantTimestampMixin):
     id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     grace_days: Mapped[int] = mapped_column(Integer, default=3, nullable=False)
     timezone: Mapped[str] = mapped_column(String(50), default="America/Bogota", nullable=False)
-    receipt_prefix: Mapped[str] = mapped_column(String(10), default="FC", nullable=False)
+    receipt_prefix: Mapped[str] = mapped_column(String(10), default="REC", nullable=False)
     # Turnos de caja opcionales: los gyms de un solo dueño cobran sin abrir/cerrar turno
     cash_shifts_enabled: Mapped[bool] = mapped_column(
         Boolean, default=True, server_default="true", nullable=False

@@ -1,37 +1,46 @@
 "use client";
 
 import Image from "next/image";
-import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
+import { AnimatePresence, motion, useReducedMotion, type PanInfo } from "framer-motion";
 import { useEffect, useState } from "react";
 
 const SLIDES = [
-  { id: "panel", label: "Hoy", path: "/dashboard", src: "/landing/panel.png", alt: "Panel del día: entradas, caja, transferencias por confirmar y membresías que vencen" },
-  { id: "socios", label: "Socios", path: "/members", src: "/landing/socios.png", alt: "Lista de socios con estado de membresía, vencimiento y saldo" },
-  { id: "cobro", label: "Cobro", path: "/payments", src: "/landing/cobro.png", alt: "Pantalla de cobro con búsqueda de socio y venta de productos" },
-  { id: "asistencia", label: "Asistencia", path: "/reports?tab=asistencia", src: "/landing/asistencia.png", alt: "Entradas por día y mapa de calor por hora" },
-  { id: "inteligencia", label: "Inteligencia", path: "/reports?tab=inteligencia", src: "/landing/inteligencia.png", alt: "Modelos del gimnasio comparados contra la regla simple" },
+  { id: "socios", label: "Socios", text: "Quién está al día, quién vence pronto y quién debe, con filtros y búsqueda por cédula.", src: "/landing/socios.webp", alt: "Lista de socios con estado de membresía, vencimiento y saldo" },
+  { id: "ficha", label: "Ficha del socio", text: "Membresías, pagos, entradas, rutina y autorizaciones de una persona en una sola pantalla.", src: "/landing/ficha.webp", alt: "Ficha de un socio con su membresía, pagos y asistencia" },
+  { id: "maquinas", label: "Máquinas", text: "Cada máquina con su mantenimiento al día o vencido, garantía e historial de daños.", src: "/landing/maquinas.webp", alt: "Inventario de máquinas con su estado de mantenimiento" },
+  { id: "ingresos", label: "Ingresos", text: "Lo cobrado por método y por concepto en el periodo que elijas, en PDF o Excel con tu logo.", src: "/landing/ingresos.webp", alt: "Reporte de ingresos por método de pago y concepto" },
 ];
-const EVERY_MS = 5500;
+const EVERY_MS = 6000;
 
 /**
- * Recorrido por pantallas reales del panel. Avanza solo, se pausa al pasar el
- * mouse o enfocar una pestaña, y con movimiento reducido no avanza ni anima.
+ * Recorrido por más pantallas del panel. Avanza solo, se pausa con el mouse
+ * encima o al enfocar una pestaña, se desliza con el dedo, y con movimiento
+ * reducido no avanza ni anima.
  */
 export function ProductTour() {
   const reduce = useReducedMotion();
   const [index, setIndex] = useState(0);
   const [paused, setPaused] = useState(false);
   const slide = SLIDES[index];
+  const go = (d: number) => setIndex((i) => (i + d + SLIDES.length) % SLIDES.length);
 
   useEffect(() => {
     if (paused || reduce) return;
-    const t = setTimeout(() => setIndex((i) => (i + 1) % SLIDES.length), EVERY_MS);
+    const t = setTimeout(() => go(1), EVERY_MS);
     return () => clearTimeout(t);
   }, [index, paused, reduce]);
 
+  const onDragEnd = (_: unknown, info: PanInfo) => {
+    if (Math.abs(info.offset.x) > 60) go(info.offset.x < 0 ? 1 : -1);
+  };
+
   return (
-    <div onMouseEnter={() => setPaused(true)} onMouseLeave={() => setPaused(false)} onFocus={() => setPaused(true)} onBlur={() => setPaused(false)}>
-      <div role="tablist" aria-label="Pantallas del producto" className="mb-4 flex flex-wrap gap-2">
+    <div onMouseEnter={() => setPaused(true)} onMouseLeave={() => setPaused(false)}>
+      <div
+        role="tablist"
+        aria-label="Más pantallas del panel"
+        className="-mx-5 mb-5 flex gap-2 overflow-x-auto px-5 [scrollbar-width:none] sm:mx-0 sm:flex-wrap sm:px-0"
+      >
         {SLIDES.map((s, i) => {
           const on = i === index;
           return (
@@ -41,7 +50,9 @@ export function ProductTour() {
               aria-selected={on}
               aria-controls="tour-panel"
               onClick={() => setIndex(i)}
-              className={`relative overflow-hidden rounded-[var(--radius-md)] px-3.5 py-2 text-sm font-medium transition-colors ${on ? "bg-panel text-ink shadow-[var(--shadow-card)]" : "text-ink-muted hover:text-ink"}`}
+              onFocus={() => setPaused(true)}
+              onBlur={() => setPaused(false)}
+              className={`relative min-h-11 shrink-0 overflow-hidden rounded-[var(--radius-md)] px-4 text-sm font-medium transition-colors ${on ? "bg-panel text-ink shadow-[var(--shadow-card)]" : "text-ink-muted hover:bg-muted hover:text-ink"}`}
             >
               {s.label}
               {on && !reduce && !paused ? (
@@ -58,27 +69,32 @@ export function ProductTour() {
           );
         })}
       </div>
-      <figure id="tour-panel" role="tabpanel" aria-label={slide.label} className="overflow-hidden rounded-[var(--radius-xl)] bg-panel shadow-[var(--shadow-lg)] ring-1 ring-line/60">
-        <div className="flex h-9 items-center gap-2 border-b border-line px-4" aria-hidden="true">
-          <span className="size-2.5 rounded-full bg-[var(--border-base)]" />
-          <span className="size-2.5 rounded-full bg-[var(--border-base)]" />
-          <span className="size-2.5 rounded-full bg-[var(--border-base)]" />
-          <span className="num ml-3 truncate text-xs text-ink-subtle">app.fitconnect.co{slide.path}</span>
-        </div>
-        <div className="relative aspect-[1440/900]">
+
+      <p className="mb-5 min-h-[3em] max-w-2xl text-[15px] leading-relaxed text-ink-muted" aria-live="polite">
+        {slide.text}
+      </p>
+
+      <figure id="tour-panel" role="tabpanel" aria-label={slide.label} className="overflow-hidden rounded-[var(--radius-xl)] bg-panel shadow-[var(--shadow-lg)] ring-1 ring-line/70">
+        <motion.div
+          className="relative aspect-[1440/900] touch-pan-y"
+          drag={reduce ? false : "x"}
+          dragConstraints={{ left: 0, right: 0 }}
+          dragElastic={0.15}
+          onDragEnd={onDragEnd}
+        >
           <AnimatePresence initial={false} mode="popLayout">
             <motion.div
               key={slide.id}
               className="absolute inset-0"
-              initial={reduce ? false : { opacity: 0, scale: 1.01 }}
+              initial={reduce ? false : { opacity: 0, scale: 1.015 }}
               animate={{ opacity: 1, scale: 1 }}
               exit={reduce ? undefined : { opacity: 0 }}
-              transition={{ duration: 0.45, ease: [0.22, 1, 0.36, 1] }}
+              transition={{ duration: 0.45, ease: [0.23, 1, 0.32, 1] }}
             >
-              <Image src={slide.src} alt={slide.alt} fill preload={index === 0} className="object-cover object-top" sizes="(min-width: 1024px) 1100px, 100vw" />
+              <Image src={slide.src} alt={slide.alt} fill draggable={false} className="pointer-events-none select-none object-cover object-top" sizes="(min-width: 1152px) 1100px, 100vw" />
             </motion.div>
           </AnimatePresence>
-        </div>
+        </motion.div>
       </figure>
     </div>
   );

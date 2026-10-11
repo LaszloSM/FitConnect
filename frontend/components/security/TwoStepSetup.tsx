@@ -30,13 +30,13 @@ function groupSecret(secret: string) {
 export function BackupCodes({ codes }: { codes: string[] }) {
   const text = codes.join("\n");
   const download = () => {
-    const blob = new Blob([`Códigos de respaldo de FitConnect\nCada uno sirve una sola vez.\n\n${text}\n`], {
+    const blob = new Blob([`Códigos de respaldo de LSMFit\nCada uno sirve una sola vez.\n\n${text}\n`], {
       type: "text/plain;charset=utf-8",
     });
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
     a.href = url;
-    a.download = "fitconnect-codigos-de-respaldo.txt";
+    a.download = "lsmfit-codigos-de-respaldo.txt";
     a.click();
     URL.revokeObjectURL(url);
   };

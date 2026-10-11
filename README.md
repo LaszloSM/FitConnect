@@ -1,4 +1,4 @@
-# FitConnect — Plataforma SaaS de gestión para gimnasios
+# LSMFit — Plataforma SaaS de gestión para gimnasios
 
 Plataforma full-stack multi-tenant para la gestión integral de gimnasios. Incluye dashboard con KPIs, gestión de miembros, pagos, clases, máquinas, check-ins y un módulo completo de configuración — todo con UI premium, dark mode y animaciones Framer Motion.
 

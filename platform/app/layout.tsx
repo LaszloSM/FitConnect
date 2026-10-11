@@ -6,7 +6,7 @@ const bricolage = Bricolage_Grotesque({ subsets: ["latin", "latin-ext"], axes: [
 const figtree = Figtree({ subsets: ["latin", "latin-ext"], variable: "--font-figtree", display: "swap" });
 
 export const metadata: Metadata = {
-  title: "FitConnect · Plataforma",
+  title: "LSMFit · Plataforma",
   robots: { index: false, follow: false },
 };
 

@@ -1,8 +1,10 @@
 import * as WebBrowser from "expo-web-browser";
+import { CheckCircleIcon, IdentificationCardIcon, WarningCircleIcon, WarningIcon, type Icon } from "phosphor-react-native";
 import { useEffect, useState } from "react";
-import { Pressable, Text, View } from "react-native";
+import { Text, View } from "react-native";
 
-import { Button, Card, Field, Loading, Notice, Row, Screen, Section, Txt } from "@/components/ui";
+import { Check } from "@/components/controls";
+import { Button, Card, Chip, Field, IconTile, Loading, Notice, Press, Rise, Row, Screen, Section, Txt } from "@/components/ui";
 import { api } from "@/lib/api";
 import { LEGAL_URL } from "@/lib/config";
 import { formatFullDay } from "@/lib/format";
@@ -34,6 +36,8 @@ const LABELS: Record<string, string> = {
   address: "Dirección",
 };
 
+const RESULT_ICON: Record<"ok" | "warn" | "danger", Icon> = { ok: CheckCircleIcon, warn: WarningIcon, danger: WarningCircleIcon };
+
 interface GymProfile {
   data: Record<string, string | null>;
   status: { complete: boolean; missing: string[]; labels: Record<string, string> };
@@ -44,18 +48,19 @@ interface GymProfile {
 function YesNo({ value, onChange, label }: { value: boolean | undefined; onChange: (v: boolean) => void; label: string }) {
   const c = useColors();
   return (
-    <View style={{ flexDirection: "row", gap: space.sm }} accessibilityLabel={label}>
+    <View style={{ flexDirection: "row", gap: space.sm }} accessibilityRole="radiogroup" accessibilityLabel={label}>
       {[true, false].map((v) => {
         const on = value === v;
         return (
-          <Pressable
+          <Press
             key={String(v)}
             accessibilityRole="radio"
             accessibilityState={{ selected: on }}
+            accessibilityLabel={v ? "Sí" : "No"}
             onPress={() => onChange(v)}
-            style={{ minWidth: 64, minHeight: 44, alignItems: "center", justifyContent: "center", borderRadius: radius.md, borderWidth: 1, borderColor: on ? c.brand : c.line, backgroundColor: on ? c.brandMuted : c.card }}>
-            <Txt size={14} weight="semi" style={{ color: on ? c.brandInk : c.ink }}>{v ? "Sí" : "No"}</Txt>
-          </Pressable>
+            style={{ minWidth: 76, minHeight: 40, paddingHorizontal: 18, alignItems: "center", justifyContent: "center", borderRadius: radius.pill, backgroundColor: on ? c.brandMuted : c.muted }}>
+            <Text style={{ fontFamily: on ? fonts.bodySemi : fonts.bodyMedium, fontSize: 14, color: on ? c.brandInk : c.inkMuted }}>{v ? "Sí" : "No"}</Text>
+          </Press>
         );
       })}
     </View>
@@ -86,7 +91,7 @@ export default function GymProfileScreen() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [gym?.link_id]);
 
-  if (!profile) return <Screen edges={["bottom"]}>{result ? <Notice tone={result.tone}>{result.text}</Notice> : <Loading />}</Screen>;
+  if (!profile) return <Screen edges={["bottom"]}>{result ? <Notice tone={result.tone} icon={RESULT_ICON[result.tone]}>{result.text}</Notice> : <Loading />}</Screen>;
 
   const missing = new Set(profile.status.missing);
   const needsEmergency = missing.has("emergency_contact");
@@ -124,56 +129,77 @@ export default function GymProfileScreen() {
 
   const canSubmit = (profile.consent_data || accept) && (fields.some(([k]) => form[k]?.trim()) || (!profile.parq_done && parqComplete) || !profile.consent_data);
 
+  const showForm = !profile.status.complete || fields.length > 0;
+  const rows = Object.entries(LABELS).filter(([k]) => profile.data[k]);
+
   return (
-    <Screen edges={["bottom"]}>
-      {result ? <Notice tone={result.tone}>{result.text}</Notice> : null}
+    <Screen
+      edges={["bottom"]}
+      footer={showForm ? <Button label="Guardar" onPress={submit} loading={busy} disabled={!canSubmit} size="lg" style={{ flex: 1 }} /> : undefined}>
+      {result ? <Notice tone={result.tone} icon={RESULT_ICON[result.tone]}>{result.text}</Notice> : null}
 
-      <Card style={{ paddingVertical: space.xs }}>
-        {Object.entries(LABELS)
-          .filter(([k]) => profile.data[k])
-          .map(([k, label], i, arr) => (
-            <Row key={k} label={label} value={k === "birth_date" ? formatFullDay(profile.data[k]!) : profile.data[k]} last={i === arr.length - 1} />
+      <Rise>
+        <Card>
+          <View style={{ flexDirection: "row", alignItems: "center", gap: space.md, marginBottom: space.sm }}>
+            <IconTile icon={IdentificationCardIcon} tone="wash" />
+            <View style={{ flex: 1, gap: 4 }}>
+              <Txt weight="semi" size={16} numberOfLines={2}>{gym?.gym_name}</Txt>
+              {profile.status.complete ? (
+                <Chip tone="ok" icon={CheckCircleIcon} label="Ficha completa" />
+              ) : (
+                <Chip tone="warn" icon={WarningIcon} label="Faltan datos" />
+              )}
+            </View>
+          </View>
+          {rows.map(([k, label], i) => (
+            <Row key={k} label={label} value={k === "birth_date" ? formatFullDay(profile.data[k]!) : profile.data[k]} last={i === rows.length - 1} />
           ))}
-      </Card>
-      <Txt muted size={13} style={{ marginTop: space.sm }}>
-        Esto es lo que {gym?.gym_name} tiene registrado. Para corregir algo, pídelo en recepción.
-      </Txt>
+        </Card>
+        <Txt muted size={13} style={{ marginTop: space.sm }}>
+          Esto es lo que {gym?.gym_name} tiene registrado. Para corregir algo, pídelo en recepción.
+        </Txt>
+      </Rise>
 
-      {!profile.status.complete || fields.length ? (
+      {showForm ? (
         <>
-          <Section>Completa lo que falta</Section>
-          {fields.map(([k, label, kb]) => (
-            <Field key={k} label={label} keyboardType={kb} value={form[k] ?? ""} onChangeText={(v) => setForm((f) => ({ ...f, [k]: v }))} />
-          ))}
+          {fields.length ? (
+            <Rise delay={50}>
+              <Section>Completa lo que falta</Section>
+              <Card style={{ paddingBottom: space.xs }}>
+                {fields.map(([k, label, kb]) => (
+                  <Field key={k} label={label} keyboardType={kb} value={form[k] ?? ""} onChangeText={(v) => setForm((f) => ({ ...f, [k]: v }))} />
+                ))}
+              </Card>
+            </Rise>
+          ) : null}
 
           {!profile.parq_done ? (
-            <>
+            <Rise delay={100}>
               <Section>Cuestionario de salud (PAR-Q)</Section>
-              <View style={{ gap: space.lg }}>
-                {PARQ.map((q) => (
-                  <View key={q.key} style={{ gap: space.sm }}>
+              <Card style={{ paddingVertical: space.xs }}>
+                {PARQ.map((q, i) => (
+                  <View key={q.key} style={{ gap: space.sm, paddingVertical: space.md, borderBottomWidth: i === PARQ.length - 1 ? 0 : 1, borderBottomColor: c.line }}>
                     <Txt size={14}>{q.text}</Txt>
                     <YesNo label={q.text} value={parq[q.key]} onChange={(v) => setParq((p) => ({ ...p, [q.key]: v }))} />
                   </View>
                 ))}
-              </View>
-            </>
+              </Card>
+            </Rise>
           ) : null}
 
           {!profile.consent_data ? (
-            <Pressable accessibilityRole="checkbox" accessibilityState={{ checked: accept }} onPress={() => setAccept((v) => !v)} style={{ flexDirection: "row", gap: 12, marginTop: space.xl, alignItems: "flex-start" }}>
-              <View style={{ width: 24, height: 24, borderRadius: 6, borderWidth: 1.5, borderColor: accept ? c.brand : c.line, backgroundColor: accept ? c.brand : c.field }} />
-              <Txt size={14} style={{ flex: 1 }}>
-                Autorizo a {gym?.gym_name} a tratar mis datos, incluidos los de salud, según la{" "}
-                <Text style={{ color: c.brandInk, fontFamily: fonts.bodySemi }} onPress={() => void WebBrowser.openBrowserAsync(LEGAL_URL)}>
-                  política de datos
-                </Text>
-                .
-              </Txt>
-            </Pressable>
+            <Rise delay={150}>
+              <Card style={{ marginTop: space.xl, paddingVertical: space.sm }}>
+                <Check checked={accept} onChange={setAccept}>
+                  Autorizo a {gym?.gym_name} a tratar mis datos, incluidos los de salud, según la{" "}
+                  <Text style={{ color: c.brandInk, fontFamily: fonts.bodySemi }} onPress={() => void WebBrowser.openBrowserAsync(LEGAL_URL)}>
+                    política de datos
+                  </Text>
+                  .
+                </Check>
+              </Card>
+            </Rise>
           ) : null}
-
-          <Button label="Guardar" onPress={submit} loading={busy} disabled={!canSubmit} style={{ marginTop: space.xl }} />
         </>
       ) : null}
     </Screen>

@@ -56,6 +56,9 @@ def create_access_token(
         "exp": expire,
         "jti": str(uuid.uuid4()),
         "iat": int(datetime.now(timezone.utc).timestamp()),
+        # Milisegundos: "cerrar las demás sesiones" no puede depender de que el
+        # token nuevo y los viejos hayan nacido en segundos distintos.
+        "iat_ms": int(datetime.now(timezone.utc).timestamp() * 1000),
         **extra,
     }
     return jwt.encode(payload, settings.secret_key, algorithm=settings.algorithm)
@@ -72,6 +75,9 @@ def create_staff_token(staff_id: str, db_name: str, role: str, **extra) -> str:
         "exp": expire,
         "jti": str(uuid.uuid4()),
         "iat": int(datetime.now(timezone.utc).timestamp()),
+        # Milisegundos: "cerrar las demás sesiones" no puede depender de que el
+        # token nuevo y los viejos hayan nacido en segundos distintos.
+        "iat_ms": int(datetime.now(timezone.utc).timestamp() * 1000),
         **extra,
     }
     return jwt.encode(payload, settings.secret_key, algorithm=settings.algorithm)
@@ -130,16 +136,29 @@ def _platform_key() -> str:
     return hashlib.sha256(f"platform::{settings.secret_key}".encode()).hexdigest()
 
 
+# Audiencias de los tokens. Las de antes del cambio de nombre (FitConnect) se
+# siguen aceptando para no cerrar sesiones abiertas; se emiten solo las nuevas.
+PLATFORM_AUD, APP_AUD = "lsmfit-platform", "lsmfit-app"
+_LEGACY_AUD = {PLATFORM_AUD: "fitconnect-platform", APP_AUD: "fitconnect-app"}
+
+
+def _decode_aud(token: str, key: str, audience: str) -> dict[str, Any]:
+    try:
+        return jwt.decode(token, key, algorithms=[settings.algorithm], audience=audience)
+    except JWTError:
+        return jwt.decode(token, key, algorithms=[settings.algorithm], audience=_LEGACY_AUD[audience])
+
+
 def create_platform_token(admin_id: str, scope: str = "platform", minutes: int | None = None, **extra) -> str:
     expire = datetime.now(timezone.utc) + timedelta(minutes=minutes or settings.platform_token_minutes)
-    payload = {"sub": admin_id, "scope": scope, "aud": "fitconnect-platform", "exp": expire,
+    payload = {"sub": admin_id, "scope": scope, "aud": PLATFORM_AUD, "exp": expire,
                "jti": str(uuid.uuid4()), **extra}
     return jwt.encode(payload, _platform_key(), algorithm=settings.algorithm)
 
 
 def decode_platform_token(token: str, scope: str = "platform") -> dict[str, Any]:
     try:
-        payload = jwt.decode(token, _platform_key(), algorithms=[settings.algorithm], audience="fitconnect-platform")
+        payload = _decode_aud(token, _platform_key(), PLATFORM_AUD)
     except JWTError as exc:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Sesión inválida o vencida") from exc
     if payload.get("scope") != scope:
@@ -165,13 +184,13 @@ def _app_key() -> str:
 
 def create_app_token(app_user_id: str, session_id: str) -> str:
     expire = datetime.now(timezone.utc) + timedelta(minutes=settings.app_access_minutes)
-    payload = {"sub": app_user_id, "sid": session_id, "scope": "app", "aud": "fitconnect-app", "exp": expire}
+    payload = {"sub": app_user_id, "sid": session_id, "scope": "app", "aud": APP_AUD, "exp": expire}
     return jwt.encode(payload, _app_key(), algorithm=settings.algorithm)
 
 
 def decode_app_token(token: str) -> dict[str, Any]:
     try:
-        payload = jwt.decode(token, _app_key(), algorithms=[settings.algorithm], audience="fitconnect-app")
+        payload = _decode_aud(token, _app_key(), APP_AUD)
     except JWTError as exc:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Sesión vencida") from exc
     if payload.get("scope") != "app":
@@ -179,6 +198,7 @@ def decode_app_token(token: str) -> dict[str, Any]:
     return payload
 
 
+
 def app_derived_key(purpose: str) -> bytes:
-    """Llaves de la app para otros usos (QR rotativo), sin reutilizar la de los tokens."""
+    """Llaves de la app para otros usos (hash de los códigos de ingreso), sin reutilizar la de los tokens."""
     return hashlib.sha256(f"app-{purpose}::{settings.secret_key}".encode()).digest()

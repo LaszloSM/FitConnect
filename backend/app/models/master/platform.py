@@ -1,4 +1,4 @@
-"""Panel de plataforma: quienes administran FitConnect (no los gimnasios)."""
+"""Panel de plataforma: quienes administran LSMFit (no los gimnasios)."""
 import uuid
 from datetime import datetime
 from typing import Optional

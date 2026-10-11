@@ -28,8 +28,11 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 import foods_curated as cur  # noqa: E402
 import tcac_extract  # noqa: E402
 
-VERSION = 2
+VERSION = 3
 SOURCES = ROOT / "data_sources"
+#: Genéricos de USDA curados al español en lote (nombre, categoría, sinónimos y
+#: porciones caseras), además de los 101 de `foods_curated.USDA`.
+USDA_ES = Path(__file__).resolve().parent / "foods_usda_es.json"
 OUT = ROOT / "app" / "data" / "foods_reference.json"
 NUTRIENTS = ("sugars_g", "sat_fat_g", "sodium_mg", "potassium_mg", "calcium_mg", "iron_mg",
              "vit_c_mg", "vit_a_ug", "vit_d_ug", "vit_b12_ug", "cholesterol_mg")
@@ -104,7 +107,11 @@ def usda_rows() -> dict[str, dict]:
             raw[r["fdc_id"]] = (kind, r)
     out = {}
     missing = []
-    for fdc, key, name, category, syns, portions in cur.USDA:
+    extra = []
+    if USDA_ES.exists():
+        extra = [(x["fdc_id"], x["key"], x["name"], x["category"], x.get("synonyms", []), [tuple(p) for p in x.get("portions", [])])
+                 for x in json.loads(USDA_ES.read_text(encoding="utf-8")) if x.get("keep")]
+    for fdc, key, name, category, syns, portions in [*cur.USDA, *extra]:
         if fdc not in raw:
             missing.append(fdc)
             continue

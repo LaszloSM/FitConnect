@@ -2,7 +2,7 @@
 
 Recorre lo que pasa en un gimnasio real:
 - se registra el equipo con su serial y llama solo a la nube;
-- FitConnect toma el control de un equipo que ya tenía usuarios (cédulas);
+- LSMFit toma el control de un equipo que ya tenía usuarios (cédulas);
 - cada marcación es un check-in; quien entra con plan vencido se bloquea;
 - al renovar, el equipo se entera; al crear un socio se enrola su huella/rostro;
 - recepción puede abrir; revocar el consentimiento borra la biometría del equipo.

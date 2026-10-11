@@ -45,15 +45,18 @@ class Api:
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--api", default="http://localhost:8000")
+    ap.add_argument("--gym", default=None, help="Nombre del gimnasio (por defecto «Gym Demo XXXX»)")
+    ap.add_argument("--owner", default="Laszlo Demo", help="Nombre del dueño")
+    ap.add_argument("--city", default="Bogotá")
     a = ap.parse_args()
     api = Api(a.api)
     suffix = uuid.uuid4().hex[:6]
-    email = f"demo-{suffix}@fitconnect.co"
+    email = f"demo-{suffix}@demo.example.com"
 
     print("Creando gym...")
     api("POST", "/auth/register", {
-        "email": email, "password": PASSWORD, "full_name": "Laszlo Demo",
-        "gym_name": f"Gym Demo {suffix.upper()}", "city": "Bogotá",
+        "email": email, "password": PASSWORD, "full_name": a.owner,
+        "gym_name": a.gym or f"Gym Demo {suffix.upper()}", "city": a.city,
     }, expect=(201,))
     login = api("POST", "/auth/login", {"email": email, "password": PASSWORD})
     if not login:
@@ -72,16 +75,21 @@ def main():
 
     print("Socios...")
     miembros = []
+    usados = set()
     for i in range(24):
         nombre = f"{random.choice(NOMBRES)} {random.choice(APELLIDOS)}"
+        while nombre in usados:
+            nombre = f"{random.choice(NOMBRES)} {random.choice(APELLIDOS)}"
+        usados.add(nombre)
         plan = random.choice(planes) if planes else None
+        usuario = nombre.lower().translate(str.maketrans("áéíóú ", "aeiou."))
         cuerpo = {
             "full_name": nombre,
-            "email": f"socio{i}-{suffix}@demo.co",
+            "email": f"{usuario}{i}@ejemplo.co",
             "id_type": "CC", "id_number": str(1000000000 + random.randint(0, 899999999)),
             "phone": f"30{random.randint(10000000, 99999999)}",
             "birth_date": f"199{random.randint(0,9)}-0{random.randint(1,9)}-1{random.randint(0,9)}",
-            "address": "Calle 1 # 2-33", "city": "Bogotá",
+            "address": f"Calle {random.randint(10, 90)} # {random.randint(2, 60)}-{random.randint(10, 99)}", "city": a.city,
             "emergency_contact_name": "Contacto", "emergency_contact_phone": "3009998877",
             "parq_answers": {f"q{n}": False for n in range(1, 8)},
             "parq_completed_at": date.today().isoformat(),
@@ -146,6 +154,38 @@ def main():
         }, expect=(201,))
         if r and miembros:
             api("POST", f"/members/{miembros[0]['id']}/routines", {"routine_id": r["id"]}, expect=(201,))
+
+    print("Clases...")
+    for nombre, profe, cat, dias, hora, cupo, color in [
+        ("Spinning amanecer", "Diana Ruiz", "spinning", [0, 2, 4], "06:00", 18, "#F97316"),
+        ("Funcional", "Jorge Pardo", "funcional", [0, 1, 2, 3, 4], "07:00", 20, "#3B82F6"),
+        ("Yoga suave", "Marcela Ortiz", "yoga", [1, 3], "18:30", 15, "#22C55E"),
+        ("Boxeo", "Jorge Pardo", "boxeo", [1, 3, 5], "19:00", 14, "#EF4444"),
+        ("Zumba", "Diana Ruiz", "zumba", [5], "09:00", 25, "#A855F7"),
+    ]:
+        c = api("POST", "/classes", {
+            "name": nombre, "instructor": profe, "category": cat, "weekdays": dias, "start_time": hora,
+            "color": color, "max_capacity": cupo, "duration_minutes": 60, "difficulty": "intermediate",
+        }, expect=(201,))
+        if c:
+            for m in random.sample(miembros, min(len(miembros), random.randint(4, 10))):
+                api("POST", f"/classes/{c['id']}/enroll", {"member_id": m["id"]}, expect=(201, 400, 409, 422))
+
+    print("Máquinas...")
+    hoy = date.today()
+    for nombre, area, marca, ultimo, cada in [
+        ("Caminadora 1", "cardio", "Life Fitness", 20, 30), ("Caminadora 2", "cardio", "Life Fitness", 45, 30),
+        ("Bicicleta de spinning", "cardio", "Schwinn", 10, 60), ("Prensa de pierna", "fuerza", "Hammer Strength", 70, 90),
+        ("Polea alta", "fuerza", "Matrix", 25, 60), ("Rack de sentadilla", "peso_libre", "Rogue", 100, 180),
+    ]:
+        api("POST", "/machines", {
+            "name": nombre, "area": area, "brand": marca,
+            "last_maintenance_date": (hoy - timedelta(days=ultimo)).isoformat(), "maintenance_interval_days": cada,
+        }, expect=(201,))
+
+    print("Gastos de caja...")
+    for categoria, concepto, valor in [("servicios", "Recibo de energía", 380000), ("insumos", "Productos de aseo", 65000)]:
+        api("POST", "/cash/expenses", {"amount": valor, "category": categoria, "concept": concepto}, expect=(201, 400, 409))
 
     print("Dispositivos...")
     api("POST", "/kiosk/devices", {"name": "Tablet entrada", "kind": "kiosk"}, expect=(201,))

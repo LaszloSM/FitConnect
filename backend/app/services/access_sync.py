@@ -1,7 +1,7 @@
-"""Sincronización FitConnect ↔ equipos de acceso (torniquetes, lectores).
+"""Sincronización LSMFit ↔ equipos de acceso (torniquetes, lectores).
 
 Principio: el equipo reconoce rostro/huella por sí mismo (las plantillas
-viven en él) y decide en el momento, aunque no haya internet. FitConnect le
+viven en él) y decide en el momento, aunque no haya internet. LSMFit le
 dice QUIÉN está habilitado y HASTA CUÁNDO, y recibe cada marcación como
 asistencia.
 
@@ -14,7 +14,7 @@ asistencia.
 - ``apply_roster`` / ``register_template``: lo que el equipo reporta de sus
   usuarios y plantillas (sin guardar la plantilla).
 
-Los comandos se guardan en términos de FitConnect (``DeviceCommand``) y cada
+Los comandos se guardan en términos de LSMFit (``DeviceCommand``) y cada
 protocolo los traduce: ``zk_adms`` en ``/iclock/getrequest``; ``hik_isapi`` y
 ``zk_tcp`` en el agente local.
 """

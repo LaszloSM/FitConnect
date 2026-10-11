@@ -3,12 +3,12 @@
 # del frontend Next.js — nunca enrutar /api/* completo al backend.
 #
 # Variables (en el .env del servidor):
-#   SITE_ADDRESS          dominio de la app (fitconnect.co). Con dominio, Caddy saca
+#   SITE_ADDRESS          dominio de la app (tudominio.co). Con dominio, Caddy saca
 #                         el certificado HTTPS solo. Sin definir: :80 por IP.
-#   PLATFORM_ADDRESS      admin.fitconnect.co. Sin definir: :9100, publicado solo en
+#   PLATFORM_ADDRESS      admin.tudominio.co. Sin definir: :9100, publicado solo en
 #                         127.0.0.1 del servidor (se entra por túnel SSH).
 #   PLATFORM_ALLOWED_IPS  IPs desde donde se puede abrir el panel (separadas por espacio).
-#   ICLOCK_HTTP_ADDRESS   http://fitconnect.co solo si un torniquete ZKTeco no soporta
+#   ICLOCK_HTTP_ADDRESS   http://tudominio.co solo si un torniquete ZKTeco no soporta
 #                         HTTPS. Sin definir: no se publica.
 
 (security_headers) {

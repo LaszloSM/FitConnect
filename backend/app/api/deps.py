@@ -27,7 +27,8 @@ async def _person_session(payload: dict, request: Request) -> None:
     from app.services import account_security, subscription
     if await account_security.is_revoked(payload.get("jti")):
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Sesión cerrada")
-    if await account_security.issued_before_password_change(payload.get("staff_id"), payload.get("iat")):
+    issued_ms = payload.get("iat_ms") or (payload.get("iat") or 0) * 1000
+    if await account_security.issued_before_password_change(payload.get("staff_id"), issued_ms):
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="La contraseña cambió. Vuelve a entrar.")
     if payload.get("mfa") == "setup_required" and not request.url.path.startswith("/api/v1/auth/"):
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="mfa_setup_required")
@@ -35,7 +36,7 @@ async def _person_session(payload: dict, request: Request) -> None:
     if db_name and (await subscription.access_state(db_name))["suspended"]:
         # 401 y no 403: el panel cierra la sesión y el login explica la suspensión.
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED,
-                            detail="La cuenta de este gimnasio está suspendida. Escribe a soporte de FitConnect.")
+                            detail="La cuenta de este gimnasio está suspendida. Escribe a soporte de LSMFit.")
 
 
 async def get_current_owner(

@@ -1,7 +1,6 @@
 """App móvil: entrar con código, sesiones que rotan, vínculo con la ficha del
-gimnasio, QR rotativo, clases, ficha, entrenos y borrar la cuenta."""
+gimnasio, clases, ficha, entrenos y borrar la cuenta."""
 import re
-import time
 import uuid
 from datetime import datetime, timedelta, timezone
 from zoneinfo import ZoneInfo
@@ -11,7 +10,7 @@ from sqlalchemy import select
 from app.core.security import decode_token
 from app.db.master_session import MasterSessionLocal
 from app.models.master.tenant import Tenant
-from app.services import app_accounts, mailer
+from app.services import mailer
 from tests.helpers import create_member, create_plan
 from tests.test_users import create_owner_token
 
@@ -154,7 +153,7 @@ async def test_summary_shows_membership_and_hides_other_peoples_links(client):
     assert r.status_code == 200, r.text
     s = r.json()
     assert s["membership"]["status"] == "ok" and s["membership"]["can_enter"] is True
-    assert s["qr"]["prefix"] == "FC2." and len(s["qr"]["secret"]) >= 16
+    assert "qr" not in s, "ya no hay QR de entrada en la app"
     _, stranger = await _app_login(client)
     assert (await client.get(f"/api/v1/me/gyms/{link_id}", headers=_h(stranger["access_token"]))).status_code == 404
 
@@ -169,29 +168,6 @@ async def test_module_turned_off_blocks_gym_routes(client):
         assert gyms[0]["app_enabled"] is False
     finally:
         await _set_module(owner, True)
-
-
-# ─── QR rotativo ───
-
-async def test_rotating_qr_checks_in_and_dies_with_the_link(client):
-    owner, member, tokens, link_id = await _linked(client)
-    lid = uuid.UUID(link_id)
-    payload = app_accounts.qr_payload(lid)
-    r = await client.post(f"/api/v1/checkins/qr/{payload}", headers=_h(owner))
-    assert r.status_code == 201, r.text
-    assert r.json()["member_id"] == member["id"]
-
-    old = app_accounts.qr_payload(lid, at=time.time() - 300)
-    assert (await client.post(f"/api/v1/checkins/qr/{old}", headers=_h(owner))).status_code == 404
-
-    await client.delete(f"/api/v1/me/links/{link_id}", headers=_h(tokens["access_token"]))
-    fresh = app_accounts.qr_payload(lid)
-    assert (await client.post(f"/api/v1/checkins/qr/{fresh}", headers=_h(owner))).status_code == 404
-
-
-async def test_rotating_qr_from_another_gym_is_not_accepted(client):
-    _, _, _, link_id = await _linked(client)
-    assert await app_accounts.resolve_rotating_qr("gym_otro_inexistente", app_accounts.qr_payload(uuid.UUID(link_id))) is None
 
 
 # ─── Clases ───
@@ -301,22 +277,6 @@ async def test_delete_account_erases_everything_but_the_gym_record(client):
     assert status["linked"] is False
 
 
-async def test_offline_snapshot_carries_only_todays_and_tomorrows_qr_keys(client):
-    from app.core.timeutil import today_bogota
-    owner, member, _, link_id = await _linked(client)
-    snap = (await client.get("/api/v1/offline/snapshot", headers=_h(owner))).json()
-    entry = snap["app_qr"][uuid.UUID(link_id).hex]
-    today = today_bogota()
-    assert entry["member_id"] == member["id"]
-    assert set(entry["keys"]) == {today.isoformat(), (today + timedelta(days=1)).isoformat()}
-    assert app_accounts.qr_secret(uuid.UUID(link_id)) not in str(snap), "la llave base nunca sale del servidor"
-    # Una llave de un día no genera códigos válidos otro día.
-    from app.core import totp
-    next_week = time.time() + 7 * 86400
-    code = totp.code_at(entry["keys"][today.isoformat()], next_week)
-    assert not app_accounts.verify_qr_code(uuid.UUID(link_id), code, at=next_week)
-
-
 async def test_announcement_reaches_the_phone_only_with_consent(client):
     from app.services import push
     owner, member, tokens, link_id = await _linked(client)
@@ -338,13 +298,3 @@ async def test_announcement_reaches_the_phone_only_with_consent(client):
     # Retirar el permiso borra el token: no le llega nada más.
     await client.post("/api/v1/me/consents", json={"kind": "notifications", "granted": False}, headers=h)
     assert await push._tokens_for_members(decode_token(owner)["db_name"], [uuid.UUID(member["id"])]) == []
-
-
-# Vector compartido con mobile/scripts/qr.test.mts y frontend (lib/offline/appQr.ts):
-# si alguien cambia el algoritmo en un lado, esta prueba y la del celular se rompen.
-QR_VECTOR = [(1791435599.0, "525483"), (1791435600.0, "473293"), (1791478799.0, "604036")]
-
-
-def test_qr_algorithm_matches_the_shared_vector():
-    for at, code in QR_VECTOR:
-        assert app_accounts.code_for_secret("JBSWY3DPEHPK3PXP", at) == code

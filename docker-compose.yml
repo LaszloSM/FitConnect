@@ -76,7 +76,7 @@ services:
       # y `POST /auth/register` devuelve 500 ('relation "owners" does not
       # exist'); en local no se notaba porque el volumen ya traía el esquema.
       - RUN_MIGRATIONS_ON_STARTUP=true
-      - MFA_REQUIRED_ROLES=${MFA_REQUIRED_ROLES:-["owner","admin"]}
+      - MFA_REQUIRED_ROLES=${MFA_REQUIRED_ROLES:-[]}
       - GEMINI_API_KEY=${GEMINI_API_KEY:-}
       # Almacenamiento de objetos S3-compatible: MinIO en local, S3 real en prod
       # (basta cambiar estas env vars; el código usa boto3 sin cambios).
@@ -86,6 +86,10 @@ services:
       - S3_ACCESS_KEY=minioadmin
       - S3_SECRET_KEY=minioadmin
       - S3_REGION=us-east-1
+      # Los correos van a Mailpit: se ven en http://localhost:8025 tal cual llegan.
+      - MAIL_BACKEND=smtp
+      - SMTP_HOST=mailpit
+      - SMTP_PORT=1025
     depends_on:
       db:
         condition: service_healthy
@@ -93,6 +97,15 @@ services:
         condition: service_healthy
       minio:
         condition: service_started
+      mailpit:
+        condition: service_started
+
+  # Bandeja de correos de desarrollo: http://localhost:8025
+  mailpit:
+    image: axllent/mailpit:v1.31.4
+    ports:
+      - "8025:8025"
+      - "1025:1025"
 
   frontend:
     build:

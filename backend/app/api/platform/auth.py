@@ -60,7 +60,7 @@ async def login(request: Request, payload: LoginIn, db: AsyncSession = Depends(m
             "step": "enroll",
             "ticket": create_platform_token(str(admin.id), scope="platform_enroll", minutes=10),
             "secret": secret,
-            "otpauth_uri": totp.provisioning_uri(secret, admin.email, issuer="FitConnect Plataforma"),
+            "otpauth_uri": totp.provisioning_uri(secret, admin.email, issuer="LSMFit Plataforma"),
         }
     await db.commit()
     return {"step": "otp", "ticket": create_platform_token(str(admin.id), scope="platform_otp", minutes=5)}

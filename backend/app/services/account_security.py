@@ -98,16 +98,22 @@ async def end_sessions_before_now(staff_id) -> None:
     alguien más la tenía, la pierde)."""
     try:
         await _redis().setex(_sessions_key(str(staff_id)), settings.access_token_expire_minutes * 60 + 60,
-                             str(int(time.time())))
+                             str(int(time.time() * 1000)))
     except Exception as exc:  # noqa: BLE001
         logger.warning("No se pudieron cerrar las sesiones anteriores: %s", exc)
 
 
-async def issued_before_password_change(staff_id, iat) -> bool:
-    if not staff_id or not iat:
+async def issued_before_password_change(staff_id, issued_ms) -> bool:
+    """`issued_ms`: cuándo nació el token, en milisegundos."""
+    if not staff_id or not issued_ms:
         return False
     try:
         cutoff = await _redis().get(_sessions_key(str(staff_id)))
-        return cutoff is not None and int(iat) < int(cutoff)
+        if cutoff is None:
+            return False
+        cutoff = int(cutoff)
+        if cutoff < 10**12:  # cortes guardados en segundos antes de este cambio
+            cutoff *= 1000
+        return int(issued_ms) < cutoff
     except Exception:  # noqa: BLE001
         return False

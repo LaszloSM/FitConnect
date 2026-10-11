@@ -1,73 +1,60 @@
-# Marca FitConnect
+# Marca LSMFit
+
+Referencia original: `lsmfit-referencia.webp` (el dibujo entregado por el dueño).
+Todo lo demás sale de `lsmfit.py`, que redibuja la marca en vectores.
 
 ## Isotipo
 
-Dos arcos enfrentados de grosor uniforme unidos por un nodo central, sobre una
-retícula de 64. La apertura de cada arco es de 144° (±72° desde el eje) y los
-terminales quedan cortados sobre radios.
+Dos "C" de trazo uniforme sobre un estadio de 56 × 36, cortadas en diagonal y
+simétricas por rotación de 180° alrededor del centro, con un nodo circular en
+medio. Un trazo fino del mismo color redondea las esquinas, como en el dibujo.
 
-Vive en `frontend/components/common/BrandMark.tsx`. Una sola tinta en
-`currentColor`: coral en el producto, blanco en las superficies oscuras fijas
-(kiosko, pantalla del salón).
+Parámetros en `lsmfit.py`: `STROKE` (grosor), `NODE_R` (nodo), `K` (pendiente de
+los cortes), `H` (mitad del hueco), `TOP_X`/`BOT_X` (dónde caen los cortes).
+
+Vive en `frontend/components/common/BrandMark.tsx` (una sola tinta en
+`currentColor`) y hay una copia mínima en `platform/components/BrandMark.tsx`.
 
 ## Logotipo
 
-No es texto en una fuente. Parte de **Bricolage Grotesque Bold** (la display del
-producto) y le aplica tres cambios que lo atan al isotipo:
-
-1. **C, c y e**: los terminales se cortan sobre radios desde el centro del
-   glifo, igual que los arcos del isotipo. C y c comparten una apertura de 90°
-   (±45°), más abierta que la de la fuente y, sobre todo, la misma para las dos.
-   En la `e` el corte se limita a la zona bajo la barra, que queda intacta.
-2. **Punto de la i**: un círculo, no el rectángulo redondeado de la fuente. Su
-   diámetro respeta la proporción del nodo del isotipo — nodo/trazo = 11/7.5 =
-   1,467 — así que sobre un asta de 145 unidades mide 213.
-3. **Tracking** de −28 unidades por 1000 em.
+"LSMFit" en **Bricolage Grotesque ExtraBold** (la display del producto) con las
+esquinas suavizadas y el punto de la i cambiado por un círculo, el nodo del
+isotipo. Es un trazado, no texto: vive en `BrandLockup.tsx`.
 
 ## Regenerar
 
 ```bash
-pip install fonttools brotli shapely
-curl -o bricolage-700.ttf "<url del TTF de Bricolage Grotesque 700 en fonts.gstatic.com>"
-python emit2.py          # escribe out.json con los paths y los viewBox
+pip install fonttools brotli shapely cairosvg pillow
+curl -o bricolage-800.ttf "<TTF de Bricolage Grotesque 800 en fonts.gstatic.com>"
+python lsmfit.py out            # SVG + out.json con los trazados para los .tsx
+python render_icons.py ../..    # favicon, iconos de la web y de la app móvil
 ```
 
-`emit2.py` imprime las dimensiones y deja en `out.json`:
-
-- `word_d` / `word_w` / `word_h` — el logotipo suelto.
-- `lock_d` + `iso_g` / `lock_w` / `lock_h` — el lockup completo.
-
-El `lock_d` (no el `word_d`) es el que va en `BrandLockup.tsx`: lleva el
-desplazamiento horizontal que lo separa del isotipo.
-
-Los parámetros están en `CFG` de `wordmark.py` (apertura, punto, tracking) y en
-las constantes de `emit2.py` (`MARK_RATIO` = altura del isotipo respecto a la
-caja alta, `GAP_RATIO` = aire entre isotipo y palabra, `TOL` = simplificación
-del trazado en unidades de em).
+`out.json` trae `iso_d`, `iso_vb`, `node`, `word_d`, `lock_word_d`, `lock_w`,
+`lock_h` y `lock_iso_tf`, que van tal cual en `BrandMark.tsx` y `BrandLockup.tsx`.
 
 ## Colores
 
-Salen de los tokens de Calor en `frontend/app/globals.css`. Los assets
-estáticos no pueden leer CSS vars, así que los llevan escritos:
+| | Uso | Hex | Token |
+|---|---|---|---|
+| Naranja del logo | Solo la marca | `#D8421A` | `--brand-logo` `oklch(0.592 0.193 35)` |
+| Coral de interfaz | Botones, selección | `#C4360C` | `--brand` `oklch(0.545 0.185 35)` |
+| Tinta | Logotipo, texto | `#2A1911` | — |
+| Crema | Fondo de iconos | `#FCF6ED` | — |
 
-| | Token | Hex |
-|---|---|---|
-| Coral | `--brand` `oklch(0.545 0.185 35)` | `#C4360C` |
-| Tinta | `--text-base` `oklch(0.230 0.020 45)` | `#251A15` |
-| Crema | `--bg-base` `oklch(0.972 0.009 65)` | `#FAF5F0` |
-
-Si la marca cambia de color, hay que regenerar `frontend/app/favicon.ico`,
-`icon.png`, `apple-icon.png` y los SVG de `frontend/public/`.
+El naranja del logo es el mismo tono que el coral de la interfaz pero más claro:
+con texto blanco encima da 4,46:1 y no llega al 4,5:1 de AA. Por eso los botones
+siguen en `--brand` y el naranja exacto queda para el logo.
 
 ## Archivos
 
 | Archivo | Qué es |
 |---|---|
-| `frontend/components/common/BrandMark.tsx` | Isotipo solo |
-| `frontend/components/common/BrandLockup.tsx` | Isotipo + logotipo |
-| `frontend/public/fitconnect-mark.svg` | Isotipo, coral |
-| `frontend/public/fitconnect-icon.svg` | Isotipo calado sobre squircle tinta |
-| `frontend/public/fitconnect-wordmark.svg` | Logotipo solo |
-| `frontend/public/fitconnect-lockup.svg` | Lockup a dos tintas |
-| `frontend/app/favicon.ico` `icon.png` `apple-icon.png` | Iconos, del squircle |
-| `logo-fitconnect-referencia.png` | El boceto original del que salió el isotipo |
+| `frontend/public/lsmfit-mark.svg` | Isotipo naranja |
+| `frontend/public/lsmfit-icon.svg` | Isotipo sobre cuadrado crema redondeado |
+| `frontend/public/lsmfit-wordmark.svg` | Logotipo solo |
+| `frontend/public/lsmfit-lockup.svg` | Lockup horizontal |
+| `frontend/public/lsmfit-lockup-stacked.svg` | Lockup vertical (como el dibujo) |
+| `frontend/app/favicon.ico`, `icon.png`, `apple-icon.png`, `public/app-icon-512.png` | Iconos web |
+| `mobile/assets/images/*` | Icono, adaptativo de Android, splash y favicon de la app |
+| `lockup.png` | Vista previa del lockup vertical |

@@ -1,7 +1,7 @@
-# Agente local de FitConnect
+# Agente local de LSMFit
 
 Programa pequeño que corre en el PC de recepción (o un mini-PC) y conecta con
-FitConnect los torniquetes que **solo se alcanzan en la red del gimnasio**:
+LSMFit los torniquetes que **solo se alcanzan en la red del gimnasio**:
 
 | Equipo | Cómo se conecta |
 |---|---|
@@ -23,19 +23,19 @@ archivo de configuración de este PC. Rostros y huellas nunca se envían a la nu
 
 ## Instalar (Windows)
 
-1. En FitConnect: **Ajustes › Dispositivos › Conectar torniquete**, elige la
+1. En LSMFit: **Ajustes › Dispositivos › Conectar torniquete**, elige la
    marca y copia el **token del dispositivo** (se muestra una sola vez).
-2. Copia `fitconnect-agent.exe` a `C:\FitConnect\` y crea
-   `C:\FitConnect\fitconnect-agent.json` a partir de `fitconnect-agent.example.json`:
-   URL de FitConnect, token, IP del equipo, usuario y clave.
-3. Prueba: `fitconnect-agent.exe --config C:\FitConnect\fitconnect-agent.json --check`
+2. Copia `lsmfit-agent.exe` a `C:\LSMFit\` y crea
+   `C:\LSMFit\lsmfit-agent.json` a partir de `lsmfit-agent.example.json`:
+   URL de LSMFit, token, IP del equipo, usuario y clave.
+3. Prueba: `lsmfit-agent.exe --config C:\LSMFit\lsmfit-agent.json --check`
    Debe decir `Equipo OK: N usuarios` y `Nube OK: <nombre del dispositivo>`.
 4. Déjalo como servicio para que arranque solo (con [NSSM](https://nssm.cc)):
 
    ```bat
-   nssm install FitConnectAgente C:\FitConnect\fitconnect-agent.exe --config C:\FitConnect\fitconnect-agent.json
-   nssm set FitConnectAgente AppDirectory C:\FitConnect
-   nssm start FitConnectAgente
+   nssm install LSMFitAgente C:\LSMFit\lsmfit-agent.exe --config C:\LSMFit\lsmfit-agent.json
+   nssm set LSMFitAgente AppDirectory C:\LSMFit
+   nssm start LSMFitAgente
    ```
 
 5. Pon el PC en una UPS y configura que encienda solo al volver la luz (BIOS).
@@ -44,7 +44,7 @@ archivo de configuración de este PC. Rostros y huellas nunca se envían a la nu
 
 ```bash
 pip install -e ".[zk]" pyinstaller
-pyinstaller --onefile --name fitconnect-agent fitconnect_agent/main.py
+pyinstaller --onefile --name lsmfit-agent lsmfit_agent/main.py
 ```
 
 ## Pruebas

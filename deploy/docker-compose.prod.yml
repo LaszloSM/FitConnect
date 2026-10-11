@@ -83,6 +83,9 @@ services:
       - S3_PUBLIC_URL=${PUBLIC_URL}
       - PLATFORM_URL=${PLATFORM_URL:-http://localhost:9100}
       - SES_FROM_EMAIL=${SES_FROM_EMAIL:-}
+      - SES_REGION=${SES_REGION:-us-east-1}
+      - MEMBER_APP_ANDROID_URL=${MEMBER_APP_ANDROID_URL:-}
+      - MEMBER_APP_IOS_URL=${MEMBER_APP_IOS_URL:-}
       # Planes con IA. Vacío = la app solo genera planes automáticos.
       - GEMINI_API_KEY=${GEMINI_API_KEY:-}
       - GEMINI_MODEL=${GEMINI_MODEL:-gemini-2.5-flash-lite}

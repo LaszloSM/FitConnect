@@ -28,7 +28,7 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
           </div>
 
           <figure
-            aria-label="Ejemplo de las entradas del día en FitConnect"
+            aria-label="Ejemplo de las entradas del día en LSMFit"
             className="card overflow-hidden"
           >
             <figcaption className="flex items-center justify-between border-b border-line px-4 py-3">
@@ -60,7 +60,7 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
           </figure>
         </div>
 
-        <p className="text-xs text-ink-subtle">© {new Date().getFullYear()} FitConnect</p>
+        <p className="text-xs text-ink-subtle">© {new Date().getFullYear()} LSMFit</p>
       </aside>
 
       <main className="flex flex-1 items-start justify-center px-5 py-10 sm:items-center sm:px-8">

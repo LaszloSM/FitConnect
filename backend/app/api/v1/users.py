@@ -9,16 +9,19 @@ from app.api.deps import get_master_db, get_tenant_db_from_token, require_perm
 from app.core import permissions as perm
 from app.core.config import settings
 from app.core.security import generate_invite_token, hash_invite_token
+from app.services import emails, mailer
 from app.services.audit import audit
 from app.services.staff_member import restore_staff_member, suspend_staff_member
 from app.models.master.staff_directory import StaffDirectory
 from app.models.master.staff_invitation import StaffInvitation
+from app.models.master.tenant import Tenant
 from app.models.tenant.user_staff import UserStaff, UserRole
 from app.schemas.user import InviteUserRequest, InviteResponse, UserResponse, UpdateUserRoleRequest
 
 router = APIRouter(prefix="/users", tags=["users"])
 
 INVITE_TTL_HOURS = 48
+ROLE_LABELS = {"admin": "administrador", "receptionist": "recepción", "trainer": "entrenador"}
 
 
 @router.post("/invite", status_code=201, response_model=InviteResponse)
@@ -76,12 +79,18 @@ async def invite_staff(
     await master_db.commit()
 
     invite_url = f"{settings.frontend_url.rstrip('/')}/aceptar-invitacion?token={token}"
+    tenant = await master_db.get(Tenant, inviter_entry.tenant_id)
+    email_sent = await mailer.send_email(payload.email, emails.staff_invite(
+        invite_url, tenant.name if tenant else "tu gimnasio", ROLE_LABELS.get(payload.role.value, payload.role.value),
+        INVITE_TTL_HOURS, invited_by=current_user.full_name,
+    ))
     return InviteResponse(
         email=payload.email,
         full_name=payload.full_name,
         role=payload.role,
         invite_url=invite_url,
         expires_at=expires_at,
+        email_sent=email_sent,
     )
 
 

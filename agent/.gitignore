@@ -3,5 +3,5 @@ __pycache__/
 build/
 dist/
 .venv/
-fitconnect-agent.json
-fitconnect-agent-data/
+lsmfit-agent.json
+lsmfit-agent-data/

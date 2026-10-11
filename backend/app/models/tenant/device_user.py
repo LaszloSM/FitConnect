@@ -10,7 +10,7 @@ from app.db.tenant_base import TenantBase, TenantTimestampMixin
 
 
 class DeviceUser(TenantBase, TenantTimestampMixin):
-    """Lo que FitConnect sabe de cada usuario guardado DENTRO de un equipo.
+    """Lo que LSMFit sabe de cada usuario guardado DENTRO de un equipo.
 
     Sirve para tres cosas: saber a quién hay que sincronizar (solo se le habla
     al equipo de las personas que tiene), mostrar "enlazados / sin socio /
@@ -37,7 +37,7 @@ class DeviceUser(TenantBase, TenantTimestampMixin):
     has_card: Mapped[bool] = mapped_column(Boolean, nullable=False, default=False)
     #: El equipo lo tiene (False tras borrarlo: se conserva la fila para el historial)
     present: Mapped[bool] = mapped_column(Boolean, nullable=False, default=True)
-    #: Último estado que FitConnect le envió y el equipo confirmó
+    #: Último estado que LSMFit le envió y el equipo confirmó
     enabled: Mapped[Optional[bool]] = mapped_column(Boolean, nullable=True)
     synced_hash: Mapped[Optional[str]] = mapped_column(String(64), nullable=True)
     synced_at: Mapped[Optional[datetime]] = mapped_column(DateTime, nullable=True)

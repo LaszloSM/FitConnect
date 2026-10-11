@@ -1,4 +1,4 @@
-"""Emulador de un terminal ZKTeco que habla ADMS/PUSH ("iclock") con FitConnect.
+"""Emulador de un terminal ZKTeco que habla ADMS/PUSH ("iclock") con LSMFit.
 
 Hace lo mismo que el equipo real: handshake, sube marcaciones (ATTLOG), sube
 usuarios y plantillas (OPERLOG), pide comandos (getrequest) y responde
@@ -163,7 +163,7 @@ async def _loop(api: str, serial: str, seconds: int) -> None:
 
 
 async def _main() -> None:
-    ap = argparse.ArgumentParser(description="Emulador ZKTeco ADMS para FitConnect")
+    ap = argparse.ArgumentParser(description="Emulador ZKTeco ADMS para LSMFit")
     ap.add_argument("--api", required=True, help="URL base, ej. https://app.midominio.co")
     ap.add_argument("--sn", required=True, help="Número de serie registrado en Ajustes › Dispositivos")
     ap.add_argument("--users", default="", help="PINs (cédulas) que el equipo ya tiene, separados por coma")

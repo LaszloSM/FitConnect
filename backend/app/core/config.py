@@ -36,13 +36,31 @@ class Settings(BaseSettings):
     # TTL del token efímero del SSE de recepción (segundos).
     realtime_token_ttl_seconds: int = 120
     algorithm: str = "HS256"
+    # ─── Correo ───
+    # auto = SES si hay remitente, si no solo log. smtp = cualquier servidor
+    # (en desarrollo, Mailpit). Ver app/services/mailer.py.
+    mail_backend: Literal["auto", "ses", "smtp", "log"] = "auto"
     ses_from_email: str = ""
+    ses_region: str = ""
+    smtp_host: str = ""
+    smtp_port: int = 1025
+    smtp_user: str = ""
+    smtp_password: str = ""
+    smtp_tls: bool = False
+    smtp_from: str = "no-responder@lsmfit.local"
+    # Enlaces de descarga de la app de socios para los correos de bienvenida.
+    member_app_android_url: str = ""
+    member_app_ios_url: str = ""
     cors_origins: list[str] = ["http://localhost:3000"]
     # URL pública del frontend, para construir links (ej. invitaciones de staff).
     frontend_url: str = "http://localhost:3000"
     # ─── Seguridad de cuentas ───
-    # Roles a los que se les exige verificación en dos pasos. Vacío = nadie (útil en pruebas).
-    mfa_required_roles: list[str] = ["owner", "admin"]
+    # Roles a los que se les EXIGE verificación en dos pasos. Por defecto nadie:
+    # se recomienda en Ajustes › Seguridad pero no se impone (decisión de producto).
+    mfa_required_roles: list[str] = []
+    # Llaves de acceso (WebAuthn): el dominio donde viven. Vacío = el host de frontend_url.
+    webauthn_rp_id: str = ""
+    webauthn_extra_origins: list[str] = []
     # Intentos fallidos de login por correo antes de bloquear 15 minutos.
     login_max_failures: int = 10
     # ─── Panel de plataforma (admin.<dominio>) ───
@@ -104,6 +122,12 @@ class Settings(BaseSettings):
             errors.append("settings_encryption_key vacío: no se pueden cifrar los secretos de Wompi/WhatsApp")
         if any("localhost" in o or "127.0.0.1" in o for o in self.cors_origins):
             errors.append(f"cors_origins apunta a localhost en producción: {self.cors_origins}")
+        if self.mail_backend in ("auto", "ses") and not self.ses_from_email:
+            # Aviso y no error: el sistema funciona, pero los correos (recuperar
+            # contraseña, invitaciones, códigos) no salen. /health lo muestra.
+            logging.getLogger(__name__).error(
+                "SES_FROM_EMAIL vacío en producción: los correos NO se están enviando"
+            )
         if "sandbox.wompi.co" in self.wompi_api_url:
             # Excepción temporal: todavía no hay cuenta de Wompi de producción, así
             # que esto avisa en vez de impedir el arranque. Cuando exista la cuenta,

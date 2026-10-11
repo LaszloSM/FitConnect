@@ -255,7 +255,7 @@ def _cover_sheet(wb: Workbook, gym_name: str, logo_png: bytes | None) -> None:
         row = 12
     ws.cell(row=row, column=2, value=gym_name).font = Font(bold=True, size=22, color=_INK)
     ws.cell(row=row + 1, column=2, value="Reporte operativo y financiero").font = Font(size=12, color="666666")
-    ws.cell(row=row + 2, column=2, value=f"Generado el {today_bogota().strftime('%d/%m/%Y')} · FitConnect").font = Font(size=10, color="999999")
+    ws.cell(row=row + 2, column=2, value=f"Generado el {today_bogota().strftime('%d/%m/%Y')} · LSMFit").font = Font(size=10, color="999999")
     ws.column_dimensions["B"].width = 50
 
 
@@ -354,7 +354,7 @@ async def build_report_pdf(db: AsyncSession, gym_name: str = "Gimnasio", logo_pn
         # Pie: gym + página
         canvas.setFont("Helvetica", 8)
         canvas.setFillColor(colors.grey)
-        canvas.drawString(18 * mm, 12 * mm, f"{gym_name} · Reporte FitConnect · {generated}")
+        canvas.drawString(18 * mm, 12 * mm, f"{gym_name} · Reporte LSMFit · {generated}")
         canvas.drawRightString(A4[0] - 18 * mm, 12 * mm, f"Página {canvas.getPageNumber()}")
         canvas.restoreState()
 

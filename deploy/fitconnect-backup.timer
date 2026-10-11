@@ -1,5 +1,5 @@
 [Unit]
-Description=Respaldo diario de FitConnect (3:15 a. m. Colombia)
+Description=Respaldo diario de LSMFit (3:15 a. m. Colombia)
 
 [Timer]
 OnCalendar=*-*-* 08:15:00 UTC

@@ -12,7 +12,6 @@ from app.schemas.member import CheckInCreate, CheckInResponse
 from app.models.tenant.checkin import CheckIn, CheckInType
 from app.models.tenant.member import Member
 from app.models.tenant.user_staff import UserStaff
-from app.services import app_accounts
 from app.services.audit import audit
 from app.services.checkin import register_checkin, checkin_status, publish_event, DuplicateCheckin
 from app.services.gym_settings import get_gym_settings
@@ -116,25 +115,6 @@ async def create_checkin(
     if not member:
         raise HTTPException(status_code=404, detail="Miembro no encontrado")
     return await _register(member, db, source="reception", db_name=db_name)
-
-
-@router.post("/qr/{qr_code}", response_model=CheckInResponse, status_code=201, dependencies=[Depends(require_perm(perm.CHECKINS_WRITE))])
-async def checkin_by_qr(
-    qr_code: str,
-    db: AsyncSession = Depends(get_tenant_db_from_token),
-    db_name: str = Depends(get_db_name),
-):
-    """Check-in por código QR del carné — devuelve quién entró y la decisión."""
-    if app_accounts.is_rotating_qr(qr_code):
-        member_id = await app_accounts.resolve_rotating_qr(db_name, qr_code)
-        member = await db.get(Member, member_id) if member_id else None
-        if not member:
-            raise HTTPException(status_code=404, detail="QR vencido o no válido. Pídele al socio que abra de nuevo su QR en la app.")
-        return await _register(member, db, source="app_qr", db_name=db_name)
-    member = (await db.execute(select(Member).where(Member.qr_code == qr_code))).scalar_one_or_none()
-    if not member:
-        raise HTTPException(status_code=404, detail="QR no válido o miembro no encontrado")
-    return await _register(member, db, source="qr", db_name=db_name)
 
 
 @router.post("/override", response_model=CheckInResponse, status_code=201, dependencies=[Depends(require_perm(perm.ACCESS_OVERRIDE))])

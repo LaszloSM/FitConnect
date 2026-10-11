@@ -11,7 +11,7 @@ from app.core.config import settings
 from app.core.rate_limit import limiter
 from app.db.master_session import get_master_db
 from app.models.master.app_user import AppUser
-from app.services import app_accounts, mailer
+from app.services import app_accounts, emails, mailer
 
 logger = logging.getLogger(__name__)
 router = APIRouter(prefix="/app/auth", tags=["app"])
@@ -44,11 +44,7 @@ async def request_code(request: Request, payload: CodeRequest, background: Backg
     if code:
         if settings.environment == "development":
             logger.info("Código de la app para %s: %s", email, code)
-        background.add_task(
-            mailer.send, email, f"Tu código de FitConnect: {code}",
-            f"Tu código para entrar a FitConnect es {code}.\n"
-            f"Vence en {app_accounts.CODE_MINUTES} minutos. Si no lo pediste, ignora este correo.",
-        )
+        background.add_task(mailer.send_email, email, emails.app_login_code(code, app_accounts.CODE_MINUTES))
     return {"ok": True, "expires_in": app_accounts.CODE_MINUTES * 60}
 
 

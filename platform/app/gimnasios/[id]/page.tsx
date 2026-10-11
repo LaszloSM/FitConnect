@@ -36,6 +36,7 @@ export default function TenantPage({ params }: { params: Promise<{ id: string }>
   const [trialDays, setTrialDays] = useState(14);
   const [compUntil, setCompUntil] = useState("");
   const [compReason, setCompReason] = useState("");
+  const [notify, setNotify] = useState(true);
   const [notes, setNotes] = useState("");
   const [suspendReason, setSuspendReason] = useState("");
   const [confirmSuspend, setConfirmSuspend] = useState(false);
@@ -57,8 +58,8 @@ export default function TenantPage({ params }: { params: Promise<{ id: string }>
     setError("");
     setOk("");
     try {
-      await api(`/tenants/${id}${path}`, { method, body });
-      setOk(done);
+      const res = await api<{ notified?: boolean }>(`/tenants/${id}${path}`, { method, body });
+      setOk(res?.notified ? `${done}. Le avisamos al dueño por correo.` : done);
       load();
     } catch (e) {
       setError(e instanceof Error ? e.message : "No se pudo completar");
@@ -138,19 +139,41 @@ export default function TenantPage({ params }: { params: Promise<{ id: string }>
                 onChange={(e) => setTrialDays(Number(e.target.value))}
               />
               <span className="text-sm text-ink-muted">días</span>
-              <button className="btn btn-outline ml-auto" disabled={busy} onClick={() => act("/trial", { days: trialDays }, "Prueba actualizada")}>
+              <button className="btn btn-outline ml-auto" disabled={busy} onClick={() => act("/trial", { days: trialDays, notify }, "Prueba actualizada")}>
                 Dar prueba
               </button>
+            </div>
+            <div className="flex flex-wrap gap-1.5">
+              {[7, 15, 30].map((d) => (
+                <button key={d} className="btn btn-outline" disabled={busy} onClick={() => act("/trial", { days: d, notify }, `Prueba extendida ${d} días`)}>
+                  +{d} días
+                </button>
+              ))}
             </div>
           </div>
 
           <div className="card space-y-3 p-5">
             <h2 className="text-base font-semibold">Cortesía</h2>
-            <p className="text-sm text-ink-muted">Acceso completo sin cobro hasta una fecha (pilotos, aliados).</p>
-            <div className="grid gap-2 sm:grid-cols-[160px_1fr]">
-              <input type="date" className="field" aria-label="Hasta" value={compUntil} onChange={(e) => setCompUntil(e.target.value)} />
-              <input className="field" placeholder="Motivo" aria-label="Motivo" value={compReason} onChange={(e) => setCompReason(e.target.value)} maxLength={255} />
+            <label className="flex items-center gap-2 text-sm text-ink-muted">
+              <input type="checkbox" checked={notify} onChange={(e) => setNotify(e.target.checked)} />
+              Avisar al dueño por correo (prueba y cortesía)
+            </label>
+            <p className="text-sm text-ink-muted">Acceso completo sin cobro (pilotos, aliados, meses gratis).</p>
+            <input className="field w-full" placeholder="Motivo (obligatorio)" aria-label="Motivo" value={compReason} onChange={(e) => setCompReason(e.target.value)} maxLength={255} />
+            <div className="flex flex-wrap gap-1.5">
+              {[1, 3, 6, 12].map((m) => (
+                <button
+                  key={m}
+                  className="btn btn-outline"
+                  disabled={busy || compReason.trim().length < 3}
+                  onClick={() => act("/comp", { months: m, reason: compReason, notify }, `Cortesía de ${m} ${m === 1 ? "mes" : "meses"} guardada`)}
+                >
+                  +{m} {m === 1 ? "mes" : "meses"}
+                </button>
+              ))}
             </div>
+            <p className="text-xs text-ink-muted">O hasta una fecha exacta:</p>
+            <input type="date" className="field" aria-label="Hasta" value={compUntil} onChange={(e) => setCompUntil(e.target.value)} />
             <div className="flex justify-end gap-2">
               {sub.comp_until && (
                 <button className="btn btn-outline" disabled={busy} onClick={() => act("/comp", { until: null }, "Cortesía retirada")}>
@@ -160,7 +183,7 @@ export default function TenantPage({ params }: { params: Promise<{ id: string }>
               <button
                 className="btn btn-outline"
                 disabled={busy || !compUntil}
-                onClick={() => act("/comp", { until: compUntil, reason: compReason }, "Cortesía guardada")}
+                onClick={() => act("/comp", { until: compUntil, reason: compReason, notify }, "Cortesía guardada")}
               >
                 Dar cortesía
               </button>

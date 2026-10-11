@@ -1,4 +1,4 @@
-"""Ciclo de la suscripción de un gimnasio a FitConnect.
+"""Ciclo de la suscripción de un gimnasio a LSMFit.
 
   trialing ─(vence la prueba)→ past_due ─(N días de gracia)→ read_only
   active   ─(falla el cobro) → past_due ─(N días de gracia)→ read_only

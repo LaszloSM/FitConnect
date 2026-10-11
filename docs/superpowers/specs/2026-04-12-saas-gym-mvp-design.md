@@ -96,7 +96,7 @@ const [state, setState] = useState({
 ### 3.2 Components
 
 #### **Header.jsx**
-- Logo "FitConnect"
+- Logo "LSMFit"
 - Gym name (e.g., "PowerGym")
 - Logged-in user name
 - Bell icon with badge (number of alerts)

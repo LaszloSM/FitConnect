@@ -8,6 +8,7 @@ import { motion, AnimatePresence, useReducedMotion } from "framer-motion";
 import { PageHeader } from "@/components/common/PageHeader";
 import { OpenTurnstileButton } from "@/components/access/OpenTurnstileButton";
 import { OfflineReception } from "@/components/offline/OfflineReception";
+import { OfflineReadinessNotice } from "@/components/offline/OfflineReadiness";
 import { useOffline } from "@/components/offline/OfflineProvider";
 import { EmptyState } from "@/components/common/EmptyState";
 import { Avatar, CardHead } from "@/components/dashboard/hoy/parts";
@@ -253,6 +254,7 @@ export default function CheckinsClient() {
         }
       />
 
+      <OfflineReadinessNotice />
       {/* Sin red: busca en la copia local y anota para subir luego. Con red: solo la bandeja de pendientes. */}
       <OfflineReception />
 

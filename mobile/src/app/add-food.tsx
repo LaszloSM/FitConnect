@@ -3,22 +3,24 @@ import { BarcodeIcon, CaretRightIcon, CookingPotIcon, PlusIcon, StarIcon } from 
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { Platform, Pressable, ScrollView, Text, View } from "react-native";
 
-import { Segmented, Skeleton, Stepper } from "@/components/controls";
+import { Choices, Skeleton, Stepper } from "@/components/controls";
+import { Meter } from "@/components/charts";
+import { foodIcon } from "@/components/today";
 import { MacroLine, NutrientTable } from "@/components/nutrition";
-import { Button, Card, Field, Notice, Screen, Section, Txt } from "@/components/ui";
+import { Button, Card, Chip, Field, Notice, Press, Screen, Section, Ticker, Txt } from "@/components/ui";
 import { api, OfflineError } from "@/lib/api";
 import { bogotaToday, entryFor, logMeal } from "@/lib/meals";
 import { fonts, radius, space, useColors } from "@/lib/theme";
-import type { Food, MealKey, TargetsResponse } from "@/lib/types";
+import type { DayMeals, Food, MealKey, TargetsResponse } from "@/lib/types";
 import { useCached } from "@/lib/useCached";
 
 const MEALS: { value: MealKey; label: string }[] = [
   { value: "breakfast", label: "Desayuno" },
   { value: "lunch", label: "Almuerzo" },
+  { value: "snack", label: "Algo" },
   { value: "dinner", label: "Cena" },
-  { value: "snack", label: "Otras" },
 ];
-const MEAL_LABEL: Record<MealKey, string> = { breakfast: "desayuno", lunch: "almuerzo", dinner: "cena", snack: "entre comidas" };
+const MEAL_LABEL: Record<MealKey, string> = { breakfast: "desayuno", lunch: "almuerzo", dinner: "cena", snack: "algo" };
 
 type Category = { key: string; label: string };
 
@@ -100,10 +102,10 @@ function FoodSearch({ meal, day, onPick, error: outerError, barcodeMissing }: { 
                 accessibilityState={{ selected: on }}
                 onPress={() => setCategory(cat.key || null)}
                 style={({ pressed }) => [
-                  { minHeight: 40, paddingHorizontal: 14, justifyContent: "center", borderRadius: 999, borderWidth: 1, borderColor: on ? c.brand : c.line, backgroundColor: on ? c.brandMuted : c.card },
+                  { minHeight: 36, paddingHorizontal: 14, justifyContent: "center", borderRadius: 999, backgroundColor: on ? c.brandMuted : c.muted },
                   pressed && { transform: [{ scale: 0.97 }] },
                 ]}>
-                <Text style={{ fontFamily: on ? fonts.bodySemi : fonts.body, fontSize: 14, color: on ? c.brandInk : c.ink }}>{cat.label}</Text>
+                <Text style={{ fontFamily: on ? fonts.bodySemi : fonts.bodyMedium, fontSize: 13.5, color: on ? c.brandInk : c.inkMuted }}>{cat.label}</Text>
               </Pressable>
             );
           })}
@@ -177,11 +179,19 @@ function FoodList({ foods, onPick }: { foods: Food[]; onPick: (f: Food) => void 
             accessibilityLabel={`${f.name}, ${Math.round(f.kcal)} kilocalorías por 100 gramos`}
             onPress={() => onPick(f)}
             style={({ pressed }) => [
-              { flexDirection: "row", alignItems: "center", gap: space.md, minHeight: 60, paddingVertical: 10, borderBottomWidth: i === foods.length - 1 ? 0 : 1, borderBottomColor: c.muted },
+              { flexDirection: "row", alignItems: "center", gap: space.md, minHeight: 60, paddingVertical: 10, borderBottomWidth: i === foods.length - 1 ? 0 : 1, borderBottomColor: c.line },
               pressed && { opacity: 0.7 },
             ]}>
+            {(() => {
+              const I = foodIcon(f.name);
+              return (
+                <View style={{ width: 40, height: 40, borderRadius: radius.md, backgroundColor: c.muted, alignItems: "center", justifyContent: "center" }}>
+                  <I size={20} color={c.inkMuted} />
+                </View>
+              );
+            })()}
             <View style={{ flex: 1, gap: 2 }}>
-              <Txt weight="medium" numberOfLines={2}>{f.name}{f.brand ? ` · ${f.brand}` : ""}</Txt>
+              <Txt weight="semi" size={14.5} numberOfLines={2}>{f.name}{f.brand ? ` · ${f.brand}` : ""}</Txt>
               <Txt muted size={13} numberOfLines={1}>
                 {Math.round(f.kcal)} kcal · {Math.round(f.protein_g)} g prot. por 100 g{portion ? ` · ${portion.label}` : ""}
               </Txt>
@@ -202,7 +212,10 @@ function FoodDetail({ food, meal, setMeal, day, onBack, onChange }: { food: Food
   const [favBusy, setFavBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const targets = useCached<TargetsResponse>("/api/v1/me/nutrition/targets");
+  const eaten = useCached<DayMeals>(`/api/v1/me/meals?day=${day}`);
   const preview = useMemo(() => entryFor(food, grams || 0, meal, day), [food, grams, meal, day]);
+  const t = targets.data?.available ? targets.data.targets : undefined;
+  const tot = eaten.data?.totals;
 
   const toggleFav = async () => {
     setFavBusy(true);
@@ -227,68 +240,83 @@ function FoodDetail({ food, meal, setMeal, day, onBack, onChange }: { food: Food
     router.back();
   };
 
-  const origin = food.source === "custom" ? "Creado por ti, con los datos de la etiqueta." : food.source === "recipe" ? "Tu comida: suma de sus ingredientes." : food.origin;
+  const origin = food.source === "custom" ? "Creado por ti" : food.source === "recipe" ? "Tu comida (suma de ingredientes)" : food.origin;
+  const leftAfter = t && tot ? Math.round(t.kcal - tot.kcal - preview.kcal) : null;
 
   return (
-    <Screen edges={["bottom"]}>
-      <View style={{ flexDirection: "row", alignItems: "flex-start", gap: space.md, marginBottom: space.md }}>
-        <View style={{ flex: 1, gap: 4 }}>
-          {food.source === "recipe" ? <Txt muted size={13}>Tu comida</Txt> : food.category_label ? <Txt muted size={13}>{food.category_label}</Txt> : null}
-          <Text accessibilityRole="header" style={{ fontFamily: fonts.display, fontSize: 24, lineHeight: 29, color: c.ink }}>
+    <Screen
+      edges={["bottom"]}
+      footer={<Button label={`Agregar a ${MEAL_LABEL[meal]}`} icon={PlusIcon} onPress={save} loading={busy} disabled={!grams} size="lg" style={{ flex: 1 }} />}>
+      <View style={{ flexDirection: "row", alignItems: "flex-start", gap: space.md, marginBottom: space.lg }}>
+        <View style={{ flex: 1, gap: 8 }}>
+          <Text accessibilityRole="header" style={{ fontFamily: fonts.display, fontSize: 26, lineHeight: 31, letterSpacing: -0.4, color: c.ink }}>
             {food.name}
           </Text>
-          {food.brand ? <Txt muted size={14}>{food.brand}</Txt> : null}
+          <View style={{ flexDirection: "row", flexWrap: "wrap", gap: space.sm, alignItems: "center" }}>
+            {food.brand ? <Txt muted size={14}>{food.brand}</Txt> : null}
+            {origin ? <Chip tone="neutral" label={origin.length > 34 ? `${origin.slice(0, 32)}…` : origin} /> : null}
+          </View>
         </View>
-        <Pressable
+        <Press
           accessibilityRole="button"
           accessibilityLabel={food.favorite ? "Quitar de favoritos" : "Agregar a favoritos"}
           accessibilityState={{ selected: Boolean(food.favorite), busy: favBusy }}
           disabled={favBusy}
           onPress={toggleFav}
-          style={({ pressed }) => [{ width: 48, height: 48, borderRadius: radius.md, alignItems: "center", justifyContent: "center", backgroundColor: food.favorite ? c.brandMuted : c.muted }, pressed && { transform: [{ scale: 0.95 }] }]}>
+          scaleTo={0.9}
+          style={{ width: 46, height: 46, borderRadius: 23, alignItems: "center", justifyContent: "center", backgroundColor: food.favorite ? c.brandMuted : c.muted }}>
           <StarIcon size={22} color={food.favorite ? c.brandInk : c.inkMuted} weight={food.favorite ? "fill" : "regular"} />
-        </Pressable>
+        </Press>
       </View>
       {error ? <Notice tone="danger">{error}</Notice> : null}
 
-      <Segmented options={MEALS} value={meal} onChange={setMeal} style={{ marginBottom: space.lg }} />
+      <Choices options={MEALS} value={meal} onChange={setMeal} />
 
-      <Card style={{ gap: space.lg }}>
+      <Card style={{ gap: space.lg, marginTop: space.lg }}>
         {food.portions.length ? (
-          <View style={{ flexDirection: "row", flexWrap: "wrap", gap: space.sm }}>
-            {food.portions.map((p) => {
-              const on = Math.round(p.grams) === grams;
-              return (
-                <Pressable
-                  key={`${p.label}-${p.grams}`}
-                  accessibilityRole="radio"
-                  accessibilityState={{ selected: on }}
-                  onPress={() => setGrams(Math.round(p.grams))}
-                  style={({ pressed }) => [
-                    { minHeight: 44, paddingHorizontal: 12, justifyContent: "center", borderRadius: radius.md, borderWidth: 1, borderColor: on ? c.brand : c.line, backgroundColor: on ? c.brandMuted : c.card },
-                    pressed && { transform: [{ scale: 0.97 }] },
-                  ]}>
-                  <Text style={{ fontFamily: on ? fonts.bodySemi : fonts.body, fontSize: 14, color: on ? c.brandInk : c.ink }}>
-                    {p.label === `${Math.round(p.grams)} g` ? p.label : `${p.label} · ${Math.round(p.grams)} g`}
-                  </Text>
-                </Pressable>
-              );
-            })}
-          </View>
+          <Choices
+            options={food.portions.filter((p, i, all) => all.findIndex((x) => Math.round(x.grams) === Math.round(p.grams)) === i).map((p) => ({
+              value: String(Math.round(p.grams)),
+              label: p.label === `${Math.round(p.grams)} g` ? p.label : `${p.label} · ${Math.round(p.grams)} g`,
+            }))}
+            value={String(grams)}
+            onChange={(v) => setGrams(Number(v))}
+          />
         ) : null}
         <Stepper value={grams} onChange={setGrams} />
-        <MacroLine kcal={preview.kcal} protein={preview.protein_g} carbs={preview.carbs_g} fat={preview.fat_g} />
       </Card>
 
-      <Button label={`Agregar a ${MEAL_LABEL[meal]}`} onPress={save} loading={busy} disabled={!grams} style={{ marginTop: space.lg }} />
-      <Button label="Elegir otro alimento" variant="ghost" onPress={onBack} style={{ marginTop: space.xs }} />
+      <Card style={{ gap: space.lg, marginTop: space.md }}>
+        <View style={{ flexDirection: "row", alignItems: "baseline", justifyContent: "space-between", gap: space.md }}>
+          <View style={{ flexDirection: "row", alignItems: "baseline", gap: 6 }}>
+            <Ticker value={preview.kcal} size={40} />
+            <Txt weight="semi">kcal</Txt>
+          </View>
+          {leftAfter !== null ? (
+            <Txt size={13.5} weight="semi" style={{ color: leftAfter < 0 ? c.warn : c.inkMuted }}>
+              {leftAfter < 0 ? `Te pasarías por ${Math.abs(leftAfter).toLocaleString("es-CO")}` : `Te quedarían ${leftAfter.toLocaleString("es-CO")}`}
+            </Txt>
+          ) : null}
+        </View>
+        {t ? (
+          <>
+            <Meter label="Calorías" value={tot?.kcal ?? 0} preview={preview.kcal} target={t.kcal} unit="kcal" color={c.brand} />
+            <Meter label="Proteína" value={tot?.protein_g ?? 0} preview={preview.protein_g} target={t.protein_g} unit="g" color={c.protein} />
+            <Meter label="Carbohidratos" value={tot?.carbs_g ?? 0} preview={preview.carbs_g} target={t.carbs_g} unit="g" color={c.carbs} />
+            <Meter label="Grasa" value={tot?.fat_g ?? 0} preview={preview.fat_g} target={t.fat_g} unit="g" color={c.fat} />
+            <Txt muted size={12}>La parte clara de cada barra es lo que suma esta porción a lo que ya comiste hoy.</Txt>
+          </>
+        ) : (
+          <MacroLine kcal={preview.kcal} protein={preview.protein_g} carbs={preview.carbs_g} fat={preview.fat_g} />
+        )}
+      </Card>
 
       {food.components?.length ? (
         <>
           <Section>Ingredientes</Section>
           <Card style={{ paddingVertical: space.xs }}>
             {food.components.map((it, i) => (
-              <View key={`${it.food_id}-${i}`} style={{ flexDirection: "row", justifyContent: "space-between", gap: space.md, paddingVertical: 10, borderBottomWidth: i === food.components!.length - 1 ? 0 : 1, borderBottomColor: c.muted }}>
+              <View key={`${it.food_id}-${i}`} style={{ flexDirection: "row", justifyContent: "space-between", gap: space.md, paddingVertical: 10, borderBottomWidth: i === food.components!.length - 1 ? 0 : 1, borderBottomColor: c.line }}>
                 <Txt size={14} style={{ flex: 1 }}>{it.name}</Txt>
                 <Txt size={14} muted style={{ fontVariant: ["tabular-nums"] }}>{Math.round(it.grams)} g</Txt>
               </View>
@@ -297,7 +325,7 @@ function FoodDetail({ food, meal, setMeal, day, onBack, onChange }: { food: Food
         </>
       ) : null}
 
-      <Section>En {grams || 0} g</Section>
+      <Section>Información nutricional en {grams || 0} g</Section>
       <Card>
         <NutrientTable
           macros={{ kcal: preview.kcal, protein_g: preview.protein_g, carbs_g: preview.carbs_g, fat_g: preview.fat_g, fiber_g: preview.fiber_g }}
@@ -305,8 +333,9 @@ function FoodDetail({ food, meal, setMeal, day, onBack, onChange }: { food: Food
           targets={targets.data?.targets ?? null}
         />
       </Card>
-      {targets.data?.targets ? <Txt muted size={12.5} style={{ marginTop: space.sm }}>El porcentaje es de tu meta del día.</Txt> : null}
-      {origin ? <Txt muted size={12.5} style={{ marginTop: space.md }}>Fuente: {origin}</Txt> : null}
+      {t ? <Txt muted size={12.5} style={{ marginTop: space.sm }}>El porcentaje es de tu meta del día.</Txt> : null}
+      {food.origin ? <Txt muted size={12.5} style={{ marginTop: space.md }}>Fuente: {food.origin}</Txt> : null}
+      <Button label="Elegir otro alimento" variant="ghost" onPress={onBack} style={{ marginTop: space.md }} />
     </Screen>
   );
 }

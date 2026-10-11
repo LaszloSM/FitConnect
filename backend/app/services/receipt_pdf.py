@@ -53,7 +53,7 @@ async def build_receipt_pdf(
         canvas.rect(0, h - 6 * mm, w, 6 * mm, stroke=0, fill=1)
         canvas.setFillColor(muted)
         canvas.setFont("Helvetica", 7)
-        canvas.drawCentredString(w / 2, 8 * mm, f"{gym_name} · Comprobante {snap.get('receipt_number', '')} · FitConnect")
+        canvas.drawCentredString(w / 2, 8 * mm, f"{gym_name} · Comprobante {snap.get('receipt_number', '')} · LSMFit")
         if watermark:
             canvas.setFont("Helvetica-Bold", 44)
             canvas.setFillColor(colors.Color(0.85, 0.1, 0.1, alpha=0.18))

@@ -1,4 +1,4 @@
-/* FitConnect: service worker de recepción sin conexión.
+/* LSMFit: service worker de recepción sin conexión.
  *
  * - Archivos de /_next/static (llevan hash en el nombre): primero la caché.
  * - Páginas: primero la red; sin red, la última copia de esa página.

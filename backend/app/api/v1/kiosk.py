@@ -4,7 +4,7 @@ from datetime import datetime, timezone, timedelta
 from fastapi import APIRouter, Depends, HTTPException, Request
 from typing import Literal, Optional
 
-from pydantic import BaseModel, field_validator, Field, model_validator
+from pydantic import BaseModel, field_validator, Field
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -22,7 +22,6 @@ from app.core.timeutil import utcnow_naive
 from app.models.tenant.kiosk_device import KioskDevice
 from app.models.tenant.member import Member
 from app.models.tenant.user_staff import UserStaff
-from app.services import app_accounts
 from app.services.audit import audit
 from app.services.checkin import register_checkin, DuplicateCheckin
 from app.services.storage import resolve_media_url
@@ -31,14 +30,7 @@ router = APIRouter(prefix="/kiosk", tags=["kiosk"])
 
 
 class KioskCheckinRequest(BaseModel):
-    id_number: str | None = Field(default=None, max_length=50)
-    qr_code: str | None = Field(default=None, max_length=64)
-
-    @model_validator(mode="after")
-    def one_identifier(self):
-        if not self.id_number and not self.qr_code:
-            raise ValueError("Se requiere id_number o qr_code")
-        return self
+    id_number: str = Field(min_length=3, max_length=50)
 
 
 @router.post("/checkin")
@@ -51,17 +43,9 @@ async def kiosk_checkin(
 ):
     """Check-in desde el kiosko de la entrada. Respuesta mínima: sin PII más
     allá del nombre/foto que el propio miembro ve en pantalla."""
-    if payload.qr_code and app_accounts.is_rotating_qr(payload.qr_code):
-        member_id = await app_accounts.resolve_rotating_qr(token["db_name"], payload.qr_code)
-        member = await db.get(Member, member_id) if member_id else None
-    elif payload.qr_code:
-        member = (await db.execute(
-            select(Member).where(Member.qr_code == payload.qr_code)
-        )).scalar_one_or_none()
-    else:
-        member = (await db.execute(
-            select(Member).where(Member.id_number == payload.id_number.strip())
-        )).scalar_one_or_none()
+    member = (await db.execute(
+        select(Member).where(Member.id_number == payload.id_number.strip())
+    )).scalar_one_or_none()
     if not member:
         return {
             "decision": "not_found",

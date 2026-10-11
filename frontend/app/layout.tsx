@@ -18,8 +18,8 @@ const figtree = Figtree({
 });
 
 export const metadata: Metadata = {
-  title: "FitConnect, software para gimnasios en Colombia",
-  description: "Gestiona tu gimnasio con FitConnect: miembros, pagos, clases, check-ins y más.",
+  title: "LSMFit, software para gimnasios en Colombia",
+  description: "Gestiona tu gimnasio con LSMFit: miembros, pagos, clases, check-ins y más.",
 };
 
 export default function RootLayout({

@@ -1,8 +1,8 @@
-# Plan: Rediseño de lógica FitConnect — de demo a producto vendible
+# Plan: Rediseño de lógica LSMFit — de demo a producto vendible
 
 ## Contexto
 
-FitConnect hoy es mayormente CRUD: las membresías nunca expiran de verdad (estado pasivo por fecha), el check-in siempre deja entrar, los pagos no tienen caja real ni recibos, Wompi es solo un valor de enum, las clases son inscripciones permanentes sin sesiones ni asistencia, y no hay notificaciones reales ni auditoría. El objetivo es convertirlo en un producto operable por gimnasios reales en Colombia (todo tipo de gym, online-first con Wompi, usuarios: dueño + recepcionista; app de miembros queda para el futuro).
+LSMFit hoy es mayormente CRUD: las membresías nunca expiran de verdad (estado pasivo por fecha), el check-in siempre deja entrar, los pagos no tienen caja real ni recibos, Wompi es solo un valor de enum, las clases son inscripciones permanentes sin sesiones ni asistencia, y no hay notificaciones reales ni auditoría. El objetivo es convertirlo en un producto operable por gimnasios reales en Colombia (todo tipo de gym, online-first con Wompi, usuarios: dueño + recepcionista; app de miembros queda para el futuro).
 
 **Decisiones del usuario:** auto-expiración con job diario + gracia configurable + freeze + descuentos/promos (sin cobro recurrente ni tiqueteras); Wompi sandbox real (links + webhook + reconciliación); check-in bloquea con override auditado; clases por sesión con reservas, waitlist y asistencia; caja con turnos/cierres, egresos y recibos consecutivos; WhatsApp como canal de notificaciones; auditoría básica; multi-sede asentada (CRUD Location + filtros) sin features avanzadas; mantenimiento preventivo, reportes comparativos/export y dashboard operativo; APScheduler dentro del backend. **Fuera de fase:** billing SaaS, recurrente, app miembros, 2FA.
 

@@ -43,14 +43,13 @@ async def _device(db: AsyncSession, token: dict) -> KioskDevice:
 
 class VerifyRequest(BaseModel):
     id_number: Optional[str] = Field(default=None, max_length=50)
-    qr_code: Optional[str] = Field(default=None, max_length=64)
     device_user_id: Optional[str] = Field(default=None, max_length=64)
     direction: Literal["entry", "exit"] = "entry"
 
     @model_validator(mode="after")
     def one_credential(self):
-        if not (self.id_number or self.qr_code or self.device_user_id):
-            raise ValueError("Se requiere id_number, qr_code o device_user_id")
+        if not (self.id_number or self.device_user_id):
+            raise ValueError("Se requiere id_number o device_user_id")
         return self
 
 
@@ -64,7 +63,7 @@ async def access_verify(
 ):
     device = await _device(db, token)
     decision = await verify_access(
-        db, device, id_number=payload.id_number, qr_code=payload.qr_code, device_user_id=payload.device_user_id,
+        db, device, id_number=payload.id_number, device_user_id=payload.device_user_id,
         direction=payload.direction, db_name=token["db_name"],
     )
     await db.commit()
@@ -93,7 +92,6 @@ class OfflineEvent(BaseModel):
     direction: Literal["entry", "exit"] = "entry"
     reason: Optional[str] = Field(default=None, max_length=40)
     id_number: Optional[str] = Field(default=None, max_length=50)
-    qr_code: Optional[str] = Field(default=None, max_length=64)
     device_user_id: Optional[str] = Field(default=None, max_length=64)
 
 

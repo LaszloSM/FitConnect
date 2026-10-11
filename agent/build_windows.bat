@@ -1,7 +1,7 @@
 @echo off
-REM Construye fitconnect-agent.exe en Windows (requiere Python 3.12).
+REM Construye lsmfit-agent.exe en Windows (requiere Python 3.12).
 python -m venv .venv
 call .venv\Scripts\activate
 pip install -e ".[zk]" pyinstaller
-pyinstaller --onefile --name fitconnect-agent fitconnect_agent\main.py
-echo Listo: dist\fitconnect-agent.exe
+pyinstaller --onefile --name lsmfit-agent lsmfit_agent\main.py
+echo Listo: dist\lsmfit-agent.exe

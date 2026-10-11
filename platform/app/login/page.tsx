@@ -70,9 +70,9 @@ export default function LoginPage() {
   return (
     <main className="flex min-h-dvh items-center justify-center px-4 py-10">
       <div className="card w-full max-w-[420px] p-7">
-        <p className="text-xs font-medium text-ink-muted">FitConnect</p>
+        <p className="text-xs font-medium text-ink-muted">LSMFit</p>
         <h1 className="font-display text-2xl font-bold tracking-tight">Plataforma</h1>
-        <p className="mt-1 text-sm text-ink-muted">Acceso solo para el equipo de FitConnect.</p>
+        <p className="mt-1 text-sm text-ink-muted">Acceso solo para el equipo de LSMFit.</p>
 
         <div className="mt-6 space-y-4">
           {expired && step.kind === "password" && !error && <Notice tone="warn">La sesión se cerró. Entra de nuevo.</Notice>}

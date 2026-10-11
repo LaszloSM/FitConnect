@@ -1,5 +1,5 @@
 """La app móvil: lo de la persona (cuenta, consentimientos, entrenos) y lo de su
-gimnasio cuando vinculó la ficha (membresía, QR, clases, rutina, pagos, avisos).
+gimnasio cuando vinculó la ficha (membresía, clases, rutina, pagos, avisos).
 
 Toda ruta de un gimnasio pasa por `_gym`: el vínculo tiene que ser de quien
 pregunta, estar vigente, y el gimnasio tener encendida la app para socios.
@@ -322,9 +322,6 @@ async def gym_summary(link_id: uuid.UUID, user: AppUser = Depends(get_app_user),
              "session_date": s.session_date.isoformat(), "start_time": s.start_time.isoformat()[:5]}
             for b, s, gc in next_bookings
         ],
-        # El celular deriva la llave de cada día: HMAC-SHA1(secret, "AAAA-MM-DD" de Bogotá) → TOTP de 30 s.
-        "qr": {"secret": app_accounts.qr_secret(link.id), "prefix": app_accounts.QR_PREFIX, "ref": link.id.hex,
-               "period": 30, "digits": 6, "day_keys": True},
     }
 
 

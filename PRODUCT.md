@@ -1,4 +1,4 @@
-# FitConnect — Product Context
+# LSMFit — Product Context
 
 ## Product Purpose
 SaaS platform for gym management targeting the Colombian market. Gym owners use it daily to manage members, payments, classes, check-ins, and machines. Receptionists use it for rapid member check-in and payment registration. The product competes with Mindbody, Glofox, and Perfect Gym.
@@ -12,12 +12,12 @@ product
 - **Admins**: manage member plans, classes, machines.
 
 ## Brand
-- **Name:** FitConnect
+- **Name:** LSMFit
 - **Visual direction:** Calor (chosen 2026-09-14): the gym front desk in afternoon light. Warm, energetic, layered; cards with soft depth, trends and sparklines next to every figure. Not flat, not template.
 - **Color:** warm neutrals with one committed accent, coral `oklch(0.545 0.185 35)`, for actions, selection and today's data. Status signals (ok, warn, danger, ice) live apart and always carry an icon and text. See DESIGN.md.
 - **Tone:** Professional, trustworthy, energetic. Not casual. Not startup-cute. Like a tool a serious gym owner pays for.
 - **Typography:** Bricolage Grotesque for page titles and every figure (tabular digits), Figtree for the interface. No monospace.
-- **Logo:** pending — the owner is designing a new one. Use the text wordmark "FitConnect" and a neutral logo slot until then.
+- **Logo:** two diagonally cut "C" shapes, point-symmetric, with a central node, in the logo orange `#D8421A`; wordmark "LSMFit" in Bricolage Grotesque ExtraBold with softened corners and a round i-dot. Components: `BrandMark`, `BrandLockup`. Source and generator: `docs/brand/`.
 
 ## Anti-references
 - Mindbody (cluttered, outdated, overwhelming)

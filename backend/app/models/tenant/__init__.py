@@ -40,6 +40,7 @@ from app.models.tenant.import_batch import ImportBatch
 from app.models.tenant.device_command import DeviceCommand
 from app.models.tenant.device_user import DeviceUser
 from app.models.tenant.profile_link import ProfileLink
+from app.models.tenant.staff_passkey import StaffPasskey
 
 __all__ = [
     "UserStaff", "UserRole",
@@ -83,4 +84,5 @@ __all__ = [
     "ImportBatch",
     "DeviceCommand", "DeviceUser",
     "ProfileLink",
+    "StaffPasskey",
 ]

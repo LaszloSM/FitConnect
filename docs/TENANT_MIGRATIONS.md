@@ -1,6 +1,6 @@
 # Migraciones multi-tenant — contrato
 
-FitConnect tiene dos clases de base de datos con estrategias **distintas**:
+LSMFit tiene dos clases de base de datos con estrategias **distintas**:
 
 - **Master DB** (`gymdb_master`): es **migration-driven**. El esquema se construye y
   evoluciona con la cadena de Alembic (`migrations/master`). `alembic upgrade head`

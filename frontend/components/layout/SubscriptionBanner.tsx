@@ -22,7 +22,7 @@ function plural(n: number, one: string, many: string) {
 }
 
 /**
- * Estado de la cuenta de FitConnect del gimnasio: días de prueba, pago vencido
+ * Estado de la cuenta de LSMFit del gimnasio: días de prueba, pago vencido
  * con gracia o solo lectura. Solo aparece cuando hay algo que decir.
  */
 export function SubscriptionBanner() {
@@ -52,12 +52,12 @@ export function SubscriptionBanner() {
   if (sub.status === "trialing" && days <= 7) {
     text =
       days === 0
-        ? "Tu prueba gratis de FitConnect termina hoy."
+        ? "Tu prueba gratis de LSMFit termina hoy."
         : `Te ${days === 1 ? "queda" : "quedan"} ${plural(days, "día", "días")} de prueba gratis${sub.trial_ends_at ? ` (hasta el ${formatDate(sub.trial_ends_at)})` : ""}.`;
     tone = days <= 3 ? "warn" : "info";
   } else if (sub.status === "past_due") {
     tone = "warn";
-    text = `Tu plan de FitConnect está pendiente de pago. En ${plural(days, "día", "días")} la cuenta pasa a solo lectura.`;
+    text = `Tu plan de LSMFit está pendiente de pago. En ${plural(days, "día", "días")} la cuenta pasa a solo lectura.`;
   } else if (sub.status === "read_only") {
     tone = "danger";
     text = "Tu cuenta está en solo lectura: puedes consultar, pero no registrar cobros ni cambios. Los socios siguen entrando.";
@@ -77,7 +77,7 @@ export function SubscriptionBanner() {
       <span>{text}</span>
       {SUPPORT && (
         <a href={SUPPORT} target="_blank" rel="noreferrer" className="font-semibold underline-offset-4 hover:underline">
-          Hablar con FitConnect
+          Hablar con LSMFit
         </a>
       )}
     </div>

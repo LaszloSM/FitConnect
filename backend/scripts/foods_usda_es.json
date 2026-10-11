@@ -1,0 +1,4054 @@
+[
+ {
+  "fdc_id": 173725,
+  "keep": true,
+  "key": "abadejo_crudo_usda",
+  "name": "Abadejo, crudo",
+  "category": "pescados",
+  "synonyms": [
+   "pollock",
+   "filete de pescado blanco"
+  ],
+  "portions": [
+   [
+    "1 porción",
+    85
+   ]
+  ]
+ },
+ {
+  "fdc_id": 173573,
+  "keep": true,
+  "key": "aceite_de_aguacate_usda",
+  "name": "Aceite de aguacate",
+  "category": "grasas",
+  "synonyms": [],
+  "portions": [
+   [
+    "1 cucharada",
+    14
+   ],
+   [
+    "1 cucharadita",
+    4.5
+   ]
+  ]
+ },
+ {
+  "fdc_id": 171412,
+  "keep": true,
+  "key": "aceite_de_coco_usda",
+  "name": "Aceite de coco",
+  "category": "grasas",
+  "synonyms": [],
+  "portions": [
+   [
+    "1 cucharada",
+    13.6
+   ],
+   [
+    "1 cucharadita",
+    4.5
+   ]
+  ]
+ },
+ {
+  "fdc_id": 172343,
+  "keep": true,
+  "key": "aceite_de_salmon_usda",
+  "name": "Aceite de salmón",
+  "category": "grasas",
+  "synonyms": [
+   "aceite de pescado",
+   "omega 3"
+  ],
+  "portions": [
+   [
+    "1 cucharadita",
+    4.5
+   ],
+   [
+    "1 cucharada",
+    13.6
+   ]
+  ]
+ },
+ {
+  "fdc_id": 171028,
+  "keep": true,
+  "key": "aceite_de_semilla_de_uva_usda",
+  "name": "Aceite de semilla de uva",
+  "category": "grasas",
+  "synonyms": [],
+  "portions": [
+   [
+    "1 cucharada",
+    13.6
+   ],
+   [
+    "1 cucharadita",
+    4.5
+   ]
+  ]
+ },
+ {
+  "fdc_id": 171686,
+  "keep": true,
+  "key": "acerola_cruda_usda",
+  "name": "Acerola, cruda",
+  "category": "frutas",
+  "synonyms": [
+   "cereza costeña",
+   "cereza criolla"
+  ],
+  "portions": [
+   [
+    "1 unidad",
+    4.8
+   ],
+   [
+    "1 taza",
+    98
+   ]
+  ]
+ },
+ {
+  "fdc_id": 171869,
+  "keep": true,
+  "key": "agua_tonica_usda",
+  "name": "Agua tónica",
+  "category": "bebidas",
+  "synonyms": [
+   "tónica"
+  ],
+  "portions": [
+   [
+    "1 lata",
+    366
+   ],
+   [
+    "1 botella pequeña",
+    336
+   ]
+  ]
+ },
+ {
+  "fdc_id": 171707,
+  "keep": true,
+  "key": "aguacate_criollo_crudo_usda",
+  "name": "Aguacate criollo, crudo",
+  "category": "frutas",
+  "synonyms": [
+   "aguacate papelillo",
+   "aguacate común"
+  ],
+  "portions": [
+   [
+    "1 unidad sin semilla",
+    304
+   ],
+   [
+    "1 taza en puré",
+    230
+   ]
+  ]
+ },
+ {
+  "fdc_id": 168576,
+  "keep": true,
+  "key": "aji_jalapeno_crudo_usda",
+  "name": "Ají jalapeño, crudo",
+  "category": "verduras",
+  "synonyms": [
+   "jalapeño"
+  ],
+  "portions": [
+   [
+    "1 unidad",
+    14
+   ],
+   [
+    "1 taza en rodajas",
+    90
+   ]
+  ]
+ },
+ {
+  "fdc_id": 170106,
+  "keep": true,
+  "key": "aji_rojo_picante_crudo_usda",
+  "name": "Ají rojo picante, crudo",
+  "category": "verduras",
+  "synonyms": [
+   "ají picante",
+   "chile rojo"
+  ],
+  "portions": [
+   [
+    "1 unidad",
+    45
+   ],
+   [
+    "1/2 taza picado",
+    75
+   ]
+  ]
+ },
+ {
+  "fdc_id": 170497,
+  "keep": true,
+  "key": "aji_verde_picante_crudo_usda",
+  "name": "Ají verde picante, crudo",
+  "category": "verduras",
+  "synonyms": [
+   "chile verde"
+  ],
+  "portions": [
+   [
+    "1 unidad",
+    45
+   ],
+   [
+    "1/2 taza picado",
+    75
+   ]
+  ]
+ },
+ {
+  "fdc_id": 170151,
+  "keep": true,
+  "key": "ajonjoli_tostado_usda",
+  "name": "Ajonjolí tostado",
+  "category": "frutos_secos",
+  "synonyms": [
+   "sésamo"
+  ],
+  "portions": [
+   [
+    "1 cucharada",
+    9
+   ]
+  ]
+ },
+ {
+  "fdc_id": 172232,
+  "keep": true,
+  "key": "albahaca_fresca_usda",
+  "name": "Albahaca fresca",
+  "category": "verduras",
+  "synonyms": [],
+  "portions": [
+   [
+    "5 hojas",
+    2.5
+   ],
+   [
+    "2 cucharadas picada",
+    5.3
+   ]
+  ]
+ },
+ {
+  "fdc_id": 173941,
+  "keep": true,
+  "key": "albaricoque_seco_usda",
+  "name": "Albaricoque seco",
+  "category": "frutas",
+  "synonyms": [
+   "orejones",
+   "damasco seco"
+  ],
+  "portions": [
+   [
+    "1 mitad",
+    3.5
+   ],
+   [
+    "1 taza",
+    130
+   ]
+  ]
+ },
+ {
+  "fdc_id": 168458,
+  "keep": true,
+  "key": "alga_nori_usda",
+  "name": "Alga nori",
+  "category": "verduras",
+  "synonyms": [
+   "alga para sushi"
+  ],
+  "portions": [
+   [
+    "10 láminas",
+    26
+   ]
+  ]
+ },
+ {
+  "fdc_id": 170682,
+  "keep": true,
+  "key": "amaranto_crudo_usda",
+  "name": "Amaranto, crudo",
+  "category": "cereales",
+  "synonyms": [],
+  "portions": [
+   [
+    "1 taza",
+    193
+   ]
+  ]
+ },
+ {
+  "fdc_id": 173461,
+  "keep": true,
+  "key": "arequipe_usda",
+  "name": "Arequipe",
+  "category": "dulces",
+  "synonyms": [
+   "dulce de leche",
+   "manjar"
+  ],
+  "portions": [
+   [
+    "1 cucharada",
+    19
+   ]
+  ]
+ },
+ {
+  "fdc_id": 168882,
+  "keep": true,
+  "key": "arroz_grano_corto_cocido_usda",
+  "name": "Arroz de grano corto, cocido",
+  "category": "cereales",
+  "synonyms": [
+   "arroz para sushi"
+  ],
+  "portions": [
+   [
+    "1 taza",
+    186
+   ]
+  ]
+ },
+ {
+  "fdc_id": 169708,
+  "keep": true,
+  "key": "arroz_parbolizado_cocido_usda",
+  "name": "Arroz parbolizado, cocido",
+  "category": "cereales",
+  "synonyms": [
+   "arroz vaporizado"
+  ],
+  "portions": [
+   [
+    "1 taza",
+    158
+   ]
+  ]
+ },
+ {
+  "fdc_id": 169707,
+  "keep": true,
+  "key": "arroz_parbolizado_crudo_usda",
+  "name": "Arroz parbolizado, crudo",
+  "category": "cereales",
+  "synonyms": [
+   "arroz vaporizado"
+  ],
+  "portions": [
+   [
+    "1 taza",
+    185
+   ]
+  ]
+ },
+ {
+  "fdc_id": 170010,
+  "keep": true,
+  "key": "arveja_china_cruda_usda",
+  "name": "Arveja china, cruda",
+  "category": "verduras",
+  "synonyms": [
+   "arveja dulce",
+   "guisante de vaina"
+  ],
+  "portions": [
+   [
+    "1 taza",
+    63
+   ],
+   [
+    "10 vainas",
+    34
+   ]
+  ]
+ },
+ {
+  "fdc_id": 175257,
+  "keep": true,
+  "key": "arveja_seca_partida_cocida_usda",
+  "name": "Arveja seca partida, cocida",
+  "category": "leguminosas",
+  "synonyms": [
+   "arveja seca cocida"
+  ],
+  "portions": [
+   [
+    "1 taza",
+    196
+   ]
+  ]
+ },
+ {
+  "fdc_id": 172428,
+  "keep": true,
+  "key": "arveja_seca_partida_cruda_usda",
+  "name": "Arveja seca partida, cruda",
+  "category": "leguminosas",
+  "synonyms": [
+   "arveja seca",
+   "arveja amarilla partida"
+  ],
+  "portions": [
+   [
+    "1 taza",
+    196
+   ]
+  ]
+ },
+ {
+  "fdc_id": 171675,
+  "keep": true,
+  "key": "avena_cocida_en_agua_usda",
+  "name": "Avena en hojuelas, cocida en agua",
+  "category": "cereales",
+  "synonyms": [
+   "avena en agua",
+   "colada de avena en agua"
+  ],
+  "portions": [
+   [
+    "1 taza",
+    234
+   ],
+   [
+    "3/4 de taza",
+    175
+   ]
+  ]
+ },
+ {
+  "fdc_id": 171661,
+  "keep": true,
+  "key": "avena_instantanea_cruda_usda",
+  "name": "Avena instantánea, cruda",
+  "category": "cereales",
+  "synonyms": [
+   "avena de sobre"
+  ],
+  "portions": [
+   [
+    "1 sobre",
+    28
+   ]
+  ]
+ },
+ {
+  "fdc_id": 169656,
+  "keep": true,
+  "key": "azucar_pulverizada_usda",
+  "name": "Azúcar pulverizada",
+  "category": "dulces",
+  "synonyms": [
+   "azúcar glas",
+   "azúcar impalpable"
+  ],
+  "portions": [
+   [
+    "1 cucharada",
+    8
+   ],
+   [
+    "1 cucharadita",
+    2.5
+   ]
+  ]
+ },
+ {
+  "fdc_id": 175178,
+  "keep": true,
+  "key": "bacalao_cocido_usda",
+  "name": "Bacalao, cocido",
+  "category": "pescados",
+  "synonyms": [],
+  "portions": [
+   [
+    "1 porción",
+    85
+   ]
+  ]
+ },
+ {
+  "fdc_id": 171955,
+  "keep": true,
+  "key": "bacalao_fresco_crudo_usda",
+  "name": "Bacalao fresco, crudo",
+  "category": "pescados",
+  "synonyms": [],
+  "portions": [
+   [
+    "1 filete",
+    231
+   ]
+  ]
+ },
+ {
+  "fdc_id": 167533,
+  "keep": true,
+  "key": "bagel_integral_usda",
+  "name": "Bagel integral",
+  "category": "cereales",
+  "synonyms": [
+   "pan bagel"
+  ],
+  "portions": [
+   [
+    "1 unidad",
+    98
+   ]
+  ]
+ },
+ {
+  "fdc_id": 174803,
+  "keep": true,
+  "key": "barra_de_cereal_con_frutos_rojos_usda",
+  "name": "Barra de cereal con frutos rojos",
+  "category": "snacks",
+  "synonyms": [
+   "barrita de frutos rojos"
+  ],
+  "portions": [
+   [
+    "1 barra",
+    38
+   ]
+  ]
+ },
+ {
+  "fdc_id": 174650,
+  "keep": true,
+  "key": "barra_de_cereal_con_leche_usda",
+  "name": "Barra de cereal con leche",
+  "category": "snacks",
+  "synonyms": [
+   "barrita de cereal"
+  ],
+  "portions": [
+   [
+    "1 barra",
+    25
+   ]
+  ]
+ },
+ {
+  "fdc_id": 169585,
+  "keep": true,
+  "key": "barra_de_mani_con_caramelo_usda",
+  "name": "Barra de maní con caramelo",
+  "category": "dulces",
+  "synonyms": [
+   "turrón de maní",
+   "panelita de maní"
+  ],
+  "portions": [
+   [
+    "1 barra",
+    40
+   ]
+  ]
+ },
+ {
+  "fdc_id": 173032,
+  "keep": true,
+  "key": "bayas_de_goji_secas_usda",
+  "name": "Bayas de goji, secas",
+  "category": "frutas",
+  "synonyms": [
+   "goji"
+  ],
+  "portions": [
+   [
+    "1 cucharada",
+    6
+   ]
+  ]
+ },
+ {
+  "fdc_id": 171942,
+  "keep": true,
+  "key": "bebida_de_arroz_sin_azucar_usda",
+  "name": "Bebida de arroz sin azúcar",
+  "category": "bebidas",
+  "synonyms": [
+   "leche de arroz"
+  ],
+  "portions": [
+   [
+    "1 vaso",
+    240
+   ]
+  ]
+ },
+ {
+  "fdc_id": 169044,
+  "keep": true,
+  "key": "bebida_de_naranja_usda",
+  "name": "Bebida de naranja",
+  "category": "bebidas",
+  "synonyms": [
+   "refresco de naranja",
+   "jugo de naranja en caja"
+  ],
+  "portions": [
+   [
+    "1 vaso",
+    249
+   ],
+   [
+    "1 cajita",
+    263
+   ]
+  ]
+ },
+ {
+  "fdc_id": 174822,
+  "keep": true,
+  "key": "bebida_energizante_sin_azucar_usda",
+  "name": "Bebida energizante sin azúcar",
+  "category": "bebidas",
+  "synonyms": [
+   "energizante light"
+  ],
+  "portions": [
+   [
+    "1 lata pequeña",
+    240
+   ]
+  ]
+ },
+ {
+  "fdc_id": 174122,
+  "keep": true,
+  "key": "cacao_en_polvo_para_bebida_usda",
+  "name": "Mezcla de cacao en polvo para bebida",
+  "category": "bebidas",
+  "synonyms": [
+   "chocolate en polvo",
+   "cocoa instantánea"
+  ],
+  "portions": [
+   [
+    "1 sobre",
+    28
+   ]
+  ]
+ },
+ {
+  "fdc_id": 171606,
+  "keep": true,
+  "key": "caldo_de_pescado_usda",
+  "name": "Caldo de pescado",
+  "category": "platos",
+  "synonyms": [
+   "fumet"
+  ],
+  "portions": [
+   [
+    "1 taza",
+    244
+   ]
+  ]
+ },
+ {
+  "fdc_id": 167903,
+  "keep": true,
+  "key": "carne_molida_de_cerdo_cocida_usda",
+  "name": "Carne molida de cerdo, cocida",
+  "category": "carnes",
+  "synonyms": [
+   "cerdo molido"
+  ],
+  "portions": [
+   [
+    "1 porción",
+    85
+   ]
+  ]
+ },
+ {
+  "fdc_id": 167902,
+  "keep": true,
+  "key": "carne_molida_de_cerdo_cruda_usda",
+  "name": "Carne molida de cerdo, cruda",
+  "category": "carnes",
+  "synonyms": [
+   "cerdo molido"
+  ],
+  "portions": [
+   [
+    "1 porción",
+    113
+   ]
+  ]
+ },
+ {
+  "fdc_id": 171506,
+  "keep": true,
+  "key": "carne_molida_de_pavo_cocida_usda",
+  "name": "Carne molida de pavo, cocida",
+  "category": "aves",
+  "synonyms": [
+   "pavo molido"
+  ],
+  "portions": [
+   [
+    "1 hamburguesa",
+    82
+   ]
+  ]
+ },
+ {
+  "fdc_id": 171505,
+  "keep": true,
+  "key": "carne_molida_de_pavo_cruda_usda",
+  "name": "Carne molida de pavo, cruda",
+  "category": "aves",
+  "synonyms": [
+   "pavo molido"
+  ],
+  "portions": [
+   [
+    "1 hamburguesa",
+    114
+   ]
+  ]
+ },
+ {
+  "fdc_id": 171116,
+  "keep": true,
+  "key": "carne_molida_de_pollo_cruda_usda",
+  "name": "Carne molida de pollo, cruda",
+  "category": "aves",
+  "synonyms": [
+   "pollo molido"
+  ],
+  "portions": [
+   [
+    "1 porción",
+    113
+   ]
+  ]
+ },
+ {
+  "fdc_id": 171952,
+  "keep": true,
+  "key": "carpa_cruda_usda",
+  "name": "Carpa, cruda",
+  "category": "pescados",
+  "synonyms": [],
+  "portions": [
+   [
+    "1 filete",
+    218
+   ]
+  ]
+ },
+ {
+  "fdc_id": 170285,
+  "keep": true,
+  "key": "cebada_perlada_cocida_usda",
+  "name": "Cebada perlada, cocida",
+  "category": "cereales",
+  "synonyms": [
+   "cebada"
+  ],
+  "portions": [
+   [
+    "1 taza",
+    157
+   ]
+  ]
+ },
+ {
+  "fdc_id": 170499,
+  "keep": true,
+  "key": "cebolla_ocanera_cruda_usda",
+  "name": "Cebolla ocañera, cruda",
+  "category": "verduras",
+  "synonyms": [
+   "chalota",
+   "cebolla roja ocañera"
+  ],
+  "portions": [
+   [
+    "1 cucharada picada",
+    10
+   ]
+  ]
+ },
+ {
+  "fdc_id": 169994,
+  "keep": true,
+  "key": "cebollin_crudo_usda",
+  "name": "Cebollín, crudo",
+  "category": "verduras",
+  "synonyms": [
+   "cebolleta",
+   "ciboulette"
+  ],
+  "portions": [
+   [
+    "1 cucharada picada",
+    3
+   ]
+  ]
+ },
+ {
+  "fdc_id": 169192,
+  "keep": true,
+  "key": "cerdo_molido_cocido_usda",
+  "name": "Carne de cerdo molida, cocida",
+  "category": "carnes",
+  "synonyms": [],
+  "portions": [
+   [
+    "1 porción",
+    85
+   ]
+  ]
+ },
+ {
+  "fdc_id": 168372,
+  "keep": true,
+  "key": "cerdo_molido_crudo_usda",
+  "name": "Carne de cerdo molida, cruda",
+  "category": "carnes",
+  "synonyms": [
+   "carne molida de cerdo"
+  ],
+  "portions": [
+   [
+    "1 porción",
+    113
+   ]
+  ]
+ },
+ {
+  "fdc_id": 169193,
+  "keep": true,
+  "key": "cerdo_molido_magro_cocido_usda",
+  "name": "Carne de cerdo molida magra, cocida",
+  "category": "carnes",
+  "synonyms": [],
+  "portions": [
+   [
+    "1 porción",
+    85
+   ]
+  ]
+ },
+ {
+  "fdc_id": 169190,
+  "keep": true,
+  "key": "cerdo_molido_magro_crudo_usda",
+  "name": "Carne de cerdo molida magra, cruda",
+  "category": "carnes",
+  "synonyms": [
+   "carne molida de cerdo"
+  ],
+  "portions": [
+   [
+    "1 porción",
+    113
+   ]
+  ]
+ },
+ {
+  "fdc_id": 173912,
+  "keep": true,
+  "key": "cereal_arroz_inflado_usda",
+  "name": "Cereal de arroz inflado",
+  "category": "cereales",
+  "synonyms": [
+   "arroz inflado",
+   "arroz tostado"
+  ],
+  "portions": [
+   [
+    "1 taza",
+    14
+   ]
+  ]
+ },
+ {
+  "fdc_id": 173913,
+  "keep": true,
+  "key": "cereal_trigo_inflado_usda",
+  "name": "Cereal de trigo inflado",
+  "category": "cereales",
+  "synonyms": [
+   "trigo inflado"
+  ],
+  "portions": [
+   [
+    "1 taza",
+    12
+   ]
+  ]
+ },
+ {
+  "fdc_id": 171719,
+  "keep": true,
+  "key": "cereza_dulce_cruda_usda",
+  "name": "Cereza dulce, cruda",
+  "category": "frutas",
+  "synonyms": [
+   "cereza importada"
+  ],
+  "portions": [
+   [
+    "1 taza sin semilla",
+    154
+   ],
+   [
+    "1 unidad",
+    8.2
+   ]
+  ]
+ },
+ {
+  "fdc_id": 168749,
+  "keep": true,
+  "key": "cerveza_light_usda",
+  "name": "Cerveza light",
+  "category": "bebidas",
+  "synonyms": [
+   "cerveza ligera"
+  ],
+  "portions": [
+   [
+    "1 lata o botella",
+    354
+   ]
+  ]
+ },
+ {
+  "fdc_id": 169255,
+  "keep": true,
+  "key": "champinon_portobello_crudo_usda",
+  "name": "Champiñón portobello, crudo",
+  "category": "verduras",
+  "synonyms": [
+   "portobello"
+  ],
+  "portions": [
+   [
+    "1 unidad",
+    84
+   ],
+   [
+    "1 taza picado",
+    86
+   ]
+  ]
+ },
+ {
+  "fdc_id": 167961,
+  "keep": true,
+  "key": "chicharron_de_cerdo_de_paquete_usda",
+  "name": "Chicharrón de cerdo, de paquete",
+  "category": "snacks",
+  "synonyms": [
+   "chicharrines",
+   "chicharrón tostado"
+  ],
+  "portions": [
+   [
+    "1 paquete pequeño",
+    14
+   ]
+  ]
+ },
+ {
+  "fdc_id": 168849,
+  "keep": true,
+  "key": "chips_de_banano_usda",
+  "name": "Chips de banano",
+  "category": "snacks",
+  "synonyms": [
+   "banano deshidratado frito"
+  ],
+  "portions": [
+   [
+    "1 paquete pequeño",
+    42
+   ]
+  ]
+ },
+ {
+  "fdc_id": 173953,
+  "keep": true,
+  "key": "chirimoya_cruda_usda",
+  "name": "Chirimoya, cruda",
+  "category": "frutas",
+  "synonyms": [],
+  "portions": [
+   [
+    "1 unidad",
+    235
+   ],
+   [
+    "1 taza en trozos",
+    160
+   ]
+  ]
+ },
+ {
+  "fdc_id": 173804,
+  "keep": true,
+  "key": "chocho_cocido_usda",
+  "name": "Chocho, cocido",
+  "category": "leguminosas",
+  "synonyms": [
+   "altramuz",
+   "tarwi",
+   "lupino"
+  ],
+  "portions": [
+   [
+    "1 taza",
+    166
+   ]
+  ]
+ },
+ {
+  "fdc_id": 168162,
+  "keep": true,
+  "key": "ciruela_pasa_usda",
+  "name": "Ciruela pasa",
+  "category": "frutas",
+  "synonyms": [
+   "ciruela seca"
+  ],
+  "portions": [
+   [
+    "1 unidad sin semilla",
+    9.5
+   ],
+   [
+    "1 taza",
+    174
+   ]
+  ]
+ },
+ {
+  "fdc_id": 169949,
+  "keep": true,
+  "key": "ciruela_roja_cruda_usda",
+  "name": "Ciruela roja, cruda",
+  "category": "frutas",
+  "synonyms": [
+   "ciruela importada"
+  ],
+  "portions": [
+   [
+    "1 unidad",
+    66
+   ],
+   [
+    "1 taza en tajadas",
+    165
+   ]
+  ]
+ },
+ {
+  "fdc_id": 172204,
+  "keep": true,
+  "key": "clara_de_huevo_en_polvo_usda",
+  "name": "Clara de huevo en polvo",
+  "category": "suplementos",
+  "synonyms": [
+   "albúmina en polvo"
+  ],
+  "portions": [
+   [
+    "1 porción",
+    28
+   ]
+  ]
+ },
+ {
+  "fdc_id": 168291,
+  "keep": true,
+  "key": "cola_de_cerdo_cruda_usda",
+  "name": "Cola de cerdo, cruda",
+  "category": "carnes",
+  "synonyms": [
+   "rabo de cerdo"
+  ],
+  "portions": [
+   [
+    "1 porción",
+    113
+   ]
+  ]
+ },
+ {
+  "fdc_id": 170923,
+  "keep": true,
+  "key": "comino_usda",
+  "name": "Comino en semilla",
+  "category": "otros",
+  "synonyms": [
+   "comino"
+  ],
+  "portions": [
+   [
+    "1 cucharadita",
+    2.1
+   ],
+   [
+    "1 cucharada",
+    6
+   ]
+  ]
+ },
+ {
+  "fdc_id": 169439,
+  "keep": true,
+  "key": "costilla_de_res_cruda_usda",
+  "name": "Costilla de res, cruda",
+  "category": "carnes",
+  "synonyms": [
+   "costilla para caldo"
+  ],
+  "portions": [
+   [
+    "1 porción",
+    113
+   ]
+  ]
+ },
+ {
+  "fdc_id": 173443,
+  "keep": true,
+  "key": "crema_agria_light_usda",
+  "name": "Crema agria light",
+  "category": "lacteos",
+  "synonyms": [
+   "crema agria baja en grasa"
+  ],
+  "portions": [
+   [
+    "1 cucharada",
+    12
+   ]
+  ]
+ },
+ {
+  "fdc_id": 171257,
+  "keep": true,
+  "key": "crema_agria_usda",
+  "name": "Crema agria",
+  "category": "lacteos",
+  "synonyms": [
+   "sour cream"
+  ],
+  "portions": [
+   [
+    "1 cucharada",
+    12
+   ],
+   [
+    "1 taza",
+    230
+   ]
+  ]
+ },
+ {
+  "fdc_id": 170580,
+  "keep": true,
+  "key": "crema_de_coco_usda",
+  "name": "Crema de coco",
+  "category": "grasas",
+  "synonyms": [],
+  "portions": [
+   [
+    "1 cucharada",
+    15
+   ],
+   [
+    "1 taza",
+    240
+   ]
+  ]
+ },
+ {
+  "fdc_id": 167960,
+  "keep": true,
+  "key": "crispetas_con_queso_usda",
+  "name": "Crispetas con sabor a queso",
+  "category": "snacks",
+  "synonyms": [
+   "palomitas de queso"
+  ],
+  "portions": [
+   [
+    "1 taza",
+    11
+   ]
+  ]
+ },
+ {
+  "fdc_id": 167959,
+  "keep": true,
+  "key": "crispetas_sin_aceite_usda",
+  "name": "Crispetas, sin aceite",
+  "category": "snacks",
+  "synonyms": [
+   "palomitas de maíz",
+   "maíz pira reventado"
+  ],
+  "portions": [
+   [
+    "1 taza",
+    8
+   ]
+  ]
+ },
+ {
+  "fdc_id": 174989,
+  "keep": true,
+  "key": "croissant_de_queso_usda",
+  "name": "Croissant de queso",
+  "category": "cereales",
+  "synonyms": [
+   "croissant relleno de queso"
+  ],
+  "portions": [
+   [
+    "1 unidad mediana",
+    57
+   ],
+   [
+    "1 unidad pequeña",
+    42
+   ]
+  ]
+ },
+ {
+  "fdc_id": 172751,
+  "keep": true,
+  "key": "crutones_usda",
+  "name": "Crutones",
+  "category": "cereales",
+  "synonyms": [
+   "croutones",
+   "pan tostado en cubos"
+  ],
+  "portions": [
+   [
+    "1 taza",
+    30
+   ],
+   [
+    "1/2 taza",
+    15
+   ]
+  ]
+ },
+ {
+  "fdc_id": 169700,
+  "keep": true,
+  "key": "cuscus_cocido_usda",
+  "name": "Cuscús, cocido",
+  "category": "cereales",
+  "synonyms": [
+   "couscous"
+  ],
+  "portions": [
+   [
+    "1 taza",
+    157
+   ]
+  ]
+ },
+ {
+  "fdc_id": 168191,
+  "keep": true,
+  "key": "datil_medjool_usda",
+  "name": "Dátil medjool",
+  "category": "frutas",
+  "synonyms": [
+   "dátil"
+  ],
+  "portions": [
+   [
+    "1 unidad sin semilla",
+    24
+   ]
+  ]
+ },
+ {
+  "fdc_id": 171959,
+  "keep": true,
+  "key": "dorado_mahi_mahi_crudo_usda",
+  "name": "Dorado, crudo",
+  "category": "pescados",
+  "synonyms": [
+   "mahi mahi",
+   "dorado de mar"
+  ],
+  "portions": [
+   [
+    "1 filete",
+    204
+   ]
+  ]
+ },
+ {
+  "fdc_id": 170281,
+  "keep": true,
+  "key": "dulce_de_tamarindo_usda",
+  "name": "Dulce de tamarindo",
+  "category": "dulces",
+  "synonyms": [
+   "bolitas de tamarindo"
+  ],
+  "portions": [
+   [
+    "1 porción",
+    14
+   ]
+  ]
+ },
+ {
+  "fdc_id": 169282,
+  "keep": true,
+  "key": "edamame_crudo_usda",
+  "name": "Edamame, crudo",
+  "category": "leguminosas",
+  "synonyms": [
+   "soya verde",
+   "frijol de soya verde"
+  ],
+  "portions": [
+   [
+    "1 taza",
+    256
+   ]
+  ]
+ },
+ {
+  "fdc_id": 173471,
+  "keep": true,
+  "key": "esencia_de_vainilla_usda",
+  "name": "Esencia de vainilla",
+  "category": "otros",
+  "synonyms": [
+   "extracto de vainilla",
+   "vainilla"
+  ],
+  "portions": [
+   [
+    "1 cucharadita",
+    4.2
+   ],
+   [
+    "1 cucharada",
+    13
+   ]
+  ]
+ },
+ {
+  "fdc_id": 168914,
+  "keep": true,
+  "key": "fideos_de_arroz_cocidos_usda",
+  "name": "Fideos de arroz, cocidos",
+  "category": "cereales",
+  "synonyms": [
+   "tallarines de arroz"
+  ],
+  "portions": [
+   [
+    "1 taza",
+    176
+   ]
+  ]
+ },
+ {
+  "fdc_id": 169732,
+  "keep": true,
+  "key": "fideos_de_huevo_cocidos_usda",
+  "name": "Fideos de huevo, cocidos",
+  "category": "cereales",
+  "synonyms": [
+   "tallarín de huevo"
+  ],
+  "portions": [
+   [
+    "1 taza",
+    160
+   ]
+  ]
+ },
+ {
+  "fdc_id": 167755,
+  "keep": true,
+  "key": "frambuesa_cruda_usda",
+  "name": "Frambuesa, cruda",
+  "category": "frutas",
+  "synonyms": [],
+  "portions": [
+   [
+    "1 taza",
+    123
+   ],
+   [
+    "10 unidades",
+    19
+   ]
+  ]
+ },
+ {
+  "fdc_id": 168172,
+  "keep": true,
+  "key": "fresas_en_almibar_usda",
+  "name": "Fresas en almíbar",
+  "category": "dulces",
+  "synonyms": [],
+  "portions": [
+   [
+    "1 taza",
+    254
+   ]
+  ]
+ },
+ {
+  "fdc_id": 173794,
+  "keep": true,
+  "key": "frijol_blanco_cocido_usda",
+  "name": "Fríjol blanco, cocido",
+  "category": "leguminosas",
+  "synonyms": [
+   "alubia cocida"
+  ],
+  "portions": [
+   [
+    "1 taza",
+    182
+   ]
+  ]
+ },
+ {
+  "fdc_id": 175202,
+  "keep": true,
+  "key": "frijol_blanco_crudo_usda",
+  "name": "Fríjol blanco, crudo",
+  "category": "leguminosas",
+  "synonyms": [
+   "alubia",
+   "fríjol blanco seco"
+  ],
+  "portions": [
+   [
+    "1 taza",
+    202
+   ],
+   [
+    "1 cucharada",
+    12.6
+   ]
+  ]
+ },
+ {
+  "fdc_id": 175255,
+  "keep": true,
+  "key": "frijol_mungo_cocido_usda",
+  "name": "Fríjol mungo, cocido",
+  "category": "leguminosas",
+  "synonyms": [
+   "fríjol chino",
+   "mung"
+  ],
+  "portions": [
+   [
+    "1 taza",
+    202
+   ]
+  ]
+ },
+ {
+  "fdc_id": 173734,
+  "keep": true,
+  "key": "frijol_negro_crudo_usda",
+  "name": "Fríjol negro, crudo",
+  "category": "leguminosas",
+  "synonyms": [
+   "caraota negra"
+  ],
+  "portions": [
+   [
+    "1 taza",
+    194
+   ],
+   [
+    "1 cucharada",
+    12
+   ]
+  ]
+ },
+ {
+  "fdc_id": 173795,
+  "keep": true,
+  "key": "frijol_rosado_cocido_usda",
+  "name": "Fríjol rosado, cocido",
+  "category": "leguminosas",
+  "synonyms": [
+   "fríjol cargamanto cocido"
+  ],
+  "portions": [
+   [
+    "1 taza",
+    169
+   ]
+  ]
+ },
+ {
+  "fdc_id": 167781,
+  "keep": true,
+  "key": "fruta_confitada_usda",
+  "name": "Fruta confitada",
+  "category": "dulces",
+  "synonyms": [
+   "frutas cristalizadas"
+  ],
+  "portions": [
+   [
+    "1 cucharada",
+    12
+   ]
+  ]
+ },
+ {
+  "fdc_id": 173161,
+  "keep": true,
+  "key": "galletas_de_arroz_usda",
+  "name": "Galletas de arroz",
+  "category": "snacks",
+  "synonyms": [
+   "tortas de arroz",
+   "arroz inflado"
+  ],
+  "portions": [
+   [
+    "1 porción",
+    30
+   ]
+  ]
+ },
+ {
+  "fdc_id": 168857,
+  "keep": true,
+  "key": "galletas_de_maiz_inflado_usda",
+  "name": "Galletas de maíz inflado",
+  "category": "snacks",
+  "synonyms": [
+   "tortas de maíz"
+  ],
+  "portions": [
+   [
+    "1 unidad",
+    9
+   ],
+   [
+    "2 unidades",
+    18
+   ]
+  ]
+ },
+ {
+  "fdc_id": 174854,
+  "keep": true,
+  "key": "gaseosa_de_naranja_usda",
+  "name": "Gaseosa de naranja",
+  "category": "bebidas",
+  "synonyms": [
+   "soda de naranja"
+  ],
+  "portions": [
+   [
+    "1 lata",
+    372
+   ],
+   [
+    "1 botella personal",
+    496
+   ]
+  ]
+ },
+ {
+  "fdc_id": 173203,
+  "keep": true,
+  "key": "gaseosa_de_uva_usda",
+  "name": "Gaseosa de uva",
+  "category": "bebidas",
+  "synonyms": [
+   "soda de uva"
+  ],
+  "portions": [
+   [
+    "1 lata",
+    372
+   ]
+  ]
+ },
+ {
+  "fdc_id": 173896,
+  "keep": true,
+  "key": "germen_de_trigo_tostado_usda",
+  "name": "Germen de trigo, tostado",
+  "category": "cereales",
+  "synonyms": [],
+  "portions": [
+   [
+    "1 cucharada",
+    7
+   ],
+   [
+    "1 taza",
+    113
+   ]
+  ]
+ },
+ {
+  "fdc_id": 168384,
+  "keep": true,
+  "key": "germinado_de_alfalfa_usda",
+  "name": "Germinado de alfalfa, crudo",
+  "category": "verduras",
+  "synonyms": [
+   "brotes de alfalfa"
+  ],
+  "portions": [
+   [
+    "1 taza",
+    33
+   ],
+   [
+    "1 cucharada",
+    3
+   ]
+  ]
+ },
+ {
+  "fdc_id": 168427,
+  "keep": true,
+  "key": "germinado_de_lenteja_usda",
+  "name": "Germinado de lenteja, crudo",
+  "category": "leguminosas",
+  "synonyms": [
+   "brotes de lenteja"
+  ],
+  "portions": [
+   [
+    "1 taza",
+    77
+   ]
+  ]
+ },
+ {
+  "fdc_id": 173412,
+  "keep": true,
+  "key": "ghee_usda",
+  "name": "Ghee",
+  "category": "grasas",
+  "synonyms": [
+   "mantequilla clarificada"
+  ],
+  "portions": [
+   [
+    "1 cucharada",
+    12.8
+   ]
+  ]
+ },
+ {
+  "fdc_id": 174846,
+  "keep": true,
+  "key": "ginger_ale_usda",
+  "name": "Gaseosa de jengibre",
+  "category": "bebidas",
+  "synonyms": [
+   "ginger ale"
+  ],
+  "portions": [
+   [
+    "1 lata",
+    366
+   ],
+   [
+    "1 botella personal",
+    488
+   ]
+  ]
+ },
+ {
+  "fdc_id": 167991,
+  "keep": true,
+  "key": "gomitas_de_gelatina_usda",
+  "name": "Gomitas de gelatina",
+  "category": "dulces",
+  "synonyms": [
+   "gomas",
+   "jelly beans"
+  ],
+  "portions": [
+   [
+    "10 unidades pequeñas",
+    11
+   ],
+   [
+    "10 unidades grandes",
+    28
+   ]
+  ]
+ },
+ {
+  "fdc_id": 172436,
+  "keep": true,
+  "key": "guandul_seco_crudo_usda",
+  "name": "Guandul seco, crudo",
+  "category": "leguminosas",
+  "synonyms": [
+   "guandú",
+   "fríjol guandul"
+  ],
+  "portions": [
+   [
+    "1 taza",
+    205
+   ]
+  ]
+ },
+ {
+  "fdc_id": 170025,
+  "keep": true,
+  "key": "guandul_verde_crudo_usda",
+  "name": "Guandul verde, crudo",
+  "category": "leguminosas",
+  "synonyms": [
+   "gandul",
+   "frijol guandul"
+  ],
+  "portions": [
+   [
+    "1 taza",
+    154
+   ]
+  ]
+ },
+ {
+  "fdc_id": 175205,
+  "keep": true,
+  "key": "haba_seca_cruda_usda",
+  "name": "Haba seca, cruda",
+  "category": "leguminosas",
+  "synonyms": [
+   "haba"
+  ],
+  "portions": [
+   [
+    "1 taza",
+    150
+   ],
+   [
+    "1 cucharada",
+    9.4
+   ]
+  ]
+ },
+ {
+  "fdc_id": 170377,
+  "keep": true,
+  "key": "haba_verde_cruda_usda",
+  "name": "Haba verde, cruda",
+  "category": "leguminosas",
+  "synonyms": [
+   "habas"
+  ],
+  "portions": [
+   [
+    "1 taza",
+    109
+   ]
+  ]
+ },
+ {
+  "fdc_id": 168809,
+  "keep": true,
+  "key": "helado_de_chocolate_usda",
+  "name": "Helado de chocolate",
+  "category": "dulces",
+  "synonyms": [],
+  "portions": [
+   [
+    "1/2 taza",
+    66
+   ],
+   [
+    "1 unidad individual",
+    58
+   ]
+  ]
+ },
+ {
+  "fdc_id": 168810,
+  "keep": true,
+  "key": "helado_de_fresa_usda",
+  "name": "Helado de fresa",
+  "category": "dulces",
+  "synonyms": [],
+  "portions": [
+   [
+    "1/2 taza",
+    66
+   ],
+   [
+    "1 unidad individual",
+    58
+   ]
+  ]
+ },
+ {
+  "fdc_id": 174665,
+  "keep": true,
+  "key": "higo_seco_usda",
+  "name": "Higo seco",
+  "category": "frutas",
+  "synonyms": [
+   "higo deshidratado"
+  ],
+  "portions": [
+   [
+    "1 unidad",
+    8.4
+   ],
+   [
+    "1 taza",
+    149
+   ]
+  ]
+ },
+ {
+  "fdc_id": 169385,
+  "keep": true,
+  "key": "hinojo_crudo_usda",
+  "name": "Hinojo, bulbo, crudo",
+  "category": "verduras",
+  "synonyms": [],
+  "portions": [
+   [
+    "1 taza en tajadas",
+    87
+   ],
+   [
+    "1 unidad",
+    234
+   ]
+  ]
+ },
+ {
+  "fdc_id": 169382,
+  "keep": true,
+  "key": "hongo_enoki_crudo_usda",
+  "name": "Hongo enoki, crudo",
+  "category": "verduras",
+  "synonyms": [
+   "enoki"
+  ],
+  "portions": [
+   [
+    "1 taza",
+    64
+   ]
+  ]
+ },
+ {
+  "fdc_id": 169242,
+  "keep": true,
+  "key": "hongo_shiitake_crudo_usda",
+  "name": "Hongo shiitake, crudo",
+  "category": "verduras",
+  "synonyms": [
+   "shiitake"
+  ],
+  "portions": [
+   [
+    "1 unidad",
+    19
+   ]
+  ]
+ },
+ {
+  "fdc_id": 172191,
+  "keep": true,
+  "key": "huevo_de_codorniz_crudo_usda",
+  "name": "Huevo de codorniz, crudo",
+  "category": "huevos",
+  "synonyms": [],
+  "portions": [
+   [
+    "1 unidad",
+    9
+   ],
+   [
+    "5 unidades",
+    45
+   ]
+  ]
+ },
+ {
+  "fdc_id": 172186,
+  "keep": true,
+  "key": "huevo_pochado_usda",
+  "name": "Huevo pochado",
+  "category": "huevos",
+  "synonyms": [
+   "huevo escalfado"
+  ],
+  "portions": [
+   [
+    "1 unidad",
+    50
+   ]
+  ]
+ },
+ {
+  "fdc_id": 172187,
+  "keep": true,
+  "key": "huevos_revueltos_usda",
+  "name": "Huevos revueltos",
+  "category": "huevos",
+  "synonyms": [
+   "huevo revuelto"
+  ],
+  "portions": [
+   [
+    "1 huevo",
+    61
+   ],
+   [
+    "1 taza",
+    220
+   ]
+  ]
+ },
+ {
+  "fdc_id": 169642,
+  "keep": true,
+  "key": "jalea_de_frutas_usda",
+  "name": "Jalea de frutas",
+  "category": "dulces",
+  "synonyms": [
+   "gelatina para untar"
+  ],
+  "portions": [
+   [
+    "1 cucharada",
+    21
+   ]
+  ]
+ },
+ {
+  "fdc_id": 174611,
+  "keep": true,
+  "key": "jamon_ahumado_con_miel_usda",
+  "name": "Jamón ahumado con miel",
+  "category": "carnes",
+  "synonyms": [
+   "jamón a la miel"
+  ],
+  "portions": [
+   [
+    "1 porción",
+    55
+   ]
+  ]
+ },
+ {
+  "fdc_id": 168284,
+  "keep": true,
+  "key": "jamon_entero_horneado_usda",
+  "name": "Jamón de cerdo, horneado",
+  "category": "carnes",
+  "synonyms": [
+   "pernil de cerdo",
+   "jamón navideño"
+  ],
+  "portions": [
+   [
+    "1 taza en cubos",
+    140
+   ],
+   [
+    "1 porción",
+    85
+   ]
+  ]
+ },
+ {
+  "fdc_id": 171903,
+  "keep": true,
+  "key": "jugo_de_arandano_usda",
+  "name": "Jugo de arándano",
+  "category": "bebidas",
+  "synonyms": [
+   "cranberry"
+  ],
+  "portions": [
+   [
+    "1 vaso",
+    253
+   ]
+  ]
+ },
+ {
+  "fdc_id": 168156,
+  "keep": true,
+  "key": "jugo_de_limon_usda",
+  "name": "Jugo de limón",
+  "category": "frutas",
+  "synonyms": [
+   "zumo de limón"
+  ],
+  "portions": [
+   [
+    "Jugo de 1 limón",
+    44
+   ],
+   [
+    "1 cucharada",
+    15
+   ],
+   [
+    "1 taza",
+    242
+   ]
+  ]
+ },
+ {
+  "fdc_id": 169110,
+  "keep": true,
+  "key": "jugo_de_maracuya_natural_usda",
+  "name": "Jugo de maracuyá natural, sin azúcar",
+  "category": "bebidas",
+  "synonyms": [
+   "zumo de maracuyá"
+  ],
+  "portions": [
+   [
+    "1 vaso",
+    247
+   ]
+  ]
+ },
+ {
+  "fdc_id": 167774,
+  "keep": true,
+  "key": "jugo_de_toronja_natural_usda",
+  "name": "Jugo de toronja natural",
+  "category": "bebidas",
+  "synonyms": [
+   "zumo de toronja",
+   "jugo de pomelo"
+  ],
+  "portions": [
+   [
+    "1 vaso",
+    247
+   ]
+  ]
+ },
+ {
+  "fdc_id": 168421,
+  "keep": true,
+  "key": "kale_crudo_usda",
+  "name": "Kale, crudo",
+  "category": "verduras",
+  "synonyms": [
+   "col rizada"
+  ],
+  "portions": [
+   [
+    "1 taza",
+    21
+   ]
+  ]
+ },
+ {
+  "fdc_id": 170172,
+  "keep": true,
+  "key": "leche_de_coco_usda",
+  "name": "Leche de coco",
+  "category": "bebidas",
+  "synonyms": [],
+  "portions": [
+   [
+    "1 cucharada",
+    15
+   ],
+   [
+    "1 taza",
+    240
+   ]
+  ]
+ },
+ {
+  "fdc_id": 168431,
+  "keep": true,
+  "key": "lechuga_morada_cruda_usda",
+  "name": "Lechuga morada, cruda",
+  "category": "verduras",
+  "synonyms": [
+   "lechuga crespa morada"
+  ],
+  "portions": [
+   [
+    "1 taza picada",
+    28
+   ],
+   [
+    "1 hoja grande",
+    17
+   ]
+  ]
+ },
+ {
+  "fdc_id": 174284,
+  "keep": true,
+  "key": "lenteja_roja_cruda_usda",
+  "name": "Lenteja roja, cruda",
+  "category": "leguminosas",
+  "synonyms": [
+   "lenteja rosada"
+  ],
+  "portions": [
+   [
+    "1 taza",
+    192
+   ],
+   [
+    "1 cucharada",
+    12
+   ]
+  ]
+ },
+ {
+  "fdc_id": 169086,
+  "keep": true,
+  "key": "lichi_crudo_usda",
+  "name": "Lichi, crudo",
+  "category": "frutas",
+  "synonyms": [
+   "litchi"
+  ],
+  "portions": [
+   [
+    "1 unidad",
+    9.6
+   ],
+   [
+    "1 taza",
+    190
+   ]
+  ]
+ },
+ {
+  "fdc_id": 169429,
+  "keep": true,
+  "key": "lomo_ancho_res_crudo_usda",
+  "name": "Lomo ancho de res, crudo",
+  "category": "carnes",
+  "synonyms": [
+   "bistec",
+   "chatas"
+  ],
+  "portions": [
+   [
+    "1 bistec",
+    214
+   ],
+   [
+    "1 porción",
+    113
+   ]
+  ]
+ },
+ {
+  "fdc_id": 175102,
+  "keep": true,
+  "key": "malteada_de_fresa_usda",
+  "name": "Malteada de fresa",
+  "category": "bebidas",
+  "synonyms": [
+   "batido de fresa",
+   "milkshake de fresa"
+  ],
+  "portions": [
+   [
+    "1 vaso pequeño",
+    282
+   ],
+   [
+    "1 vaso mediano",
+    376
+   ]
+  ]
+ },
+ {
+  "fdc_id": 173226,
+  "keep": true,
+  "key": "malteada_de_vainilla_usda",
+  "name": "Malteada de vainilla",
+  "category": "bebidas",
+  "synonyms": [
+   "batido de vainilla",
+   "milkshake de vainilla"
+  ],
+  "portions": [
+   [
+    "1 vaso pequeño",
+    250
+   ],
+   [
+    "1 taza",
+    166
+   ]
+  ]
+ },
+ {
+  "fdc_id": 169091,
+  "keep": true,
+  "key": "mango_deshidratado_azucarado_usda",
+  "name": "Mango deshidratado, azucarado",
+  "category": "frutas",
+  "synonyms": [
+   "mango seco"
+  ],
+  "portions": [
+   [
+    "1 puñado",
+    30
+   ]
+  ]
+ },
+ {
+  "fdc_id": 174261,
+  "keep": true,
+  "key": "mani_frito_con_sal_usda",
+  "name": "Maní frito, con sal",
+  "category": "frutos_secos",
+  "synonyms": [
+   "maní salado"
+  ],
+  "portions": [
+   [
+    "1 puñado (32 unidades)",
+    28
+   ],
+   [
+    "1 taza",
+    144
+   ]
+  ]
+ },
+ {
+  "fdc_id": 174262,
+  "keep": true,
+  "key": "mani_tostado_con_sal_usda",
+  "name": "Maní tostado, con sal",
+  "category": "frutos_secos",
+  "synonyms": [
+   "maní salado"
+  ],
+  "portions": [
+   [
+    "1 puñado",
+    28
+   ]
+  ]
+ },
+ {
+  "fdc_id": 168202,
+  "keep": true,
+  "key": "manzana_amarilla_cruda_usda",
+  "name": "Manzana amarilla con cáscara, cruda",
+  "category": "frutas",
+  "synonyms": [
+   "manzana golden",
+   "manzana verde amarilla"
+  ],
+  "portions": [
+   [
+    "1 unidad mediana",
+    169
+   ],
+   [
+    "1 taza en tajadas",
+    109
+   ]
+  ]
+ },
+ {
+  "fdc_id": 173928,
+  "keep": true,
+  "key": "manzana_cocida_usda",
+  "name": "Manzana sin cáscara, cocida",
+  "category": "frutas",
+  "synonyms": [
+   "manzana hervida"
+  ],
+  "portions": [
+   [
+    "1 taza en tajadas",
+    171
+   ]
+  ]
+ },
+ {
+  "fdc_id": 171691,
+  "keep": true,
+  "key": "manzana_deshidratada_usda",
+  "name": "Manzana deshidratada",
+  "category": "frutas",
+  "synonyms": [
+   "manzana seca",
+   "chips de manzana"
+  ],
+  "portions": [
+   [
+    "1 aro",
+    6.4
+   ],
+   [
+    "1 taza",
+    86
+   ]
+  ]
+ },
+ {
+  "fdc_id": 172791,
+  "keep": true,
+  "key": "masa_filo_usda",
+  "name": "Masa filo",
+  "category": "cereales",
+  "synonyms": [
+   "pasta filo",
+   "hojaldre filo"
+  ],
+  "portions": [
+   [
+    "1 lámina",
+    19
+   ]
+  ]
+ },
+ {
+  "fdc_id": 169998,
+  "keep": true,
+  "key": "mazorca_amarilla_cruda_usda",
+  "name": "Mazorca amarilla, cruda",
+  "category": "cereales",
+  "synonyms": [
+   "choclo",
+   "maíz tierno"
+  ],
+  "portions": [
+   [
+    "1 mazorca mediana",
+    102
+   ],
+   [
+    "1 taza de granos",
+    145
+   ]
+  ]
+ },
+ {
+  "fdc_id": 174216,
+  "keep": true,
+  "key": "mejillon_crudo_usda",
+  "name": "Mejillón, crudo",
+  "category": "pescados",
+  "synonyms": [
+   "chorito"
+  ],
+  "portions": [
+   [
+    "1 unidad mediana",
+    16
+   ],
+   [
+    "1 taza",
+    150
+   ]
+  ]
+ },
+ {
+  "fdc_id": 169911,
+  "keep": true,
+  "key": "melon_verde_crudo_usda",
+  "name": "Melón verde, crudo",
+  "category": "frutas",
+  "synonyms": [
+   "melón honeydew"
+  ],
+  "portions": [
+   [
+    "1 taza en cubos",
+    170
+   ]
+  ]
+ },
+ {
+  "fdc_id": 168163,
+  "keep": true,
+  "key": "membrillo_crudo_usda",
+  "name": "Membrillo, crudo",
+  "category": "frutas",
+  "synonyms": [],
+  "portions": [
+   [
+    "1 unidad",
+    92
+   ]
+  ]
+ },
+ {
+  "fdc_id": 173474,
+  "keep": true,
+  "key": "menta_fresca_usda",
+  "name": "Menta fresca",
+  "category": "verduras",
+  "synonyms": [],
+  "portions": [
+   [
+    "2 cucharadas",
+    3.2
+   ]
+  ]
+ },
+ {
+  "fdc_id": 168819,
+  "keep": true,
+  "key": "mermelada_de_naranja_usda",
+  "name": "Mermelada de naranja",
+  "category": "dulces",
+  "synonyms": [],
+  "portions": [
+   [
+    "1 cucharada",
+    20
+   ]
+  ]
+ },
+ {
+  "fdc_id": 167561,
+  "keep": true,
+  "key": "mezcla_de_frutos_secos_con_pasas_usda",
+  "name": "Mezcla de frutos secos con pasas",
+  "category": "frutos_secos",
+  "synonyms": [
+   "mix de frutos secos",
+   "trail mix"
+  ],
+  "portions": [
+   [
+    "1 taza",
+    150
+   ],
+   [
+    "1 puñado (1/4 de taza)",
+    38
+   ]
+  ]
+ },
+ {
+  "fdc_id": 169427,
+  "keep": true,
+  "key": "mezcla_frutos_secos_con_mani_usda",
+  "name": "Mezcla de frutos secos con maní, con sal",
+  "category": "frutos_secos",
+  "synonyms": [
+   "mixtura de nueces",
+   "maní mezclado"
+  ],
+  "portions": [
+   [
+    "1 puñado",
+    28
+   ]
+  ]
+ },
+ {
+  "fdc_id": 169661,
+  "keep": true,
+  "key": "miel_de_maple_usda",
+  "name": "Miel de maple",
+  "category": "dulces",
+  "synonyms": [
+   "sirope de arce",
+   "jarabe de maple"
+  ],
+  "portions": [
+   [
+    "1 cucharada",
+    20
+   ],
+   [
+    "1/4 de taza",
+    83
+   ]
+  ]
+ },
+ {
+  "fdc_id": 168871,
+  "keep": true,
+  "key": "mijo_cocido_usda",
+  "name": "Mijo, cocido",
+  "category": "cereales",
+  "synonyms": [],
+  "portions": [
+   [
+    "1 taza",
+    174
+   ]
+  ]
+ },
+ {
+  "fdc_id": 169702,
+  "keep": true,
+  "key": "mijo_crudo_usda",
+  "name": "Mijo, crudo",
+  "category": "cereales",
+  "synonyms": [],
+  "portions": [
+   [
+    "1 taza",
+    200
+   ]
+  ]
+ },
+ {
+  "fdc_id": 170599,
+  "keep": true,
+  "key": "mondongo_res_crudo_usda",
+  "name": "Mondongo de res, crudo",
+  "category": "carnes",
+  "synonyms": [
+   "callo",
+   "panza de res"
+  ],
+  "portions": [
+   [
+    "1 porción",
+    113
+   ]
+  ]
+ },
+ {
+  "fdc_id": 172769,
+  "keep": true,
+  "key": "muffin_de_salvado_de_avena_usda",
+  "name": "Muffin de salvado de avena",
+  "category": "cereales",
+  "synonyms": [
+   "ponqué de avena",
+   "magdalena de avena"
+  ],
+  "portions": [
+   [
+    "1 unidad mediana",
+    113
+   ],
+   [
+    "1 unidad pequeña",
+    66
+   ]
+  ]
+ },
+ {
+  "fdc_id": 167785,
+  "keep": true,
+  "key": "nectar_de_mango_usda",
+  "name": "Néctar de mango",
+  "category": "bebidas",
+  "synonyms": [
+   "jugo de mango en caja"
+  ],
+  "portions": [
+   [
+    "1 vaso",
+    251
+   ]
+  ]
+ },
+ {
+  "fdc_id": 169914,
+  "keep": true,
+  "key": "nectarina_cruda_usda",
+  "name": "Nectarina, cruda",
+  "category": "frutas",
+  "synonyms": [],
+  "portions": [
+   [
+    "1 unidad mediana",
+    142
+   ],
+   [
+    "1 taza en tajadas",
+    143
+   ]
+  ]
+ },
+ {
+  "fdc_id": 167759,
+  "keep": true,
+  "key": "nispero_costeno_crudo_usda",
+  "name": "Níspero costeño, crudo",
+  "category": "frutas",
+  "synonyms": [
+   "zapotillo",
+   "chicozapote",
+   "níspero"
+  ],
+  "portions": [
+   [
+    "1 unidad",
+    170
+   ],
+   [
+    "1 taza de pulpa",
+    241
+   ]
+  ]
+ },
+ {
+  "fdc_id": 170182,
+  "keep": true,
+  "key": "nuez_pecana_usda",
+  "name": "Nuez pecana",
+  "category": "frutos_secos",
+  "synonyms": [
+   "pecana"
+  ],
+  "portions": [
+   [
+    "1 puñado (19 mitades)",
+    28
+   ],
+   [
+    "1 taza picada",
+    109
+   ]
+  ]
+ },
+ {
+  "fdc_id": 168580,
+  "keep": true,
+  "key": "orellana_cruda_usda",
+  "name": "Orellana, cruda",
+  "category": "verduras",
+  "synonyms": [
+   "hongo ostra",
+   "gírgola"
+  ],
+  "portions": [
+   [
+    "1 taza en tajadas",
+    86
+   ],
+   [
+    "1 unidad pequeña",
+    15
+   ]
+  ]
+ },
+ {
+  "fdc_id": 170390,
+  "keep": true,
+  "key": "pak_choi_crudo_usda",
+  "name": "Pak choi, crudo",
+  "category": "verduras",
+  "synonyms": [
+   "bok choy",
+   "acelga china"
+  ],
+  "portions": [
+   [
+    "1 taza picado",
+    70
+   ],
+   [
+    "1 hoja",
+    14
+   ]
+  ]
+ },
+ {
+  "fdc_id": 173682,
+  "keep": true,
+  "key": "pampano_crudo_usda",
+  "name": "Pámpano, crudo",
+  "category": "pescados",
+  "synonyms": [
+   "palometa"
+  ],
+  "portions": [
+   [
+    "1 filete",
+    112
+   ]
+  ]
+ },
+ {
+  "fdc_id": 172678,
+  "keep": true,
+  "key": "pan_de_avena_usda",
+  "name": "Pan de avena",
+  "category": "cereales",
+  "synonyms": [
+   "pan tajado de avena"
+  ],
+  "portions": [
+   [
+    "1 tajada",
+    27
+   ]
+  ]
+ },
+ {
+  "fdc_id": 172673,
+  "keep": true,
+  "key": "pan_de_huevo_usda",
+  "name": "Pan de huevo",
+  "category": "cereales",
+  "synonyms": [],
+  "portions": [
+   [
+    "1 tajada",
+    40
+   ]
+  ]
+ },
+ {
+  "fdc_id": 175033,
+  "keep": true,
+  "key": "pan_dulce_con_queso_usda",
+  "name": "Pan dulce con queso",
+  "category": "cereales",
+  "synonyms": [
+   "pan dulce relleno de queso"
+  ],
+  "portions": [
+   [
+    "1 unidad",
+    66
+   ]
+  ]
+ },
+ {
+  "fdc_id": 168854,
+  "keep": true,
+  "key": "papa_en_hilo_de_paquete_usda",
+  "name": "Papa en hilo, de paquete",
+  "category": "snacks",
+  "synonyms": [
+   "papa ripio",
+   "papitas en hilo"
+  ],
+  "portions": [
+   [
+    "1/2 taza",
+    18
+   ]
+  ]
+ },
+ {
+  "fdc_id": 171329,
+  "keep": true,
+  "key": "paprika_usda",
+  "name": "Paprika",
+  "category": "otros",
+  "synonyms": [
+   "pimentón en polvo",
+   "páprika"
+  ],
+  "portions": [
+   [
+    "1 cucharadita",
+    2.3
+   ],
+   [
+    "1 cucharada",
+    6.8
+   ]
+  ]
+ },
+ {
+  "fdc_id": 169728,
+  "keep": true,
+  "key": "pasta_fresca_cocida_usda",
+  "name": "Pasta fresca, cocida",
+  "category": "cereales",
+  "synonyms": [
+   "pasta refrigerada"
+  ],
+  "portions": [
+   [
+    "1 porción",
+    128
+   ]
+  ]
+ },
+ {
+  "fdc_id": 168900,
+  "keep": true,
+  "key": "pasta_maiz_sin_gluten_cocida_usda",
+  "name": "Pasta de maíz sin gluten, cocida",
+  "category": "cereales",
+  "synonyms": [
+   "pasta sin gluten"
+  ],
+  "portions": [
+   [
+    "1 taza",
+    140
+   ]
+  ]
+ },
+ {
+  "fdc_id": 172755,
+  "keep": true,
+  "key": "pastel_danes_de_frutas_usda",
+  "name": "Pastel danés de frutas",
+  "category": "dulces",
+  "synonyms": [
+   "pastel hojaldrado de frutas"
+  ],
+  "portions": [
+   [
+    "1 unidad mediana",
+    71
+   ],
+   [
+    "1 unidad pequeña",
+    35
+   ]
+  ]
+ },
+ {
+  "fdc_id": 167859,
+  "keep": true,
+  "key": "pata_de_cerdo_cruda_usda",
+  "name": "Pata de cerdo, cruda",
+  "category": "carnes",
+  "synonyms": [
+   "pezuña de cerdo",
+   "patica de cerdo"
+  ],
+  "portions": [
+   [
+    "1 porción",
+    113
+   ]
+  ]
+ },
+ {
+  "fdc_id": 171119,
+  "keep": true,
+  "key": "patas_de_pollo_cocidas_usda",
+  "name": "Patas de pollo, cocidas",
+  "category": "aves",
+  "synonyms": [
+   "patica de pollo"
+  ],
+  "portions": [
+   [
+    "1 porción",
+    85
+   ]
+  ]
+ },
+ {
+  "fdc_id": 174608,
+  "keep": true,
+  "key": "pechuga_de_pollo_tajada_fiambre_usda",
+  "name": "Pechuga de pollo tajada, horneada",
+  "category": "aves",
+  "synonyms": [
+   "jamón de pollo",
+   "fiambre de pollo"
+  ],
+  "portions": [
+   [
+    "1 porción",
+    56
+   ]
+  ]
+ },
+ {
+  "fdc_id": 173703,
+  "keep": true,
+  "key": "pez_espada_crudo_usda",
+  "name": "Pez espada, crudo",
+  "category": "pescados",
+  "synonyms": [
+   "pez vela"
+  ],
+  "portions": [
+   [
+    "1 porción",
+    136
+   ]
+  ]
+ },
+ {
+  "fdc_id": 175020,
+  "keep": true,
+  "key": "pie_de_durazno_usda",
+  "name": "Pie de durazno",
+  "category": "dulces",
+  "synonyms": [
+   "tarta de durazno",
+   "kuchen de durazno"
+  ],
+  "portions": [
+   [
+    "1 porción (1/6 de pie)",
+    117
+   ]
+  ]
+ },
+ {
+  "fdc_id": 169383,
+  "keep": true,
+  "key": "pimenton_amarillo_crudo_usda",
+  "name": "Pimentón amarillo, crudo",
+  "category": "verduras",
+  "synonyms": [
+   "pimiento amarillo"
+  ],
+  "portions": [
+   [
+    "1 unidad grande",
+    186
+   ],
+   [
+    "10 tiras",
+    52
+   ]
+  ]
+ },
+ {
+  "fdc_id": 168194,
+  "keep": true,
+  "key": "pina_oro_miel_cruda_usda",
+  "name": "Piña oro miel, cruda",
+  "category": "frutas",
+  "synonyms": [
+   "piña golden",
+   "piña md2"
+  ],
+  "portions": [
+   [
+    "1 taza en trozos",
+    165
+   ],
+   [
+    "1 tajada",
+    166
+   ]
+  ]
+ },
+ {
+  "fdc_id": 170591,
+  "keep": true,
+  "key": "pinones_usda",
+  "name": "Piñones",
+  "category": "frutos_secos",
+  "synonyms": [
+   "piñón"
+  ],
+  "portions": [
+   [
+    "1 cucharada",
+    8.4
+   ],
+   [
+    "1 taza",
+    135
+   ]
+  ]
+ },
+ {
+  "fdc_id": 173142,
+  "keep": true,
+  "key": "platanitos_fritos_con_sal_usda",
+  "name": "Platanitos fritos, con sal",
+  "category": "snacks",
+  "synonyms": [
+   "chips de plátano",
+   "tostones de paquete"
+  ],
+  "portions": [
+   [
+    "1 paquete pequeño",
+    28
+   ]
+  ]
+ },
+ {
+  "fdc_id": 171258,
+  "keep": true,
+  "key": "ponche_de_huevo_usda",
+  "name": "Ponche de huevo, sin licor",
+  "category": "bebidas",
+  "synonyms": [
+   "eggnog",
+   "sabajón sin licor"
+  ],
+  "portions": [
+   [
+    "1 taza",
+    254
+   ]
+  ]
+ },
+ {
+  "fdc_id": 173181,
+  "keep": true,
+  "key": "proteina_de_soya_en_polvo_usda",
+  "name": "Proteína de soya en polvo",
+  "category": "suplementos",
+  "synonyms": [
+   "proteína vegetal",
+   "proteína de soja"
+  ],
+  "portions": [
+   [
+    "1 medida",
+    45
+   ]
+  ]
+ },
+ {
+  "fdc_id": 172177,
+  "keep": true,
+  "key": "queso_brie_usda",
+  "name": "Queso brie",
+  "category": "lacteos",
+  "synonyms": [],
+  "portions": [
+   [
+    "1 cubo pequeño",
+    17
+   ]
+  ]
+ },
+ {
+  "fdc_id": 169079,
+  "keep": true,
+  "key": "queso_crema_bajo_en_grasa_usda",
+  "name": "Queso crema bajo en grasa",
+  "category": "lacteos",
+  "synonyms": [
+   "queso crema light"
+  ],
+  "portions": [
+   [
+    "1 cucharada",
+    15
+   ]
+  ]
+ },
+ {
+  "fdc_id": 173435,
+  "keep": true,
+  "key": "queso_de_cabra_fresco_usda",
+  "name": "Queso de cabra fresco",
+  "category": "lacteos",
+  "synonyms": [
+   "queso de cabra blando"
+  ],
+  "portions": [
+   [
+    "1 porción",
+    28
+   ]
+  ]
+ },
+ {
+  "fdc_id": 173420,
+  "keep": true,
+  "key": "queso_feta_usda",
+  "name": "Queso feta",
+  "category": "lacteos",
+  "synonyms": [],
+  "portions": [
+   [
+    "1 taza desmenuzado",
+    150
+   ],
+   [
+    "1 porción",
+    38
+   ]
+  ]
+ },
+ {
+  "fdc_id": 170850,
+  "keep": true,
+  "key": "queso_provolone_usda",
+  "name": "Queso provolone",
+  "category": "lacteos",
+  "synonyms": [],
+  "portions": [
+   [
+    "1 tajada",
+    28
+   ],
+   [
+    "1 taza en cubos",
+    132
+   ]
+  ]
+ },
+ {
+  "fdc_id": 171251,
+  "keep": true,
+  "key": "queso_suizo_usda",
+  "name": "Queso suizo",
+  "category": "lacteos",
+  "synonyms": [
+   "queso tipo suizo",
+   "emmental"
+  ],
+  "portions": [
+   [
+    "1 taza rallado",
+    108
+   ],
+   [
+    "1 taza en cubos",
+    132
+   ]
+  ]
+ },
+ {
+  "fdc_id": 169260,
+  "keep": true,
+  "key": "quimbombo_crudo_usda",
+  "name": "Quimbombó, crudo",
+  "category": "verduras",
+  "synonyms": [
+   "okra",
+   "ocra"
+  ],
+  "portions": [
+   [
+    "1 taza",
+    100
+   ],
+   [
+    "8 vainas",
+    95
+   ]
+  ]
+ },
+ {
+  "fdc_id": 168874,
+  "keep": true,
+  "key": "quinua_cruda_usda",
+  "name": "Quinua, cruda",
+  "category": "cereales",
+  "synonyms": [
+   "quinoa"
+  ],
+  "portions": [
+   [
+    "1 taza",
+    170
+   ]
+  ]
+ },
+ {
+  "fdc_id": 174858,
+  "keep": true,
+  "key": "refresco_en_polvo_limon_usda",
+  "name": "Refresco en polvo sabor limón",
+  "category": "bebidas",
+  "synonyms": [
+   "limonada en polvo"
+  ],
+  "portions": [
+   [
+    "1 porción",
+    18
+   ]
+  ]
+ },
+ {
+  "fdc_id": 169979,
+  "keep": true,
+  "key": "repollo_chino_crudo_usda",
+  "name": "Repollo chino, crudo",
+  "category": "verduras",
+  "synonyms": [
+   "col china",
+   "repollo napa"
+  ],
+  "portions": [
+   [
+    "1 taza picado",
+    76
+   ]
+  ]
+ },
+ {
+  "fdc_id": 174036,
+  "keep": true,
+  "key": "res_molida_80_20_cruda_usda",
+  "name": "Carne de res molida 80/20, cruda",
+  "category": "carnes",
+  "synonyms": [
+   "carne molida corriente"
+  ],
+  "portions": [
+   [
+    "1 porción",
+    113
+   ]
+  ]
+ },
+ {
+  "fdc_id": 174030,
+  "keep": true,
+  "key": "res_molida_90_10_cruda_usda",
+  "name": "Carne de res molida 90/10, cruda",
+  "category": "carnes",
+  "synonyms": [
+   "carne molida"
+  ],
+  "portions": [
+   [
+    "1 porción",
+    113
+   ]
+  ]
+ },
+ {
+  "fdc_id": 171790,
+  "keep": true,
+  "key": "res_molida_95_5_cruda_usda",
+  "name": "Carne de res molida magra 95/5, cruda",
+  "category": "carnes",
+  "synonyms": [
+   "carne molida especial",
+   "carne molida extra magra"
+  ],
+  "portions": [
+   [
+    "1 porción",
+    113
+   ]
+  ]
+ },
+ {
+  "fdc_id": 172161,
+  "keep": true,
+  "key": "res_molida_cocida_usda",
+  "name": "Carne de res molida, cocida",
+  "category": "carnes",
+  "synonyms": [
+   "carne molida guisada"
+  ],
+  "portions": [
+   [
+    "1 porción",
+    85
+   ]
+  ]
+ },
+ {
+  "fdc_id": 170809,
+  "keep": true,
+  "key": "res_para_guisar_cruda_usda",
+  "name": "Carne de res para guisar, cruda",
+  "category": "carnes",
+  "synonyms": [
+   "carne para sudar",
+   "paletero"
+  ],
+  "portions": [
+   [
+    "1 porción",
+    113
+   ]
+  ]
+ },
+ {
+  "fdc_id": 173473,
+  "keep": true,
+  "key": "romero_fresco_usda",
+  "name": "Romero fresco",
+  "category": "verduras",
+  "synonyms": [],
+  "portions": [
+   [
+    "1 cucharadita",
+    0.7
+   ],
+   [
+    "1 cucharada",
+    1.7
+   ]
+  ]
+ },
+ {
+  "fdc_id": 169387,
+  "keep": true,
+  "key": "rugula_cruda_usda",
+  "name": "Rúgula, cruda",
+  "category": "verduras",
+  "synonyms": [
+   "arúgula",
+   "rúcula"
+  ],
+  "portions": [
+   [
+    "1/2 taza",
+    10
+   ]
+  ]
+ },
+ {
+  "fdc_id": 172937,
+  "keep": true,
+  "key": "salami_de_pavo_usda",
+  "name": "Salami de pavo",
+  "category": "aves",
+  "synonyms": [],
+  "portions": [
+   [
+    "1 porción",
+    28
+   ]
+  ]
+ },
+ {
+  "fdc_id": 172936,
+  "keep": true,
+  "key": "salami_usda",
+  "name": "Salami",
+  "category": "carnes",
+  "synonyms": [
+   "salami de cerdo y res"
+  ],
+  "portions": [
+   [
+    "1 tajada",
+    12.3
+   ]
+  ]
+ },
+ {
+  "fdc_id": 171620,
+  "keep": true,
+  "key": "salchicha_alemana_de_cerdo_cocida_usda",
+  "name": "Salchicha alemana de cerdo, cocida",
+  "category": "carnes",
+  "synonyms": [
+   "bratwurst"
+  ],
+  "portions": [
+   [
+    "1 unidad",
+    85
+   ]
+  ]
+ },
+ {
+  "fdc_id": 173871,
+  "keep": true,
+  "key": "salchicha_de_pavo_cocida_usda",
+  "name": "Salchicha de pavo, cocida",
+  "category": "aves",
+  "synonyms": [],
+  "portions": [
+   [
+    "1 porción",
+    57
+   ]
+  ]
+ },
+ {
+  "fdc_id": 171631,
+  "keep": true,
+  "key": "salchicha_italiana_de_cerdo_cruda_usda",
+  "name": "Salchicha italiana de cerdo, cruda",
+  "category": "carnes",
+  "synonyms": [
+   "chorizo italiano"
+  ],
+  "portions": [
+   [
+    "1 unidad",
+    101
+   ]
+  ]
+ },
+ {
+  "fdc_id": 171823,
+  "keep": true,
+  "key": "salsa_agridulce_usda",
+  "name": "Salsa agridulce",
+  "category": "otros",
+  "synonyms": [
+   "salsa china agridulce"
+  ],
+  "portions": [
+   [
+    "1 cucharada",
+    16.5
+   ]
+  ]
+ },
+ {
+  "fdc_id": 174523,
+  "keep": true,
+  "key": "salsa_barbacoa_usda",
+  "name": "Salsa barbacoa",
+  "category": "otros",
+  "synonyms": [
+   "salsa bbq"
+  ],
+  "portions": [
+   [
+    "1 cucharada",
+    17
+   ]
+  ]
+ },
+ {
+  "fdc_id": 168758,
+  "keep": true,
+  "key": "salsa_de_fresa_para_postres_usda",
+  "name": "Salsa de fresa para postres",
+  "category": "dulces",
+  "synonyms": [
+   "topping de fresa",
+   "sirope de fresa"
+  ],
+  "portions": [
+   [
+    "2 cucharadas",
+    42
+   ]
+  ]
+ },
+ {
+  "fdc_id": 171610,
+  "keep": true,
+  "key": "salsa_inglesa_usda",
+  "name": "Salsa inglesa",
+  "category": "otros",
+  "synonyms": [
+   "salsa worcestershire"
+  ],
+  "portions": [
+   [
+    "1 cucharada",
+    17
+   ]
+  ]
+ },
+ {
+  "fdc_id": 171186,
+  "keep": true,
+  "key": "salsa_picante_sriracha_usda",
+  "name": "Salsa de ají picante tipo sriracha",
+  "category": "otros",
+  "synonyms": [
+   "sriracha",
+   "salsa picante"
+  ],
+  "portions": [
+   [
+    "1 cucharadita",
+    6.5
+   ]
+  ]
+ },
+ {
+  "fdc_id": 168872,
+  "keep": true,
+  "key": "salvado_de_avena_crudo_usda",
+  "name": "Salvado de avena, crudo",
+  "category": "cereales",
+  "synonyms": [
+   "afrecho de avena"
+  ],
+  "portions": [
+   [
+    "1 cucharada",
+    6
+   ],
+   [
+    "1 taza",
+    94
+   ]
+  ]
+ },
+ {
+  "fdc_id": 172226,
+  "keep": true,
+  "key": "sandwich_de_helado_usda",
+  "name": "Sándwich de helado",
+  "category": "dulces",
+  "synonyms": [
+   "galleta con helado"
+  ],
+  "portions": [
+   [
+    "1 unidad",
+    70
+   ]
+  ]
+ },
+ {
+  "fdc_id": 170148,
+  "keep": true,
+  "key": "semillas_de_canamo_peladas_usda",
+  "name": "Semillas de cáñamo peladas",
+  "category": "frutos_secos",
+  "synonyms": [
+   "hemp"
+  ],
+  "portions": [
+   [
+    "1 cucharada",
+    10
+   ],
+   [
+    "3 cucharadas",
+    30
+   ]
+  ]
+ },
+ {
+  "fdc_id": 174117,
+  "keep": true,
+  "key": "sirope_de_chocolate_usda",
+  "name": "Sirope de chocolate",
+  "category": "dulces",
+  "synonyms": [
+   "salsa de chocolate"
+  ],
+  "portions": [
+   [
+    "2 cucharadas",
+    39
+   ]
+  ]
+ },
+ {
+  "fdc_id": 169878,
+  "keep": true,
+  "key": "sirope_sin_azucar_usda",
+  "name": "Sirope sin azúcar",
+  "category": "dulces",
+  "synonyms": [
+   "jarabe dietético",
+   "miel sin azúcar"
+  ],
+  "portions": [
+   [
+    "1 cucharada",
+    15
+   ]
+  ]
+ },
+ {
+  "fdc_id": 167577,
+  "keep": true,
+  "key": "sorbete_de_naranja_usda",
+  "name": "Sorbete de naranja",
+  "category": "dulces",
+  "synonyms": [
+   "helado de naranja"
+  ],
+  "portions": [
+   [
+    "1/2 taza",
+    74
+   ],
+   [
+    "1 paleta",
+    66
+   ]
+  ]
+ },
+ {
+  "fdc_id": 174299,
+  "keep": true,
+  "key": "soya_grano_cocida_usda",
+  "name": "Soya en grano, cocida",
+  "category": "leguminosas",
+  "synonyms": [
+   "soja cocida"
+  ],
+  "portions": [
+   [
+    "1 taza",
+    172
+   ]
+  ]
+ },
+ {
+  "fdc_id": 174270,
+  "keep": true,
+  "key": "soya_grano_cruda_usda",
+  "name": "Soya en grano, cruda",
+  "category": "leguminosas",
+  "synonyms": [
+   "soja",
+   "fríjol soya"
+  ],
+  "portions": [
+   [
+    "1 taza",
+    186
+   ]
+  ]
+ },
+ {
+  "fdc_id": 175032,
+  "keep": true,
+  "key": "strudel_de_manzana_usda",
+  "name": "Strudel de manzana",
+  "category": "dulces",
+  "synonyms": [
+   "pastel de manzana"
+  ],
+  "portions": [
+   [
+    "1 porción",
+    71
+   ]
+  ]
+ },
+ {
+  "fdc_id": 170189,
+  "keep": true,
+  "key": "tahini_usda",
+  "name": "Tahini",
+  "category": "frutos_secos",
+  "synonyms": [
+   "pasta de ajonjolí",
+   "crema de ajonjolí"
+  ],
+  "portions": [
+   [
+    "1 cucharada",
+    15
+   ]
+  ]
+ },
+ {
+  "fdc_id": 172467,
+  "keep": true,
+  "key": "tempeh_cocido_usda",
+  "name": "Tempeh, cocido",
+  "category": "leguminosas",
+  "synonyms": [],
+  "portions": [
+   [
+    "1 porción",
+    85
+   ]
+  ]
+ },
+ {
+  "fdc_id": 168383,
+  "keep": true,
+  "key": "tocineta_canadiense_frita_usda",
+  "name": "Tocineta canadiense, frita",
+  "category": "carnes",
+  "synonyms": [
+   "lomo de cerdo ahumado",
+   "canadian bacon"
+  ],
+  "portions": [
+   [
+    "1 tajada",
+    13.8
+   ]
+  ]
+ },
+ {
+  "fdc_id": 168322,
+  "keep": true,
+  "key": "tocineta_frita_usda",
+  "name": "Tocineta, frita",
+  "category": "carnes",
+  "synonyms": [
+   "tocino ahumado",
+   "bacon"
+  ],
+  "portions": [
+   [
+    "1 tajada",
+    11.5
+   ],
+   [
+    "3 tajadas",
+    35
+   ]
+  ]
+ },
+ {
+  "fdc_id": 167914,
+  "keep": true,
+  "key": "tocineta_horneada_usda",
+  "name": "Tocineta, horneada",
+  "category": "carnes",
+  "synonyms": [
+   "tocino",
+   "bacon"
+  ],
+  "portions": [
+   [
+    "1 tajada",
+    8.1
+   ]
+  ]
+ },
+ {
+  "fdc_id": 170050,
+  "keep": true,
+  "key": "tomate_rojo_cocido_usda",
+  "name": "Tomate rojo, cocido",
+  "category": "verduras",
+  "synonyms": [
+   "tomate guisado"
+  ],
+  "portions": [
+   [
+    "1 taza",
+    240
+   ]
+  ]
+ },
+ {
+  "fdc_id": 173470,
+  "keep": true,
+  "key": "tomillo_fresco_usda",
+  "name": "Tomillo fresco",
+  "category": "verduras",
+  "synonyms": [],
+  "portions": [
+   [
+    "1 cucharadita",
+    0.8
+   ]
+  ]
+ },
+ {
+  "fdc_id": 172185,
+  "keep": true,
+  "key": "tortilla_de_huevo_omelet_usda",
+  "name": "Tortilla de huevo",
+  "category": "huevos",
+  "synonyms": [
+   "omelet",
+   "omelette"
+  ],
+  "portions": [
+   [
+    "1 huevo",
+    61
+   ],
+   [
+    "1 cucharada",
+    15
+   ]
+  ]
+ },
+ {
+  "fdc_id": 172800,
+  "keep": true,
+  "key": "tortilla_para_taco_horneada_usda",
+  "name": "Tortilla para taco, horneada",
+  "category": "cereales",
+  "synonyms": [
+   "concha de taco",
+   "taco shell"
+  ],
+  "portions": [
+   [
+    "1 unidad",
+    13
+   ],
+   [
+    "1 unidad grande",
+    21
+   ]
+  ]
+ },
+ {
+  "fdc_id": 167525,
+  "keep": true,
+  "key": "tostada_de_maiz_usda",
+  "name": "Tostada de maíz",
+  "category": "cereales",
+  "synonyms": [
+   "tostada mexicana"
+  ],
+  "portions": [
+   [
+    "1 unidad",
+    12
+   ],
+   [
+    "3 unidades",
+    37
+   ]
+  ]
+ },
+ {
+  "fdc_id": 170287,
+  "keep": true,
+  "key": "trigo_bulgur_cocido_usda",
+  "name": "Trigo bulgur, cocido",
+  "category": "cereales",
+  "synonyms": [
+   "burgol",
+   "trigo para quibbe"
+  ],
+  "portions": [
+   [
+    "1 taza",
+    182
+   ],
+   [
+    "1 cucharada",
+    8.4
+   ]
+  ]
+ },
+ {
+  "fdc_id": 169588,
+  "keep": true,
+  "key": "turron_de_ajonjoli_usda",
+  "name": "Turrón de ajonjolí",
+  "category": "dulces",
+  "synonyms": [
+   "crocante de ajonjolí",
+   "dulce de ajonjolí"
+  ],
+  "portions": [
+   [
+    "20 unidades",
+    35
+   ]
+  ]
+ },
+ {
+  "fdc_id": 172241,
+  "keep": true,
+  "key": "vinagre_balsamico_usda",
+  "name": "Vinagre balsámico",
+  "category": "otros",
+  "synonyms": [],
+  "portions": [
+   [
+    "1 cucharada",
+    16
+   ],
+   [
+    "1 cucharadita",
+    5.3
+   ]
+  ]
+ },
+ {
+  "fdc_id": 173469,
+  "keep": true,
+  "key": "vinagre_de_manzana_usda",
+  "name": "Vinagre de manzana",
+  "category": "otros",
+  "synonyms": [
+   "vinagre de sidra"
+  ],
+  "portions": [
+   [
+    "1 cucharada",
+    15
+   ],
+   [
+    "1 cucharadita",
+    5
+   ]
+  ]
+ },
+ {
+  "fdc_id": 172240,
+  "keep": true,
+  "key": "vinagre_de_vino_tinto_usda",
+  "name": "Vinagre de vino tinto",
+  "category": "otros",
+  "synonyms": [],
+  "portions": [
+   [
+    "1 cucharada",
+    15
+   ]
+  ]
+ },
+ {
+  "fdc_id": 171908,
+  "keep": true,
+  "key": "vino_rosado_usda",
+  "name": "Vino rosado",
+  "category": "bebidas",
+  "synonyms": [
+   "vino rosé"
+  ],
+  "portions": [
+   [
+    "1 copa",
+    148
+   ]
+  ]
+ },
+ {
+  "fdc_id": 173190,
+  "keep": true,
+  "key": "vino_tinto_usda",
+  "name": "Vino tinto",
+  "category": "bebidas",
+  "synonyms": [],
+  "portions": [
+   [
+    "1 copa",
+    147
+   ]
+  ]
+ },
+ {
+  "fdc_id": 172184,
+  "keep": true,
+  "key": "yema_de_huevo_cruda_usda",
+  "name": "Yema de huevo, cruda",
+  "category": "huevos",
+  "synonyms": [
+   "yema"
+  ],
+  "portions": [
+   [
+    "1 unidad",
+    17
+   ]
+  ]
+ },
+ {
+  "fdc_id": 170901,
+  "keep": true,
+  "key": "yogur_griego_de_fresa_sin_grasa_usda",
+  "name": "Yogur griego de fresa, sin grasa",
+  "category": "lacteos",
+  "synonyms": [
+   "yogurt griego de fresa"
+  ],
+  "portions": [
+   [
+    "1 vaso",
+    150
+   ]
+  ]
+ },
+ {
+  "fdc_id": 170887,
+  "keep": true,
+  "key": "yogur_natural_descremado_usda",
+  "name": "Yogur natural descremado",
+  "category": "lacteos",
+  "synonyms": [
+   "yogurt sin grasa"
+  ],
+  "portions": [
+   [
+    "1 vaso",
+    170
+   ],
+   [
+    "1 taza",
+    245
+   ]
+  ]
+ },
+ {
+  "fdc_id": 170886,
+  "keep": true,
+  "key": "yogur_natural_semidescremado_usda",
+  "name": "Yogur natural semidescremado",
+  "category": "lacteos",
+  "synonyms": [
+   "yogurt natural bajo en grasa"
+  ],
+  "portions": [
+   [
+    "1 vaso",
+    170
+   ],
+   [
+    "1 taza",
+    245
+   ]
+  ]
+ },
+ {
+  "fdc_id": 168568,
+  "keep": true,
+  "key": "zanahoria_baby_cruda_usda",
+  "name": "Zanahoria baby, cruda",
+  "category": "verduras",
+  "synonyms": [
+   "zanahorita"
+  ],
+  "portions": [
+   [
+    "1 unidad mediana",
+    10
+   ],
+   [
+    "1 unidad grande",
+    15
+   ]
+  ]
+ }
+]

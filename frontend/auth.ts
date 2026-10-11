@@ -36,6 +36,8 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         password: { label: "Password", type: "password" },
         challenge_token: { type: "text" },
         code: { type: "text" },
+        method: { type: "text" },
+        credential: { type: "text" },
       },
       async authorize(credentials) {
         const apiUrl = API_URL();
@@ -47,10 +49,13 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
           });
         let res: Response;
         if (credentials.challenge_token) {
-          // Segundo paso: código de la app autenticadora o de respaldo.
+          // Segundo paso: app autenticadora, código por correo, llave de acceso o respaldo.
+          const method = credentials.method ? String(credentials.method) : undefined;
           res = await post("/api/v1/auth/mfa/verify", {
             challenge_token: credentials.challenge_token,
             code: String(credentials.code ?? "").replace(/\s/g, ""),
+            method,
+            credential: credentials.credential ? JSON.parse(String(credentials.credential)) : undefined,
           });
         } else {
           // El owner entra por /auth/login; el staff (admin/recepción) por
@@ -67,8 +72,9 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         }
         const data = await res.json();
         if (data.challenge_token) {
-          // La página de login lee el prefijo y pide el código.
-          throw new BackendAuthError(`mfa:${data.challenge_token}`);
+          // La página de login lee el prefijo y ofrece los métodos del segundo paso.
+          const step = { t: data.challenge_token, m: data.methods ?? ["totp"], p: data.preferred ?? null, e: data.email_hint ?? null };
+          throw new BackendAuthError(`mfa:${Buffer.from(JSON.stringify(step)).toString("base64url")}`);
         }
         return {
           id: data.tenant_id,

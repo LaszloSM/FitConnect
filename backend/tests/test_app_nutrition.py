@@ -63,7 +63,9 @@ async def test_custom_foods_are_private(client):
                              headers=h)
     assert mine.status_code == 201
     other = await _ready_user(client)
-    assert not [f for f in (await client.get("/api/v1/me/foods", params={"q": "abuela"}, headers=other)).json()]
+    # Solo se busca la propia: la base de empacados trae marcas como «De la abuela».
+    found = (await client.get("/api/v1/me/foods", params={"q": "abuela"}, headers=other)).json()
+    assert not [f for f in found if f["name"] == "Arepa de mi abuela" or f["mine"]]
     r = await client.post("/api/v1/me/meals", json={"id": str(uuid.uuid4()), "meal": "snack",
                                                     "food_id": mine.json()["id"], "grams": 80}, headers=other)
     assert r.status_code == 404

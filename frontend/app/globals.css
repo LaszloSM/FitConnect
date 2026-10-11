@@ -19,6 +19,7 @@
   --color-primary-muted: var(--brand-muted);
   --color-primary-contrast: var(--brand-contrast);
   --color-primary-ink: var(--brand-ink);
+  --color-logo: var(--brand-logo);
 
   --color-surface: var(--bg-base);
   --color-panel: var(--bg-card);
@@ -92,6 +93,9 @@
   /* Marca: coral. Relleno oscuro con tinta casi blanca encima; como texto va
      `-ink`, un paso más oscuro para leerse sobre las tarjetas. */
   --brand: oklch(0.545 0.185 35);
+  /* Naranja exacto del logo (#D8421A). Solo para la marca: es más claro que
+     --brand y no llega a 4.5:1 con texto blanco encima. */
+  --brand-logo: oklch(0.592 0.193 35);
   --brand-hover: oklch(0.505 0.180 35);
   --brand-muted: oklch(0.940 0.040 45);
   --brand-contrast: oklch(0.985 0.006 60);
@@ -238,6 +242,12 @@
       animation-iteration-count: 1 !important;
       transition-duration: 0.01ms !important;
       scroll-behavior: auto !important;
+    }
+    /* Lo que aparece al hacer scroll llega del servidor con opacidad 0: con
+       movimiento reducido se muestra quieto, sin esperar a JavaScript. */
+    [data-reveal] {
+      opacity: 1 !important;
+      transform: none !important;
     }
   }
 }

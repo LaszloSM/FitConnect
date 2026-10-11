@@ -1,7 +1,6 @@
 import uuid
 from fastapi import APIRouter, Depends, File, HTTPException, UploadFile
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import select
 
 from pydantic import BaseModel, Field
 
@@ -18,7 +17,6 @@ from app.core import permissions as perm
 from app.services.audit import audit
 # Alias: en este módulo hay un handler de ruta que también se llama get_gym_settings
 from app.services.gym_settings import get_gym_settings as load_gym_settings
-from app.core.security import hash_password, verify_password
 from app.models.master.tenant import Tenant
 from app.models.tenant.user_staff import UserStaff
 from app.schemas.settings import (
@@ -108,29 +106,17 @@ async def update_profile(
     current_user: UserStaff = Depends(get_current_staff),
     db: AsyncSession = Depends(get_tenant_db_from_token),
 ) -> UserProfileResponse:
-    # Password change validation
+    # La contraseña y el correo de acceso se cambian en Ajustes › Seguridad, con un
+    # código de verificación (/auth/password/change y /auth/email/change). Aquí
+    # cambiarlos solo con la contraseña dejaba la del dueño desincronizada con la
+    # base maestra (la vieja seguía sirviendo) y el correo fuera del índice de login.
     if payload.new_password:
-        if not payload.current_password:
-            raise HTTPException(
-                status_code=400,
-                detail="Se requiere la contraseña actual para cambiar la contraseña",
-            )
-        if not verify_password(payload.current_password, current_user.hashed_password):
-            raise HTTPException(status_code=400, detail="Contraseña actual incorrecta")
-        current_user.hashed_password = hash_password(payload.new_password)
-        from app.services.account_security import end_sessions_before_now
-        await end_sessions_before_now(current_user.id)
+        raise HTTPException(status_code=400, detail="Cambia tu contraseña en Ajustes › Seguridad.")
+    if payload.email is not None and payload.email.lower() != current_user.email.lower():
+        raise HTTPException(status_code=400, detail="Cambia tu correo en Ajustes › Seguridad.")
 
     if payload.full_name is not None:
         current_user.full_name = payload.full_name
-
-    if payload.email is not None and payload.email != current_user.email:
-        existing = await db.execute(
-            select(UserStaff).where(UserStaff.email == payload.email)
-        )
-        if existing.scalar_one_or_none():
-            raise HTTPException(status_code=400, detail="Email ya está en uso")
-        current_user.email = payload.email
 
     await db.commit()
     await db.refresh(current_user)
@@ -441,6 +427,6 @@ async def get_subscription(
     tenant: Tenant = Depends(get_tenant_from_claims),
     _staff=Depends(get_current_staff),
 ):
-    """Estado de la suscripción a FitConnect, para el aviso de la barra superior."""
+    """Estado de la suscripción a LSMFit, para el aviso de la barra superior."""
     from app.services.subscription import effective
     return effective(tenant)

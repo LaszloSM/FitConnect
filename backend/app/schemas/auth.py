@@ -1,3 +1,4 @@
+from typing import Literal
 import re
 
 from pydantic import BaseModel, EmailStr, Field, field_validator
@@ -50,14 +51,22 @@ class TokenResponse(BaseModel):
 
 
 class MfaChallenge(BaseModel):
-    """La contraseña era correcta; falta el código de la app autenticadora."""
+    """La contraseña era correcta; falta el segundo paso con alguno de `methods`."""
     otp_required: bool = True
     challenge_token: str
+    methods: list[str] = ["totp"]
+    preferred: str | None = None
+    #: Correo enmascarado (a•••@gmail.com) para decir a dónde llegó el código.
+    email_hint: str | None = None
 
 
 class MfaVerifyRequest(BaseModel):
     challenge_token: str
-    code: str
+    code: str = ""
+    #: Sin método se prueba app autenticadora, correo y código de respaldo.
+    method: Literal["totp", "email", "backup", "passkey"] | None = None
+    #: Respuesta del navegador para `passkey`.
+    credential: dict | None = None
 
 
 class MfaCodeRequest(BaseModel):

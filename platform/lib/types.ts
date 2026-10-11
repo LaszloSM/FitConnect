@@ -69,3 +69,12 @@ export const ACTION_LABEL: Record<string, string> = {
   "admin.create_console": "Cuenta creada por consola",
   "admin.password_console": "Contraseña cambiada por consola",
 };
+
+export interface SystemHealth {
+  status: "ok" | "degraded";
+  dependencies: Record<string, "ok" | "error">;
+  scheduler_running: boolean;
+  email_configured: boolean;
+  mail_backend: string;
+  jobs: { name: string; status: string; started_at: string; finished_at: string | null; duration_s: number | null }[];
+}

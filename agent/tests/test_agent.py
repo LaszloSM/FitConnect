@@ -5,12 +5,12 @@ import json
 from datetime import date, datetime, timedelta
 
 import httpx
-from fitconnect_agent.cloud import Cloud
-from fitconnect_agent.config import AgentConfig, DeviceConfig
-from fitconnect_agent.drivers.hikvision import HikvisionDriver
-from fitconnect_agent.drivers.zk_tcp import ZkTcpDriver
-from fitconnect_agent.main import Agent
-from fitconnect_agent.store import Store
+from lsmfit_agent.cloud import Cloud
+from lsmfit_agent.config import AgentConfig, DeviceConfig
+from lsmfit_agent.drivers.hikvision import HikvisionDriver
+from lsmfit_agent.drivers.zk_tcp import ZkTcpDriver
+from lsmfit_agent.main import Agent
+from lsmfit_agent.store import Store
 
 JPEG = b"\xff\xd8\xff\xe0fakejpeg\xff\xd9"
 
@@ -185,7 +185,7 @@ async def test_zk_tcp_block_keeps_fingerprints_on_premise_and_restores(tmp_path)
 
 
 def test_config_loads_example(tmp_path):
-    raw = json.loads(open("fitconnect-agent.example.json", encoding="utf-8").read())
+    raw = json.loads(open("lsmfit-agent.example.json", encoding="utf-8").read())
     p = tmp_path / "c.json"
     p.write_text(json.dumps(raw))
     cfg = AgentConfig.load(p)
