@@ -1,7 +1,8 @@
 """Ciclo de la suscripción de un gimnasio a LSMFit.
 
   trialing ─(vence la prueba)→ past_due ─(N días de gracia)→ read_only
-  active   ─(falla el cobro) → past_due ─(N días de gracia)→ read_only
+  active   ─(vence paid_until)→ past_due ─(N días de gracia)→ read_only
+  un pago registrado en el panel extiende paid_until y lo deja en active
   comp_until vigente = cortesía: acceso completo sin cobro (pilotos, aliados)
   suspended: solo lo decide el panel de plataforma
 
@@ -42,6 +43,11 @@ PLAN_MODULES = {
 }
 
 
+def monthly_price(t: Tenant) -> int:
+    """Lo que paga este gimnasio al mes: el precio acordado o el de lista del plan."""
+    return t.price_cop if t.price_cop is not None else PLAN_PRICE_COP.get(t.plan, 0)
+
+
 def _status(t: Tenant) -> TenantStatus:
     return t.status if isinstance(t.status, TenantStatus) else TenantStatus(t.status)
 
@@ -65,6 +71,12 @@ def effective(t: Tenant, today: Optional[date] = None) -> dict:
             eff, days_left = "past_due", grace - (today - t.trial_ends_at).days
         else:
             eff = "read_only"
+    elif status == TenantStatus.active and t.paid_until and t.paid_until < today:
+        late = (today - t.paid_until).days
+        if late <= grace:
+            eff, days_left = "past_due", grace - late
+        else:
+            eff = "read_only"
     elif status == TenantStatus.past_due:
         since = (t.status_changed_at.date() if t.status_changed_at else today)
         if (today - since).days <= grace:
@@ -80,6 +92,7 @@ def effective(t: Tenant, today: Optional[date] = None) -> dict:
         "days_left": days_left,
         "trial_ends_at": t.trial_ends_at.isoformat() if t.trial_ends_at else None,
         "comp_until": t.comp_until.isoformat() if t.comp_until else None,
+        "paid_until": t.paid_until.isoformat() if t.paid_until else None,
         "plan": t.plan.value if hasattr(t.plan, "value") else t.plan,
         "plan_label": PLAN_LABEL.get(t.plan, str(t.plan)),
         "modules": sorted(modules),
@@ -107,11 +120,13 @@ async def advance_all(master_db) -> int:
         eff = effective(t)["status"]
         target = {"past_due": TenantStatus.past_due, "read_only": TenantStatus.read_only}.get(eff)
         if target and _status(t) != target and _status(t) != TenantStatus.suspended:
-            was_trial = _status(t) == TenantStatus.trialing
+            prev = _status(t)
             set_status(t, target)
-            if was_trial and t.trial_ends_at:
-                # La gracia cuenta desde que terminó la prueba, no desde que corrió el job.
-                t.status_changed_at = datetime.combine(t.trial_ends_at + timedelta(days=1), datetime.min.time())
+            # La gracia cuenta desde que terminó la prueba o el periodo pagado, no desde que corrió el job.
+            ended = t.trial_ends_at if prev == TenantStatus.trialing else t.paid_until if prev == TenantStatus.active else None
+            # Se guarda el último día cubierto: así el conteo de gracia es el mismo antes y después del job.
+            if ended:
+                t.status_changed_at = datetime.combine(ended, datetime.min.time())
             changed += 1
     await master_db.commit()
     return changed

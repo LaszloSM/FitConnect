@@ -50,10 +50,17 @@ router = APIRouter(prefix="/auth", tags=["auth"])
 @router.post("/register", status_code=201)
 @limiter.limit("5/minute")
 async def register(request: Request, payload: RegisterRequest, db: AsyncSession = Depends(get_master_db)):
-    # Verificar email único en Master DB
-    result = await db.execute(select(Owner).where(Owner.email == payload.email))
-    if result.scalar_one_or_none():
-        raise HTTPException(status_code=400, detail="Email ya registrado")
+    # El correo tiene que estar libre como dueño y como personal de cualquier gimnasio:
+    # staff_directory es único por correo y el alta reventaba con un 500 al final.
+    email = payload.email.strip().lower()
+    taken = (await db.execute(select(Owner.id).where(func.lower(Owner.email) == email))).first() or (
+        await db.execute(select(StaffDirectory.id).where(func.lower(StaffDirectory.email) == email))
+    ).first()
+    if taken:
+        raise HTTPException(
+            status_code=400,
+            detail="Ese correo ya tiene una cuenta en LSMFit. Ingresa con él o usa otro correo para el gimnasio nuevo.",
+        )
 
     # Crear tenant completo (Master DB + Tenant DB física + Alembic + UserStaff owner)
     tenant = await create_tenant(

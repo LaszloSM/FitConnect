@@ -4,7 +4,7 @@
  */
 export const LEGAL = {
   /** Nombre completo del titular. Mientras sea null, los textos lo identifican por NIT. */
-  holderName: null as string | null,
+  holderName: "Laszlo Louis Sierra Mejia" as string | null,
   holderKind: "persona natural",
   nit: "1006638898-9",
   city: "Riohacha",

@@ -4,6 +4,8 @@ import { use, useCallback, useEffect, useState } from "react";
 import Link from "next/link";
 import { Shell } from "@/components/Shell";
 import { Notice, StatusPill } from "@/components/StatusPill";
+import { GymDataCard } from "@/components/GymDataCard";
+import { PaymentsCard } from "@/components/PaymentsCard";
 import { api } from "@/lib/api";
 import { day, money, moment } from "@/lib/format";
 import { ACTION_LABEL, type TenantDetail } from "@/lib/types";
@@ -102,7 +104,11 @@ export default function TenantPage({ params }: { params: Promise<{ id: string }>
         <section className="card p-5">
           <h2 className="text-base font-semibold">Suscripción</h2>
           <dl className="mt-2 divide-y divide-line">
-            <Row label="Plan">{sub.plan_label} · <span className="num">{money(t.monthly_price)}</span>/mes</Row>
+            <Row label="Plan">
+              {sub.plan_label} · <span className="num">{money(t.monthly_price)}</span>/mes
+              {t.price_cop != null && <span className="text-ink-muted"> (lista {money(t.list_price)})</span>}
+            </Row>
+            <Row label="Pagado hasta">{sub.paid_until ? day(sub.paid_until) : "Sin pagos registrados"}</Row>
             <Row label="Prueba hasta">{day(sub.trial_ends_at)}</Row>
             <Row label="Cortesía hasta">{sub.comp_until ? `${day(sub.comp_until)}${t.comp_reason ? ` · ${t.comp_reason}` : ""}` : "—"}</Row>
             <Row label="Módulos">{sub.modules.length ? sub.modules.map((k) => MODULES.find((x) => x.key === k)?.label ?? k).join(", ") : "Ninguno"}</Row>
@@ -125,6 +131,8 @@ export default function TenantPage({ params }: { params: Promise<{ id: string }>
         </section>
 
         <section className="space-y-5">
+          <PaymentsCard tenantId={id} onChange={load} />
+
           <div className="card space-y-3 p-5">
             <h2 className="text-base font-semibold">Prueba gratis</h2>
             <p className="text-sm text-ink-muted">Desde hoy, o se suma a la prueba vigente.</p>
@@ -218,6 +226,8 @@ export default function TenantPage({ params }: { params: Promise<{ id: string }>
               </label>
             ))}
           </div>
+
+          <GymDataCard tenant={t} onSaved={load} />
 
           <div className="card space-y-3 p-5">
             <h2 className="text-base font-semibold">Notas internas</h2>

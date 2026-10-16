@@ -1,9 +1,9 @@
 """Panel de plataforma: quienes administran LSMFit (no los gimnasios)."""
 import uuid
-from datetime import datetime
+from datetime import date, datetime
 from typing import Optional
 
-from sqlalchemy import Boolean, DateTime, Integer, String
+from sqlalchemy import Boolean, Date, DateTime, ForeignKey, Integer, String
 from sqlalchemy.dialects.postgresql import JSONB, UUID
 from sqlalchemy.orm import Mapped, mapped_column
 
@@ -53,4 +53,28 @@ class PasswordReset(MasterBase):
     email: Mapped[str] = mapped_column(String(255), nullable=False, index=True)
     expires_at: Mapped[datetime] = mapped_column(DateTime, nullable=False)
     used_at: Mapped[Optional[datetime]] = mapped_column(DateTime, nullable=True)
+    created_at: Mapped[datetime] = mapped_column(DateTime, nullable=False, default=datetime.utcnow)
+
+
+class SubscriptionPayment(MasterBase):
+    """Pago de un gimnasio a LSMFit por su suscripción, registrado en el panel.
+    Cada pago cubre un periodo; `tenants.paid_until` es el fin del último periodo
+    vigente. Un pago mal registrado se anula (queda en el historial), no se borra."""
+    __tablename__ = "subscription_payments"
+
+    id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    tenant_id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True), ForeignKey("tenants.id", ondelete="CASCADE"), nullable=False, index=True)
+    amount_cop: Mapped[int] = mapped_column(Integer, nullable=False)
+    months: Mapped[int] = mapped_column(Integer, nullable=False)
+    period_start: Mapped[date] = mapped_column(Date, nullable=False)
+    period_end: Mapped[date] = mapped_column(Date, nullable=False)
+    paid_on: Mapped[date] = mapped_column(Date, nullable=False)
+    method: Mapped[str] = mapped_column(String(20), nullable=False)
+    reference: Mapped[Optional[str]] = mapped_column(String(120), nullable=True)
+    note: Mapped[Optional[str]] = mapped_column(String(500), nullable=True)
+    plan: Mapped[str] = mapped_column(String(20), nullable=False)
+    recorded_by: Mapped[Optional[str]] = mapped_column(String(255), nullable=True)
+    voided_at: Mapped[Optional[datetime]] = mapped_column(DateTime, nullable=True)
+    void_reason: Mapped[Optional[str]] = mapped_column(String(255), nullable=True)
     created_at: Mapped[datetime] = mapped_column(DateTime, nullable=False, default=datetime.utcnow)

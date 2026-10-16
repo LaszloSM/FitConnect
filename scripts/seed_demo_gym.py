@@ -107,16 +107,22 @@ def main():
         api("POST", "/checkins", {"member_id": m["id"]}, expect=(200, 201, 400, 409))
 
     print("Productos e inventario...")
-    cat = api("POST", "/products/categories", {"name": f"Bebidas {suffix}"}, expect=(201, 409))
+    catalogo = {
+        "Bebidas": [("Agua 600 ml", 3000, 1400, 48, "BEB"), ("Bebida hidratante", 5500, 3100, 30, "BEB"), ("Café americano", 4000, 1200, 22, "BEB")],
+        "Suplementos": [("Proteína en vaso", 12000, 6800, 18, "SUP"), ("Barra de proteína", 7000, 3900, 4, "SUP"), ("Creatina 300 g", 89000, 61000, 6, "SUP")],
+        "Accesorios": [("Toalla LSMFit", 25000, 12000, 14, "ACC"), ("Guantes de entrenamiento", 38000, 21000, 2, "ACC"), ("Candado para locker", 18000, 9000, 9, "ACC")],
+    }
     productos = []
-    for nombre, precio, costo in [("Agua 600ml", 3000, 1500), ("Proteína vaso", 12000, 7000), ("Barra energética", 6000, 3200)]:
-        p = api("POST", "/products", {
-            "name": nombre, "price": precio, "cost_price": costo, "stock": 40,
-            "sku": f"{nombre[:3].upper()}-{suffix}",
-            **({"category_id": cat["id"]} if cat and cat.get("id") else {}),
-        }, expect=(201,))
-        if p:
-            productos.append(p)
+    for categoria, items in catalogo.items():
+        cat = api("POST", "/products/categories", {"name": categoria}, expect=(201, 409))
+        for n, (nombre, precio, costo, stock, prefijo) in enumerate(items, start=1):
+            p = api("POST", "/products", {
+                "name": nombre, "price": precio, "cost_price": costo, "stock": stock, "low_stock_threshold": 5,
+                "sku": f"{prefijo}-{n:03d}",
+                **({"category_id": cat["id"]} if cat and cat.get("id") else {}),
+            }, expect=(201,))
+            if p:
+                productos.append(p)
 
     print("Tipos de pase y ventas...")
     tipo = api("POST", "/day-passes/types", {"name": "Pase del día", "price": 15000}, expect=(201,))

@@ -15,9 +15,10 @@ from sqlalchemy import or_, select, text
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.api.platform.deps import current_admin, log, master_db
+from app.core.config import settings
 from app.core.timeutil import today_bogota
 from app.models.master.owner import Owner
-from app.models.master.platform import PlatformAdmin, PlatformAuditLog
+from app.models.master.platform import PlatformAdmin, PlatformAuditLog, SubscriptionPayment
 from app.models.master.tenant import SubscriptionPlan, Tenant, TenantStatus
 from app.services import device_directory, emails, mailer, subscription
 
@@ -75,7 +76,10 @@ def _out(t: Tenant, owner: Optional[Owner], metrics: Optional[dict] = None) -> d
         "stored_status": t.status.value if hasattr(t.status, "value") else t.status,
         "subscription": eff, "comp_reason": t.comp_reason, "internal_notes": t.internal_notes,
         "modules": t.modules or {},
-        "monthly_price": subscription.PLAN_PRICE_COP.get(t.plan, 0),
+        "address": t.address,
+        "monthly_price": subscription.monthly_price(t),
+        "list_price": subscription.PLAN_PRICE_COP.get(t.plan, 0),
+        "price_cop": t.price_cop,
         "metrics": metrics,
     }
 
@@ -98,8 +102,8 @@ async def overview(db: AsyncSession = Depends(master_db), _admin: PlatformAdmin 
     for t in tenants:
         eff = subscription.effective(t, today)
         counts[eff["status"]] = counts.get(eff["status"], 0) + 1
-        if eff["status"] == "active":
-            mrr += subscription.PLAN_PRICE_COP.get(t.plan, 0)
+        if eff["status"] in ("active", "past_due") and not (t.status == TenantStatus.trialing):
+            mrr += subscription.monthly_price(t)
         if eff["status"] in ("trialing", "comp") and eff["days_left"] is not None and eff["days_left"] <= 7:
             ending.append({"id": str(t.id), "name": t.name, "status": eff["status"], "days_left": eff["days_left"]})
     since = datetime.utcnow() - timedelta(days=30)
@@ -227,6 +231,12 @@ async def set_comp(tenant_id: uuid.UUID, payload: CompIn, request: Request,
 
 
 class TenantPatch(BaseModel):
+    name: Optional[str] = Field(default=None, min_length=2, max_length=255)
+    city: Optional[str] = Field(default=None, max_length=100)
+    phone: Optional[str] = Field(default=None, max_length=50)
+    address: Optional[str] = Field(default=None, max_length=500)
+    #: Precio mensual acordado (COP). null vuelve al precio de lista del plan.
+    price_cop: Optional[int] = Field(default=None, ge=0, le=50_000_000)
     plan: Optional[SubscriptionPlan] = None
     modules: Optional[dict[str, bool]] = None
     internal_notes: Optional[str] = Field(default=None, max_length=5000)
@@ -247,6 +257,13 @@ async def update_tenant(tenant_id: uuid.UUID, payload: TenantPatch, request: Req
         t.plan = payload.plan
     if "internal_notes" in changes:
         t.internal_notes = payload.internal_notes
+    if "name" in changes and payload.name:
+        t.name = payload.name.strip()
+    for field in ("city", "phone", "address"):
+        if field in changes:
+            setattr(t, field, (changes[field] or "").strip() or None)
+    if "price_cop" in changes:
+        t.price_cop = payload.price_cop
     if "status" in changes:
         subscription.set_status(t, TenantStatus(payload.status))
     log(db, request, admin, "tenant.update", t.id,
@@ -340,3 +357,183 @@ async def reset_owner_mfa(tenant_id: uuid.UUID, payload: ResetMfaIn, request: Re
     log(db, request, admin, "tenant.reset_owner_mfa", t.id, {"reason": payload.reason})
     await db.commit()
     return {"ok": True}
+
+
+# ─── Cobros de la suscripción ──────────────────────────────────────────────
+
+METHODS = {"transfer": "Transferencia", "nequi": "Nequi", "daviplata": "Daviplata", "cash": "Efectivo",
+           "card": "Tarjeta", "wompi": "Wompi", "other": "Otro"}
+
+
+def _payment_out(p: SubscriptionPayment) -> dict:
+    return {
+        "id": str(p.id), "amount_cop": p.amount_cop, "months": p.months,
+        "period_start": p.period_start.isoformat(), "period_end": p.period_end.isoformat(),
+        "paid_on": p.paid_on.isoformat(), "method": p.method, "method_label": METHODS.get(p.method, p.method),
+        "reference": p.reference, "note": p.note, "plan": p.plan, "recorded_by": p.recorded_by,
+        "voided_at": p.voided_at.isoformat() if p.voided_at else None, "void_reason": p.void_reason,
+        "created_at": p.created_at.isoformat(),
+    }
+
+
+def next_period_start(t: Tenant, today: date) -> date:
+    """Desde cuándo cuenta un pago nuevo.
+
+    - Pagado y al día: sigue donde termina lo pagado (pagar antes no hace perder días).
+    - Vencido dentro de la gracia: también sigue donde terminó (los días de gracia los usó).
+    - En prueba: arranca al terminar la prueba, para no comerse los días gratis.
+    - Vencido hace más que la gracia, o sin pagos: desde hoy.
+    """
+    grace = settings.past_due_grace_days
+    if t.paid_until and (today - t.paid_until).days <= grace:
+        return max(t.paid_until + timedelta(days=1), today - timedelta(days=grace))
+    if t.status == TenantStatus.trialing and t.trial_ends_at and t.trial_ends_at >= today:
+        return t.trial_ends_at + timedelta(days=1)
+    return today
+
+
+async def _recompute_paid_until(db: AsyncSession, t: Tenant) -> None:
+    last = (await db.execute(
+        select(SubscriptionPayment.period_end).where(
+            SubscriptionPayment.tenant_id == t.id, SubscriptionPayment.voided_at.is_(None))
+        .order_by(SubscriptionPayment.period_end.desc()).limit(1)
+    )).scalar_one_or_none()
+    t.paid_until = last
+
+
+@router.get("/{tenant_id}/payments")
+async def list_payments(tenant_id: uuid.UUID, db: AsyncSession = Depends(master_db),
+                        _admin: PlatformAdmin = Depends(current_admin)):
+    t, _ = await _tenant(db, tenant_id)
+    rows = (await db.execute(
+        select(SubscriptionPayment).where(SubscriptionPayment.tenant_id == t.id)
+        .order_by(SubscriptionPayment.paid_on.desc(), SubscriptionPayment.created_at.desc())
+    )).scalars().all()
+    today = today_bogota()
+    start = next_period_start(t, today)
+    return {
+        "items": [_payment_out(p) for p in rows],
+        "paid_until": t.paid_until.isoformat() if t.paid_until else None,
+        "next_period_start": start.isoformat(),
+        "monthly_price": subscription.monthly_price(t),
+        "methods": METHODS,
+    }
+
+
+class PaymentIn(BaseModel):
+    months: int = Field(ge=1, le=24)
+    amount_cop: int = Field(ge=0, le=500_000_000)
+    method: str = Field(max_length=20)
+    paid_on: Optional[date] = None
+    reference: str = Field(default="", max_length=120)
+    note: str = Field(default="", max_length=500)
+    notify: bool = True
+
+
+@router.post("/{tenant_id}/payments", status_code=201)
+async def record_payment(tenant_id: uuid.UUID, payload: PaymentIn, request: Request,
+                         db: AsyncSession = Depends(master_db), admin: PlatformAdmin = Depends(current_admin)):
+    """Registra un pago del gimnasio: extiende `paid_until` y lo deja activo.
+    Si estaba suspendido sigue suspendido (eso se decide aparte)."""
+    t, owner = await _tenant(db, tenant_id)
+    if payload.method not in METHODS:
+        raise HTTPException(status_code=422, detail="Método de pago desconocido")
+    today = today_bogota()
+    paid_on = payload.paid_on or today
+    if paid_on > today:
+        raise HTTPException(status_code=422, detail="La fecha del pago no puede ser futura")
+    start = next_period_start(t, today)
+    end = _add_months(start, payload.months) - timedelta(days=1)
+    p = SubscriptionPayment(
+        tenant_id=t.id, amount_cop=payload.amount_cop, months=payload.months, period_start=start, period_end=end,
+        paid_on=paid_on, method=payload.method, reference=payload.reference.strip() or None,
+        note=payload.note.strip() or None, plan=t.plan.value if hasattr(t.plan, "value") else str(t.plan),
+        recorded_by=admin.email,
+    )
+    db.add(p)
+    t.paid_until = max(end, t.paid_until) if t.paid_until else end
+    if t.status != TenantStatus.suspended:
+        subscription.set_status(t, TenantStatus.active)
+    log(db, request, admin, "tenant.payment", t.id, {
+        "amount_cop": payload.amount_cop, "months": payload.months, "method": payload.method,
+        "until": t.paid_until.isoformat()})
+    await db.commit()
+    await db.refresh(p)
+    subscription.forget(t.db_name)
+    notified = False
+    if payload.notify and owner and owner.email:
+        notified = await mailer.send_email(owner.email, emails.subscription_payment(
+            owner.full_name, t.name, payload.amount_cop, METHODS[payload.method],
+            start.strftime("%d/%m/%Y"), end.strftime("%d/%m/%Y")))
+    return {"payment": _payment_out(p), "tenant": _out(t, owner), "notified": notified}
+
+
+class VoidIn(BaseModel):
+    reason: str = Field(min_length=3, max_length=255)
+
+
+@router.post("/{tenant_id}/payments/{payment_id}/void")
+async def void_payment(tenant_id: uuid.UUID, payment_id: uuid.UUID, payload: VoidIn, request: Request,
+                       db: AsyncSession = Depends(master_db), admin: PlatformAdmin = Depends(current_admin)):
+    """Anula un pago mal registrado. `paid_until` vuelve al fin del último pago vigente."""
+    t, owner = await _tenant(db, tenant_id)
+    p = await db.get(SubscriptionPayment, payment_id)
+    if p is None or p.tenant_id != t.id:
+        raise HTTPException(status_code=404, detail="Pago no encontrado")
+    if p.voided_at:
+        raise HTTPException(status_code=409, detail="Este pago ya estaba anulado")
+    p.voided_at = datetime.utcnow()
+    p.void_reason = payload.reason.strip()
+    await db.flush()
+    await _recompute_paid_until(db, t)
+    log(db, request, admin, "tenant.payment_void", t.id,
+        {"amount_cop": p.amount_cop, "reason": p.void_reason,
+         "until": t.paid_until.isoformat() if t.paid_until else None})
+    await db.commit()
+    subscription.forget(t.db_name)
+    return {"payment": _payment_out(p), "tenant": _out(t, owner)}
+
+
+@router.get("/-/billing")
+async def billing(db: AsyncSession = Depends(master_db), _admin: PlatformAdmin = Depends(current_admin)):
+    """Resumen de cobros: lo recibido por mes, lo que se espera y quién debe."""
+    today = today_bogota()
+    tenants = (await db.execute(select(Tenant))).scalars().all()
+    by_id = {t.id: t for t in tenants}
+    first = date(today.year, today.month, 1)
+    start = _add_months(first, -11)
+    rows = (await db.execute(
+        select(SubscriptionPayment).where(SubscriptionPayment.voided_at.is_(None),
+                                          SubscriptionPayment.paid_on >= start)
+    )).scalars().all()
+    months = [_add_months(start, i) for i in range(12)]
+    series = {m.strftime("%Y-%m"): 0 for m in months}
+    for p in rows:
+        key = p.paid_on.strftime("%Y-%m")
+        if key in series:
+            series[key] += p.amount_cop
+
+    expected = 0
+    due: list[dict] = []
+    for t in tenants:
+        eff = subscription.effective(t, today)
+        price = subscription.monthly_price(t)
+        if eff["status"] in ("active", "past_due", "read_only") and t.status != TenantStatus.trialing:
+            expected += price
+        days = (t.paid_until - today).days if t.paid_until else None
+        overdue = eff["status"] in ("past_due", "read_only")
+        if overdue or (days is not None and 0 <= days <= 10 and eff["status"] == "active"):
+            due.append({"id": str(t.id), "name": t.name, "status": eff["status"], "paid_until":
+                        t.paid_until.isoformat() if t.paid_until else None, "days": days, "monthly_price": price})
+    recent = (await db.execute(
+        select(SubscriptionPayment).order_by(SubscriptionPayment.created_at.desc()).limit(20)
+    )).scalars().all()
+    return {
+        "collected_month": series[today.strftime("%Y-%m")],
+        "collected_12m": sum(series.values()),
+        "expected_monthly": expected,
+        "series": [{"month": k, "amount_cop": v} for k, v in series.items()],
+        "due": sorted(due, key=lambda x: (x["days"] is None, x["days"] if x["days"] is not None else 0)),
+        "recent": [{**_payment_out(p), "tenant_id": str(p.tenant_id),
+                    "tenant": by_id[p.tenant_id].name if p.tenant_id in by_id else None} for p in recent],
+    }

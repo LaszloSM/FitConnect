@@ -51,7 +51,7 @@ function useChecks() {
     {
       ok: Boolean(worker),
       label: "Este navegador guarda el Mostrador para abrirlo sin internet",
-      fix: "Recarga la página una vez con internet. Si sigue igual, usa Chrome o Edge.",
+      fix: "Recarga la página una vez con internet. Si sigue igual, usa Chrome, Edge o Brave (en Brave, sin bloquear cookies de este sitio).",
     },
     {
       ok: fresh,
@@ -86,8 +86,9 @@ export function InstallButton({ size = "sm" }: { size?: "sm" | "default" }) {
         </Button>
         {help && (
           <ol className="list-decimal space-y-1 pl-5 text-sm text-ink-muted">
-            <li>Abre LSMFit en <strong className="text-ink">Google Chrome</strong> o <strong className="text-ink">Microsoft Edge</strong>.</li>
-            <li>En la barra de direcciones, toca el ícono de <strong className="text-ink">Instalar</strong> (un monitor con una flecha).</li>
+            <li>Abre LSMFit en <strong className="text-ink">Google Chrome</strong>, <strong className="text-ink">Microsoft Edge</strong> o <strong className="text-ink">Brave</strong>.</li>
+            <li>En la barra de direcciones, toca el ícono de <strong className="text-ink">Instalar</strong> (un monitor con una flecha). En Brave también está en el menú ☰ › <strong className="text-ink">Instalar LSMFit</strong>.</li>
+            <li>Si usas Brave, en el león de la barra deja los escudos en «Estándar» para este sitio: si bloquea cookies o borra los datos al cerrar, se pierde la copia sin internet.</li>
             <li>Confirma. Queda un ícono de LSMFit en el escritorio que abre el Mostrador, con o sin internet.</li>
           </ol>
         )}

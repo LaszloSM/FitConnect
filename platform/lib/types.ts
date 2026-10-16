@@ -4,6 +4,7 @@ export interface Subscription {
   days_left: number | null;
   trial_ends_at: string | null;
   comp_until: string | null;
+  paid_until: string | null;
   plan: string;
   plan_label: string;
   modules: string[];
@@ -36,7 +37,10 @@ export interface TenantRow {
   comp_reason: string | null;
   internal_notes: string | null;
   modules: Record<string, boolean>;
+  address: string | null;
   monthly_price: number;
+  list_price: number;
+  price_cop: number | null;
   metrics: Metrics | null;
 }
 
@@ -59,6 +63,8 @@ export const ACTION_LABEL: Record<string, string> = {
   "tenant.suspend": "Suspendió",
   "tenant.reactivate": "Reactivó",
   "tenant.reset_owner_mfa": "Reinició la verificación del dueño",
+  "tenant.payment": "Registró un pago",
+  "tenant.payment_void": "Anuló un pago",
   "auth.login": "Entró al panel",
   "auth.logout": "Salió del panel",
   "auth.login_failed": "Contraseña incorrecta",
@@ -77,4 +83,39 @@ export interface SystemHealth {
   email_configured: boolean;
   mail_backend: string;
   jobs: { name: string; status: string; started_at: string; finished_at: string | null; duration_s: number | null }[];
+}
+
+export interface SubscriptionPayment {
+  id: string;
+  amount_cop: number;
+  months: number;
+  period_start: string;
+  period_end: string;
+  paid_on: string;
+  method: string;
+  method_label: string;
+  reference: string | null;
+  note: string | null;
+  plan: string;
+  recorded_by: string | null;
+  voided_at: string | null;
+  void_reason: string | null;
+  created_at: string;
+}
+
+export interface PaymentsResponse {
+  items: SubscriptionPayment[];
+  paid_until: string | null;
+  next_period_start: string;
+  monthly_price: number;
+  methods: Record<string, string>;
+}
+
+export interface Billing {
+  collected_month: number;
+  collected_12m: number;
+  expected_monthly: number;
+  series: { month: string; amount_cop: number }[];
+  due: { id: string; name: string; status: string; paid_until: string | null; days: number | null; monthly_price: number }[];
+  recent: (SubscriptionPayment & { tenant_id: string; tenant: string | null })[];
 }

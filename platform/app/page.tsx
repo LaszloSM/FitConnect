@@ -5,7 +5,7 @@ import Link from "next/link";
 import { Shell } from "@/components/Shell";
 import { Notice, StatusPill } from "@/components/StatusPill";
 import { api } from "@/lib/api";
-import { money, moment, STATUS_LABEL } from "@/lib/format";
+import { day, money, moment, STATUS_LABEL } from "@/lib/format";
 import type { Overview, SystemHealth, TenantRow } from "@/lib/types";
 
 const FILTERS = ["", "trialing", "active", "comp", "past_due", "read_only", "suspended"];
@@ -180,7 +180,7 @@ export default function HomePage() {
         <Stat label="Gimnasios" value={overview?.total ?? "—"} hint={overview ? `${overview.new_30d} nuevos en 30 días` : undefined} />
         <Stat label="Pagando" value={overview?.by_status.active ?? 0} />
         <Stat label="En prueba o cortesía" value={(overview?.by_status.trialing ?? 0) + (overview?.by_status.comp ?? 0)} />
-        <Stat label="Ingreso mensual estimado" value={overview ? money(overview.mrr_cop) : "—"} hint="Solo gimnasios activos" />
+        <Stat label="Ingreso mensual esperado" value={overview ? money(overview.mrr_cop) : "—"} hint="Gimnasios que pagan, al precio acordado" />
       </section>
 
       <SystemCard />
@@ -226,12 +226,13 @@ export default function HomePage() {
         </div>
 
         <div className="card mt-4 overflow-x-auto">
-          <table className="w-full min-w-[820px] text-sm">
+          <table className="w-full min-w-[920px] text-sm">
             <thead>
               <tr className="border-b border-line text-left text-[13px] text-ink-muted">
                 <th className="px-4 py-3 font-medium">Gimnasio</th>
                 <th className="px-4 py-3 font-medium">Estado</th>
                 <th className="px-4 py-3 font-medium">Plan</th>
+                <th className="px-4 py-3 font-medium">Pagado hasta</th>
                 <th className="px-4 py-3 text-right font-medium">Socios activos</th>
                 <th className="px-4 py-3 text-right font-medium">Entradas 30 d</th>
                 <th className="px-4 py-3 font-medium">Torniquete</th>
@@ -241,12 +242,12 @@ export default function HomePage() {
             <tbody className="divide-y divide-line">
               {rows === null && (
                 <tr>
-                  <td colSpan={7} className="px-4 py-8 text-ink-muted">Cargando gimnasios y sus cifras…</td>
+                  <td colSpan={8} className="px-4 py-8 text-ink-muted">Cargando gimnasios y sus cifras…</td>
                 </tr>
               )}
               {rows?.length === 0 && (
                 <tr>
-                  <td colSpan={7} className="px-4 py-8 text-ink-muted">Ningún gimnasio coincide.</td>
+                  <td colSpan={8} className="px-4 py-8 text-ink-muted">Ningún gimnasio coincide.</td>
                 </tr>
               )}
               {rows?.map((t) => {
@@ -263,6 +264,7 @@ export default function HomePage() {
                       <StatusPill status={t.subscription.status} daysLeft={t.subscription.days_left} />
                     </td>
                     <td className="px-4 py-3">{t.subscription.plan_label}</td>
+                    <td className="px-4 py-3 text-ink-muted">{t.subscription.paid_until ? day(t.subscription.paid_until) : "—"}</td>
                     <td className="num px-4 py-3 text-right">{m?.error ? "—" : m?.active_members ?? "—"}</td>
                     <td className="num px-4 py-3 text-right">{m?.error ? "—" : m?.checkins_30d ?? "—"}</td>
                     <td className="px-4 py-3">

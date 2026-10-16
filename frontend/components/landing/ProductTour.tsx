@@ -8,7 +8,7 @@ const SLIDES = [
   { id: "socios", label: "Socios", text: "Quién está al día, quién vence pronto y quién debe, con filtros y búsqueda por cédula.", src: "/landing/socios.webp", alt: "Lista de socios con estado de membresía, vencimiento y saldo" },
   { id: "ficha", label: "Ficha del socio", text: "Membresías, pagos, entradas, rutina y autorizaciones de una persona en una sola pantalla.", src: "/landing/ficha.webp", alt: "Ficha de un socio con su membresía, pagos y asistencia" },
   { id: "maquinas", label: "Máquinas", text: "Cada máquina con su mantenimiento al día o vencido, garantía e historial de daños.", src: "/landing/maquinas.webp", alt: "Inventario de máquinas con su estado de mantenimiento" },
-  { id: "ingresos", label: "Ingresos", text: "Lo cobrado por método y por concepto en el periodo que elijas, en PDF o Excel con tu logo.", src: "/landing/ingresos.webp", alt: "Reporte de ingresos por método de pago y concepto" },
+  { id: "productos", label: "Productos", text: "Bebidas, suplementos y accesorios con su stock: se descuenta al vender en caja y te avisa cuando algo se está acabando.", src: "/landing/productos.webp", alt: "Inventario de productos con precio, stock y alertas de stock bajo" },
 ];
 const EVERY_MS = 6000;
 

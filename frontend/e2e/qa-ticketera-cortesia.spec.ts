@@ -1,14 +1,11 @@
 import { test, expect } from "@playwright/test";
-import { cuentaDePrueba, entrar, EMAIL, PASSWORD } from "./helpers";
+import { entrar, tokenDePrueba } from "./helpers";
 
 const OUT = process.env.QA_OUT || "test-results";
 const API = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
 
 test("ticketera en planes y cortesía en la ficha del socio", async ({ page, request }) => {
-  await cuentaDePrueba(request);
-  const login = await request.post(`${API}/api/v1/auth/login`, { data: { email: EMAIL, password: PASSWORD } });
-  const token = (await login.json()).access_token as string;
-  const h = { Authorization: `Bearer ${token}` };
+  const h = { Authorization: `Bearer ${await tokenDePrueba(request)}` };
 
   const plan = await request.post(`${API}/api/v1/member-plans/`, {
     headers: h,
