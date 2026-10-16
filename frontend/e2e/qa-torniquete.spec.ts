@@ -1,5 +1,5 @@
 import { test, expect } from "@playwright/test";
-import { cuentaDePrueba, entrar } from "./helpers";
+import { cuentaDePrueba, entrar, tokenDePrueba } from "./helpers";
 
 const OUT = process.env.QA_OUT || "test-results";
 const SERIAL = process.env.QA_SERIAL || "QA-EMU-0001";
@@ -22,8 +22,7 @@ test("conectar un torniquete y registrar la huella al crear el socio", async ({ 
 
   // Socio nuevo: registrar su huella en el torniquete desde la ficha › Acceso
   const API = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
-  const login = await request.post(`${API}/api/v1/auth/login`, { data: { email: "e2e-playwright@test.co", password: "TestQA123!" } });
-  const h = { Authorization: `Bearer ${(await login.json()).access_token}` };
+  const h = { Authorization: `Bearer ${await tokenDePrueba(request)}` };
   const plan = await request.post(`${API}/api/v1/member-plans/`, { headers: h, data: { name: `Mensual QA ${Date.now() % 10000}`, price: 80000, duration_days: 30 } });
   const doc = String(1000000000 + Math.floor(Math.random() * 899999999));
   const socio = await request.post(`${API}/api/v1/members`, {

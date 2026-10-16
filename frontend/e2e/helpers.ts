@@ -12,13 +12,29 @@ const API = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
 export const EMAIL = "e2e-playwright@test.co";
 export const PASSWORD = "TestQA123!";
 
+// `/auth/login` admite 10 intentos por minuto y los archivos corren en paralelo: un
+// login crudo puede recibir 429 y la prueba sigue con «Bearer undefined». El token
+// se guarda por proceso y un 429 se espera en vez de leerse como falla.
+let cachedToken: string | null = null;
+
+async function loginConEspera(request: APIRequestContext) {
+  for (let intento = 0; intento < 8; intento++) {
+    const res = await request.post(`${API}/api/v1/auth/login`, { data: { email: EMAIL, password: PASSWORD } });
+    if (res.status() !== 429) return res;
+    await new Promise((r) => setTimeout(r, 10_000));
+  }
+  return request.post(`${API}/api/v1/auth/login`, { data: { email: EMAIL, password: PASSWORD } });
+}
+
 export async function cuentaDePrueba(request: APIRequestContext) {
+  if (cachedToken) return EMAIL;
   // Se intenta entrar primero: si la cuenta ya existe no se toca `/auth/register`,
   // que además de rate limit crearía un gym nuevo en cada corrida.
-  const login = await request.post(`${API}/api/v1/auth/login`, {
-    data: { email: EMAIL, password: PASSWORD },
-  });
-  if (login.ok()) return EMAIL;
+  const login = await loginConEspera(request);
+  if (login.ok()) {
+    cachedToken = (await login.json()).access_token as string;
+    return EMAIL;
+  }
 
   const res = await request.post(`${API}/api/v1/auth/register`, {
     data: {
@@ -35,6 +51,16 @@ export async function cuentaDePrueba(request: APIRequestContext) {
     `no se pudo preparar la cuenta de pruebas: ${res.status()} ${await res.text()}`,
   ).toContain(res.status());
   return EMAIL;
+}
+
+/** Token del dueño de la cuenta de pruebas, para preparar datos por API. */
+export async function tokenDePrueba(request: APIRequestContext): Promise<string> {
+  await cuentaDePrueba(request);
+  if (cachedToken) return cachedToken;
+  const res = await loginConEspera(request);
+  expect(res.ok(), `no se pudo entrar con la cuenta de pruebas: ${res.status()} ${await res.text()}`).toBeTruthy();
+  cachedToken = (await res.json()).access_token as string;
+  return cachedToken;
 }
 
 export async function entrar(page: Page, email: string = EMAIL, password: string = PASSWORD) {

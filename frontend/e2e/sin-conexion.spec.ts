@@ -1,6 +1,6 @@
 import { expect, test } from "@playwright/test";
 
-import { EMAIL, PASSWORD, cuentaDePrueba, entrar } from "./helpers";
+import { entrar, tokenDePrueba } from "./helpers";
 
 /**
  * Recepción sin internet: con la red cortada se recarga el Mostrador (no sale
@@ -14,9 +14,7 @@ const API = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
 
 test("el Mostrador sigue funcionando sin internet y sube lo pendiente sin duplicar", async ({ page, context, request }) => {
   test.setTimeout(120_000);
-  await cuentaDePrueba(request);
-  const login = await request.post(`${API}/api/v1/auth/login`, { data: { email: EMAIL, password: PASSWORD } });
-  const headers = { Authorization: `Bearer ${(await login.json()).access_token}` };
+  const headers = { Authorization: `Bearer ${await tokenDePrueba(request)}` };
 
   const plan = await request.post(`${API}/api/v1/member-plans/`, {
     headers, data: { name: `Mensual sin red ${Date.now()}`, price: 90000, duration_days: 30 },
