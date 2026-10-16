@@ -15,6 +15,7 @@ import { apiClient } from "@/lib/api";
 import { parseApiError } from "@/lib/errors";
 import { formatCOP, formatDateTime } from "@/lib/format";
 import { P, useCan } from "@/lib/permissions";
+import { escapeHtml, openThermal, thermalRow } from "@/lib/thermal";
 import { DENOMINATIONS, EXPENSE_LABELS, MANUAL_EXPENSE_CATEGORIES } from "../shared";
 import { ArrowLeftIcon as ArrowLeft, LockIcon as Lock, LockOpenIcon as Unlock, SpinnerGapIcon as Loader2, TrendDownIcon as TrendingDown, PlusIcon as Plus, ArrowCounterClockwiseIcon as RotateCcw, VaultIcon as Vault, PrinterIcon as Printer, EyeSlashIcon as EyeOff, UsersIcon as Users } from "@phosphor-icons/react";
 import { toast } from "sonner";
@@ -43,9 +44,6 @@ interface CashierRow {
 }
 
 const EMPTY_EXPENSE = { amount: 0, category: "insumos", concept: "", method: "cash" };
-
-const escapeHtml = (s: unknown) =>
-  String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]!);
 
 function tonoDiferencia(n: number) {
   return n === 0 ? "var(--signal-ok)" : n < 0 ? "var(--signal-danger)" : "var(--signal-warn)";
@@ -190,38 +188,30 @@ export default function CashClient() {
   const printXReport = () =>
     run(async () => {
       const { data: x } = await client().get("/api/v1/cash/shifts/current/x-report");
-      const fila = (a: string, b: string, cls = "") => `<div class="row ${cls}"><span>${a}</span><span>${b}</span></div>`;
-      const html = `<!doctype html><html><head><meta charset="utf-8"><title>Corte X</title>
-        <style>
-          @page { size: 80mm auto; margin: 4mm; }
-          body { font-family: -apple-system, system-ui, sans-serif; width: 72mm; margin: 0 auto; color: #111; }
-          h1 { font-size: 15px; text-align: center; margin: 0; }
-          .sub { text-align: center; font-size: 11px; color: #555; margin: 2px 0 8px; }
-          h2 { font-size: 11px; text-transform: uppercase; letter-spacing: .06em; color: #555; margin: 10px 0 2px; }
-          .row { display: flex; justify-content: space-between; font-size: 12px; padding: 2px 0; }
-          .total { border-top: 1px dashed #999; margin-top: 6px; padding-top: 6px; font-weight: 700; font-size: 14px; }
-          .foot { text-align: center; font-size: 10px; color: #888; margin-top: 10px; }
-        </style></head><body>
-        <h1>Corte X</h1>
-        <div class="sub">Parcial · el turno sigue abierto</div>
+      const fila = thermalRow;
+      const body = `
+        <div class="center">
+          <div class="eyebrow">Corte X</div>
+          <div class="num">Parcial</div>
+          <div>El turno sigue abierto</div>
+        </div>
+        <hr class="cut">
         ${fila("Abrió", escapeHtml(x.opened_by_name ?? "—"))}
         ${fila("Desde", escapeHtml(formatDateTime(x.opened_at)))}
-        <h2>Efectivo en caja</h2>
+        <hr class="cut">
+        <div class="eyebrow">Efectivo en caja</div>
         ${fila("Base", formatCOP(Number(x.opening_amount)))}
         ${fila("Cobros en efectivo", "+" + formatCOP(Number(x.cash_income)))}
-        ${fila("Egresos", "−" + formatCOP(Number(x.cash_expenses)))}
-        ${fila("Retiros a bóveda", "−" + formatCOP(Number(x.drops_total)))}
+        ${fila("Egresos", "-" + formatCOP(Number(x.cash_expenses)))}
+        ${fila("Retiros a bóveda", "-" + formatCOP(Number(x.drops_total)))}
         ${fila("Esperado", formatCOP(Number(x.expected_cash)), "total")}
-        <h2>Cobros por método</h2>
+        <hr class="cut">
+        <div class="eyebrow">Cobros por método</div>
         ${x.by_method.length ? x.by_method.map((m: any) => fila(`${escapeHtml(m.label)} · ${m.count}`, formatCOP(Number(m.amount)))).join("") : fila("Sin cobros", "")}
-        ${x.expenses.length ? `<h2>Egresos por categoría</h2>${x.expenses.map((e: any) => fila(`${escapeHtml(e.label)} · ${e.count}`, formatCOP(Number(e.amount)))).join("")}` : ""}
-        <div class="foot">Generado ${escapeHtml(formatDateTime(x.generated_at))}</div>
-        <script>window.onload = () => window.print();</script>
-        </body></html>`;
-      const w = window.open("", "_blank", "width=380,height=640");
-      if (!w) throw new Error("El navegador bloqueó la ventana del corte");
-      w.document.write(html);
-      w.document.close();
+        ${x.expenses.length ? `<hr class="cut"><div class="eyebrow">Egresos por categoría</div>${x.expenses.map((e: any) => fila(`${escapeHtml(e.label)} · ${e.count}`, formatCOP(Number(e.amount)))).join("")}` : ""}
+        <hr class="cut">
+        <div class="center small">Generado ${escapeHtml(formatDateTime(x.generated_at))} · LSMFit</div>`;
+      if (!openThermal("Corte X", body)) throw new Error("El navegador bloqueó la ventana del corte");
     }, "No se pudo generar el corte X");
 
   const open = !!(current?.open && current.shift);

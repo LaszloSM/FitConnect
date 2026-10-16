@@ -1,5 +1,6 @@
 import { toast } from "sonner";
-import { formatDateTime } from "@/lib/format";
+import { formatCOP } from "@/lib/format";
+import { escapeHtml, openThermal, thermalRow } from "@/lib/thermal";
 import { parseApiError } from "@/lib/errors";
 import type { AxiosInstance } from "axios";
 
@@ -157,44 +158,91 @@ export async function shareReceiptWhatsapp(
   }
 }
 
-/** Recibo térmico 80mm (impresora de tirilla). */
+interface ReceiptData {
+  number: string;
+  issued_label: string;
+  status: string;
+  member_name: string | null;
+  member_document: string | null;
+  concept: string | null;
+  method: string | null;
+  amount: string;
+  subtotal: string;
+  discount_amount: string;
+  discount_note: string | null;
+  transfer_reference: string | null;
+  card_approval_code: string | null;
+  cashier_name: string | null;
+  amount_in_words: string;
+  items: { description: string; quantity: number; unit_price: string; subtotal: string }[];
+  gym: { name: string; legal_name: string | null; nit: string | null; tax_regime: string | null; address: string | null; phone: string | null; logo_url: string | null };
+}
+
+const STAMPS: Record<string, string> = { refunded: "DEVUELTO", voided: "ANULADO", failed: "RECHAZADO" };
+
+export function receiptTicketHtml(d: ReceiptData): string {
+  const e = escapeHtml;
+  const g = d.gym;
+  const fiscal = [
+    g.legal_name,
+    [g.nit ? `NIT ${g.nit}` : null, g.tax_regime].filter(Boolean).join(" · "),
+    g.address,
+    g.phone ? `Tel. ${g.phone}` : null,
+  ].filter(Boolean);
+  const items = d.items?.length
+    ? d.items
+    : [{ description: d.concept ?? "Pago", quantity: 1, unit_price: d.subtotal, subtotal: d.subtotal }];
+  const discount = Number(d.discount_amount) || 0;
+  const stamp = STAMPS[d.status];
+  const idDoc = (d.member_document ?? "").replace("IdType.", "");
+  return `
+    <div class="center">
+      ${g.logo_url ? `<img class="logo" src="${e(g.logo_url)}" alt="" onerror="this.remove()">` : ""}
+      <div class="gym">${e(g.name)}</div>
+      ${fiscal.map((x) => `<div class="fiscal">${e(x)}</div>`).join("")}
+    </div>
+    <hr class="cut">
+    <div class="center">
+      <div class="eyebrow">Comprobante de pago</div>
+      <div class="num">${e(d.number)}</div>
+      <div>${e(d.issued_label)}</div>
+    </div>
+    ${stamp ? `<div class="stamp">${stamp}</div>` : ""}
+    <hr class="cut">
+    ${thermalRow('<span class="k">Cliente</span>', e(d.member_name ?? "Venta de mostrador"))}
+    ${idDoc ? thermalRow('<span class="k">Documento</span>', e(idDoc)) : ""}
+    <hr class="cut">
+    ${items
+      .map(
+        (i) => `<div class="item"><div class="desc">${e(i.description)}</div>${thermalRow(
+          `${i.quantity} × ${formatCOP(i.unit_price)}`,
+          formatCOP(i.subtotal),
+        )}</div>`,
+      )
+      .join("")}
+    ${discount > 0 ? `<hr class="cut">${thermalRow("Subtotal", formatCOP(d.subtotal))}${thermalRow(e(d.discount_note ? `Descuento · ${d.discount_note}` : "Descuento"), "-" + formatCOP(discount))}` : ""}
+    ${thermalRow("TOTAL", formatCOP(d.amount), "total")}
+    <div class="words">Son: ${e(d.amount_in_words)}.</div>
+    <hr class="cut">
+    ${thermalRow('<span class="k">Pago</span>', e(METHOD_LABELS[d.method ?? ""] ?? d.method ?? "—"))}
+    ${d.transfer_reference ? thermalRow("Referencia", e(d.transfer_reference)) : ""}
+    ${d.card_approval_code ? thermalRow("Aprobación", e(d.card_approval_code)) : ""}
+    ${d.cashier_name ? thermalRow("Atendió", e(d.cashier_name)) : ""}
+    <hr class="cut">
+    <div class="center">
+      <div class="thanks">¡Gracias por entrenar con nosotros!</div>
+      <div class="small">Conserva este comprobante como soporte de tu pago.</div>
+      <div class="small">No es factura electrónica de venta.</div>
+      <div class="small" style="margin-top:2mm">LSMFit</div>
+    </div>`;
+}
+
+/** Recibo en tirilla térmica (58 u 80 mm). */
 export async function openReceipt(client: AxiosInstance, paymentId: string) {
   try {
-    const { data } = await client.get(`/api/v1/payments/${paymentId}/receipt`);
-    const items: { description: string; quantity: number; unit_price: string; subtotal: string }[] =
-      data.items ?? [];
-    const itemRows = items
-      .map(
-        (i) =>
-          `<div class="row"><span>${i.quantity} × ${i.description}</span><span>$${Number(i.subtotal).toLocaleString("es-CO")}</span></div>`
-      )
-      .join("");
-    const html = `<!doctype html><html><head><meta charset="utf-8"><title>Recibo ${data.number}</title>
-      <style>
-        @page { size: 80mm auto; margin: 4mm; }
-        body { font-family: -apple-system, system-ui, sans-serif; width: 72mm; margin: 0 auto; color: #111; }
-        h1 { font-size: 14px; text-align: center; margin: 0 0 2px; }
-        .num { text-align: center; font-size: 12px; color: #555; margin-bottom: 8px; }
-        .row { display: flex; justify-content: space-between; font-size: 12px; padding: 2px 0; }
-        .items { border-top: 1px dashed #ccc; margin-top: 4px; padding-top: 4px; }
-        .total { border-top: 1px dashed #999; margin-top: 6px; padding-top: 6px; font-weight: 700; font-size: 14px; }
-        .foot { text-align: center; font-size: 10px; color: #888; margin-top: 10px; }
-      </style></head><body>
-      <h1>Recibo de pago</h1>
-      <div class="num">${data.number}</div>
-      ${data.member_name ? `<div class="row"><span>Miembro</span><span>${data.member_name}</span></div>` : ""}
-      ${data.member_document ? `<div class="row"><span>Documento</span><span>${data.member_document}</span></div>` : ""}
-      <div class="row"><span>Concepto</span><span>${data.concept}</span></div>
-      <div class="row"><span>Método</span><span>${METHOD_LABELS[data.method] ?? data.method ?? "-"}</span></div>
-      ${itemRows ? `<div class="items">${itemRows}</div>` : ""}
-      <div class="row total"><span>Total</span><span>$${Number(data.amount).toLocaleString("es-CO")}</span></div>
-      <div class="foot">${formatDateTime(data.issued_at)}</div>
-      <script>window.onload = () => window.print();</script>
-      </body></html>`;
-    const w = window.open("", "_blank", "width=380,height=600");
-    if (w) {
-      w.document.write(html);
-      w.document.close();
+    const { data } = await client.get<ReceiptData>(`/api/v1/payments/${paymentId}/receipt`);
+    if (!openThermal(`Recibo ${data.number}`, receiptTicketHtml(data))) {
+      toast.error("El navegador bloqueó la ventana del recibo. Permite ventanas emergentes para este sitio.");
     }
   } catch (err) {
     toast.error(parseApiError(err, "No se pudo abrir el recibo"));

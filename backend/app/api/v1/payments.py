@@ -22,7 +22,7 @@ from app.models.tenant.user_staff import UserStaff
 from app.services.audit import audit
 from app.services.gym_settings import get_gym_settings
 from app.services.membership_status import charged_here, effective_status, recompute_member_chain
-from app.services.receipts import issue_receipt
+from app.services.receipts import issue_receipt, receipt_view
 from app.services.payment_links import create_payment_link_for
 from app.services.payments import (
     apply_payment_policy, activate_day_passes, void_day_passes, mark_voided, cancel_unpaid_membership,
@@ -584,7 +584,7 @@ async def receipt_pdf(
 ):
     receipt, payment = await _receipt_and_payment(payment_id, db)
     logo = await fetch_logo_png(tenant.logo_url)
-    pdf = await build_receipt_pdf(db, receipt, payment, gym_name=tenant.name, logo_png=logo)
+    pdf = await build_receipt_pdf(db, receipt, payment, tenant=tenant, logo_png=logo)
     number = _safe_filename(receipt.snapshot.get("receipt_number", "recibo"))
     return Response(
         content=pdf, media_type="application/pdf",
@@ -687,14 +687,13 @@ async def create_payment_link(
 async def get_receipt(
     payment_id: uuid.UUID,
     db: AsyncSession = Depends(get_tenant_db_from_token),
+    tenant: Tenant = Depends(get_tenant_from_claims),
 ):
-    receipt = (await db.execute(
-        select(Receipt).where(Receipt.payment_id == payment_id)
-    )).scalar_one_or_none()
-    if not receipt:
-        raise HTTPException(status_code=404, detail="Este pago aún no tiene recibo (solo los pagados lo generan)")
+    """Datos de la tirilla térmica: el snapshot inmutable más el encabezado del gym."""
+    receipt, payment = await _receipt_and_payment(payment_id, db)
     return {
         "number": receipt.snapshot.get("receipt_number"),
         "issued_at": receipt.issued_at,
         **receipt.snapshot,
+        **await receipt_view(db, receipt, payment, tenant),
     }

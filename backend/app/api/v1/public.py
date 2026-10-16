@@ -51,7 +51,7 @@ async def public_receipt_pdf(request: Request, slug: str, token: str):
         if not payment or not receipt:
             raise HTTPException(status_code=404, detail="Enlace inválido o vencido")
         logo = await fetch_logo_png(tenant.logo_url)
-        pdf = await build_receipt_pdf(db, receipt, payment, gym_name=tenant.name, logo_png=logo)
+        pdf = await build_receipt_pdf(db, receipt, payment, tenant=tenant, logo_png=logo)
     number = re.sub(r"[^A-Za-z0-9._-]", "", receipt.snapshot.get("receipt_number", "") or "") or "recibo"
     return Response(
         content=pdf, media_type="application/pdf",

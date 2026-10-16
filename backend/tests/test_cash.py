@@ -102,6 +102,14 @@ async def test_paid_payment_generates_receipt(client):
     assert r.status_code == 200, r.text
     assert re.match(r"^[A-Z]+-\d+", r.json()["number"]), r.json()["number"]
     assert float(r.json()["amount"]) == 50000.0
+    # La tirilla trae el encabezado del gym y lo mismo que dice el PDF
+    body = r.json()
+    assert body["gym"]["name"] == "Cash Gym"
+    assert body["amount_in_words"] == "Cincuenta mil pesos m/cte"
+    assert body["cashier_name"] == "Owner Cash"
+    assert body["status"] == "paid" and body["issued_label"]
+    pdf = await client.get(f"/api/v1/payments/{payment_id}/receipt.pdf", headers=_auth(token))
+    assert pdf.status_code == 200 and pdf.content[:5] == b"%PDF-"
 
 
 async def test_receipt_numbers_unique_under_concurrency(client):

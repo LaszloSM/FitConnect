@@ -33,12 +33,12 @@ from app.services.payment_ledger import net_amount
 
 logger = logging.getLogger(__name__)
 
-# Hierro: el naranja de la marca va en la banda y en la serie principal de los
-# gráficos; los encabezados usan su tinte claro para que el documento impreso
-# se lea en tinta y no en color.
-_BRAND = "FF6A00"
-_BRAND_TINT = "FDEBDD"
-_BRAND_TEXT = "B4460A"
+# El coral de LSMFit (token --brand de globals.css convertido a sRGB) va en la
+# banda y en la serie principal de los gráficos; los encabezados usan su tinte
+# claro para que el documento impreso se lea en tinta y no en color.
+_BRAND = "C4360C"
+_BRAND_TINT = "FBEAE3"
+_BRAND_TEXT = "9A2A09"
 _INK = "1C1917"
 
 
