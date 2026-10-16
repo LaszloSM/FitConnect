@@ -126,9 +126,9 @@
     "semantic_hash": ""
   },
   "backend/app/api/platform/tenants.py": {
-    "mtime": 1792168044.5341046,
-    "seen": 1792171040.271734,
-    "ast_hash": "46222e9e6e9d818f5058b99ae6d51681",
+    "mtime": 1792173349.6320035,
+    "seen": 1792174563.833016,
+    "ast_hash": "1418773aba81e5ad3ac0cc0649f26ff5",
     "semantic_hash": ""
   },
   "backend/app/api/v1/__init__.py": {
@@ -168,9 +168,9 @@
     "semantic_hash": ""
   },
   "backend/app/api/v1/auth.py": {
-    "mtime": 1792168044.6777236,
-    "seen": 1792171040.2718596,
-    "ast_hash": "a9b12941063a88866e30ad56541c2dfe",
+    "mtime": 1792173799.7570329,
+    "seen": 1792174563.8332036,
+    "ast_hash": "cf1b39dff73f9db44104b02a770312c5",
     "semantic_hash": ""
   },
   "backend/app/api/v1/auth_security.py": {
@@ -528,9 +528,9 @@
     "semantic_hash": ""
   },
   "backend/app/models/master/__init__.py": {
-    "mtime": 1791650629.1179614,
-    "seen": 1791671584.478163,
-    "ast_hash": "91caef1be718c9bfc82a53672d0df144",
+    "mtime": 1792173297.346077,
+    "seen": 1792174563.8351705,
+    "ast_hash": "0ed19a79607aebf50d6ed6f2789d4502",
     "semantic_hash": ""
   },
   "backend/app/models/master/app_user.py": {
@@ -558,9 +558,9 @@
     "semantic_hash": ""
   },
   "backend/app/models/master/platform.py": {
-    "mtime": 1792168044.9294627,
-    "seen": 1792171040.273418,
-    "ast_hash": "f1a1e425ef38ca40c2e00a313c612ebc",
+    "mtime": 1792173297.3453195,
+    "seen": 1792174563.8353026,
+    "ast_hash": "da3cf72f0821c1195678c122b813cc70",
     "semantic_hash": ""
   },
   "backend/app/models/master/staff_directory.py": {
@@ -576,9 +576,9 @@
     "semantic_hash": ""
   },
   "backend/app/models/master/tenant.py": {
-    "mtime": 1792168044.9298894,
-    "seen": 1792171040.2734766,
-    "ast_hash": "307a3f3428a2d7063f3dcfffe332c0b4",
+    "mtime": 1792173297.3448174,
+    "seen": 1792174563.8353667,
+    "ast_hash": "5d6c7a17eb27c3913d9fbe8666a78019",
     "semantic_hash": ""
   },
   "backend/app/models/tenant.py": {
@@ -1008,9 +1008,9 @@
     "semantic_hash": ""
   },
   "backend/app/services/emails.py": {
-    "mtime": 1792168045.1370845,
-    "seen": 1792171040.2751663,
-    "ast_hash": "7f56f92b5197c2e4fe250b99cd1a622c",
+    "mtime": 1792173361.4501266,
+    "seen": 1792174563.8375168,
+    "ast_hash": "4ffcf7119670572db9287d42f20a7fe0",
     "semantic_hash": ""
   },
   "backend/app/services/events.py": {
@@ -1356,9 +1356,9 @@
     "semantic_hash": ""
   },
   "backend/app/services/subscription.py": {
-    "mtime": 1792168045.2020507,
-    "seen": 1792171040.2764804,
-    "ast_hash": "c8481e75bd9ea23d01ff545580123bd6",
+    "mtime": 1792173314.7590046,
+    "seen": 1792174563.8392727,
+    "ast_hash": "f5a8b041f31c63c8dfb1c958e553814b",
     "semantic_hash": ""
   },
   "backend/app/services/tenant_iterator.py": {
@@ -2106,9 +2106,9 @@
     "semantic_hash": ""
   },
   "backend/tests/test_platform.py": {
-    "mtime": 1792168045.28894,
-    "seen": 1792171040.2802906,
-    "ast_hash": "53cd524ca7b9f15b3cbb110bf5389921",
+    "mtime": 1792173814.9134624,
+    "seen": 1792174563.8435638,
+    "ast_hash": "2e26adb1d89c3ec63818cd47c3abc126",
     "semantic_hash": ""
   },
   "backend/tests/test_portion_fit.py": {
@@ -2310,9 +2310,9 @@
     "semantic_hash": ""
   },
   "frontend/app/(auth)/register/page.tsx": {
-    "mtime": 1791650629.1424706,
-    "seen": 1791671584.4785066,
-    "ast_hash": "0a9f137be13654781b82037b85b0ac7a",
+    "mtime": 1792173814.912158,
+    "seen": 1792174563.8445456,
+    "ast_hash": "d999d6de6a488a451b260c0b2251ec5a",
     "semantic_hash": ""
   },
   "frontend/app/(auth)/restablecer/page.tsx": {
@@ -3924,9 +3924,9 @@
     "semantic_hash": ""
   },
   "platform/app/gimnasios/[id]/page.tsx": {
-    "mtime": 1792168046.4817736,
-    "seen": 1792171040.2864382,
-    "ast_hash": "82d750135e4ef4498756a748c40760c8",
+    "mtime": 1792173923.3614097,
+    "seen": 1792174563.8535805,
+    "ast_hash": "74b2fd599fb74590c44f45d477cbd0b5",
     "semantic_hash": ""
   },
   "platform/app/layout.tsx": {
@@ -3942,9 +3942,9 @@
     "semantic_hash": ""
   },
   "platform/app/page.tsx": {
-    "mtime": 1792168046.483252,
-    "seen": 1792171040.2864437,
-    "ast_hash": "bceddff5a80e62e86fec81ae2231ba0f",
+    "mtime": 1792173923.3916774,
+    "seen": 1792174563.8537233,
+    "ast_hash": "bf4b372302a5bcbb3017b68a8f2fc324",
     "semantic_hash": ""
   },
   "platform/components/BrandMark.tsx": {
@@ -3954,9 +3954,9 @@
     "semantic_hash": ""
   },
   "platform/components/Shell.tsx": {
-    "mtime": 1792168046.4838636,
-    "seen": 1792171040.2864473,
-    "ast_hash": "50924cb716d598b9492ef92540c03b07",
+    "mtime": 1792174145.0592346,
+    "seen": 1792174563.85377,
+    "ast_hash": "fa5ace02332541e1600f9b56a3a4777f",
     "semantic_hash": ""
   },
   "platform/components/StatusPill.tsx": {
@@ -3978,9 +3978,9 @@
     "semantic_hash": ""
   },
   "platform/lib/types.ts": {
-    "mtime": 1792168046.4843097,
-    "seen": 1792171040.2865334,
-    "ast_hash": "de060e0bf964fcbc3e38ca6db957a151",
+    "mtime": 1792173711.4859147,
+    "seen": 1792174563.8538542,
+    "ast_hash": "11ba9a40f6c0e623ae6b08ee59a5d1a6",
     "semantic_hash": ""
   },
   "platform/next.config.ts": {
@@ -4080,9 +4080,9 @@
     "semantic_hash": ""
   },
   "CLAUDE.md": {
-    "mtime": 1792170688.1842692,
-    "seen": 1792171040.286942,
-    "ast_hash": "5f49bd6cec35ba30118a2c6d1cd74fd4",
+    "mtime": 1792173882.865146,
+    "seen": 1792174563.85426,
+    "ast_hash": "dab6fb878b53a982d444b527328f69f1",
     "semantic_hash": ""
   },
   "DEPLOY-LITE.md": {
@@ -4581,6 +4581,30 @@
     "mtime": 1792170581.5945117,
     "seen": 1792171040.287452,
     "ast_hash": "cd4a77d4bba6f0d8f6cdd484e1cb053c",
+    "semantic_hash": ""
+  },
+  "backend/migrations/master/versions/c3d4e5f6a7b9_cobros_suscripcion.py": {
+    "mtime": 1792173297.3552122,
+    "seen": 1792174563.8397484,
+    "ast_hash": "dbda539a9c50aa8229cd481c186fc954",
+    "semantic_hash": ""
+  },
+  "platform/app/cobros/page.tsx": {
+    "mtime": 1792173923.3709948,
+    "seen": 1792174563.8535762,
+    "ast_hash": "82dfa1d3a4fff546d4e38857d8df571c",
+    "semantic_hash": ""
+  },
+  "platform/components/GymDataCard.tsx": {
+    "mtime": 1792173923.3679304,
+    "seen": 1792174563.8537657,
+    "ast_hash": "a91be82b790fd5292dcab9f3e84d122c",
+    "semantic_hash": ""
+  },
+  "platform/components/PaymentsCard.tsx": {
+    "mtime": 1792173737.957464,
+    "seen": 1792174563.8537679,
+    "ast_hash": "33874fc0019b5b1219b2ee0402bacd5a",
     "semantic_hash": ""
   }
 }

@@ -38,12 +38,12 @@ export function Shell({ children }: { children: React.ReactNode }) {
   return (
     <div className="min-h-dvh">
       <header className="sticky top-0 z-10 border-b border-line bg-sidebar/95 backdrop-blur">
-        <div className="mx-auto flex h-14 max-w-[1200px] items-center gap-6 px-4 md:px-6">
-          <span className="flex items-center gap-2 font-display text-[15px] font-bold">
+        <div className="mx-auto flex h-14 max-w-[1200px] items-center gap-3 px-4 md:gap-6 md:px-6">
+          <span className="flex shrink-0 items-center gap-2 font-display text-[15px] font-bold">
             <BrandMark size={26} />
-            LSMFit · Plataforma
+            <span className="hidden sm:inline">LSMFit · Plataforma</span>
           </span>
-          <nav className="flex gap-1">
+          <nav className="-mx-1 flex min-w-0 gap-1 overflow-x-auto px-1 [scrollbar-width:none]">
             {NAV.map((n) => {
               const active = n.href === "/" ? pathname === "/" || pathname.startsWith("/gimnasios") : pathname.startsWith(n.href);
               return (
@@ -51,7 +51,7 @@ export function Shell({ children }: { children: React.ReactNode }) {
                   key={n.href}
                   href={n.href}
                   aria-current={active ? "page" : undefined}
-                  className={`rounded-[var(--radius-sm)] px-3 py-1.5 text-sm font-medium ${
+                  className={`shrink-0 rounded-[var(--radius-sm)] px-2.5 py-1.5 text-sm font-medium sm:px-3 ${
                     active ? "bg-panel text-ink shadow-[var(--shadow-card)]" : "text-ink-muted hover:text-ink"
                   }`}
                 >
@@ -60,8 +60,8 @@ export function Shell({ children }: { children: React.ReactNode }) {
               );
             })}
           </nav>
-          <div className="ml-auto flex items-center gap-3 text-sm">
-            <span className="hidden text-ink-muted sm:inline">{session.email}</span>
+          <div className="ml-auto flex shrink-0 items-center gap-3 text-sm">
+            <span className="hidden text-ink-muted md:inline">{session.email}</span>
             <button className="btn btn-outline btn-sm" onClick={logout}>
               Salir
             </button>
