@@ -2,7 +2,7 @@ import uuid
 import enum
 from typing import Optional
 from datetime import date, datetime
-from sqlalchemy import String, Enum as SAEnum, Date, DateTime, Text
+from sqlalchemy import String, Enum as SAEnum, Date, DateTime, Integer, Text
 from sqlalchemy.dialects.postgresql import UUID, JSONB
 from sqlalchemy.orm import mapped_column, Mapped
 from app.db.master_base import MasterBase, MasterTimestampMixin
@@ -50,6 +50,10 @@ class Tenant(MasterBase, MasterTimestampMixin):
     #: Cortesía: acceso completo sin cobro hasta esta fecha (pilotos, aliados).
     comp_until: Mapped[Optional[date]] = mapped_column(Date, nullable=True)
     comp_reason: Mapped[Optional[str]] = mapped_column(String(255), nullable=True)
+    #: Último día cubierto por los pagos registrados en el panel. Sin fecha = sin cobros registrados.
+    paid_until: Mapped[Optional[date]] = mapped_column(Date, nullable=True)
+    #: Precio mensual acordado con este gimnasio (COP). Sin valor = precio de lista del plan.
+    price_cop: Mapped[Optional[int]] = mapped_column(Integer, nullable=True)
     #: Desde cuándo está en el estado actual (para pasar de mora a solo lectura).
     status_changed_at: Mapped[Optional[datetime]] = mapped_column(DateTime, nullable=True)
     #: Módulos activados además del plan: {"member_app": true, "ai": false}

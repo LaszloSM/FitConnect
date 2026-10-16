@@ -8,6 +8,7 @@ import { BrandMark } from "@/components/BrandMark";
 
 const NAV = [
   { href: "/", label: "Gimnasios" },
+  { href: "/cobros", label: "Cobros" },
   { href: "/bitacora", label: "Bitácora" },
 ];
 

@@ -5,7 +5,7 @@ from app.models.master.staff_directory import StaffDirectory
 from app.models.master.staff_invitation import StaffInvitation
 from app.models.master.exercise import Exercise
 from app.models.master.device_directory import DeviceDirectory
-from app.models.master.platform import PlatformAdmin, PlatformAuditLog, PasswordReset
+from app.models.master.platform import PlatformAdmin, PlatformAuditLog, PasswordReset, SubscriptionPayment
 from app.models.master.app_user import (
     AppUser, AppLoginCode, AppSession, MemberLink, AppLinkCode, AppConsent, AppPushToken,
 )
@@ -17,6 +17,6 @@ __all__ = [
     "StaffInvitation",
     "Exercise",
     "DeviceDirectory",
-    "PlatformAdmin", "PlatformAuditLog", "PasswordReset",
+    "PlatformAdmin", "PlatformAuditLog", "PasswordReset", "SubscriptionPayment",
     "AppUser", "AppLoginCode", "AppSession", "MemberLink", "AppLinkCode", "AppConsent", "AppPushToken",
 ]

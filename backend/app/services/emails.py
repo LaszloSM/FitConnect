@@ -185,6 +185,22 @@ def app_login_code(code: str, minutes: int) -> Email:
 
 # ─── Plataforma → dueños de gimnasio ───────────────────────────────────────
 
+def subscription_payment(owner_name: str | None, gym_name: str, amount_cop: int, method: str,
+                         start: str, end: str) -> Email:
+    amount = "$" + f"{amount_cop:,.0f}".replace(",", ".")
+    return Email(
+        subject=f"Recibimos tu pago de LSMFit: {amount}",
+        heading="Gracias por tu pago",
+        preheader=f"{gym_name} tiene LSMFit pagado hasta el {end}.",
+        blocks=[
+            P(f"{_hello(owner_name)}. Registramos el pago de la suscripción de **{gym_name}**."),
+            Steps([f"Valor: {amount}", f"Medio de pago: {method}", f"Periodo: del {start} al {end}"]),
+            Button("Entrar a LSMFit", f"{settings.frontend_url.rstrip('/')}/login"),
+            P("Si ves algo que no cuadra, responde este correo o escríbenos a lsmfit.business@gmail.com.", muted=True),
+        ],
+    )
+
+
 def subscription_extended(owner_name: str | None, gym_name: str, until: str, kind: str, reason: str | None) -> Email:
     what = "días de prueba gratis" if kind == "trial" else "acceso de cortesía"
     blocks = [
