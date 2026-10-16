@@ -23,7 +23,7 @@ const ESCRITORIO = [
   ["inteligencia", "/reports?tab=inteligencia"],
   ["socios", "/members"],
   ["maquinas", "/machines"],
-  ["ingresos", "/reports?tab=ingresos"],
+  ["productos", "/payments?tab=products"],
 ] as const;
 
 async function lista(page: Page) {

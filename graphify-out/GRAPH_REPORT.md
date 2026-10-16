@@ -1,17 +1,17 @@
-# Graph Report - FitConnect  (2026-10-10)
+# Graph Report - FitConnect  (2026-10-16)
 
 ## Corpus Check
-- 735 files · ~534,684 words
+- 746 files · ~577,140 words
 - Verdict: corpus is large enough that graph structure adds value.
-- Unclassified: 35 file(s) not represented in the graph (top: (none) 15, .example 3, .gz 3)
+- Unclassified: 37 file(s) not represented in the graph (top: (none) 15, .gz 5, .example 3)
 
 ## Summary
-- 7000 nodes · 22693 edges · 270 communities (238 shown, 32 thin omitted)
-- Extraction: 93% EXTRACTED · 7% INFERRED · 0% AMBIGUOUS · INFERRED: 1521 edges (avg confidence: 0.94)
+- 7158 nodes · 23492 edges · 273 communities (236 shown, 37 thin omitted)
+- Extraction: 93% EXTRACTED · 7% INFERRED · 0% AMBIGUOUS · INFERRED: 1539 edges (avg confidence: 0.94)
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `b6e3acae`
+- Built from commit: `de0e7089`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
@@ -20,79 +20,79 @@
 - cn
 - dependencies
 - v1/payments.py
-- sqlalchemy
+- sqlalchemy_dialects
 - components.json
 - compilerOptions
-- today_bogota
+- reports.py
 - @phosphor-icons/react
 - httpx
-- Tenant
+- jobs.py
 - Member
 - data.py
-- GlassCard
+- CheckinsClient.tsx
 - v1/class_sessions.py
 - routines.py
-- ProductsTab.tsx
+- apiClient
 - v1/auth.py
-- Membership
+- audit
 - FitConnect — Plataforma SaaS de gestión para gimnasios
 - auth.ts
-- RetencionInteligenciaTabs.tsx
+- formatCOP
 - test_membership_lifecycle.py
 - Task 7: Página de Miembros
-- sys
+- verify_project.py
 - member_import.py
 - UserStaff
 - uuid
 - me_nutrition.py
 - test_account_security.py
-- sqlalchemy_ext_asyncio
-- tenant/member.py
+- today_bogota
+- schemas/member.py
 - Reglas del proyecto — FitConnect
-- passkeys.py
+- test_staff_member.py
 - tenants.py
-- useColors
+- ui.tsx
 - me.py
 - messages.py
 - Plan 1: Foundation
 - report_exports.py
 - OfflineReception.tsx
-- pathlib
+- test_agent.py
 - products.py
-- services/__init__.py
-- core/config.py
-- PageHeader
+- meal_plan
+- Tenant
+- ayuda/page.tsx
 - Deploy Lite — 1 EC2 + Docker Compose (~$17/mes)
-- PlansClient.tsx
+- Button
 - tenant_service.py
 - platform/app/page.tsx
 - v1/day_passes.py
 - classes.py
 - Backend Requirements
 - create_member_without_membership
-- Txt
+- useColors
 - cash.py
-- Infraestructura (Terraform) — LSMFit
+- index.tsx
 - frontend/postcss.config.mjs
 - Frontend Product Context
 - mobile/package.json
-- report_data.py
-- RoutinesClient.tsx
+- insights_engine.py
+- ScreenClient.tsx
 - LandingClient.tsx
 - v1/settings.py
-- access_sync.py
+- utcnow_naive
 - access_devices.py
-- ui.tsx
+- gym-profile.tsx
 - iclock.py
-- charts.tsx
+- Auditoría de diseño — Fase 0 (2026-09-12)
 - app_accounts.py
-- helpers.py
+- test_day_pass.py
 - Revision estrategica de LSMFit
-- api
-- create_member
-- ref_next
+- workout.tsx
+- create_plan
+- utils.ts
 - src/lib/types.ts
-- me_plans.py
+- generate_plan
 - MachinesClient.tsx
 - platform/auth.py
 - MVP Prototype Design
@@ -128,7 +128,7 @@
 - Task 8: Gestión de usuarios/staff por tenant
 - Task 9: NextAuth + páginas de login y registro
 - Task 10: Layout del Dashboard y protección de rutas
-- create_device
+- kiosk.py
 - 4. MÓDULOS ADMIN WEB
 - SaaS Gym — Plan 2: Módulos Core (Miembros, Pagos, Clases, Máquinas, Check-ins)
 - SaaS Gym — Plan 3: Dashboard KPIs, Reportes, Chatbot IA, Notificaciones, Configuración
@@ -156,7 +156,7 @@
 - machines.py
 - services/access.py
 - expo
-- asyncio
+- exports.py
 - frontend/AGENTS.md
 - public.py
 - create_owner_token
@@ -165,59 +165,59 @@
 - Store
 - test_machines.py
 - Task 1: Inicializar monorepo
-- v1/insights.py
+- registry.py
 - emails.py
-- test_app_foods.py
+- _ready_user
 - test_app_mobile.py
 - HikvisionDriver
-- test_ml_models.py
-- nutrition.py
+- is_holiday
+- compute
 - lsmfit.py
-- app/main.py
-- CashClient.tsx
-- logging
-- totp.py
-- Machine
+- FastAPI
+- load_history
+- search
+- LiveNowStrip.tsx
+- maintenance_state
 - test_tenant_schema_drift.py
 - forecast.py
 - check-contrast.mjs
-- audit
+- DisenoGallery.tsx
 - test_wompi_webhook.py
 - renewal.py
 - test_access_devices.py
-- test_member_import.py
+- checkins.py
 - mailer.py
 - recorrido.spec.ts
 - @playwright/test
 - compilerOptions
-- promo_codes.py
+- permissions.py
 - credits.py
 - tcac_extract.py
 - test_class_form_contract.py
-- test_kiosk.py
-- app_auth.py
+- test_pos.py
+- KioskSection.tsx
 - test_permission_coverage.py
-- email_templates.py
+- test_rbac.py
 - Task 8: Página de Pagos
 - numpy
 - build_foods.py
 - zk_adms_emulator.py
 - test_inventory.py
-- update_instructor
-- locations.py
+- Instructor
+- update_food
 - models/tenant.py
-- test_pos.py
-- tenant_align.py
+- test_cash_arqueo.py
+- alembic
 - check-hardcoded-colors.mjs
-- migrate_class_colors.py
+- test_class_color_migration.py
 - test_checkin_decisions.py
 - [id].tsx
 - Reglas del proyecto — LSMFit
 - test_cash.py
 - test_class_sessions.py
 - models.ts
-- MachineResponse
-- ml/segments.py
+- passkeys.py
+- test_audit_actions.py
 - test_access.py
 - test_emails.py
 - test_auth.py
@@ -226,25 +226,25 @@
 - test_transfer_flow.py
 - Control de acceso: torniquete, rostro, huella y protección de datos
 - App móvil de LSMFit
-- Plan: Rediseño de lógica LSMFit — de demo a producto vendible
-- ml/inventory.py
+- conftest.py
+- test_member_delete.py
 - test_ticketera_cortesia.py
-- list_outbox
+- FakeZkConn
 - remote.sh
 - Guía de prueba con gimnasios — rediseño Tiza
 - Modo sin conexión (internet o servidor caídos)
 - test_reports_period.py
-- test_smoke_empty_gym.py
+- pytest
 - mobile/tsconfig.json
-- LSMFit — Product Context
-- list_audit_logs
-- member_app_invite.py
-- anomalies.py
+- LSMFit: sistema de diseño "Calor"
+- Línea base del rediseño Marcador (F0, 2026-09-13)
+- scripts
+- Settings
 - Marca LSMFit
 - LSMFit — app móvil (Expo)
 - api/deps.py
 - services/idempotency.py
-- test_onboarding.py
+- create_member
 - test_realtime.py
 - mobile/AGENTS.md
 - platform/app/layout.tsx
@@ -253,8 +253,7 @@
 - obsidian-mcp
 - sw.js
 - next-auth.d.ts
-- FaultReport
-- freeze_tenant_baseline.py
+- normalize_area
 - Sidebar.jsx
 - Migraciones multi-tenant — contrato
 - backup.sh
@@ -266,6 +265,8 @@
 - { GET, POST }
 - lsmfit-agent
 - re
+- Project Rules
+- CI/CD Workflow
 - runtests.sh
 - json
 - Hallazgos
@@ -274,14 +275,14 @@
 - 7.1 Initial State (mockData.js)
 
 ## God Nodes (most connected - your core abstractions)
-1. `today_bogota()` - 211 edges
+1. `today_bogota()` - 217 edges
 2. `cn()` - 197 edges
-3. `UserStaff` - 178 edges
+3. `UserStaff` - 180 edges
 4. `Member` - 165 edges
 5. `apiClient()` - 137 edges
 6. `Button()` - 130 edges
-7. `audit()` - 115 edges
-8. `Tenant` - 114 edges
+7. `Tenant` - 119 edges
+8. `audit()` - 115 edges
 9. `parseApiError()` - 114 edges
 10. `TenantBase` - 109 edges
 
@@ -292,35 +293,35 @@
   docs/superpowers/plans/plan-1-fable5.md → backend/app/main.py
 - `8. `MaintenanceLogCreate` exige `machine_id` en el cuerpo — COSMÉTICO` --references--> `MaintenanceLogCreate`  [INFERRED]
   docs/QA-2026-09-09.md → backend/app/schemas/operations.py
-- `Antes del primer `apply`` --references--> `apply()`  [INFERRED]
-  infra/README.md → backend/app/services/member_import.py
-- `Después del `apply`` --references--> `apply()`  [INFERRED]
-  infra/README.md → backend/app/services/member_import.py
+- `6. Enable GitHub Actions CI/CD (recommended)` --references--> `apply()`  [INFERRED]
+  DEPLOY.md → backend/app/services/member_import.py
+- `Por qué los tenants usan create_all + stamp` --references--> `create_tenant()`  [INFERRED]
+  docs/TENANT_MIGRATIONS.md → backend/app/services/tenant_service.py
 
 ## Import Cycles
 - None detected.
 
-## Communities (270 total, 32 thin omitted)
+## Communities (273 total, 37 thin omitted)
 
 ### Community 0 - "ref_react"
-Cohesion: 0.04
-Nodes (131): AcceptInviteForm(), AcceptInvitePage(), AVISOS, LoginPage(), finish(), handleSubmit(), ForgotPasswordPage(), handleSubmit() (+123 more)
+Cohesion: 0.05
+Nodes (68): AcceptInviteForm(), AcceptInvitePage(), AVISOS, LoginPage(), finish(), handleSubmit(), ForgotPasswordPage(), RegisterPage() (+60 more)
 
 ### Community 1 - "cn"
 Cohesion: 0.03
-Nodes (110): buildSchedulePreview(), CATEGORIES, CATEGORY_LABEL, ClassesClient(), COLOR_OPTIONS, DAY_LABELS, DIFFICULTIES, DURATION_OPTIONS (+102 more)
+Nodes (127): buildSchedulePreview(), CATEGORIES, CATEGORY_LABEL, ClassesClient(), COLOR_OPTIONS, DAY_LABELS, DIFFICULTIES, DURATION_OPTIONS (+119 more)
 
 ### Community 2 - "dependencies"
 Cohesion: 0.07
 Nodes (28): dependencies, @auth/core, axios, @base-ui/react, class-variance-authority, clsx, date-fns, driver.js (+20 more)
 
 ### Community 3 - "v1/payments.py"
-Cohesion: 0.05
-Nodes (53): _accounts_by_id(), cash_box(), create_payment(), create_payment_link(), get_payment(), get_receipt(), _infer_kind(), list_payments() (+45 more)
+Cohesion: 0.04
+Nodes (62): _accounts_by_id(), cash_box(), create_payment(), create_payment_link(), get_payment(), get_receipt(), _infer_kind(), list_payments() (+54 more)
 
-### Community 4 - "sqlalchemy"
-Cohesion: 0.03
-Nodes (28): upgrade(), upgrade(), upgrade(), downgrade(), upgrade(), upgrade(), upgrade(), upgrade() (+20 more)
+### Community 4 - "sqlalchemy_dialects"
+Cohesion: 0.04
+Nodes (16): downgrade(), upgrade(), upgrade(), upgrade(), upgrade(), upgrade(), upgrade(), upgrade() (+8 more)
 
 ### Community 5 - "components.json"
 Cohesion: 0.09
@@ -330,53 +331,53 @@ Nodes (21): aliases, components, hooks, lib, ui, utils, iconLibrary, menuAccent 
 Cohesion: 0.11
 Nodes (18): compilerOptions, allowJs, esModuleInterop, incremental, isolatedModules, jsx, lib, module (+10 more)
 
-### Community 8 - "today_bogota"
-Cohesion: 0.05
-Nodes (50): _totals(), attendance_report(), attendance_today_report(), birthdays_report(), checkin_trend_report(), _day_passes_data(), day_passes_report(), expiring_memberships_report() (+42 more)
+### Community 8 - "reports.py"
+Cohesion: 0.06
+Nodes (51): _totals(), attendance_report(), attendance_today_report(), birthdays_report(), checkin_trend_report(), _day_passes_data(), day_passes_report(), expiring_memberships_report() (+43 more)
 
 ### Community 9 - "@phosphor-icons/react"
 Cohesion: 0.04
-Nodes (72): DashboardLayout(), DashboardShell(), dynamic, SettingsPage(), SECTION_MAP, SettingsClient(), Tab, TAB_KEYS (+64 more)
+Nodes (79): AuthLayout(), ENTRADAS, DashboardLayout(), DashboardShell(), Tab, KioskClient(), KioskMark(), KioskResult (+71 more)
 
 ### Community 10 - "httpx"
-Cohesion: 0.12
-Nodes (21): get_db(), dispose_tenant_engines(), client(), _dispose_tenant_engines(), override_get_db(), setup_db(), _create_member(), _create_plan() (+13 more)
+Cohesion: 0.22
+Nodes (16): client(), _create_member(), _create_plan(), full_member_fields(), main(), test_checkins(), test_classes(), test_dashboard_kpis() (+8 more)
 
-### Community 11 - "Tenant"
-Cohesion: 0.05
-Nodes (43): _ok(), wompi_webhook(), now_bogota(), Tenant, PaymentLink, get_gym_settings(), secret(), purge_expired_keys() (+35 more)
+### Community 11 - "jobs.py"
+Cohesion: 0.06
+Nodes (27): _ok(), wompi_webhook(), MembershipStatus, PaymentLink, emit_announcement(), emit_occasion(), _enqueue(), try_emit_occasion() (+19 more)
 
 ### Community 12 - "Member"
-Cohesion: 0.06
-Nodes (53): AppCodeRequest, _apply_import(), BulkProfileLinksRequest, commit_import(), convert_visitor_to_member(), count_missing_id_number(), create_app_code(), create_renewal_link() (+45 more)
+Cohesion: 0.05
+Nodes (57): AppCodeRequest, _apply_import(), BulkProfileLinksRequest, commit_import(), convert_visitor_to_member(), count_missing_id_number(), create_app_code(), create_renewal_link() (+49 more)
 
 ### Community 13 - "data.py"
-Cohesion: 0.05
-Nodes (45): MlModel, churn_level(), _between(), churn_dataset(), current_matrix(), current_stint(), daily_arrays(), due_matrix() (+37 more)
+Cohesion: 0.11
+Nodes (18): _between(), churn_dataset(), current_matrix(), current_stint(), daily_arrays(), due_matrix(), features_at(), History (+10 more)
 
-### Community 14 - "GlassCard"
-Cohesion: 0.05
-Nodes (77): CheckinsClient(), DecisionBadge(), DENIAL_LABELS, LiveDeniedCard(), TvMode(), CheckinsPage(), dynamic, cardVariants (+69 more)
+### Community 14 - "CheckinsClient.tsx"
+Cohesion: 0.14
+Nodes (21): CheckinsClient(), DecisionBadge(), DENIAL_LABELS, LiveDeniedCard(), TvMode(), CheckinsPage(), dynamic, OpenTurnstileButton() (+13 more)
 
 ### Community 15 - "v1/class_sessions.py"
-Cohesion: 0.06
-Nodes (33): AttendanceUpdate, book_session(), BookingRequest, cancel_booking(), get_session(), list_sessions(), mark_attendance(), materialize() (+25 more)
+Cohesion: 0.10
+Nodes (20): AttendanceUpdate, book_session(), BookingRequest, cancel_booking(), get_session(), list_sessions(), mark_attendance(), materialize() (+12 more)
 
 ### Community 16 - "routines.py"
-Cohesion: 0.06
-Nodes (52): archive_routine(), assign_routine(), AssignRoutine, create_routine(), delete_exercise_video(), end_member_routine(), exercise_facets(), _exercise_names() (+44 more)
+Cohesion: 0.07
+Nodes (50): archive_routine(), assign_routine(), AssignRoutine, create_routine(), delete_exercise_video(), end_member_routine(), exercise_facets(), _exercise_names() (+42 more)
 
-### Community 18 - "ProductsTab.tsx"
-Cohesion: 0.05
-Nodes (62): HistoryTab(), ReverseKind, STATUS_FILTERS, StatusFilter, dynamic, PaymentsPage(), PaymentsClient(), Tab (+54 more)
+### Community 18 - "apiClient"
+Cohesion: 0.03
+Nodes (154): handleSubmit(), handleSubmit(), AnnouncementRow, AnnouncementsTab(), AutoMessage, AutoTab(), MessagesClient(), OUTBOX_STATUS (+146 more)
 
 ### Community 19 - "v1/auth.py"
 Cohesion: 0.07
-Nodes (45): accept_invite(), _challenge_claims(), _challenge_or_tokens(), ChallengeRequest, forgot_password(), login(), logout(), mfa_challenge_email() (+37 more)
+Nodes (41): accept_invite(), _challenge_claims(), ChallengeRequest, forgot_password(), login(), logout(), mfa_challenge_email(), mfa_challenge_passkey() (+33 more)
 
-### Community 20 - "Membership"
+### Community 20 - "audit"
 Cohesion: 0.06
-Nodes (32): assign_membership(), AssignMembership, charge_membership(), ChargeMembership, CourtesyMembership, _create_membership(), create_plan(), delete_plan() (+24 more)
+Nodes (33): assign_membership(), AssignMembership, charge_membership(), ChargeMembership, CourtesyMembership, _create_membership(), create_plan(), delete_plan() (+25 more)
 
 ### Community 21 - "FitConnect — Plataforma SaaS de gestión para gimnasios"
 Cohesion: 0.08
@@ -386,9 +387,9 @@ Nodes (23): Arquitectura multi-tenant, Check-ins y Clases, code:bash (# 1. Clona
 Cohesion: 0.20
 Nodes (6): auth, BackendAuthError, handlers, signIn, signOut, config
 
-### Community 23 - "RetencionInteligenciaTabs.tsx"
-Cohesion: 0.07
-Nodes (64): dynamic, ReportsPage(), ReportsClient(), TabKey, TABS, EASE, SCREENS, SLIDES (+56 more)
+### Community 23 - "formatCOP"
+Cohesion: 0.08
+Nodes (62): dynamic, ReportsPage(), ReportsClient(), TabKey, TABS, variants, Breakdown, Daily (+54 more)
 
 ### Community 24 - "test_membership_lifecycle.py"
 Cohesion: 0.08
@@ -398,217 +399,217 @@ Nodes (57): _clean(), device_local_to_utc(), handshake(), _int(), _lines(), Oper
 Cohesion: 0.20
 Nodes (10): code:bash (cd frontend), code:typescript (// frontend/hooks/useMembers.ts), code:typescript (// frontend/components/members/MemberTable.tsx), code:typescript (// frontend/components/members/MemberForm.tsx), code:typescript (// frontend/app/(dashboard)/members/page.tsx), code:typescript (// frontend/app/(dashboard)/members/[id]/page.tsx), code:typescript (// frontend/app/(dashboard)/layout.tsx — actualizar para inc), code:block65 (1. Iniciar backend + frontend (docker compose up o separados) (+2 more)
 
-### Community 26 - "sys"
-Cohesion: 0.14
-Nodes (9): iso_svg(), main(), png(), main(), check_backend_imports(), check_frontend_pages(), check_required_files(), check_syntax() (+1 more)
+### Community 26 - "verify_project.py"
+Cohesion: 0.31
+Nodes (5): check_backend_imports(), check_frontend_pages(), check_required_files(), check_syntax(), main()
 
 ### Community 27 - "member_import.py"
-Cohesion: 0.08
-Nodes (51): apply(), auto_mapping(), _blank(), build_plans(), build_template(), _Catalog, _decode_csv(), _delete_memberships() (+43 more)
+Cohesion: 0.07
+Nodes (57): MembershipFreeze, apply(), auto_mapping(), _blank(), build_plans(), _decode_csv(), _delete_memberships(), detect_field() (+49 more)
 
 ### Community 28 - "UserStaff"
 Cohesion: 0.08
-Nodes (45): _after_disable(), change_password(), _check_factor(), CodeOnly, CodeRequest, DisableRequest, email_change(), email_change_code() (+37 more)
+Nodes (48): _challenge_or_tokens(), _after_disable(), change_password(), _check_factor(), CodeOnly, CodeRequest, DisableRequest, email_change() (+40 more)
 
 ### Community 29 - "uuid"
-Cohesion: 0.15
-Nodes (12): TenantBase, TenantTimestampMixin, Announcement, AuditLog, IdempotencyKey, Location, _generate_qr_code(), Notification (+4 more)
+Cohesion: 0.08
+Nodes (25): TenantBase, TenantTimestampMixin, Announcement, CashDrop, SessionStatus, ImportBatch, _generate_qr_code(), MlModel (+17 more)
 
 ### Community 30 - "me_nutrition.py"
 Cohesion: 0.08
-Nodes (42): _atwater_warning(), _check_day(), copy_meals(), CopyIn, create_food(), create_recipe(), day_meals(), delete_food() (+34 more)
+Nodes (50): add_water(), _check_day(), copy_meals(), CopyIn, create_recipe(), day_meals(), delete_food(), delete_meal() (+42 more)
 
 ### Community 31 - "test_account_security.py"
 Cohesion: 0.08
 Nodes (56): code_at(), _enable_mfa(), _h(), _login(), mfa_required(), _register(), _set_tenant(), test_invited_admin_must_set_up_two_step() (+48 more)
 
-### Community 32 - "sqlalchemy_ext_asyncio"
+### Community 32 - "today_bogota"
 Cohesion: 0.06
-Nodes (28): _build_response(), create_checkin(), list_checkins(), list_today_checkins(), _names_by_id(), override_checkin(), OverrideRequest, _register() (+20 more)
+Nodes (33): _naive_utc(), OfflineBatch, OfflineCheckin, snapshot(), list_receivables(), my_members(), today_bogota(), Membership (+25 more)
 
-### Community 33 - "tenant/member.py"
-Cohesion: 0.07
-Nodes (34): get_dashboard_insights(), _paid_sum(), get_dashboard_kpis(), get_operations_dashboard(), Gender, IdType, is_business_member(), MemberStatus (+26 more)
+### Community 33 - "schemas/member.py"
+Cohesion: 0.08
+Nodes (31): get_dashboard_insights(), _paid_sum(), get_dashboard_kpis(), get_operations_dashboard(), Gender, IdType, is_business_member(), MemberStatus (+23 more)
 
 ### Community 34 - "Reglas del proyecto — FitConnect"
 Cohesion: 0.10
 Nodes (20): Aprendizaje de errores, Base UI (dialog, dropdown, etc.), code:block1 (feat: agregar módulo de notificaciones con preferencias por ), code:block2 (feat: add notification module         ← en inglés), code:tsx (// CORRECTO — patrón render prop), code:tsx (// CORRECTO — type Variants importado explícitamente), code:bash (uv tool install graphifyy), code:bash (graphify .                              # genera el grafo de) (+12 more)
 
-### Community 35 - "passkeys.py"
-Cohesion: 0.07
-Nodes (42): authentication_options(), origins(), registration_options(), _remember(), rp_id(), _take(), verify_authentication(), verify_registration() (+34 more)
+### Community 35 - "test_staff_member.py"
+Cohesion: 0.27
+Nodes (11): _auth(), _find_member(), _invite_and_accept(), _owner_token(), test_el_dueno_nace_con_su_ficha_de_socio(), test_el_invitado_entra_al_gimnasio_al_aceptar(), test_el_personal_no_cuenta_como_socio_del_negocio(), test_la_cortesia_no_cobra_nada() (+3 more)
 
 ### Community 36 - "tenants.py"
-Cohesion: 0.09
-Nodes (38): log(), _add_months(), CompIn, _gather_metrics(), one(), list_tenants(), _notify_owner(), _out() (+30 more)
+Cohesion: 0.07
+Nodes (40): _add_months(), CompIn, _gather_metrics(), one(), list_tenants(), _notify_owner(), _out(), overview() (+32 more)
 
-### Community 37 - "useColors"
-Cohesion: 0.09
-Nodes (55): ActionTile(), AddFood(), Category, FoodDetail(), FoodList(), FoodSearch(), MEAL_LABEL, MEALS (+47 more)
+### Community 37 - "ui.tsx"
+Cohesion: 0.08
+Nodes (49): AddFood(), Category, MEAL_LABEL, MEALS, Basis, MacroKey, MACROS, num() (+41 more)
 
 ### Community 38 - "me.py"
-Cohesion: 0.11
-Nodes (42): _bogota(), book_class(), cancel_class(), complete_gym_profile(), ConsentIn, delete_me(), delete_workout(), EntryIn (+34 more)
+Cohesion: 0.08
+Nodes (45): _bogota(), book_class(), cancel_class(), complete_gym_profile(), ConsentIn, delete_me(), delete_workout(), EntryIn (+37 more)
 
 ### Community 39 - "messages.py"
 Cohesion: 0.07
-Nodes (31): _announcement_out(), AnnouncementCreate, AnnouncementOut, Config, AudienceRequest, DirectMessage, list_announcements(), list_messages() (+23 more)
+Nodes (29): _announcement_out(), AnnouncementCreate, AnnouncementOut, Config, AudienceRequest, DirectMessage, list_announcements(), list_messages() (+21 more)
 
 ### Community 40 - "Plan 1: Foundation"
 Cohesion: 0.50
 Nodes (4): Plan 1: Foundation, Plan 2: Core Modules, Plan 3: Dashboard & AI, Full Platform Design
 
 ### Community 41 - "report_exports.py"
-Cohesion: 0.09
-Nodes (37): _cop(), build_pdf(), build_xlsx(), _busiest(), Chart, _chart_drawing(), Column, _ddmm() (+29 more)
+Cohesion: 0.06
+Nodes (57): _cop(), stockout(), build_pdf(), build_xlsx(), _busiest(), Chart, _chart_drawing(), Column (+49 more)
 
 ### Community 42 - "OfflineReception.tsx"
 Cohesion: 0.09
 Nodes (51): OfflineProvider(), useOffline(), CAN_ENTER, EMPTY_NEW, NewMemberForm(), norm(), OfflineReception(), Pill() (+43 more)
 
-### Community 43 - "pathlib"
-Cohesion: 0.07
+### Community 43 - "test_agent.py"
+Cohesion: 0.08
 Nodes (14): Cloud, AgentConfig, DeviceConfig, make_driver(), Agent, cli(), FakeCloud, FakeHik (+6 more)
 
 ### Community 44 - "products.py"
+Cohesion: 0.08
+Nodes (35): archive_product(), _category_names(), create_category(), create_movement(), create_product(), delete_category(), list_categories(), list_movements() (+27 more)
+
+### Community 45 - "meal_plan"
 Cohesion: 0.09
-Nodes (34): archive_product(), _category_names(), create_category(), create_movement(), create_product(), delete_category(), list_categories(), list_movements() (+26 more)
+Nodes (17): _foods(), _item(), meal_plan(), _pick(), _plural(), _portion_label(), _seed(), _fit_to_target() (+9 more)
 
-### Community 45 - "services/__init__.py"
+### Community 46 - "Tenant"
 Cohesion: 0.06
-Nodes (26): AppBase, AppProfile, Food, FoodFavorite, PlanJob, SavedPlan, WeightLog, Workout (+18 more)
+Nodes (26): run_job(), _ensure(), _url(), Tenant, lookup(), register(), SerialTaken, _train_tenant_models() (+18 more)
 
-### Community 46 - "core/config.py"
-Cohesion: 0.13
-Nodes (4): Settings, get_tenant_db(), register(), SerialTaken
-
-### Community 47 - "PageHeader"
-Cohesion: 0.06
-Nodes (45): 5. El frontend tiene identidad, ACTION_DOT, ACTION_FILTERS, ACTION_LABELS, actionLabel(), AuditClient(), dayLabel(), detailsSummary() (+37 more)
+### Community 47 - "ayuda/page.tsx"
+Cohesion: 0.22
+Nodes (15): ArticleLink(), AyudaPage(), Faq(), HelpArticlePage(), articleBySlug(), ARTICLES, CATEGORIES, FAQS (+7 more)
 
 ### Community 48 - "Deploy Lite — 1 EC2 + Docker Compose (~$17/mes)"
-Cohesion: 0.05
-Nodes (44): Project Rules, 1. Terraform, 2. Construir y subir imágenes, 3. Configurar la instancia, 4. Verificar, Arquitectura, Configuración (una vez), Correo (+36 more)
+Cohesion: 0.06
+Nodes (30): 0. Get `infra/terraform.tfvars`, 1. Bootstrap Terraform State, 2. Initialize Terraform, 3. First Apply, 4. Build and Push Images, 5. Verify, 6. Enable GitHub Actions CI/CD (recommended), 7. Add a Custom Domain + HTTPS (optional, later) (+22 more)
 
-### Community 49 - "PlansClient.tsx"
-Cohesion: 0.09
-Nodes (47): transferWhatsappText(), CopyButton(), TransferInstructions(), TransferPendingDialog(), PlansPage(), ACCESS_OPTIONS, accessBadge(), cardVariants (+39 more)
+### Community 49 - "Button"
+Cohesion: 0.06
+Nodes (80): 4. Fechas corridas cinco horas en el panel — ALTO, cardVariants, MemberDetailClient(), MembershipStatusPill(), METHOD_LABEL, Tab, TAB_CONFIG, TimelineEvent (+72 more)
 
 ### Community 50 - "tenant_service.py"
-Cohesion: 0.07
-Nodes (23): hash_password(), MasterBase, MasterTimestampMixin, DeviceDirectory, Owner, PasswordReset, StaffDirectory, StaffInvitation (+15 more)
+Cohesion: 0.06
+Nodes (33): MasterBase, MasterTimestampMixin, AppConsent, AppLoginCode, AppPushToken, DeviceDirectory, Owner, PasswordReset (+25 more)
 
 ### Community 51 - "platform/app/page.tsx"
 Cohesion: 0.09
 Nodes (43): ALERT, AuditPage(), Entry, MODULES, PLANS, Row(), TenantPage(), LoginPage() (+35 more)
 
 ### Community 52 - "v1/day_passes.py"
-Cohesion: 0.08
-Nodes (26): archive_pass_type(), create_pass_type(), day_passes_summary(), list_day_passes(), list_pass_types(), _pass_response(), sell(), update_pass_type() (+18 more)
+Cohesion: 0.09
+Nodes (25): archive_pass_type(), create_pass_type(), day_passes_summary(), list_day_passes(), list_pass_types(), _pass_response(), sell(), update_pass_type() (+17 more)
 
 ### Community 53 - "classes.py"
-Cohesion: 0.09
-Nodes (34): create_class(), create_enrollment(), delete_class(), delete_enrollment(), enroll_member(), get_class(), list_classes(), list_enrollments() (+26 more)
+Cohesion: 0.06
+Nodes (46): create_class(), create_enrollment(), delete_class(), delete_enrollment(), enroll_member(), get_class(), list_classes(), list_enrollments() (+38 more)
 
 ### Community 55 - "create_member_without_membership"
 Cohesion: 0.12
 Nodes (31): create_member_without_membership(), _auth(), _fresh_open_shift(), _last_refund_expense(), _open_shift(), _owner_token(), _paid_payment(), test_cash_shift_balances_after_a_partial_refund() (+23 more)
 
-### Community 56 - "Txt"
-Cohesion: 0.11
-Nodes (41): Body(), CreateFood(), EngineCard(), Generate(), Question(), Waiting(), GymProfile, GymProfileScreen() (+33 more)
+### Community 56 - "useColors"
+Cohesion: 0.15
+Nodes (62): ActionTile(), FoodDetail(), FoodList(), FoodSearch(), Body(), CardHead(), CreateFood(), LabelRow() (+54 more)
 
 ### Community 57 - "cash.py"
-Cohesion: 0.11
-Nodes (25): checker(), close_shift(), CloseShiftRequest, create_drop(), create_expense(), _current_open_shift(), current_shift(), differences_by_cashier() (+17 more)
+Cohesion: 0.09
+Nodes (30): require_perm(), checker(), close_shift(), CloseShiftRequest, create_drop(), create_expense(), _current_open_shift(), current_shift() (+22 more)
 
-### Community 58 - "Infraestructura (Terraform) — LSMFit"
-Cohesion: 0.22
-Nodes (8): Antes del primer `apply`, Después del `apply`, Endurecimiento ya incluido, Follow-ups (no bloqueantes), Gotchas del primer deploy (cazados antes de aplicar), Infraestructura (Terraform) — LSMFit, Secretos, TLS / dominio
+### Community 58 - "index.tsx"
+Cohesion: 0.12
+Nodes (44): CodeInput(), Corners(), Found, Scan(), dayTitle(), Eat(), Home(), timeOf() (+36 more)
 
 ### Community 61 - "mobile/package.json"
 Cohesion: 0.05
-Nodes (42): devDependencies, @types/react, typescript, react, react-dom, @types/react, typescript, main (+34 more)
+Nodes (37): devDependencies, @types/react, typescript, react, react-dom, @types/react, typescript, main (+29 more)
 
-### Community 62 - "report_data.py"
-Cohesion: 0.10
-Nodes (24): utc_day_bounds(), Expense, StockMovement, churn_score(), peak_hours(), retention_cohorts(), revenue_forecast(), stockout_eta() (+16 more)
+### Community 62 - "insights_engine.py"
+Cohesion: 0.17
+Nodes (6): churn_level(), churn_score(), peak_hours(), retention_cohorts(), revenue_forecast(), stockout_eta()
 
-### Community 63 - "RoutinesClient.tsx"
-Cohesion: 0.07
-Nodes (37): AuthLayout(), ENTRADAS, dynamic, RoutinesPage(), emptyForm(), Exercise, ExerciseVideoBox(), Facets (+29 more)
+### Community 63 - "ScreenClient.tsx"
+Cohesion: 0.14
+Nodes (16): dynamic, metadata, ScreenPage(), viewport, Day, DayEx, Exercise, RoutineCard (+8 more)
 
 ### Community 64 - "LandingClient.tsx"
 Cohesion: 0.09
 Nodes (37): AppLegalPage(), metadata, SECTIONS, metadata, PrivacidadPage(), SECTIONS, metadata, SECTIONS (+29 more)
 
 ### Community 65 - "v1/settings.py"
-Cohesion: 0.11
-Nodes (29): check_tenant_active(), _accounts(), _billing_response(), BillingSettingsResponse, BillingSettingsUpdate, get_billing_settings(), get_gym_settings(), get_integrations() (+21 more)
+Cohesion: 0.14
+Nodes (26): _accounts(), _billing_response(), BillingSettingsResponse, BillingSettingsUpdate, get_billing_settings(), get_gym_settings(), get_integrations(), get_operations_settings() (+18 more)
 
-### Community 66 - "access_sync.py"
-Cohesion: 0.13
-Nodes (25): DeviceCommand, DeviceUser, KioskDevice, apply_roster(), _apply_success(), command_devices(), complete_command(), desired_state() (+17 more)
+### Community 66 - "utcnow_naive"
+Cohesion: 0.14
+Nodes (25): utcnow_naive(), DeviceCommand, DeviceUser, KioskDevice, apply_roster(), _apply_success(), command_devices(), complete_command() (+17 more)
 
 ### Community 67 - "access_devices.py"
-Cohesion: 0.13
+Cohesion: 0.12
 Nodes (26): agent_command_result(), agent_commands(), _agent_device(), agent_punches(), agent_roster(), agent_template(), AgentPunch, AgentPunches (+18 more)
 
-### Community 68 - "ui.tsx"
-Cohesion: 0.17
-Nodes (35): METHOD, Payments(), Plans(), Classes(), Home(), timeOf(), Bars(), Train() (+27 more)
+### Community 68 - "gym-profile.tsx"
+Cohesion: 0.09
+Nodes (23): GymProfile, LABELS, PARQ, RESULT_ICON, YesNo(), message(), Step, Tokens (+15 more)
 
 ### Community 69 - "iclock.py"
-Cohesion: 0.10
-Nodes (18): _body(), _device(), device_cmd(), get_request(), handshake(), ping(), _resolve(), _secure() (+10 more)
+Cohesion: 0.27
+Nodes (10): _body(), _device(), device_cmd(), get_request(), handshake(), ping(), _resolve(), _secure() (+2 more)
 
-### Community 70 - "charts.tsx"
-Cohesion: 0.05
-Nodes (38): 1. Color, 2. Tipografía, 3. Superficies, forma y profundidad, 4. Composición del Hoy (1 · Refinado), 5. Componentes, 6. Movimiento, 7. Responsive, 8. Marca (+30 more)
+### Community 70 - "Auditoría de diseño — Fase 0 (2026-09-12)"
+Cohesion: 0.18
+Nodes (11): Auditoría de diseño — Fase 0 (2026-09-12), Hallazgos, Lo que sí funciona (conservar), P0: bloquean un producto vendible, P1: degradan la confianza, P2: pulido, Primera impresión, Puntuación (+3 more)
 
 ### Community 71 - "app_accounts.py"
-Cohesion: 0.10
-Nodes (24): app_derived_key(), create_app_token(), AppConsent, AppLinkCode, AppLoginCode, AppPushToken, AppSession, active_links() (+16 more)
+Cohesion: 0.07
+Nodes (31): CodeRequest, logout(), refresh(), RefreshRequest, request_code(), verify(), VerifyRequest, app_derived_key() (+23 more)
 
-### Community 72 - "helpers.py"
-Cohesion: 0.13
-Nodes (28): full_member_fields(), _auth(), _cedula(), _disable_shifts(), _owner_token(), _pass_type(), test_convert_visitor_to_member_keeps_cedula_and_creates_membership(), test_member_with_active_plan_keeps_membership_over_pass() (+20 more)
+### Community 72 - "test_day_pass.py"
+Cohesion: 0.40
+Nodes (17): _auth(), _cedula(), _disable_shifts(), _owner_token(), _pass_type(), test_convert_visitor_to_member_keeps_cedula_and_creates_membership(), test_member_with_active_plan_keeps_membership_over_pass(), test_pass_from_yesterday_does_not_grant_access() (+9 more)
 
 ### Community 73 - "Revision estrategica de LSMFit"
 Cohesion: 0.05
 Nodes (40): 1. El dominio esta bien elegido, 2. La arquitectura multi-tenant tiene intencion seria, 3. Pagos y caja estan mas pensados que el promedio, 4. Hay aprendizaje acumulado, Autenticacion y sesiones, Autorizacion, Backend, Contexto revisado (+32 more)
 
-### Community 74 - "api"
-Cohesion: 0.12
-Nodes (33): emptySets(), Exercise, api(), ApiError, clearTokens(), currentRefreshToken(), detailOf(), loadTokens() (+25 more)
+### Community 74 - "workout.tsx"
+Cohesion: 0.09
+Nodes (44): COLS, Elapsed(), emptySets(), Exercise, api(), ApiError, clearTokens(), currentRefreshToken() (+36 more)
 
-### Community 75 - "create_member"
-Cohesion: 0.13
-Nodes (26): create_member(), create_plan(), _h(), test_member_create_replayed_with_same_key_does_not_duplicate(), test_offline_checkins_are_idempotent_and_flag_review(), test_offline_override_requires_override_permission(), test_offline_rejects_impossible_clock(), test_snapshot_has_status_and_no_personal_contact_data() (+18 more)
+### Community 75 - "create_plan"
+Cohesion: 0.22
+Nodes (18): create_plan(), _auth(), _invite(), _owner_token(), test_a_plan_with_trainer_cannot_be_sold_without_one(), test_a_trainer_cannot_be_in_two_rooms_at_once(), test_a_trainer_never_sees_money_or_settings(), test_a_trainer_only_sees_their_own_members() (+10 more)
 
-### Community 76 - "ref_next"
-Cohesion: 0.03
-Nodes (118): CompleteProfilePage(), dynamic, metadata, Props, viewport, DashboardPage(), DashboardSkeleton(), dynamic (+110 more)
+### Community 76 - "utils.ts"
+Cohesion: 0.04
+Nodes (102): 5. El frontend tiene identidad, ACTION_DOT, ACTION_FILTERS, ACTION_LABELS, actionLabel(), AuditClient(), dayLabel(), detailsSummary() (+94 more)
 
 ### Community 77 - "src/lib/types.ts"
-Cohesion: 0.06
-Nodes (36): ACTIVITY, GOALS, PACES, SEX, Engine, Focus, Kind, Level (+28 more)
+Cohesion: 0.05
+Nodes (45): ACTIVITY, GOALS, PACES, SEX, Engine, Focus, Kind, Level (+37 more)
 
-### Community 78 - "me_plans.py"
-Cohesion: 0.10
-Nodes (18): delete_plan(), edit_plan(), generate_plan(), GenerateIn, get_plan(), list_plans(), MealsReq, my_credits() (+10 more)
+### Community 78 - "generate_plan"
+Cohesion: 0.09
+Nodes (17): delete_plan(), edit_plan(), generate_plan(), GenerateIn, get_plan(), list_plans(), MealsReq, my_credits() (+9 more)
 
 ### Community 79 - "MachinesClient.tsx"
-Cohesion: 0.08
-Nodes (29): AREA_OPTIONS, areaLabel(), Badge(), CalendarItem, Costs, emptyForm, emptyLog, IconButton() (+21 more)
+Cohesion: 0.07
+Nodes (33): AREA_OPTIONS, areaLabel(), Badge(), CalendarItem, Costs, emptyForm, emptyLog, IconButton() (+25 more)
 
 ### Community 80 - "platform/auth.py"
-Cohesion: 0.13
-Nodes (19): CodeIn, enroll(), login(), LoginIn, logout(), me(), _register_failure(), _session() (+11 more)
+Cohesion: 0.06
+Nodes (36): CodeIn, enroll(), login(), LoginIn, logout(), me(), _register_failure(), _session() (+28 more)
 
 ### Community 82 - "v1/access.py"
-Cohesion: 0.14
-Nodes (22): access_allowlist(), access_heartbeat(), access_offline_events(), access_verify(), _consent_out(), ConsentIn, create_biometric_consent(), _credential_out() (+14 more)
+Cohesion: 0.16
+Nodes (21): access_allowlist(), access_heartbeat(), access_offline_events(), access_verify(), _consent_out(), ConsentIn, create_biometric_consent(), _credential_out() (+13 more)
 
 ### Community 83 - "dependencies"
 Cohesion: 0.06
@@ -623,8 +624,8 @@ Cohesion: 0.13
 Nodes (15): code:python (# backend/tests/test_chatbot.py), code:bash (cd backend), code:bash (cd backend), code:bash (mkdir -p backend/app/agents), code:python (# backend/app/agents/gym_agent.py  — stub temporal), code:bash (cd backend), code:python (# backend/app/schemas/chatbot.py), code:python (# backend/app/agents/tools.py) (+7 more)
 
 ### Community 86 - "test_app_plans.py"
-Cohesion: 0.11
-Nodes (23): work(), kick(), ModelError, process_queue(), QuotaFull, _adult(), FakeGemini, gemini_key() (+15 more)
+Cohesion: 0.12
+Nodes (22): work(), ModelError, process_queue(), QuotaFull, _adult(), FakeGemini, gemini_key(), gen() (+14 more)
 
 ### Community 87 - "Task 5: Endpoints de configuración"
 Cohesion: 0.14
@@ -683,16 +684,16 @@ Cohesion: 0.25
 Nodes (8): scripts, build, check:colors, check:contrast, dev, lint, start, test:e2e
 
 ### Community 101 - "foods.py"
-Cohesion: 0.11
-Nodes (21): _ensure(), _url(), by_barcode(), fetch_off(), normalize(), _num(), parse_off(), recent() (+13 more)
+Cohesion: 0.07
+Nodes (16): AppBase, Food, SavedPlan, WeightLog, Workout, barcode_variants(), by_barcode(), fetch_off() (+8 more)
 
 ### Community 102 - "SaaS Gym Platform — Diseño Completo MVP"
 Cohesion: 0.22
 Nodes (8): 10. CRITERIOS DE ÉXITO MVP, 1. VISIÓN DEL PRODUCTO, 3. SISTEMA DE ROLES (RBAC), 8. DISEÑO UI/UX ADMIN, Carpeta de diseño, code:block7 (src/), Modelo de negocio, SaaS Gym Platform — Diseño Completo MVP
 
 ### Community 103 - "plan_generator.py"
-Cohesion: 0.13
-Nodes (21): ai_meal_plan(), ai_training_plan(), auto_plan(), call_gemini(), candidate_foods(), _finish_auto(), meal_prompt(), meal_schema() (+13 more)
+Cohesion: 0.11
+Nodes (23): training_plan(), ai_meal_plan(), ai_training_plan(), auto_plan(), call_gemini(), candidate_foods(), _finish_auto(), job_out() (+15 more)
 
 ### Community 104 - "Task 2: Setup Backend FastAPI"
 Cohesion: 0.22
@@ -734,9 +735,9 @@ Nodes (8): code:typescript (// frontend/auth.ts), code:typescript (// frontend/a
 Cohesion: 0.25
 Nodes (8): code:typescript (// frontend/middleware.ts), code:typescript (// frontend/components/layout/Sidebar.tsx), code:typescript (// frontend/components/layout/Header.tsx), code:typescript (// frontend/app/(dashboard)/layout.tsx), code:typescript (// frontend/app/(dashboard)/dashboard/page.tsx), code:block66 (1. Ir a http://localhost:3000/dashboard → redirige a /login ), code:bash (git add frontend/middleware.ts frontend/app/(dashboard)/ fro), Task 10: Layout del Dashboard y protección de rutas
 
-### Community 114 - "create_device"
-Cohesion: 0.09
-Nodes (16): AccessConfig, create_device(), _device_out(), DeviceCreate, DeviceUpdate, kiosk_checkin(), kiosk_ping(), KioskCheckinRequest (+8 more)
+### Community 114 - "kiosk.py"
+Cohesion: 0.10
+Nodes (17): get_kiosk_db(), AccessConfig, create_device(), _device_out(), DeviceCreate, DeviceUpdate, kiosk_checkin(), kiosk_ping() (+9 more)
 
 ### Community 115 - "4. MÓDULOS ADMIN WEB"
 Cohesion: 0.25
@@ -803,8 +804,8 @@ Cohesion: 0.15
 Nodes (17): _active_classes(), deactivate_user(), disable_teaching(), enable_teaching(), invite_staff(), _link_trainer_profile(), _linked_trainer(), list_staff() (+9 more)
 
 ### Community 131 - "storage.py"
-Cohesion: 0.11
-Nodes (18): _delete_sync(), download_object(), _download_sync(), _ensure_bucket_sync(), is_public_key(), key_from_url(), _presign_sync(), _public_policy() (+10 more)
+Cohesion: 0.14
+Nodes (13): _delete_sync(), _download_sync(), _ensure_bucket_sync(), is_public_key(), _presign_sync(), _public_policy(), public_url(), _s3() (+5 more)
 
 ### Community 132 - "frontend/README.md"
 Cohesion: 0.50
@@ -835,27 +836,27 @@ Cohesion: 0.06
 Nodes (30): dependencies, next, qrcode.react, react, react-dom, devDependencies, tailwindcss, @tailwindcss/postcss (+22 more)
 
 ### Community 139 - "machines.py"
-Cohesion: 0.17
-Nodes (15): _costs_by_machine(), create_maintenance(), delete_machine(), _get_machine(), list_areas(), list_maintenance(), machine_report_link(), maintenance_costs() (+7 more)
+Cohesion: 0.12
+Nodes (21): _costs_by_machine(), create_machine(), create_maintenance(), delete_machine(), FaultReport, _get_machine(), list_areas(), list_machines() (+13 more)
 
 ### Community 140 - "services/access.py"
-Cohesion: 0.13
-Nodes (12): AccessEvent, AccessDecision, allowlist(), _log(), record_offline_events(), resolve_member(), verify_access(), _auto_attend_class() (+4 more)
+Cohesion: 0.11
+Nodes (15): upload_checkins(), AccessEvent, AccessDecision, allowlist(), _log(), record_offline_events(), resolve_member(), verify_access() (+7 more)
 
 ### Community 141 - "expo"
 Cohesion: 0.07
 Nodes (28): backgroundColor, foregroundImage, monochromeImage, adaptiveIcon, package, predictiveBackGestureEnabled, reactCompiler, typedRoutes (+20 more)
 
-### Community 142 - "asyncio"
-Cohesion: 0.11
-Nodes (14): run_master_migrations(), _run_upgrade_sync(), publish(), subscribe(), unsubscribe(), do_run_migrations(), run_async_migrations(), run_migrations_online() (+6 more)
+### Community 142 - "exports.py"
+Cohesion: 0.09
+Nodes (18): _apply_money_format(), build_report_pdf(), build_reports_xlsx(), _cover_sheet(), _expiring_rows(), _inactive_rows(), _is_public_host(), _month_bounds() (+10 more)
 
 ### Community 144 - "public.py"
 Cohesion: 0.17
 Nodes (14): _clean_photo(), _machine_by_token(), _profile_link(), public_machine(), public_machine_fault(), public_profile(), public_profile_photo(), public_profile_submit() (+6 more)
 
 ### Community 145 - "create_owner_token"
-Cohesion: 0.19
+Cohesion: 0.17
 Nodes (21): _h(), _imported_member(), test_channel_without_contact_is_refused(), test_document_already_taken_is_refused(), test_email_bulk_skips_recent_and_complete_members(), test_email_link_fills_only_empty_fields_and_is_single_use(), test_member_can_add_photo_once_through_the_link(), test_new_link_invalidates_previous_and_other_gym_cannot_open_it() (+13 more)
 
 ### Community 146 - "test_messaging.py"
@@ -867,8 +868,8 @@ Cohesion: 0.15
 Nodes (8): ZkTcpDriver, work(), work(), work(), work(), work(), work(), ZkTcpError
 
 ### Community 148 - "Store"
-Cohesion: 0.10
-Nodes (4): _locked(), Store, FakeZkConn, test_zk_tcp_block_keeps_fingerprints_on_premise_and_restores()
+Cohesion: 0.17
+Nodes (3): _locked(), Store, test_zk_tcp_block_keeps_fingerprints_on_premise_and_restores()
 
 ### Community 149 - "test_machines.py"
 Cohesion: 0.18
@@ -878,60 +879,56 @@ Nodes (17): _auth(), _machine(), _owner_token(), test_a_machine_without_interval
 Cohesion: 0.33
 Nodes (6): Chunk 1: Estructura del Proyecto y Docker, code:bash (mkdir -p backend frontend), code:yaml (# docker-compose.yml), code:bash (# .env.example), code:bash (git add docker-compose.yml .env.example README.md), Task 1: Inicializar monorepo
 
-### Community 152 - "v1/insights.py"
-Cohesion: 0.16
-Nodes (15): anomalies(), churn_drivers(), churn_risk(), cohorts(), forecast(), models(), occupancy(), peak_hours() (+7 more)
+### Community 152 - "registry.py"
+Cohesion: 0.10
+Nodes (21): anomalies(), churn_drivers(), churn_risk(), cohorts(), forecast(), models(), occupancy(), peak_hours() (+13 more)
 
 ### Community 153 - "emails.py"
 Cohesion: 0.23
 Nodes (19): Button, Code, Email, Note, P, Steps, app_login_code(), _first_name() (+11 more)
 
-### Community 154 - "test_app_foods.py"
-Cohesion: 0.13
-Nodes (18): _food(), test_custom_food_from_a_label_serving(), test_empty_search_shows_everyday_foods_first(), test_favorites_recent_and_repeat_yesterday(), test_pace_changes_the_target_but_never_below_the_floor(), test_recipe_adds_up_its_ingredients(), test_reference_data_is_consistent(), test_reference_json_is_built_from_the_sources() (+10 more)
+### Community 154 - "_ready_user"
+Cohesion: 0.11
+Nodes (24): _food(), test_custom_food_from_a_label_serving(), test_empty_search_shows_everyday_foods_first(), test_favorites_recent_and_repeat_yesterday(), test_pace_changes_the_target_but_never_below_the_floor(), test_recipe_adds_up_its_ingredients(), test_reference_data_is_consistent(), test_search_ignores_accents_and_uses_synonyms() (+16 more)
 
 ### Community 155 - "test_app_mobile.py"
-Cohesion: 0.20
-Nodes (23): _app_login(), _class_tomorrow(), _email(), _h(), _last_code(), _linked(), test_announcement_reaches_the_phone_only_with_consent(), test_app_and_staff_tokens_do_not_cross() (+15 more)
+Cohesion: 0.19
+Nodes (24): _app_login(), _class_tomorrow(), _email(), _h(), _last_code(), _linked(), test_announcement_reaches_the_phone_only_with_consent(), test_app_and_staff_tokens_do_not_cross() (+16 more)
 
 ### Community 156 - "HikvisionDriver"
 Cohesion: 0.13
 Nodes (3): _extract_jpeg(), HikvisionDriver, HikvisionError
 
-### Community 157 - "test_ml_models.py"
-Cohesion: 0.18
-Nodes (10): _easter(), holidays(), is_holiday(), _next_monday(), expected_grid(), holiday_ratio(), next_week(), test_colombian_holidays_2026_match_the_official_calendar() (+2 more)
+### Community 157 - "is_holiday"
+Cohesion: 0.17
+Nodes (11): _easter(), holidays(), is_holiday(), _next_monday(), expected_grid(), holiday_ratio(), next_week(), _train_occupancy() (+3 more)
 
-### Community 158 - "nutrition.py"
-Cohesion: 0.13
+### Community 158 - "compute"
+Cohesion: 0.11
 Nodes (14): age_on(), bmr_mifflin(), compute(), macros_for(), micro_targets(), MissingData, Targets, test_floor_holds_for_every_pace() (+6 more)
 
 ### Community 159 - "lsmfit.py"
 Cohesion: 0.12
 Nodes (12): _cut(), iso_group(), iso_paths(), main(), svg(), wordmark(), cubic(), glyph_shape() (+4 more)
 
-### Community 160 - "app/main.py"
-Cohesion: 0.12
-Nodes (8): lifespan(), read_only_middleware(), request_id_middleware(), security_headers_middleware(), storage_unavailable_handler(), unhandled_exception_handler(), stop_scheduler(), ensure_bucket()
+### Community 160 - "FastAPI"
+Cohesion: 0.04
+Nodes (29): JsonFormatter, mask_pii(), setup_logging(), run_master_migrations(), _run_upgrade_sync(), lifespan(), read_only_middleware(), request_id_middleware() (+21 more)
 
-### Community 161 - "CashClient.tsx"
-Cohesion: 0.13
-Nodes (20): 4. Fechas corridas cinco horas en el panel — ALTO, CashClient(), CashierRow, CurrentShift, EMPTY_EXPENSE, escapeHtml(), Stat(), textoDiferencia() (+12 more)
-
-### Community 162 - "logging"
+### Community 161 - "load_history"
 Cohesion: 0.14
-Nodes (7): JsonFormatter, mask_pii(), setup_logging(), test_loading_an_alembic_env_keeps_the_app_logging(), test_alembic_file_config_does_not_silence_the_app(), test_mask_pii_hides_bearer_and_numbers(), test_unhandled_exception_is_logged()
+Nodes (14): load_history(), MemberInfo, Stint, train_from_history(), _sigmoid(), simulate(), _synthetic_history(), test_a_new_gym_gets_insufficient_data_everywhere() (+6 more)
 
-### Community 163 - "totp.py"
-Cohesion: 0.17
-Nodes (11): mfa_setup(), _code(), consume_backup_code(), hash_backup_code(), new_secret(), normalize(), provisioning_uri(), verify() (+3 more)
-
-### Community 164 - "Machine"
+### Community 162 - "search"
 Cohesion: 0.13
-Nodes (9): create_machine(), list_machines(), maintenance_calendar(), _serialize(), Machine, normalize_area(), maintenance_state(), MaintenanceState (+1 more)
+Nodes (16): normalize(), packaged_data(), recent(), recipe_per100(), search(), score(), seed_packaged(), upsert_packaged() (+8 more)
+
+### Community 163 - "LiveNowStrip.tsx"
+Cohesion: 0.18
+Nodes (18): Insight, InsightsStrip(), Tone, DECISION, LiveEntries(), TodayEntry, AttentionPanels(), DENIAL_LABELS (+10 more)
 
 ### Community 165 - "test_tenant_schema_drift.py"
-Cohesion: 0.16
+Cohesion: 0.15
 Nodes (13): _admin_url(), _create_all(), _drop_db(), _exec_admin(), _tenant_cfg(), test_new_tenant_migration_is_idempotent_over_create_all(), _aligner_coverage(), _apply_align() (+5 more)
 
 ### Community 166 - "forecast.py"
@@ -942,13 +939,13 @@ Nodes (11): backtest(), _effect(), fit(), _fit_hw(), HoltWinters, is_payday(), p
 Cohesion: 0.11
 Nodes (18): ACCENTS, contrast(), CSS, dark, darkRaw, FIXED_DARK, light, lightRaw (+10 more)
 
-### Community 168 - "audit"
-Cohesion: 0.25
-Nodes (9): cancel_membership(), freeze_membership(), FreezeRequest, _get_membership(), list_freezes(), _to_response(), unfreeze_membership(), MembershipFreeze (+1 more)
+### Community 168 - "DisenoGallery.tsx"
+Cohesion: 0.15
+Nodes (15): DisenoGallery(), SWATCHES, DisenoPage(), metadata, AnimatedNumber(), PageHeaderProps, colorDe(), KpiCard() (+7 more)
 
 ### Community 169 - "test_wompi_webhook.py"
-Cohesion: 0.24
-Nodes (14): encrypt_secret(), _fernet(), _make_signed_body(), _membership_count(), _payment_status(), _receipt_count(), _register(), _seed_payment_link() (+6 more)
+Cohesion: 0.22
+Nodes (15): encrypt_secret(), GymSettings, set_secret(), _make_signed_body(), _membership_count(), _payment_status(), _receipt_count(), _register() (+7 more)
 
 ### Community 170 - "renewal.py"
 Cohesion: 0.14
@@ -958,13 +955,13 @@ Nodes (9): InsufficientData, _auc(), _base_estimator(), _calibration(), _cluster
 Cohesion: 0.33
 Nodes (17): EmuUser, _auth(), _cedula(), _commands(), _emu(), _owner_token(), test_agent_flow_for_hikvision(), test_device_letting_in_an_expired_member_is_corrected() (+9 more)
 
-### Community 172 - "test_member_import.py"
-Cohesion: 0.33
-Nodes (16): _auth(), _by_doc(), _cedula(), _commit(), _dotted(), _legacy_csv(), _owner_token(), _preview() (+8 more)
+### Community 172 - "checkins.py"
+Cohesion: 0.22
+Nodes (11): _build_response(), create_checkin(), list_checkins(), list_today_checkins(), _names_by_id(), override_checkin(), OverrideRequest, _register() (+3 more)
 
 ### Community 173 - "mailer.py"
-Cohesion: 0.19
-Nodes (11): backend(), configured(), deliver(), _from_address(), _keep(), Mail, send(), _send_ses() (+3 more)
+Cohesion: 0.13
+Nodes (20): _block_html(), _block_text(), _footer(), _inline(), logo_url(), _plain(), render(), Rendered (+12 more)
 
 ### Community 174 - "recorrido.spec.ts"
 Cohesion: 0.16
@@ -978,45 +975,45 @@ Nodes (6): ESCRITORIO, cuentaDePrueba(), EMAIL, entrar(), PASSWORD, @playwright/
 Cohesion: 0.11
 Nodes (18): compilerOptions, allowJs, esModuleInterop, incremental, isolatedModules, jsx, lib, module (+10 more)
 
-### Community 177 - "promo_codes.py"
-Cohesion: 0.18
-Nodes (6): create_promo_code(), deactivate_promo_code(), list_promo_codes(), PromoCodeCreate, PromoCodeUpdate, update_promo_code()
+### Community 177 - "permissions.py"
+Cohesion: 0.06
+Nodes (22): entity_history(), list_audit_logs(), create_location(), deactivate_location(), _get_location(), list_locations(), LocationCreate, LocationUpdate (+14 more)
 
 ### Community 178 - "credits.py"
 Cohesion: 0.22
 Nodes (10): CreditEntry, _add(), balance(), ensure_grants(), NoCredits, refund(), spend(), summary() (+2 more)
 
 ### Community 179 - "tcac_extract.py"
-Cohesion: 0.18
+Cohesion: 0.17
 Nodes (10): atwater_ok(), _calibrate(), _centers(), foods(), micronutrients(), _nearest(), _num(), proximal() (+2 more)
 
 ### Community 180 - "test_class_form_contract.py"
 Cohesion: 0.24
 Nodes (13): _auth(), _classes_client_source(), _const_values(), _owner_token(), _payload(), test_las_categorias_del_formulario_son_las_del_enum(), test_las_dificultades_del_formulario_son_las_del_enum(), test_los_colores_del_formulario_son_hex() (+5 more)
 
-### Community 181 - "test_kiosk.py"
-Cohesion: 0.33
-Nodes (15): _activate(), _auth(), _device_token(), _member(), _owner_token(), test_device_regenerate_link_rotates_token(), test_device_rename(), test_entry_qr_is_gone_everywhere() (+7 more)
+### Community 181 - "test_pos.py"
+Cohesion: 0.18
+Nodes (29): _activate(), _auth(), _device_token(), _member(), _owner_token(), test_device_regenerate_link_rotates_token(), test_device_rename(), test_entry_qr_is_gone_everywhere() (+21 more)
 
-### Community 182 - "app_auth.py"
-Cohesion: 0.24
-Nodes (8): CodeRequest, logout(), refresh(), RefreshRequest, request_code(), verify(), VerifyRequest, normalize_email()
+### Community 182 - "KioskSection.tsx"
+Cohesion: 0.14
+Nodes (16): AccessConfig, AccessProtocol, COMMAND_LABEL, COMMAND_STATUS, COMMAND_TONE, PROTOCOLS, RosterRow, SetupSteps() (+8 more)
 
 ### Community 183 - "test_permission_coverage.py"
 Cohesion: 0.19
 Nodes (10): _app_person(), _declared_permissions(), _device_authenticated(), _enforced_permissions(), _guarded_perms(), _staff_routes(), test_every_enforced_permission_is_declared(), test_every_mutation_requires_a_permission() (+2 more)
 
-### Community 184 - "email_templates.py"
-Cohesion: 0.23
-Nodes (10): _block_html(), _block_text(), _footer(), _inline(), logo_url(), _plain(), render(), Rendered (+2 more)
+### Community 184 - "test_rbac.py"
+Cohesion: 0.29
+Nodes (12): _auth(), _owner_token(), _role_token(), _staff_token(), test_admin_allowed_on_financial(), test_audit_is_owner_only(), test_deactivated_staff_can_be_reactivated(), test_deactivated_staff_token_rejected_on_operational() (+4 more)
 
 ### Community 185 - "Task 8: Página de Pagos"
 Cohesion: 0.22
 Nodes (9): Chunk 5: Frontend — Páginas de Miembros y Pagos, code:bash (cd frontend), code:typescript (// frontend/hooks/usePayments.ts), code:typescript (// frontend/components/payments/PaymentForm.tsx), code:typescript (// frontend/components/payments/PaymentTable.tsx), code:typescript (// frontend/app/(dashboard)/payments/page.tsx), code:block72 (1. Ir a /payments), code:bash (git add frontend/app/(dashboard)/payments/ frontend/componen) (+1 more)
 
 ### Community 186 - "numpy"
-Cohesion: 0.27
-Nodes (9): ChurnModel, _describe(), drivers(), explain(), predict(), train(), _churn_data(), test_churn_model_learns_the_signal_and_explains_it() (+1 more)
+Cohesion: 0.08
+Nodes (19): detect(), _veces(), ChurnModel, _describe(), drivers(), explain(), predict(), train() (+11 more)
 
 ### Community 187 - "build_foods.py"
 Cohesion: 0.28
@@ -1030,41 +1027,37 @@ Nodes (3): _loop(), _main(), ZkEmulator
 Cohesion: 0.45
 Nodes (14): _auth(), _owner_token(), _product(), _sale(), test_categories_crud_and_product_link(), test_initial_stock_purchase_waste_and_adjustment_leave_trail(), test_product_sales_report_margin(), test_public_receipt_link_valid_and_tampered() (+6 more)
 
-### Community 190 - "update_instructor"
-Cohesion: 0.17
-Nodes (7): archive_instructor(), create_instructor(), InstructorCreate, InstructorUpdate, list_instructors(), _serialize(), update_instructor()
+### Community 190 - "Instructor"
+Cohesion: 0.11
+Nodes (13): archive_instructor(), create_instructor(), InstructorCreate, InstructorUpdate, list_instructors(), _serialize(), update_instructor(), current_instructor() (+5 more)
 
-### Community 191 - "locations.py"
-Cohesion: 0.25
-Nodes (7): create_location(), deactivate_location(), _get_location(), list_locations(), LocationCreate, LocationUpdate, update_location()
+### Community 191 - "update_food"
+Cohesion: 0.17
+Nodes (6): _atwater_warning(), create_food(), FoodIn, MealIn, update_food(), search_text_for()
 
 ### Community 192 - "models/tenant.py"
 Cohesion: 0.26
 Nodes (8): Base, TimestampMixin, Location, SubscriptionPlan, Tenant, TenantStatus, User, UserRole
 
-### Community 193 - "test_pos.py"
-Cohesion: 0.41
-Nodes (14): _auth(), _member(), _owner_token(), _product(), test_archive_product_with_sales(), test_billing_summary_with_balance_and_renewal(), test_charge_cash_requires_open_shift(), test_charge_renewal_extends_from_current_end() (+6 more)
-
-### Community 194 - "tenant_align.py"
-Cohesion: 0.03
-Nodes (3): migrate_all(), _stamp_head(), downgrade()
+### Community 193 - "test_cash_arqueo.py"
+Cohesion: 0.38
+Nodes (11): _auth(), _fresh_shift(), _owner_token(), _receptionist(), test_cashier_does_not_see_expected_before_counting(), test_denominations_are_validated(), test_differences_are_grouped_by_who_closed(), test_manual_refund_expense_is_rejected() (+3 more)
 
 ### Community 195 - "check-hardcoded-colors.mjs"
 Cohesion: 0.14
 Nodes (9): BASELINE, current, DIRS, grew, paid, PATTERNS, ROOT, total (+1 more)
 
-### Community 196 - "migrate_class_colors.py"
-Cohesion: 0.22
-Nodes (5): migrate(), normalize_color(), test_cada_nombre_css_mapea_a_su_hex(), test_un_color_desconocido_no_se_migra(), test_un_color_ya_migrado_no_se_toca()
+### Community 196 - "test_class_color_migration.py"
+Cohesion: 0.27
+Nodes (4): normalize_color(), test_cada_nombre_css_mapea_a_su_hex(), test_un_color_desconocido_no_se_migra(), test_un_color_ya_migrado_no_se_toca()
 
 ### Community 197 - "test_checkin_decisions.py"
 Cohesion: 0.45
 Nodes (11): _auth(), _member_no_membership(), _member_with_membership(), _owner_token(), test_active_membership_allowed(), test_expired_membership_denied(), test_in_grace_allowed_with_status(), test_no_membership_denied() (+3 more)
 
 ### Community 198 - "[id].tsx"
-Cohesion: 0.36
-Nodes (11): confirmDelete(), hour12(), mealSlot(), PlanDetail(), WEEKDAYS, Meter(), disableMealReminders(), enableMealReminders() (+3 more)
+Cohesion: 0.12
+Nodes (28): Color, Cómo se verifica, Escena, Forma, LSMFit app: sistema «Calor Kinetic», Movimiento (Emil Kowalski), Reglas de composición, Tipografía (+20 more)
 
 ### Community 199 - "Reglas del proyecto — LSMFit"
 Cohesion: 0.17
@@ -1082,21 +1075,21 @@ Nodes (11): _auth(), _create_class(), _member_active(), _next_session(), _owner_
 Cohesion: 0.17
 Nodes (11): CheckIn, CheckinDecision, CheckinResult, Member, Membership, MembershipEffectiveStatus, MembershipStatus, MemberStatus (+3 more)
 
-### Community 203 - "MachineResponse"
-Cohesion: 0.22
-Nodes (6): _area_valida(), MachineBase, MachineCreate, MachineResponse, Config, MachineUpdate
+### Community 203 - "passkeys.py"
+Cohesion: 0.25
+Nodes (8): authentication_options(), origins(), registration_options(), _remember(), rp_id(), _take(), verify_authentication(), verify_registration()
 
-### Community 204 - "ml/segments.py"
-Cohesion: 0.20
-Nodes (3): _nombrar(), segment(), test_segments_name_the_obvious_groups()
+### Community 204 - "test_audit_actions.py"
+Cohesion: 0.33
+Nodes (8): _audit_client_source(), _backend_sources(), _emitted_actions(), test_every_action_prefix_has_a_color(), test_regex_parses_every_audit_call(), test_ui_has_no_invented_actions(), test_ui_labels_cover_every_emitted_action(), _ts_block()
 
 ### Community 205 - "test_access.py"
 Cohesion: 0.55
 Nodes (9): _auth(), _cedula(), _owner_token(), test_day_pass_visitor_passes_only_today(), test_fingerprint_requires_consent_and_revocation_blocks(), test_offline_batch_is_idempotent_and_allowlist(), test_staff_token_rejected_and_inactive_device(), test_verify_allows_active_denies_expired_and_unknown() (+1 more)
 
 ### Community 206 - "test_emails.py"
-Cohesion: 0.38
-Nodes (8): _set_module(), _h(), _mails_to(), test_app_code_can_be_sent_by_email(), test_every_template_renders_html_and_text(), test_import_batch_can_be_invited_to_the_app(), test_new_member_gets_app_invite_only_when_the_plan_includes_the_app(), test_staff_invite_sends_the_link_by_email()
+Cohesion: 0.33
+Nodes (9): _set_module(), _h(), _mails_to(), test_app_code_can_be_sent_by_email(), test_every_template_renders_html_and_text(), test_import_batch_can_be_invited_to_the_app(), test_new_member_gets_app_invite_only_when_the_plan_includes_the_app(), test_staff_invite_sends_the_link_by_email() (+1 more)
 
 ### Community 207 - "test_auth.py"
 Cohesion: 0.31
@@ -1122,21 +1115,17 @@ Nodes (10): Ajustes avanzados por equipo (instalador), Checklist de instalación
 Cohesion: 0.18
 Nodes (10): App móvil de LSMFit, Cómo se vincula un socio, Dónde viven los datos, Gemini: llave, cuota y costo, Instalar la app sin Play Store, Nutrición, Pendiente, Planes (comidas y entreno) (+2 more)
 
-### Community 213 - "Plan: Rediseño de lógica LSMFit — de demo a producto vendible"
-Cohesion: 0.18
-Nodes (10): Archivos críticos, Contexto, Dependencias y cierre de cada fase, Fase 1 — Núcleo: ciclo de vida de membresías, scheduler, auditoría, sedes, Fase 2 — Check-in estricto con override + dashboard operativo, Fase 3 — Caja real: turnos, egresos, recibos, Fase 4 — Wompi sandbox real: links, webhook, reconciliación, Fase 5 — Clases por sesión: reservas, waitlist, asistencia (+2 more)
+### Community 213 - "conftest.py"
+Cohesion: 0.22
+Nodes (5): get_db(), dispose_tenant_engines(), _dispose_tenant_engines(), override_get_db(), setup_db()
 
-### Community 214 - "ml/inventory.py"
-Cohesion: 0.27
-Nodes (4): run_out(), smoothed_velocity(), weekday_profile(), test_inventory_uses_the_weekly_pattern()
+### Community 214 - "test_member_delete.py"
+Cohesion: 0.35
+Nodes (6): _auth(), _crear_socio(), _owner_token(), test_borrar_socio_con_membresia_funciona(), test_socio_con_pagos_no_se_borra(), test_visitante_con_pase_no_se_borra()
 
 ### Community 215 - "test_ticketera_cortesia.py"
 Cohesion: 0.42
 Nodes (7): _auth(), _cedula(), _owner_token(), _tenant_sql(), test_courtesy_gives_access_without_money_and_requires_admin(), test_ticketera_discounts_entries_and_denies_when_exhausted(), _turnstile()
-
-### Community 216 - "list_outbox"
-Cohesion: 0.28
-Nodes (4): list_notifications(), list_outbox(), mark_all_read(), mark_read()
 
 ### Community 217 - "remote.sh"
 Cohesion: 0.50
@@ -1154,25 +1143,25 @@ Nodes (8): Al volver la red, Luz, Modo sin conexión (internet o servidor caído
 Cohesion: 0.64
 Nodes (6): _auth(), _owner_token(), _seed(), test_exports_per_tab_and_month_close(), test_insights_endpoints(), test_summary_breakdown_attendance_period()
 
-### Community 221 - "test_smoke_empty_gym.py"
-Cohesion: 0.29
-Nodes (4): _get_routes(), routes(), test_every_listing_endpoint_survives_an_empty_gym(), test_every_report_export_works_on_an_empty_gym()
+### Community 221 - "pytest"
+Cohesion: 0.16
+Nodes (8): test_holt_winters_needs_eight_weeks(), _entries(), test_cada_constante_vale_lo_mismo_que_en_el_backend(), test_toda_capacidad_de_la_ui_existe_en_el_backend(), _get_routes(), routes(), test_every_listing_endpoint_survives_an_empty_gym(), test_every_report_export_works_on_an_empty_gym()
 
 ### Community 222 - "mobile/tsconfig.json"
 Cohesion: 0.25
 Nodes (7): compilerOptions, paths, strict, extends, include, @/assets/*, expo/tsconfig.base
 
-### Community 223 - "LSMFit — Product Context"
+### Community 223 - "LSMFit: sistema de diseño "Calor""
+Cohesion: 0.10
+Nodes (17): 1. Color, 2. Tipografía, 3. Superficies, forma y profundidad, 4. Composición del Hoy (1 · Refinado), 5. Componentes, 6. Movimiento, 7. Responsive, 8. Marca (+9 more)
+
+### Community 224 - "Línea base del rediseño Marcador (F0, 2026-09-13)"
 Cohesion: 0.25
-Nodes (7): Anti-references, Brand, LSMFit — Product Context, Product Purpose, Register, Strategic principles, Users
+Nodes (7): Capturas de referencia, Detector de impeccable, Deuda medida en el código, Diagnóstico visual (resumen), Línea base del rediseño Marcador (F0, 2026-09-13), Movimiento (vara de emil-design-eng), Tipografía candidata verificada
 
-### Community 225 - "member_app_invite.py"
-Cohesion: 0.38
-Nodes (3): can_invite(), send(), send_quietly()
-
-### Community 226 - "anomalies.py"
-Cohesion: 0.33
-Nodes (3): detect(), _veces(), test_anomalies_flag_a_dead_day()
+### Community 225 - "scripts"
+Cohesion: 0.29
+Nodes (7): scripts, android, ios, lint, start, typecheck, web
 
 ### Community 227 - "Marca LSMFit"
 Cohesion: 0.29
@@ -1184,11 +1173,15 @@ Nodes (6): APK sin Play Store, Correr en desarrollo, Cómo está armada, LSMFit 
 
 ### Community 229 - "api/deps.py"
 Cohesion: 0.07
-Nodes (23): get_app_user(), get_current_owner(), get_current_staff(), get_db_name(), get_kiosk_db(), get_kiosk_payload(), get_tenant_db_from_token(), get_tenant_from_claims() (+15 more)
+Nodes (23): check_tenant_active(), get_app_user(), get_current_owner(), get_current_staff(), get_db_name(), get_kiosk_payload(), get_tenant_db_from_token(), get_tenant_from_claims() (+15 more)
 
-### Community 231 - "test_onboarding.py"
-Cohesion: 0.53
-Nodes (4): _payload(), _register_and_login(), test_onboarding_done_after_plan_and_member(), test_onboarding_status_fresh_tenant()
+### Community 230 - "services/idempotency.py"
+Cohesion: 0.16
+Nodes (6): IdempotencyKey, _hash(), _is_key_conflict(), jsonable(), new_key(), purge_expired_keys()
+
+### Community 231 - "create_member"
+Cohesion: 0.12
+Nodes (17): create_member(), full_member_fields(), _h(), test_member_create_replayed_with_same_key_does_not_duplicate(), test_offline_checkins_are_idempotent_and_flag_review(), test_offline_override_requires_override_permission(), test_offline_rejects_impossible_clock(), test_snapshot_has_status_and_no_personal_contact_data() (+9 more)
 
 ### Community 232 - "test_realtime.py"
 Cohesion: 0.47
@@ -1227,16 +1220,16 @@ Cohesion: 0.67
 Nodes (3): 7. NOTIFICACIONES, Fase 2: WhatsApp Business API, MVP: Email + In-app
 
 ### Community 262 - "re"
-Cohesion: 0.11
-Nodes (21): _audit_client_source(), _backend_sources(), _emitted_actions(), test_every_action_prefix_has_a_color(), test_regex_parses_every_audit_call(), test_ui_has_no_invented_actions(), test_ui_labels_cover_every_emitted_action(), _ts_block() (+13 more)
+Cohesion: 0.29
+Nodes (9): _bloque(), test_denominations_match(), test_expense_labels_match(), test_manual_categories_match(), backend_routes(), frontend_calls(), main(), matches() (+1 more)
 
 ### Community 271 - "runtests.sh"
 Cohesion: 0.12
 Nodes (14): DATABASE_URL, ENVIRONMENT, MASTER_DATABASE_URL, MFA_REQUIRED_ROLES, REDIS_URL, S3_ACCESS_KEY, S3_BUCKET, S3_ENDPOINT_URL (+6 more)
 
 ### Community 277 - "json"
-Cohesion: 0.14
-Nodes (10): call(), main(), verify(), extract_tcac(), extract_usda(), fetch(), main(), read_csv() (+2 more)
+Cohesion: 0.08
+Nodes (24): call(), main(), verify(), build(), category(), clean_text(), coherent(), kcal_of() (+16 more)
 
 ### Community 283 - "Hallazgos"
 Cohesion: 0.17
@@ -1247,32 +1240,32 @@ Cohesion: 0.83
 Nodes (3): fail(), deploy-lite.sh script, step()
 
 ### Community 307 - "frontend/package.json"
-Cohesion: 0.06
-Nodes (29): eslintConfig, next, qrcode.react, react, react-dom, tailwindcss, @tailwindcss/postcss, @types/node (+21 more)
+Cohesion: 0.05
+Nodes (40): bricolage, figtree, metadata, RootLayout(), TOUR_START_EVENT, Providers(), ThemeChoice, ThemeOption (+32 more)
 
 ### Community 357 - "7.1 Initial State (mockData.js)"
 Cohesion: 0.67
 Nodes (3): 7.1 Initial State (mockData.js), 7. DATA STRUCTURE, code:javascript (export const initialGymState = {)
 
 ## Knowledge Gaps
-- **75 isolated node(s):** `npx`, `obsidian-mcp`, `OBSIDIAN_VAULT_PATH`, `lsmfit-agent`, `MASTER_DATABASE_URL` (+70 more)
-  These have ≤1 connection - possible missing edges or undocumented components. (Counts symbols only; 2572 node(s) total have ≤1 connection when file, concept and rationale nodes are included.)
-- **32 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
+- **76 isolated node(s):** `npx`, `obsidian-mcp`, `OBSIDIAN_VAULT_PATH`, `lsmfit-agent`, `MASTER_DATABASE_URL` (+71 more)
+  These have ≤1 connection - possible missing edges or undocumented components. (Counts symbols only; 2616 node(s) total have ≤1 connection when file, concept and rationale nodes are included.)
+- **37 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
 
 ## Suggested Questions
 _Questions this graph is uniquely positioned to answer:_
 
-- **Why does `Hallazgos` connect `Hallazgos` to `CashClient.tsx`?**
-  _High betweenness centrality (0.319) - this node is a cross-community bridge._
-- **Are the 138 inferred relationships involving `UserStaff` (e.g. with `get_current_staff()` and `require_perm()`) actually correct?**
-  _`UserStaff` has 138 INFERRED edges - model-reasoned connections that need verification._
+- **Why does `MaintenanceLogCreate` connect `classes.py` to `Hallazgos`, `machines.py`?**
+  _High betweenness centrality (0.314) - this node is a cross-community bridge._
+- **Are the 139 inferred relationships involving `UserStaff` (e.g. with `get_current_staff()` and `require_perm()`) actually correct?**
+  _`UserStaff` has 139 INFERRED edges - model-reasoned connections that need verification._
 - **What connects `npx`, `obsidian-mcp`, `OBSIDIAN_VAULT_PATH` to the rest of the system?**
-  _75 weakly-connected nodes found - possible documentation gaps or missing edges._
+  _76 weakly-connected nodes found - possible documentation gaps or missing edges._
 - **Should `ref_react` be split into smaller, more focused modules?**
-  _Cohesion score 0.04449152542372881 - nodes in this community are weakly interconnected._
-- **Why does `MaintenanceLogCreate` connect `machines.py` to `Hallazgos`, `classes.py`?**
-  _High betweenness centrality (0.319) - this node is a cross-community bridge._
+  _Cohesion score 0.048514851485148516 - nodes in this community are weakly interconnected._
+- **Why does `Hallazgos` connect `Hallazgos` to `Button`?**
+  _High betweenness centrality (0.314) - this node is a cross-community bridge._
 - **Should `cn` be split into smaller, more focused modules?**
-  _Cohesion score 0.03247687564234327 - nodes in this community are weakly interconnected._
-- **Why does `8. `MaintenanceLogCreate` exige `machine_id` en el cuerpo — COSMÉTICO` connect `Hallazgos` to `machines.py`?**
-  _High betweenness centrality (0.319) - this node is a cross-community bridge._
+  _Cohesion score 0.025723738626964435 - nodes in this community are weakly interconnected._
+- **Why does `8. `MaintenanceLogCreate` exige `machine_id` en el cuerpo — COSMÉTICO` connect `Hallazgos` to `classes.py`?**
+  _High betweenness centrality (0.313) - this node is a cross-community bridge._

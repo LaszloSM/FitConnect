@@ -385,12 +385,15 @@ export const ARTICLES: HelpArticle[] = [
     title: "Dejar listo el computador de recepción",
     summary: "Instala LSMFit como aplicación y revisa que tenga la copia de socios.",
     steps: [
-      "Usa Google Chrome o Microsoft Edge.",
+      "Usa Google Chrome, Microsoft Edge o Brave.",
       "Ve a Ajustes › Dispositivos › «Este computador sin internet». Ahí ves qué le falta a este equipo.",
       "Toca «Instalar LSMFit en este computador». Queda un ícono en el escritorio que abre el Mostrador, con o sin internet.",
       "Deja la sesión de recepción abierta durante la jornada: sin internet no se puede iniciar sesión.",
     ],
-    tips: ["El computador debe haber abierto LSMFit con internet al menos una vez para tener la copia de socios."],
+    tips: [
+      "El computador debe haber abierto LSMFit con internet al menos una vez para tener la copia de socios.",
+      "En Brave: toca el león de la barra de direcciones y deja los escudos en «Estándar» para LSMFit. Si bloquea todas las cookies o borra los datos al cerrar, el equipo pierde la copia y no podrá trabajar sin internet.",
+    ],
   },
   {
     slug: "cortes-de-luz",
@@ -514,6 +517,7 @@ export const FAQS: HelpFaq[] = [
   { category: "sin-internet", q: "¿Qué pasa si se cae el internet?", a: "Recepción sigue funcionando con la copia guardada en el computador: buscas socios, registras entradas y cobras en efectivo. Al volver la red, todo sube solo y sin duplicados." },
   { category: "sin-internet", q: "¿Y si se va la luz?", a: "Sin luz no funciona el computador. Con una UPS (batería de respaldo) para el router, el torniquete y el computador sigues atendiendo entre 1 y 2 horas." },
   { category: "sin-internet", q: "¿Tengo que descargar algo para trabajar sin internet?", a: "No hace falta, pero te lo recomendamos: en Ajustes › Dispositivos toca «Instalar LSMFit en este computador» y queda un ícono en el escritorio." },
+  { category: "sin-internet", q: "¿Funciona en Brave?", a: "Sí. Brave se puede instalar igual que Chrome (menú ☰ › Instalar LSMFit). Solo cuida que los escudos de Brave estén en «Estándar» para este sitio: si bloquean todas las cookies o borran los datos al cerrar, el equipo pierde la copia para trabajar sin internet. Revísalo en Ajustes › Dispositivos." },
   { category: "equipo", q: "¿Cómo agrego a mi personal?", a: "En Ajustes › Equipo los invitas por correo. Cada persona crea su propia contraseña. Puedes cambiar su rol o quitarle el acceso cuando quieras." },
   { category: "equipo", q: "¿La recepción puede ver cuánto vende el gimnasio?", a: "No. Recepción ve las entradas y los cobros del día. Los informes de plata y la caja completa son del dueño y el administrador." },
   { category: "seguridad", q: "¿Es obligatoria la verificación en dos pasos?", a: "No. Te la recomendamos porque protege tu cuenta si alguien consigue tu contraseña, pero tú decides si la activas y puedes quitarla cuando quieras." },
