@@ -94,7 +94,14 @@ export default function RegisterPage() {
       if (!res.ok) {
         const data = await res.json().catch(() => ({}));
         const detail = data.detail;
-        setError(typeof detail === "string" ? detail : "No pudimos crear la cuenta. Revisa los datos e intenta de nuevo.");
+        // Un 500 no le dice nada útil a quien se registra: se muestra un mensaje que sí.
+        setError(
+          res.status >= 500
+            ? "Algo falló de nuestro lado al crear el gimnasio. Intenta de nuevo en un momento o escríbenos a lsmfit.business@gmail.com."
+            : typeof detail === "string"
+              ? detail
+              : "No pudimos crear la cuenta. Revisa los datos e intenta de nuevo.",
+        );
         return;
       }
       router.push("/login?registered=1");

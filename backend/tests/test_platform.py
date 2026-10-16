@@ -321,3 +321,21 @@ def test_paid_until_expiry_goes_past_due_then_read_only():
     # Sin pagos registrados un gimnasio activo sigue activo (cuentas anteriores a los cobros).
     t.paid_until = None
     assert subscription.effective(t, today)["status"] == "active"
+
+
+async def test_register_with_an_email_used_by_staff_says_so_instead_of_500(client):
+    """Un correo que ya es personal de otro gimnasio no puede abrir un gimnasio nuevo:
+    antes el alta reventaba al final (staff_directory es único por correo)."""
+    from app.models.master.staff_directory import StaffDirectory
+    email, tenant_id = await _gym(client)
+    other = f"Staff-{uuid.uuid4().hex[:6]}@Gym.com"
+    async with MasterSessionLocal() as db:
+        t = (await db.execute(__import__("sqlalchemy").select(StaffDirectory).where(StaffDirectory.email == email))).scalar_one()
+        db.add(StaffDirectory(email=other.lower(), tenant_id=t.tenant_id, db_name=t.db_name, staff_id=uuid.uuid4()))
+        await db.commit()
+    for mail in (other, email.upper()):
+        r = await client.post("/api/v1/auth/register", json={
+            "email": mail, "password": "SecurePass123!", "full_name": "Otro", "gym_name": "Gym Repetido", "city": "Cali",
+        })
+        assert r.status_code == 400, r.text
+        assert "ya tiene una cuenta" in r.json()["detail"]
