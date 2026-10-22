@@ -5,6 +5,7 @@ import { useSession } from "next-auth/react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { toast } from "sonner";
 import { z } from "zod";
+import { SegmentedControl } from "@/components/motion/SegmentedControl";
 import { GlassCard } from "@/components/common/GlassCard";
 import { Avatar } from "@/components/dashboard/hoy/parts";
 import { PageHeader } from "@/components/common/PageHeader";
@@ -210,6 +211,12 @@ export default function MembersClient() {
   const [converting, setConverting] = useState<Member | null>(null);
   const searchParams = useSearchParams();
   const convertHandled = useRef<string | null>(null);
+
+  // El buscador del encabezado llega aquí con ?q=.
+  const headerQuery = searchParams.get("q");
+  useEffect(() => {
+    if (headerQuery !== null) setSearch(headerQuery);
+  }, [headerQuery]);
 
   // Pagination
   const [page, setPage] = useState(0);
@@ -1046,25 +1053,22 @@ export default function MembersClient() {
             />
           </div>
           <div className="flex items-center gap-2 flex-wrap">
-            {(["", "active", "inactive"] as const).map((s) => (
-              <button
-                key={s}
-                onClick={() => setStatusFilter(s)}
-                className={cn(
-                  "h-9 rounded-[var(--radius-md)] px-3 text-sm font-medium transition-colors",
-                  statusFilter === s
-                    ? "bg-primary-muted font-semibold text-primary-ink"
-                    : "bg-muted text-ink-muted hover:text-ink"
-                )}
-              >
-                {s === "" ? "Todos" : s === "active" ? "Activos" : "Inactivos"}
-              </button>
-            ))}
+            <SegmentedControl
+              size="sm"
+              label="Estado de la membresía"
+              value={statusFilter || "all"}
+              onChange={(v) => setStatusFilter(v === "all" ? "" : v)}
+              options={[
+                { value: "all", label: "Todos" },
+                { value: "active", label: "Activos" },
+                { value: "inactive", label: "Inactivos" },
+              ]}
+            />
             <select
               value={typeFilter}
               onChange={(e) => setTypeFilter(e.target.value as typeof typeFilter)}
               aria-label="Filtrar por tipo de persona"
-              className="h-9 rounded-[var(--radius-md)] px-3 text-sm font-medium bg-panel border border-line text-ink"
+              className="h-10 rounded-full border border-line bg-panel px-3.5 text-sm font-medium text-ink"
             >
               <option value="">Todo el mundo</option>
               <option value="member">Solo socios</option>
@@ -1075,7 +1079,7 @@ export default function MembersClient() {
               onClick={exportCSV}
               disabled={members.length === 0}
               title="Exportar a CSV"
-              className="flex h-9 items-center gap-1.5 rounded-[var(--radius-md)] px-3 text-sm font-medium bg-panel border border-line text-ink hover:bg-muted disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+              className="flex h-10 items-center gap-1.5 rounded-full border border-line bg-panel px-3.5 text-sm font-medium text-ink transition-[background-color,transform] duration-150 hover:bg-raised active:scale-[0.97] disabled:cursor-not-allowed disabled:opacity-40"
             >
               <Download className="h-3.5 w-3.5" />
               CSV

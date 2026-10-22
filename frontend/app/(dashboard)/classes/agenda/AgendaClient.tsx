@@ -56,6 +56,35 @@ function occupancyColor(booked: number, capacity: number): string {
   return "bg-[var(--signal-ok)]";
 }
 
+/**
+ * Carril de cada sesión dentro de su día: las que se cruzan en horario van lado
+ * a lado (cada grupo que se solapa reparte el ancho), en vez de taparse.
+ */
+function layoutLanes(sessions: { id: string; start_time: string | null; duration_minutes: number }[]) {
+  const out = new Map<string, { lane: number; count: number }>();
+  const sorted = [...sessions].sort((a, b) => minutesOf(a.start_time!) - minutesOf(b.start_time!));
+  let group: { id: string; lane: number }[] = [];
+  let laneEnds: number[] = [];
+  let groupEnd = -1;
+  const flush = () => {
+    for (const g of group) out.set(g.id, { lane: g.lane, count: laneEnds.length });
+    group = [];
+    laneEnds = [];
+  };
+  for (const s of sorted) {
+    const start = minutesOf(s.start_time!);
+    const end = start + s.duration_minutes;
+    if (start >= groupEnd) flush();
+    let lane = laneEnds.findIndex((e) => e <= start);
+    if (lane === -1) lane = laneEnds.push(end) - 1;
+    else laneEnds[lane] = end;
+    group.push({ id: s.id, lane });
+    groupEnd = Math.max(groupEnd, end);
+  }
+  flush();
+  return out;
+}
+
 export default function AgendaClient() {
   const { data: session } = useSession();
   const [weekStart, setWeekStart] = useState(() => startOfWeek(new Date(), { weekStartsOn: 1 }));
@@ -291,6 +320,7 @@ export default function AgendaClient() {
                 {days.map((day) => {
                   const dayStr = format(day, "yyyy-MM-dd");
                   const daySessions = timed.filter((s) => s.session_date === dayStr);
+                  const lanes = layoutLanes(daySessions);
                   return (
                     <div
                       key={dayStr}
@@ -309,37 +339,43 @@ export default function AgendaClient() {
                         const height = Math.max((s.duration_minutes / 60) * HOUR_PX, 36);
                         const cancelled = s.status === "cancelled";
                         const accent = s.color || "var(--accent-classes)";
+                        const { lane, count } = lanes.get(s.id) ?? { lane: 0, count: 1 };
                         return (
+                          // Bloque en un tinte pálido del color de la clase, con el texto en tinta:
+                          // a pleno color la semana era un arcoíris y el blanco encima no se leía.
                           <button
                             key={s.id}
                             onClick={() => void openSession(s)}
                             className={cn(
-                              "absolute left-1 right-1 rounded-lg border px-2 py-1 text-left overflow-hidden transition-transform hover:scale-[1.02] hover:z-10",
-                              cancelled
-                                ? "opacity-45 line-through border-[var(--border-base)] bg-[var(--bg-muted)]"
-                                : "border-transparent text-white shadow-sm"
+                              "absolute flex flex-col overflow-hidden rounded-[10px] px-2 py-1.5 text-left text-ink",
+                              "transition-[filter,transform] duration-150 hover:z-10 hover:brightness-[0.97] active:scale-[0.98] dark:hover:brightness-110",
+                              "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-action/40",
+                              cancelled && "opacity-50 line-through",
                             )}
-                            style={cancelled ? { top, height } : { top, height, background: accent }}
+                            style={{
+                              top,
+                              height,
+                              left: `calc(${(lane / count) * 100}% + 4px)`,
+                              width: `calc(${100 / count}% - ${count > 1 ? 6 : 8}px)`,
+                              background: cancelled ? "var(--bg-muted)" : `color-mix(in oklch, ${accent} 18%, var(--bg-card))`,
+                            }}
                           >
-                            <p className="text-xs font-bold leading-tight truncate">{s.class_name}</p>
-                            <p className="text-[10px] opacity-90 truncate">
+                            <span className="flex min-w-0 items-center gap-1.5">
+                              <span className="size-2 shrink-0 rounded-full" style={{ background: accent }} aria-hidden="true" />
+                              <span className="truncate text-xs font-semibold leading-tight">{s.class_name}</span>
+                            </span>
+                            <span className="num mt-0.5 truncate text-[11px] font-medium text-ink-muted">
                               {s.start_time!.slice(0, 5)}
-                              {height >= 64 ? ` · ${s.instructor}` : ""}
-                            </p>
-                            {!cancelled && height >= 52 && (
-                              <div className="absolute bottom-1 left-2 right-2">
-                                <div className="flex items-center justify-between text-[10px] font-semibold">
-                                  <span>
-                                    {s.booked}/{s.capacity}
-                                  </span>
-                                </div>
-                                <div className="h-1 rounded-full bg-black/25 overflow-hidden">
-                                  <div
-                                    className={cn("h-full rounded-full", occupancyColor(s.booked, s.capacity))}
-                                    style={{ width: `${Math.min((s.booked / s.capacity) * 100, 100)}%` }}
-                                  />
-                                </div>
-                              </div>
+                              {!cancelled && ` · ${s.booked}/${s.capacity}`}
+                              {height >= 64 && s.instructor ? ` · ${s.instructor}` : ""}
+                            </span>
+                            {!cancelled && height >= 64 && (
+                              <span className="mt-auto block h-1 overflow-hidden rounded-full bg-[color-mix(in_oklch,var(--text-base)_10%,transparent)]">
+                                <span
+                                  className={cn("block h-full rounded-full", occupancyColor(s.booked, s.capacity))}
+                                  style={{ width: `${Math.min((s.booked / s.capacity) * 100, 100)}%` }}
+                                />
+                              </span>
                             )}
                           </button>
                         );

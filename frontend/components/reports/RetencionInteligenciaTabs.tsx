@@ -291,8 +291,8 @@ export function InteligenciaTab({ period }: { period: Period }) {
                 <YAxis tick={{ fill: "var(--text-muted)", fontSize: 10 }} axisLine={false} tickLine={false} tickFormatter={compact} />
                 <Tooltip {...chartTooltipStyle} formatter={(val: any, n: any) => [formatCOP(Number(val) || 0), n === "real" ? "Acumulado" : "Proyección"]} labelFormatter={(d) => `Día ${d}`} />
                 {f.avg_previous_months ? <ReferenceLine y={f.avg_previous_months} stroke="var(--text-muted)" strokeDasharray="4 4" label={{ value: "prom. 3 meses", fill: "var(--text-muted)", fontSize: 10, position: "insideTopLeft" }} /> : null}
-                <Area type="monotone" dataKey="real" stroke="var(--brand)" strokeWidth={2} fill="var(--brand)" fillOpacity={0.15} name="real" connectNulls={false} />
-                <Area type="monotone" dataKey="proyectado" stroke="var(--brand)" strokeWidth={2} strokeDasharray="5 4" fill="var(--brand)" fillOpacity={0.05} name="proyectado" connectNulls={false} />
+                <Area type="linear" dataKey="real" stroke="var(--brand)" strokeWidth={2} fill="var(--brand)" fillOpacity={0.15} name="real" connectNulls={false} />
+                <Area type="linear" dataKey="proyectado" stroke="var(--brand)" strokeWidth={2} strokeDasharray="5 4" fill="var(--brand)" fillOpacity={0.05} name="proyectado" connectNulls={false} />
               </AreaChart>
             </ResponsiveContainer>
           )}

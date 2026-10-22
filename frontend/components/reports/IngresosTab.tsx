@@ -22,7 +22,8 @@ interface Breakdown {
 }
 interface Daily { date: string; amount: number; membership: number; day_pass: number; product: number; other: number }
 
-const KIND_COLORS: Record<string, string> = { membership: "var(--brand)", day_pass: "var(--signal-info)", product: "var(--signal-warn)", other: "var(--text-subtle)" };
+// Una sola familia de color (coral y sus pasos) más un neutro: cuatro tonos sueltos competían entre sí.
+const KIND_COLORS: Record<string, string> = { membership: "var(--data-1)", day_pass: "var(--data-2)", product: "var(--data-3)", other: "var(--text-subtle)" };
 
 export function IngresosTab({ period }: { period: Period }) {
   const { data, loading, error } = usePeriodData<{ summary: Summary; breakdown: Breakdown; daily: Daily[] }>({
@@ -66,10 +67,10 @@ export function IngresosTab({ period }: { period: Period }) {
                   <span style={{ color: "var(--text-muted)" }}>{value}</span>
                 )}
               />
-              <Area type="monotone" stackId="1" dataKey="membership" name="Membresías" stroke={KIND_COLORS.membership} fill={KIND_COLORS.membership} fillOpacity={0.35} />
-              <Area type="monotone" stackId="1" dataKey="day_pass" name="Pases" stroke={KIND_COLORS.day_pass} fill={KIND_COLORS.day_pass} fillOpacity={0.35} />
-              <Area type="monotone" stackId="1" dataKey="product" name="Productos" stroke={KIND_COLORS.product} fill={KIND_COLORS.product} fillOpacity={0.35} />
-              <Area type="monotone" stackId="1" dataKey="other" name="Otros" stroke={KIND_COLORS.other} fill={KIND_COLORS.other} fillOpacity={0.35} />
+              <Area type="linear" stackId="1" dataKey="membership" name="Membresías" stroke={KIND_COLORS.membership} fill={KIND_COLORS.membership} fillOpacity={0.16} />
+              <Area type="linear" stackId="1" dataKey="day_pass" name="Pases" stroke={KIND_COLORS.day_pass} fill={KIND_COLORS.day_pass} fillOpacity={0.16} />
+              <Area type="linear" stackId="1" dataKey="product" name="Productos" stroke={KIND_COLORS.product} fill={KIND_COLORS.product} fillOpacity={0.16} />
+              <Area type="linear" stackId="1" dataKey="other" name="Otros" stroke={KIND_COLORS.other} fill={KIND_COLORS.other} fillOpacity={0.16} />
             </AreaChart>
           </ResponsiveContainer>
         )}

@@ -8,6 +8,7 @@ import { toast } from "sonner";
 import { apiClient } from "@/lib/api";
 import { GlassCard } from "@/components/common/GlassCard";
 import { cn } from "@/lib/utils";
+import { RollingNumber } from "@/components/motion/RollingNumber";
 import { FileXlsIcon as FileSpreadsheet, FileTextIcon as FileText, SpinnerGapIcon as Loader2 } from "@phosphor-icons/react";
 import type { Period } from "./PeriodPicker";
 
@@ -99,31 +100,28 @@ export function ExportButtons({ tab, period, label }: { tab: string; period: Per
     }
   };
 
-  const btn = "flex items-center gap-1.5 h-8 px-2.5 rounded-lg border border-[var(--border-base)] bg-[var(--bg-card)] text-xs font-medium text-[var(--text-base)] hover:bg-[var(--bg-muted)] transition-colors disabled:opacity-50";
+  const btn = "flex h-9 items-center gap-1.5 rounded-full border border-line bg-panel px-3.5 text-[13px] font-medium text-ink transition-[background-color,transform] duration-150 hover:bg-raised active:scale-[0.97] disabled:opacity-50";
   return (
     <div className="flex items-center gap-1.5">
       <button type="button" onClick={() => void download("xlsx")} disabled={busy !== null} className={btn}>
         {busy === "xlsx" ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <FileSpreadsheet className="h-3.5 w-3.5 text-ink-muted" />} Excel
       </button>
       <button type="button" onClick={() => void download("pdf")} disabled={busy !== null} className={btn}>
-        {busy === "pdf" ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <FileText className="h-3.5 w-3.5 text-[var(--signal-danger)]" />} PDF
+        {busy === "pdf" ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <FileText className="h-3.5 w-3.5 text-ink-muted" />} PDF
       </button>
     </div>
   );
 }
 
+/**
+ * Cifra de un informe. Va en tinta: el color en cada número lo vuelve ruido.
+ * `tone` solo apaga lo que no aplica. Al cambiar de período, los dígitos ruedan.
+ */
 export function Tile({ label, value, tone = "base", hint }: { label: string; value: string; tone?: "base" | "positive" | "negative" | "warning" | "muted"; hint?: string }) {
-  const cls = {
-    base: "text-[var(--text-base)]",
-    positive: "text-[var(--signal-ok)]",
-    negative: "text-[var(--signal-danger)]",
-    warning: "text-[var(--signal-warn)]",
-    muted: "text-[var(--text-muted)]",
-  }[tone];
   return (
     <GlassCard className="p-5">
-      <p className="text-[13px] font-semibold text-ink-muted">{label}</p>
-      <p className={cn("num mt-1.5 text-[26px] leading-none", cls)}>{value}</p>
+      <p className="text-[13px] font-medium text-ink-muted">{label}</p>
+      <RollingNumber value={value} className={cn("num mt-2 text-[26px] leading-none tracking-[-0.015em]", tone === "muted" ? "text-ink-muted" : "text-ink")} />
       {hint && <p className="mt-1.5 text-xs text-ink-muted">{hint}</p>}
     </GlassCard>
   );

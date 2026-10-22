@@ -155,7 +155,7 @@ export function AsistenciaTab({ period }: { period: Period }) {
               <XAxis dataKey="label" tick={{ fill: "var(--text-muted)", fontSize: 10 }} axisLine={false} tickLine={false} />
               <YAxis tick={{ fill: "var(--text-muted)", fontSize: 10 }} axisLine={false} tickLine={false} allowDecimals={false} />
               <Tooltip {...chartTooltipStyle} formatter={(v: any) => [v, "Ingresos"]} />
-              <Area type="monotone" dataKey="count" stroke="var(--brand)" strokeWidth={2} fill="var(--brand)" fillOpacity={0.1} name="Ingresos" />
+              <Area type="linear" dataKey="count" stroke="var(--brand)" strokeWidth={2} fill="var(--brand)" fillOpacity={0.1} name="Ingresos" />
             </AreaChart>
           </ResponsiveContainer>
         )}

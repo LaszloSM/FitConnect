@@ -2,10 +2,11 @@
 
 import { useEffect, useRef, useState } from "react";
 import { useSession } from "next-auth/react";
-import { useTheme } from "next-themes";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { ConnectionIndicator } from "@/components/offline/ConnectionIndicator";
-import { BellIcon as Bell, SignOutIcon as LogOut, ListIcon as Menu, MoonIcon as Moon, GearSixIcon as Settings, SunIcon as Sun } from "@phosphor-icons/react";
+import { BellIcon as Bell, SignOutIcon as LogOut, ListIcon as Menu, MagnifyingGlassIcon as Search, GearSixIcon as Settings } from "@phosphor-icons/react";
+import { ThemeToggle } from "@/components/motion/ThemeToggle";
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
 import { formatDateTime, formatTimeAgo, todayInGym } from "@/lib/format";
@@ -34,10 +35,11 @@ function getInitials(name?: string | null): string {
 }
 
 const iconButton =
-  "relative flex size-10 items-center justify-center rounded-md text-ink-muted transition-colors duration-150 hover:bg-muted hover:text-ink focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary";
+  "relative flex size-10 items-center justify-center rounded-full text-ink-muted transition-[color,background-color,transform] duration-150 hover:bg-raised hover:text-ink active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-action/40";
 
+// Los menús nacen desde su botón (esquina superior derecha), no desde el centro.
 const popover =
-  "absolute right-0 top-12 z-50 origin-top-right overflow-hidden rounded-[var(--radius-xl)] bg-panel shadow-[var(--shadow-dialog)] animate-[scaleIn_150ms_var(--ease-out)]";
+  "absolute right-0 top-12 z-50 origin-top-right overflow-hidden rounded-[var(--radius-xl)] bg-panel shadow-[var(--shadow-dialog)] ring-1 ring-line-soft animate-[scaleIn_150ms_var(--ease-out)]";
 
 /** Cierra un menú al hacer clic afuera o con Escape. */
 function useDismiss(open: boolean, ref: React.RefObject<HTMLDivElement | null>, close: () => void) {
@@ -58,13 +60,12 @@ function useDismiss(open: boolean, ref: React.RefObject<HTMLDivElement | null>, 
 
 export function Header() {
   const { data: session } = useSession();
-  const { resolvedTheme, setTheme } = useTheme();
   const { setMobileOpen } = useSidebar();
+  const router = useRouter();
+  const [query, setQuery] = useState("");
 
   const [mounted, setMounted] = useState(false);
   useEffect(() => setMounted(true), []);
-  // El tema vive en localStorage: pintarlo antes de montar rompe la hidratación.
-  const esOscuro = mounted && resolvedTheme === "dark";
 
   // Fecha del gym (Bogotá), no la del navegador; solo se levanta la inicial.
   const fecha = format(todayInGym(), "EEEE d 'de' MMMM", { locale: es });
@@ -126,7 +127,7 @@ export function Header() {
   };
 
   return (
-    <header className="fixed right-0 top-0 z-20 flex h-14 items-center gap-2 bg-surface px-3 left-0 lg:left-[var(--sidebar-w)] md:px-6 lg:px-8 transition-[left] duration-200 ease-[var(--ease-out)]">
+    <header className="fixed right-0 top-0 z-20 flex h-16 items-center gap-2 bg-surface px-3 left-0 md:h-[4.5rem] md:px-6 lg:left-[var(--sidebar-w)] lg:pl-1 lg:pr-8 transition-[left] duration-200 ease-[var(--ease-out)]">
       <button
         onClick={() => setMobileOpen(true)}
         aria-label="Abrir menú"
@@ -138,29 +139,38 @@ export function Header() {
         <BrandMark size={26} />
       </span>
 
-      <div className="flex min-w-0 flex-1 items-baseline gap-3">
+      <div className="flex min-w-0 flex-col leading-tight">
         <span className="truncate text-[15px] font-semibold text-ink">{gymName ?? "LSMFit"}</span>
+        <span className="hidden truncate text-[12.5px] text-ink-muted sm:block" suppressHydrationWarning>
+          {mounted ? hoy : ""}
+          {mounted && hora && <>, <span className="num font-semibold text-ink-muted">{hora}</span></>}
+        </span>
       </div>
 
-      <span className="hidden whitespace-nowrap pr-2 text-sm text-ink-muted sm:inline">
-        {mounted ? hoy : ""}
-        {mounted && hora && (
-          <>
-            , <span className="num text-ink">{hora}</span>
-          </>
-        )}
-      </span>
-
-      <ConnectionIndicator />
-
-      <button
-        aria-label={esOscuro ? "Cambiar a modo claro" : "Cambiar a modo oscuro"}
-        onClick={() => setTheme(esOscuro ? "light" : "dark")}
-        className={iconButton}
+      {/* Buscar un socio desde cualquier pantalla: Enter abre Socios ya filtrado. */}
+      <form
+        role="search"
+        className="ml-auto hidden h-10 w-[min(22rem,30vw)] items-center gap-2 rounded-full border border-line bg-panel px-3.5 text-sm text-ink-placeholder transition-[border-color] duration-150 focus-within:border-ink-muted md:flex"
+        onSubmit={(e) => {
+          e.preventDefault();
+          const q = query.trim();
+          router.push(q ? `/members?q=${encodeURIComponent(q)}` : "/members");
+        }}
       >
-        {esOscuro ? <Sun className="size-[18px]" /> : <Moon className="size-[18px]" />}
-      </button>
+        <Search className="size-4 shrink-0" />
+        <input
+          type="search"
+          value={query}
+          onChange={(e) => setQuery(e.target.value)}
+          placeholder="Buscar socio por nombre o cédula"
+          aria-label="Buscar socio por nombre o cédula"
+          className="min-w-0 flex-1 bg-transparent text-ink outline-none placeholder:text-ink-placeholder"
+        />
+      </form>
 
+      <div className="ml-auto flex items-center gap-1 md:ml-1">
+        <ConnectionIndicator />
+        <ThemeToggle />
       <div className="relative" ref={bellRef}>
         <button
           aria-label={unreadCount > 0 ? `Notificaciones, ${unreadCount} sin leer` : "Notificaciones"}
@@ -213,9 +223,9 @@ export function Header() {
           aria-label="Cuenta"
           aria-expanded={showUser}
           aria-haspopup="true"
-          className="flex size-10 items-center justify-center rounded-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+          className="flex size-10 items-center justify-center rounded-full transition-transform duration-150 active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-action/40"
         >
-          <span className="flex size-9 items-center justify-center rounded-[var(--radius-md)] bg-primary-muted text-xs font-bold text-primary-ink">
+          <span className="flex size-9 items-center justify-center rounded-full bg-primary-muted text-xs font-bold text-primary-ink">
             {getInitials(session?.user?.name)}
           </span>
         </button>
@@ -243,6 +253,7 @@ export function Header() {
             </button>
           </div>
         )}
+      </div>
       </div>
     </header>
   );

@@ -114,7 +114,7 @@ export function AreaChartCard({
             }
           />
           <Area
-            type="monotone"
+            type="linear"
             dataKey={dataKey}
             stroke={color}
             strokeWidth={2}

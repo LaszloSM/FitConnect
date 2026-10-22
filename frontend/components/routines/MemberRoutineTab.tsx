@@ -83,7 +83,7 @@ export function MemberRoutineTab({ memberId }: { memberId: string }) {
             </div>
             <div className="flex gap-1.5 flex-wrap">
               {current.routine.days.map((d: any, i: number) => (
-                <button key={d.id} type="button" onClick={() => setDayIdx(i)} className={`rounded-lg px-2.5 py-1 text-xs font-medium border ${i === dayIdx ? "bg-primary text-primary-contrast border-transparent" : "border-[var(--border-base)] text-[var(--text-muted)]"}`}>{d.title}</button>
+                <button key={d.id} type="button" onClick={() => setDayIdx(i)} className={`rounded-full px-2.5 py-1 text-xs font-medium border ${i === dayIdx ? "bg-action text-action-ink border-transparent" : "border-[var(--border-base)] text-[var(--text-muted)]"}`}>{d.title}</button>
               ))}
             </div>
             <div className="space-y-1.5">

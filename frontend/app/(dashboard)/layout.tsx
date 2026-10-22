@@ -1,6 +1,5 @@
 "use client";
 
-import { useEffect, useState } from "react";
 import { Sidebar } from "@/components/layout/Sidebar";
 import { Header } from "@/components/layout/Header";
 import { MobileNav } from "@/components/layout/MobileNav";
@@ -14,9 +13,8 @@ import { SIDEBAR_COLLAPSED_W, SIDEBAR_EXPANDED_W } from "@/lib/layout-constants"
 
 function DashboardShell({ children }: { children: React.ReactNode }) {
   const { collapsed } = useSidebar();
-  const [mounted, setMounted] = useState(false);
-  useEffect(() => setMounted(true), []);
-  const width = mounted && collapsed ? SIDEBAR_COLLAPSED_W : SIDEBAR_EXPANDED_W;
+  // El riel es el modo por defecto en servidor y cliente: no hay salto al hidratar.
+  const width = collapsed ? SIDEBAR_COLLAPSED_W : SIDEBAR_EXPANDED_W;
 
   return (
     // El ancho del sidebar viaja como variable CSS: header y contenido lo leen
@@ -35,9 +33,9 @@ function DashboardShell({ children }: { children: React.ReactNode }) {
       <Header />
       <main
         id="contenido"
-        className="pb-24 pt-[calc(3.5rem+1.5rem)] transition-[padding] duration-200 ease-[var(--ease-out)] md:pb-10 md:pt-[calc(3.5rem+2rem)] lg:pl-[var(--sidebar-w)]"
+        className="pb-24 pt-[calc(4rem+0.5rem)] transition-[padding] duration-200 ease-[var(--ease-out)] md:pb-10 md:pt-[calc(4.5rem+0.75rem)] lg:pl-[var(--sidebar-w)]"
       >
-        <div className="mx-auto w-full max-w-[1440px] px-4 md:px-6 lg:px-8">
+        <div className="mx-auto w-full max-w-[1440px] px-4 md:px-6 lg:pl-1 lg:pr-8">
           <SubscriptionBanner />
           <RouteGuard>{children}</RouteGuard>
         </div>

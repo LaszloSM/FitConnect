@@ -24,32 +24,38 @@ function hourOf(iso: string): number {
   return Number(formatDateTime(iso, "H"));
 }
 
-export function DayCard({ entries, occupancy }: { entries: TodayEntry[]; occupancy: DashboardData["occupancy"] }) {
-  // Solo se anima lo que cambia de verdad: la entrada que acaba de llegar (DESIGN.md §6).
-  const reduce = useReducedMotion();
+/** Lo que el Hoy dice de la puerta: entradas válidas, cuántas lleva un día
+ *  normal a esta hora y cuántos siguen adentro. Lo usan la tarjeta del día y el
+ *  cuadro de indicadores, así las dos cifras siempre coinciden. */
+export function dayStats(entries: TodayEntry[], occupancy: DashboardData["occupancy"]) {
   const allowed = entries.filter((e) => e.decision !== "denied");
-  const byHour = Array<number>(24).fill(0);
-  for (const e of allowed) byHour[hourOf(e.created_at)] += 1;
-
   const cells = occupancy?.result?.cells ?? [];
   const weekday = gymWeekday();
   const typical: number[] | null = cells.length
     ? Array.from({ length: 24 }, (_, h) => cells.find((c) => c.weekday === weekday && c.hour === h)?.count ?? 0)
     : null;
-
   const nowHour = gymHour();
   const nowMinute = Number(formatDateTime(new Date(), "m"));
+  const typicalSoFar = typical
+    ? typical.slice(0, nowHour).reduce((a, b) => a + b, 0) + typical[nowHour] * (nowMinute / 60)
+    : null;
+  const inside = allowed.filter((e) => Date.now() - parseUTC(e.created_at).getTime() < STAY_MINUTES * 60_000).length;
+  return { allowed, typical, typicalSoFar, inside, nowHour, nowMinute };
+}
+
+export function DayCard({ entries, occupancy }: { entries: TodayEntry[]; occupancy: DashboardData["occupancy"] }) {
+  // Solo se anima lo que cambia de verdad: la entrada que acaba de llegar (DESIGN.md §6).
+  const reduce = useReducedMotion();
+  const { allowed, typical, typicalSoFar, inside, nowHour, nowMinute } = dayStats(entries, occupancy);
+  const byHour = Array<number>(24).fill(0);
+  for (const e of allowed) byHour[hourOf(e.created_at)] += 1;
 
   const active = Array.from({ length: 24 }, (_, h) => h).filter((h) => byHour[h] > 0 || (typical?.[h] ?? 0) >= 0.3);
   const start = Math.min(active.length ? Math.min(...active) : DEFAULT_RANGE[0], DEFAULT_RANGE[0] + 1);
   const end = Math.max(active.length ? Math.max(...active) : DEFAULT_RANGE[1], Math.min(nowHour, 23));
   const hours = Array.from({ length: end - start + 1 }, (_, i) => start + i);
 
-  const typicalSoFar = typical
-    ? typical.slice(0, nowHour).reduce((a, b) => a + b, 0) + typical[nowHour] * (nowMinute / 60)
-    : null;
   const delta = typicalSoFar !== null && typicalSoFar >= 8 ? Math.round(((allowed.length - typicalSoFar) / typicalSoFar) * 100) : null;
-  const inside = allowed.filter((e) => Date.now() - parseUTC(e.created_at).getTime() < STAY_MINUTES * 60_000).length;
 
   const maxValue = Math.max(1, ...hours.map((h) => Math.max(byHour[h], typical?.[h] ?? 0))) * 1.12;
   const dayName = format(todayInGym(), "EEEE", { locale: es });

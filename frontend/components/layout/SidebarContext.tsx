@@ -4,7 +4,7 @@ import { createContext, useContext, useState, useEffect, useCallback } from "rea
 import { usePathname } from "next/navigation";
 
 interface SidebarContextValue {
-  /** Sidebar de escritorio en modo iconos. */
+  /** Menú de escritorio en modo riel de íconos (el modo por defecto). */
   collapsed: boolean;
   toggle: () => void;
   /** Drawer de navegación en móvil y tablet. */
@@ -13,14 +13,14 @@ interface SidebarContextValue {
 }
 
 const SidebarContext = createContext<SidebarContextValue>({
-  collapsed: false,
+  collapsed: true,
   toggle: () => {},
   mobileOpen: false,
   setMobileOpen: () => {},
 });
 
 export function SidebarProvider({ children }: { children: React.ReactNode }) {
-  const [collapsed, setCollapsed] = useState(false);
+  const [collapsed, setCollapsed] = useState(true);
   const [mobileOpen, setMobileOpen] = useState(false);
   const pathname = usePathname();
 

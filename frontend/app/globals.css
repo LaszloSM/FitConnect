@@ -33,6 +33,11 @@
   --color-ink-placeholder: var(--text-placeholder);
 
   --color-line: var(--border-base);
+  --color-line-soft: var(--border-soft);
+  --color-action: var(--action);
+  --color-action-hover: var(--action-hover);
+  --color-action-ink: var(--action-ink);
+  --color-raised: var(--bg-raised);
   --color-attention: var(--bg-attention);
 
   --font-sans: var(--font-figtree), ui-sans-serif, system-ui, sans-serif;
@@ -64,31 +69,37 @@
   100% { background-position: 200% 0; }
 }
 
-/* ── Calor: tema claro (el principal) ────────────────────────────────────────
-   La recepción con luz de tarde: neutros cálidos (tono 50-70), un coral que
-   solo marca acciones y lo seleccionado, y tarjetas que se separan del fondo
-   por sombra, no por borde. Las señales de estado viven aparte del coral.    */
+/* ── Calor 2: tema claro ─────────────────────────────────────────────────────
+   Piedra, no crema: un neutro casi sin tinte para el fondo, tarjetas blancas
+   separadas por un borde de 1 px (no por sombra), el botón principal casi
+   negro y el coral solo donde hay datos, marca o algo que pide atención.     */
 :root {
-  --bg-base: oklch(0.972 0.009 65);
-  --bg-card: oklch(0.996 0.003 70);
-  --bg-sidebar: oklch(0.948 0.012 60);
-  --bg-input: oklch(0.998 0.002 70);
-  --bg-muted: oklch(0.935 0.012 60);
-  --border-base: oklch(0.850 0.014 60);
-  --text-base: oklch(0.230 0.020 45);
-  --text-muted: oklch(0.490 0.020 50);
-  --text-subtle: oklch(0.500 0.020 50);
-  --text-placeholder: oklch(0.600 0.018 55);
-  --elev-card: 0 1px 2px oklch(0.4 0.05 45 / 0.06), 0 10px 28px -12px oklch(0.4 0.08 40 / 0.18), inset 0 1px 0 oklch(1 0 0 / 0.7);
-  --elev-card-high: 0 2px 4px oklch(0.4 0.05 45 / 0.07), 0 18px 40px -16px oklch(0.4 0.08 40 / 0.26), inset 0 1px 0 oklch(1 0 0 / 0.7);
+  --bg-base: oklch(0.958 0.004 91);
+  --bg-card: oklch(1 0 0);
+  --bg-sidebar: oklch(0.958 0.004 91);
+  --bg-input: oklch(1 0 0);
+  --bg-muted: oklch(0.942 0.006 60);
+  --bg-raised: oklch(0.970 0.004 91);
+  --border-base: oklch(0.850 0.010 63);
+  --border-soft: oklch(0.915 0.007 68);
+  --text-base: oklch(0.212 0.005 39);
+  --text-muted: oklch(0.481 0.013 54);
+  --text-subtle: oklch(0.500 0.013 54);
+  --text-placeholder: oklch(0.580 0.012 55);
+  --action: oklch(0.212 0.005 39);
+  --action-hover: oklch(0.300 0.006 39);
+  --action-ink: oklch(0.985 0.002 90);
+  /* Las tarjetas son planas: el "borde" es un anillo de 1 px para no mover el layout. */
+  --elev-card: 0 0 0 1px var(--border-soft);
+  --elev-card-high: 0 0 0 1px var(--border-soft), 0 12px 32px -16px oklch(0.3 0.02 50 / 0.18);
   --shadow-sm: 0 1px 2px oklch(0.4 0.05 45 / 0.06);
   --shadow-md: 0 8px 20px -8px oklch(0.4 0.08 40 / 0.20);
   --shadow-lg: 0 16px 36px -14px oklch(0.4 0.08 40 / 0.24);
   --shadow-dialog: 0 28px 60px -18px oklch(0.35 0.08 40 / 0.32);
   --shadow-card: var(--elev-card);
   --shadow-card-elevated: var(--elev-card-high);
-  --shadow-primary: inset 0 1px 0 oklch(1 0 0 / 0.25), 0 6px 16px -6px oklch(0.55 0.18 35 / 0.55);
-  --skeleton-highlight: oklch(0.975 0.008 65);
+  --shadow-primary: none;
+  --skeleton-highlight: oklch(0.970 0.004 91);
 
   /* Marca: coral. Relleno oscuro con tinta casi blanca encima; como texto va
      `-ink`, un paso más oscuro para leerse sobre las tarjetas. */
@@ -152,11 +163,11 @@
   --data-2: oklch(0.720 0.120 45);
   --data-3: oklch(0.850 0.060 60);
 
-  /* Controles 11 px, tarjetas 18 px, diálogos 20 px, chips 8 px. */
+  /* Controles 12 px, tarjetas 20 px, diálogos 24 px, chips 8 px; los botones son píldoras. */
   --radius-sm: 0.5rem;
-  --radius-md: 0.6875rem;
-  --radius-lg: 1.125rem;
-  --radius-xl: 1.25rem;
+  --radius-md: 0.75rem;
+  --radius-lg: 1.25rem;
+  --radius-xl: 1.5rem;
   --ease-out: cubic-bezier(0.23, 1, 0.32, 1);
   --ease-in-out: cubic-bezier(0.77, 0, 0.175, 1);
   --ease-drawer: cubic-bezier(0.32, 0.72, 0, 1);
@@ -168,28 +179,33 @@
   --transition-slow: var(--duration-slow) var(--ease-out);
 }
 
-/* ── Calor: tema oscuro ──────────────────────────────────────────────────── */
+/* ── Calor 2: tema oscuro ─────────────────────────────────────────────────── */
 .dark {
-  --bg-base: oklch(0.170 0.012 50);
-  --bg-card: oklch(0.215 0.014 50);
-  --bg-sidebar: oklch(0.145 0.012 50);
-  --bg-input: oklch(0.235 0.014 50);
-  --bg-muted: oklch(0.270 0.014 50);
-  --border-base: oklch(0.350 0.014 50);
-  --text-base: oklch(0.955 0.008 70);
-  --text-muted: oklch(0.740 0.015 60);
-  --text-subtle: oklch(0.700 0.015 60);
-  --text-placeholder: oklch(0.580 0.015 60);
-  --elev-card: 0 1px 2px oklch(0 0 0 / 0.30), 0 12px 30px -12px oklch(0 0 0 / 0.55), inset 0 1px 0 oklch(1 0 0 / 0.05);
-  --elev-card-high: 0 2px 4px oklch(0 0 0 / 0.35), 0 20px 44px -16px oklch(0 0 0 / 0.65), inset 0 1px 0 oklch(1 0 0 / 0.06);
+  --bg-base: oklch(0.162 0.003 18);
+  --bg-card: oklch(0.199 0.005 39);
+  --bg-sidebar: oklch(0.162 0.003 18);
+  --bg-input: oklch(0.226 0.007 48);
+  --bg-muted: oklch(0.266 0.011 48);
+  --bg-raised: oklch(0.226 0.007 48);
+  --border-base: oklch(0.375 0.010 61);
+  --border-soft: oklch(0.264 0.012 67);
+  --text-base: oklch(0.947 0.010 58);
+  --text-muted: oklch(0.736 0.018 56);
+  --text-subtle: oklch(0.700 0.017 55);
+  --text-placeholder: oklch(0.600 0.015 55);
+  --action: oklch(0.947 0.010 58);
+  --action-hover: oklch(0.880 0.012 58);
+  --action-ink: oklch(0.162 0.003 18);
+  --elev-card: 0 0 0 1px var(--border-soft);
+  --elev-card-high: 0 0 0 1px var(--border-soft), 0 16px 40px -16px oklch(0 0 0 / 0.6);
   --shadow-sm: 0 1px 2px oklch(0 0 0 / 0.30);
   --shadow-md: 0 8px 20px -8px oklch(0 0 0 / 0.50);
   --shadow-lg: 0 16px 36px -14px oklch(0 0 0 / 0.60);
   --shadow-dialog: 0 28px 60px -18px oklch(0 0 0 / 0.70);
   --shadow-card: var(--elev-card);
   --shadow-card-elevated: var(--elev-card-high);
-  --shadow-primary: inset 0 1px 0 oklch(1 0 0 / 0.18);
-  --skeleton-highlight: oklch(0.300 0.014 50);
+  --shadow-primary: none;
+  --skeleton-highlight: oklch(0.300 0.010 50);
 
   --brand: oklch(0.640 0.170 38);
   --brand-hover: oklch(0.680 0.160 38);
@@ -311,6 +327,45 @@
     transition-duration: var(--duration-fast);
     transition-timing-function: var(--ease-out);
   }
+}
+
+/* ─── Movimiento compartido ───────────────────────────────────────────────
+   Reglas de Emil Kowalski: solo transform/opacity, menos de 300 ms en la UI,
+   curvas fuertes y nada que se repita cien veces al día con coreografía.     */
+
+/* Cifras que ruedan (RollingNumber): cada dígito es una columna 0-9 pintada por
+   CSS para que el texto real sea solo el valor. */
+.roll { display: inline-flex; white-space: nowrap; line-height: 1.05em; }
+.roll-digit, .roll-char { display: inline-block; height: 1.05em; line-height: 1.05em; vertical-align: top; white-space: pre; }
+.roll-digit { overflow: hidden; }
+.roll-digit > span { display: block; transition: transform 620ms var(--ease-out); }
+.roll-digit > span::before { content: "0\A 1\A 2\A 3\A 4\A 5\A 6\A 7\A 8\A 9"; white-space: pre; display: block; line-height: 1.05em; }
+
+/* Filas que llegan después de montar (entradas en vivo, un cobro nuevo). */
+.row-enter {
+  transition: opacity 260ms ease, transform 320ms var(--ease-out);
+  @starting-style { opacity: 0; transform: translateY(-6px); }
+}
+
+/* Indicadores deslizantes (useSlidingIndicator): base de 1 px que se escala. */
+.slide-ind {
+  position: absolute;
+  pointer-events: none;
+  transform-origin: 0 0;
+  transition: transform 300ms var(--ease-out), opacity 150ms ease;
+}
+
+/* Barras de gráficos que crecen desde la base una sola vez. */
+.bar-grow { transform-box: fill-box; transform-origin: 50% 100%; animation: barGrow 520ms var(--ease-out) both; }
+@keyframes barGrow { from { transform: scaleY(0); } }
+
+/* Revelado circular del tema: sin el fundido por defecto de View Transitions. */
+::view-transition-old(root),
+::view-transition-new(root) { animation: none; mix-blend-mode: normal; }
+
+@media (prefers-reduced-motion: reduce) {
+  .roll-digit > span, .slide-ind { transition: none; }
+  .bar-grow { animation: none; }
 }
 
 /* ─── Tour de bienvenida (driver.js) con los tokens propios ─── */

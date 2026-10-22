@@ -51,19 +51,41 @@ export interface ChurnRiskRow {
   method?: "modelo" | "reglas";
 }
 
+export interface CashTotals {
+  total: number; count: number;
+  by_method: Record<string, number>;
+  by_kind: Record<string, number>;
+  pending_transfers: { count: number; amount: number };
+}
+
+export interface RecentPayment {
+  id: string;
+  created_at: string;
+  concept: string | null;
+  kind: string;
+  method: string;
+  status: string;
+  amount: number | string;
+  refunded_amount?: number | string;
+  member_name: string | null;
+}
+
 export interface DashboardData {
   kpis: {
+    total_members: number;
+    active_members: number;
     expiring_memberships_7d: number;
     machines_total: number;
     machines_maintenance: number;
     machines_active: number;
   } | null;
-  cash: {
-    total: number; count: number;
-    by_method: Record<string, number>;
-    by_kind: Record<string, number>;
-    pending_transfers: { count: number; amount: number };
-  } | null;
+  /** Lo cobrado por mes (últimos seis, el actual al final). */
+  revenueHistory: { month: string; amount: number }[];
+  cash: CashTotals | null;
+  /** Lo cobrado en lo que va del mes, con el mismo desglose que `cash`. */
+  cashMonth: CashTotals | null;
+  /** Los últimos movimientos de hoy, el más reciente primero. */
+  recentPayments: RecentPayment[];
   pendingTransfers: {
     id: string; transfer_reference: string | null;
     member_name: string | null; amount: number; elapsed_minutes: number;
@@ -91,7 +113,7 @@ export interface DashboardData {
 }
 
 const EMPTY: DashboardData = {
-  kpis: null, cash: null, pendingTransfers: [], receivables: [], todayClasses: [],
+  kpis: null, revenueHistory: [], cash: null, cashMonth: null, recentPayments: [], pendingTransfers: [], receivables: [], todayClasses: [],
   operations: null, shift: null, lowStock: [], checkinsToday: [], birthdaysToday: [],
   insights: [], occupancy: null, forecast: null, revenueDaily: [], churnRisk: [], plans: [],
   failed: new Set(),
@@ -130,7 +152,9 @@ export function useDashboardData() {
     const granted: string[] = session?.permissions ?? [];
     const NEEDS: Partial<Record<keyof DashboardData, string>> = {
       cash: "payments.read",
+      recentPayments: "payments.read",
       receivables: "payments.read",
+      kpis: "reports.read",
       birthdaysToday: "reports.read",
       occupancy: "reports.read",
       forecast: "reports.read",
@@ -157,8 +181,8 @@ export function useDashboardData() {
     weekAgo.setDate(weekAgo.getDate() - 7);
 
     Promise.all([
-      pull("kpis", "/api/v1/dashboard/kpis", null as { kpis: DashboardData["kpis"] } | null),
-      pull("cash", "/api/v1/payments/cash", null as { today: DashboardData["cash"] } | null),
+      pull("kpis", "/api/v1/dashboard/kpis", null as { kpis: DashboardData["kpis"]; revenue_history?: { month: string; amount: number | string }[] } | null),
+      pull("cash", "/api/v1/payments/cash", null as { today: CashTotals; month?: CashTotals } | null),
       pull("pendingTransfers", "/api/v1/payments/pending-transfers", [] as DashboardData["pendingTransfers"]),
       pull("receivables", "/api/v1/payments/receivables", [] as DashboardData["receivables"]),
       pull("todayClasses", "/api/v1/classes", [] as Record<string, unknown>[], { is_active: true, limit: 50 }),
@@ -173,13 +197,17 @@ export function useDashboardData() {
       pull("revenueDaily", "/api/v1/reports/revenue-daily", [] as DashboardData["revenueDaily"], { from: toISODate(weekAgo), to: todayISO() }),
       pull("churnRisk", "/api/v1/insights/churn-risk", [] as ChurnRiskRow[], { limit: 200 }),
       pull("plans", "/api/v1/member-plans/", [] as DashboardData["plans"]),
+      pull("recentPayments", "/api/v1/payments", [] as RecentPayment[], { from: todayISO(), to: todayISO(), limit: 8 }),
     ])
-      .then(([kpis, cash, pending, receivables, classes, operations, shift, lowStock, checkins, birthdays, insights, occupancy, forecast, revenueDaily, churnRisk, plans]) => {
+      .then(([kpis, cash, pending, receivables, classes, operations, shift, lowStock, checkins, birthdays, insights, occupancy, forecast, revenueDaily, churnRisk, plans, recentPayments]) => {
         if (cancelled) return;
         const hoy = gymWeekday();
         setData({
           kpis: kpis?.kpis ?? null,
+          revenueHistory: (kpis?.revenue_history ?? []).map((r) => ({ month: r.month, amount: Number(r.amount) })),
           cash: cash?.today ?? null,
+          cashMonth: cash?.month ?? null,
+          recentPayments,
           pendingTransfers: pending,
           receivables,
           todayClasses: classes.filter(

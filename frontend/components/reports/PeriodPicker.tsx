@@ -1,7 +1,7 @@
 "use client";
 
 import { format, startOfMonth, endOfMonth, startOfWeek, endOfWeek, subMonths, startOfQuarter, endOfQuarter } from "date-fns";
-import { cn } from "@/lib/utils";
+import { SegmentedControl } from "@/components/motion/SegmentedControl";
 
 export interface Period {
   from: string;
@@ -40,33 +40,26 @@ const PRESETS: { key: Exclude<PeriodKey, "custom">; label: string }[] = [
 ];
 
 const inputCls =
-  "h-8 rounded-md border border-[var(--border-base)] bg-[var(--bg-base)] px-2 text-xs text-[var(--text-base)] outline-none focus:ring-2 focus:ring-[var(--brand)]/30";
+  "h-9 rounded-full border border-line bg-panel px-3 text-[13px] text-ink outline-none transition-[border-color] duration-150 focus:border-ink-muted";
 
 export function PeriodPicker({ value, onChange }: { value: Period; onChange: (p: Period) => void }) {
+  // Un rango a mano no coincide con ningún atajo: el control queda sin selección.
+  const preset = PRESETS.some((p) => p.key === value.key) ? (value.key as Exclude<PeriodKey, "custom">) : ("" as Exclude<PeriodKey, "custom">);
   return (
-    <div className="flex items-center gap-2 flex-wrap" role="group" aria-label="Período">
-      <div className="flex gap-1 rounded-xl border border-[var(--border-base)] bg-[var(--bg-card)] p-1">
-        {PRESETS.map((p) => (
-          <button
-            key={p.key}
-            type="button"
-            onClick={() => onChange(periodFor(p.key))}
-            aria-pressed={value.key === p.key}
-            className={cn(
-              "rounded-lg px-2.5 py-1 text-xs font-medium transition-colors",
-              value.key === p.key
-                ? "bg-primary text-primary-contrast"
-                : "text-[var(--text-muted)] hover:text-[var(--text-base)]"
-            )}
-          >
-            {p.label}
-          </button>
-        ))}
+    <div className="flex flex-wrap items-center gap-2" role="group" aria-label="Período">
+      <div className="max-w-full overflow-x-auto [scrollbar-width:none]">
+        <SegmentedControl
+          size="sm"
+          label="Período del informe"
+          value={preset}
+          onChange={(k) => onChange(periodFor(k))}
+          options={PRESETS.map((p) => ({ value: p.key, label: p.label }))}
+        />
       </div>
       <div className="flex items-center gap-1.5">
-        <input type="date" value={value.from} max={value.to} onChange={(e) => onChange({ key: "custom", from: e.target.value, to: value.to })} className={inputCls} />
-        <span className="text-xs text-[var(--text-muted)]">a</span>
-        <input type="date" value={value.to} min={value.from} onChange={(e) => onChange({ key: "custom", from: value.from, to: e.target.value })} className={inputCls} />
+        <input type="date" aria-label="Desde" value={value.from} max={value.to} onChange={(e) => onChange({ key: "custom", from: e.target.value, to: value.to })} className={inputCls} />
+        <span className="text-xs text-ink-muted">a</span>
+        <input type="date" aria-label="Hasta" value={value.to} min={value.from} onChange={(e) => onChange({ key: "custom", from: value.from, to: e.target.value })} className={inputCls} />
       </div>
     </div>
   );

@@ -22,8 +22,8 @@ export function PageHeader({ title, subtitle, eyebrow, action, className }: Page
       <div className="flex min-w-0 items-start gap-3">
         <div className="min-w-0">
           {eyebrow && <p className="mb-1 text-sm font-medium text-ink-muted">{eyebrow}</p>}
-          <h1 className="text-[32px] font-bold leading-none text-ink md:text-[40px]">{title}</h1>
-          {subtitle && <p className="mt-1 max-w-[65ch] text-sm text-ink-muted">{subtitle}</p>}
+          <h1 className="text-[26px] font-bold leading-tight tracking-[-0.025em] text-ink md:text-[32px]">{title}</h1>
+          {subtitle && <p className="mt-1.5 max-w-[65ch] text-[15px] text-ink-muted [text-wrap:pretty]">{subtitle}</p>}
         </div>
       </div>
       {action && (

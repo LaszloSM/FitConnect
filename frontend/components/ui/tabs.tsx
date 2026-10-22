@@ -2,6 +2,7 @@
 
 import * as React from "react"
 import { cn } from "@/lib/utils"
+import { useSlidingIndicator } from "@/components/motion/useSlidingIndicator"
 
 interface TabsContextValue {
   active: string
@@ -33,16 +34,22 @@ function Tabs({ defaultValue = "", value, onValueChange, children, className }: 
 }
 
 function TabsList({ children, className }: { children: React.ReactNode; className?: string }) {
+  const { active } = React.useContext(TabsContext)
+  const list = React.useRef<HTMLDivElement>(null)
+  // El subrayado se desliza a la pestaña nueva: dice de dónde vienes y a dónde vas.
+  const ind = useSlidingIndicator<HTMLDivElement, HTMLSpanElement>(list, '[role="tab"][aria-selected="true"]', [active])
   return (
     <div
+      ref={list}
       role="tablist"
       className={cn(
         // Scroll propio en móvil: las pestañas nunca empujan el ancho de la página.
-        "-mx-4 flex items-center gap-1 overflow-x-auto border-b border-line px-4 [scrollbar-width:none] md:mx-0 md:px-0",
+        "relative -mx-4 flex items-center gap-1 overflow-x-auto border-b border-line-soft px-4 [scrollbar-width:none] md:mx-0 md:px-0",
         className
       )}
     >
       {children}
+      <span ref={ind} aria-hidden="true" className="slide-ind bottom-0 left-0 h-0.5 w-px bg-action opacity-0" />
     </div>
   )
 }
@@ -58,8 +65,6 @@ function TabsTrigger({ value, children, className, disabled }: TabsTriggerProps)
   const { active, setActive } = React.useContext(TabsContext)
   const isActive = active === value
 
-  // Sin animación del indicador: cambiar de pestaña es una acción de todos los
-  // días y el indicador solo tiene que decir dónde estás.
   return (
     <button
       type="button"
@@ -68,11 +73,10 @@ function TabsTrigger({ value, children, className, disabled }: TabsTriggerProps)
       disabled={disabled}
       onClick={() => !disabled && setActive(value)}
       className={cn(
-        "relative flex h-10 items-center gap-2 whitespace-nowrap px-3 text-sm font-medium outline-none transition-colors duration-150",
-        "after:absolute after:inset-x-2 after:-bottom-px after:h-[3px] after:rounded-full",
-        "focus-visible:rounded-[var(--radius-sm)] focus-visible:ring-2 focus-visible:ring-primary/40",
+        "relative flex h-11 items-center gap-2 whitespace-nowrap px-3 text-sm font-medium outline-none transition-colors duration-150",
+        "focus-visible:rounded-[var(--radius-sm)] focus-visible:ring-2 focus-visible:ring-action/40",
         "[&_svg]:size-4",
-        isActive ? "font-semibold text-ink after:bg-primary" : "text-ink-muted hover:text-ink",
+        isActive ? "text-ink" : "text-ink-muted hover:text-ink",
         disabled && "cursor-not-allowed opacity-50",
         className
       )}

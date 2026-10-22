@@ -1,5 +1,6 @@
 "use client";
 
+import { UnderlineTabs } from "@/components/motion/UnderlineTabs";
 import { useState } from "react";
 import { useSearchParams } from "next/navigation";
 import Link from "next/link";
@@ -51,33 +52,7 @@ export default function PaymentsClient() {
         }
       />
 
-      {/* Pestañas con scroll propio en móvil: nunca empujan el ancho de la página. */}
-      <div
-        role="tablist"
-        aria-label="Secciones de caja y pagos"
-        className="-mx-4 flex gap-1 overflow-x-auto border-b border-line px-4 [scrollbar-width:none] md:mx-0 md:px-0"
-      >
-        {TABS.map(({ key, label }) => {
-          const active = tab === key;
-          return (
-            <button
-              key={key}
-              type="button"
-              role="tab"
-              aria-selected={active}
-              onClick={() => setTab(key)}
-              className={cn(
-                "relative flex h-11 shrink-0 items-center gap-2 whitespace-nowrap px-3 text-sm outline-none transition-colors duration-150",
-                "after:absolute after:inset-x-2 after:-bottom-px after:h-[3px] after:rounded-full",
-                "focus-visible:rounded-[var(--radius-sm)] focus-visible:ring-2 focus-visible:ring-primary/40",
-                active ? "font-semibold text-ink after:bg-primary" : "font-medium text-ink-muted hover:text-ink"
-              )}
-            >
-              {label}
-            </button>
-          );
-        })}
-      </div>
+      <UnderlineTabs tabs={TABS} value={tab} onChange={setTab} label="Secciones de caja y pagos" />
 
       {tab === "pos" && (
         <PosTab preselectedMember={posMember} onCharged={() => setRefreshSignal((n) => n + 1)} />

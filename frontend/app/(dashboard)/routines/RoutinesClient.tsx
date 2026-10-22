@@ -265,7 +265,7 @@ function RoutineEditor({ form, facets, onChange, onCancel, onSave, saving, isNew
         <GlassCard className="p-4 space-y-3">
           <div className="flex items-center gap-1.5 flex-wrap">
             {form.days.map((d, i) => (
-              <button key={d.key} type="button" onClick={() => setActiveDay(i)} className={cn("rounded-lg px-3 py-1.5 text-xs font-medium border transition-colors", i === activeDay ? "bg-primary text-primary-contrast border-transparent" : "border-[var(--border-base)] text-[var(--text-muted)] hover:text-[var(--text-base)]")}>
+              <button key={d.key} type="button" onClick={() => setActiveDay(i)} className={cn("rounded-full px-3 py-1.5 text-xs font-medium border transition-colors", i === activeDay ? "bg-action text-action-ink border-transparent" : "border-[var(--border-base)] text-[var(--text-muted)] hover:text-[var(--text-base)]")}>
                 {d.title || `Día ${i + 1}`} <span className="opacity-70">· {d.exercises.length}</span>
               </button>
             ))}
@@ -330,7 +330,7 @@ function RoutineEditor({ form, facets, onChange, onCancel, onSave, saving, isNew
                   <p className="text-xs font-semibold text-[var(--text-base)] truncate group-hover:text-primary-ink">{e.name_es}</p>
                   <p className="text-[10px] text-[var(--text-muted)] truncate">{e.primary_muscles_es.join(", ")} · {e.equipment_es} · {e.level_es}</p>
                 </button>
-                <button type="button" onClick={() => addExercise(e)} className="h-7 w-7 rounded-lg bg-primary text-primary-contrast flex items-center justify-center shrink-0 hover:opacity-90" title="Agregar al día"><Plus className="h-4 w-4" /></button>
+                <button type="button" onClick={() => addExercise(e)} className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-action text-action-ink transition-[background-color,transform] duration-150 hover:bg-action-hover active:scale-95" title="Agregar al día"><Plus className="h-4 w-4" /></button>
               </div>
             ))}
           </div>

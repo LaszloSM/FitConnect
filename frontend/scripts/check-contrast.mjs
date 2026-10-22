@@ -142,6 +142,10 @@ const PAIRS = [
   ["--border-base", "--bg-base", 1.3, "borde sobre el fondo"],
   ["--border-base", "--bg-input", 1.3, "borde de un campo"],
   ["--border-base", "--bg-muted", 1.3, "borde sobre superficie apagada"],
+  ["--action-ink", "--action", 4.5, "texto del botón principal"],
+  ["--action-ink", "--action-hover", 4.5, "texto del botón principal en hover"],
+  ["--action", "--bg-card", 3.0, "botón principal sobre tarjeta"],
+  ["--text-muted", "--bg-raised", 4.5, "texto secundario sobre superficie elevada"],
 ];
 
 // El kiosko y la pantalla del gym son superficies oscuras FIJAS: no siguen el
