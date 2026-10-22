@@ -1,25 +1,29 @@
 "use client";
 export const dynamic = "force-dynamic";
 
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
+import { format } from "date-fns";
+import { es } from "date-fns/locale";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { CakeIcon, CalendarBlankIcon, CashRegisterIcon, LockIcon, PackageIcon, PlusIcon, WarningCircleIcon, WrenchIcon } from "@phosphor-icons/react";
+import { CakeIcon, CalendarBlankIcon, LockIcon, PackageIcon, WarningCircleIcon, WrenchIcon } from "@phosphor-icons/react";
 import { EmptyState } from "@/components/common/EmptyState";
-import { PageHeader } from "@/components/common/PageHeader";
-import { buttonVariants } from "@/components/ui/button";
+import { SegmentedControl } from "@/components/motion/SegmentedControl";
 import { OnboardingChecklist } from "@/components/dashboard/OnboardingChecklist";
 import { OnboardingTour } from "@/components/dashboard/OnboardingTour";
 import { SecurityNudge } from "@/components/security/SecurityNudge";
 import { useLiveEntries } from "@/components/dashboard/LiveNowStrip";
-import { DayCard } from "@/components/dashboard/hoy/DayCard";
-import { MoneyStrip } from "@/components/dashboard/hoy/MoneyStrip";
+import { DayCard, dayStats } from "@/components/dashboard/hoy/DayCard";
+import { CollectedCard, type Period } from "@/components/dashboard/hoy/CollectedCard";
+import { TodayQuad } from "@/components/dashboard/hoy/TodayQuad";
+import { RevenueMonths } from "@/components/dashboard/hoy/RevenueMonths";
+import { RecentActivity } from "@/components/dashboard/hoy/RecentActivity";
 import { ExpiringWeek } from "@/components/dashboard/hoy/ExpiringWeek";
 import { RiskBlock } from "@/components/dashboard/hoy/RiskBlock";
 import { useDashboardData, type DashboardData } from "@/hooks/useDashboardData";
 import { P, useCan } from "@/lib/permissions";
-import { formatCOP, formatDateTime } from "@/lib/format";
+import { formatCOP, formatDateTime, gymHour, todayInGym } from "@/lib/format";
 import { cn } from "@/lib/utils";
 
 /** El esqueleto reproduce la rejilla real: al llegar los datos nada se mueve. */
@@ -27,20 +31,26 @@ function DashboardSkeleton() {
   return (
     <div className="space-y-6" aria-busy="true" aria-label="Cargando el panel">
       <div className="flex items-end justify-between gap-4">
-        <div className="skeleton h-10 w-28" />
-        <div className="flex gap-2">
-          <div className="skeleton h-10 w-32" />
-          <div className="skeleton h-10 w-28" />
+        <div className="space-y-2">
+          <div className="skeleton h-8 w-64" />
+          <div className="skeleton h-4 w-80" />
         </div>
+        <div className="skeleton hidden h-11 w-40 rounded-full md:block" />
+      </div>
+      <div className="grid gap-4 lg:grid-cols-[minmax(0,1.05fr)_minmax(0,1fr)_minmax(0,1.15fr)]">
+        <div className="skeleton h-[300px] rounded-[var(--radius-lg)]" />
+        <div className="skeleton h-[300px] rounded-[var(--radius-lg)]" />
+        <div className="skeleton h-[300px] rounded-[var(--radius-lg)]" />
       </div>
       <div className="skeleton h-[340px] rounded-[var(--radius-lg)]" />
-      <div className="skeleton h-[230px] rounded-[var(--radius-lg)]" />
-      <div className="grid gap-6 lg:grid-cols-12">
-        <div className="skeleton h-[420px] rounded-[var(--radius-lg)] lg:col-span-7" />
-        <div className="skeleton h-[420px] rounded-[var(--radius-lg)] lg:col-span-5" />
-      </div>
     </div>
   );
+}
+
+/** Saludo según la hora del gimnasio (Bogotá), no la del navegador. */
+function greeting(): string {
+  const h = gymHour();
+  return h < 12 ? "Buenos días" : h < 19 ? "Buenas tardes" : "Buenas noches";
 }
 
 function StatusLine({ data }: { data: DashboardData }) {
@@ -120,6 +130,7 @@ export default function DashboardPage() {
   const router = useRouter();
   const rol = session?.role;
   const entries = useLiveEntries(data.checkinsToday);
+  const [period, setPeriod] = useState<Period>("hoy");
 
   // Un entrenador que llegue por marcador vería un panel lleno de "—".
   useEffect(() => {
@@ -138,21 +149,59 @@ export default function DashboardPage() {
     );
   }
 
+  const stats = dayStats(entries, data.occupancy);
+  const expiring = data.operations?.expiring_this_week ?? [];
+  const firstName = (session?.user?.name ?? "").trim().split(/\s+/)[0];
+  const monthName = format(todayInGym(), "MMMM", { locale: es });
+
+  // El hallazgo del día va bajo el saludo: lo primero que pide acción.
+  let finding: React.ReactNode = null;
+  if (expiring.length > 0) {
+    finding = (
+      <>
+        <b className="font-semibold text-ink">
+          {expiring.length} {expiring.length === 1 ? "socio vence" : "socios vencen"} esta semana
+        </b>
+        . Cóbralos antes de que se vayan.
+      </>
+    );
+  } else if (data.pendingTransfers.length > 0) {
+    finding = (
+      <>
+        <b className="font-semibold text-ink">
+          {data.pendingTransfers.length} {data.pendingTransfers.length === 1 ? "transferencia" : "transferencias"} por confirmar
+        </b>{" "}
+        por {formatCOP(data.pendingTransfers.reduce((a, p) => a + Number(p.amount), 0))}.
+      </>
+    );
+  } else if (data.insights[0]) {
+    finding = data.insights[0].text;
+  }
+
+  // En el celular la puerta va primero (organización B); en escritorio, lo cobrado (C).
   return (
-    <div className="space-y-6">
-      <PageHeader
-        title="Hoy"
-        action={
-          <>
-            <Link href="/members" className={buttonVariants({ variant: "outline" })}>
-              <PlusIcon weight="bold" /> Nuevo socio
-            </Link>
-            <Link href="/payments?tab=pos" className={buttonVariants()}>
-              <CashRegisterIcon weight="bold" /> Cobrar
-            </Link>
-          </>
-        }
-      />
+    <div className="flex flex-col gap-6">
+      <div className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
+        <div className="min-w-0">
+          <h1 className="text-[26px] font-bold leading-tight tracking-[-0.025em] text-ink md:text-[32px]">
+            {greeting()}
+            {firstName ? `, ${firstName}` : ""}
+          </h1>
+          {finding && <p className="mt-1.5 max-w-[70ch] text-[15px] text-ink-muted [text-wrap:pretty]">{finding}</p>}
+        </div>
+        {canMoney && (
+          <SegmentedControl<Period>
+            label="Período de lo cobrado"
+            value={period}
+            onChange={setPeriod}
+            options={[
+              { value: "hoy", label: "Hoy" },
+              { value: "mes", label: "Este mes" },
+            ]}
+            className="self-start md:self-auto"
+          />
+        )}
+      </div>
 
       <OnboardingTour />
       <SecurityNudge />
@@ -160,16 +209,30 @@ export default function DashboardPage() {
         <OnboardingChecklist />
       </div>
 
-      <DayCard entries={entries} occupancy={data.occupancy} />
+      <div className={cn("order-2 grid gap-4 md:order-none", canReports ? "lg:grid-cols-[minmax(0,1.05fr)_minmax(0,1fr)_minmax(0,1.15fr)]" : "lg:grid-cols-2")}>
+        <CollectedCard data={data} period={period} canMoney={canMoney} canReports={canReports} monthName={monthName} />
+        <TodayQuad data={data} entriesCount={stats.allowed.length} typicalSoFar={stats.typicalSoFar} canMoney={canMoney} />
+        {canReports && <RevenueMonths data={data} />}
+      </div>
 
-      <MoneyStrip data={data} canMoney={canMoney} canReports={canReports} />
+      <div className="order-1 md:order-none">
+        <DayCard entries={entries} occupancy={data.occupancy} />
+      </div>
 
-      <div className="grid items-stretch gap-6 lg:grid-cols-12">
+      <div id="vencen" className="order-3 grid scroll-mt-24 md:order-none items-stretch gap-4 lg:grid-cols-12">
         <ExpiringWeek data={data} className={cn(canReports ? "lg:col-span-7" : "lg:col-span-12")} />
         {canReports && <RiskBlock data={data} className="lg:col-span-5" />}
       </div>
 
-      <StatusLine data={data} />
+      {canMoney && (
+        <div className="order-4 md:order-none">
+          <RecentActivity data={data} />
+        </div>
+      )}
+
+      <div className="order-5 md:order-none">
+        <StatusLine data={data} />
+      </div>
     </div>
   );
 }

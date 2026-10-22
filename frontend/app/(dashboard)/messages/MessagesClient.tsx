@@ -15,6 +15,7 @@ import { FormDialog, FormField } from "@/components/ui/form-dialog";
 import { apiClient, newIdempotencyKey, postOnce } from "@/lib/api";
 import { formatDateTime } from "@/lib/format";
 import { cn } from "@/lib/utils";
+import { UnderlineTabs } from "@/components/motion/UnderlineTabs";
 import { parseApiError } from "@/lib/errors";
 import { WarningIcon as AlertTriangle, RobotIcon as Bot, CheckCircleIcon as CheckCircle2, ClockIcon as Clock, MegaphoneIcon as Megaphone, ChatTextIcon as MessageSquare, ArrowCounterClockwiseIcon as RotateCcw, PaperPlaneTiltIcon as Send, SlidersHorizontalIcon as SlidersHorizontal, XCircleIcon as XCircle } from "@phosphor-icons/react";
 
@@ -148,28 +149,23 @@ export default function MessagesClient() {
         subtitle="Lo que el gym le dice a sus socios: lo automático, los anuncios y qué salió de verdad."
       />
 
-      <div className="flex gap-2 flex-wrap" role="tablist">
-        {TABS.map(({ key, label, icon: Icon }) => (
-          <button
-            key={key}
-            role="tab"
-            aria-selected={tab === key}
-            onClick={() => setTab(key)}
-            className={cn(
-              "flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-sm font-medium transition-colors",
-              tab === key
-                ? "border border-[var(--text-base)] bg-panel text-ink"
-                : "border border-[var(--border-base)] text-[var(--text-muted)] hover:text-[var(--text-base)]"
-            )}
-          >
-            <Icon className="h-4 w-4" />
-            {label}
-            {key === "outbox" && fallidos > 0 && (
-              <span className="ml-1 rounded-full bg-[var(--signal-danger)] text-white text-[11px] px-1.5">{fallidos}</span>
-            )}
-          </button>
-        ))}
-      </div>
+      <UnderlineTabs
+        label="Secciones de mensajes"
+        value={tab}
+        onChange={setTab}
+        tabs={TABS.map(({ key, label, icon: Icon }) => ({
+          key,
+          label: (
+            <span className="flex items-center gap-1.5">
+              <Icon className="h-4 w-4" aria-hidden="true" />
+              {label}
+              {key === "outbox" && fallidos > 0 && (
+                <span className="rounded-full bg-[var(--signal-danger)] px-1.5 text-[11px] text-white">{fallidos}</span>
+              )}
+            </span>
+          ),
+        }))}
+      />
 
       {error && (
         <EmptyState

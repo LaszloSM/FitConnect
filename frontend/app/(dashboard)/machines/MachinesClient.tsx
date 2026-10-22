@@ -7,6 +7,7 @@ import { QRCodeSVG } from "qrcode.react";
 import { P, useCan } from "@/lib/permissions";
 import { toast } from "sonner";
 import { motion } from "framer-motion";
+import { SegmentedControl } from "@/components/motion/SegmentedControl";
 import { GlassCard } from "@/components/common/GlassCard";
 import { PageHeader } from "@/components/common/PageHeader";
 import { EmptyState } from "@/components/common/EmptyState";
@@ -535,23 +536,16 @@ export default function MachinesClient() {
 
       <GlassCard className="p-4 space-y-4">
         <div className="flex flex-wrap items-center gap-2">
-          <div role="tablist" aria-label="Vista" className="flex rounded-[var(--radius-md)] p-0.5 bg-muted/60">
-            {([["list", "Lista", List], ["calendar", "Calendario", CalendarDays]] as const).map(([v, l, Icon]) => (
-              <button
-                key={v}
-                type="button"
-                role="tab"
-                aria-selected={view === v}
-                onClick={() => setView(v)}
-                className={cn(
-                  "h-8 px-2.5 rounded text-sm flex items-center gap-1.5 transition-colors",
-                  view === v ? "bg-[var(--bg-muted)] text-[var(--text-base)] font-medium" : "text-[var(--text-muted)] hover:text-[var(--text-base)]",
-                )}
-              >
-                <Icon className="h-4 w-4" aria-hidden /> {l}
-              </button>
-            ))}
-          </div>
+          <SegmentedControl
+            size="sm"
+            label="Vista"
+            value={view}
+            onChange={setView}
+            options={[
+              { value: "list", label: <span className="flex items-center gap-1.5"><List className="h-4 w-4" aria-hidden /> Lista</span> },
+              { value: "calendar", label: <span className="flex items-center gap-1.5"><CalendarDays className="h-4 w-4" aria-hidden /> Calendario</span> },
+            ]}
+          />
 
           {view === "list" && (
             <>
@@ -675,21 +669,22 @@ export default function MachinesClient() {
             action={puedeEditar && !filtering ? <Button onClick={openCreate}><Plus className="h-4 w-4 mr-2" />Nueva máquina</Button> : undefined}
           />
         ) : (
-          <ul className="list-none m-0 p-0 space-y-2">
+          <ul className="m-0 list-none divide-y divide-line-soft p-0">
             {machines.map((m) => {
               const aviso = maintenanceNote(m);
               const abierta = expanded === m.id;
               const detalles = [areaLabel(m.area), m.brand, m.serial_number].filter(Boolean).join(" · ");
               return (
-                <li key={m.id} className="rounded-lg border border-[var(--border-base)] overflow-hidden">
+                <li key={m.id} className="overflow-hidden">
                   <div className="flex items-center gap-3 px-3 py-2.5">
                     {m.photo_url ? (
                       // eslint-disable-next-line @next/next/no-img-element
                       <img src={m.photo_url} alt={m.name}
-                           className="h-9 w-9 rounded-md object-cover shrink-0 border border-[var(--border-base)]" />
+                           className="h-9 w-9 shrink-0 rounded-full object-cover" />
                     ) : (
-                      <span className="h-9 w-9 rounded-md shrink-0 border border-[var(--border-base)] flex items-center justify-center">
-                        <Wrench className="h-4 w-4 text-[var(--text-muted)]" aria-hidden />
+                      // Sin foto, la inicial: un ícono de llave repetido en cada fila no dice nada.
+                      <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-raised text-xs font-semibold text-ink-muted" aria-hidden>
+                        {m.name.trim().charAt(0).toUpperCase()}
                       </span>
                     )}
 

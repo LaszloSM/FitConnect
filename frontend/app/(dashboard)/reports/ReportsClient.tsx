@@ -1,5 +1,6 @@
 "use client";
 
+import { UnderlineTabs } from "@/components/motion/UnderlineTabs";
 import { useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { useSession } from "next-auth/react";
@@ -67,29 +68,7 @@ export default function ReportsClient() {
         }
       />
 
-      <div
-        role="tablist"
-        aria-label="Secciones del informe"
-        className="-mx-4 flex gap-1 overflow-x-auto border-b border-line px-4 [scrollbar-width:none] md:mx-0 md:px-0"
-      >
-        {TABS.map(({ key, label }) => (
-          <button
-            key={key}
-            type="button"
-            role="tab"
-            aria-selected={activeTab === key}
-            onClick={() => setActiveTab(key)}
-            className={cn(
-              "relative flex h-11 shrink-0 items-center whitespace-nowrap px-3 text-sm outline-none transition-colors duration-150",
-              "after:absolute after:inset-x-2 after:-bottom-px after:h-[3px] after:rounded-full",
-              "focus-visible:rounded-[var(--radius-sm)] focus-visible:ring-2 focus-visible:ring-primary/40",
-              activeTab === key ? "font-semibold text-ink after:bg-primary" : "font-medium text-ink-muted hover:text-ink"
-            )}
-          >
-            {label}
-          </button>
-        ))}
-      </div>
+      <UnderlineTabs tabs={TABS} value={activeTab} onChange={setActiveTab} label="Secciones del informe" />
 
       <div className="flex items-center justify-between gap-3 flex-wrap">
         {tab.period ? <PeriodPicker value={period} onChange={setPeriod} /> : <p className="text-xs text-[var(--text-muted)]">Últimos 6 meses</p>}

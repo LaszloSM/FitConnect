@@ -416,7 +416,7 @@ export default function ClassesClient() {
                       className={cn(
                         "flex-1 py-1.5 rounded-md text-xs font-medium border transition-colors",
                         form.difficulty === d.value
-                          ? "bg-primary text-primary-contrast border-transparent"
+                          ? "bg-action text-action-ink border-transparent"
                           : "border-[var(--border-base)] text-[var(--text-muted)] hover:border-[var(--text-muted)]"
                       )}
                     >

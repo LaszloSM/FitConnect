@@ -17,7 +17,8 @@ test("cerrar sesión vuelve al login", async ({ page, request }) => {
   const email = await cuentaDePrueba(request);
   await entrar(page, email);
 
-  // El botón vive en el pie del menú lateral (expandido) o como icono (colapsado).
+  // El riel arranca colapsado: cerrar sesión está en el menú de la cuenta.
+  await page.getByRole("button", { name: "Cuenta" }).click();
   await page.getByRole("button", { name: "Cerrar sesión" }).first().click();
   await expect(page).toHaveURL(/\/login/, { timeout: 20_000 });
 });

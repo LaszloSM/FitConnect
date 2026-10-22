@@ -110,7 +110,7 @@ export function MemberAccessTab({ memberId, idNumber, hasPhoto = false }: { memb
         <summary className="cursor-pointer text-sm font-semibold text-[var(--text-base)]">Asignar un ID manualmente (tarjeta, PIN o equipo sin conexión)</summary>
         <div className="flex gap-1.5 flex-wrap">
           {(Object.keys(KIND_META) as CredKind[]).map((k) => (
-            <button key={k} type="button" onClick={() => setKind(k)} className={`rounded-lg px-3 py-1.5 text-xs font-medium border flex items-center gap-1.5 ${k === kind ? "bg-primary text-primary-contrast border-transparent" : "border-[var(--border-base)] text-[var(--text-muted)]"}`}>{KIND_META[k].icon} {KIND_META[k].label}</button>
+            <button key={k} type="button" onClick={() => setKind(k)} className={`rounded-full px-3 py-1.5 text-xs font-medium border flex items-center gap-1.5 ${k === kind ? "bg-action text-action-ink border-transparent" : "border-[var(--border-base)] text-[var(--text-muted)]"}`}>{KIND_META[k].icon} {KIND_META[k].label}</button>
           ))}
         </div>
         <div className="grid grid-cols-1 md:grid-cols-[minmax(0,1fr)_minmax(0,1fr)_minmax(0,1fr)] gap-2">

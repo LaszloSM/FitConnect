@@ -40,8 +40,11 @@ function sampleEntries(): TodayEntry[] {
 function sampleData(): DashboardData {
   const weekday = gymWeekday();
   return {
-    kpis: { expiring_memberships_7d: 31, machines_total: 12, machines_maintenance: 1, machines_active: 11 },
+    kpis: { total_members: 412, active_members: 318, expiring_memberships_7d: 31, machines_total: 12, machines_maintenance: 1, machines_active: 11 },
+    revenueHistory: [["2026-05", 31200000], ["2026-06", 33800000], ["2026-07", 35100000], ["2026-08", 36900000], ["2026-09", 38400000], ["2026-10", 24900000]].map(([month, amount]) => ({ month: String(month), amount: Number(amount) })),
     cash: { total: 460000, count: 6, by_method: { cash: 180000, card: 190000, transfer: 90000 }, by_kind: {}, pending_transfers: { count: 6, amount: 114000 } },
+    cashMonth: { total: 24900000, count: 214, by_method: { cash: 9100000, card: 10200000, transfer: 5600000 }, by_kind: {}, pending_transfers: { count: 6, amount: 114000 } },
+    recentPayments: [],
     pendingTransfers: Array.from({ length: 6 }, (_, i) => ({ id: `t${i}`, transfer_reference: null, member_name: NAMES[i], amount: 19000, elapsed_minutes: 30 })),
     receivables: [
       ...Array.from({ length: 14 }, (_, i) => ({ member_id: `a${i}`, amount_due: 90000, days_overdue: 3 })),

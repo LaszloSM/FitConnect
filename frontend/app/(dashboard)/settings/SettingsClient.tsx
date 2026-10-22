@@ -1,10 +1,11 @@
 "use client";
 
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import { PageHeader } from "@/components/common/PageHeader";
 import { cn } from "@/lib/utils";
+import { useSlidingIndicator } from "@/components/motion/useSlidingIndicator";
 import { UserIcon as User, BuildingsIcon as Building2, CreditCardIcon as CreditCard, PaletteIcon as Palette, SlidersHorizontalIcon as SlidersHorizontal, PlugIcon as Plug, DevicesIcon as MonitorSmartphone, BankIcon as Landmark, UsersIcon as Users, TicketIcon as Ticket, ShieldCheckIcon as ShieldCheck } from "@phosphor-icons/react";
 import { P, useCan, type Permission } from "@/lib/permissions";
 
@@ -81,6 +82,8 @@ export default function SettingsClient() {
     !ready || visibleTabs.some((t) => t.key === wantedTab) ? wantedTab : "profile";
 
   const ActiveSection = SECTION_MAP[activeTab];
+  const navRef = useRef<HTMLElement>(null);
+  const navInd = useSlidingIndicator<HTMLElement, HTMLSpanElement>(navRef, '[aria-current="page"]', [activeTab], { axis: "both" });
 
   return (
     <motion.div
@@ -94,9 +97,11 @@ export default function SettingsClient() {
       <div className="flex flex-col lg:flex-row gap-6">
         {/* Sidebar tabs */}
         <nav
-          className="flex lg:flex-col gap-1 overflow-x-auto lg:overflow-x-visible lg:w-52 shrink-0"
+          ref={navRef}
+          className="relative flex lg:flex-col gap-1 overflow-x-auto lg:overflow-x-visible lg:w-52 shrink-0 [scrollbar-width:none]"
           aria-label="Secciones de configuración"
         >
+          <span ref={navInd} aria-hidden="true" className="slide-ind left-0 top-0 rounded-full bg-panel shadow-[var(--shadow-card)] opacity-0" />
           {visibleTabs.map((tab) => {
             const Icon = tab.icon;
             const isActive = activeTab === tab.key;
@@ -106,10 +111,9 @@ export default function SettingsClient() {
                 onClick={() => setWantedTab(tab.key)}
                 aria-current={isActive ? "page" : undefined}
                 className={cn(
-                  "flex items-center gap-2.5 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors whitespace-nowrap",
-                  isActive
-                    ? "bg-muted text-ink"
-                    : "text-[var(--text-muted)] hover:text-[var(--text-base)] hover:bg-[var(--bg-base)]"
+                  "relative flex items-center gap-2.5 px-3.5 py-2.5 rounded-full text-sm font-medium transition-colors duration-150 whitespace-nowrap",
+                  "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-action/40",
+                  isActive ? "text-ink" : "text-ink-muted hover:text-ink"
                 )}
               >
                 <Icon className="h-4 w-4 shrink-0" aria-hidden="true" />

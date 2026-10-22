@@ -219,7 +219,7 @@ export default function AuditClient() {
         <select
           value={actionFilter}
           onChange={(e) => { setActionFilter(e.target.value); setOffset(0); }}
-          className="h-9 rounded-md border border-[var(--border-base)] bg-[var(--bg-base)] px-3 text-sm text-[var(--text-base)] outline-none focus:ring-2 focus:ring-[var(--brand)]/30"
+          className="h-9 rounded-full border border-line bg-panel px-4 text-sm text-ink outline-none focus-visible:ring-2 focus-visible:ring-action/40"
         >
           {ACTION_FILTERS.map((f) => (
             <option key={f.value} value={f.value}>{f.label}</option>

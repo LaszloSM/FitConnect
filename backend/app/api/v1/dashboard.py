@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends, Query
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select, func
-from datetime import date, datetime, timedelta
+from datetime import date, timedelta
 from decimal import Decimal
 
 from app.api.deps import get_tenant_db_from_token, require_perm
@@ -25,16 +25,16 @@ async def get_dashboard_kpis(
     to_: date | None = Query(None, alias="to"),
     db: AsyncSession = Depends(get_tenant_db_from_token),
 ):
-    today = date.today()
-    today_start = datetime.combine(today, datetime.min.time())
-    today_end = today_start + timedelta(days=1)
+    # Días de Bogotá: con date.today() (UTC) el panel cambiaba de día a las 7 p. m.
+    today = today_bogota()
+    today_start, today_end = utc_day_bounds(today)
     seven_days_later = today + timedelta(days=7)
 
     # Date range for KPI filtering
     start = from_ or date(today.year, today.month, 1)
     end = to_ or today
-    start_dt = datetime.combine(start, datetime.min.time())
-    end_dt = datetime.combine(end, datetime.min.time()) + timedelta(days=1)
+    start_dt = utc_day_bounds(start)[0]
+    end_dt = utc_day_bounds(end)[1]
 
     # Total members
     total_members_result = await db.execute(
@@ -145,8 +145,8 @@ async def get_dashboard_kpis(
     for i in range(5, -1, -1):
         start, end = get_month_range(i)
         month_label = start.strftime("%Y-%m")
-        start_dt = datetime.combine(start, datetime.min.time())
-        end_dt = datetime.combine(end, datetime.min.time())
+        # Meses de Bogotá: medianoche UTC son las 7 p. m. del día anterior.
+        start_dt, end_dt = utc_day_bounds(start)[0], utc_day_bounds(end)[0]
         count_result = await db.execute(
             select(func.count()).select_from(Member).where(
                 Member.created_at >= start_dt,
@@ -161,8 +161,8 @@ async def get_dashboard_kpis(
     for i in range(5, -1, -1):
         start, end = get_month_range(i)
         month_label = start.strftime("%Y-%m")
-        start_dt = datetime.combine(start, datetime.min.time())
-        end_dt = datetime.combine(end, datetime.min.time())
+        # Meses de Bogotá: medianoche UTC son las 7 p. m. del día anterior.
+        start_dt, end_dt = utc_day_bounds(start)[0], utc_day_bounds(end)[0]
         amount_result = await db.execute(
             select(func.coalesce(func.sum(net_amount()), Decimal("0")))
             .where(
@@ -193,8 +193,7 @@ async def get_dashboard_insights(db: AsyncSession = Depends(get_tenant_db_from_t
         from datetime import date as _date
         start = _date(y, m, 1)
         end = _date(y + 1, 1, 1) if m == 12 else _date(y, m + 1, 1)
-        return (datetime.combine(start, datetime.min.time()),
-                datetime.combine(end, datetime.min.time()))
+        return utc_day_bounds(start)[0], utc_day_bounds(end)[0]
 
     cur_s, cur_e = _bounds(today.year, today.month)
     pm, py = (12, today.year - 1) if today.month == 1 else (today.month - 1, today.year)
@@ -229,7 +228,7 @@ async def get_dashboard_insights(db: AsyncSession = Depends(get_tenant_db_from_t
         insights.append({"tone": "warning", "text": f"{expiring} {'membresía vence' if expiring == 1 else 'membresías vencen'} esta semana — envía recordatorios.", "href": "/payments"})
 
     # Socios sin visita en 14 días (riesgo de abandono)
-    cutoff = datetime.combine(today - timedelta(days=14), datetime.min.time())
+    cutoff = utc_day_bounds(today - timedelta(days=14))[0]
     recent = select(CheckIn.member_id).where(CheckIn.created_at >= cutoff).distinct().scalar_subquery()
     inactive = (await db.execute(
         select(func.count()).select_from(Member).where(

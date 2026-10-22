@@ -3,13 +3,13 @@ from fastapi import APIRouter, Depends, HTTPException, Query, Request
 from pydantic import BaseModel, Field
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select, func, desc, update
-from datetime import date, datetime, timedelta
+from datetime import date, datetime
 from decimal import Decimal
 from typing import Literal
 
 from app.api.deps import get_tenant_db_from_token, get_current_staff, get_tenant_slug, require_perm
 from app.core import permissions as perm
-from app.core.timeutil import today_bogota
+from app.core.timeutil import today_bogota, utc_day_bounds
 from app.schemas.member import PaymentCreate, PaymentResponse
 from app.schemas.pos import PaymentItemOut, ReceivableOut
 from app.models.tenant.payment import Payment, PaymentStatus, PaymentMethod, PaymentKind
@@ -115,10 +115,11 @@ async def list_payments(
         stmt = stmt.where(Payment.method == method)
     if destination_account_id:
         stmt = stmt.where(Payment.destination_account_id == destination_account_id)
+    # Días de Bogotá: medianoche UTC son las 7 p. m. del día anterior.
     if from_date:
-        stmt = stmt.where(Payment.created_at >= datetime.combine(from_date, datetime.min.time()))
+        stmt = stmt.where(Payment.created_at >= utc_day_bounds(from_date)[0])
     if to_date:
-        stmt = stmt.where(Payment.created_at < datetime.combine(to_date, datetime.min.time()) + timedelta(days=1))
+        stmt = stmt.where(Payment.created_at < utc_day_bounds(to_date)[1])
     stmt = stmt.order_by(desc(Payment.created_at)).limit(limit).offset(offset)
     result = await db.execute(stmt)
     payments = result.scalars().all()

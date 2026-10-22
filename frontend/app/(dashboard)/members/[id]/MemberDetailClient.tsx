@@ -1,6 +1,7 @@
 "use client";
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
+import { UnderlineTabs } from "@/components/motion/UnderlineTabs";
 import { useEffect, useRef, useState } from "react";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
@@ -551,7 +552,7 @@ export default function MemberDetailClient({ memberId }: { memberId: string }) {
           {esEntrenador ? null : member.member_type === "visitor" ? (
             <button
               onClick={() => router.push(`/members?convert=${memberId}`)}
-              className="flex items-center gap-1.5 h-10 px-4 rounded-[var(--radius-md)] bg-primary text-primary-contrast text-sm font-medium hover:bg-primary-hover transition-colors"
+              className="flex h-10 items-center gap-1.5 rounded-full bg-action px-4 text-sm font-semibold text-action-ink transition-[background-color,transform] duration-150 hover:bg-action-hover active:scale-[0.97]"
             >
               <UserPlus className="h-4 w-4" />
               Convertir en socio
@@ -559,7 +560,7 @@ export default function MemberDetailClient({ memberId }: { memberId: string }) {
           ) : (
             <button
               onClick={() => router.push(`/payments?member=${memberId}`)}
-              className="flex items-center gap-1.5 h-10 px-4 rounded-[var(--radius-md)] bg-primary text-primary-contrast text-sm font-medium hover:bg-primary-hover transition-colors"
+              className="flex h-10 items-center gap-1.5 rounded-full bg-action px-4 text-sm font-semibold text-action-ink transition-[background-color,transform] duration-150 hover:bg-action-hover active:scale-[0.97]"
             >
               <CreditCard className="h-4 w-4" />
               Cobrar
@@ -569,23 +570,12 @@ export default function MemberDetailClient({ memberId }: { memberId: string }) {
       </div>
 
       {/* Tabs */}
-      <div role="tablist" aria-label="Secciones de la ficha" className="-mx-4 flex gap-1 overflow-x-auto border-b border-line px-4 [scrollbar-width:none] md:mx-0 md:px-0">
-        {TAB_CONFIG.filter((t) => !esEntrenador || TRAINER_TABS.includes(t.key)).map(({ key, label }) => (
-          <button
-            key={key}
-            onClick={() => setTab(key)}
-            role="tab"
-            aria-selected={tab === key}
-            className={`flex h-11 shrink-0 items-center whitespace-nowrap px-3 text-sm border-b-[3px] -mb-px transition-colors ${
-              tab === key
-                ? "border-primary font-semibold text-ink"
-                : "border-transparent text-[var(--text-muted)] hover:text-[var(--text-base)]"
-            }`}
-          >
-            {label}
-          </button>
-        ))}
-      </div>
+      <UnderlineTabs
+        tabs={TAB_CONFIG.filter((t) => !esEntrenador || TRAINER_TABS.includes(t.key))}
+        value={tab}
+        onChange={setTab}
+        label="Secciones de la ficha"
+      />
 
       {/* Tab content */}
       <motion.div
@@ -775,7 +765,7 @@ export default function MemberDetailClient({ memberId }: { memberId: string }) {
                             setSelectedPlan(activePlanObj.id);
                             setStartDate(renewDate);
                           }}
-                          className="h-8 text-sm font-medium text-primary-contrast bg-primary rounded-[var(--radius-md)] px-3 hover:bg-primary-hover transition-colors"
+                          className="h-8 rounded-full bg-action px-3 text-sm font-semibold text-action-ink transition-[background-color,transform] duration-150 hover:bg-action-hover active:scale-[0.97]"
                         >
                           Renovar →
                         </button>
