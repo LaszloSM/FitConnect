@@ -18,7 +18,8 @@ log() { echo "[session-start] $*" >&2; }
 
 # --- Postgres y Redis (los de los contenedores de desarrollo no existen aquí) ---
 pg_ctlcluster 16 main start >/dev/null 2>&1 || true
-redis-cli ping >/dev/null 2>&1 || redis-server --daemonize yes >/dev/null
+# Sin persistencia: si no, Redis escribe dump.rdb en el directorio actual (el repo lo versiona).
+redis-cli ping >/dev/null 2>&1 || redis-server --daemonize yes --save "" --dir /tmp >/dev/null
 
 for _ in $(seq 1 30); do pg_isready -q && break; sleep 1; done
 psql_su() { su postgres -c "psql -v ON_ERROR_STOP=1 -tAc \"$1\""; }
