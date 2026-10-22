@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Bricolage_Grotesque, Figtree } from "next/font/google";
 import { Toaster } from "@/components/ui/sonner";
 import Providers from "@/components/Providers";
+import { SITE_URL } from "@/lib/site";
 import "./globals.css";
 
 const bricolage = Bricolage_Grotesque({
@@ -18,6 +19,8 @@ const figtree = Figtree({
 });
 
 export const metadata: Metadata = {
+  metadataBase: new URL(SITE_URL),
+  applicationName: "LSMFit",
   title: "LSMFit, software para gimnasios en Colombia",
   description: "Gestiona tu gimnasio con LSMFit: miembros, pagos, clases, check-ins y más.",
 };

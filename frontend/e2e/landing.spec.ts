@@ -10,7 +10,7 @@ for (const width of [360, 390, 430]) {
     const desborde = await page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth);
     expect(desborde).toBeLessThanOrEqual(0);
 
-    const cta = page.getByRole("link", { name: /Empieza gratis/ });
+    const cta = page.getByRole("main").getByRole("link", { name: /Prueba 30 días gratis/ }).first();
     const caja = await cta.boundingBox();
     expect(caja?.height).toBeGreaterThanOrEqual(44);
     expect(caja?.width).toBeGreaterThan(width - 60);

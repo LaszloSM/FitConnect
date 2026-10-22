@@ -12,6 +12,8 @@ class RegisterRequest(BaseModel):
     city: str
     country: str = Field(default="CO", min_length=2, max_length=2)
     phone: str | None = Field(default=None, max_length=50)
+    # Campo trampa: el formulario lo esconde, así que solo un bot lo llena.
+    website: str | None = Field(default=None, max_length=200)
 
     @field_validator("phone", mode="before")
     @classmethod

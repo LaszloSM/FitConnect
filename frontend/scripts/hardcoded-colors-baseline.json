@@ -2,5 +2,6 @@
   "app/(dashboard)/classes/ClassesClient.tsx": 8,
   "app/(dashboard)/machines/MachinesClient.tsx": 3,
   "app/manifest.ts": 2,
+  "app/opengraph-image.tsx": 4,
   "lib/thermal.ts": 13
 }

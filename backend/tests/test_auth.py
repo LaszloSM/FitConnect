@@ -64,6 +64,16 @@ async def test_register_phone_too_long_rejected(client):
     assert response.status_code == 422
 
 
+async def test_register_with_honeypot_filled_creates_nothing(client):
+    email = f"bot-{uuid.uuid4().hex[:8]}@gym.com"
+    payload = _payload(email) | {"website": "https://spam.example"}
+    response = await client.post("/api/v1/auth/register", json=payload)
+    assert response.status_code == 400
+
+    login = await client.post("/api/v1/auth/login", json={"email": email, "password": "SecurePass123!"})
+    assert login.status_code == 401
+
+
 async def test_login_wrong_password_fails(client):
     email = f"wrong-{uuid.uuid4().hex[:8]}@gym.com"
     await client.post("/api/v1/auth/register", json=_payload(email))

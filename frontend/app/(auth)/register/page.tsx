@@ -89,6 +89,7 @@ export default function RegisterPage() {
           city: formData.city,
           country: formData.country,
           phone: formData.phone,
+          website: (form.get("website") as string) || undefined,
         }),
       });
       if (!res.ok) {
@@ -116,6 +117,11 @@ export default function RegisterPage() {
     <div>
       <AuthCardHeader title="Crea la cuenta de tu gimnasio" subtitle="30 días gratis, sin tarjeta. Luego importas tus socios desde Excel." />
       <form onSubmit={handleSubmit} className="space-y-8">
+        {/* Campo trampa contra bots: invisible para personas y lectores de pantalla. */}
+        <div aria-hidden="true" className="absolute -left-[9999px] h-px w-px overflow-hidden">
+          <label htmlFor="website">Sitio web</label>
+          <input id="website" name="website" type="text" tabIndex={-1} autoComplete="off" />
+        </div>
         <Section title="Tu gimnasio">
           <div className="space-y-1.5">
             <Label htmlFor="gym_name">Nombre del gimnasio</Label>
