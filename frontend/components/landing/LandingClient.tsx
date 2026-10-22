@@ -12,6 +12,7 @@ import {
 } from "@phosphor-icons/react/ssr";
 import { BrandMark } from "@/components/common/BrandMark";
 import { LEGAL } from "@/lib/legal";
+import { SITE_URL } from "@/lib/site";
 import { DayStory, type Moment } from "./DayStory";
 import { HeroShowcase } from "./HeroShowcase";
 import { LandingHeader } from "./LandingHeader";
@@ -197,10 +198,57 @@ function SectionTitle({ title, text, className = "" }: { title: string; text?: s
     </Reveal>
   );
 }
+// Datos estructurados para buscadores: salen de los mismos precios y preguntas
+// que se ven en la página, así nunca dicen algo distinto.
+const JSON_LD = {
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "Organization",
+      "@id": `${SITE_URL}/#organizacion`,
+      name: "LSMFit",
+      url: SITE_URL,
+      logo: `${SITE_URL}/app-icon-512.png`,
+      email: LEGAL.email,
+      address: { "@type": "PostalAddress", addressLocality: LEGAL.city, addressRegion: LEGAL.department, addressCountry: "CO" },
+    },
+    {
+      "@type": "SoftwareApplication",
+      name: "LSMFit",
+      url: SITE_URL,
+      applicationCategory: "BusinessApplication",
+      operatingSystem: "Web",
+      inLanguage: "es-CO",
+      description: "Software para gimnasios en Colombia: control de entrada, cobros con recibo, caja, clases, inventario y reportes.",
+      publisher: { "@id": `${SITE_URL}/#organizacion` },
+      offers: PRICING.map((plan) => ({
+        "@type": "Offer",
+        name: plan.name,
+        price: plan.price.replace(/\D/g, ""),
+        priceCurrency: "COP",
+        priceSpecification: {
+          "@type": "UnitPriceSpecification",
+          price: plan.price.replace(/\D/g, ""),
+          priceCurrency: "COP",
+          unitCode: "MON",
+        },
+      })),
+    },
+    {
+      "@type": "FAQPage",
+      mainEntity: FAQS.map((f) => ({
+        "@type": "Question",
+        name: f.q,
+        acceptedAnswer: { "@type": "Answer", text: f.a },
+      })),
+    },
+  ],
+};
 
 export default function LandingClient() {
   return (
     <div className="min-h-dvh overflow-x-clip bg-surface text-ink selection:bg-primary selection:text-primary-contrast">
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(JSON_LD).replace(/</g, "\\u003c") }} />
       <LandingHeader />
 
       <main>
@@ -217,7 +265,7 @@ export default function LandingClient() {
               </p>
               <div className="flex flex-col gap-3 pt-2 sm:flex-row sm:items-center">
                 <Link href="/register" className={CTA_PRIMARY}>
-                  Empieza gratis 30 días <ArrowRight className="size-5" weight="bold" />
+                  Prueba 30 días gratis <ArrowRight className="size-5" weight="bold" />
                 </Link>
                 <a href="#producto" className={CTA_SECONDARY}>
                   Ver cómo funciona
@@ -410,7 +458,7 @@ export default function LandingClient() {
                     ))}
                   </ul>
                   <Link href="/register" className={`mt-8 ${plan.highlight ? CTA_PRIMARY : CTA_SECONDARY} sm:w-full`}>
-                    Probar 30 días gratis
+                    Prueba 30 días gratis
                   </Link>
                 </div>
               ))}
@@ -464,7 +512,7 @@ export default function LandingClient() {
               </p>
               <div className="mt-8 flex justify-center">
                 <Link href="/register" className={CTA_PRIMARY}>
-                  Registra tu gimnasio <ArrowRight className="size-5" weight="bold" />
+                  Prueba 30 días gratis <ArrowRight className="size-5" weight="bold" />
                 </Link>
               </div>
             </Reveal>

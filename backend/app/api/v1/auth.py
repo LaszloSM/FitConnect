@@ -50,6 +50,8 @@ router = APIRouter(prefix="/auth", tags=["auth"])
 @router.post("/register", status_code=201)
 @limiter.limit("5/minute")
 async def register(request: Request, payload: RegisterRequest, db: AsyncSession = Depends(get_master_db)):
+    if payload.website:
+        raise HTTPException(status_code=400, detail="No pudimos crear la cuenta. Revisa los datos e intenta de nuevo.")
     # El correo tiene que estar libre como dueño y como personal de cualquier gimnasio:
     # staff_directory es único por correo y el alta reventaba con un 500 al final.
     email = payload.email.strip().lower()

@@ -14,6 +14,9 @@
 (security_headers) {
 	header {
 		-Server
+		# Con dominio, Caddy ya redirige HTTP→HTTPS; esto le dice al navegador que
+		# no vuelva a intentar HTTP. Sobre HTTP (por IP) el navegador lo ignora.
+		Strict-Transport-Security "max-age=31536000"
 		X-Content-Type-Options nosniff
 		Referrer-Policy strict-origin-when-cross-origin
 	}
