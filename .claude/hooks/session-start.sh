@@ -85,11 +85,17 @@ for dir in "$CACHE"/emil/skills/*/; do
   install_skill "$dir" "$(basename "$dir")"
 done
 
+# El inspector de taste-skill lanza Chromium sin --no-sandbox, que como root no arranca.
+mkdir -p "$HOME/.local/bin"
+printf '#!/bin/sh\nexec %s --no-sandbox "$@"\n' "$CHROMIUM" > "$HOME/.local/bin/chromium-nosandbox"
+chmod +x "$HOME/.local/bin/chromium-nosandbox"
+
 # --- Variables para el resto de la sesión ---
 if [ -n "${CLAUDE_ENV_FILE:-}" ]; then
   {
     echo "export PATH=\"$VENV/bin:\$HOME/.local/bin:\$PATH\""
     echo "export GSTACK_CHROMIUM_PATH=$CHROMIUM"
+    echo "export CHROME_PATH=$HOME/.local/bin/chromium-nosandbox"
   } >> "$CLAUDE_ENV_FILE"
 fi
 

@@ -64,3 +64,6 @@ infra-lite/*.pem
 infra-lite/tfplan
 infra/tfplan
 deploy/.env.prod
+
+# Trabajo local de taste-skill (direcciones e inspecciones)
+.taste-skill/
